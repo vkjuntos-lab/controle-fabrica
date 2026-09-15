@@ -77,7 +77,7 @@ function PrivacyPage() {
             <h2 className="text-lg font-semibold text-foreground">5. Seus direitos</h2>
             <p>
               Você pode solicitar acesso, correção ou exclusão de seus dados a qualquer momento entrando
-              em contato pelo e-mail <strong>privacidade@ksmakeup.lovable.app</strong> ou usando o canal
+              em contato pelo e-mail <strong>privacidade@estrategia.app</strong> ou usando o canal
               de exclusão de dados indicado no painel do app.
             </p>
           </div>
@@ -86,7 +86,7 @@ function PrivacyPage() {
             <h2 className="text-lg font-semibold text-foreground">6. Exclusão de dados</h2>
             <p>
               Para solicitar a exclusão completa dos dados da sua loja e dos seus clientes, envie um e-mail
-              para <strong>privacidade@ksmakeup.lovable.app</strong> com o assunto "Solicitação de exclusão de dados".
+              para <strong>privacidade@estrategia.app</strong> com o assunto "Solicitação de exclusão de dados".
               A exclusão será processada em até 30 dias, conforme a legislação aplicável.
             </p>
           </div>
@@ -103,7 +103,7 @@ function PrivacyPage() {
             <h2 className="text-lg font-semibold text-foreground">8. Contato</h2>
             <p>
               Dúvidas sobre esta política podem ser enviadas para{" "}
-              <strong>privacidade@ksmakeup.lovable.app</strong>.
+              <strong>privacidade@estrategia.app</strong>.
             </p>
           </div>
         </section>

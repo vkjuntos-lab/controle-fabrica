@@ -34,7 +34,7 @@ export const Route = createFileRoute("/loja/categoria/$slug")({
     };
   },
   head: ({ params, loaderData }: any) => {
-    const SITE = "https://ksmakeup.lovable.app";
+    const SITE = "https://project--2e19146c-07b2-4136-9e0a-69efed8cdf20.lovable.app";
     const name = loaderData?.name ?? params.slug.replace(/-/g, " ");
     const storeBit = loaderData?.storeName ? ` · ${loaderData.storeName}` : " · KS MultiMake";
     const title = `${name}${storeBit}`;
@@ -54,7 +54,7 @@ export const Route = createFileRoute("/loja/categoria/$slug")({
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
       { property: "og:url", content: canonical },
-      { property: "og:site_name", content: "KS Makeup" },
+      { property: "og:site_name", content: "Estratégia" },
       { name: "twitter:card", content: image ? "summary_large_image" : "summary" },
       { name: "twitter:title", content: title },
       { name: "twitter:description", content: description },
@@ -97,7 +97,7 @@ function CategoryPage() {
   if (!category) return null;
 
 
-  const SITE = "https://ksmakeup.lovable.app";
+  const SITE = "https://project--2e19146c-07b2-4136-9e0a-69efed8cdf20.lovable.app";
   const catUrl = `${SITE}/loja/categoria/${slug}`;
   const absImg = (img: string | null) =>
     img ? (img.startsWith("http") ? img : `${SITE}${img.startsWith("/") ? "" : "/"}${img}`) : undefined;
