@@ -91,3 +91,11 @@ variáveis públicas via `import.meta.env.VITE_*`.
   implementado — apenas a fundação.
 - Sem webhooks, cron, storage de arquivos ou importação de planilhas nesta etapa.
 - Inventory ledger definido conceitualmente em `docs/business/CORE-BUSINESS.md`, ainda não modelado.
+
+## Avisos aceitos do linter de banco
+
+Quatro avisos de "SECURITY DEFINER executável por usuários logados" permanecem, referentes a
+`is_org_member`, `has_org_role`, `has_permission` e `my_organizations`. A execução por usuários
+logados é necessária: essas funções são avaliadas dentro das políticas de RLS e pelas server
+functions. A execução por visitantes não autenticados (`anon`) e por `PUBLIC` foi revogada, e as
+funções de gatilho não são mais executáveis por usuários logados.
