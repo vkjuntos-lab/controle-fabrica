@@ -126,7 +126,7 @@ function InstagramPage() {
   // domínio (id-preview--...), o que faz o Instagram mostrar "página não disponível".
   const publicOrigin = origin && !origin.includes("preview") && !origin.includes("localhost")
     ? origin
-    : "https://ksmakeup.lovable.app";
+    : "https://project--2e19146c-07b2-4136-9e0a-69efed8cdf20.lovable.app";
   const webhookUrl = `${publicOrigin}${infoQ.data?.webhook_path ?? "/api/public/ig-agent-webhook"}`;
   const oauthCallbackUrl = `${publicOrigin}/api/public/ig-oauth/callback`;
   const deauthorizeUrl = `${publicOrigin}/api/public/ig-oauth/deauthorize`;

@@ -26,7 +26,7 @@ export const Route = createFileRoute("/loja/$slug")({
     };
   },
   head: ({ params, loaderData }: any) => {
-    const SITE = "https://ksmakeup.lovable.app";
+    const SITE = "https://project--2e19146c-07b2-4136-9e0a-69efed8cdf20.lovable.app";
     const name = loaderData?.name ?? params.slug.replace(/-/g, " ");
     const brand = loaderData?.brand ? ` — ${loaderData.brand}` : "";
     const storeBit = loaderData?.storeName ? ` · ${loaderData.storeName}` : " · KS MultiMake";
@@ -47,7 +47,7 @@ export const Route = createFileRoute("/loja/$slug")({
       { property: "og:description", content: description },
       { property: "og:type", content: "product" },
       { property: "og:url", content: canonical },
-      { property: "og:site_name", content: "KS Makeup" },
+      { property: "og:site_name", content: "Estratégia" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: title },
       { name: "twitter:description", content: description },
@@ -265,7 +265,7 @@ function ProductJsonLd(props: {
   name: string; description: string; image: string | null; sku: string;
   brand: string | null; price: number; inStock: boolean; slug: string; categoryName: string | null;
 }) {
-  const SITE = "https://ksmakeup.lovable.app";
+  const SITE = "https://project--2e19146c-07b2-4136-9e0a-69efed8cdf20.lovable.app";
   const url = `${SITE}/loja/${props.slug}`;
   const absImage = props.image
     ? (props.image.startsWith("http") ? props.image : `${SITE}${props.image.startsWith("/") ? "" : "/"}${props.image}`)

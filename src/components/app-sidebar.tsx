@@ -156,12 +156,12 @@ export function AppSidebar({ role }: { role: Role }) {
         <Link to="/pdv" onClick={handleNavigate} className="flex items-center gap-2 px-2 py-1.5">
           <img
             src={ksLogo.url}
-            alt="KS Makeup"
+            alt="Estratégia"
             className="h-9 w-9 shrink-0 rounded-full object-cover ring-1 ring-border bg-background"
           />
           {!collapsed && (
             <div className="flex min-w-0 flex-col leading-tight">
-              <span className="truncate text-sm font-semibold tracking-wide">KS Makeup</span>
+              <span className="truncate text-sm font-semibold tracking-wide">Estratégia</span>
               <span className="truncate text-[10px] uppercase tracking-[0.18em] text-muted-foreground">
                 Multistore
               </span>
