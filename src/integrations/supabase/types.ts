@@ -304,11 +304,10 @@ export type Database = {
       }
     }
     Functions: {
-      [_ in never]: never
+      __setup_exec: { Args: { sql: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "manager" | "cashier"
-      batch_status: "draft" | "processing" | "completed" | "archived"
       stock_movement_kind: "entry" | "sale" | "adjust"
     }
     CompositeTypes: {
@@ -438,7 +437,6 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "manager", "cashier"],
-      batch_status: ["draft", "processing", "completed", "archived"],
       stock_movement_kind: ["entry", "sale", "adjust"],
     },
   },
