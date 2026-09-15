@@ -1,0 +1,2 @@
+ALTER TABLE public.loyalty_ledger ADD COLUMN IF NOT EXISTS expired BOOLEAN NOT NULL DEFAULT FALSE;
+CREATE INDEX IF NOT EXISTS loyalty_ledger_expiry_scan_idx ON public.loyalty_ledger (expires_at) WHERE kind = 'earn' AND expired = false;

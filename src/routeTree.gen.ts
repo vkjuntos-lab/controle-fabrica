@@ -9,38 +9,1111 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PdvRouteImport } from './routes/pdv'
+import { Route as LojaRouteImport } from './routes/loja'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PdvIndexRouteImport } from './routes/pdv.index'
+import { Route as PdvWhatsappRouteImport } from './routes/pdv.whatsapp'
+import { Route as PdvVitrineRouteImport } from './routes/pdv.vitrine'
+import { Route as PdvVendaRouteImport } from './routes/pdv.venda'
+import { Route as PdvValesRouteImport } from './routes/pdv.vales'
+import { Route as PdvUsuariosRouteImport } from './routes/pdv.usuarios'
+import { Route as PdvTiktokShopRouteImport } from './routes/pdv.tiktok-shop'
+import { Route as PdvSocialManagerRouteImport } from './routes/pdv.social-manager'
+import { Route as PdvRelatoriosRouteImport } from './routes/pdv.relatorios'
+import { Route as PdvRecebimentosRouteImport } from './routes/pdv.recebimentos'
+import { Route as PdvProdutosLoteRouteImport } from './routes/pdv.produtos-lote'
+import { Route as PdvPosVendaRouteImport } from './routes/pdv.pos-venda'
+import { Route as PdvPixRouteImport } from './routes/pdv.pix'
+import { Route as PdvPagamentoRouteImport } from './routes/pdv.pagamento'
+import { Route as PdvNotificacoesRouteImport } from './routes/pdv.notificacoes'
+import { Route as PdvMercadoLivreRouteImport } from './routes/pdv.mercado-livre'
+import { Route as PdvMarketplacesRouteImport } from './routes/pdv.marketplaces'
+import { Route as PdvMarketingFotosRouteImport } from './routes/pdv.marketing-fotos'
+import { Route as PdvManualRouteImport } from './routes/pdv.manual'
+import { Route as PdvLojasRouteImport } from './routes/pdv.lojas'
+import { Route as PdvInstagramRouteImport } from './routes/pdv.instagram'
+import { Route as PdvInboxRouteImport } from './routes/pdv.inbox'
+import { Route as PdvFinanceiroRouteImport } from './routes/pdv.financeiro'
+import { Route as PdvFilasRouteImport } from './routes/pdv.filas'
+import { Route as PdvFidelidadeRouteImport } from './routes/pdv.fidelidade'
+import { Route as PdvFechamentoRouteImport } from './routes/pdv.fechamento'
+import { Route as PdvFacebookRouteImport } from './routes/pdv.facebook'
+import { Route as PdvCrmRouteImport } from './routes/pdv.crm'
+import { Route as PdvCrediarioRouteImport } from './routes/pdv.crediario'
+import { Route as PdvConfigRouteImport } from './routes/pdv.config'
+import { Route as PdvClientesRouteImport } from './routes/pdv.clientes'
+import { Route as PdvCatalogoRouteImport } from './routes/pdv.catalogo'
+import { Route as PdvCaixaRouteImport } from './routes/pdv.caixa'
+import { Route as PdvBiRouteImport } from './routes/pdv.bi'
+import { Route as PdvAuditoriaRouteImport } from './routes/pdv.auditoria'
+import { Route as PdvAntifraudeRouteImport } from './routes/pdv.antifraude'
+import { Route as PdvAgenteIaRouteImport } from './routes/pdv.agente-ia'
+import { Route as PayCodeRouteImport } from './routes/pay.$code'
+import { Route as LojaCarrinhoRouteImport } from './routes/loja.carrinho'
+import { Route as LojaSlugRouteImport } from './routes/loja.$slug'
+import { Route as PdvRecebimentosBoletosRouteImport } from './routes/pdv.recebimentos.boletos'
+import { Route as PdvRecebimentosAssinaturasRouteImport } from './routes/pdv.recebimentos.assinaturas'
+import { Route as PdvRecebimentosAgendamentosRouteImport } from './routes/pdv.recebimentos.agendamentos'
+import { Route as PdvFiscalSpedRouteImport } from './routes/pdv.fiscal.sped'
+import { Route as PdvFiscalDocumentosRouteImport } from './routes/pdv.fiscal.documentos'
+import { Route as PdvFiscalConfigRouteImport } from './routes/pdv.fiscal.config'
+import { Route as PdvFinanceiroFluxoRouteImport } from './routes/pdv.financeiro_.fluxo'
+import { Route as PdvFinanceiroDreRouteImport } from './routes/pdv.financeiro_.dre'
+import { Route as PdvCrmTemplatesRouteImport } from './routes/pdv.crm.templates'
+import { Route as PdvCrmCuponsRouteImport } from './routes/pdv.crm.cupons'
+import { Route as PdvCrmCampanhasRouteImport } from './routes/pdv.crm.campanhas'
+import { Route as LojaPedidoCodeRouteImport } from './routes/loja.pedido.$code'
+import { Route as LojaCategoriaSlugRouteImport } from './routes/loja.categoria.$slug'
+import { Route as ApiPublicWaStorefrontWebhookRouteImport } from './routes/api/public/wa-storefront-webhook'
+import { Route as ApiPublicWaAgentWebhookRouteImport } from './routes/api/public/wa-agent-webhook'
+import { Route as ApiPublicStorefrontExpireRouteImport } from './routes/api/public/storefront-expire'
+import { Route as ApiPublicPixRemindersRouteImport } from './routes/api/public/pix-reminders'
+import { Route as ApiPublicPagbankWebhookRouteImport } from './routes/api/public/pagbank-webhook'
+import { Route as ApiPublicPagarmeWebhookRouteImport } from './routes/api/public/pagarme-webhook'
+import { Route as ApiPublicMpWebhookRouteImport } from './routes/api/public/mp-webhook'
+import { Route as ApiPublicIgTokenRefreshRouteImport } from './routes/api/public/ig-token-refresh'
+import { Route as ApiPublicIgAgentWebhookRouteImport } from './routes/api/public/ig-agent-webhook'
+import { Route as ApiPublicFbAgentWebhookRouteImport } from './routes/api/public/fb-agent-webhook'
+import { Route as ApiPublicBellaLoyaltyTickRouteImport } from './routes/api/public/bella-loyalty-tick'
+import { Route as ApiPublicBellaCampaignsTickRouteImport } from './routes/api/public/bella-campaigns-tick'
+import { Route as ApiPublicAsaasWebhookRouteImport } from './routes/api/public/asaas-webhook'
+import { Route as ApiPublicMeliNotificationsRouteImport } from './routes/api/public/meli/notifications'
+import { Route as ApiPublicMeliCallbackRouteImport } from './routes/api/public/meli/callback'
+import { Route as ApiPublicIgOauthDeauthorizeRouteImport } from './routes/api/public/ig-oauth.deauthorize'
+import { Route as ApiPublicIgOauthDataDeletionRouteImport } from './routes/api/public/ig-oauth.data-deletion'
+import { Route as ApiPublicIgOauthCallbackRouteImport } from './routes/api/public/ig-oauth.callback'
+import { Route as ApiPublicHooksReconcilePaymentsRouteImport } from './routes/api/public/hooks/reconcile-payments'
+import { Route as ApiPublicHooksPaymentsDailyRouteImport } from './routes/api/public/hooks/payments-daily'
+import { Route as ApiPublicHooksFiscalResendRouteImport } from './routes/api/public/hooks/fiscal-resend'
+import { Route as ApiPublicHooksCreditCollectionsRouteImport } from './routes/api/public/hooks/credit-collections'
+import { Route as ApiPublicHooksCampaignsTickRouteImport } from './routes/api/public/hooks/campaigns-tick'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PdvRoute = PdvRouteImport.update({
+  id: '/pdv',
+  path: '/pdv',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaRoute = LojaRouteImport.update({
+  id: '/loja',
+  path: '/loja',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PdvIndexRoute = PdvIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvWhatsappRoute = PdvWhatsappRouteImport.update({
+  id: '/whatsapp',
+  path: '/whatsapp',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvVitrineRoute = PdvVitrineRouteImport.update({
+  id: '/vitrine',
+  path: '/vitrine',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvVendaRoute = PdvVendaRouteImport.update({
+  id: '/venda',
+  path: '/venda',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvValesRoute = PdvValesRouteImport.update({
+  id: '/vales',
+  path: '/vales',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvUsuariosRoute = PdvUsuariosRouteImport.update({
+  id: '/usuarios',
+  path: '/usuarios',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvTiktokShopRoute = PdvTiktokShopRouteImport.update({
+  id: '/tiktok-shop',
+  path: '/tiktok-shop',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvSocialManagerRoute = PdvSocialManagerRouteImport.update({
+  id: '/social-manager',
+  path: '/social-manager',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvRelatoriosRoute = PdvRelatoriosRouteImport.update({
+  id: '/relatorios',
+  path: '/relatorios',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvRecebimentosRoute = PdvRecebimentosRouteImport.update({
+  id: '/recebimentos',
+  path: '/recebimentos',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvProdutosLoteRoute = PdvProdutosLoteRouteImport.update({
+  id: '/produtos-lote',
+  path: '/produtos-lote',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvPosVendaRoute = PdvPosVendaRouteImport.update({
+  id: '/pos-venda',
+  path: '/pos-venda',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvPixRoute = PdvPixRouteImport.update({
+  id: '/pix',
+  path: '/pix',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvPagamentoRoute = PdvPagamentoRouteImport.update({
+  id: '/pagamento',
+  path: '/pagamento',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvNotificacoesRoute = PdvNotificacoesRouteImport.update({
+  id: '/notificacoes',
+  path: '/notificacoes',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvMercadoLivreRoute = PdvMercadoLivreRouteImport.update({
+  id: '/mercado-livre',
+  path: '/mercado-livre',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvMarketplacesRoute = PdvMarketplacesRouteImport.update({
+  id: '/marketplaces',
+  path: '/marketplaces',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvMarketingFotosRoute = PdvMarketingFotosRouteImport.update({
+  id: '/marketing-fotos',
+  path: '/marketing-fotos',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvManualRoute = PdvManualRouteImport.update({
+  id: '/manual',
+  path: '/manual',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvLojasRoute = PdvLojasRouteImport.update({
+  id: '/lojas',
+  path: '/lojas',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvInstagramRoute = PdvInstagramRouteImport.update({
+  id: '/instagram',
+  path: '/instagram',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvInboxRoute = PdvInboxRouteImport.update({
+  id: '/inbox',
+  path: '/inbox',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvFinanceiroRoute = PdvFinanceiroRouteImport.update({
+  id: '/financeiro',
+  path: '/financeiro',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvFilasRoute = PdvFilasRouteImport.update({
+  id: '/filas',
+  path: '/filas',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvFidelidadeRoute = PdvFidelidadeRouteImport.update({
+  id: '/fidelidade',
+  path: '/fidelidade',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvFechamentoRoute = PdvFechamentoRouteImport.update({
+  id: '/fechamento',
+  path: '/fechamento',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvFacebookRoute = PdvFacebookRouteImport.update({
+  id: '/facebook',
+  path: '/facebook',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvCrmRoute = PdvCrmRouteImport.update({
+  id: '/crm',
+  path: '/crm',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvCrediarioRoute = PdvCrediarioRouteImport.update({
+  id: '/crediario',
+  path: '/crediario',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvConfigRoute = PdvConfigRouteImport.update({
+  id: '/config',
+  path: '/config',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvClientesRoute = PdvClientesRouteImport.update({
+  id: '/clientes',
+  path: '/clientes',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvCatalogoRoute = PdvCatalogoRouteImport.update({
+  id: '/catalogo',
+  path: '/catalogo',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvCaixaRoute = PdvCaixaRouteImport.update({
+  id: '/caixa',
+  path: '/caixa',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvBiRoute = PdvBiRouteImport.update({
+  id: '/bi',
+  path: '/bi',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvAuditoriaRoute = PdvAuditoriaRouteImport.update({
+  id: '/auditoria',
+  path: '/auditoria',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvAntifraudeRoute = PdvAntifraudeRouteImport.update({
+  id: '/antifraude',
+  path: '/antifraude',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvAgenteIaRoute = PdvAgenteIaRouteImport.update({
+  id: '/agente-ia',
+  path: '/agente-ia',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PayCodeRoute = PayCodeRouteImport.update({
+  id: '/pay/$code',
+  path: '/pay/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaCarrinhoRoute = LojaCarrinhoRouteImport.update({
+  id: '/carrinho',
+  path: '/carrinho',
+  getParentRoute: () => LojaRoute,
+} as any)
+const LojaSlugRoute = LojaSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => LojaRoute,
+} as any)
+const PdvRecebimentosBoletosRoute = PdvRecebimentosBoletosRouteImport.update({
+  id: '/boletos',
+  path: '/boletos',
+  getParentRoute: () => PdvRecebimentosRoute,
+} as any)
+const PdvRecebimentosAssinaturasRoute =
+  PdvRecebimentosAssinaturasRouteImport.update({
+    id: '/assinaturas',
+    path: '/assinaturas',
+    getParentRoute: () => PdvRecebimentosRoute,
+  } as any)
+const PdvRecebimentosAgendamentosRoute =
+  PdvRecebimentosAgendamentosRouteImport.update({
+    id: '/agendamentos',
+    path: '/agendamentos',
+    getParentRoute: () => PdvRecebimentosRoute,
+  } as any)
+const PdvFiscalSpedRoute = PdvFiscalSpedRouteImport.update({
+  id: '/fiscal/sped',
+  path: '/fiscal/sped',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvFiscalDocumentosRoute = PdvFiscalDocumentosRouteImport.update({
+  id: '/fiscal/documentos',
+  path: '/fiscal/documentos',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvFiscalConfigRoute = PdvFiscalConfigRouteImport.update({
+  id: '/fiscal/config',
+  path: '/fiscal/config',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvFinanceiroFluxoRoute = PdvFinanceiroFluxoRouteImport.update({
+  id: '/financeiro_/fluxo',
+  path: '/financeiro/fluxo',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvFinanceiroDreRoute = PdvFinanceiroDreRouteImport.update({
+  id: '/financeiro_/dre',
+  path: '/financeiro/dre',
+  getParentRoute: () => PdvRoute,
+} as any)
+const PdvCrmTemplatesRoute = PdvCrmTemplatesRouteImport.update({
+  id: '/templates',
+  path: '/templates',
+  getParentRoute: () => PdvCrmRoute,
+} as any)
+const PdvCrmCuponsRoute = PdvCrmCuponsRouteImport.update({
+  id: '/cupons',
+  path: '/cupons',
+  getParentRoute: () => PdvCrmRoute,
+} as any)
+const PdvCrmCampanhasRoute = PdvCrmCampanhasRouteImport.update({
+  id: '/campanhas',
+  path: '/campanhas',
+  getParentRoute: () => PdvCrmRoute,
+} as any)
+const LojaPedidoCodeRoute = LojaPedidoCodeRouteImport.update({
+  id: '/pedido/$code',
+  path: '/pedido/$code',
+  getParentRoute: () => LojaRoute,
+} as any)
+const LojaCategoriaSlugRoute = LojaCategoriaSlugRouteImport.update({
+  id: '/categoria/$slug',
+  path: '/categoria/$slug',
+  getParentRoute: () => LojaRoute,
+} as any)
+const ApiPublicWaStorefrontWebhookRoute =
+  ApiPublicWaStorefrontWebhookRouteImport.update({
+    id: '/api/public/wa-storefront-webhook',
+    path: '/api/public/wa-storefront-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicWaAgentWebhookRoute = ApiPublicWaAgentWebhookRouteImport.update({
+  id: '/api/public/wa-agent-webhook',
+  path: '/api/public/wa-agent-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicStorefrontExpireRoute =
+  ApiPublicStorefrontExpireRouteImport.update({
+    id: '/api/public/storefront-expire',
+    path: '/api/public/storefront-expire',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicPixRemindersRoute = ApiPublicPixRemindersRouteImport.update({
+  id: '/api/public/pix-reminders',
+  path: '/api/public/pix-reminders',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicPagbankWebhookRoute = ApiPublicPagbankWebhookRouteImport.update({
+  id: '/api/public/pagbank-webhook',
+  path: '/api/public/pagbank-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicPagarmeWebhookRoute = ApiPublicPagarmeWebhookRouteImport.update({
+  id: '/api/public/pagarme-webhook',
+  path: '/api/public/pagarme-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicMpWebhookRoute = ApiPublicMpWebhookRouteImport.update({
+  id: '/api/public/mp-webhook',
+  path: '/api/public/mp-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicIgTokenRefreshRoute = ApiPublicIgTokenRefreshRouteImport.update({
+  id: '/api/public/ig-token-refresh',
+  path: '/api/public/ig-token-refresh',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicIgAgentWebhookRoute = ApiPublicIgAgentWebhookRouteImport.update({
+  id: '/api/public/ig-agent-webhook',
+  path: '/api/public/ig-agent-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicFbAgentWebhookRoute = ApiPublicFbAgentWebhookRouteImport.update({
+  id: '/api/public/fb-agent-webhook',
+  path: '/api/public/fb-agent-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicBellaLoyaltyTickRoute =
+  ApiPublicBellaLoyaltyTickRouteImport.update({
+    id: '/api/public/bella-loyalty-tick',
+    path: '/api/public/bella-loyalty-tick',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicBellaCampaignsTickRoute =
+  ApiPublicBellaCampaignsTickRouteImport.update({
+    id: '/api/public/bella-campaigns-tick',
+    path: '/api/public/bella-campaigns-tick',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicAsaasWebhookRoute = ApiPublicAsaasWebhookRouteImport.update({
+  id: '/api/public/asaas-webhook',
+  path: '/api/public/asaas-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicMeliNotificationsRoute =
+  ApiPublicMeliNotificationsRouteImport.update({
+    id: '/api/public/meli/notifications',
+    path: '/api/public/meli/notifications',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicMeliCallbackRoute = ApiPublicMeliCallbackRouteImport.update({
+  id: '/api/public/meli/callback',
+  path: '/api/public/meli/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicIgOauthDeauthorizeRoute =
+  ApiPublicIgOauthDeauthorizeRouteImport.update({
+    id: '/api/public/ig-oauth/deauthorize',
+    path: '/api/public/ig-oauth/deauthorize',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicIgOauthDataDeletionRoute =
+  ApiPublicIgOauthDataDeletionRouteImport.update({
+    id: '/api/public/ig-oauth/data-deletion',
+    path: '/api/public/ig-oauth/data-deletion',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicIgOauthCallbackRoute =
+  ApiPublicIgOauthCallbackRouteImport.update({
+    id: '/api/public/ig-oauth/callback',
+    path: '/api/public/ig-oauth/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksReconcilePaymentsRoute =
+  ApiPublicHooksReconcilePaymentsRouteImport.update({
+    id: '/api/public/hooks/reconcile-payments',
+    path: '/api/public/hooks/reconcile-payments',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksPaymentsDailyRoute =
+  ApiPublicHooksPaymentsDailyRouteImport.update({
+    id: '/api/public/hooks/payments-daily',
+    path: '/api/public/hooks/payments-daily',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksFiscalResendRoute =
+  ApiPublicHooksFiscalResendRouteImport.update({
+    id: '/api/public/hooks/fiscal-resend',
+    path: '/api/public/hooks/fiscal-resend',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksCreditCollectionsRoute =
+  ApiPublicHooksCreditCollectionsRouteImport.update({
+    id: '/api/public/hooks/credit-collections',
+    path: '/api/public/hooks/credit-collections',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksCampaignsTickRoute =
+  ApiPublicHooksCampaignsTickRouteImport.update({
+    id: '/api/public/hooks/campaigns-tick',
+    path: '/api/public/hooks/campaigns-tick',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/loja': typeof LojaRouteWithChildren
+  '/pdv': typeof PdvRouteWithChildren
+  '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/loja/$slug': typeof LojaSlugRoute
+  '/loja/carrinho': typeof LojaCarrinhoRoute
+  '/pay/$code': typeof PayCodeRoute
+  '/pdv/agente-ia': typeof PdvAgenteIaRoute
+  '/pdv/antifraude': typeof PdvAntifraudeRoute
+  '/pdv/auditoria': typeof PdvAuditoriaRoute
+  '/pdv/bi': typeof PdvBiRoute
+  '/pdv/caixa': typeof PdvCaixaRoute
+  '/pdv/catalogo': typeof PdvCatalogoRoute
+  '/pdv/clientes': typeof PdvClientesRoute
+  '/pdv/config': typeof PdvConfigRoute
+  '/pdv/crediario': typeof PdvCrediarioRoute
+  '/pdv/crm': typeof PdvCrmRouteWithChildren
+  '/pdv/facebook': typeof PdvFacebookRoute
+  '/pdv/fechamento': typeof PdvFechamentoRoute
+  '/pdv/fidelidade': typeof PdvFidelidadeRoute
+  '/pdv/filas': typeof PdvFilasRoute
+  '/pdv/financeiro': typeof PdvFinanceiroRoute
+  '/pdv/inbox': typeof PdvInboxRoute
+  '/pdv/instagram': typeof PdvInstagramRoute
+  '/pdv/lojas': typeof PdvLojasRoute
+  '/pdv/manual': typeof PdvManualRoute
+  '/pdv/marketing-fotos': typeof PdvMarketingFotosRoute
+  '/pdv/marketplaces': typeof PdvMarketplacesRoute
+  '/pdv/mercado-livre': typeof PdvMercadoLivreRoute
+  '/pdv/notificacoes': typeof PdvNotificacoesRoute
+  '/pdv/pagamento': typeof PdvPagamentoRoute
+  '/pdv/pix': typeof PdvPixRoute
+  '/pdv/pos-venda': typeof PdvPosVendaRoute
+  '/pdv/produtos-lote': typeof PdvProdutosLoteRoute
+  '/pdv/recebimentos': typeof PdvRecebimentosRouteWithChildren
+  '/pdv/relatorios': typeof PdvRelatoriosRoute
+  '/pdv/social-manager': typeof PdvSocialManagerRoute
+  '/pdv/tiktok-shop': typeof PdvTiktokShopRoute
+  '/pdv/usuarios': typeof PdvUsuariosRoute
+  '/pdv/vales': typeof PdvValesRoute
+  '/pdv/venda': typeof PdvVendaRoute
+  '/pdv/vitrine': typeof PdvVitrineRoute
+  '/pdv/whatsapp': typeof PdvWhatsappRoute
+  '/pdv/': typeof PdvIndexRoute
+  '/api/public/asaas-webhook': typeof ApiPublicAsaasWebhookRoute
+  '/api/public/bella-campaigns-tick': typeof ApiPublicBellaCampaignsTickRoute
+  '/api/public/bella-loyalty-tick': typeof ApiPublicBellaLoyaltyTickRoute
+  '/api/public/fb-agent-webhook': typeof ApiPublicFbAgentWebhookRoute
+  '/api/public/ig-agent-webhook': typeof ApiPublicIgAgentWebhookRoute
+  '/api/public/ig-token-refresh': typeof ApiPublicIgTokenRefreshRoute
+  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
+  '/api/public/pagarme-webhook': typeof ApiPublicPagarmeWebhookRoute
+  '/api/public/pagbank-webhook': typeof ApiPublicPagbankWebhookRoute
+  '/api/public/pix-reminders': typeof ApiPublicPixRemindersRoute
+  '/api/public/storefront-expire': typeof ApiPublicStorefrontExpireRoute
+  '/api/public/wa-agent-webhook': typeof ApiPublicWaAgentWebhookRoute
+  '/api/public/wa-storefront-webhook': typeof ApiPublicWaStorefrontWebhookRoute
+  '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
+  '/loja/pedido/$code': typeof LojaPedidoCodeRoute
+  '/pdv/crm/campanhas': typeof PdvCrmCampanhasRoute
+  '/pdv/crm/cupons': typeof PdvCrmCuponsRoute
+  '/pdv/crm/templates': typeof PdvCrmTemplatesRoute
+  '/pdv/financeiro/dre': typeof PdvFinanceiroDreRoute
+  '/pdv/financeiro/fluxo': typeof PdvFinanceiroFluxoRoute
+  '/pdv/fiscal/config': typeof PdvFiscalConfigRoute
+  '/pdv/fiscal/documentos': typeof PdvFiscalDocumentosRoute
+  '/pdv/fiscal/sped': typeof PdvFiscalSpedRoute
+  '/pdv/recebimentos/agendamentos': typeof PdvRecebimentosAgendamentosRoute
+  '/pdv/recebimentos/assinaturas': typeof PdvRecebimentosAssinaturasRoute
+  '/pdv/recebimentos/boletos': typeof PdvRecebimentosBoletosRoute
+  '/api/public/hooks/campaigns-tick': typeof ApiPublicHooksCampaignsTickRoute
+  '/api/public/hooks/credit-collections': typeof ApiPublicHooksCreditCollectionsRoute
+  '/api/public/hooks/fiscal-resend': typeof ApiPublicHooksFiscalResendRoute
+  '/api/public/hooks/payments-daily': typeof ApiPublicHooksPaymentsDailyRoute
+  '/api/public/hooks/reconcile-payments': typeof ApiPublicHooksReconcilePaymentsRoute
+  '/api/public/ig-oauth/callback': typeof ApiPublicIgOauthCallbackRoute
+  '/api/public/ig-oauth/data-deletion': typeof ApiPublicIgOauthDataDeletionRoute
+  '/api/public/ig-oauth/deauthorize': typeof ApiPublicIgOauthDeauthorizeRoute
+  '/api/public/meli/callback': typeof ApiPublicMeliCallbackRoute
+  '/api/public/meli/notifications': typeof ApiPublicMeliNotificationsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/loja': typeof LojaRouteWithChildren
+  '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/loja/$slug': typeof LojaSlugRoute
+  '/loja/carrinho': typeof LojaCarrinhoRoute
+  '/pay/$code': typeof PayCodeRoute
+  '/pdv/agente-ia': typeof PdvAgenteIaRoute
+  '/pdv/antifraude': typeof PdvAntifraudeRoute
+  '/pdv/auditoria': typeof PdvAuditoriaRoute
+  '/pdv/bi': typeof PdvBiRoute
+  '/pdv/caixa': typeof PdvCaixaRoute
+  '/pdv/catalogo': typeof PdvCatalogoRoute
+  '/pdv/clientes': typeof PdvClientesRoute
+  '/pdv/config': typeof PdvConfigRoute
+  '/pdv/crediario': typeof PdvCrediarioRoute
+  '/pdv/crm': typeof PdvCrmRouteWithChildren
+  '/pdv/facebook': typeof PdvFacebookRoute
+  '/pdv/fechamento': typeof PdvFechamentoRoute
+  '/pdv/fidelidade': typeof PdvFidelidadeRoute
+  '/pdv/filas': typeof PdvFilasRoute
+  '/pdv/financeiro': typeof PdvFinanceiroRoute
+  '/pdv/inbox': typeof PdvInboxRoute
+  '/pdv/instagram': typeof PdvInstagramRoute
+  '/pdv/lojas': typeof PdvLojasRoute
+  '/pdv/manual': typeof PdvManualRoute
+  '/pdv/marketing-fotos': typeof PdvMarketingFotosRoute
+  '/pdv/marketplaces': typeof PdvMarketplacesRoute
+  '/pdv/mercado-livre': typeof PdvMercadoLivreRoute
+  '/pdv/notificacoes': typeof PdvNotificacoesRoute
+  '/pdv/pagamento': typeof PdvPagamentoRoute
+  '/pdv/pix': typeof PdvPixRoute
+  '/pdv/pos-venda': typeof PdvPosVendaRoute
+  '/pdv/produtos-lote': typeof PdvProdutosLoteRoute
+  '/pdv/recebimentos': typeof PdvRecebimentosRouteWithChildren
+  '/pdv/relatorios': typeof PdvRelatoriosRoute
+  '/pdv/social-manager': typeof PdvSocialManagerRoute
+  '/pdv/tiktok-shop': typeof PdvTiktokShopRoute
+  '/pdv/usuarios': typeof PdvUsuariosRoute
+  '/pdv/vales': typeof PdvValesRoute
+  '/pdv/venda': typeof PdvVendaRoute
+  '/pdv/vitrine': typeof PdvVitrineRoute
+  '/pdv/whatsapp': typeof PdvWhatsappRoute
+  '/pdv': typeof PdvIndexRoute
+  '/api/public/asaas-webhook': typeof ApiPublicAsaasWebhookRoute
+  '/api/public/bella-campaigns-tick': typeof ApiPublicBellaCampaignsTickRoute
+  '/api/public/bella-loyalty-tick': typeof ApiPublicBellaLoyaltyTickRoute
+  '/api/public/fb-agent-webhook': typeof ApiPublicFbAgentWebhookRoute
+  '/api/public/ig-agent-webhook': typeof ApiPublicIgAgentWebhookRoute
+  '/api/public/ig-token-refresh': typeof ApiPublicIgTokenRefreshRoute
+  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
+  '/api/public/pagarme-webhook': typeof ApiPublicPagarmeWebhookRoute
+  '/api/public/pagbank-webhook': typeof ApiPublicPagbankWebhookRoute
+  '/api/public/pix-reminders': typeof ApiPublicPixRemindersRoute
+  '/api/public/storefront-expire': typeof ApiPublicStorefrontExpireRoute
+  '/api/public/wa-agent-webhook': typeof ApiPublicWaAgentWebhookRoute
+  '/api/public/wa-storefront-webhook': typeof ApiPublicWaStorefrontWebhookRoute
+  '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
+  '/loja/pedido/$code': typeof LojaPedidoCodeRoute
+  '/pdv/crm/campanhas': typeof PdvCrmCampanhasRoute
+  '/pdv/crm/cupons': typeof PdvCrmCuponsRoute
+  '/pdv/crm/templates': typeof PdvCrmTemplatesRoute
+  '/pdv/financeiro/dre': typeof PdvFinanceiroDreRoute
+  '/pdv/financeiro/fluxo': typeof PdvFinanceiroFluxoRoute
+  '/pdv/fiscal/config': typeof PdvFiscalConfigRoute
+  '/pdv/fiscal/documentos': typeof PdvFiscalDocumentosRoute
+  '/pdv/fiscal/sped': typeof PdvFiscalSpedRoute
+  '/pdv/recebimentos/agendamentos': typeof PdvRecebimentosAgendamentosRoute
+  '/pdv/recebimentos/assinaturas': typeof PdvRecebimentosAssinaturasRoute
+  '/pdv/recebimentos/boletos': typeof PdvRecebimentosBoletosRoute
+  '/api/public/hooks/campaigns-tick': typeof ApiPublicHooksCampaignsTickRoute
+  '/api/public/hooks/credit-collections': typeof ApiPublicHooksCreditCollectionsRoute
+  '/api/public/hooks/fiscal-resend': typeof ApiPublicHooksFiscalResendRoute
+  '/api/public/hooks/payments-daily': typeof ApiPublicHooksPaymentsDailyRoute
+  '/api/public/hooks/reconcile-payments': typeof ApiPublicHooksReconcilePaymentsRoute
+  '/api/public/ig-oauth/callback': typeof ApiPublicIgOauthCallbackRoute
+  '/api/public/ig-oauth/data-deletion': typeof ApiPublicIgOauthDataDeletionRoute
+  '/api/public/ig-oauth/deauthorize': typeof ApiPublicIgOauthDeauthorizeRoute
+  '/api/public/meli/callback': typeof ApiPublicMeliCallbackRoute
+  '/api/public/meli/notifications': typeof ApiPublicMeliNotificationsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/loja': typeof LojaRouteWithChildren
+  '/pdv': typeof PdvRouteWithChildren
+  '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/loja/$slug': typeof LojaSlugRoute
+  '/loja/carrinho': typeof LojaCarrinhoRoute
+  '/pay/$code': typeof PayCodeRoute
+  '/pdv/agente-ia': typeof PdvAgenteIaRoute
+  '/pdv/antifraude': typeof PdvAntifraudeRoute
+  '/pdv/auditoria': typeof PdvAuditoriaRoute
+  '/pdv/bi': typeof PdvBiRoute
+  '/pdv/caixa': typeof PdvCaixaRoute
+  '/pdv/catalogo': typeof PdvCatalogoRoute
+  '/pdv/clientes': typeof PdvClientesRoute
+  '/pdv/config': typeof PdvConfigRoute
+  '/pdv/crediario': typeof PdvCrediarioRoute
+  '/pdv/crm': typeof PdvCrmRouteWithChildren
+  '/pdv/facebook': typeof PdvFacebookRoute
+  '/pdv/fechamento': typeof PdvFechamentoRoute
+  '/pdv/fidelidade': typeof PdvFidelidadeRoute
+  '/pdv/filas': typeof PdvFilasRoute
+  '/pdv/financeiro': typeof PdvFinanceiroRoute
+  '/pdv/inbox': typeof PdvInboxRoute
+  '/pdv/instagram': typeof PdvInstagramRoute
+  '/pdv/lojas': typeof PdvLojasRoute
+  '/pdv/manual': typeof PdvManualRoute
+  '/pdv/marketing-fotos': typeof PdvMarketingFotosRoute
+  '/pdv/marketplaces': typeof PdvMarketplacesRoute
+  '/pdv/mercado-livre': typeof PdvMercadoLivreRoute
+  '/pdv/notificacoes': typeof PdvNotificacoesRoute
+  '/pdv/pagamento': typeof PdvPagamentoRoute
+  '/pdv/pix': typeof PdvPixRoute
+  '/pdv/pos-venda': typeof PdvPosVendaRoute
+  '/pdv/produtos-lote': typeof PdvProdutosLoteRoute
+  '/pdv/recebimentos': typeof PdvRecebimentosRouteWithChildren
+  '/pdv/relatorios': typeof PdvRelatoriosRoute
+  '/pdv/social-manager': typeof PdvSocialManagerRoute
+  '/pdv/tiktok-shop': typeof PdvTiktokShopRoute
+  '/pdv/usuarios': typeof PdvUsuariosRoute
+  '/pdv/vales': typeof PdvValesRoute
+  '/pdv/venda': typeof PdvVendaRoute
+  '/pdv/vitrine': typeof PdvVitrineRoute
+  '/pdv/whatsapp': typeof PdvWhatsappRoute
+  '/pdv/': typeof PdvIndexRoute
+  '/api/public/asaas-webhook': typeof ApiPublicAsaasWebhookRoute
+  '/api/public/bella-campaigns-tick': typeof ApiPublicBellaCampaignsTickRoute
+  '/api/public/bella-loyalty-tick': typeof ApiPublicBellaLoyaltyTickRoute
+  '/api/public/fb-agent-webhook': typeof ApiPublicFbAgentWebhookRoute
+  '/api/public/ig-agent-webhook': typeof ApiPublicIgAgentWebhookRoute
+  '/api/public/ig-token-refresh': typeof ApiPublicIgTokenRefreshRoute
+  '/api/public/mp-webhook': typeof ApiPublicMpWebhookRoute
+  '/api/public/pagarme-webhook': typeof ApiPublicPagarmeWebhookRoute
+  '/api/public/pagbank-webhook': typeof ApiPublicPagbankWebhookRoute
+  '/api/public/pix-reminders': typeof ApiPublicPixRemindersRoute
+  '/api/public/storefront-expire': typeof ApiPublicStorefrontExpireRoute
+  '/api/public/wa-agent-webhook': typeof ApiPublicWaAgentWebhookRoute
+  '/api/public/wa-storefront-webhook': typeof ApiPublicWaStorefrontWebhookRoute
+  '/loja/categoria/$slug': typeof LojaCategoriaSlugRoute
+  '/loja/pedido/$code': typeof LojaPedidoCodeRoute
+  '/pdv/crm/campanhas': typeof PdvCrmCampanhasRoute
+  '/pdv/crm/cupons': typeof PdvCrmCuponsRoute
+  '/pdv/crm/templates': typeof PdvCrmTemplatesRoute
+  '/pdv/financeiro_/dre': typeof PdvFinanceiroDreRoute
+  '/pdv/financeiro_/fluxo': typeof PdvFinanceiroFluxoRoute
+  '/pdv/fiscal/config': typeof PdvFiscalConfigRoute
+  '/pdv/fiscal/documentos': typeof PdvFiscalDocumentosRoute
+  '/pdv/fiscal/sped': typeof PdvFiscalSpedRoute
+  '/pdv/recebimentos/agendamentos': typeof PdvRecebimentosAgendamentosRoute
+  '/pdv/recebimentos/assinaturas': typeof PdvRecebimentosAssinaturasRoute
+  '/pdv/recebimentos/boletos': typeof PdvRecebimentosBoletosRoute
+  '/api/public/hooks/campaigns-tick': typeof ApiPublicHooksCampaignsTickRoute
+  '/api/public/hooks/credit-collections': typeof ApiPublicHooksCreditCollectionsRoute
+  '/api/public/hooks/fiscal-resend': typeof ApiPublicHooksFiscalResendRoute
+  '/api/public/hooks/payments-daily': typeof ApiPublicHooksPaymentsDailyRoute
+  '/api/public/hooks/reconcile-payments': typeof ApiPublicHooksReconcilePaymentsRoute
+  '/api/public/ig-oauth/callback': typeof ApiPublicIgOauthCallbackRoute
+  '/api/public/ig-oauth/data-deletion': typeof ApiPublicIgOauthDataDeletionRoute
+  '/api/public/ig-oauth/deauthorize': typeof ApiPublicIgOauthDeauthorizeRoute
+  '/api/public/meli/callback': typeof ApiPublicMeliCallbackRoute
+  '/api/public/meli/notifications': typeof ApiPublicMeliNotificationsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/loja'
+    | '/pdv'
+    | '/privacy'
+    | '/reset-password'
+    | '/sitemap.xml'
+    | '/loja/$slug'
+    | '/loja/carrinho'
+    | '/pay/$code'
+    | '/pdv/agente-ia'
+    | '/pdv/antifraude'
+    | '/pdv/auditoria'
+    | '/pdv/bi'
+    | '/pdv/caixa'
+    | '/pdv/catalogo'
+    | '/pdv/clientes'
+    | '/pdv/config'
+    | '/pdv/crediario'
+    | '/pdv/crm'
+    | '/pdv/facebook'
+    | '/pdv/fechamento'
+    | '/pdv/fidelidade'
+    | '/pdv/filas'
+    | '/pdv/financeiro'
+    | '/pdv/inbox'
+    | '/pdv/instagram'
+    | '/pdv/lojas'
+    | '/pdv/manual'
+    | '/pdv/marketing-fotos'
+    | '/pdv/marketplaces'
+    | '/pdv/mercado-livre'
+    | '/pdv/notificacoes'
+    | '/pdv/pagamento'
+    | '/pdv/pix'
+    | '/pdv/pos-venda'
+    | '/pdv/produtos-lote'
+    | '/pdv/recebimentos'
+    | '/pdv/relatorios'
+    | '/pdv/social-manager'
+    | '/pdv/tiktok-shop'
+    | '/pdv/usuarios'
+    | '/pdv/vales'
+    | '/pdv/venda'
+    | '/pdv/vitrine'
+    | '/pdv/whatsapp'
+    | '/pdv/'
+    | '/api/public/asaas-webhook'
+    | '/api/public/bella-campaigns-tick'
+    | '/api/public/bella-loyalty-tick'
+    | '/api/public/fb-agent-webhook'
+    | '/api/public/ig-agent-webhook'
+    | '/api/public/ig-token-refresh'
+    | '/api/public/mp-webhook'
+    | '/api/public/pagarme-webhook'
+    | '/api/public/pagbank-webhook'
+    | '/api/public/pix-reminders'
+    | '/api/public/storefront-expire'
+    | '/api/public/wa-agent-webhook'
+    | '/api/public/wa-storefront-webhook'
+    | '/loja/categoria/$slug'
+    | '/loja/pedido/$code'
+    | '/pdv/crm/campanhas'
+    | '/pdv/crm/cupons'
+    | '/pdv/crm/templates'
+    | '/pdv/financeiro/dre'
+    | '/pdv/financeiro/fluxo'
+    | '/pdv/fiscal/config'
+    | '/pdv/fiscal/documentos'
+    | '/pdv/fiscal/sped'
+    | '/pdv/recebimentos/agendamentos'
+    | '/pdv/recebimentos/assinaturas'
+    | '/pdv/recebimentos/boletos'
+    | '/api/public/hooks/campaigns-tick'
+    | '/api/public/hooks/credit-collections'
+    | '/api/public/hooks/fiscal-resend'
+    | '/api/public/hooks/payments-daily'
+    | '/api/public/hooks/reconcile-payments'
+    | '/api/public/ig-oauth/callback'
+    | '/api/public/ig-oauth/data-deletion'
+    | '/api/public/ig-oauth/deauthorize'
+    | '/api/public/meli/callback'
+    | '/api/public/meli/notifications'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/login'
+    | '/loja'
+    | '/privacy'
+    | '/reset-password'
+    | '/sitemap.xml'
+    | '/loja/$slug'
+    | '/loja/carrinho'
+    | '/pay/$code'
+    | '/pdv/agente-ia'
+    | '/pdv/antifraude'
+    | '/pdv/auditoria'
+    | '/pdv/bi'
+    | '/pdv/caixa'
+    | '/pdv/catalogo'
+    | '/pdv/clientes'
+    | '/pdv/config'
+    | '/pdv/crediario'
+    | '/pdv/crm'
+    | '/pdv/facebook'
+    | '/pdv/fechamento'
+    | '/pdv/fidelidade'
+    | '/pdv/filas'
+    | '/pdv/financeiro'
+    | '/pdv/inbox'
+    | '/pdv/instagram'
+    | '/pdv/lojas'
+    | '/pdv/manual'
+    | '/pdv/marketing-fotos'
+    | '/pdv/marketplaces'
+    | '/pdv/mercado-livre'
+    | '/pdv/notificacoes'
+    | '/pdv/pagamento'
+    | '/pdv/pix'
+    | '/pdv/pos-venda'
+    | '/pdv/produtos-lote'
+    | '/pdv/recebimentos'
+    | '/pdv/relatorios'
+    | '/pdv/social-manager'
+    | '/pdv/tiktok-shop'
+    | '/pdv/usuarios'
+    | '/pdv/vales'
+    | '/pdv/venda'
+    | '/pdv/vitrine'
+    | '/pdv/whatsapp'
+    | '/pdv'
+    | '/api/public/asaas-webhook'
+    | '/api/public/bella-campaigns-tick'
+    | '/api/public/bella-loyalty-tick'
+    | '/api/public/fb-agent-webhook'
+    | '/api/public/ig-agent-webhook'
+    | '/api/public/ig-token-refresh'
+    | '/api/public/mp-webhook'
+    | '/api/public/pagarme-webhook'
+    | '/api/public/pagbank-webhook'
+    | '/api/public/pix-reminders'
+    | '/api/public/storefront-expire'
+    | '/api/public/wa-agent-webhook'
+    | '/api/public/wa-storefront-webhook'
+    | '/loja/categoria/$slug'
+    | '/loja/pedido/$code'
+    | '/pdv/crm/campanhas'
+    | '/pdv/crm/cupons'
+    | '/pdv/crm/templates'
+    | '/pdv/financeiro/dre'
+    | '/pdv/financeiro/fluxo'
+    | '/pdv/fiscal/config'
+    | '/pdv/fiscal/documentos'
+    | '/pdv/fiscal/sped'
+    | '/pdv/recebimentos/agendamentos'
+    | '/pdv/recebimentos/assinaturas'
+    | '/pdv/recebimentos/boletos'
+    | '/api/public/hooks/campaigns-tick'
+    | '/api/public/hooks/credit-collections'
+    | '/api/public/hooks/fiscal-resend'
+    | '/api/public/hooks/payments-daily'
+    | '/api/public/hooks/reconcile-payments'
+    | '/api/public/ig-oauth/callback'
+    | '/api/public/ig-oauth/data-deletion'
+    | '/api/public/ig-oauth/deauthorize'
+    | '/api/public/meli/callback'
+    | '/api/public/meli/notifications'
+  id:
+    | '__root__'
+    | '/'
+    | '/login'
+    | '/loja'
+    | '/pdv'
+    | '/privacy'
+    | '/reset-password'
+    | '/sitemap.xml'
+    | '/loja/$slug'
+    | '/loja/carrinho'
+    | '/pay/$code'
+    | '/pdv/agente-ia'
+    | '/pdv/antifraude'
+    | '/pdv/auditoria'
+    | '/pdv/bi'
+    | '/pdv/caixa'
+    | '/pdv/catalogo'
+    | '/pdv/clientes'
+    | '/pdv/config'
+    | '/pdv/crediario'
+    | '/pdv/crm'
+    | '/pdv/facebook'
+    | '/pdv/fechamento'
+    | '/pdv/fidelidade'
+    | '/pdv/filas'
+    | '/pdv/financeiro'
+    | '/pdv/inbox'
+    | '/pdv/instagram'
+    | '/pdv/lojas'
+    | '/pdv/manual'
+    | '/pdv/marketing-fotos'
+    | '/pdv/marketplaces'
+    | '/pdv/mercado-livre'
+    | '/pdv/notificacoes'
+    | '/pdv/pagamento'
+    | '/pdv/pix'
+    | '/pdv/pos-venda'
+    | '/pdv/produtos-lote'
+    | '/pdv/recebimentos'
+    | '/pdv/relatorios'
+    | '/pdv/social-manager'
+    | '/pdv/tiktok-shop'
+    | '/pdv/usuarios'
+    | '/pdv/vales'
+    | '/pdv/venda'
+    | '/pdv/vitrine'
+    | '/pdv/whatsapp'
+    | '/pdv/'
+    | '/api/public/asaas-webhook'
+    | '/api/public/bella-campaigns-tick'
+    | '/api/public/bella-loyalty-tick'
+    | '/api/public/fb-agent-webhook'
+    | '/api/public/ig-agent-webhook'
+    | '/api/public/ig-token-refresh'
+    | '/api/public/mp-webhook'
+    | '/api/public/pagarme-webhook'
+    | '/api/public/pagbank-webhook'
+    | '/api/public/pix-reminders'
+    | '/api/public/storefront-expire'
+    | '/api/public/wa-agent-webhook'
+    | '/api/public/wa-storefront-webhook'
+    | '/loja/categoria/$slug'
+    | '/loja/pedido/$code'
+    | '/pdv/crm/campanhas'
+    | '/pdv/crm/cupons'
+    | '/pdv/crm/templates'
+    | '/pdv/financeiro_/dre'
+    | '/pdv/financeiro_/fluxo'
+    | '/pdv/fiscal/config'
+    | '/pdv/fiscal/documentos'
+    | '/pdv/fiscal/sped'
+    | '/pdv/recebimentos/agendamentos'
+    | '/pdv/recebimentos/assinaturas'
+    | '/pdv/recebimentos/boletos'
+    | '/api/public/hooks/campaigns-tick'
+    | '/api/public/hooks/credit-collections'
+    | '/api/public/hooks/fiscal-resend'
+    | '/api/public/hooks/payments-daily'
+    | '/api/public/hooks/reconcile-payments'
+    | '/api/public/ig-oauth/callback'
+    | '/api/public/ig-oauth/data-deletion'
+    | '/api/public/ig-oauth/deauthorize'
+    | '/api/public/meli/callback'
+    | '/api/public/meli/notifications'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LoginRoute: typeof LoginRoute
+  LojaRoute: typeof LojaRouteWithChildren
+  PdvRoute: typeof PdvRouteWithChildren
+  PrivacyRoute: typeof PrivacyRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  PayCodeRoute: typeof PayCodeRoute
+  ApiPublicAsaasWebhookRoute: typeof ApiPublicAsaasWebhookRoute
+  ApiPublicBellaCampaignsTickRoute: typeof ApiPublicBellaCampaignsTickRoute
+  ApiPublicBellaLoyaltyTickRoute: typeof ApiPublicBellaLoyaltyTickRoute
+  ApiPublicFbAgentWebhookRoute: typeof ApiPublicFbAgentWebhookRoute
+  ApiPublicIgAgentWebhookRoute: typeof ApiPublicIgAgentWebhookRoute
+  ApiPublicIgTokenRefreshRoute: typeof ApiPublicIgTokenRefreshRoute
+  ApiPublicMpWebhookRoute: typeof ApiPublicMpWebhookRoute
+  ApiPublicPagarmeWebhookRoute: typeof ApiPublicPagarmeWebhookRoute
+  ApiPublicPagbankWebhookRoute: typeof ApiPublicPagbankWebhookRoute
+  ApiPublicPixRemindersRoute: typeof ApiPublicPixRemindersRoute
+  ApiPublicStorefrontExpireRoute: typeof ApiPublicStorefrontExpireRoute
+  ApiPublicWaAgentWebhookRoute: typeof ApiPublicWaAgentWebhookRoute
+  ApiPublicWaStorefrontWebhookRoute: typeof ApiPublicWaStorefrontWebhookRoute
+  ApiPublicHooksCampaignsTickRoute: typeof ApiPublicHooksCampaignsTickRoute
+  ApiPublicHooksCreditCollectionsRoute: typeof ApiPublicHooksCreditCollectionsRoute
+  ApiPublicHooksFiscalResendRoute: typeof ApiPublicHooksFiscalResendRoute
+  ApiPublicHooksPaymentsDailyRoute: typeof ApiPublicHooksPaymentsDailyRoute
+  ApiPublicHooksReconcilePaymentsRoute: typeof ApiPublicHooksReconcilePaymentsRoute
+  ApiPublicIgOauthCallbackRoute: typeof ApiPublicIgOauthCallbackRoute
+  ApiPublicIgOauthDataDeletionRoute: typeof ApiPublicIgOauthDataDeletionRoute
+  ApiPublicIgOauthDeauthorizeRoute: typeof ApiPublicIgOauthDeauthorizeRoute
+  ApiPublicMeliCallbackRoute: typeof ApiPublicMeliCallbackRoute
+  ApiPublicMeliNotificationsRoute: typeof ApiPublicMeliNotificationsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pdv': {
+      id: '/pdv'
+      path: '/pdv'
+      fullPath: '/pdv'
+      preLoaderRoute: typeof PdvRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja': {
+      id: '/loja'
+      path: '/loja'
+      fullPath: '/loja'
+      preLoaderRoute: typeof LojaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +1121,712 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pdv/': {
+      id: '/pdv/'
+      path: '/'
+      fullPath: '/pdv/'
+      preLoaderRoute: typeof PdvIndexRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/whatsapp': {
+      id: '/pdv/whatsapp'
+      path: '/whatsapp'
+      fullPath: '/pdv/whatsapp'
+      preLoaderRoute: typeof PdvWhatsappRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/vitrine': {
+      id: '/pdv/vitrine'
+      path: '/vitrine'
+      fullPath: '/pdv/vitrine'
+      preLoaderRoute: typeof PdvVitrineRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/venda': {
+      id: '/pdv/venda'
+      path: '/venda'
+      fullPath: '/pdv/venda'
+      preLoaderRoute: typeof PdvVendaRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/vales': {
+      id: '/pdv/vales'
+      path: '/vales'
+      fullPath: '/pdv/vales'
+      preLoaderRoute: typeof PdvValesRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/usuarios': {
+      id: '/pdv/usuarios'
+      path: '/usuarios'
+      fullPath: '/pdv/usuarios'
+      preLoaderRoute: typeof PdvUsuariosRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/tiktok-shop': {
+      id: '/pdv/tiktok-shop'
+      path: '/tiktok-shop'
+      fullPath: '/pdv/tiktok-shop'
+      preLoaderRoute: typeof PdvTiktokShopRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/social-manager': {
+      id: '/pdv/social-manager'
+      path: '/social-manager'
+      fullPath: '/pdv/social-manager'
+      preLoaderRoute: typeof PdvSocialManagerRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/relatorios': {
+      id: '/pdv/relatorios'
+      path: '/relatorios'
+      fullPath: '/pdv/relatorios'
+      preLoaderRoute: typeof PdvRelatoriosRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/recebimentos': {
+      id: '/pdv/recebimentos'
+      path: '/recebimentos'
+      fullPath: '/pdv/recebimentos'
+      preLoaderRoute: typeof PdvRecebimentosRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/produtos-lote': {
+      id: '/pdv/produtos-lote'
+      path: '/produtos-lote'
+      fullPath: '/pdv/produtos-lote'
+      preLoaderRoute: typeof PdvProdutosLoteRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/pos-venda': {
+      id: '/pdv/pos-venda'
+      path: '/pos-venda'
+      fullPath: '/pdv/pos-venda'
+      preLoaderRoute: typeof PdvPosVendaRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/pix': {
+      id: '/pdv/pix'
+      path: '/pix'
+      fullPath: '/pdv/pix'
+      preLoaderRoute: typeof PdvPixRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/pagamento': {
+      id: '/pdv/pagamento'
+      path: '/pagamento'
+      fullPath: '/pdv/pagamento'
+      preLoaderRoute: typeof PdvPagamentoRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/notificacoes': {
+      id: '/pdv/notificacoes'
+      path: '/notificacoes'
+      fullPath: '/pdv/notificacoes'
+      preLoaderRoute: typeof PdvNotificacoesRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/mercado-livre': {
+      id: '/pdv/mercado-livre'
+      path: '/mercado-livre'
+      fullPath: '/pdv/mercado-livre'
+      preLoaderRoute: typeof PdvMercadoLivreRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/marketplaces': {
+      id: '/pdv/marketplaces'
+      path: '/marketplaces'
+      fullPath: '/pdv/marketplaces'
+      preLoaderRoute: typeof PdvMarketplacesRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/marketing-fotos': {
+      id: '/pdv/marketing-fotos'
+      path: '/marketing-fotos'
+      fullPath: '/pdv/marketing-fotos'
+      preLoaderRoute: typeof PdvMarketingFotosRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/manual': {
+      id: '/pdv/manual'
+      path: '/manual'
+      fullPath: '/pdv/manual'
+      preLoaderRoute: typeof PdvManualRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/lojas': {
+      id: '/pdv/lojas'
+      path: '/lojas'
+      fullPath: '/pdv/lojas'
+      preLoaderRoute: typeof PdvLojasRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/instagram': {
+      id: '/pdv/instagram'
+      path: '/instagram'
+      fullPath: '/pdv/instagram'
+      preLoaderRoute: typeof PdvInstagramRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/inbox': {
+      id: '/pdv/inbox'
+      path: '/inbox'
+      fullPath: '/pdv/inbox'
+      preLoaderRoute: typeof PdvInboxRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/financeiro': {
+      id: '/pdv/financeiro'
+      path: '/financeiro'
+      fullPath: '/pdv/financeiro'
+      preLoaderRoute: typeof PdvFinanceiroRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/filas': {
+      id: '/pdv/filas'
+      path: '/filas'
+      fullPath: '/pdv/filas'
+      preLoaderRoute: typeof PdvFilasRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/fidelidade': {
+      id: '/pdv/fidelidade'
+      path: '/fidelidade'
+      fullPath: '/pdv/fidelidade'
+      preLoaderRoute: typeof PdvFidelidadeRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/fechamento': {
+      id: '/pdv/fechamento'
+      path: '/fechamento'
+      fullPath: '/pdv/fechamento'
+      preLoaderRoute: typeof PdvFechamentoRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/facebook': {
+      id: '/pdv/facebook'
+      path: '/facebook'
+      fullPath: '/pdv/facebook'
+      preLoaderRoute: typeof PdvFacebookRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/crm': {
+      id: '/pdv/crm'
+      path: '/crm'
+      fullPath: '/pdv/crm'
+      preLoaderRoute: typeof PdvCrmRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/crediario': {
+      id: '/pdv/crediario'
+      path: '/crediario'
+      fullPath: '/pdv/crediario'
+      preLoaderRoute: typeof PdvCrediarioRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/config': {
+      id: '/pdv/config'
+      path: '/config'
+      fullPath: '/pdv/config'
+      preLoaderRoute: typeof PdvConfigRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/clientes': {
+      id: '/pdv/clientes'
+      path: '/clientes'
+      fullPath: '/pdv/clientes'
+      preLoaderRoute: typeof PdvClientesRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/catalogo': {
+      id: '/pdv/catalogo'
+      path: '/catalogo'
+      fullPath: '/pdv/catalogo'
+      preLoaderRoute: typeof PdvCatalogoRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/caixa': {
+      id: '/pdv/caixa'
+      path: '/caixa'
+      fullPath: '/pdv/caixa'
+      preLoaderRoute: typeof PdvCaixaRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/bi': {
+      id: '/pdv/bi'
+      path: '/bi'
+      fullPath: '/pdv/bi'
+      preLoaderRoute: typeof PdvBiRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/auditoria': {
+      id: '/pdv/auditoria'
+      path: '/auditoria'
+      fullPath: '/pdv/auditoria'
+      preLoaderRoute: typeof PdvAuditoriaRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/antifraude': {
+      id: '/pdv/antifraude'
+      path: '/antifraude'
+      fullPath: '/pdv/antifraude'
+      preLoaderRoute: typeof PdvAntifraudeRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/agente-ia': {
+      id: '/pdv/agente-ia'
+      path: '/agente-ia'
+      fullPath: '/pdv/agente-ia'
+      preLoaderRoute: typeof PdvAgenteIaRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pay/$code': {
+      id: '/pay/$code'
+      path: '/pay/$code'
+      fullPath: '/pay/$code'
+      preLoaderRoute: typeof PayCodeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja/carrinho': {
+      id: '/loja/carrinho'
+      path: '/carrinho'
+      fullPath: '/loja/carrinho'
+      preLoaderRoute: typeof LojaCarrinhoRouteImport
+      parentRoute: typeof LojaRoute
+    }
+    '/loja/$slug': {
+      id: '/loja/$slug'
+      path: '/$slug'
+      fullPath: '/loja/$slug'
+      preLoaderRoute: typeof LojaSlugRouteImport
+      parentRoute: typeof LojaRoute
+    }
+    '/pdv/recebimentos/boletos': {
+      id: '/pdv/recebimentos/boletos'
+      path: '/boletos'
+      fullPath: '/pdv/recebimentos/boletos'
+      preLoaderRoute: typeof PdvRecebimentosBoletosRouteImport
+      parentRoute: typeof PdvRecebimentosRoute
+    }
+    '/pdv/recebimentos/assinaturas': {
+      id: '/pdv/recebimentos/assinaturas'
+      path: '/assinaturas'
+      fullPath: '/pdv/recebimentos/assinaturas'
+      preLoaderRoute: typeof PdvRecebimentosAssinaturasRouteImport
+      parentRoute: typeof PdvRecebimentosRoute
+    }
+    '/pdv/recebimentos/agendamentos': {
+      id: '/pdv/recebimentos/agendamentos'
+      path: '/agendamentos'
+      fullPath: '/pdv/recebimentos/agendamentos'
+      preLoaderRoute: typeof PdvRecebimentosAgendamentosRouteImport
+      parentRoute: typeof PdvRecebimentosRoute
+    }
+    '/pdv/fiscal/sped': {
+      id: '/pdv/fiscal/sped'
+      path: '/fiscal/sped'
+      fullPath: '/pdv/fiscal/sped'
+      preLoaderRoute: typeof PdvFiscalSpedRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/fiscal/documentos': {
+      id: '/pdv/fiscal/documentos'
+      path: '/fiscal/documentos'
+      fullPath: '/pdv/fiscal/documentos'
+      preLoaderRoute: typeof PdvFiscalDocumentosRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/fiscal/config': {
+      id: '/pdv/fiscal/config'
+      path: '/fiscal/config'
+      fullPath: '/pdv/fiscal/config'
+      preLoaderRoute: typeof PdvFiscalConfigRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/financeiro_/fluxo': {
+      id: '/pdv/financeiro_/fluxo'
+      path: '/financeiro/fluxo'
+      fullPath: '/pdv/financeiro/fluxo'
+      preLoaderRoute: typeof PdvFinanceiroFluxoRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/financeiro_/dre': {
+      id: '/pdv/financeiro_/dre'
+      path: '/financeiro/dre'
+      fullPath: '/pdv/financeiro/dre'
+      preLoaderRoute: typeof PdvFinanceiroDreRouteImport
+      parentRoute: typeof PdvRoute
+    }
+    '/pdv/crm/templates': {
+      id: '/pdv/crm/templates'
+      path: '/templates'
+      fullPath: '/pdv/crm/templates'
+      preLoaderRoute: typeof PdvCrmTemplatesRouteImport
+      parentRoute: typeof PdvCrmRoute
+    }
+    '/pdv/crm/cupons': {
+      id: '/pdv/crm/cupons'
+      path: '/cupons'
+      fullPath: '/pdv/crm/cupons'
+      preLoaderRoute: typeof PdvCrmCuponsRouteImport
+      parentRoute: typeof PdvCrmRoute
+    }
+    '/pdv/crm/campanhas': {
+      id: '/pdv/crm/campanhas'
+      path: '/campanhas'
+      fullPath: '/pdv/crm/campanhas'
+      preLoaderRoute: typeof PdvCrmCampanhasRouteImport
+      parentRoute: typeof PdvCrmRoute
+    }
+    '/loja/pedido/$code': {
+      id: '/loja/pedido/$code'
+      path: '/pedido/$code'
+      fullPath: '/loja/pedido/$code'
+      preLoaderRoute: typeof LojaPedidoCodeRouteImport
+      parentRoute: typeof LojaRoute
+    }
+    '/loja/categoria/$slug': {
+      id: '/loja/categoria/$slug'
+      path: '/categoria/$slug'
+      fullPath: '/loja/categoria/$slug'
+      preLoaderRoute: typeof LojaCategoriaSlugRouteImport
+      parentRoute: typeof LojaRoute
+    }
+    '/api/public/wa-storefront-webhook': {
+      id: '/api/public/wa-storefront-webhook'
+      path: '/api/public/wa-storefront-webhook'
+      fullPath: '/api/public/wa-storefront-webhook'
+      preLoaderRoute: typeof ApiPublicWaStorefrontWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/wa-agent-webhook': {
+      id: '/api/public/wa-agent-webhook'
+      path: '/api/public/wa-agent-webhook'
+      fullPath: '/api/public/wa-agent-webhook'
+      preLoaderRoute: typeof ApiPublicWaAgentWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/storefront-expire': {
+      id: '/api/public/storefront-expire'
+      path: '/api/public/storefront-expire'
+      fullPath: '/api/public/storefront-expire'
+      preLoaderRoute: typeof ApiPublicStorefrontExpireRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/pix-reminders': {
+      id: '/api/public/pix-reminders'
+      path: '/api/public/pix-reminders'
+      fullPath: '/api/public/pix-reminders'
+      preLoaderRoute: typeof ApiPublicPixRemindersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/pagbank-webhook': {
+      id: '/api/public/pagbank-webhook'
+      path: '/api/public/pagbank-webhook'
+      fullPath: '/api/public/pagbank-webhook'
+      preLoaderRoute: typeof ApiPublicPagbankWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/pagarme-webhook': {
+      id: '/api/public/pagarme-webhook'
+      path: '/api/public/pagarme-webhook'
+      fullPath: '/api/public/pagarme-webhook'
+      preLoaderRoute: typeof ApiPublicPagarmeWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/mp-webhook': {
+      id: '/api/public/mp-webhook'
+      path: '/api/public/mp-webhook'
+      fullPath: '/api/public/mp-webhook'
+      preLoaderRoute: typeof ApiPublicMpWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/ig-token-refresh': {
+      id: '/api/public/ig-token-refresh'
+      path: '/api/public/ig-token-refresh'
+      fullPath: '/api/public/ig-token-refresh'
+      preLoaderRoute: typeof ApiPublicIgTokenRefreshRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/ig-agent-webhook': {
+      id: '/api/public/ig-agent-webhook'
+      path: '/api/public/ig-agent-webhook'
+      fullPath: '/api/public/ig-agent-webhook'
+      preLoaderRoute: typeof ApiPublicIgAgentWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/fb-agent-webhook': {
+      id: '/api/public/fb-agent-webhook'
+      path: '/api/public/fb-agent-webhook'
+      fullPath: '/api/public/fb-agent-webhook'
+      preLoaderRoute: typeof ApiPublicFbAgentWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/bella-loyalty-tick': {
+      id: '/api/public/bella-loyalty-tick'
+      path: '/api/public/bella-loyalty-tick'
+      fullPath: '/api/public/bella-loyalty-tick'
+      preLoaderRoute: typeof ApiPublicBellaLoyaltyTickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/bella-campaigns-tick': {
+      id: '/api/public/bella-campaigns-tick'
+      path: '/api/public/bella-campaigns-tick'
+      fullPath: '/api/public/bella-campaigns-tick'
+      preLoaderRoute: typeof ApiPublicBellaCampaignsTickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/asaas-webhook': {
+      id: '/api/public/asaas-webhook'
+      path: '/api/public/asaas-webhook'
+      fullPath: '/api/public/asaas-webhook'
+      preLoaderRoute: typeof ApiPublicAsaasWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/meli/notifications': {
+      id: '/api/public/meli/notifications'
+      path: '/api/public/meli/notifications'
+      fullPath: '/api/public/meli/notifications'
+      preLoaderRoute: typeof ApiPublicMeliNotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/meli/callback': {
+      id: '/api/public/meli/callback'
+      path: '/api/public/meli/callback'
+      fullPath: '/api/public/meli/callback'
+      preLoaderRoute: typeof ApiPublicMeliCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/ig-oauth/deauthorize': {
+      id: '/api/public/ig-oauth/deauthorize'
+      path: '/api/public/ig-oauth/deauthorize'
+      fullPath: '/api/public/ig-oauth/deauthorize'
+      preLoaderRoute: typeof ApiPublicIgOauthDeauthorizeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/ig-oauth/data-deletion': {
+      id: '/api/public/ig-oauth/data-deletion'
+      path: '/api/public/ig-oauth/data-deletion'
+      fullPath: '/api/public/ig-oauth/data-deletion'
+      preLoaderRoute: typeof ApiPublicIgOauthDataDeletionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/ig-oauth/callback': {
+      id: '/api/public/ig-oauth/callback'
+      path: '/api/public/ig-oauth/callback'
+      fullPath: '/api/public/ig-oauth/callback'
+      preLoaderRoute: typeof ApiPublicIgOauthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/reconcile-payments': {
+      id: '/api/public/hooks/reconcile-payments'
+      path: '/api/public/hooks/reconcile-payments'
+      fullPath: '/api/public/hooks/reconcile-payments'
+      preLoaderRoute: typeof ApiPublicHooksReconcilePaymentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/payments-daily': {
+      id: '/api/public/hooks/payments-daily'
+      path: '/api/public/hooks/payments-daily'
+      fullPath: '/api/public/hooks/payments-daily'
+      preLoaderRoute: typeof ApiPublicHooksPaymentsDailyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/fiscal-resend': {
+      id: '/api/public/hooks/fiscal-resend'
+      path: '/api/public/hooks/fiscal-resend'
+      fullPath: '/api/public/hooks/fiscal-resend'
+      preLoaderRoute: typeof ApiPublicHooksFiscalResendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/credit-collections': {
+      id: '/api/public/hooks/credit-collections'
+      path: '/api/public/hooks/credit-collections'
+      fullPath: '/api/public/hooks/credit-collections'
+      preLoaderRoute: typeof ApiPublicHooksCreditCollectionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/campaigns-tick': {
+      id: '/api/public/hooks/campaigns-tick'
+      path: '/api/public/hooks/campaigns-tick'
+      fullPath: '/api/public/hooks/campaigns-tick'
+      preLoaderRoute: typeof ApiPublicHooksCampaignsTickRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface LojaRouteChildren {
+  LojaSlugRoute: typeof LojaSlugRoute
+  LojaCarrinhoRoute: typeof LojaCarrinhoRoute
+  LojaCategoriaSlugRoute: typeof LojaCategoriaSlugRoute
+  LojaPedidoCodeRoute: typeof LojaPedidoCodeRoute
+}
+
+const LojaRouteChildren: LojaRouteChildren = {
+  LojaSlugRoute: LojaSlugRoute,
+  LojaCarrinhoRoute: LojaCarrinhoRoute,
+  LojaCategoriaSlugRoute: LojaCategoriaSlugRoute,
+  LojaPedidoCodeRoute: LojaPedidoCodeRoute,
+}
+
+const LojaRouteWithChildren = LojaRoute._addFileChildren(LojaRouteChildren)
+
+interface PdvCrmRouteChildren {
+  PdvCrmCampanhasRoute: typeof PdvCrmCampanhasRoute
+  PdvCrmCuponsRoute: typeof PdvCrmCuponsRoute
+  PdvCrmTemplatesRoute: typeof PdvCrmTemplatesRoute
+}
+
+const PdvCrmRouteChildren: PdvCrmRouteChildren = {
+  PdvCrmCampanhasRoute: PdvCrmCampanhasRoute,
+  PdvCrmCuponsRoute: PdvCrmCuponsRoute,
+  PdvCrmTemplatesRoute: PdvCrmTemplatesRoute,
+}
+
+const PdvCrmRouteWithChildren =
+  PdvCrmRoute._addFileChildren(PdvCrmRouteChildren)
+
+interface PdvRecebimentosRouteChildren {
+  PdvRecebimentosAgendamentosRoute: typeof PdvRecebimentosAgendamentosRoute
+  PdvRecebimentosAssinaturasRoute: typeof PdvRecebimentosAssinaturasRoute
+  PdvRecebimentosBoletosRoute: typeof PdvRecebimentosBoletosRoute
+}
+
+const PdvRecebimentosRouteChildren: PdvRecebimentosRouteChildren = {
+  PdvRecebimentosAgendamentosRoute: PdvRecebimentosAgendamentosRoute,
+  PdvRecebimentosAssinaturasRoute: PdvRecebimentosAssinaturasRoute,
+  PdvRecebimentosBoletosRoute: PdvRecebimentosBoletosRoute,
+}
+
+const PdvRecebimentosRouteWithChildren = PdvRecebimentosRoute._addFileChildren(
+  PdvRecebimentosRouteChildren,
+)
+
+interface PdvRouteChildren {
+  PdvAgenteIaRoute: typeof PdvAgenteIaRoute
+  PdvAntifraudeRoute: typeof PdvAntifraudeRoute
+  PdvAuditoriaRoute: typeof PdvAuditoriaRoute
+  PdvBiRoute: typeof PdvBiRoute
+  PdvCaixaRoute: typeof PdvCaixaRoute
+  PdvCatalogoRoute: typeof PdvCatalogoRoute
+  PdvClientesRoute: typeof PdvClientesRoute
+  PdvConfigRoute: typeof PdvConfigRoute
+  PdvCrediarioRoute: typeof PdvCrediarioRoute
+  PdvCrmRoute: typeof PdvCrmRouteWithChildren
+  PdvFacebookRoute: typeof PdvFacebookRoute
+  PdvFechamentoRoute: typeof PdvFechamentoRoute
+  PdvFidelidadeRoute: typeof PdvFidelidadeRoute
+  PdvFilasRoute: typeof PdvFilasRoute
+  PdvFinanceiroRoute: typeof PdvFinanceiroRoute
+  PdvInboxRoute: typeof PdvInboxRoute
+  PdvInstagramRoute: typeof PdvInstagramRoute
+  PdvLojasRoute: typeof PdvLojasRoute
+  PdvManualRoute: typeof PdvManualRoute
+  PdvMarketingFotosRoute: typeof PdvMarketingFotosRoute
+  PdvMarketplacesRoute: typeof PdvMarketplacesRoute
+  PdvMercadoLivreRoute: typeof PdvMercadoLivreRoute
+  PdvNotificacoesRoute: typeof PdvNotificacoesRoute
+  PdvPagamentoRoute: typeof PdvPagamentoRoute
+  PdvPixRoute: typeof PdvPixRoute
+  PdvPosVendaRoute: typeof PdvPosVendaRoute
+  PdvProdutosLoteRoute: typeof PdvProdutosLoteRoute
+  PdvRecebimentosRoute: typeof PdvRecebimentosRouteWithChildren
+  PdvRelatoriosRoute: typeof PdvRelatoriosRoute
+  PdvSocialManagerRoute: typeof PdvSocialManagerRoute
+  PdvTiktokShopRoute: typeof PdvTiktokShopRoute
+  PdvUsuariosRoute: typeof PdvUsuariosRoute
+  PdvValesRoute: typeof PdvValesRoute
+  PdvVendaRoute: typeof PdvVendaRoute
+  PdvVitrineRoute: typeof PdvVitrineRoute
+  PdvWhatsappRoute: typeof PdvWhatsappRoute
+  PdvIndexRoute: typeof PdvIndexRoute
+  PdvFinanceiroDreRoute: typeof PdvFinanceiroDreRoute
+  PdvFinanceiroFluxoRoute: typeof PdvFinanceiroFluxoRoute
+  PdvFiscalConfigRoute: typeof PdvFiscalConfigRoute
+  PdvFiscalDocumentosRoute: typeof PdvFiscalDocumentosRoute
+  PdvFiscalSpedRoute: typeof PdvFiscalSpedRoute
+}
+
+const PdvRouteChildren: PdvRouteChildren = {
+  PdvAgenteIaRoute: PdvAgenteIaRoute,
+  PdvAntifraudeRoute: PdvAntifraudeRoute,
+  PdvAuditoriaRoute: PdvAuditoriaRoute,
+  PdvBiRoute: PdvBiRoute,
+  PdvCaixaRoute: PdvCaixaRoute,
+  PdvCatalogoRoute: PdvCatalogoRoute,
+  PdvClientesRoute: PdvClientesRoute,
+  PdvConfigRoute: PdvConfigRoute,
+  PdvCrediarioRoute: PdvCrediarioRoute,
+  PdvCrmRoute: PdvCrmRouteWithChildren,
+  PdvFacebookRoute: PdvFacebookRoute,
+  PdvFechamentoRoute: PdvFechamentoRoute,
+  PdvFidelidadeRoute: PdvFidelidadeRoute,
+  PdvFilasRoute: PdvFilasRoute,
+  PdvFinanceiroRoute: PdvFinanceiroRoute,
+  PdvInboxRoute: PdvInboxRoute,
+  PdvInstagramRoute: PdvInstagramRoute,
+  PdvLojasRoute: PdvLojasRoute,
+  PdvManualRoute: PdvManualRoute,
+  PdvMarketingFotosRoute: PdvMarketingFotosRoute,
+  PdvMarketplacesRoute: PdvMarketplacesRoute,
+  PdvMercadoLivreRoute: PdvMercadoLivreRoute,
+  PdvNotificacoesRoute: PdvNotificacoesRoute,
+  PdvPagamentoRoute: PdvPagamentoRoute,
+  PdvPixRoute: PdvPixRoute,
+  PdvPosVendaRoute: PdvPosVendaRoute,
+  PdvProdutosLoteRoute: PdvProdutosLoteRoute,
+  PdvRecebimentosRoute: PdvRecebimentosRouteWithChildren,
+  PdvRelatoriosRoute: PdvRelatoriosRoute,
+  PdvSocialManagerRoute: PdvSocialManagerRoute,
+  PdvTiktokShopRoute: PdvTiktokShopRoute,
+  PdvUsuariosRoute: PdvUsuariosRoute,
+  PdvValesRoute: PdvValesRoute,
+  PdvVendaRoute: PdvVendaRoute,
+  PdvVitrineRoute: PdvVitrineRoute,
+  PdvWhatsappRoute: PdvWhatsappRoute,
+  PdvIndexRoute: PdvIndexRoute,
+  PdvFinanceiroDreRoute: PdvFinanceiroDreRoute,
+  PdvFinanceiroFluxoRoute: PdvFinanceiroFluxoRoute,
+  PdvFiscalConfigRoute: PdvFiscalConfigRoute,
+  PdvFiscalDocumentosRoute: PdvFiscalDocumentosRoute,
+  PdvFiscalSpedRoute: PdvFiscalSpedRoute,
+}
+
+const PdvRouteWithChildren = PdvRoute._addFileChildren(PdvRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LoginRoute: LoginRoute,
+  LojaRoute: LojaRouteWithChildren,
+  PdvRoute: PdvRouteWithChildren,
+  PrivacyRoute: PrivacyRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  PayCodeRoute: PayCodeRoute,
+  ApiPublicAsaasWebhookRoute: ApiPublicAsaasWebhookRoute,
+  ApiPublicBellaCampaignsTickRoute: ApiPublicBellaCampaignsTickRoute,
+  ApiPublicBellaLoyaltyTickRoute: ApiPublicBellaLoyaltyTickRoute,
+  ApiPublicFbAgentWebhookRoute: ApiPublicFbAgentWebhookRoute,
+  ApiPublicIgAgentWebhookRoute: ApiPublicIgAgentWebhookRoute,
+  ApiPublicIgTokenRefreshRoute: ApiPublicIgTokenRefreshRoute,
+  ApiPublicMpWebhookRoute: ApiPublicMpWebhookRoute,
+  ApiPublicPagarmeWebhookRoute: ApiPublicPagarmeWebhookRoute,
+  ApiPublicPagbankWebhookRoute: ApiPublicPagbankWebhookRoute,
+  ApiPublicPixRemindersRoute: ApiPublicPixRemindersRoute,
+  ApiPublicStorefrontExpireRoute: ApiPublicStorefrontExpireRoute,
+  ApiPublicWaAgentWebhookRoute: ApiPublicWaAgentWebhookRoute,
+  ApiPublicWaStorefrontWebhookRoute: ApiPublicWaStorefrontWebhookRoute,
+  ApiPublicHooksCampaignsTickRoute: ApiPublicHooksCampaignsTickRoute,
+  ApiPublicHooksCreditCollectionsRoute: ApiPublicHooksCreditCollectionsRoute,
+  ApiPublicHooksFiscalResendRoute: ApiPublicHooksFiscalResendRoute,
+  ApiPublicHooksPaymentsDailyRoute: ApiPublicHooksPaymentsDailyRoute,
+  ApiPublicHooksReconcilePaymentsRoute: ApiPublicHooksReconcilePaymentsRoute,
+  ApiPublicIgOauthCallbackRoute: ApiPublicIgOauthCallbackRoute,
+  ApiPublicIgOauthDataDeletionRoute: ApiPublicIgOauthDataDeletionRoute,
+  ApiPublicIgOauthDeauthorizeRoute: ApiPublicIgOauthDeauthorizeRoute,
+  ApiPublicMeliCallbackRoute: ApiPublicMeliCallbackRoute,
+  ApiPublicMeliNotificationsRoute: ApiPublicMeliNotificationsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

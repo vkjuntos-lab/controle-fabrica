@@ -11,6 +11,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { StorefrontCartProvider } from "@/lib/pdv-storefront-cart";
+import ksLogo from "@/assets/ks-makeup-logo.jpg.asset.json";
 
 function NotFoundComponent() {
   return (
@@ -74,24 +76,58 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
   head: () => ({
+    links: [
+      { rel: "stylesheet", href: appCss },
+      { rel: "apple-touch-icon", href: ksLogo.url },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "preconnect", href: "https://xclgqgnykhcbmbxofgfq.supabase.co", crossOrigin: "anonymous" },
+      { rel: "dns-prefetch", href: "https://xclgqgnykhcbmbxofgfq.supabase.co" },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      { rel: "stylesheet", href: "https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&display=swap" },
+    ],
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "theme-color", content: "#c07f5a" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "KS Makeup" },
+      { title: "KS Makeup — Gestão Completa em suas mãos" },
+      { name: "description", content: "KS Makeup Multistore: plataforma omnichannel com PDV, vitrine online, estoque por lote, CRM, fidelidade, WhatsApp Business e marketplaces." },
+      { name: "author", content: "KS Makeup" },
+      { property: "og:title", content: "KS Makeup — Gestão Completa em suas mãos" },
+      { property: "og:description", content: "KS Makeup Multistore: plataforma omnichannel com PDV, vitrine online, estoque por lote, CRM, fidelidade, WhatsApp Business e marketplaces." },
       { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "KS Makeup" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:site", content: "@ksmakeup" },
+      { name: "twitter:title", content: "KS Makeup — Gestão Completa em suas mãos" },
+      { name: "twitter:description", content: "KS Makeup Multistore: plataforma omnichannel com PDV, vitrine online, estoque por lote, CRM, fidelidade, WhatsApp Business e marketplaces." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/ed7f48f0-c7ef-4854-bd43-68175a9fb4cc" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/ed7f48f0-c7ef-4854-bd43-68175a9fb4cc" },
     ],
-    links: [
+    scripts: [
       {
-        rel: "stylesheet",
-        href: appCss,
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "KS Makeup",
+          url: "https://ksmakeup.lovable.app",
+          logo: `https://ksmakeup.lovable.app${ksLogo.url}`,
+          sameAs: ["https://instagram.com/ksmakeup"],
+        }),
       },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          name: "KS Makeup",
+          url: "https://ksmakeup.lovable.app",
+        }),
+      },
     ],
   }),
   shellComponent: RootShell,
@@ -119,8 +155,10 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <StorefrontCartProvider>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+      </StorefrontCartProvider>
     </QueryClientProvider>
   );
 }
