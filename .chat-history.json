@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
-      "newString": "- Webhooks de domínio (`/api/webhooks/receiver` pronto, mas nenhum provedor externo conectado e\n  sem `WEBHOOK_SECRET` definido em ambiente), cron/automações de negócio, filas.\n- Integrações de marketplace por API, pagamentos, e-mail transacional, notificações.\n- Modo DEMO.\n\n## DECISIONS\n\n- Tenant é `organization_id`; `store_id` não é tenant.\n- Autorização derivada de `role_permissions` no banco; nenhuma checagem por e-mail no código.\n- Nada de funcionalidade falsa: o que não existe aparece como \"em breve\" ou não aparece.\n- Regras financeiras/fiscais não são inventadas; o código as recebe depois.\n- Referência de engenharia: KS MultiMake (padrões), nunca o domínio de negócio dele.\n- Webhooks e cron desabilitados por padrão: sem segredo configurado em ambiente, os endpoints\n  respondem explicitamente em vez de fingir funcionar.\n- Upload de avatar é client-side no bucket `avatars`; o servidor nunca recebe/carrega o arquivo,\n  apenas grava a URL pública validando o caminho do usuário.\n\n## KNOWN_LIMITATIONS\n\n- Convite por e-mail depende de provedor de e-mail transacional ainda não configurado.\n- Confirmação de e-mail está ativa: após criar conta é necessário clicar no link recebido.\n- Sem testes automatizados nesta etapa.\n- Nenhum segredo de integração externa configurado (requer definir `LOVABLE_CRON_SECRET`,\n  `WEBHOOK_SECRET` e service role no Lovable Cloud para ativar cron/webhook/auditoria de sistema).",
-      "oldString": "- Webhooks (`src/routes/api/public/*`), cron/automações, filas.\n- Integrações de marketplace por API, pagamentos, e-mail transacional, notificações.\n- Modo DEMO.\n\n## DECISIONS\n\n- Tenant é `organization_id`; `store_id` não é tenant.\n- Autorização derivada de `role_permissions` no banco; nenhuma checagem por e-mail no código.\n- Nada de funcionalidade falsa: o que não existe aparece como \"em breve\" ou não aparece.\n- Regras financeiras/fiscais não são inventadas; o código as recebe depois.\n- Referência de engenharia: KS MultiMake (padrões), nunca o domínio de negócio dele.\n\n## KNOWN_LIMITATIONS\n\n- Convite por e-mail depende de provedor de e-mail transacional ainda não configurado.\n- Confirmação de e-mail está ativa: após criar conta é necessário clicar no link recebido.\n- Sem testes automatizados nesta etapa.\n- Nenhum segredo de integração externa configurado."
-    },
-    "timestamp": 1789651539220
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789651539223
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
       "newString": "1. Modelar Product → Variant com SKU/código de barras e atributos extensíveis.\n2. Modelar o Inventory Ledger (movimentos + visões de saldo) como fonte única do estoque.\n3. Modelar locais de estoque e posse de terceiros (parceiro).\n4. Marketplaces/lojas e importação com mapeamento configurável de colunas.\n5. Reconciliação, fechamento de período e cobrança (server-side, auditado).\n6. Financeiro e relatórios de quantidade + valor.\n7. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a\n   `/api/webhooks/receiver` quando houver integração externa.",
       "oldString": "1. Modelar Product → Variant com SKU/código de barras e atributos extensíveis.\n2. Modelar o Inventory Ledger (movimentos + visões de saldo) como fonte única do estoque.\n3. Modelar locais de estoque e posse de terceiros (parceiro).\n4. Marketplaces/lojas e importação com mapeamento configurável de colunas.\n5. Reconciliação, fechamento de período e cobrança (server-side, auditado).\n6. Financeiro e relatórios de quantidade + valor."
     },
@@ -1619,5 +1603,20 @@
     "content": "// @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually\n// or the app will break with duplicate plugins:\n//   - tanstackStart, viteReact, tailwindcss, tsConfigPaths, nitro (build-only using cloudflare as a default target),\n//     componentTagger (dev-only), VIT",
     "is_error": false,
     "timestamp": 1789655403044
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "import { defineConfig } from \"vitest/config\";\nimport { fileURLToPath } from \"node:url\";\n\nexport default defineConfig({\n  resolve: {\n    alias: {\n      \"@\": fileURLToPath(new URL(\"./src\", import.meta.url)),\n    },\n  },\n  test: {\n    environment: \"node\",\n    include: [\"src/**/*.test.ts\"],\n  },\n});",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/vitest.config.ts"
+    },
+    "timestamp": 1789655408082
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1789655408110
   }
 ]
