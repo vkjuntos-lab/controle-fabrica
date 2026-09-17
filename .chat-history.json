@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cat package.json | grep -A 20 '\"scripts\"'",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789649486457
-  },
-  {
-    "role": "tool_result",
-    "content": "  \"scripts\": {\n    \"dev\": \"vite dev\",\n    \"build\": \"vite build\",\n    \"build:dev\": \"vite build --mode development\",\n    \"preview\": \"vite preview\",\n    \"lint\": \"eslint .\",\n    \"format\": \"prettier --write .\"\n  },\n  \"dependencies\": {\n    \"@ai-sdk/openai-compatible\": \"^3.0.6\",\n    \"@hookform/resolvers\": ",
-    "is_error": false,
-    "timestamp": 1789649486470
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "npx tsc --noEmit 2>&1 | head -40",
       "workdir": "/root/Zheus AI Projects/controle-fabrica",
       "timeout": 180000
@@ -1520,5 +1505,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1789650776572
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "import { createFileRoute } from \"@tanstack/react-router\";\n\nimport { writeSystemAudit } from \"@/lib/audit/functions\";\nimport { checkRateLimit } from \"@/lib/middleware/rate-limit\";\nimport { validateWebhookSignature } from \"@/lib/webhook/signature\";\n\nfunction json(body: unknown, status = 200): Response {\n  return new Response(JSON.stringify(body), {\n    status,\n    headers: { \"content-type\": \"application/json; charset=utf-8\" },\n  });\n}\n\n/**\n * Receptor genérico de webhooks. Antes de qualquer efeito colateral:\n * 1. valida assinatura HMAC (header `x-webhook-signature`);\n * 2. aplica rate limit;\n * 3. deduplica via idempotência (`x-webhook-id`) na tabela `webhook_events`.\n *\n * Enquanto `WEBHOOK_SECRET` não estiver configurado no ambiente, o endpoint\n * responde 503 — não é uma simulação, é o estado real da configuração.\n */\nexport const Route = createFileRoute(\"/api/webhooks/receiver\")({\n  server: {\n    handlers: {\n      POST: async ({ request }) => {\n        const provider = request.headers.get(\"x-webhook-provider\") ?? \"unknown\";\n        const eventId = request.headers.get(\"x-webhook-id\") ?? \"\";\n\n        const rawBody = await request.text();\n        if (rawBody.length > 1_000_000) {\n          return json({ ok: false, message: \"Payload muito grande.\" }, 413);\n        }\n\n        const signatureStatus = await validateWebhookSignature(\n          rawBody,\n          request.headers.get(\"x-webhook-signature\"),\n        );\n        if (signatureStatus === \"missing_secret\") {\n          return json(\n            { ok: false, message: \"Webhooks desabilitados: defina WEBHOOK_SECRET no ambiente.\" },\n            503,\n          );\n        }\n        if (signatureStatus in [\"invalid\", \"missing_signature\"]) {\n          await writeSystemAudit({\n            action: \"webhook.reject\",\n            resource: \"webhook_events\",\n            result: \"error\",\n            context: { provider, eventId, signatureStatus },\n          });\n          return json({ ok: false, message: \"Assinatura inválida.\" }, 401);\n        }\n\n        if (!checkRateLimit(`webhook:${provider}`, { limit: 120, windowMs: 60_000 })) {\n          return json({ ok: false, message: \"Muitas requisições.\" }, 429);\n        }\n\n        const { supabaseAdmin } = await import(\"@/integrations/supabase/client.server\");\n        const { data: existing } = await supabaseAdmin\n          .from(\"webhook_events\")\n          .select(\"id\")\n          .eq(\"provider\", provider)\n          .eq(\"event_id\", eventId)\n          .maybeSingle();\n\n        if (existing) {\n          return json({ ok: true, duplicate: true, id: existing.id });\n        }\n\n        const { data: inserted, error } = await supabaseAdmin\n          .from(\"webhook_events\")\n          .insert({ provider, event_id: eventId, signature_ok: true })\n          .select(\"id\")\n          .single();\n\n        if (error) {\n          if (error.code === \"23505\") {\n            return json({ ok: true, duplicate: true });\n          }\n          console.error(\"[webhook] falha ao persistir evento:\", error.message);\n          return json({ ok: false, message: \"Falha ao registrar evento.\" }, 500);\n        }\n\n        await writeSystemAudit({\n          action: \"webhook.received\",\n          resource: \"webhook_events\",\n          resourceId: inserted.id,\n          result: \"success\",\n          context: { provider, eventId },\n        });\n\n        return json({ ok: true, id: inserted.id, accepted: true }, 202);\n      },\n      GET: () => json({ ok: true, message: \"Webhook receiver ativo.\" }, 200),\n    },\n  },\n});",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/api/webhooks.receiver.ts"
+    },
+    "timestamp": 1789650787699
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1789650787719
   }
 ]
