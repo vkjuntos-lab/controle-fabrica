@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts</path>\n<type>file</type>\n<content>\n302: export const listRolePermissions = createServerFn({ method: \"GET\" })\n303:   .middleware([requireSupabaseAuth])\n304:   .handler(async ({ context }) => {\n305:     const { data,",
-    "is_error": false,
-    "timestamp": 1789655262249
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
-      "newString": "export const listRolePermissions = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .handler(async ({ context }) => {\n    const { data, error } = await context.supabase\n      .from(\"role_permissions\")\n      .select(\"role, permission\")\n      .order(\"role\", { ascending: true });\n    if (error) throw new Error(error.message);\n    return data ?? [];\n  });\n\n/** Concede ou revoga uma permissão a um papel, editando a matriz global. */\nexport const updateRolePermission = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: z.string().uuid(),\n        role: roleSchema,\n        permission: z\n          .string()\n          .trim()\n          .min(3)\n          .max(64)\n          .regex(/^[a-z]+(\\.[a-z0-9]+)*$/),\n        granted: z.boolean(),\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    await requireOrgPermission(\n      context.supabase,\n      data.organizationId,\n      PERMISSIONS.permissionsManage,\n      context.userId,\n    );\n\n    const { supabaseAdmin } = await import(\"@/integrations/supabase/client.server\");\n\n    if (data.granted) {\n      const { error } = await supabaseAdmin\n        .from(\"role_permissions\")\n        .insert({ role: data.role, permission: data.permission })\n        .onConflict(\"role, permission\")\n        .ignore();\n      if (error) throw new Error(error.message);\n    } else {\n      const { error } = await supabaseAdmin\n        .from(\"role_permissions\")\n        .delete()\n        .eq(\"role\", data.role)\n        .eq(\"permission\", data.permission);\n      if (error) throw new Error(error.message);\n    }\n\n    await context.supabase.from(\"audit_log\").insert({\n      organization_id: data.organizationId,\n      user_id: context.userId,\n      action: data.granted ? \"permission.grant\" : \"permission.revoke\",\n      resource: \"role_permissions\",\n      context: { role: data.role, permission: data.permission, granted: data.granted },\n    });\n\n    return { ok: true };\n  });",
-      "oldString": "export const listRolePermissions = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .handler(async ({ context }) => {\n    const { data, error } = await context.supabase\n      .from(\"role_permissions\")\n      .select(\"role, permission\")\n      .order(\"role\", { ascending: true });\n    if (error) throw new Error(error.message);\n    return data ?? [];\n  });"
-    },
-    "timestamp": 1789655271563
-  },
-  {
-    "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789655271602
@@ -1628,5 +1612,19 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789671679949
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n 'variant=\"destructive\"' src/routes/_authenticated/produtos.\\$id.tsx"
+    },
+    "timestamp": 1789671681509
+  },
+  {
+    "role": "tool_result",
+    "content": "547:                                    variant=\"destructive\"\n",
+    "is_error": false,
+    "timestamp": 1789671681519
   }
 ]
