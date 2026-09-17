@@ -1,6 +1,6 @@
 # Estado do projeto — handoff contínuo
 
-Última atualização: fundação completa (LOVABLE MASTER 001) + plataforma + convites + permissões editáveis + testes.
+Última atualização: LOVABLE MASTER 002 — Catálogo Mestre de Produtos (Product + Variant + Categorias) sobre a fundação completa do MASTER 001.
 
 ## IMPLEMENTED
 
