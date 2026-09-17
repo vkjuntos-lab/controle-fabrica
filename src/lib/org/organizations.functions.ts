@@ -498,3 +498,203 @@ export const removeMyAvatar = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+
+/** Convida alguém por link. O token é gerado no servidor e expira em 7 dias. */
+export const createInvitation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        organizationId: z.string().uuid(),
+        email: z.string().trim().toLowerCase().email(),
+        role: roleSchema,
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireOrgPermission(
+      context.supabase,
+      data.organizationId,
+      PERMISSIONS.usersManage,
+      context.userId,
+    );
+
+    const token = crypto.randomUUID();
+    const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+
+    const { data: inserted, error } = await context.supabase
+      .from("invitations")
+      .insert({
+        organization_id: data.organizationId,
+        email: data.email,
+        role: data.role,
+        token,
+        expires_at: expiresAt,
+        created_by: context.userId,
+      })
+      .select("id, token")
+      .single();
+    if (error) throw new Error(error.message);
+
+    await context.supabase.from("audit_log").insert({
+      organization_id: data.organizationId,
+      user_id: context.userId,
+      action: "member.invite",
+      resource: "invitations",
+      resource_id: inserted.id,
+      context: { email: data.email, role: data.role },
+    });
+
+    return { ok: true, token: inserted.token };
+  });
+
+/** Convites pendentes da organização (para o gestor compartilhar/revogar). */
+export const listInvitations = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ organizationId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await requireOrgPermission(
+      context.supabase,
+      data.organizationId,
+      PERMISSIONS.usersRead,
+      context.userId,
+    );
+    const { data: rows, error } = await context.supabase
+      .from("invitations")
+      .select("*")
+      .eq("organization_id", data.organizationId)
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+/** Revoga um convite pendente. */
+export const revokeInvitation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z.object({ organizationId: z.string().uuid(), invitationId: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireOrgPermission(
+      context.supabase,
+      data.organizationId,
+      PERMISSIONS.usersManage,
+      context.userId,
+    );
+
+    const { error } = await context.supabase
+      .from("invitations")
+      .update({ status: "revoked" })
+      .eq("id", data.invitationId)
+      .eq("organization_id", data.organizationId)
+      .eq("status", "pending");
+    if (error) throw new Error(error.message);
+
+    await context.supabase.from("audit_log").insert({
+      organization_id: data.organizationId,
+      user_id: context.userId,
+      action: "invitation.revoke",
+      resource: "invitations",
+      resource_id: data.invitationId,
+    });
+    return { ok: true };
+  });
+
+/** Informações de um convite pelo token, para a pessoa logada confirmar o aceite. */
+export const getInvitationByToken = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ token: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: invitation, error } = await supabaseAdmin
+      .from("invitations")
+      .select(
+        "id, email, role, status, expires_at, organizations!inner(name, id)",
+      )
+      .eq("token", data.token)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+
+    if (!invitation) throw new Error("Convite não encontrado.");
+    if (invitation.status !== "pending") {
+      throw new Error(invitation.status === "revoked" ? "Este convite foi revogado." : "Este convite já foi usado.");
+    }
+    if (new Date(invitation.expires_at).getTime() < Date.now()) {
+      throw new Error("Este convite expirou.");
+    }
+
+    const loggedEmail = (context.claims as { email?: string } | undefined)?.email?.toLowerCase();
+    if (!loggedEmail) throw new Error("Conta sem e-mail associado.");
+
+    const org = Array.isArray(invitation.organizations)
+      ? invitation.organizations[0]
+      : invitation.organizations;
+    return {
+      organizationId: org?.id ?? null,
+      organizationName: org?.name ?? "—",
+      email: invitation.email,
+      role: invitation.role,
+      inviteMatchesAccount: loggedEmail === invitation.email.toLowerCase(),
+    };
+  });
+
+/** Aceita o convite, criando a associação do usuário à organização. */
+export const acceptInvitation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ token: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: invitation, error } = await supabaseAdmin
+      .from("invitations")
+      .select("id, organization_id, email, role, status, expires_at")
+      .eq("token", data.token)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!invitation) throw new Error("Convite não encontrado.");
+    if (invitation.status !== "pending") {
+      throw new Error(invitation.status === "revoked" ? "Este convite foi revogado." : "Este convite já foi usado.");
+    }
+    if (new Date(invitation.expires_at).getTime() < Date.now()) {
+      throw new Error("Este convite expirou.");
+    }
+
+    const loggedEmail = (context.claims as { email?: string } | undefined)?.email?.toLowerCase();
+    if (!loggedEmail || loggedEmail !== invitation.email.toLowerCase()) {
+      throw new Error("Este convite é para outro e-mail. Entre com o e-mail convidado.");
+    }
+
+    const { data: existing, error: existingError } = await context.supabase
+      .from("organization_members")
+      .select("id")
+      .eq("organization_id", invitation.organization_id)
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    if (existingError) throw new Error(existingError.message);
+    if (!existing) {
+      const { error: insertError } = await context.supabase
+        .from("organization_members")
+        .insert({
+          organization_id: invitation.organization_id,
+          user_id: context.userId,
+          role: invitation.role,
+        });
+      if (insertError) throw new Error(insertError.message);
+    }
+
+    const { error: updateError } = await supabaseAdmin
+      .from("invitations")
+      .update({ status: "accepted", accepted_by: context.userId, accepted_at: new Date().toISOString() })
+      .eq("id", invitation.id);
+    if (updateError) throw new Error(updateError.message);
+
+    await context.supabase.from("audit_log").insert({
+      organization_id: invitation.organization_id,
+      user_id: context.userId,
+      action: "member.invite_accept",
+      resource: "invitations",
+      resource_id: invitation.id,
+    });
+
+    return { ok: true, organizationId: invitation.organization_id };
+  });
