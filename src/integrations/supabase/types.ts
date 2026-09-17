@@ -640,6 +640,9 @@ export const Constants = {
         "comercial",
         "marketplace",
       ],
+      invitation_status: ["pending", "accepted", "expired", "revoked"],
+      product_status: ["ACTIVE", "INACTIVE", "DISCONTINUED", "DRAFT"],
+      product_variant_status: ["ACTIVE", "INACTIVE", "DISCONTINUED", "DRAFT"],
     },
   },
 } as const
