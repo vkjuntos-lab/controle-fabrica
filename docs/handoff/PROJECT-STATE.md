@@ -1,6 +1,6 @@
 # Estado do projeto — handoff contínuo
 
-Última atualização: fundação (LOVABLE MASTER 001).
+Última atualização: fundação (LOVABLE MASTER 001) + camada de plataforma (cron, webhook, storage).
 
 ## IMPLEMENTED
 
