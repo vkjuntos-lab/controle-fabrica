@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
-      "newString": "## IMPLEMENTED\n\n- Stack TanStack Start + React 19 + TypeScript + Vite + Tailwind v4 + Lovable Cloud (Supabase).",
-      "oldString": "## IMPLEMENTED\n\n- Stack TanStack Start + React 19 + TypeScript + Vite 7 + Tailwind v4 + Lovable Cloud (Supabase)."
-    },
-    "timestamp": 1789651512165
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789651512189
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
       "newString": "- Auditoria consultável: `listAuditLogs`/`listAuditActions` (server-side, exige `audit.read`) e tela\n  `/admin/auditoria` com busca, filtro por ação e paginação.\n- Cron autenticado: `GET /api/cron/health` (`src/routes/api/cron.health.ts`) usando\n  `authenticateCronRequest` (header `Authorization: Bearer $LOVABLE_CRON_SECRET`), rate limit\n  `cron:health` e escrita de `audit_log`.\n- Webhook receptor genérico: `POST /api/webhooks/receiver` (`src/routes/api/webhooks.receiver.ts`)\n  com assinatura HMAC-SHA256 (`x-webhook-signature`, segredo `WEBHOOK_SECRET`), idempotência via\n  tabela `webhook_events` (unique `provider + event_id`), rate limit por provider, limite de payload\n  e respostas HTTP explícitas (401/413/429/503). Desabilitado por padrão (sem `WEBHOOK_SECRET`).\n- Storage de avatares: bucket `avatars` (leitura pública, escrita restrita à própria pasta do\n  usuário, limite 1,5MB, jpeg/png/webp) + upload no perfil (`/perfil`) com pré-visualização,\n  validação de formato/tamanho no client e server functions `setMyAvatar`/`removeMyAvatar`.\n- Documentação: ADR-001, CORE-BUSINESS, este handoff.",
       "oldString": "- Auditoria consultável: `listAuditLogs`/`listAuditActions` (server-side, exige `audit.read`) e tela\n  `/admin/auditoria` com busca, filtro por ação e paginação.\n- Documentação: ADR-001, CORE-BUSINESS, este handoff."
     },
@@ -1620,5 +1604,21 @@
     "content": "\nSome issues need review, and may require choosing\na different dependency.\n\nRun `npm audit` for details.\n",
     "is_error": false,
     "timestamp": 1789655387731
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -E '\"vite\"|\"vitest\"' package.json; npx vitest --version 2>&1 | tail -2",
+      "timeout": 60000,
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1789655394337
+  },
+  {
+    "role": "tool_result",
+    "content": "    \"vite\": \"^8.0.16\",\n    \"vitest\": \"^3.2.7\"\nvitest/3.2.7 linux-x64 node-v20.20.2\n",
+    "is_error": false,
+    "timestamp": 1789655394954
   }
 ]
