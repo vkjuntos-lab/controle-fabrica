@@ -166,7 +166,7 @@ function ProductDialog({
       toast.error("Não foi possível salvar", { description: error.message }),
   });
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!code.trim() || !name.trim()) {
       toast.error("Informe código e nome do produto");
