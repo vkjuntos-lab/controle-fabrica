@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789649922482
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "npx tsc --noEmit 2>&1 | head -40",
-      "timeout": 240000,
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789649927599
-  },
-  {
-    "role": "tool_result",
     "content": "src/routes/__root.tsx(101,3): error TS2322: Type '({ error, reset }: { error: Error; reset: () => void; }) => Element' is not assignable to type 'false | ErrorRouteComponent | null | undefined'.\n  Type '({ error, reset }: { error: Error; reset: () => void; }) => Element' is not assignable to type '(",
     "is_error": false,
     "timestamp": 1789649937609
@@ -1572,5 +1556,21 @@
     "content": "== cron sem auth ==\n500\nServer configuration error\n== cron com auth ==\n500\nServer configuration error\n",
     "is_error": false,
     "timestamp": 1789651462369
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "for pid in $(pgrep -af \"vite dev --port 5\" | awk '{print $1}'); do kill $pid 2>/dev/null; done; sleep 1; pgrep -af \"vite dev --port 5\" || echo \"processos de teste limpos\"",
+      "timeout": 15000,
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1789651488737
+  },
+  {
+    "role": "tool_result",
+    "content": "(no output)\n\n<shell_metadata>\nshell tool terminated command after exceeding timeout 15000 ms. If this command is expected to take longer and is not waiting for interactive input, retry with a larger timeout value in milliseconds.\n</shell_metadata>",
+    "is_error": false,
+    "timestamp": 1789651503853
   }
 ]
