@@ -341,7 +341,10 @@ export const updateRolePermission = createServerFn({ method: "POST" })
     if (data.granted) {
       const { error } = await supabaseAdmin
         .from("role_permissions")
-        .upsert({ role: data.role, permission: data.permission }, { onConflict: "role, permission" })
+        .upsert(
+          { role: data.role, permission: data.permission },
+          { onConflict: "role, permission" },
+        )
         .select("id");
       if (error) throw new Error(error.message);
     } else {

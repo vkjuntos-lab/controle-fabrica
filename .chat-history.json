@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "echo \"== cron sem auth ==\"; curl -s -o /tmp/c1 -w \"%{http_code}\\n\" http://localhost:8082/preview/controle-fabrica/api/cron/health; cat /tmp/c1; echo\necho \"== cron com auth ==\"; curl -s -o /tmp/c2 -w \"%{http_code}\\n\" -H \"Authorization: Bearer segredo-teste-123\" http://localhost:8082/preview/controle-fabrica/api/cron/health; cat /tmp/c2; echo",
-      "timeout": 60000,
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789651462302
-  },
-  {
-    "role": "tool_result",
-    "content": "== cron sem auth ==\n500\nServer configuration error\n== cron com auth ==\n500\nServer configuration error\n",
-    "is_error": false,
-    "timestamp": 1789651462369
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "for pid in $(pgrep -af \"vite dev --port 5\" | awk '{print $1}'); do kill $pid 2>/dev/null; done; sleep 1; pgrep -af \"vite dev --port 5\" || echo \"processos de teste limpos\"",
       "timeout": 15000,
       "workdir": "/root/Zheus AI Projects/controle-fabrica"
@@ -1624,5 +1608,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789655335294
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "npx tsc --noEmit 2>&1 | grep \"error TS\" | sort -u; echo FIM; npx eslint --fix src/lib/org/organizations.functions.ts 2>&1 | tail -4; echo \"LINT OK\"",
+      "timeout": 300000,
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1789655338191
+  },
+  {
+    "role": "tool_result",
+    "content": "FIM\nLINT OK\n",
+    "is_error": false,
+    "timestamp": 1789655355120
   }
 ]
