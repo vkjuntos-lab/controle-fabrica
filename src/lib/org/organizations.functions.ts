@@ -215,6 +215,13 @@ export const removeMember = createServerFn({ method: "POST" })
     z.object({ organizationId: z.string().uuid(), memberId: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {
+    await requireOrgPermission(
+      context.supabase,
+      data.organizationId,
+      PERMISSIONS.usersManage,
+      context.userId,
+    );
+
     const { error } = await context.supabase
       .from("organization_members")
       .delete()
