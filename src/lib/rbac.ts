@@ -96,7 +96,7 @@ export const PLATFORM_MODULES: ModuleDefinition[] = [
     key: "produtos",
     label: "Produtos",
     description: "Produtos, variantes e SKUs.",
-    status: "coming_soon",
+    status: "available",
   },
   {
     key: "estoque",
