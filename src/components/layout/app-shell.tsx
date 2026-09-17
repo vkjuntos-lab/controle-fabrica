@@ -5,6 +5,7 @@ import {
   ChevronsUpDown,
   LayoutDashboard,
   LogOut,
+  Package,
   ScrollText,
   ShieldCheck,
   User,

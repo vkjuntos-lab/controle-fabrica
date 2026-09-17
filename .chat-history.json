@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "FIM\n",
-    "is_error": false,
-    "timestamp": 1789654993844
-  },
-  {
-    "role": "tool",
-    "tool": "write",
-    "input": {
-      "content": "import { useMutation } from \"@tanstack/react-query\";\nimport { createFileRoute, Link, useNavigate } from \"@tanstack/react-router\";\nimport { useServerFn } from \"@tanstack/react-start\";\nimport { useEffect, useState } from \"react\";\nimport { toast } from \"sonner\";\n\nimport { ErrorState, LoadingState } from \"@/components/states\";\nimport { Alert, AlertDescription, AlertTitle } from \"@/components/ui/alert\";\nimport { Button } from \"@/components/ui/button\";\nimport { Card, CardContent, CardDescription, CardHeader, CardTitle } from \"@/components/ui/card\";\nimport { Badge } from \"@/components/ui/badge\";\nimport { supabase } from \"@/integrations/supabase/client\";\nimport { acceptInvitation, getInvitationByToken } from \"@/lib/org/organizations.functions\";\nimport { ROLE_LABELS, type AppRole } from \"@/lib/rbac\";\n\nexport const Route = createFileRoute(\"/convidar\")({\n  head: () => ({\n    meta: [\n      { title: \"Convite — Estratégia\" },\n      { name: \"description\", content: \"Aceite seu convite para entrar na organização.\" },\n      { property: \"og:title\", content: \"Convite — Estratégia\" },\n      { name: \"robots\", content: \"noindex\" },\n    ],\n  }),\n  component: InvitePage,\n});\n\nfunction InvitePage() {\n  const token = Route.useSearch({ select: (s) => s.token }) ?? \"\";\n  const navigate = useNavigate();\n  const fetchInvitation = useServerFn(getInvitationByToken);\n  const accept = useServerFn(acceptInvitation);\n\n  const [sessionUserId, setSessionUserId] = useState<string | null | undefined>(undefined);\n  const [invitation, setInvitation] = useState<{\n    organizationName: string;\n    email: string;\n    role: AppRole;\n    inviteMatchesAccount: boolean;\n  } | null>(null);\n  const [error, setError] = useState<string | null>(null);\n  const [loading, setLoading] = useState(true);\n\n  useEffect(() => {\n    void supabase.auth.getSession().then(({ data }) => {\n      setSessionUserId(data.session?.user.id ?? null);\n    });\n  }, []);\n\n  useEffect(() => {\n    if (!token) {\n      setLoading(false);\n      setError(\"Link de convite inválido.\");\n      return;\n    }\n    let cancelled = false;\n    setLoading(true);\n    setError(null);\n    fetchInvitation({ data: { token } })\n      .then((data) => {\n        if (cancelled) return;\n        setInvitation(data);\n      })\n      .catch((err: Error) => {\n        if (cancelled) return;\n        setError(err.message);\n      })\n      .finally(() => {\n        if (!cancelled) setLoading(false);\n      });\n    return () => {\n      cancelled = true;\n    };\n    // eslint-disable-next-line react-hooks/exhaustive-deps\n  }, [token]);\n\n  const acceptMutation = useMutation({\n    mutationFn: () => accept({ data: { token } }),\n    onSuccess: () => {\n      toast.success(\"Convite aceito\");\n      navigate({ to: \"/dashboard\", replace: true });\n    },\n    onError: (err: Error) => toast.error(\"Não foi possível aceitar\", { description: err.message }),\n  });\n\n  if (!token) {\n    return (\n      <PublicLayout>\n        <Card>\n          <CardHeader>\n            <CardTitle>Convite inválido</CardTitle>\n            <CardDescription>O link de convite não foi informado.</CardDescription>\n          </CardHeader>\n        </Card>\n      </PublicLayout>\n    );\n  }\n\n  if (loading) {\n    return (\n      <PublicLayout>\n        <LoadingState rows={2} />\n      </PublicLayout>\n    );\n  }\n\n  if (error) {\n    return (\n      <PublicLayout>\n        <Alert>\n          <AlertTitle>Não foi possível abrir o convite</AlertTitle>\n          <AlertDescription>{error}</AlertDescription>\n        </Alert>\n        <ErrorState\n          title=\"Precisa de ajuda?\"\n          description=\"Entre em contato com quem te enviou o convite para gerar um novo link.\"\n          onRetry={() => navigate({ to: \"/convidar\", search: { token }, replace: true })}\n        />\n      </PublicLayout>\n    );\n  }\n\n  if (sessionUserId === undefined || !invitation) {\n    return (\n      <PublicLayout>\n        <LoadingState rows={2} />\n      </PublicLayout>\n    );\n  }\n\n  if (!sessionUserId) {\n    return (\n      <PublicLayout>\n        <Card>\n          <CardHeader>\n            <CardTitle>Você foi convidado</CardTitle>\n            <CardDescription>\n              {invitation.organizationName} te convidou para participar como{\" \"}\n              {ROLE_LABELS[invitation.role].toLowerCase()}.\n            </CardDescription>\n          </CardHeader>\n          <CardContent className=\"space-y-3\">\n            <p className=\"text-sm text-muted-foreground\">\n              Para aceitar, entre ou crie uma conta usando o e-mail convidado:\n            </p>\n            <p className=\"font-medium\">{invitation.email}</p>\n            <Button\n              className=\"w-full\"\n              onClick={() =>\n                navigate({\n                  to: \"/auth\",\n                  search: { redirect: `/convidar?token=${encodeURIComponent(token)}` },\n                })\n              }\n            >\n              Entrar ou criar conta\n            </Button>\n          </CardContent>\n        </Card>\n      </PublicLayout>\n    );\n  }\n\n  return (\n    <PublicLayout>\n      <Card>\n        <CardHeader>\n          <CardTitle>Convite para {invitation.organizationName}</CardTitle>\n          <CardDescription>\n            Este convite é para <span className=\"font-medium\">{invitation.email}</span>.\n          </CardDescription>\n        </CardHeader>\n        <CardContent className=\"space-y-4\">\n          <div className=\"flex items-center gap-2 text-sm\">\n            <span className=\"text-muted-foreground\">Papel previsto:</span>\n            <Badge variant=\"secondary\">{ROLE_LABELS[invitation.role]}</Badge>\n          </div>\n\n          {invitation.inviteMatchesAccount ? (\n            <div className=\"space-y-3\">\n              <p className=\"text-sm text-muted-foreground\">\n                O convite corresponde ao e-mail da sua conta. Aceite para começar.\n              </p>\n              <Button\n                className=\"w-full\"\n                disabled={acceptMutation.isPending}\n                onClick={() => acceptMutation.mutate()}\n              >\n                {acceptMutation.isPending ? \"Aceitando...\" : \"Aceitar convite\"}\n              </Button>\n            </div>\n          ) : (\n            <p className=\"text-sm text-muted-foreground\">\n              Você está logado com outro e-mail. Saia e entre com <strong>{invitation.email}</strong>{\" \"}\n              para aceitar este convite.\n            </p>\n          )}\n        </CardContent>\n      </Card>\n    </PublicLayout>\n  );\n}\n\nfunction PublicLayout({ children }: { children: React.ReactNode }) {\n  return (\n    <div className=\"flex min-h-screen items-center justify-center bg-muted/40 px-4 py-10\">\n      <div className=\"w-full max-w-md space-y-4\">\n        <Link to=\"/\" className=\"mb-6 flex items-center justify-center gap-2\">\n          <div className=\"flex h-9 w-9 items-center justify-center rounded-lg bg-primary font-bold text-primary-foreground\">\n            E\n          </div>\n          <span className=\"font-heading text-lg font-semibold\">Estratégia</span>\n        </Link>\n        {children}\n      </div>\n    </div>\n  );\n}",
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/convidar.tsx"
-    },
-    "timestamp": 1789655033183
-  },
-  {
-    "role": "tool_result",
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1789655033192
@@ -1667,5 +1652,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789671563429
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/layout/app-shell.tsx",
+      "newString": "import {\n  Building2,\n  ChevronsUpDown,\n  LayoutDashboard,\n  LogOut,\n  Package,\n  ScrollText,\n  ShieldCheck,\n  User,\n  Users,\n} from \"lucide-react\";",
+      "oldString": "import {\n  Building2,\n  ChevronsUpDown,\n  LayoutDashboard,\n  LogOut,\n  ScrollText,\n  ShieldCheck,\n  User,\n  Users,\n} from \"lucide-react\";"
+    },
+    "timestamp": 1789671566344
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789671566368
   }
 ]
