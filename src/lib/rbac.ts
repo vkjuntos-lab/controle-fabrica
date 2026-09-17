@@ -62,6 +62,8 @@ export const PERMISSION_LABELS: Record<string, string> = {
   "permissions.read": "Ver permissões",
   "permissions.manage": "Editar permissões",
   "audit.read": "Ver auditoria",
+  "products.read": "Ver catálogo de produtos",
+  "products.manage": "Gerenciar catálogo de produtos",
 };
 
 /**
