@@ -254,6 +254,209 @@ export type Database = {
           },
         ]
       }
+      product_categories: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          name: string
+          organization_id: string
+          parent_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name: string
+          organization_id: string
+          parent_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          name?: string
+          organization_id?: string
+          parent_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_categories_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_variants: {
+        Row: {
+          attributes: Json
+          barcode: string | null
+          color: string | null
+          cost_price: number | null
+          created_at: string
+          created_by: string | null
+          id: string
+          organization_id: string
+          product_id: string
+          sell_price: number | null
+          size: string | null
+          sku: string
+          status: Database["public"]["Enums"]["product_variant_status"]
+          updated_at: string
+          updated_by: string | null
+          weight_grams: number | null
+        }
+        Insert: {
+          attributes?: Json
+          barcode?: string | null
+          color?: string | null
+          cost_price?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          organization_id: string
+          product_id: string
+          sell_price?: number | null
+          size?: string | null
+          sku: string
+          status?: Database["public"]["Enums"]["product_variant_status"]
+          updated_at?: string
+          updated_by?: string | null
+          weight_grams?: number | null
+        }
+        Update: {
+          attributes?: Json
+          barcode?: string | null
+          color?: string | null
+          cost_price?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          organization_id?: string
+          product_id?: string
+          sell_price?: number | null
+          size?: string | null
+          sku?: string
+          status?: Database["public"]["Enums"]["product_variant_status"]
+          updated_at?: string
+          updated_by?: string | null
+          weight_grams?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variants_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          attributes: Json
+          brand: string | null
+          category_id: string | null
+          code: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          main_image_url: string | null
+          name: string
+          ncm: string | null
+          organization_id: string
+          status: Database["public"]["Enums"]["product_status"]
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          attributes?: Json
+          brand?: string | null
+          category_id?: string | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          main_image_url?: string | null
+          name: string
+          ncm?: string | null
+          organization_id: string
+          status?: Database["public"]["Enums"]["product_status"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          attributes?: Json
+          brand?: string | null
+          category_id?: string | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          main_image_url?: string | null
+          name?: string
+          ncm?: string | null
+          organization_id?: string
+          status?: Database["public"]["Enums"]["product_status"]
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "products_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "product_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
