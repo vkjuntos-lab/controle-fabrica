@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
-      "newString": "1. Modelar Product → Variant com SKU/código de barras e atributos extensíveis.\n2. Modelar o Inventory Ledger (movimentos + visões de saldo) como fonte única do estoque.\n3. Modelar locais de estoque e posse de terceiros (parceiro).\n4. Marketplaces/lojas e importação com mapeamento configurável de colunas.\n5. Reconciliação, fechamento de período e cobrança (server-side, auditado).\n6. Financeiro e relatórios de quantidade + valor.\n7. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a\n   `/api/webhooks/receiver` quando houver integração externa.",
-      "oldString": "1. Modelar Product → Variant com SKU/código de barras e atributos extensíveis.\n2. Modelar o Inventory Ledger (movimentos + visões de saldo) como fonte única do estoque.\n3. Modelar locais de estoque e posse de terceiros (parceiro).\n4. Marketplaces/lojas e importação com mapeamento configurável de colunas.\n5. Reconciliação, fechamento de período e cobrança (server-side, auditado).\n6. Financeiro e relatórios de quantidade + valor."
-    },
-    "timestamp": 1789651549210
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789651549237
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "npx tsc --noEmit 2>&1 | grep -v \"__root.tsx\" | grep -c \"error TS\" || echo \"0 erros novos\"; echo \"== eslint ==\"; npx eslint src/routes/api/cron.health.ts src/routes/api/webhooks.receiver.ts src/lib/webhook/signature.ts src/lib/audit/functions.ts src/lib/org/organizations.functions.ts src/routes/_authenticated/perfil.tsx 2>&1 | tail -3; echo \"== build ==\"; npx vite build 2>&1 | grep -iE \"error|✓ built\" | head -5",
@@ -1618,5 +1602,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1789655408110
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "import { afterEach, describe, expect, it, vi } from \"vitest\";\nimport { createHmac } from \"node:crypto\";\n\nimport { validateWebhookSignature } from \"@/lib/webhook/signature\";\n\nafterEach(() => {\n  vi.unstubAllEnvs();\n});\n\nfunction sign(body: string, secret: string): string {\n  return createHmac(\"sha256\", secret).update(body, \"utf8\").digest(\"hex\");\n}\n\ndescribe(\"validateWebhookSignature\", () => {\n  it(\"retorna missing_secret quando WEBHOOK_SECRET não está definido\", async () => {\n    vi.stubEnv(\"WEBHOOK_SECRET\", \"\");\n    const result = await validateWebhookSignature('{\"a\":1}', \"abc\");\n    expect(result).toBe(\"missing_secret\");\n  });\n\n  it(\"retorna missing_signature quando o header não existe\", async () => {\n    vi.stubEnv(\"WEBHOOK_SECRET\", \"segredo\");\n    const result = await validateWebhookSignature('{\"a\":1}', null);\n    expect(result).toBe(\"missing_signature\");\n  });\n\n  it(\"retorna valid para assinatura correta do corpo bruto\", async () => {\n    vi.stubEnv(\"WEBHOOK_SECRET\", \"segredo\");\n    const body = '{\"a\":1}';\n    const sig = sign(body, \"segredo\");\n    expect(await validateWebhookSignature(body, sig)).toBe(\"valid\");\n  });\n\n  it(\"retorna invalid para assinatura incorreta\", async () => {\n    vi.stubEnv(\"WEBHOOK_SECRET\", \"segredo\");\n    expect(await validateWebhookSignature('{\"a\":1}', \"abcd\")).toBe(\"invalid\");\n  });\n\n  it(\"retorna invalid para assinatura válida de outro corpo\", async () => {\n    vi.stubEnv(\"WEBHOOK_SECRET\", \"segredo\");\n    const sig = sign('{\"a\":2}', \"segredo\");\n    expect(await validateWebhookSignature('{\"a\":1}', sig)).toBe(\"invalid\");\n  });\n});",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/webhook/signature.test.ts"
+    },
+    "timestamp": 1789655415234
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1789655415249
   }
 ]
