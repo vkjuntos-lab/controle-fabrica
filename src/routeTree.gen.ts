@@ -20,6 +20,7 @@ import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminOrganizacaoRouteImport } from './routes/_authenticated/admin.organizacao'
 import { Route as AuthenticatedAdminPermissoesRouteImport } from './routes/_authenticated/admin.permissoes'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
+import { Route as ApiCronHealthRouteImport } from './routes/api/cron.health'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -79,6 +80,11 @@ const AuthenticatedAdminUsuariosRoute =
     path: '/admin/usuarios',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiCronHealthRoute = ApiCronHealthRouteImport.update({
+  id: '/api/cron/health',
+  path: '/api/cron/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -91,6 +97,7 @@ export interface FileRoutesByFullPath {
   '/admin/organizacao': typeof AuthenticatedAdminOrganizacaoRoute
   '/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/api/cron/health': typeof ApiCronHealthRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -103,6 +110,7 @@ export interface FileRoutesByTo {
   '/admin/organizacao': typeof AuthenticatedAdminOrganizacaoRoute
   '/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/api/cron/health': typeof ApiCronHealthRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -117,6 +125,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/organizacao': typeof AuthenticatedAdminOrganizacaoRoute
   '/_authenticated/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/api/cron/health': typeof ApiCronHealthRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,6 +140,7 @@ export interface FileRouteTypes {
     | '/admin/organizacao'
     | '/admin/permissoes'
     | '/admin/usuarios'
+    | '/api/cron/health'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -143,6 +153,7 @@ export interface FileRouteTypes {
     | '/admin/organizacao'
     | '/admin/permissoes'
     | '/admin/usuarios'
+    | '/api/cron/health'
   id:
     | '__root__'
     | '/'
@@ -156,6 +167,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/organizacao'
     | '/_authenticated/admin/permissoes'
     | '/_authenticated/admin/usuarios'
+    | '/api/cron/health'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -163,6 +175,7 @@ export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  ApiCronHealthRoute: typeof ApiCronHealthRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -244,6 +257,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsuariosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/cron/health': {
+      id: '/api/cron/health'
+      path: '/api/cron/health'
+      fullPath: '/api/cron/health'
+      preLoaderRoute: typeof ApiCronHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -275,6 +295,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  ApiCronHealthRoute: ApiCronHealthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
