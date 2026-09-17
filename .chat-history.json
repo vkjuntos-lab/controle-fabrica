@@ -280,5 +280,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789649468732
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
+      "newString": "/** Participantes da organização + dados de perfil (nome/e-mail). */\nexport const listMembers = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) => z.object({ organizationId: z.string().uuid() }).parse(input))\n  .handler(async ({ data, context }) => {\n    await requireOrgPermission(\n      context.supabase,\n      data.organizationId,\n      PERMISSIONS.usersRead,\n      context.userId,\n    );\n\n    const { data: members, error } = await context.supabase",
+      "oldString": "/** Participantes da organização + dados de perfil (nome/e-mail). */\nexport const listMembers = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) => z.object({ organizationId: z.string().uuid() }).parse(input))\n  .handler(async ({ data, context }) => {\n    const { data: members, error } = await context.supabase"
+    },
+    "timestamp": 1789649471920
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789649471938
   }
 ]

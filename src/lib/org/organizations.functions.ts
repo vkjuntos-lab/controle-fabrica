@@ -134,6 +134,13 @@ export const listMembers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ organizationId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
+    await requireOrgPermission(
+      context.supabase,
+      data.organizationId,
+      PERMISSIONS.usersRead,
+      context.userId,
+    );
+
     const { data: members, error } = await context.supabase
       .from("organization_members")
       .select("id, user_id, role, is_active, created_at")
