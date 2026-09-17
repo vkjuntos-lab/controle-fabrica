@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql:85:GRANT SELECT ON public.audit_log TO authenticated;\nsupabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql:86:GRANT ALL ON public.audit_log TO service_role;\nsupabase/migrations/20260915210457_59fe8633-",
-    "is_error": false,
-    "timestamp": 1789654918042
-  },
-  {
-    "role": "tool",
-    "tool": "write",
-    "input": {
-      "content": "-- Corrige a escrita de auditoria: as server functions registram em `audit_log`\n-- via client autenticado (com RLS como o usuário), mas o schema de fundação só\n-- concedia SELECT. Sem GRANT INSERT e sem policy de INSERT, criar organização,\n-- adicionar/remover membro, alterar papel etc. falhariam ao tentar registrar a\n-- ação. Qualquer membro da organização pode registrar a própria ação logada;\n-- a leitura continua restrita a admin/gestor.\nGRANT INSERT ON public.audit_log TO authenticated;\n\nCREATE POLICY \"members insert audit rows\" ON public.audit_log\n  FOR INSERT TO authenticated\n  WITH CHECK (\n    organization_id IS NULL OR public.is_org_member(organization_id)\n  );",
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260917100001_audit_log_insert_policy.sql"
-    },
-    "timestamp": 1789654956119
-  },
-  {
-    "role": "tool_result",
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1789654956143
@@ -1666,5 +1651,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789671554889
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/produtos.$id.tsx",
+      "newString": "const saveMutation = useMutation({\n    mutationFn: () => {\n      if (!organizationId) return Promise.reject(new Error(\"Nenhuma organização selecionada.\"));\n      if (variant) {\n        return update({\n          data: {\n            organizationId,\n            variantId: variant.id,\n            sku,\n            barcode,\n            size,\n            color,\n            costPrice: toPrice(costPrice),\n            sellPrice: toPrice(sellPrice),\n            weightGrams: toPrice(weightGrams),\n          },\n        });\n      }\n      return create({\n        data: {\n          organizationId,\n          productId: routeParams.id,\n          sku,\n          barcode,\n          size,\n          color,\n          costPrice: toPrice(costPrice),\n          sellPrice: toPrice(sellPrice),\n          weightGrams: toPrice(weightGrams),\n          status,\n        },\n      });\n    },\n    onSuccess: () => {\n      toast.success(variant ? \"Variante atualizada\" : \"Variante criada\");\n      onOpenChange(false);\n      onSaved();\n    },\n    onError: (error: Error) =>\n      toast.error(\"Não foi possível salvar\", { description: error.message }),\n  });\n\n  function handleSubmit(e: FormEvent) {",
+      "oldString": "const saveMutation = useMutation({\n    mutationFn: () => {\n      if (!organizationId) return Promise.reject(new Error(\"Nenhuma organização selecionada.\"));\n      const payload = {\n        organizationId,\n        productId: routeParams.id,\n        sku,\n        barcode,\n        size,\n        color,\n        costPrice: toPrice(costPrice),\n        sellPrice: toPrice(sellPrice),\n        weightGrams: toPrice(weightGrams),\n      };\n      return variant\n        ? update({ data: { organizationId, variantId: variant.id, ...payload } })\n        : create({ data: { ...payload, status } });\n    },\n    onSuccess: () => {\n      toast.success(variant ? \"Variante atualizada\" : \"Variante criada\");\n      onOpenChange(false);\n      onSaved();\n    },\n    onError: (error: Error) =>\n      toast.error(\"Não foi possível salvar\", { description: error.message }),\n  });\n\n  function handleSubmit(e: React.FormEvent) {"
+    },
+    "timestamp": 1789671558309
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789671558342
   }
 ]

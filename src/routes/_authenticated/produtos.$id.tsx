@@ -125,20 +125,35 @@ function VariantDialog({
   const saveMutation = useMutation({
     mutationFn: () => {
       if (!organizationId) return Promise.reject(new Error("Nenhuma organização selecionada."));
-      const payload = {
-        organizationId,
-        productId: routeParams.id,
-        sku,
-        barcode,
-        size,
-        color,
-        costPrice: toPrice(costPrice),
-        sellPrice: toPrice(sellPrice),
-        weightGrams: toPrice(weightGrams),
-      };
-      return variant
-        ? update({ data: { organizationId, variantId: variant.id, ...payload } })
-        : create({ data: { ...payload, status } });
+      if (variant) {
+        return update({
+          data: {
+            organizationId,
+            variantId: variant.id,
+            sku,
+            barcode,
+            size,
+            color,
+            costPrice: toPrice(costPrice),
+            sellPrice: toPrice(sellPrice),
+            weightGrams: toPrice(weightGrams),
+          },
+        });
+      }
+      return create({
+        data: {
+          organizationId,
+          productId: routeParams.id,
+          sku,
+          barcode,
+          size,
+          color,
+          costPrice: toPrice(costPrice),
+          sellPrice: toPrice(sellPrice),
+          weightGrams: toPrice(weightGrams),
+          status,
+        },
+      });
     },
     onSuccess: () => {
       toast.success(variant ? "Variante atualizada" : "Variante criada");
@@ -149,7 +164,7 @@ function VariantDialog({
       toast.error("Não foi possível salvar", { description: error.message }),
   });
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!sku.trim()) {
       toast.error("Informe o SKU da variante");
