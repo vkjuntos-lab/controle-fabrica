@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/admin.auditoria.tsx</path>\n<type>file</type>\n<content>\n130: \n131:   return (\n132:     <AppShell title=\"Administração · Auditoria\">\n133:       {orgLoading ? (\n134:         <LoadingState rows={3} />\n135:       ) : !currentOrganiz",
-    "is_error": false,
-    "timestamp": 1789650016870
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
-      "limit": 100,
-      "offset": 330
-    },
-    "timestamp": 1789650022446
-  },
-  {
-    "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts</path>\n<type>file</type>\n<content>\n330: export const listAuditLogs = createServerFn({ method: \"GET\" })\n331:   .middleware([requireSupabaseAuth])\n332:   .inputValidator((input) =>\n333:     z\n334:       .object({\n335",
     "is_error": false,
     "timestamp": 1789650022464
@@ -1571,5 +1555,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789651549237
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "npx tsc --noEmit 2>&1 | grep -v \"__root.tsx\" | grep -c \"error TS\" || echo \"0 erros novos\"; echo \"== eslint ==\"; npx eslint src/routes/api/cron.health.ts src/routes/api/webhooks.receiver.ts src/lib/webhook/signature.ts src/lib/audit/functions.ts src/lib/org/organizations.functions.ts src/routes/_authenticated/perfil.tsx 2>&1 | tail -3; echo \"== build ==\"; npx vite build 2>&1 | grep -iE \"error|✓ built\" | head -5",
+      "timeout": 600000,
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1789651559272
+  },
+  {
+    "role": "tool_result",
+    "content": "1\n== eslint ==\n== build ==\n✓ built in 2.45s\n✓ built in 1.12s\n\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@tanstack/react-query/build/modern/QueryErrorResetBoundary.js\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b",
+    "is_error": false,
+    "timestamp": 1789651586768
   }
 ]
