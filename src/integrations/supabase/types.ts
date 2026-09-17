@@ -297,7 +297,8 @@ export type Database = {
         | "estoque"
         | "producao"
         | "comercial"
-        | "marketplace"
+        | "marketplace",
+      invitation_status: "pending" | "accepted" | "expired" | "revoked",
     }
     CompositeTypes: {
       [_ in never]: never
