@@ -1,10 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { getRequest } from "@tanstack/react-start/server";
-import type { FetchHandler } from "@tanstack/react-start";
 
 import { authenticateCronRequest } from "@/integrations/supabase/cron-auth";
+import { writeSystemAudit } from "@/lib/audit/functions";
 import { checkRateLimit } from "@/lib/middleware/rate-limit";
-import { writeAuditLog } from "@/lib/audit/functions";
 
 function json(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
@@ -14,33 +12,31 @@ function json(body: unknown, status = 200): Response {
 }
 
 /**
- * Health check autenticado para agendamentos (cron). Não executa efeito
- * colateral: apenas confirma autenticação, rate limit e disponibilidade.
+ * Health check acessível por agendamentos (cron). Não executa efeito
+ * colateral: apenas valida autenticação, aplica rate limit e responde.
+ * Para cron disparar de fato, configure `LOVABLE_CRON_SECRET` no ambiente
+ * e envie `Authorization: Bearer <secret>`.
  */
-export const Route = createFileRoute("/api/cron/health")({});
+export const Route = createFileRoute("/api/cron/health")({
+  server: {
+    handlers: {
+      GET: async ({ request }) => {
+        const authError = await authenticateCronRequest(request);
+        if (authError) return authError;
 
-export default async function handler(request: Request): Promise<Response> {
-  if (request.method !== "GET") {
-    return json({ ok: false, message: "Método não permitido." }, 405);
-  }
+        if (!checkRateLimit("cron:health", { limit: 10, windowMs: 60_000 })) {
+          return json({ ok: false, message: "Muitas requisições." }, 429);
+        }
 
-  const authError = await authenticateCronRequest(request);
-  if (authError) return authError;
+        await writeSystemAudit({
+          action: "cron.health",
+          resource: "system",
+          result: "success",
+          context: { ts: new Date().toISOString() },
+        });
 
-  if (!checkRateLimit("cron:health", { limit: 10, windowMs: 60_000 })) {
-    return json({ ok: false, message: "Muitas requisições." }, 429);
-  }
-
-  await writeAuditLog({
-    action: "cron.health",
-    resource: "system",
-    result: "success",
-    context: { ts: new Date().toISOString() },
-  });
-
-  return json({ ok: true, status: "healthy", ts: new Date().toISOString() });
-}
-
-export async function handleCronHealthRequest(request: Request): Promise<Response> {
-  return handler(request);
-}
+        return json({ ok: true, status: "healthy", ts: new Date().toISOString() });
+      },
+    },
+  },
+});

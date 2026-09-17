@@ -4,21 +4,6 @@
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
-      "limit": 60
-    },
-    "timestamp": 1789649480056
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts</path>\n<type>file</type>\n<content>\n1: import { createServerFn } from \"@tanstack/react-start\";\n2: import type { SupabaseClient } from \"@supabase/supabase-js\";\n3: import { z } from \"zod\";\n4: \n5: import { requireSupab",
-    "is_error": false,
-    "timestamp": 1789649480087
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
       "offset": 80,
       "limit": 160
     },
@@ -1521,5 +1506,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1789650748210
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "import { createFileRoute } from \"@tanstack/react-router\";\n\nimport { authenticateCronRequest } from \"@/integrations/supabase/cron-auth\";\nimport { writeSystemAudit } from \"@/lib/audit/functions\";\nimport { checkRateLimit } from \"@/lib/middleware/rate-limit\";\n\nfunction json(body: unknown, status = 200): Response {\n  return new Response(JSON.stringify(body), {\n    status,\n    headers: { \"content-type\": \"application/json; charset=utf-8\" },\n  });\n}\n\n/**\n * Health check acessível por agendamentos (cron). Não executa efeito\n * colateral: apenas valida autenticação, aplica rate limit e responde.\n * Para cron disparar de fato, configure `LOVABLE_CRON_SECRET` no ambiente\n * e envie `Authorization: Bearer <secret>`.\n */\nexport const Route = createFileRoute(\"/api/cron/health\")({\n  server: {\n    handlers: {\n      GET: async ({ request }) => {\n        const authError = await authenticateCronRequest(request);\n        if (authError) return authError;\n\n        if (!checkRateLimit(\"cron:health\", { limit: 10, windowMs: 60_000 })) {\n          return json({ ok: false, message: \"Muitas requisições.\" }, 429);\n        }\n\n        await writeSystemAudit({\n          action: \"cron.health\",\n          resource: \"system\",\n          result: \"success\",\n          context: { ts: new Date().toISOString() },\n        });\n\n        return json({ ok: true, status: \"healthy\", ts: new Date().toISOString() });\n      },\n    },\n  },\n});",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/api/cron.health.ts"
+    },
+    "timestamp": 1789650765075
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1789650765107
   }
 ]
