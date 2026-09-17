@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/rbac.ts</path>\n<type>file</type>\n<content>\n1: /**\n2:  * RBAC central — papéis, permissões e módulos.\n3:  *\n4:  * As permissões vivem no banco (public.role_permissions) e são a fonte de\n5:  * verdade para autorização. Este arquivo apenas descreve",
-    "is_error": false,
-    "timestamp": 1789654250591
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "head -40 supabase/migrations/20260811000000_waseller_schema.sql; echo \"==== CRM WA ====\"; head -40 supabase/migrations/20260811000001_crm_wa_improvements.sql",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789654254175
-  },
-  {
-    "role": "tool_result",
     "content": "-- Adiciona suporte a link de WhatsApp nos pedidos\nDO $$ \nBEGIN\n  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'orders' AND column_name = 'whatsapp_link') THEN\n    ALTER TABLE public.orders ADD COLUMN whatsapp_link text;\n  END IF;\nEND $$;\n\n-- Garante que a tabela custom",
     "is_error": false,
     "timestamp": 1789654254223
@@ -1593,5 +1578,50 @@
     "content": "15:import { Route as ConvidarRouteImport } from './routes/convidar'\n42:  id: '/convidar',\n43:  path: '/convidar',\n104:  '/convidar': typeof ConvidarRoute\n119:  '/convidar': typeof ConvidarRoute\n",
     "is_error": false,
     "timestamp": 1789655637979
+  },
+  {
+    "role": "tool",
+    "tool": "todowrite",
+    "input": {
+      "todos": [
+        {
+          "content": "Corrigir erro TS pré-existente em __root.tsx",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Atualizar ADR-001 (webhooks/cron/storage já existem)",
+          "priority": "medium",
+          "status": "completed"
+        },
+        {
+          "content": "Implementar convite por link (tabela invitations + server functions + fluxo de aceite + tela)",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Tornar matriz de permissões editável (server function + tela admin)",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Adicionar testes automatizados para lógica pura (signature, rate-limit, csv, rbac)",
+          "priority": "medium",
+          "status": "completed"
+        },
+        {
+          "content": "Validar typecheck, lint, build e atualizar PROJECT-STATE",
+          "priority": "medium",
+          "status": "completed"
+        }
+      ]
+    },
+    "timestamp": 1789655645758
+  },
+  {
+    "role": "tool_result",
+    "content": "[\n  {\n    \"content\": \"Corrigir erro TS pré-existente em __root.tsx\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Atualizar ADR-001 (webhooks/cron/storage já existem)\",\n    \"status\": \"completed\",\n    \"priority\": \"medium\"\n  },\n  {\n    \"content\": \"Implementar convite por ",
+    "is_error": false,
+    "timestamp": 1789655645763
   }
 ]
