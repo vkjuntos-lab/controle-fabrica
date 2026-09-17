@@ -22,6 +22,7 @@ import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminOrganizacaoRouteImport } from './routes/_authenticated/admin.organizacao'
 import { Route as AuthenticatedAdminPermissoesRouteImport } from './routes/_authenticated/admin.permissoes'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
+import { Route as AuthenticatedProdutosIdRouteImport } from './routes/_authenticated/produtos.$id'
 import { Route as ApiCronHealthRouteImport } from './routes/api/cron.health'
 import { Route as ApiWebhooksReceiverRouteImport } from './routes/api/webhooks.receiver'
 
@@ -93,6 +94,11 @@ const AuthenticatedAdminUsuariosRoute =
     path: '/admin/usuarios',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedProdutosIdRoute = AuthenticatedProdutosIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedProdutosRoute,
+} as any)
 const ApiCronHealthRoute = ApiCronHealthRouteImport.update({
   id: '/api/cron/health',
   path: '/api/cron/health',
@@ -112,11 +118,12 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/perfil': typeof AuthenticatedPerfilRoute
-  '/produtos': typeof AuthenticatedProdutosRoute
+  '/produtos': typeof AuthenticatedProdutosRouteWithChildren
   '/admin/auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/admin/organizacao': typeof AuthenticatedAdminOrganizacaoRoute
   '/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/produtos/$id': typeof AuthenticatedProdutosIdRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
 }
@@ -128,11 +135,12 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/perfil': typeof AuthenticatedPerfilRoute
-  '/produtos': typeof AuthenticatedProdutosRoute
+  '/produtos': typeof AuthenticatedProdutosRouteWithChildren
   '/admin/auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/admin/organizacao': typeof AuthenticatedAdminOrganizacaoRoute
   '/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/produtos/$id': typeof AuthenticatedProdutosIdRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
 }
@@ -146,11 +154,12 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
-  '/_authenticated/produtos': typeof AuthenticatedProdutosRoute
+  '/_authenticated/produtos': typeof AuthenticatedProdutosRouteWithChildren
   '/_authenticated/admin/auditoria': typeof AuthenticatedAdminAuditoriaRoute
   '/_authenticated/admin/organizacao': typeof AuthenticatedAdminOrganizacaoRoute
   '/_authenticated/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/_authenticated/produtos/$id': typeof AuthenticatedProdutosIdRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
 }
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/admin/organizacao'
     | '/admin/permissoes'
     | '/admin/usuarios'
+    | '/produtos/$id'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
   fileRoutesByTo: FileRoutesByTo
@@ -185,6 +195,7 @@ export interface FileRouteTypes {
     | '/admin/organizacao'
     | '/admin/permissoes'
     | '/admin/usuarios'
+    | '/produtos/$id'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
   id:
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/organizacao'
     | '/_authenticated/admin/permissoes'
     | '/_authenticated/admin/usuarios'
+    | '/_authenticated/produtos/$id'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
   fileRoutesById: FileRoutesById
@@ -309,6 +321,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsuariosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/produtos/$id': {
+      id: '/_authenticated/produtos/$id'
+      path: '/$id'
+      fullPath: '/produtos/$id'
+      preLoaderRoute: typeof AuthenticatedProdutosIdRouteImport
+      parentRoute: typeof AuthenticatedProdutosRoute
+    }
     '/api/cron/health': {
       id: '/api/cron/health'
       path: '/api/cron/health'
@@ -326,11 +345,24 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedProdutosRouteChildren {
+  AuthenticatedProdutosIdRoute: typeof AuthenticatedProdutosIdRoute
+}
+
+const AuthenticatedProdutosRouteChildren: AuthenticatedProdutosRouteChildren = {
+  AuthenticatedProdutosIdRoute: AuthenticatedProdutosIdRoute,
+}
+
+const AuthenticatedProdutosRouteWithChildren =
+  AuthenticatedProdutosRoute._addFileChildren(
+    AuthenticatedProdutosRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
-  AuthenticatedProdutosRoute: typeof AuthenticatedProdutosRoute
+  AuthenticatedProdutosRoute: typeof AuthenticatedProdutosRouteWithChildren
   AuthenticatedAdminAuditoriaRoute: typeof AuthenticatedAdminAuditoriaRoute
   AuthenticatedAdminOrganizacaoRoute: typeof AuthenticatedAdminOrganizacaoRoute
   AuthenticatedAdminPermissoesRoute: typeof AuthenticatedAdminPermissoesRoute
@@ -341,7 +373,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
-  AuthenticatedProdutosRoute: AuthenticatedProdutosRoute,
+  AuthenticatedProdutosRoute: AuthenticatedProdutosRouteWithChildren,
   AuthenticatedAdminAuditoriaRoute: AuthenticatedAdminAuditoriaRoute,
   AuthenticatedAdminOrganizacaoRoute: AuthenticatedAdminOrganizacaoRoute,
   AuthenticatedAdminPermissoesRoute: AuthenticatedAdminPermissoesRoute,
