@@ -1327,5 +1327,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1789650421645
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "import { createFileRoute } from \"@tanstack/react-router\";\nimport { getRequest } from \"@tanstack/react-start/server\";\nimport type { FetchHandler } from \"@tanstack/react-start\";\n\nimport { authenticateCronRequest } from \"@/integrations/supabase/cron-auth\";\nimport { checkRateLimit } from \"@/lib/middleware/rate-limit\";\nimport { writeAuditLog } from \"@/lib/audit/functions\";\n\nfunction json(body: unknown, status = 200): Response {\n  return new Response(JSON.stringify(body), {\n    status,\n    headers: { \"content-type\": \"application/json; charset=utf-8\" },\n  });\n}\n\n/**\n * Health check autenticado para agendamentos (cron). Não executa efeito\n * colateral: apenas confirma autenticação, rate limit e disponibilidade.\n */\nexport const Route = createFileRoute(\"/api/cron/health\")({});\n\nexport default async function handler(request: Request): Promise<Response> {\n  if (request.method !== \"GET\") {\n    return json({ ok: false, message: \"Método não permitido.\" }, 405);\n  }\n\n  const authError = await authenticateCronRequest(request);\n  if (authError) return authError;\n\n  if (!checkRateLimit(\"cron:health\", { limit: 10, windowMs: 60_000 })) {\n    return json({ ok: false, message: \"Muitas requisições.\" }, 429);\n  }\n\n  await writeAuditLog({\n    action: \"cron.health\",\n    resource: \"system\",\n    result: \"success\",\n    context: { ts: new Date().toISOString() },\n  });\n\n  return json({ ok: true, status: \"healthy\", ts: new Date().toISOString() });\n}\n\nexport async function handleCronHealthRequest(request: Request): Promise<Response> {\n  return handler(request);\n}",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/api/cron.health.ts"
+    },
+    "timestamp": 1789650429886
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1789650429907
   }
 ]
