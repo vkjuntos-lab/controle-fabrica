@@ -1,16 +1,23 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { ErrorState, LoadingState } from "@/components/states";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { getMyProfile, updateMyProfile } from "@/lib/org/organizations.functions";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  getMyProfile,
+  removeMyAvatar,
+  setMyAvatar,
+  updateMyProfile,
+} from "@/lib/org/organizations.functions";
 import { useOrganization } from "@/lib/org/org-context";
 import { ROLE_LABELS } from "@/lib/rbac";
 
