@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
-      "oldString": "import { requireSupabaseAuth } from \"@/integrations/supabase/auth-middleware\";\nimport { APP_ROLES } from \"@/lib/rbac\";\n\nconst roleSchema = z.enum(APP_ROLES);",
-      "newString": "import { requireSupabaseAuth } from \"@/integrations/supabase/auth-middleware\";\nimport { APP_ROLES, PERMISSIONS, type Permission } from \"@/lib/rbac\";\n\nconst roleSchema = z.enum(APP_ROLES);\n\n/**\n * Checagem de permissão server-side (defesa em profundidade).\n * RLS já impõe a política; aqui garantimos que a permissão declarada existe,\n * mesmo que uma política futura fique mais permissiva.\n */\nasync function requireOrgPermission(\n  supabase: Parameters<typeof requireSupabaseAuth.handler>[0][\"context\"][\"supabase\"],\n  organizationId: string,\n  permission: Permission,\n  userId: string,\n): Promise<void> {\n  const { data: allowed, error } = await supabase.rpc(\"has_permission\", {\n    _organization_id: organizationId,\n    _permission: permission,\n    _user_id: userId,\n  });\n  if (error) throw new Error(error.message);\n  if (!allowed) throw new Error(\"Sem permissão para esta operação.\");\n}"
-    },
-    "timestamp": 1789649435111
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789649435135
-  },
-  {
-    "role": "tool",
     "tool": "grep",
     "input": {
       "pattern": "supabase/client.server|createClient|SupabaseClient",
@@ -1529,5 +1513,20 @@
     "content": "{\"isNotFound\":true}",
     "is_error": false,
     "timestamp": 1789650673137
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -rn \"apiRoute\\|isApiRoute\\|isApi\\|'api'\" node_modules/@tanstack/start-server-core/dist/esm/index.js | head; echo \"---\"; grep -rn \"apiRoute\\|isApiRoute\\|isApi\" node_modules/@tanstack/react-start/dist/esm/*.js | head",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1789650678305
+  },
+  {
+    "role": "tool_result",
+    "content": "---\n",
+    "is_error": false,
+    "timestamp": 1789650678339
   }
 ]
