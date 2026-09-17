@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/admin.permissoes.tsx</path>\n<type>file</type>\n<content>\n1: import { useQuery } from \"@tanstack/react-query\";\n2: import { createFileRoute } from \"@tanstack/react-router\";\n3: import { useServerFn } from \"@tanstack/react-start\";\n4",
-    "is_error": false,
-    "timestamp": 1789655168151
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"role_permissions\\|INSERT INTO\" supabase/migrations/20260915211527_57318115-7e5a-439f-9a40-99d7f58bbc1b.sql | head -30",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789655182056
-  },
-  {
-    "role": "tool_result",
     "content": "(no output)",
     "is_error": false,
     "timestamp": 1789655182121
@@ -1627,5 +1612,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/ui/dropdown-menu.tsx</path>\n<type>file</type>\n<content>\n70:       {...props}\n71:     />\n72:   </DropdownMenuPrimitive.Portal>\n73: ));\n74: DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;\n75: \n76: const Dropdown",
     "is_error": false,
     "timestamp": 1789671659402
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/rbac.test.ts",
+      "newString": "it(\"não declara módulo operacional como disponível antes de existir\", () => {\n    const disponiveis = [\"dashboard\", \"administracao\", \"produtos\"];\n    const opcionais = PLATFORM_MODULES.filter((m) => !disponiveis.includes(m.key));\n    for (const mod of opcionais) {\n      expect(mod.status).toBe(\"coming_soon\");\n    }\n  });",
+      "oldString": "it(\"não declara módulo operacional como disponível antes de existir\", () => {\n    const opcionais = PLATFORM_MODULES.filter(\n      (m) => ![\"dashboard\", \"administracao\"].includes(m.key),\n    );\n    for (const mod of opcionais) {\n      expect(mod.status).toBe(\"coming_soon\");\n    }\n  });"
+    },
+    "timestamp": 1789671664456
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789671664476
   }
 ]

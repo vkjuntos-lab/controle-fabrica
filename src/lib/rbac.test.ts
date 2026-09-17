@@ -23,9 +23,8 @@ describe("rbac", () => {
   });
 
   it("não declara módulo operacional como disponível antes de existir", () => {
-    const opcionais = PLATFORM_MODULES.filter(
-      (m) => !["dashboard", "administracao"].includes(m.key),
-    );
+    const disponiveis = ["dashboard", "administracao", "produtos"];
+    const opcionais = PLATFORM_MODULES.filter((m) => !disponiveis.includes(m.key));
     for (const mod of opcionais) {
       expect(mod.status).toBe("coming_soon");
     }
