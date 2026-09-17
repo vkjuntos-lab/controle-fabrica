@@ -27,6 +27,16 @@
   `/admin/organizacao`, `/admin/usuarios`, `/admin/permissoes`, `/admin/auditoria`.
 - Auditoria consultável: `listAuditLogs`/`listAuditActions` (server-side, exige `audit.read`) e tela
   `/admin/auditoria` com busca, filtro por ação e paginação.
+- Cron autenticado: `GET /api/cron/health` (`src/routes/api/cron.health.ts`) usando
+  `authenticateCronRequest` (header `Authorization: Bearer $LOVABLE_CRON_SECRET`), rate limit
+  `cron:health` e escrita de `audit_log`.
+- Webhook receptor genérico: `POST /api/webhooks/receiver` (`src/routes/api/webhooks.receiver.ts`)
+  com assinatura HMAC-SHA256 (`x-webhook-signature`, segredo `WEBHOOK_SECRET`), idempotência via
+  tabela `webhook_events` (unique `provider + event_id`), rate limit por provider, limite de payload
+  e respostas HTTP explícitas (401/413/429/503). Desabilitado por padrão (sem `WEBHOOK_SECRET`).
+- Storage de avatares: bucket `avatars` (leitura pública, escrita restrita à própria pasta do
+  usuário, limite 1,5MB, jpeg/png/webp) + upload no perfil (`/perfil`) com pré-visualização,
+  validação de formato/tamanho no client e server functions `setMyAvatar`/`removeMyAvatar`.
 - Documentação: ADR-001, CORE-BUSINESS, este handoff.
 
 ## PARTIAL
