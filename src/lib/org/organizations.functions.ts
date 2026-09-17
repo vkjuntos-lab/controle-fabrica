@@ -310,6 +310,61 @@ export const listRolePermissions = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
+/** Concede ou revoga uma permissão a um papel, editando a matriz global. */
+export const updateRolePermission = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        organizationId: z.string().uuid(),
+        role: roleSchema,
+        permission: z
+          .string()
+          .trim()
+          .min(3)
+          .max(64)
+          .regex(/^[a-z]+(\.[a-z0-9]+)*$/),
+        granted: z.boolean(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireOrgPermission(
+      context.supabase,
+      data.organizationId,
+      PERMISSIONS.permissionsManage,
+      context.userId,
+    );
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    if (data.granted) {
+      const { error } = await supabaseAdmin
+        .from("role_permissions")
+        .insert({ role: data.role, permission: data.permission })
+        .onConflict("role, permission")
+        .ignore();
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await supabaseAdmin
+        .from("role_permissions")
+        .delete()
+        .eq("role", data.role)
+        .eq("permission", data.permission);
+      if (error) throw new Error(error.message);
+    }
+
+    await context.supabase.from("audit_log").insert({
+      organization_id: data.organizationId,
+      user_id: context.userId,
+      action: data.granted ? "permission.grant" : "permission.revoke",
+      resource: "role_permissions",
+      context: { role: data.role, permission: data.permission, granted: data.granted },
+    });
+
+    return { ok: true };
+  });
+
 export type AuditLogRow = {
   id: string;
   action: string;
