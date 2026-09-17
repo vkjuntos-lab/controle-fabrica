@@ -37,8 +37,12 @@ export const Route = createFileRoute("/_authenticated/perfil")({
 function ProfilePage() {
   const fetchProfile = useServerFn(getMyProfile);
   const saveProfile = useServerFn(updateMyProfile);
+  const saveAvatar = useServerFn(setMyAvatar);
+  const clearAvatar = useServerFn(removeMyAvatar);
   const { organizations } = useOrganization();
   const [fullName, setFullName] = useState("");
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const profileQuery = useQuery({ queryKey: ["my-profile"], queryFn: () => fetchProfile() });
 
@@ -55,6 +59,58 @@ function ProfilePage() {
     onError: (error: Error) => toast.error("Não foi possível salvar", { description: error.message }),
   });
 
+  async function handleAvatarChange(file: File | undefined) {
+    const profile = profileQuery.data;
+    if (!file || !profile) return;
+
+    if (!["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+      toast.error("Formato não suportado", { description: "Use JPG, PNG ou WebP." });
+      return;
+    }
+    if (file.size > 1.5 * 1024 * 1024) {
+      toast.error("Imagem muito grande", { description: "Envie uma imagem de até 1,5 MB." });
+      return;
+    }
+
+    setUploadingAvatar(true);
+    try {
+      const ext = file.type === "image/jpeg" ? "jpg" : file.type === "image/png" ? "png" : "webp";
+      const path = `${profile.id}/${crypto.randomUUID()}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from("avatars").upload(path, file, {
+        upsert: true,
+        cacheControl: "3600",
+      });
+      if (uploadError) throw new Error(uploadError.message);
+
+      const result = await saveAvatar({ data: { path } });
+      if (!result.ok) throw new Error("Não foi possível salvar o avatar.");
+
+      toast.success("Foto atualizada");
+      void profileQuery.refetch();
+    } catch (error) {
+      toast.error("Não foi possível enviar a foto", {
+        description: (error as Error).message,
+      });
+    } finally {
+      setUploadingAvatar(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  async function handleAvatarRemove() {
+    setUploadingAvatar(true);
+    try {
+      const result = await clearAvatar();
+      if (!result.ok) throw new Error("Não foi possível remover a foto.");
+      toast.success("Foto removida");
+      void profileQuery.refetch();
+    } catch (error) {
+      toast.error("Não foi possível remover a foto", { description: (error as Error).message });
+    } finally {
+      setUploadingAvatar(false);
+    }
+  }
+
   return (
     <AppShell title="Meu perfil">
       {profileQuery.isLoading ? (
@@ -66,6 +122,47 @@ function ProfilePage() {
         />
       ) : (
         <>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Sua foto</CardTitle>
+              <CardDescription>Usada para identificação visual nas telas da plataforma.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+                <Avatar className="h-20 w-20">
+                  <AvatarImage
+                    src={profileQuery.data?.avatar_url ?? undefined}
+                    alt="Foto de perfil"
+                  />
+                  <AvatarFallback className="text-lg">
+                    {(profileQuery.data?.full_name?.[0] ?? "?").toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploadingAvatar}
+                  >
+                    {uploadingAvatar ? "Enviando..." : "Enviar foto"}
+                  </Button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(e) => void handleAvatarChange(e.target.files?.[0])}
+                  />
+                  {profileQuery.data?.avatar_url ? (
+                    <Button variant="ghost" onClick={() => void handleAvatarRemove()} disabled={uploadingAvatar}>
+                      Remover
+                    </Button>
+                  ) : null}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Dados da conta</CardTitle>

@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/admin.usuarios.tsx</path>\n<type>file</type>\n<content>\n1: import { useMutation, useQuery } from \"@tanstack/react-query\";\n2: import { createFileRoute } from \"@tanstack/react-router\";\n3: import { useServerFn } from \"@tanstack/reac",
-    "is_error": false,
-    "timestamp": 1789649655622
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql",
-      "limit": 80
-    },
-    "timestamp": 1789649664732
-  },
-  {
-    "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql</path>\n<type>file</type>\n<content>\n1: -- Reset: remove legacy schema objects (all tables were empty)\n2: DROP SCHEMA public CASCADE;\n3: CREATE SCHEMA public;\n4: GRANT USAGE ON SC",
     "is_error": false,
     "timestamp": 1789649664739
@@ -1563,5 +1548,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789650974090
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/perfil.tsx",
+      "newString": "function ProfilePage() {\n  const fetchProfile = useServerFn(getMyProfile);\n  const saveProfile = useServerFn(updateMyProfile);\n  const saveAvatar = useServerFn(setMyAvatar);\n  const clearAvatar = useServerFn(removeMyAvatar);\n  const { organizations } = useOrganization();\n  const [fullName, setFullName] = useState(\"\");\n  const [uploadingAvatar, setUploadingAvatar] = useState(false);\n  const fileInputRef = useRef<HTMLInputElement>(null);\n\n  const profileQuery = useQuery({ queryKey: [\"my-profile\"], queryFn: () => fetchProfile() });\n\n  useEffect(() => {\n    if (profileQuery.data?.full_name) setFullName(profileQuery.data.full_name);\n  }, [profileQuery.data]);\n\n  const mutation = useMutation({\n    mutationFn: (name: string) => saveProfile({ data: { fullName: name } }),\n    onSuccess: () => {\n      toast.success(\"Perfil atualizado\");\n      void profileQuery.refetch();\n    },\n    onError: (error: Error) => toast.error(\"Não foi possível salvar\", { description: error.message }),\n  });\n\n  async function handleAvatarChange(file: File | undefined) {\n    const profile = profileQuery.data;\n    if (!file || !profile) return;\n\n    if (![\"image/jpeg\", \"image/png\", \"image/webp\"].includes(file.type)) {\n      toast.error(\"Formato não suportado\", { description: \"Use JPG, PNG ou WebP.\" });\n      return;\n    }\n    if (file.size > 1.5 * 1024 * 1024) {\n      toast.error(\"Imagem muito grande\", { description: \"Envie uma imagem de até 1,5 MB.\" });\n      return;\n    }\n\n    setUploadingAvatar(true);\n    try {\n      const ext = file.type === \"image/jpeg\" ? \"jpg\" : file.type === \"image/png\" ? \"png\" : \"webp\";\n      const path = `${profile.id}/${crypto.randomUUID()}.${ext}`;\n      const { error: uploadError } = await supabase.storage.from(\"avatars\").upload(path, file, {\n        upsert: true,\n        cacheControl: \"3600\",\n      });\n      if (uploadError) throw new Error(uploadError.message);\n\n      const result = await saveAvatar({ data: { path } });\n      if (!result.ok) throw new Error(\"Não foi possível salvar o avatar.\");\n\n      toast.success(\"Foto atualizada\");\n      void profileQuery.refetch();\n    } catch (error) {\n      toast.error(\"Não foi possível enviar a foto\", {\n        description: (error as Error).message,\n      });\n    } finally {\n      setUploadingAvatar(false);\n      if (fileInputRef.current) fileInputRef.current.value = \"\";\n    }\n  }\n\n  async function handleAvatarRemove() {\n    setUploadingAvatar(true);\n    try {\n      const result = await clearAvatar();\n      if (!result.ok) throw new Error(\"Não foi possível remover a foto.\");\n      toast.success(\"Foto removida\");\n      void profileQuery.refetch();\n    } catch (error) {\n      toast.error(\"Não foi possível remover a foto\", { description: (error as Error).message });\n    } finally {\n      setUploadingAvatar(false);\n    }\n  }\n\n  return (\n    <AppShell title=\"Meu perfil\">\n      {profileQuery.isLoading ? (\n        <LoadingState rows={2} />\n      ) : profileQuery.error ? (\n        <ErrorState\n          description={(profileQuery.error as Error).message}\n          onRetry={() => void profileQuery.refetch()}\n        />\n      ) : (\n        <>\n          <Card>\n            <CardHeader>\n              <CardTitle className=\"text-base\">Sua foto</CardTitle>\n              <CardDescription>Usada para identificação visual nas telas da plataforma.</CardDescription>\n            </CardHeader>\n            <CardContent>\n              <div className=\"flex flex-col items-start gap-4 sm:flex-row sm:items-center\">\n                <Avatar className=\"h-20 w-20\">\n                  <AvatarImage\n                    src={profileQuery.data?.avatar_url ?? undefined}\n                    alt=\"Foto de perfil\"\n                  />\n                  <AvatarFallback className=\"text-lg\">\n                    {(profileQuery.data?.full_name?.[0] ?? \"?\").toUpperCase()}\n                  </AvatarFallback>\n                </Avatar>\n                <div className=\"flex flex-wrap items-center gap-2\">\n                  <Button\n                    variant=\"outline\"\n                    onClick={() => fileInputRef.current?.click()}\n                    disabled={uploadingAvatar}\n                  >\n                    {uploadingAvatar ? \"Enviando...\" : \"Enviar foto\"}\n                  </Button>\n                  <input\n                    ref={fileInputRef}\n                    type=\"file\"\n                    accept=\"image/jpeg,image/png,image/webp\"\n                    className=\"hidden\"\n                    onChange={(e) => void handleAvatarChange(e.target.files?.[0])}\n                  />\n                  {profileQuery.data?.avatar_url ? (\n                    <Button variant=\"ghost\" onClick={() => void handleAvatarRemove()} disabled={uploadingAvatar}>\n                      Remover\n                    </Button>\n                  ) : null}\n                </div>\n              </div>\n            </CardContent>\n          </Card>\n\n          <Card>",
+      "oldString": "function ProfilePage() {\n  const fetchProfile = useServerFn(getMyProfile);\n  const saveProfile = useServerFn(updateMyProfile);\n  const { organizations } = useOrganization();\n  const [fullName, setFullName] = useState(\"\");\n\n  const profileQuery = useQuery({ queryKey: [\"my-profile\"], queryFn: () => fetchProfile() });\n\n  useEffect(() => {\n    if (profileQuery.data?.full_name) setFullName(profileQuery.data.full_name);\n  }, [profileQuery.data]);\n\n  const mutation = useMutation({\n    mutationFn: (name: string) => saveProfile({ data: { fullName: name } }),\n    onSuccess: () => {\n      toast.success(\"Perfil atualizado\");\n      void profileQuery.refetch();\n    },\n    onError: (error: Error) => toast.error(\"Não foi possível salvar\", { description: error.message }),\n  });\n\n  return (\n    <AppShell title=\"Meu perfil\">\n      {profileQuery.isLoading ? (\n        <LoadingState rows={2} />\n      ) : profileQuery.error ? (\n        <ErrorState\n          description={(profileQuery.error as Error).message}\n          onRetry={() => void profileQuery.refetch()}\n        />\n      ) : (\n        <>\n          <Card>"
+    },
+    "timestamp": 1789650993027
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789650993090
   }
 ]
