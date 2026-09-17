@@ -186,7 +186,7 @@ function AuditAdminPage() {
               />
             ) : !rows.length ? (
               <EmptyState
-                icon={ScrollText}
+                icon={<ScrollText className="h-8 w-8" />}
                 title="Nenhum registro de auditoria"
                 description="Os eventos aparecerão aqui conforme operações sensíveis forem executadas."
               />
