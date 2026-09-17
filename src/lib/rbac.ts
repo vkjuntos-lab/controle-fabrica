@@ -46,6 +46,7 @@ export const PERMISSIONS = {
   usersRead: "users.read",
   usersManage: "users.manage",
   permissionsRead: "permissions.read",
+  permissionsManage: "permissions.manage",
   auditRead: "audit.read",
 } as const;
 
@@ -57,6 +58,7 @@ export const PERMISSION_LABELS: Record<string, string> = {
   "users.read": "Ver participantes",
   "users.manage": "Gerenciar participantes",
   "permissions.read": "Ver permissões",
+  "permissions.manage": "Editar permissões",
   "audit.read": "Ver auditoria",
 };
 

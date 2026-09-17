@@ -608,16 +608,18 @@ export const getInvitationByToken = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: invitation, error } = await supabaseAdmin
       .from("invitations")
-      .select(
-        "id, email, role, status, expires_at, organizations!inner(name, id)",
-      )
+      .select("id, email, role, status, expires_at, organizations!inner(name, id)")
       .eq("token", data.token)
       .maybeSingle();
     if (error) throw new Error(error.message);
 
     if (!invitation) throw new Error("Convite não encontrado.");
     if (invitation.status !== "pending") {
-      throw new Error(invitation.status === "revoked" ? "Este convite foi revogado." : "Este convite já foi usado.");
+      throw new Error(
+        invitation.status === "revoked"
+          ? "Este convite foi revogado."
+          : "Este convite já foi usado.",
+      );
     }
     if (new Date(invitation.expires_at).getTime() < Date.now()) {
       throw new Error("Este convite expirou.");
@@ -653,7 +655,11 @@ export const acceptInvitation = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!invitation) throw new Error("Convite não encontrado.");
     if (invitation.status !== "pending") {
-      throw new Error(invitation.status === "revoked" ? "Este convite foi revogado." : "Este convite já foi usado.");
+      throw new Error(
+        invitation.status === "revoked"
+          ? "Este convite foi revogado."
+          : "Este convite já foi usado.",
+      );
     }
     if (new Date(invitation.expires_at).getTime() < Date.now()) {
       throw new Error("Este convite expirou.");
@@ -672,19 +678,21 @@ export const acceptInvitation = createServerFn({ method: "POST" })
       .maybeSingle();
     if (existingError) throw new Error(existingError.message);
     if (!existing) {
-      const { error: insertError } = await context.supabase
-        .from("organization_members")
-        .insert({
-          organization_id: invitation.organization_id,
-          user_id: context.userId,
-          role: invitation.role,
-        });
+      const { error: insertError } = await supabaseAdmin.from("organization_members").insert({
+        organization_id: invitation.organization_id,
+        user_id: context.userId,
+        role: invitation.role,
+      });
       if (insertError) throw new Error(insertError.message);
     }
 
     const { error: updateError } = await supabaseAdmin
       .from("invitations")
-      .update({ status: "accepted", accepted_by: context.userId, accepted_at: new Date().toISOString() })
+      .update({
+        status: "accepted",
+        accepted_by: context.userId,
+        accepted_at: new Date().toISOString(),
+      })
       .eq("id", invitation.id);
     if (updateError) throw new Error(updateError.message);
 

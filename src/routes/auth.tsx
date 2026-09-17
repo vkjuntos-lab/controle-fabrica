@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { z } from "zod";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -10,12 +11,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/auth")({
+  validateSearch: (search) =>
+    z
+      .object({
+        redirect: z
+          .string()
+          .refine((v) => v.startsWith("/") && !v.startsWith("//"))
+          .optional(),
+      })
+      .parse(search),
   head: () => ({
     meta: [
       { title: "Entrar — Estratégia" },
       { name: "description", content: "Acesse a plataforma Estratégia de gestão industrial." },
       { property: "og:title", content: "Entrar — Estratégia" },
-      { property: "og:description", content: "Acesse a plataforma Estratégia de gestão industrial." },
+      {
+        property: "og:description",
+        content: "Acesse a plataforma Estratégia de gestão industrial.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -24,6 +37,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+  const redirect = Route.useSearch({ select: (s) => s.redirect });
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,9 +47,9 @@ function AuthPage() {
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard", replace: true });
+      if (data.session) navigate({ to: redirect ?? "/dashboard", replace: true });
     });
-  }, [navigate]);
+  }, [navigate, redirect]);
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
@@ -46,7 +60,7 @@ function AuthPage() {
       toast.error("Não foi possível entrar", { description: error.message });
       return;
     }
-    navigate({ to: "/dashboard", replace: true });
+    navigate({ to: redirect ?? "/dashboard", replace: true });
   }
 
   async function handleSignUp(e: React.FormEvent) {
@@ -72,7 +86,7 @@ function AuthPage() {
       setMode("signin");
       return;
     }
-    navigate({ to: "/dashboard", replace: true });
+    navigate({ to: redirect ?? "/dashboard", replace: true });
   }
 
   async function handleForgot(e: React.FormEvent) {

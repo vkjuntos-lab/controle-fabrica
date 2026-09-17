@@ -1,414 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts",
-      "newString": "role_permissions: {\n        Row: {\n          created_at: string\n          id: string\n          permission: string\n          role: Database[\"public\"][\"Enums\"][\"app_role\"]\n        }\n        Insert: {\n          created_at?: string\n          id?: string\n          permission: string\n          role: Database[\"public\"][\"Enums\"][\"app_role\"]\n        }\n        Update: {\n          created_at?: string\n          id?: string\n          permission?: string\n          role?: Database[\"public\"][\"Enums\"][\"app_role\"]\n        }\n        Relationships: []\n      }\n      webhook_events: {\n        Row: {\n          context: Json\n          event_id: string\n          id: string\n          processed: boolean\n          provider: string\n          received_at: string\n          signature_ok: boolean\n        }\n        Insert: {\n          context?: Json\n          event_id?: string\n          id?: string\n          processed?: boolean\n          provider: string\n          received_at?: string\n          signature_ok?: boolean\n        }\n        Update: {\n          context?: Json\n          event_id?: string\n          id?: string\n          processed?: boolean\n          provider?: string\n          received_at?: string\n          signature_ok?: boolean\n        }\n        Relationships: []\n      }\n    }",
-      "oldString": "role_permissions: {\n        Row: {\n          created_at: string\n          id: string\n          permission: string\n          role: Database[\"public\"][\"Enums\"][\"app_role\"]\n        }\n        Insert: {\n          created_at?: string\n          id?: string\n          permission: string\n          role: Database[\"public\"][\"Enums\"][\"app_role\"]\n        }\n        Update: {\n          created_at?: string\n          id?: string\n          permission?: string\n          role?: Database[\"public\"][\"Enums\"][\"app_role\"]\n        }\n        Relationships: []\n      }\n    }"
-    },
-    "timestamp": 1789650802571
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789650802574
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "npx vite build 2>&1 | grep -iE \"error|api/|built|✓\" | head -30",
-      "timeout": 600000,
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789650805570
-  },
-  {
-    "role": "tool_result",
-    "content": "✓ 2324 modules transformed.\n[plugin builtin:vite-reporter] \n✓ built in 2.37s\n✓ 118 modules transformed.\n✓ built in 1.14s\n✓ 2361 modules transformed.\n\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@tanstack/react-query/build/modern/QueryErr",
-    "is_error": false,
-    "timestamp": 1789650819164
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"api/cron\\|api/webhooks\" src/routeTree.gen.ts | head",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789650826401
-  },
-  {
-    "role": "tool_result",
-    "content": "23:import { Route as ApiCronHealthRouteImport } from './routes/api/cron.health'\n24:import { Route as ApiWebhooksReceiverRouteImport } from './routes/api/webhooks.receiver'\n85:  id: '/api/cron/health',\n86:  path: '/api/cron/health',\n90:  id: '/api/webhooks/receiver',\n91:  path: '/api/webhooks/receive",
-    "is_error": false,
-    "timestamp": 1789650826429
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "npx tsc --noEmit 2>&1 | grep -v \"__root.tsx\" | head -30",
-      "timeout": 240000,
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789650829012
-  },
-  {
-    "role": "tool_result",
-    "content": "  Type '({ error, reset }: { error: Error; reset: () => void; }) => Element' is not assignable to type '((props: ErrorComponentProps) => any) & { preload?: (() => Promise<void> | undefined) | undefined; }'.\n    Type '({ error, reset }: { error: Error; reset: () => void; }) => Element' is not assigna",
-    "is_error": false,
-    "timestamp": 1789650839092
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "npx eslint --fix src/routes/api/cron.health.ts src/routes/api/webhooks.receiver.ts src/lib/webhook/signature.ts src/lib/audit/functions.ts 2>&1 | tail -15 && echo \"LINT OK\"",
-      "timeout": 120000,
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789650892222
-  },
-  {
-    "role": "tool_result",
-    "content": "LINT OK\n",
-    "is_error": false,
-    "timestamp": 1789650894523
-  },
-  {
-    "role": "tool",
-    "tool": "todowrite",
-    "input": {
-      "todos": [
-        {
-          "content": "Criar migration do bucket avatars (storage) com políticas e limite",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Criar endpoint de API /api/cron/health (autenticado)",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Criar endpoint de API /api/webhooks/generic (HMAC + idempotência)",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Criar server functions de avatar (setMyAvatarUrl, removeMyAvatar)",
-          "priority": "medium",
-          "status": "in_progress"
-        },
-        {
-          "content": "UI de upload de avatar na tela de perfil",
-          "priority": "medium",
-          "status": "pending"
-        },
-        {
-          "content": "Validar build, lint, typecheck e atualizar documentação",
-          "priority": "medium",
-          "status": "pending"
-        }
-      ]
-    },
-    "timestamp": 1789650907825
-  },
-  {
-    "role": "tool_result",
-    "content": "[\n  {\n    \"content\": \"Criar migration do bucket avatars (storage) com políticas e limite\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Criar endpoint de API /api/cron/health (autenticado)\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Cria",
-    "is_error": false,
-    "timestamp": 1789650907829
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
-      "limit": 30,
-      "offset": 425
-    },
-    "timestamp": 1789650920029
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts</path>\n<type>file</type>\n<content>\n425:     return actions;\n426:   });\n427: \n428: export const getMyProfile = createServerFn({ method: \"GET\" })\n429:   .middleware([requireSupabaseAuth])\n430:   .handler(async ({ con",
-    "is_error": false,
-    "timestamp": 1789650920044
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
-      "newString": "export const updateMyProfile = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) => z.object({ fullName: z.string().trim().max(120) }).parse(input))\n  .handler(async ({ data, context }) => {\n    const { error } = await context.supabase\n      .from(\"profiles\")\n      .update({ full_name: data.fullName || null })\n      .eq(\"id\", context.userId);\n    if (error) throw new Error(error.message);\n    return { ok: true };\n  });\n\nconst avatarPathSchema = z\n  .string()\n  .trim()\n  .regex(/^\\d+$/ as unknown as RegExp) // placeholder para nunca barrar; validado abaixo\n  .optional();\n\n/** Define o avatar do usuário a partir do caminho no bucket `avatars`. */\nexport const setMyAvatar = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({ path: z.string().trim().min(1).max(512) })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const path = data.path;\n    if (!path.startsWith(`${context.userId}/`)) {\n      throw new Error(\"Caminho de avatar inválido.\");\n    }\n\n    const { data: url, error } = await context.supabase.storage\n      .from(\"avatars\")\n      .createSignedUrl(path, 60);\n    if (error) throw new Error(error.message);\n    if (!url?.signedUrl) throw new Error(\"Arquivo não encontrado.\");\n\n    if (!url.signedUrl.startsWith(process.env[\"SUPABASE_URL\"]!)) {\n      throw new Error(\"Origem inválida.\");\n    }\n\n    const { error: updateError } = await context.supabase\n      .from(\"profiles\")\n      .update({ avatar_url: url.signedUrl })\n      .eq(\"id\", context.userId);\n    if (updateError) throw new Error(updateError.message);\n\n    return { ok: true };\n  });\n\n/** Remove o avatar do perfil e apaga o arquivo no bucket, se existir. */\nexport const removeMyAvatar = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .handler(async ({ context }) => {\n    const {\n      data: profile,\n      error: profileError,\n    } = await context.supabase\n      .from(\"profiles\")\n      .select(\"avatar_url\")\n      .eq(\"id\", context.userId)\n      .maybeSingle();\n    if (profileError) throw new Error(profileError.message);\n\n    if (profile?.avatar_url?.includes(\"/object/public/avatars/\")) {\n      const [, pathRaw] = profile.avatar_url.split(\"/object/public/avatars/\");\n      const filePath = (pathRaw ?? \"\").split(\"?\")[0];\n      if (filePath.startsWith(`${context.userId}/`)) {\n        await context.supabase.storage.from(\"avatars\").remove([filePath]);\n      }\n    }\n\n    const { error } = await context.supabase\n      .from(\"profiles\")\n      .update({ avatar_url: null })\n      .eq(\"id\", context.userId);\n    if (error) throw new Error(error.message);\n\n    return { ok: true };\n  });",
-      "oldString": "export const updateMyProfile = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) => z.object({ fullName: z.string().trim().max(120) }).parse(input))\n  .handler(async ({ data, context }) => {\n    const { error } = await context.supabase\n      .from(\"profiles\")\n      .update({ full_name: data.fullName || null })\n      .eq(\"id\", context.userId);\n    if (error) throw new Error(error.message);\n    return { ok: true };\n  });"
-    },
-    "timestamp": 1789650941111
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789650941145
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
-      "newString": "/** Define o avatar do usuário a partir do caminho no bucket `avatars`. */",
-      "oldString": "const avatarPathSchema = z\n  .string()\n  .trim()\n  .regex(/^\\d+$/ as unknown as RegExp) // placeholder para nunca barrar; validado abaixo\n  .optional();\n\n/** Define o avatar do usuário a partir do caminho no bucket `avatars`. */"
-    },
-    "timestamp": 1789650945183
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789650945207
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
-      "newString": ".handler(async ({ data, context }) => {\n    const path = data.path;\n    if (!path.startsWith(`${context.userId}/`)) {\n      throw new Error(\"Caminho de avatar inválido.\");\n    }\n\n    const { data: url } = context.supabase.storage.from(\"avatars\").getPublicUrl(path);\n    if (!url?.publicUrl) throw new Error(\"Arquivo não encontrado.\");\n\n    const { error: updateError } = await context.supabase\n      .from(\"profiles\")\n      .update({ avatar_url: url.publicUrl })\n      .eq(\"id\", context.userId);\n    if (updateError) throw new Error(updateError.message);\n\n    return { ok: true };\n  });",
-      "oldString": ".handler(async ({ data, context }) => {\n    const path = data.path;\n    if (!path.startsWith(`${context.userId}/`)) {\n      throw new Error(\"Caminho de avatar inválido.\");\n    }\n\n    const { data: url, error } = await context.supabase.storage\n      .from(\"avatars\")\n      .createSignedUrl(path, 60);\n    if (error) throw new Error(error.message);\n    if (!url?.signedUrl) throw new Error(\"Arquivo não encontrado.\");\n\n    if (!url.signedUrl.startsWith(process.env[\"SUPABASE_URL\"]!)) {\n      throw new Error(\"Origem inválida.\");\n    }\n\n    const { error: updateError } = await context.supabase\n      .from(\"profiles\")\n      .update({ avatar_url: url.signedUrl })\n      .eq(\"id\", context.userId);\n    if (updateError) throw new Error(updateError.message);\n\n    return { ok: true };\n  });"
-    },
-    "timestamp": 1789650960213
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789650960219
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "ls src/components/ui/avatar* 2>/dev/null && grep -n \"export\" src/components/ui/avatar.tsx | head",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789650966893
-  },
-  {
-    "role": "tool_result",
-    "content": "src/components/ui/avatar.tsx\n47:export { Avatar, AvatarImage, AvatarFallback };\n",
-    "is_error": false,
-    "timestamp": 1789650966959
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/perfil.tsx",
-      "newString": "import { useMutation, useQuery } from \"@tanstack/react-query\";\nimport { createFileRoute } from \"@tanstack/react-router\";\nimport { useServerFn } from \"@tanstack/react-start\";\nimport { useEffect, useRef, useState } from \"react\";\nimport { toast } from \"sonner\";\n\nimport { AppShell } from \"@/components/layout/app-shell\";\nimport { ErrorState, LoadingState } from \"@/components/states\";\nimport { Avatar, AvatarFallback, AvatarImage } from \"@/components/ui/avatar\";\nimport { Button } from \"@/components/ui/button\";\nimport { Card, CardContent, CardDescription, CardHeader, CardTitle } from \"@/components/ui/card\";\nimport { Input } from \"@/components/ui/input\";\nimport { Label } from \"@/components/ui/label\";\nimport { supabase } from \"@/integrations/supabase/client\";\nimport {\n  getMyProfile,\n  removeMyAvatar,\n  setMyAvatar,\n  updateMyProfile,\n} from \"@/lib/org/organizations.functions\";\nimport { useOrganization } from \"@/lib/org/org-context\";\nimport { ROLE_LABELS } from \"@/lib/rbac\";",
-      "oldString": "import { useMutation, useQuery } from \"@tanstack/react-query\";\nimport { createFileRoute } from \"@tanstack/react-router\";\nimport { useServerFn } from \"@tanstack/react-start\";\nimport { useEffect, useState } from \"react\";\nimport { toast } from \"sonner\";\n\nimport { AppShell } from \"@/components/layout/app-shell\";\nimport { ErrorState, LoadingState } from \"@/components/states\";\nimport { Button } from \"@/components/ui/button\";\nimport { Card, CardContent, CardDescription, CardHeader, CardTitle } from \"@/components/ui/card\";\nimport { Input } from \"@/components/ui/input\";\nimport { Label } from \"@/components/ui/label\";\nimport { getMyProfile, updateMyProfile } from \"@/lib/org/organizations.functions\";\nimport { useOrganization } from \"@/lib/org/org-context\";\nimport { ROLE_LABELS } from \"@/lib/rbac\";"
-    },
-    "timestamp": 1789650974053
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789650974090
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/perfil.tsx",
-      "newString": "function ProfilePage() {\n  const fetchProfile = useServerFn(getMyProfile);\n  const saveProfile = useServerFn(updateMyProfile);\n  const saveAvatar = useServerFn(setMyAvatar);\n  const clearAvatar = useServerFn(removeMyAvatar);\n  const { organizations } = useOrganization();\n  const [fullName, setFullName] = useState(\"\");\n  const [uploadingAvatar, setUploadingAvatar] = useState(false);\n  const fileInputRef = useRef<HTMLInputElement>(null);\n\n  const profileQuery = useQuery({ queryKey: [\"my-profile\"], queryFn: () => fetchProfile() });\n\n  useEffect(() => {\n    if (profileQuery.data?.full_name) setFullName(profileQuery.data.full_name);\n  }, [profileQuery.data]);\n\n  const mutation = useMutation({\n    mutationFn: (name: string) => saveProfile({ data: { fullName: name } }),\n    onSuccess: () => {\n      toast.success(\"Perfil atualizado\");\n      void profileQuery.refetch();\n    },\n    onError: (error: Error) => toast.error(\"Não foi possível salvar\", { description: error.message }),\n  });\n\n  async function handleAvatarChange(file: File | undefined) {\n    const profile = profileQuery.data;\n    if (!file || !profile) return;\n\n    if (![\"image/jpeg\", \"image/png\", \"image/webp\"].includes(file.type)) {\n      toast.error(\"Formato não suportado\", { description: \"Use JPG, PNG ou WebP.\" });\n      return;\n    }\n    if (file.size > 1.5 * 1024 * 1024) {\n      toast.error(\"Imagem muito grande\", { description: \"Envie uma imagem de até 1,5 MB.\" });\n      return;\n    }\n\n    setUploadingAvatar(true);\n    try {\n      const ext = file.type === \"image/jpeg\" ? \"jpg\" : file.type === \"image/png\" ? \"png\" : \"webp\";\n      const path = `${profile.id}/${crypto.randomUUID()}.${ext}`;\n      const { error: uploadError } = await supabase.storage.from(\"avatars\").upload(path, file, {\n        upsert: true,\n        cacheControl: \"3600\",\n      });\n      if (uploadError) throw new Error(uploadError.message);\n\n      const result = await saveAvatar({ data: { path } });\n      if (!result.ok) throw new Error(\"Não foi possível salvar o avatar.\");\n\n      toast.success(\"Foto atualizada\");\n      void profileQuery.refetch();\n    } catch (error) {\n      toast.error(\"Não foi possível enviar a foto\", {\n        description: (error as Error).message,\n      });\n    } finally {\n      setUploadingAvatar(false);\n      if (fileInputRef.current) fileInputRef.current.value = \"\";\n    }\n  }\n\n  async function handleAvatarRemove() {\n    setUploadingAvatar(true);\n    try {\n      const result = await clearAvatar();\n      if (!result.ok) throw new Error(\"Não foi possível remover a foto.\");\n      toast.success(\"Foto removida\");\n      void profileQuery.refetch();\n    } catch (error) {\n      toast.error(\"Não foi possível remover a foto\", { description: (error as Error).message });\n    } finally {\n      setUploadingAvatar(false);\n    }\n  }\n\n  return (\n    <AppShell title=\"Meu perfil\">\n      {profileQuery.isLoading ? (\n        <LoadingState rows={2} />\n      ) : profileQuery.error ? (\n        <ErrorState\n          description={(profileQuery.error as Error).message}\n          onRetry={() => void profileQuery.refetch()}\n        />\n      ) : (\n        <>\n          <Card>\n            <CardHeader>\n              <CardTitle className=\"text-base\">Sua foto</CardTitle>\n              <CardDescription>Usada para identificação visual nas telas da plataforma.</CardDescription>\n            </CardHeader>\n            <CardContent>\n              <div className=\"flex flex-col items-start gap-4 sm:flex-row sm:items-center\">\n                <Avatar className=\"h-20 w-20\">\n                  <AvatarImage\n                    src={profileQuery.data?.avatar_url ?? undefined}\n                    alt=\"Foto de perfil\"\n                  />\n                  <AvatarFallback className=\"text-lg\">\n                    {(profileQuery.data?.full_name?.[0] ?? \"?\").toUpperCase()}\n                  </AvatarFallback>\n                </Avatar>\n                <div className=\"flex flex-wrap items-center gap-2\">\n                  <Button\n                    variant=\"outline\"\n                    onClick={() => fileInputRef.current?.click()}\n                    disabled={uploadingAvatar}\n                  >\n                    {uploadingAvatar ? \"Enviando...\" : \"Enviar foto\"}\n                  </Button>\n                  <input\n                    ref={fileInputRef}\n                    type=\"file\"\n                    accept=\"image/jpeg,image/png,image/webp\"\n                    className=\"hidden\"\n                    onChange={(e) => void handleAvatarChange(e.target.files?.[0])}\n                  />\n                  {profileQuery.data?.avatar_url ? (\n                    <Button variant=\"ghost\" onClick={() => void handleAvatarRemove()} disabled={uploadingAvatar}>\n                      Remover\n                    </Button>\n                  ) : null}\n                </div>\n              </div>\n            </CardContent>\n          </Card>\n\n          <Card>",
-      "oldString": "function ProfilePage() {\n  const fetchProfile = useServerFn(getMyProfile);\n  const saveProfile = useServerFn(updateMyProfile);\n  const { organizations } = useOrganization();\n  const [fullName, setFullName] = useState(\"\");\n\n  const profileQuery = useQuery({ queryKey: [\"my-profile\"], queryFn: () => fetchProfile() });\n\n  useEffect(() => {\n    if (profileQuery.data?.full_name) setFullName(profileQuery.data.full_name);\n  }, [profileQuery.data]);\n\n  const mutation = useMutation({\n    mutationFn: (name: string) => saveProfile({ data: { fullName: name } }),\n    onSuccess: () => {\n      toast.success(\"Perfil atualizado\");\n      void profileQuery.refetch();\n    },\n    onError: (error: Error) => toast.error(\"Não foi possível salvar\", { description: error.message }),\n  });\n\n  return (\n    <AppShell title=\"Meu perfil\">\n      {profileQuery.isLoading ? (\n        <LoadingState rows={2} />\n      ) : profileQuery.error ? (\n        <ErrorState\n          description={(profileQuery.error as Error).message}\n          onRetry={() => void profileQuery.refetch()}\n        />\n      ) : (\n        <>\n          <Card>"
-    },
-    "timestamp": 1789650993027
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789650993090
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "npx tsc --noEmit 2>&1 | grep -v \"__root.tsx\" | head -20 && echo \"---TSC DONE---\"",
-      "timeout": 240000,
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789650995547
-  },
-  {
-    "role": "tool_result",
-    "content": "  Type '({ error, reset }: { error: Error; reset: () => void; }) => Element' is not assignable to type '((props: ErrorComponentProps) => any) & { preload?: (() => Promise<void> | undefined) | undefined; }'.\n    Type '({ error, reset }: { error: Error; reset: () => void; }) => Element' is not assigna",
-    "is_error": false,
-    "timestamp": 1789651013200
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "npx eslint --fix src/lib/org/organizations.functions.ts src/routes/_authenticated/perfil.tsx 2>&1 | tail -15 && echo \"LINT OK\" && npx tsc --noEmit 2>&1 | grep -v \"__root.tsx\" | head -5",
-      "timeout": 240000,
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789651018239
-  },
-  {
-    "role": "tool_result",
-    "content": "LINT OK\n  Type '({ error, reset }: { error: Error; reset: () => void; }) => Element' is not assignable to type '((props: ErrorComponentProps) => any) & { preload?: (() => Promise<void> | undefined) | undefined; }'.\n    Type '({ error, reset }: { error: Error; reset: () => void; }) => Element' is not",
-    "is_error": false,
-    "timestamp": 1789651038702
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "npx vite build 2>&1 | grep -iE \"error|built in|✓ built\" | head -15",
-      "timeout": 600000,
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789651042317
-  },
-  {
-    "role": "tool_result",
-    "content": "✓ built in 2.35s\n✓ built in 1.24s\n\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@tanstack/react-query/build/modern/QueryErrorResetBoundary.js\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_mo",
-    "is_error": false,
-    "timestamp": 1789651056473
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "LOVABLE_CRON_SECRET=\"segredo-teste-123\" WEBHOOK_SECRET=\"seg-webhook-456\" nohup npx vite dev --port 5999 > /tmp/devserver.log 2>&1 &\necho $! > /tmp/devserver.pid\nsleep 6\ncurl -s -o /tmp/out1.json -w \"sem-auth:%{http_code}\\n\" http://localhost:5999/api/cron/health\ncurl -s -o /tmp/out2.json -w \"com-auth:%{http_code}\\n\" -H \"Authorization: Bearer segredo-teste-123\" http://localhost:5999/api/cron/health\ncat /tmp/out1.json; echo; cat /tmp/out2.json; echo\ncurl -s -o /tmp/out3.json -w \"webhook-sem-secret:%{http_code}\\n\" -X POST -H \"Content-Type: application/json\" -d '{\"a\":1}' http://localhost:5999/api/webhooks/receiver\ncat /tmp/out3.json; echo",
-      "timeout": 60000,
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789651063495
-  },
-  {
-    "role": "tool_result",
-    "content": "sem-auth:401\ncom-auth:200\nUnauthorized\n{\"ok\":true,\"status\":\"healthy\",\"ts\":\"2026-09-17T13:17:51.911Z\"}\nwebhook-sem-secret:500\n<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\" />\n    <title>This page didn't load</title>\n    <meta name=\"viewport\" content=\"width=device-width, initial-",
-    "is_error": false,
-    "timestamp": 1789651071994
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -iE \"webhook|error|supabase|Missing|secret\" /tmp/devserver.log | tail -20",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789651076125
-  },
-  {
-    "role": "tool_result",
-    "content": "⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715\n[Supabase] Missing Supabase environment variable(s): SUPABASE_SE",
-    "is_error": false,
-    "timestamp": 1789651076197
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/api/webhooks.receiver.ts",
-      "newString": "if (!checkRateLimit(`webhook:${provider}`, { limit: 120, windowMs: 60_000 })) {\n          return json({ ok: false, message: \"Muitas requisições.\" }, 429);\n        }\n\n        let supabaseAdmin: Awaited<\n          ReturnType<typeof import(\"@/integrations/supabase/client.server\")>\n        >[\"supabaseAdmin\"];\n        try {\n          const mod = await import(\"@/integrations/supabase/client.server\");\n          supabaseAdmin = mod.supabaseAdmin;\n          // Aciona a criação do cliente (validação de não existir service key no ambiente).\n          supabaseAdmin.from(\"webhook_events\").select(\"id\").limit(0);\n        } catch {\n          return json(\n            { ok: false, message: \"Armazenamento de webhooks indisponível no servidor.\" },\n            503,\n          );\n        }\n\n        const { data: existing, error: lookupError } = await supabaseAdmin\n          .from(\"webhook_events\")\n          .select(\"id\")\n          .eq(\"provider\", provider)\n          .eq(\"event_id\", eventId)\n          .maybeSingle();\n        if (lookupError) {\n          console.error(\"[webhook] falha ao consultar evento:\", lookupError.message);\n          return json({ ok: false, message: \"Falha ao consultar evento.\" }, 500);\n        }\n\n        if (existing) {\n          return json({ ok: true, duplicate: true, id: existing.id });\n        }",
-      "oldString": "if (!checkRateLimit(`webhook:${provider}`, { limit: 120, windowMs: 60_000 })) {\n          return json({ ok: false, message: \"Muitas requisições.\" }, 429);\n        }\n\n        const { supabaseAdmin } = await import(\"@/integrations/supabase/client.server\");\n        const { data: existing } = await supabaseAdmin\n          .from(\"webhook_events\")\n          .select(\"id\")\n          .eq(\"provider\", provider)\n          .eq(\"event_id\", eventId)\n          .maybeSingle();\n\n        if (existing) {\n          return json({ ok: true, duplicate: true, id: existing.id });\n        }"
-    },
-    "timestamp": 1789651112981
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789651113015
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/api/webhooks.receiver.ts",
-      "newString": "let supabaseAdmin: Awaited<\n          ReturnType<typeof import(\"@/integrations/supabase/client.server\")>\n        >[\"supabaseAdmin\"];\n        try {\n          const mod = await import(\"@/integrations/supabase/client.server\");\n          supabaseAdmin = mod.supabaseAdmin;\n          // Acessar o client força a inicialização (detecta service key ausente).\n          supabaseAdmin.auth.getUrl();\n        } catch {\n          return json(\n            { ok: false, message: \"Armazenamento de webhooks indisponível no servidor.\" },\n            503,\n          );\n        }",
-      "oldString": "let supabaseAdmin: Awaited<\n          ReturnType<typeof import(\"@/integrations/supabase/client.server\")>\n        >[\"supabaseAdmin\"];\n        try {\n          const mod = await import(\"@/integrations/supabase/client.server\");\n          supabaseAdmin = mod.supabaseAdmin;\n          // Aciona a criação do cliente (validação de não existir service key no ambiente).\n          supabaseAdmin.from(\"webhook_events\").select(\"id\").limit(0);\n        } catch {\n          return json(\n            { ok: false, message: \"Armazenamento de webhooks indisponível no servidor.\" },\n            503,\n          );\n        }"
-    },
-    "timestamp": 1789651124923
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789651124945
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sleep 2\ncurl -s -o /tmp/out4.json -w \"webhook-sem-sig:%{http_code}\\n\" -X POST -H \"Content-Type: application/json\" -H \"x-webhook-provider: test\" -H \"x-webhook-id: evt-1\" -d '{\"a\":1}' http://localhost:5999/api/webhooks/receiver\ncat /tmp/out4.json; echo\n# teste com assinatura correta: HMAC-SHA256 do body\nBODY='{\"order\":123}'\nSIG=$(printf '%s' \"$BODY\" | openssl dgst -sha256 -hmac \"seg-webhook-456\" -hex | awk '{print $2}')\ncurl -s -o /tmp/out5.json -w \"webhook-com-sig:%{http_code}\\n\" -X POST -H \"Content-Type: application/json\" -H \"x-webhook-provider: test\" -H \"x-webhook-id: evt-2\" -H \"x-webhook-signature: $SIG\" -d \"$BODY\" http://localhost:5999/api/webhooks/receiver\ncat /tmp/out5.json; echo\ncurl -s -o /tmp/out6.json -w \"webhook-assinatura-invalida:%{http_code}\\n\" -X POST -H \"Content-Type: application/json\" -H \"x-webhook-provider: test\" -H \"x-webhook-id: evt-3\" -H \"x-webhook-signature: abcdef\" -d \"$BODY\" http://localhost:5999/api/webhooks/receiver\ncat /tmp/out6.json; echo",
-      "timeout": 30000,
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789651130689
-  },
-  {
-    "role": "tool_result",
-    "content": "webhook-sem-sig:503\n{\"ok\":false,\"message\":\"Armazenamento de webhooks indisponível no servidor.\"}\nwebhook-com-sig:503\n{\"ok\":false,\"message\":\"Armazenamento de webhooks indisponível no servidor.\"}\nwebhook-assinatura-invalida:503\n{\"ok\":false,\"message\":\"Armazenamento de webhooks indisponível no servidor.",
-    "is_error": false,
-    "timestamp": 1789651132962
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "kill $(cat /tmp/devserver.pid) 2>/dev/null; sleep 1\nLOVABLE_CRON_SECRET=\"segredo-teste-123\" WEBHOOK_SECRET=\"seg-webhook-456\" nohup npx vite dev --port 5999 > /tmp/devserver2.log 2>&1 &\necho $! > /tmp/devserver.pid\nsleep 7\ncurl -s -o /tmp/t1.json -w \"sem-sig:%{http_code}\\n\" -X POST -H \"Content-Type: application/json\" -H \"x-webhook-provider: test\" -H \"x-webhook-id: evt-1\" -d '{\"a\":1}' http://localhost:5999/api/webhooks/receiver; cat /tmp/t1.json; echo\nBODY='{\"order\":123}'\nSIG=$(printf '%s' \"$BODY\" | openssl dgst -sha256 -hmac \"seg-webhook-456\" -hex | awk '{print $2}')\ncurl -s -o /tmp/t2.json -w \"com-sig:%{http_code}\\n\" -X POST -H \"Content-Type: application/json\" -H \"x-webhook-provider: test\" -H \"x-webhook-id: evt-2\" -H \"x-webhook-signature: $SIG\" -d \"$BODY\" http://localhost:5999/api/webhooks/receiver; cat /tmp/t2.json; echo\ncurl -s -o /tmp/t3.json -w \"sig-invalida:%{http_code}\\n\" -X POST -H \"Content-Type: application/json\" -H \"x-webhook-provider: test\" -H \"x-webhook-id: evt-3\" -H \"x-webhook-signature: abc\" -d \"$BODY\" http://localhost:5999/api/webhooks/receiver; cat /tmp/t3.json; echo",
-      "timeout": 60000,
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789651155895
-  },
-  {
-    "role": "tool_result",
-    "content": "sem-sig:503\n{\"ok\":false,\"message\":\"Armazenamento de webhooks indisponível no servidor.\"}\ncom-sig:503\n{\"ok\":false,\"message\":\"Armazenamento de webhooks indisponível no servidor.\"}\nsig-invalida:503\n{\"ok\":false,\"message\":\"Armazenamento de webhooks indisponível no servidor.\"}\n",
-    "is_error": false,
-    "timestamp": 1789651164035
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -iE \"webhook|error|audit|Missing|supabase\" /tmp/devserver2.log | tail -15",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789651178706
-  },
-  {
-    "role": "tool_result",
-    "content": "(no output)",
-    "is_error": false,
-    "timestamp": 1789651178745
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "tail -20 /tmp/devserver2.log",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789651181538
-  },
-  {
-    "role": "tool_result",
-    "content": "The plugin \"vite-tsconfig-paths\" is detected. Vite now supports tsconfig paths resolution natively via the resolve.tsconfigPaths option. You can remove the plugin and set resolve.tsconfigPaths: true in your Vite config instead.\nPort 5999 is in use, trying another one...\n\n  VITE v8.3.0  ready in 1620",
-    "is_error": false,
-    "timestamp": 1789651181573
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "kill $(cat /tmp/devserver.pid) 2>/dev/null; pkill -f \"vite dev --port\" 2>/dev/null; sleep 1\nLOVABLE_CRON_SECRET=\"segredo-teste-123\" WEBHOOK_SECRET=\"seg-webhook-456\" nohup npx vite dev --port 5999 > /tmp/devserver3.log 2>&1 &\necho $! > /tmp/devserver.pid\nsleep 7\ngrep -i \"local:\" /tmp/devserver3.log\necho \"=== testes ===\"\ncurl -s -o /tmp/t1.json -w \"sem-sig:%{http_code}\\n\" -X POST -H \"Content-Type: application/json\" -H \"x-webhook-provider: test\" -H \"x-webhook-id: evt-1\" -d '{\"a\":1}' http://localhost:5999/api/webhooks/receiver; cat /tmp/t1.json; echo\nBODY='{\"order\":123}'\nSIG=$(printf '%s' \"$BODY\" | openssl dgst -sha256 -hmac \"seg-webhook-456\" -hex | awk '{print $2}')\ncurl -s -o /tmp/t2.json -w \"com-sig:%{http_code}\\n\" -X POST -H \"Content-Type: application/json\" -H \"x-webhook-provider: test\" -H \"x-webhook-id: evt-2\" -H \"x-webhook-signature: $SIG\" -d \"$BODY\" http://localhost:5999/api/webhooks/receiver; cat /tmp/t2.json; echo\ncurl -s -o /tmp/t3.json -w \"sig-invalida:%{http_code}\\n\" -X POST -H \"Content-Type: application/json\" -H \"x-webhook-provider: test\" -H \"x-webhook-id: evt-3\" -H \"x-webhook-signature: abc\" -d \"$BODY\" http://localhost:5999/api/webhooks/receiver; cat /tmp/t3.json; echo\ncurl -s -o /tmp/t4.json -w \"cron:%{http_code}\\n\" -H \"Authorization: Bearer segredo-teste-123\" http://localhost:5999/api/cron/health; cat /tmp/t4.json; echo",
@@ -1624,5 +1216,411 @@
     "content": "supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql:85:GRANT SELECT ON public.audit_log TO authenticated;\nsupabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql:86:GRANT ALL ON public.audit_log TO service_role;\nsupabase/migrations/20260915210457_59fe8633-",
     "is_error": false,
     "timestamp": 1789654918042
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "-- Corrige a escrita de auditoria: as server functions registram em `audit_log`\n-- via client autenticado (com RLS como o usuário), mas o schema de fundação só\n-- concedia SELECT. Sem GRANT INSERT e sem policy de INSERT, criar organização,\n-- adicionar/remover membro, alterar papel etc. falhariam ao tentar registrar a\n-- ação. Qualquer membro da organização pode registrar a própria ação logada;\n-- a leitura continua restrita a admin/gestor.\nGRANT INSERT ON public.audit_log TO authenticated;\n\nCREATE POLICY \"members insert audit rows\" ON public.audit_log\n  FOR INSERT TO authenticated\n  WITH CHECK (\n    organization_id IS NULL OR public.is_org_member(organization_id)\n  );",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260917100001_audit_log_insert_policy.sql"
+    },
+    "timestamp": 1789654956119
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1789654956143
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
+      "newString": "if (!existing) {\n      const { error: insertError } = await supabaseAdmin\n        .from(\"organization_members\")\n        .insert({\n          organization_id: invitation.organization_id,\n          user_id: context.userId,\n          role: invitation.role,\n        });\n      if (insertError) throw new Error(insertError.message);\n    }",
+      "oldString": "if (!existing) {\n      const { error: insertError } = await context.supabase\n        .from(\"organization_members\")\n        .insert({\n          organization_id: invitation.organization_id,\n          user_id: context.userId,\n          role: invitation.role,\n        });\n      if (insertError) throw new Error(insertError.message);\n    }"
+    },
+    "timestamp": 1789654964224
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789654964249
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "npx tsc --noEmit 2>&1 | grep \"error TS\" | sort -u; echo \"FIM\"",
+      "timeout": 240000,
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1789654968487
+  },
+  {
+    "role": "tool_result",
+    "content": "FIM\n",
+    "is_error": false,
+    "timestamp": 1789654993844
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "import { useMutation } from \"@tanstack/react-query\";\nimport { createFileRoute, Link, useNavigate } from \"@tanstack/react-router\";\nimport { useServerFn } from \"@tanstack/react-start\";\nimport { useEffect, useState } from \"react\";\nimport { toast } from \"sonner\";\n\nimport { ErrorState, LoadingState } from \"@/components/states\";\nimport { Alert, AlertDescription, AlertTitle } from \"@/components/ui/alert\";\nimport { Button } from \"@/components/ui/button\";\nimport { Card, CardContent, CardDescription, CardHeader, CardTitle } from \"@/components/ui/card\";\nimport { Badge } from \"@/components/ui/badge\";\nimport { supabase } from \"@/integrations/supabase/client\";\nimport { acceptInvitation, getInvitationByToken } from \"@/lib/org/organizations.functions\";\nimport { ROLE_LABELS, type AppRole } from \"@/lib/rbac\";\n\nexport const Route = createFileRoute(\"/convidar\")({\n  head: () => ({\n    meta: [\n      { title: \"Convite — Estratégia\" },\n      { name: \"description\", content: \"Aceite seu convite para entrar na organização.\" },\n      { property: \"og:title\", content: \"Convite — Estratégia\" },\n      { name: \"robots\", content: \"noindex\" },\n    ],\n  }),\n  component: InvitePage,\n});\n\nfunction InvitePage() {\n  const token = Route.useSearch({ select: (s) => s.token }) ?? \"\";\n  const navigate = useNavigate();\n  const fetchInvitation = useServerFn(getInvitationByToken);\n  const accept = useServerFn(acceptInvitation);\n\n  const [sessionUserId, setSessionUserId] = useState<string | null | undefined>(undefined);\n  const [invitation, setInvitation] = useState<{\n    organizationName: string;\n    email: string;\n    role: AppRole;\n    inviteMatchesAccount: boolean;\n  } | null>(null);\n  const [error, setError] = useState<string | null>(null);\n  const [loading, setLoading] = useState(true);\n\n  useEffect(() => {\n    void supabase.auth.getSession().then(({ data }) => {\n      setSessionUserId(data.session?.user.id ?? null);\n    });\n  }, []);\n\n  useEffect(() => {\n    if (!token) {\n      setLoading(false);\n      setError(\"Link de convite inválido.\");\n      return;\n    }\n    let cancelled = false;\n    setLoading(true);\n    setError(null);\n    fetchInvitation({ data: { token } })\n      .then((data) => {\n        if (cancelled) return;\n        setInvitation(data);\n      })\n      .catch((err: Error) => {\n        if (cancelled) return;\n        setError(err.message);\n      })\n      .finally(() => {\n        if (!cancelled) setLoading(false);\n      });\n    return () => {\n      cancelled = true;\n    };\n    // eslint-disable-next-line react-hooks/exhaustive-deps\n  }, [token]);\n\n  const acceptMutation = useMutation({\n    mutationFn: () => accept({ data: { token } }),\n    onSuccess: () => {\n      toast.success(\"Convite aceito\");\n      navigate({ to: \"/dashboard\", replace: true });\n    },\n    onError: (err: Error) => toast.error(\"Não foi possível aceitar\", { description: err.message }),\n  });\n\n  if (!token) {\n    return (\n      <PublicLayout>\n        <Card>\n          <CardHeader>\n            <CardTitle>Convite inválido</CardTitle>\n            <CardDescription>O link de convite não foi informado.</CardDescription>\n          </CardHeader>\n        </Card>\n      </PublicLayout>\n    );\n  }\n\n  if (loading) {\n    return (\n      <PublicLayout>\n        <LoadingState rows={2} />\n      </PublicLayout>\n    );\n  }\n\n  if (error) {\n    return (\n      <PublicLayout>\n        <Alert>\n          <AlertTitle>Não foi possível abrir o convite</AlertTitle>\n          <AlertDescription>{error}</AlertDescription>\n        </Alert>\n        <ErrorState\n          title=\"Precisa de ajuda?\"\n          description=\"Entre em contato com quem te enviou o convite para gerar um novo link.\"\n          onRetry={() => navigate({ to: \"/convidar\", search: { token }, replace: true })}\n        />\n      </PublicLayout>\n    );\n  }\n\n  if (sessionUserId === undefined || !invitation) {\n    return (\n      <PublicLayout>\n        <LoadingState rows={2} />\n      </PublicLayout>\n    );\n  }\n\n  if (!sessionUserId) {\n    return (\n      <PublicLayout>\n        <Card>\n          <CardHeader>\n            <CardTitle>Você foi convidado</CardTitle>\n            <CardDescription>\n              {invitation.organizationName} te convidou para participar como{\" \"}\n              {ROLE_LABELS[invitation.role].toLowerCase()}.\n            </CardDescription>\n          </CardHeader>\n          <CardContent className=\"space-y-3\">\n            <p className=\"text-sm text-muted-foreground\">\n              Para aceitar, entre ou crie uma conta usando o e-mail convidado:\n            </p>\n            <p className=\"font-medium\">{invitation.email}</p>\n            <Button\n              className=\"w-full\"\n              onClick={() =>\n                navigate({\n                  to: \"/auth\",\n                  search: { redirect: `/convidar?token=${encodeURIComponent(token)}` },\n                })\n              }\n            >\n              Entrar ou criar conta\n            </Button>\n          </CardContent>\n        </Card>\n      </PublicLayout>\n    );\n  }\n\n  return (\n    <PublicLayout>\n      <Card>\n        <CardHeader>\n          <CardTitle>Convite para {invitation.organizationName}</CardTitle>\n          <CardDescription>\n            Este convite é para <span className=\"font-medium\">{invitation.email}</span>.\n          </CardDescription>\n        </CardHeader>\n        <CardContent className=\"space-y-4\">\n          <div className=\"flex items-center gap-2 text-sm\">\n            <span className=\"text-muted-foreground\">Papel previsto:</span>\n            <Badge variant=\"secondary\">{ROLE_LABELS[invitation.role]}</Badge>\n          </div>\n\n          {invitation.inviteMatchesAccount ? (\n            <div className=\"space-y-3\">\n              <p className=\"text-sm text-muted-foreground\">\n                O convite corresponde ao e-mail da sua conta. Aceite para começar.\n              </p>\n              <Button\n                className=\"w-full\"\n                disabled={acceptMutation.isPending}\n                onClick={() => acceptMutation.mutate()}\n              >\n                {acceptMutation.isPending ? \"Aceitando...\" : \"Aceitar convite\"}\n              </Button>\n            </div>\n          ) : (\n            <p className=\"text-sm text-muted-foreground\">\n              Você está logado com outro e-mail. Saia e entre com <strong>{invitation.email}</strong>{\" \"}\n              para aceitar este convite.\n            </p>\n          )}\n        </CardContent>\n      </Card>\n    </PublicLayout>\n  );\n}\n\nfunction PublicLayout({ children }: { children: React.ReactNode }) {\n  return (\n    <div className=\"flex min-h-screen items-center justify-center bg-muted/40 px-4 py-10\">\n      <div className=\"w-full max-w-md space-y-4\">\n        <Link to=\"/\" className=\"mb-6 flex items-center justify-center gap-2\">\n          <div className=\"flex h-9 w-9 items-center justify-center rounded-lg bg-primary font-bold text-primary-foreground\">\n            E\n          </div>\n          <span className=\"font-heading text-lg font-semibold\">Estratégia</span>\n        </Link>\n        {children}\n      </div>\n    </div>\n  );\n}",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/convidar.tsx"
+    },
+    "timestamp": 1789655033183
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1789655033192
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "npx tsc --noEmit 2>&1 | grep \"error TS\" | sort -u; echo \"FIM\"",
+      "timeout": 240000,
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1789655038902
+  },
+  {
+    "role": "tool_result",
+    "content": "src/routes/convidar.tsx(29,52): error TS2339: Property 'token' does not exist on type '{}'.\nFIM\n",
+    "is_error": false,
+    "timestamp": 1789655056787
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/convidar.tsx",
+      "newString": "import { useMutation } from \"@tanstack/react-query\";\nimport { createFileRoute, Link, useNavigate } from \"@tanstack/react-router\";\nimport { useServerFn } from \"@tanstack/react-start\";\nimport { z } from \"zod\";\nimport { useEffect, useState } from \"react\";\nimport { toast } from \"sonner\";",
+      "oldString": "import { useMutation } from \"@tanstack/react-query\";\nimport { createFileRoute, Link, useNavigate } from \"@tanstack/react-router\";\nimport { useServerFn } from \"@tanstack/react-start\";\nimport { useEffect, useState } from \"react\";\nimport { toast } from \"sonner\";"
+    },
+    "timestamp": 1789655062192
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789655062221
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/convidar.tsx",
+      "newString": "export const Route = createFileRoute(\"/convidar\")({\n  validateSearch: (search) => z.object({ token: z.string().uuid().optional() }).parse(search),\n  head: () => ([",
+      "oldString": "export const Route = createFileRoute(\"/convidar\")({\n  head: () => (["
+    },
+    "timestamp": 1789655064631
+  },
+  {
+    "role": "tool_result",
+    "content": "",
+    "is_error": true,
+    "timestamp": 1789655064660
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/convidar.tsx",
+      "newString": "export const Route = createFileRoute(\"/convidar\")({\n  validateSearch: (search) =>\n    z.object({ token: z.string().uuid().optional() }).parse(search),\n  head: () => ({",
+      "oldString": "export const Route = createFileRoute(\"/convidar\")({\n  head: () => ({"
+    },
+    "timestamp": 1789655067056
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789655067069
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/auth.tsx",
+      "newString": "import { createFileRoute, Link, useNavigate } from \"@tanstack/react-router\";\nimport { z } from \"zod\";\nimport { useEffect, useState } from \"react\";\nimport { toast } from \"sonner\";",
+      "oldString": "import { createFileRoute, Link, useNavigate } from \"@tanstack/react-router\";\nimport { useEffect, useState } from \"react\";\nimport { toast } from \"sonner\";"
+    },
+    "timestamp": 1789655070751
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789655070762
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/auth.tsx",
+      "newString": "export const Route = createFileRoute(\"/auth\")({\n  validateSearch: (search) =>\n    z\n      .object({\n        redirect: z.string().refine((v) => v.startsWith(\"/\") && !v.startsWith(\"//\")).optional(),\n      })\n      .parse(search),\n  head: () => ({",
+      "oldString": "export const Route = createFileRoute(\"/auth\")({\n  head: () => ({"
+    },
+    "timestamp": 1789655074365
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789655074370
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/auth.tsx",
+      "newString": "function AuthPage() {\n  const navigate = useNavigate();\n  const redirect = Route.useSearch({ select: (s) => s.redirect });\n  const [mode, setMode] = useState<\"signin\" | \"signup\">(\"signin\");\n  const [email, setEmail] = useState(\"\");\n  const [password, setPassword] = useState(\"\");\n  const [fullName, setFullName] = useState(\"\");\n  const [busy, setBusy] = useState(false);\n  const [forgot, setForgot] = useState(false);\n\n  useEffect(() => {\n    void supabase.auth.getSession().then(({ data }) => {\n      if (data.session) navigate({ to: redirect ?? \"/dashboard\", replace: true });\n    });\n  }, [navigate, redirect]);\n\n  async function handleSignIn(e: React.FormEvent) {\n    e.preventDefault();\n    setBusy(true);\n    const { error } = await supabase.auth.signInWithPassword({ email, password });\n    setBusy(false);\n    if (error) {\n      toast.error(\"Não foi possível entrar\", { description: error.message });\n      return;\n    }\n    navigate({ to: redirect ?? \"/dashboard\", replace: true });\n  }\n\n  async function handleSignUp(e: React.FormEvent) {\n    e.preventDefault();\n    setBusy(true);\n    const { data, error } = await supabase.auth.signUp({\n      email,\n      password,\n      options: {\n        emailRedirectTo: window.location.origin,\n        data: { full_name: fullName },\n      },\n    });\n    setBusy(false);\n    if (error) {\n      toast.error(\"Não foi possível criar a conta\", { description: error.message });\n      return;\n    }\n    if (!data.session) {\n      toast.success(\"Confira seu e-mail\", {\n        description: \"Enviamos um link de confirmação para ativar a conta.\",\n      });\n      setMode(\"signin\");\n      return;\n    }\n    navigate({ to: redirect ?? \"/dashboard\", replace: true });\n  }",
+      "oldString": "function AuthPage() {\n  const navigate = useNavigate();\n  const [mode, setMode] = useState<\"signin\" | \"signup\">(\"signin\");\n  const [email, setEmail] = useState(\"\");\n  const [password, setPassword] = useState(\"\");\n  const [fullName, setFullName] = useState(\"\");\n  const [busy, setBusy] = useState(false);\n  const [forgot, setForgot] = useState(false);\n\n  useEffect(() => {\n    void supabase.auth.getSession().then(({ data }) => {\n      if (data.session) navigate({ to: \"/dashboard\", replace: true });\n    });\n  }, [navigate]);\n\n  async function handleSignIn(e: React.FormEvent) {\n    e.preventDefault();\n    setBusy(true);\n    const { error } = await supabase.auth.signInWithPassword({ email, password });\n    setBusy(false);\n    if (error) {\n      toast.error(\"Não foi possível entrar\", { description: error.message });\n      return;\n    }\n    navigate({ to: \"/dashboard\", replace: true });\n  }\n\n  async function handleSignUp(e: React.FormEvent) {\n    e.preventDefault();\n    setBusy(true);\n    const { data, error } = await supabase.auth.signUp({\n      email,\n      password,\n      options: {\n        emailRedirectTo: window.location.origin,\n        data: { full_name: fullName },\n      },\n    });\n    setBusy(false);\n    if (error) {\n      toast.error(\"Não foi possível criar a conta\", { description: error.message });\n      return;\n    }\n    if (!data.session) {\n      toast.success(\"Confira seu e-mail\", {\n        description: \"Enviamos um link de confirmação para ativar a conta.\",\n      });\n      setMode(\"signin\");\n      return;\n    }\n    navigate({ to: \"/dashboard\", replace: true });\n  }"
+    },
+    "timestamp": 1789655090665
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789655090694
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/admin.usuarios.tsx",
+      "newString": "import { useMutation, useQuery } from \"@tanstack/react-query\";\nimport { createFileRoute } from \"@tanstack/react-router\";\nimport { useServerFn } from \"@tanstack/react-start\";\nimport { useState } from \"react\";\nimport { toast } from \"sonner\";\n\nimport { AppShell } from \"@/components/layout/app-shell\";\nimport { EmptyState, ErrorState, LoadingState, PermissionDenied } from \"@/components/states\";\nimport { Badge } from \"@/components/ui/badge\";\nimport { Button } from \"@/components/ui/button\";\nimport { Card, CardContent, CardDescription, CardHeader, CardTitle } from \"@/components/ui/card\";\nimport { Input } from \"@/components/ui/input\";\nimport { Label } from \"@/components/ui/label\";\nimport {\n  Select,\n  SelectContent,\n  SelectItem,\n  SelectTrigger,\n  SelectValue,\n} from \"@/components/ui/select\";\nimport {\n  Table,\n  TableBody,\n  TableCell,\n  TableHead,\n  TableHeader,\n  TableRow,\n} from \"@/components/ui/table\";\nimport {\n  addExistingUserAsMember,\n  createInvitation,\n  listInvitations,\n  listMembers,\n  removeMember,\n  revokeInvitation,\n  updateMemberRole,\n} from \"@/lib/org/organizations.functions\";\nimport { useOrganization } from \"@/lib/org/org-context\";\nimport { APP_ROLES, PERMISSIONS, ROLE_LABELS, type AppRole } from \"@/lib/rbac\";",
+      "oldString": "import { useMutation, useQuery } from \"@tanstack/react-query\";\nimport { createFileRoute } from \"@tanstack/react-router\";\nimport { useServerFn } from \"@tanstack/react-start\";\nimport { useState } from \"react\";\nimport { toast } from \"sonner\";\n\nimport { AppShell } from \"@/components/layout/app-shell\";\nimport { EmptyState, ErrorState, LoadingState, PermissionDenied } from \"@/components/states\";\nimport { Button } from \"@/components/ui/button\";\nimport { Card, CardContent, CardDescription, CardHeader, CardTitle } from \"@/components/ui/card\";\nimport { Input } from \"@/components/ui/input\";\nimport { Label } from \"@/components/ui/label\";\nimport {\n  Select,\n  SelectContent,\n  SelectItem,\n  SelectTrigger,\n  SelectValue,\n} from \"@/components/ui/select\";\nimport {\n  Table,\n  TableBody,\n  TableCell,\n  TableHead,\n  TableHeader,\n  TableRow,\n} from \"@/components/ui/table\";\nimport {\n  addExistingUserAsMember,\n  listMembers,\n  removeMember,\n  updateMemberRole,\n} from \"@/lib/org/organizations.functions\";\nimport { useOrganization } from \"@/lib/org/org-context\";\nimport { APP_ROLES, PERMISSIONS, ROLE_LABELS, type AppRole } from \"@/lib/rbac\";"
+    },
+    "timestamp": 1789655099705
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789655099721
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/admin.usuarios.tsx",
+      "newString": "const addMutation = useMutation({\n    mutationFn: () => addMember({ data: { organizationId: organizationId!, email, role: newRole } }),\n    onSuccess: (result) => {\n      if (!result.ok) {\n        toast.error(\"Conta não encontrada\", {\n          description:\n            \"Esta pessoa ainda não possui conta. Use o convite por link abaixo ou peça que ela crie a conta em Entrar > Criar conta.\",\n        });\n        return;\n      }\n      toast.success(\"Participante adicionado\");\n      setEmail(\"\");\n      void membersQuery.refetch();\n    },\n    onError: (error: Error) => toast.error(\"Não foi possível adicionar\", { description: error.message }),\n  });\n\n  const fetchInvitations = useServerFn(listInvitations);\n  const createInvite = useServerFn(createInvitation);\n  const revokeInvite = useServerFn(revokeInvitation);\n\n  const [inviteEmail, setInviteEmail] = useState(\"\");\n  const [inviteRole, setInviteRole] = useState<AppRole>(\"comercial\");\n  const [createdLink, setCreatedLink] = useState<string | null>(null);\n\n  const invitationsQuery = useQuery({\n    queryKey: [\"invitations\", organizationId],\n    queryFn: () => fetchInvitations({ data: { organizationId: organizationId! } }),\n    enabled: Boolean(organizationId),\n  });\n\n  const inviteMutation = useMutation({\n    mutationFn: () =>\n      createInvite({ data: { organizationId: organizationId!, email: inviteEmail, role: inviteRole } }),\n    onSuccess: (result) => {\n      const link = `${window.location.origin}/convidar?token=${result.token}`;\n      setCreatedLink(link);\n      void navigator.clipboard?.writeText(link).catch(() => undefined);\n      toast.success(\"Convite criado\", { description: \"O link foi copiado para compartilhar.\" });\n      setInviteEmail(\"\");\n      void invitationsQuery.refetch();\n    },\n    onError: (error: Error) =>\n      toast.error(\"Não foi possível criar o convite\", { description: error.message }),\n  });\n\n  const revokeMutation = useMutation({\n    mutationFn: (invitationId: string) =>\n      revokeInvite({ data: { organizationId: organizationId!, invitationId } }),\n    onSuccess: () => {\n      toast.success(\"Convite revogado\");\n      void invitationsQuery.refetch();\n    },\n    onError: (error: Error) => toast.error(\"Não foi possível revogar\", { description: error.message }),\n  });\n\n  const canManage = hasPermission(PERMISSIONS.usersManage);\n  const canRemove = role === \"admin\";",
+      "oldString": "const addMutation = useMutation({\n    mutationFn: () => addMember({ data: { organizationId: organizationId!, email, role: newRole } }),\n    onSuccess: (result) => {\n      if (!result.ok) {\n        toast.error(\"Conta não encontrada\", {\n          description:\n            \"Esta pessoa ainda não possui conta. Peça que ela crie a conta em Entrar > Criar conta e tente novamente.\",\n        });\n        return;\n      }\n      toast.success(\"Participante adicionado\");\n      setEmail(\"\");\n      void membersQuery.refetch();\n    },\n    onError: (error: Error) => toast.error(\"Não foi possível adicionar\", { description: error.message }),\n  });\n\n  const canManage = hasPermission(PERMISSIONS.usersManage);\n  const canRemove = role === \"admin\";"
+    },
+    "timestamp": 1789655115322
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789655115340
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/admin.usuarios.tsx",
+      "newString": "{canManage ? (\n            <Card>\n              <CardHeader>\n                <CardTitle className=\"text-base\">Adicionar participante</CardTitle>\n                <CardDescription>\n                  Informe o e-mail de alguém que já possui conta na plataforma.\n                </CardDescription>\n              </CardHeader>",
+      "oldString": "{canManage ? (\n            <Card>\n              <CardHeader>\n                <CardTitle className=\"text-base\">Adicionar participante</CardTitle>\n                <CardDescription>\n                  Informe o e-mail de alguém que já possui conta na plataforma. O envio de convite por\n                  e-mail ainda não está disponível.\n                </CardDescription>\n              </CardHeader>"
+    },
+    "timestamp": 1789655121105
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789655121123
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/admin.usuarios.tsx",
+      "newString": "{canManage ? (\n            <Card>\n              <CardHeader>\n                <CardTitle className=\"text-base\">Convidar por link</CardTitle>\n                <CardDescription>\n                  Gere um convite para alguém que ainda não tem conta. Compartilhe o link com a pessoa;\n                  ela cria a conta com o e-mail convidado e aceita.\n                </CardDescription>\n              </CardHeader>\n              <CardContent className=\"space-y-4\">\n                <form\n                  className=\"flex flex-col gap-3 sm:flex-row sm:items-end\"\n                  onSubmit={(e) => {\n                    e.preventDefault();\n                    inviteMutation.mutate();\n                  }}\n                >\n                  <div className=\"flex-1 space-y-2\">\n                    <Label htmlFor=\"invite-email\">E-mail do convidado</Label>\n                    <Input\n                      id=\"invite-email\"\n                      type=\"email\"\n                      required\n                      value={inviteEmail}\n                      onChange={(e) => setInviteEmail(e.target.value)}\n                    />\n                  </div>\n                  <div className=\"space-y-2\">\n                    <Label htmlFor=\"invite-role\">Papel</Label>\n                    <Select value={inviteRole} onValueChange={(v) => setInviteRole(v as AppRole)}>\n                      <SelectTrigger id=\"invite-role\" className=\"w-full sm:w-48\">\n                        <SelectValue />\n                      </SelectTrigger>\n                      <SelectContent>\n                        {APP_ROLES.map((r) => (\n                          <SelectItem key={r} value={r}>\n                            {ROLE_LABELS[r]}\n                          </SelectItem>\n                        ))}\n                      </SelectContent>\n                    </Select>\n                  </div>\n                  <Button type=\"submit\" disabled={inviteMutation.isPending}>\n                    {inviteMutation.isPending ? \"Gerando...\" : \"Gerar link\"}\n                  </Button>\n                </form>\n\n                {createdLink ? (\n                  <div className=\"rounded-md border bg-muted/40 p-3\">\n                    <p className=\"mb-1 text-xs font-medium text-muted-foreground\">\n                      Link do convite (expira em 7 dias):\n                    </p>\n                    <div className=\"flex flex-col gap-2 sm:flex-row sm:items-center\">\n                      <code className=\"min-w-0 flex-1 truncate rounded bg-background px-2 py-1 text-xs\">\n                        {createdLink}\n                      </code>\n                      <Button\n                        variant=\"outline\"\n                        size=\"sm\"\n                        onClick={() => {\n                          void navigator.clipboard?.writeText(createdLink).catch(() => undefined);\n                          toast.success(\"Link copiado\");\n                        }}\n                      >\n                        Copiar\n                      </Button>\n                    </div>\n                  </div>\n                ) : null}\n              </CardContent>\n            </Card>\n          ) : null}\n\n          <Card>\n            <CardHeader>\n              <CardTitle className=\"text-base\">Convites pendentes</CardTitle>\n              <CardDescription>Links gerados que ainda não foram aceitos.</CardDescription>\n            </CardHeader>\n            <CardContent>\n              {invitationsQuery.isLoading ? (\n                <LoadingState rows={2} />\n              ) : invitationsQuery.error ? (\n                <ErrorState\n                  description={(invitationsQuery.error as Error).message}\n                  onRetry={() => void invitationsQuery.refetch()}\n                />\n              ) : !invitationsQuery.data?.length ? (\n                <EmptyState title=\"Nenhum convite pendente\" />\n              ) : (\n                <div className=\"rounded-lg border\">\n                  <Table>\n                    <TableHeader>\n                      <TableRow>\n                        <TableHead>E-mail</TableHead>\n                        <TableHead>Papel</TableHead>\n                        <TableHead>Situação</TableHead>\n                        <TableHead className=\"text-right\">Ações</TableHead>\n                      </TableRow>\n                    </TableHeader>\n                    <TableBody>\n                      {invitationsQuery.data.map((inv) => (\n                        <TableRow key={inv.id}>\n                          <TableCell>\n                            <p className=\"font-medium\">{inv.email}</p>\n                            <p className=\"text-xs text-muted-foreground\">\n                              Expira em{\" \"}\n                              {new Date(inv.expires_at).toLocaleDateString(\"pt-BR\")}\n                            </p>\n                          </TableCell>\n                          <TableCell>{ROLE_LABELS[inv.role]}</TableCell>\n                          <TableCell>\n                            <Badge variant={inv.status === \"pending\" ? \"secondary\" : \"outline\"}>\n                              {inv.status === \"pending\"\n                                ? \"Pendente\"\n                                : inv.status === \"accepted\"\n                                  ? \"Aceito\"\n                                  : inv.status === \"revoked\"\n                                    ? \"Revogado\"\n                                    : \"Expirado\"}\n                            </Badge>\n                          </TableCell>\n                          <TableCell className=\"space-x-2 text-right\">\n                            {inv.status === \"pending\" && canManage ? (\n                              <>\n                                <Button\n                                  variant=\"outline\"\n                                  size=\"sm\"\n                                  onClick={() => {\n                                    const link = `${window.location.origin}/convidar?token=${inv.token}`;\n                                    void navigator.clipboard?.writeText(link).catch(() => undefined);\n                                    toast.success(\"Link copiado\");\n                                  }}\n                                >\n                                  Copiar link\n                                </Button>\n                                <Button\n                                  variant=\"ghost\"\n                                  size=\"sm\"\n                                  onClick={() => revokeMutation.mutate(inv.id)}\n                                >\n                                  Revogar\n                                </Button>\n                              </>\n                            ) : null}\n                          </TableCell>\n                        </TableRow>\n                      ))}\n                    </TableBody>\n                  </Table>\n                </div>\n              )}\n            </CardContent>\n          </Card>\n\n          <Card>\n            <CardHeader>\n              <CardTitle className=\"text-base\">Participantes</CardTitle>\n              <CardDescription>Papéis definem o que cada pessoa pode fazer.</CardDescription>\n            </CardHeader>",
+      "oldString": "<Card>\n            <CardHeader>\n              <CardTitle className=\"text-base\">Participantes</CardTitle>\n              <CardDescription>Papéis definem o que cada pessoa pode fazer.</CardDescription>\n            </CardHeader>"
+    },
+    "timestamp": 1789655136211
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789655136264
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "npx tsc --noEmit 2>&1 | grep \"error TS\" | sort -u; echo \"FIM\"; npx eslint --fix src/routes/_authenticated/admin.usuarios.tsx src/routes/convidar.tsx src/routes/auth.tsx src/lib/org/organizations.functions.ts 2>&1 | tail -8; echo \"LINT OK\"",
+      "timeout": 300000,
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1789655143053
+  },
+  {
+    "role": "tool_result",
+    "content": "FIM\nLINT OK\n",
+    "is_error": false,
+    "timestamp": 1789655158461
+  },
+  {
+    "role": "tool",
+    "tool": "todowrite",
+    "input": {
+      "todos": [
+        {
+          "content": "Corrigir erro TS pré-existente em __root.tsx",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Atualizar ADR-001 (webhooks/cron/storage já existem)",
+          "priority": "medium",
+          "status": "completed"
+        },
+        {
+          "content": "Implementar convite por link (tabela invitations + server functions + fluxo de aceite + tela)",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Tornar matriz de permissões editável (server function + tela admin)",
+          "priority": "high",
+          "status": "in_progress"
+        },
+        {
+          "content": "Adicionar testes automatizados para lógica pura (signature, rate-limit, csv, rbac)",
+          "priority": "medium",
+          "status": "pending"
+        },
+        {
+          "content": "Validar typecheck, lint, build e atualizar PROJECT-STATE",
+          "priority": "medium",
+          "status": "pending"
+        }
+      ]
+    },
+    "timestamp": 1789655164668
+  },
+  {
+    "role": "tool_result",
+    "content": "[\n  {\n    \"content\": \"Corrigir erro TS pré-existente em __root.tsx\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Atualizar ADR-001 (webhooks/cron/storage já existem)\",\n    \"status\": \"completed\",\n    \"priority\": \"medium\"\n  },\n  {\n    \"content\": \"Implementar convite por ",
+    "is_error": false,
+    "timestamp": 1789655164672
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/admin.permissoes.tsx"
+    },
+    "timestamp": 1789655168111
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/admin.permissoes.tsx</path>\n<type>file</type>\n<content>\n1: import { useQuery } from \"@tanstack/react-query\";\n2: import { createFileRoute } from \"@tanstack/react-router\";\n3: import { useServerFn } from \"@tanstack/react-start\";\n4",
+    "is_error": false,
+    "timestamp": 1789655168151
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"role_permissions\\|INSERT INTO\" supabase/migrations/20260915211527_57318115-7e5a-439f-9a40-99d7f58bbc1b.sql | head -30",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1789655182056
+  },
+  {
+    "role": "tool_result",
+    "content": "(no output)",
+    "is_error": false,
+    "timestamp": 1789655182121
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -rln \"INSERT INTO public.role_permissions\\|INSERT.*role_permissions\" supabase/migrations/*.sql | head; echo \"===\"; grep -rn \"role_permissions\" supabase/migrations/20260915*.sql | head",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1789655184415
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql\n===\nsupabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql:61:CREATE TABLE public.role_permissions (\nsupabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql:68:GRANT SELECT ON public.",
+    "is_error": false,
+    "timestamp": 1789655184468
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql",
+      "limit": 40,
+      "offset": 206
+    },
+    "timestamp": 1789655187251
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql</path>\n<type>file</type>\n<content>\n206: INSERT INTO public.role_permissions (role, permission) VALUES\n207:   ('admin','organization.read'),('admin','organization.manage'),\n208: ",
+    "is_error": false,
+    "timestamp": 1789655187270
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql",
+      "limit": 15,
+      "offset": 61
+    },
+    "timestamp": 1789655214938
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql</path>\n<type>file</type>\n<content>\n61: CREATE TABLE public.role_permissions (\n62:   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n63:   role public.app_role NOT NULL,\n64:   per",
+    "is_error": false,
+    "timestamp": 1789655214949
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/rbac.ts",
+      "newString": "/** Permissões atualmente reconhecidas pela aplicação. */\nexport const PERMISSIONS = {\n  organizationRead: \"organization.read\",\n  organizationManage: \"organization.manage\",\n  usersRead: \"users.read\",\n  usersManage: \"users.manage\",\n  permissionsRead: \"permissions.read\",\n  permissionsManage: \"permissions.manage\",\n  auditRead: \"audit.read\",\n} as const;\n\nexport type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];\n\nexport const PERMISSION_LABELS: Record<string, string> = {\n  \"organization.read\": \"Ver organização\",\n  \"organization.manage\": \"Editar organização\",\n  \"users.read\": \"Ver participantes\",\n  \"users.manage\": \"Gerenciar participantes\",\n  \"permissions.read\": \"Ver permissões\",\n  \"permissions.manage\": \"Editar permissões\",\n  \"audit.read\": \"Ver auditoria\",\n};",
+      "oldString": "/** Permissões atualmente reconhecidas pela aplicação. */\nexport const PERMISSIONS = {\n  organizationRead: \"organization.read\",\n  organizationManage: \"organization.manage\",\n  usersRead: \"users.read\",\n  usersManage: \"users.manage\",\n  permissionsRead: \"permissions.read\",\n  auditRead: \"audit.read\",\n} as const;\n\nexport type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];\n\nexport const PERMISSION_LABELS: Record<string, string> = {\n  \"organization.read\": \"Ver organização\",\n  \"organization.manage\": \"Editar organização\",\n  \"users.read\": \"Ver participantes\",\n  \"users.manage\": \"Gerenciar participantes\",\n  \"permissions.read\": \"Ver permissões\",\n  \"audit.read\": \"Ver auditoria\",\n};"
+    },
+    "timestamp": 1789655232238
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789655232253
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "-- Concede a edição da matriz de permissões ao papel admin.\n-- A edição acontece server-side (service role, validada por `has_permission`\n-- com `permissions.manage`); a interface apenas chama a server function.\nINSERT INTO public.role_permissions (role, permission) VALUES\n  ('admin','permissions.manage')\nON CONFLICT (role, permission) DO NOTHING;",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260917100002_role_permissions_manage.sql"
+    },
+    "timestamp": 1789655248909
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1789655248920
   }
 ]
