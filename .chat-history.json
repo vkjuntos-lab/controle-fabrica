@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
-      "offset": 80,
-      "limit": 160
-    },
-    "timestamp": 1789649483219
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts</path>\n<type>file</type>\n<content>\n80: \n81:     return org;\n82:   });\n83: \n84: export const updateOrganization = createServerFn({ method: \"POST\" })\n85:   .middleware([requireSupabaseAuth])\n86:   .inputValidator((in",
-    "is_error": false,
-    "timestamp": 1789649483238
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cat package.json | grep -A 20 '\"scripts\"'",
@@ -1521,5 +1505,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1789650765107
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "import { createHmac, timingSafeEqual } from \"node:crypto\";\n\n/**\n * Assinatura HMAC-SHA256 para webhooks. Espera-se que o remetente assine o\n * corpo bruto da requisição e envie em `x-webhook-signature` como hex.\n *\n * O segredo é lido de `WEBHOOK_SECRET` (variável de ambiente). Enquanto não\n * estiver configurado, webhooks estão desabilitados por padrão.\n */\nexport async function validateWebhookSignature(\n  rawBody: string,\n  signatureHeader: string | null,\n): Promise<\"valid\" | \"missing_secret\" | \"invalid\" | \"missing_signature\"> {\n  const secret = process.env[\"WEBHOOK_SECRET\"];\n  if (!secret) return \"missing_secret\";\n\n  const expected = createHmac(\"sha256\", secret).update(rawBody, \"utf8\").digest(\"hex\");\n  if (!signatureHeader) return \"missing_signature\";\n\n  const provided = Buffer.from(signatureHeader, \"hex\");\n  const expectedBuf = Buffer.from(expected, \"hex\");\n  if (provided.length !== expectedBuf.length) return \"invalid\";\n\n  return timingSafeEqual(provided, expectedBuf) ? \"valid\" : \"invalid\";\n}",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/webhook/signature.ts"
+    },
+    "timestamp": 1789650776566
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1789650776572
   }
 ]
