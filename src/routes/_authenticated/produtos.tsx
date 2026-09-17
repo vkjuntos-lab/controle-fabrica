@@ -528,10 +528,10 @@ function ProductsPage() {
                             <TableCell>{p.variant_count}</TableCell>
                             <TableCell className="text-right">
                               <Button asChild variant="outline" size="sm">
-                                <a href={`/produtos/${p.id}`}>
+                                <Link to="/produtos/$id" params={{ id: p.id }}>
                                   Variantes
                                   <ArrowRight className="ml-1 h-3 w-3" />
-                                </a>
+                                </Link>
                               </Button>
                               {canManage ? (
                                 <DropdownMenu>
