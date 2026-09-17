@@ -74,10 +74,11 @@
 
 ## NOT_IMPLEMENTED
 
-- Módulos: Comercial, Produtos, Estoque, Produção, Marketplaces, Parceiros, Financeiro, Relatórios,
+- Módulos: Comercial, Estoque, Produção, Marketplaces, Parceiros, Financeiro, Relatórios,
   Inteligência (marcados como `coming_soon` em `src/lib/rbac.ts`, fora do menu operacional).
-- Inventory Ledger (modelo de movimentos de estoque).
-- Product/Variant, atributos personalizados, códigos de barras.
+- Inventory Ledger (modelo de movimentos de estoque por variante).
+- Atributos personalizados editáveis na tela (o campo `attributes` jsonb já existe nas tabelas
+  de produto/variante).
 - Importação CSV/XLSX com mapeamento configurável de colunas e `external_sku`.
 - Reconciliação de parceiros, fechamento de período, geração de cobrança, registro de pagamento.
 - Webhooks de domínio (`/api/webhooks/receiver` pronto, mas nenhum provedor externo conectado e
