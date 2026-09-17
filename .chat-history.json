@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "src/lib/org/organizations.functions.ts(340,12): error TS2345: Argument of type '({ data, context }: ServerFnCtx<Register, \"GET\", readonly [FunctionMiddlewareAfterServer<{}, unknown, undefined, { supabase: SupabaseClient<Database, \"public\", \"public\", { Tables: { audit_log: { Row: { action: string; co",
-    "is_error": false,
-    "timestamp": 1789649877043
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
-      "newString": "export type AuditLogRow = {\n  id: string;\n  action: string;\n  resource: string;\n  resource_id: string | null;\n  result: string;\n  context: Json | null;\n  created_at: string;\n  user_id: string | null;\n  user_name: string | null;\n  user_email: string | null;\n};",
-      "oldString": "export type AuditLogRow = {\n  id: string;\n  action: string;\n  resource: string;\n  resource_id: string | null;\n  result: string;\n  context: unknown;\n  created_at: string;\n  user_id: string | null;\n  user_name: string | null;\n  user_email: string | null;\n};"
-    },
-    "timestamp": 1789649899541
-  },
-  {
-    "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789649899583
@@ -1573,5 +1557,20 @@
     "content": "grep: /tmp/devserver3.log: No such file or directory\n---\n1758586\n1758587\n1780872\n1780873\n1789684\n",
     "is_error": false,
     "timestamp": 1789651310330
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "pkill -f \"vite dev\" 2>/dev/null; sleep 1; pgrep -f \"vite dev\" || echo \"limpo\"",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1789651314801
+  },
+  {
+    "role": "tool_result",
+    "content": "(no output)\n\n<shell_metadata>\nshell tool terminated command after exceeding timeout 120000 ms. If this command is expected to take longer and is not waiting for interactive input, retry with a larger timeout value in milliseconds.\n</shell_metadata>",
+    "is_error": false,
+    "timestamp": 1789651434910
   }
 ]
