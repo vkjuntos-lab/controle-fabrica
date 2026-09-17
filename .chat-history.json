@@ -3,21 +3,6 @@
     "role": "tool_result",
     "content": "Wrote file successfully.",
     "is_error": false,
-    "timestamp": 1789655408110
-  },
-  {
-    "role": "tool",
-    "tool": "write",
-    "input": {
-      "content": "import { afterEach, describe, expect, it, vi } from \"vitest\";\nimport { createHmac } from \"node:crypto\";\n\nimport { validateWebhookSignature } from \"@/lib/webhook/signature\";\n\nafterEach(() => {\n  vi.unstubAllEnvs();\n});\n\nfunction sign(body: string, secret: string): string {\n  return createHmac(\"sha256\", secret).update(body, \"utf8\").digest(\"hex\");\n}\n\ndescribe(\"validateWebhookSignature\", () => {\n  it(\"retorna missing_secret quando WEBHOOK_SECRET não está definido\", async () => {\n    vi.stubEnv(\"WEBHOOK_SECRET\", \"\");\n    const result = await validateWebhookSignature('{\"a\":1}', \"abc\");\n    expect(result).toBe(\"missing_secret\");\n  });\n\n  it(\"retorna missing_signature quando o header não existe\", async () => {\n    vi.stubEnv(\"WEBHOOK_SECRET\", \"segredo\");\n    const result = await validateWebhookSignature('{\"a\":1}', null);\n    expect(result).toBe(\"missing_signature\");\n  });\n\n  it(\"retorna valid para assinatura correta do corpo bruto\", async () => {\n    vi.stubEnv(\"WEBHOOK_SECRET\", \"segredo\");\n    const body = '{\"a\":1}';\n    const sig = sign(body, \"segredo\");\n    expect(await validateWebhookSignature(body, sig)).toBe(\"valid\");\n  });\n\n  it(\"retorna invalid para assinatura incorreta\", async () => {\n    vi.stubEnv(\"WEBHOOK_SECRET\", \"segredo\");\n    expect(await validateWebhookSignature('{\"a\":1}', \"abcd\")).toBe(\"invalid\");\n  });\n\n  it(\"retorna invalid para assinatura válida de outro corpo\", async () => {\n    vi.stubEnv(\"WEBHOOK_SECRET\", \"segredo\");\n    const sig = sign('{\"a\":2}', \"segredo\");\n    expect(await validateWebhookSignature('{\"a\":1}', sig)).toBe(\"invalid\");\n  });\n});",
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/webhook/signature.test.ts"
-    },
-    "timestamp": 1789655415234
-  },
-  {
-    "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
     "timestamp": 1789655415249
   },
   {
@@ -1618,5 +1603,19 @@
     "content": "commit e4dc335befc2e51bc4351eeafec68d1764616d46\nAuthor: LovPro AI <lovpro@lovpro.ai>\nDate:   Thu Sep 17 19:02:24 2026 +0000\n\n    AI: alteracao automatica\n\n .chat-history.json | 60 +++++++++++++++++++++++++-----------------------------\n 1 file changed, 28 insertions(+), 32 deletions(-)\n===\n .chat-his",
     "is_error": false,
     "timestamp": 1789671755187
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "git log --oneline -6; echo \"===\"; git show --stat d35429c | head -40"
+    },
+    "timestamp": 1789671767941
+  },
+  {
+    "role": "tool_result",
+    "content": "3235532 AI: alteracao automatica\ne4dc335 AI: alteracao automatica\n93a37fe AI: alteracao automatica\ncf922f1 AI: alteracao automatica\n3d64ea4 AI: alteracao automatica\ne9d73b4 AI: alteracao automatica\n===\ncommit d35429c00b93a8938e7ca306a4eead7e9140c8c8\nAuthor: LovPro AI <lovpro@lovpro.ai>\nDate:   Thu S",
+    "is_error": false,
+    "timestamp": 1789671767972
   }
 ]
