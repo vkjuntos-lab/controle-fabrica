@@ -61,8 +61,8 @@ export const Route = createFileRoute("/api/webhooks/receiver")({
         try {
           const mod = await import("@/integrations/supabase/client.server");
           supabaseAdmin = mod.supabaseAdmin;
-          // Acessar o client força a inicialização (detecta service key ausente).
-          supabaseAdmin.auth.admin.getUserById("00000000-0000-0000-0000-000000000000");
+          // Ler a propriedade força a inicialização (detecta service key ausente).
+          void supabaseAdmin.auth;
         } catch {
           return json(
             { ok: false, message: "Armazenamento de webhooks indisponível no servidor." },
