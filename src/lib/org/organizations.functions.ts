@@ -452,11 +452,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
 /** Define o avatar do usuário a partir do caminho no bucket `avatars`. */
 export const setMyAvatar = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z
-      .object({ path: z.string().trim().min(1).max(512) })
-      .parse(input),
-  )
+  .inputValidator((input) => z.object({ path: z.string().trim().min(1).max(512) }).parse(input))
   .handler(async ({ data, context }) => {
     const path = data.path;
     if (!path.startsWith(`${context.userId}/`)) {
@@ -479,10 +475,7 @@ export const setMyAvatar = createServerFn({ method: "POST" })
 export const removeMyAvatar = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const {
-      data: profile,
-      error: profileError,
-    } = await context.supabase
+    const { data: profile, error: profileError } = await context.supabase
       .from("profiles")
       .select("avatar_url")
       .eq("id", context.userId)

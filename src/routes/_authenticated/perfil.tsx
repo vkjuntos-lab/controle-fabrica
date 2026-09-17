@@ -56,7 +56,8 @@ function ProfilePage() {
       toast.success("Perfil atualizado");
       void profileQuery.refetch();
     },
-    onError: (error: Error) => toast.error("Não foi possível salvar", { description: error.message }),
+    onError: (error: Error) =>
+      toast.error("Não foi possível salvar", { description: error.message }),
   });
 
   async function handleAvatarChange(file: File | undefined) {
@@ -125,7 +126,9 @@ function ProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Sua foto</CardTitle>
-              <CardDescription>Usada para identificação visual nas telas da plataforma.</CardDescription>
+              <CardDescription>
+                Usada para identificação visual nas telas da plataforma.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
@@ -154,7 +157,11 @@ function ProfilePage() {
                     onChange={(e) => void handleAvatarChange(e.target.files?.[0])}
                   />
                   {profileQuery.data?.avatar_url ? (
-                    <Button variant="ghost" onClick={() => void handleAvatarRemove()} disabled={uploadingAvatar}>
+                    <Button
+                      variant="ghost"
+                      onClick={() => void handleAvatarRemove()}
+                      disabled={uploadingAvatar}
+                    >
                       Remover
                     </Button>
                   ) : null}
@@ -166,7 +173,9 @@ function ProfilePage() {
           <Card>
             <CardHeader>
               <CardTitle className="text-base">Dados da conta</CardTitle>
-              <CardDescription>O e-mail é usado para entrar e não pode ser alterado aqui.</CardDescription>
+              <CardDescription>
+                O e-mail é usado para entrar e não pode ser alterado aqui.
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <form
