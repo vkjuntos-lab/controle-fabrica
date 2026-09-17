@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/api/webhooks.receiver.ts"
-    },
-    "timestamp": 1789651606193
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/routes/api/webhooks.receiver.ts</path>\n<type>file</type>\n<content>\n1: import { createFileRoute } from \"@tanstack/react-router\";\n2: \n3: import { writeSystemAudit } from \"@/lib/audit/functions\";\n4: import { checkRateLimit } from \"@/lib/middleware/rate",
-    "is_error": false,
-    "timestamp": 1789651606204
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/client.server.ts"
     },
     "timestamp": 1789651609876
@@ -1615,5 +1601,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1789655428172
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "import { describe, expect, it } from \"vitest\";\n\nimport {\n  APP_ROLES,\n  PERMISSIONS,\n  PLATFORM_MODULES,\n  ROLE_LABELS,\n} from \"@/lib/rbac\";\n\ndescribe(\"rbac\", () => {\n  it(\"define os papéis iniciais da plataforma\", () => {\n    expect(APP_ROLES).toEqual([\n      \"admin\",\n      \"gestor\",\n      \"financeiro\",\n      \"estoque\",\n      \"producao\",\n      \"comercial\",\n      \"marketplace\",\n    ]);\n  });\n\n  it(\"tem rótulo para todos os papéis\", () => {\n    for (const role of APP_ROLES) {\n      expect(typeof ROLE_LABELS[role]).toBe(\"string\");\n      expect(ROLE_LABELS[role].length).toBeGreaterThan(0);\n    }\n  });\n\n  it(\"não declara módulo operacional como disponível antes de existir\", () => {\n    const opcionais = PLATFORM_MODULES.filter(\n      (m) => ![\"dashboard\", \"administracao\"].includes(m.key),\n    );\n    for (const mod of opcionais) {\n      expect(mod.status).toBe(\"coming_soon\");\n    }\n  });\n\n  it(\"expõe a permissão de edição da matriz\", () => {\n    expect(PERMISSIONS.permissionsManage).toBe(\"permissions.manage\");\n  });\n});",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/rbac.test.ts"
+    },
+    "timestamp": 1789655435046
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1789655435067
   }
 ]
