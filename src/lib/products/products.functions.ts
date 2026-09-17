@@ -587,3 +587,187 @@ export const deleteCategory = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+
+/** Cria uma variante comercial (SKU) vinculada ao produto. */
+export const createVariant = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        organizationId: z.string().uuid(),
+        productId: z.string().uuid(),
+        sku: z.string().trim().min(1).max(40),
+        barcode: z.string().trim().max(64).nullable().optional(),
+        size: z.string().trim().max(40).nullable().optional(),
+        color: z.string().trim().max(60).nullable().optional(),
+        costPrice: priceSchema,
+        sellPrice: priceSchema,
+        weightGrams: weightSchema,
+        status: variantStatusSchema.default("ACTIVE"),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireOrgPermission(
+      context.supabase,
+      data.organizationId,
+      PERMISSIONS.productsManage,
+      context.userId,
+    );
+
+    const { data: created, error } = await context.supabase
+      .from("product_variants")
+      .insert({
+        organization_id: data.organizationId,
+        product_id: data.productId,
+        sku: data.sku,
+        barcode: emptyToNull(data.barcode),
+        size: emptyToNull(data.size),
+        color: emptyToNull(data.color),
+        cost_price: data.costPrice ?? null,
+        sell_price: data.sellPrice ?? null,
+        weight_grams: data.weightGrams ?? null,
+        status: data.status,
+        created_by: context.userId,
+        updated_by: context.userId,
+      })
+      .select("id, sku, status")
+      .single();
+    if (error) throw new Error(error.message);
+
+    await context.supabase.from("audit_log").insert({
+      organization_id: data.organizationId,
+      user_id: context.userId,
+      action: "variant.create",
+      resource: "product_variants",
+      resource_id: created.id,
+      context: { product_id: data.productId, sku: created.sku },
+    });
+
+    return created;
+  });
+
+/** Atualiza os dados de uma variante existente. */
+export const updateVariant = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        organizationId: z.string().uuid(),
+        variantId: z.string().uuid(),
+        sku: z.string().trim().min(1).max(40),
+        barcode: z.string().trim().max(64).nullable().optional(),
+        size: z.string().trim().max(40).nullable().optional(),
+        color: z.string().trim().max(60).nullable().optional(),
+        costPrice: priceSchema,
+        sellPrice: priceSchema,
+        weightGrams: weightSchema,
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireOrgPermission(
+      context.supabase,
+      data.organizationId,
+      PERMISSIONS.productsManage,
+      context.userId,
+    );
+
+    const { error } = await context.supabase
+      .from("product_variants")
+      .update({
+        sku: data.sku,
+        barcode: emptyToNull(data.barcode),
+        size: emptyToNull(data.size),
+        color: emptyToNull(data.color),
+        cost_price: data.costPrice ?? null,
+        sell_price: data.sellPrice ?? null,
+        weight_grams: data.weightGrams ?? null,
+        updated_by: context.userId,
+      })
+      .eq("id", data.variantId)
+      .eq("organization_id", data.organizationId);
+    if (error) throw new Error(error.message);
+
+    await context.supabase.from("audit_log").insert({
+      organization_id: data.organizationId,
+      user_id: context.userId,
+      action: "variant.update",
+      resource: "product_variants",
+      resource_id: data.variantId,
+      context: { sku: data.sku },
+    });
+
+    return { ok: true };
+  });
+
+/** Ativa/inativa/descontinua uma variante. */
+export const setVariantStatus = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        organizationId: z.string().uuid(),
+        variantId: z.string().uuid(),
+        status: variantStatusSchema,
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireOrgPermission(
+      context.supabase,
+      data.organizationId,
+      PERMISSIONS.productsManage,
+      context.userId,
+    );
+
+    const { error } = await context.supabase
+      .from("product_variants")
+      .update({ status: data.status, updated_by: context.userId })
+      .eq("id", data.variantId)
+      .eq("organization_id", data.organizationId);
+    if (error) throw new Error(error.message);
+
+    await context.supabase.from("audit_log").insert({
+      organization_id: data.organizationId,
+      user_id: context.userId,
+      action: "variant.status",
+      resource: "product_variants",
+      resource_id: data.variantId,
+      context: { status: data.status },
+    });
+
+    return { ok: true };
+  });
+
+/** Exclui uma variante sem movimentações vinculadas. */
+export const deleteVariant = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z.object({ organizationId: z.string().uuid(), variantId: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireOrgPermission(
+      context.supabase,
+      data.organizationId,
+      PERMISSIONS.productsManage,
+      context.userId,
+    );
+
+    const { error } = await context.supabase
+      .from("product_variants")
+      .delete()
+      .eq("id", data.variantId)
+      .eq("organization_id", data.organizationId);
+    if (error) throw new Error(error.message);
+
+    await context.supabase.from("audit_log").insert({
+      organization_id: data.organizationId,
+      user_id: context.userId,
+      action: "variant.delete",
+      resource: "product_variants",
+      resource_id: data.variantId,
+    });
+
+    return { ok: true };
+  });

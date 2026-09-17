@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789654802632
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
-      "limit": 40,
-      "offset": 461
-    },
-    "timestamp": 1789654810338
-  },
-  {
-    "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts</path>\n<type>file</type>\n<content>\n461: \n462:     const { data: url } = context.supabase.storage.from(\"avatars\").getPublicUrl(path);\n463:     if (!url?.publicUrl) throw new Error(\"Arquivo não encontrado.\");\n464: \n4",
     "is_error": false,
     "timestamp": 1789654810353
@@ -1664,5 +1648,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789671451017
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/products/products.functions.ts",
+      "newString": "await context.supabase.from(\"audit_log\").insert({\n      organization_id: data.organizationId,\n      user_id: context.userId,\n      action: \"category.delete\",\n      resource: \"product_categories\",\n      resource_id: data.categoryId,\n    });\n\n    return { ok: true };\n  });\n\n/** Cria uma variante comercial (SKU) vinculada ao produto. */\nexport const createVariant = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: z.string().uuid(),\n        productId: z.string().uuid(),\n        sku: z.string().trim().min(1).max(40),\n        barcode: z.string().trim().max(64).nullable().optional(),\n        size: z.string().trim().max(40).nullable().optional(),\n        color: z.string().trim().max(60).nullable().optional(),\n        costPrice: priceSchema,\n        sellPrice: priceSchema,\n        weightGrams: weightSchema,\n        status: variantStatusSchema.default(\"ACTIVE\"),\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    await requireOrgPermission(\n      context.supabase,\n      data.organizationId,\n      PERMISSIONS.productsManage,\n      context.userId,\n    );\n\n    const { data: created, error } = await context.supabase\n      .from(\"product_variants\")\n      .insert({\n        organization_id: data.organizationId,\n        product_id: data.productId,\n        sku: data.sku,\n        barcode: emptyToNull(data.barcode),\n        size: emptyToNull(data.size),\n        color: emptyToNull(data.color),\n        cost_price: data.costPrice ?? null,\n        sell_price: data.sellPrice ?? null,\n        weight_grams: data.weightGrams ?? null,\n        status: data.status,\n        created_by: context.userId,\n        updated_by: context.userId,\n      })\n      .select(\"id, sku, status\")\n      .single();\n    if (error) throw new Error(error.message);\n\n    await context.supabase.from(\"audit_log\").insert({\n      organization_id: data.organizationId,\n      user_id: context.userId,\n      action: \"variant.create\",\n      resource: \"product_variants\",\n      resource_id: created.id,\n      context: { product_id: data.productId, sku: created.sku },\n    });\n\n    return created;\n  });\n\n/** Atualiza os dados de uma variante existente. */\nexport const updateVariant = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: z.string().uuid(),\n        variantId: z.string().uuid(),\n        sku: z.string().trim().min(1).max(40),\n        barcode: z.string().trim().max(64).nullable().optional(),\n        size: z.string().trim().max(40).nullable().optional(),\n        color: z.string().trim().max(60).nullable().optional(),\n        costPrice: priceSchema,\n        sellPrice: priceSchema,\n        weightGrams: weightSchema,\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    await requireOrgPermission(\n      context.supabase,\n      data.organizationId,\n      PERMISSIONS.productsManage,\n      context.userId,\n    );\n\n    const { error } = await context.supabase\n      .from(\"product_variants\")\n      .update({\n        sku: data.sku,\n        barcode: emptyToNull(data.barcode),\n        size: emptyToNull(data.size),\n        color: emptyToNull(data.color),\n        cost_price: data.costPrice ?? null,\n        sell_price: data.sellPrice ?? null,\n        weight_grams: data.weightGrams ?? null,\n        updated_by: context.userId,\n      })\n      .eq(\"id\", data.variantId)\n      .eq(\"organization_id\", data.organizationId);\n    if (error) throw new Error(error.message);\n\n    await context.supabase.from(\"audit_log\").insert({\n      organization_id: data.organizationId,\n      user_id: context.userId,\n      action: \"variant.update\",\n      resource: \"product_variants\",\n      resource_id: data.variantId,\n      context: { sku: data.sku },\n    });\n\n    return { ok: true };\n  });\n\n/** Ativa/inativa/descontinua uma variante. */\nexport const setVariantStatus = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: z.string().uuid(),\n        variantId: z.string().uuid(),\n        status: variantStatusSchema,\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    await requireOrgPermission(\n      context.supabase,\n      data.organizationId,\n      PERMISSIONS.productsManage,\n      context.userId,\n    );\n\n    const { error } = await context.supabase\n      .from(\"product_variants\")\n      .update({ status: data.status, updated_by: context.userId })\n      .eq(\"id\", data.variantId)\n      .eq(\"organization_id\", data.organizationId);\n    if (error) throw new Error(error.message);\n\n    await context.supabase.from(\"audit_log\").insert({\n      organization_id: data.organizationId,\n      user_id: context.userId,\n      action: \"variant.status\",\n      resource: \"product_variants\",\n      resource_id: data.variantId,\n      context: { status: data.status },\n    });\n\n    return { ok: true };\n  });\n\n/** Exclui uma variante sem movimentações vinculadas. */\nexport const deleteVariant = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z.object({ organizationId: z.string().uuid(), variantId: z.string().uuid() }).parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    await requireOrgPermission(\n      context.supabase,\n      data.organizationId,\n      PERMISSIONS.productsManage,\n      context.userId,\n    );\n\n    const { error } = await context.supabase\n      .from(\"product_variants\")\n      .delete()\n      .eq(\"id\", data.variantId)\n      .eq(\"organization_id\", data.organizationId);\n    if (error) throw new Error(error.message);\n\n    await context.supabase.from(\"audit_log\").insert({\n      organization_id: data.organizationId,\n      user_id: context.userId,\n      action: \"variant.delete\",\n      resource: \"product_variants\",\n      resource_id: data.variantId,\n    });\n\n    return { ok: true };\n  });",
+      "oldString": "await context.supabase.from(\"audit_log\").insert({\n      organization_id: data.organizationId,\n      user_id: context.userId,\n      action: \"category.delete\",\n      resource: \"product_categories\",\n      resource_id: data.categoryId,\n    });\n\n    return { ok: true };\n  });"
+    },
+    "timestamp": 1789671459395
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789671459443
   }
 ]
