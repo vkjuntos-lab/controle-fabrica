@@ -64,7 +64,7 @@ function actionLabel(action: string): string {
   return `${nouns[parts[1]] ?? parts[1]} · ${verb}`;
 }
 
-function contextSummary(context: unknown): string | null {
+function contextSummary(context: AuditLogRow["context"]): string | null {
   if (!context || typeof context !== "object" || Array.isArray(context)) return null;
   const entries = Object.entries(context as Record<string, unknown>);
   if (!entries.length) return null;
