@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1789649853431
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/states/index.tsx"
-    },
-    "timestamp": 1789649856706
-  },
-  {
-    "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/states/index.tsx</path>\n<type>file</type>\n<content>\n1: import { Link } from \"@tanstack/react-router\";\n2: import type { ReactNode } from \"react\";\n3: \n4: import { Button } from \"@/components/ui/button\";\n5: import { Skeleton } from \"@/compon",
     "is_error": false,
     "timestamp": 1789649856727
@@ -1572,5 +1558,21 @@
     "content": "The plugin \"vite-tsconfig-paths\" is detected. Vite now supports tsconfig paths resolution natively via the resolve.tsconfigPaths option. You can remove the plugin and set resolve.tsconfigPaths: true in your Vite config instead.\nPort 5999 is in use, trying another one...\n\n  VITE v8.3.0  ready in 1620",
     "is_error": false,
     "timestamp": 1789651181573
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "kill $(cat /tmp/devserver.pid) 2>/dev/null; pkill -f \"vite dev --port\" 2>/dev/null; sleep 1\nLOVABLE_CRON_SECRET=\"segredo-teste-123\" WEBHOOK_SECRET=\"seg-webhook-456\" nohup npx vite dev --port 5999 > /tmp/devserver3.log 2>&1 &\necho $! > /tmp/devserver.pid\nsleep 7\ngrep -i \"local:\" /tmp/devserver3.log\necho \"=== testes ===\"\ncurl -s -o /tmp/t1.json -w \"sem-sig:%{http_code}\\n\" -X POST -H \"Content-Type: application/json\" -H \"x-webhook-provider: test\" -H \"x-webhook-id: evt-1\" -d '{\"a\":1}' http://localhost:5999/api/webhooks/receiver; cat /tmp/t1.json; echo\nBODY='{\"order\":123}'\nSIG=$(printf '%s' \"$BODY\" | openssl dgst -sha256 -hmac \"seg-webhook-456\" -hex | awk '{print $2}')\ncurl -s -o /tmp/t2.json -w \"com-sig:%{http_code}\\n\" -X POST -H \"Content-Type: application/json\" -H \"x-webhook-provider: test\" -H \"x-webhook-id: evt-2\" -H \"x-webhook-signature: $SIG\" -d \"$BODY\" http://localhost:5999/api/webhooks/receiver; cat /tmp/t2.json; echo\ncurl -s -o /tmp/t3.json -w \"sig-invalida:%{http_code}\\n\" -X POST -H \"Content-Type: application/json\" -H \"x-webhook-provider: test\" -H \"x-webhook-id: evt-3\" -H \"x-webhook-signature: abc\" -d \"$BODY\" http://localhost:5999/api/webhooks/receiver; cat /tmp/t3.json; echo\ncurl -s -o /tmp/t4.json -w \"cron:%{http_code}\\n\" -H \"Authorization: Bearer segredo-teste-123\" http://localhost:5999/api/cron/health; cat /tmp/t4.json; echo",
+      "timeout": 60000,
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1789651201319
+  },
+  {
+    "role": "tool_result",
+    "content": "(no output)\n\n<shell_metadata>\nshell tool terminated command after exceeding timeout 60000 ms. If this command is expected to take longer and is not waiting for interactive input, retry with a larger timeout value in milliseconds.\n</shell_metadata>",
+    "is_error": false,
+    "timestamp": 1789651261457
   }
 ]
