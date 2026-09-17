@@ -268,7 +268,10 @@ export const addExistingUserAsMember = createServerFn({ method: "POST" })
     // Procura a conta pelo e-mail entre os usuários existentes.
     let userId: string | null = null;
     for (let page = 1; page <= 10 && !userId; page++) {
-      const { data: list, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
+      const { data: list, error } = await supabaseAdmin.auth.admin.listUsers({
+        page,
+        perPage: 200,
+      });
       if (error) throw new Error(error.message);
       userId = list.users.find((u) => (u.email ?? "").toLowerCase() === email)?.id ?? null;
       if (list.users.length < 200) break;
@@ -338,7 +341,12 @@ export const listAuditLogs = createServerFn({ method: "GET" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    await requireOrgPermission(context.supabase, data.organizationId, PERMISSIONS.auditRead, context.userId);
+    await requireOrgPermission(
+      context.supabase,
+      data.organizationId,
+      PERMISSIONS.auditRead,
+      context.userId,
+    );
 
     const from = (data.page - 1) * data.pageSize;
     const to = from + data.pageSize - 1;
@@ -374,7 +382,9 @@ export const listAuditLogs = createServerFn({ method: "GET" })
       user_email: null,
     }));
 
-    const userIds = [...new Set(entries.map((e) => e.user_id).filter((id): id is string => Boolean(id)))];
+    const userIds = [
+      ...new Set(entries.map((e) => e.user_id).filter((id): id is string => Boolean(id))),
+    ];
 
     if (userIds.length) {
       const { data: profiles } = await context.supabase
@@ -383,8 +393,8 @@ export const listAuditLogs = createServerFn({ method: "GET" })
         .in("id", userIds);
       const byId = new Map((profiles ?? []).map((p) => [p.id, p]));
       for (const entry of entries) {
-        entry.user_name = entry.user_id ? byId.get(entry.user_id)?.full_name ?? null : null;
-        entry.user_email = entry.user_id ? byId.get(entry.user_id)?.email ?? null : null;
+        entry.user_name = entry.user_id ? (byId.get(entry.user_id)?.full_name ?? null) : null;
+        entry.user_email = entry.user_id ? (byId.get(entry.user_id)?.email ?? null) : null;
       }
     }
 
@@ -397,7 +407,12 @@ export const listAuditActions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) => z.object({ organizationId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
-    await requireOrgPermission(context.supabase, data.organizationId, PERMISSIONS.auditRead, context.userId);
+    await requireOrgPermission(
+      context.supabase,
+      data.organizationId,
+      PERMISSIONS.auditRead,
+      context.userId,
+    );
 
     const { data: rows, error } = await context.supabase
       .from("audit_log")

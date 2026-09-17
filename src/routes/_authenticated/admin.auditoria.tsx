@@ -39,7 +39,10 @@ export const Route = createFileRoute("/_authenticated/admin/auditoria")({
       { title: "Auditoria — Estratégia" },
       { name: "description", content: "Registro de auditoria das operações da organização." },
       { property: "og:title", content: "Auditoria — Estratégia" },
-      { property: "og:description", content: "Registro de auditoria das operações da organização." },
+      {
+        property: "og:description",
+        content: "Registro de auditoria das operações da organização.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -173,7 +176,9 @@ function AuditAdminPage() {
                 <RefreshCw className={logsQuery.isFetching ? "animate-spin" : ""} />
               </Button>
               <p className="text-xs text-muted-foreground sm:ml-auto">
-                {total === 0 ? "Nenhum registro ainda" : `${total} registro${total === 1 ? "" : "s"}`}
+                {total === 0
+                  ? "Nenhum registro ainda"
+                  : `${total} registro${total === 1 ? "" : "s"}`}
               </p>
             </div>
 
@@ -211,7 +216,9 @@ function AuditAdminPage() {
                           </TableCell>
                           <TableCell>
                             <p className="font-medium">{actionLabel(entry.action)}</p>
-                            <p className="font-mono text-xs text-muted-foreground">{entry.action}</p>
+                            <p className="font-mono text-xs text-muted-foreground">
+                              {entry.action}
+                            </p>
                           </TableCell>
                           <TableCell>
                             {entry.user_id ? (

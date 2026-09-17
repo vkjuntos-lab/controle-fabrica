@@ -52,10 +52,25 @@ const OPERATION_ITEMS: NavItem[] = [
 ];
 
 const ADMIN_ITEMS: NavItem[] = [
-  { label: "Organização", to: "/admin/organizacao", icon: Building2, permission: PERMISSIONS.organizationRead },
+  {
+    label: "Organização",
+    to: "/admin/organizacao",
+    icon: Building2,
+    permission: PERMISSIONS.organizationRead,
+  },
   { label: "Usuários", to: "/admin/usuarios", icon: Users, permission: PERMISSIONS.usersRead },
-  { label: "Permissões", to: "/admin/permissoes", icon: ShieldCheck, permission: PERMISSIONS.permissionsRead },
-  { label: "Auditoria", to: "/admin/auditoria", icon: ScrollText, permission: PERMISSIONS.auditRead },
+  {
+    label: "Permissões",
+    to: "/admin/permissoes",
+    icon: ShieldCheck,
+    permission: PERMISSIONS.permissionsRead,
+  },
+  {
+    label: "Auditoria",
+    to: "/admin/auditoria",
+    icon: ScrollText,
+    permission: PERMISSIONS.auditRead,
+  },
 ];
 
 function BrandMark() {
