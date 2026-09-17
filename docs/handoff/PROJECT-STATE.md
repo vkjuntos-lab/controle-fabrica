@@ -81,7 +81,7 @@
   apenas grava a URL pública validando o caminho do usuário.
 - Convite por link: o e-mail do convite vincula ao destino (só aceita quem está logado com
   aquele e-mail); o envio é manual (copiar link). O token (UUID v4) é o segredo de acesso;
-  o serviço nunca envia e-mail; a página de aceite informa e orienta sem falatar demais.
+  o serviço nunca envia e-mail; a página de aceite informa e orienta sem expor demais.
 - Edição de permissões é global (role_permissions sem tenant) e pode ser feita por qualquer
   admin em qualquer organização; a server function valida que o chamador tem `permissions.manage`.
 
