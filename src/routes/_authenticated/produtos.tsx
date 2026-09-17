@@ -129,35 +129,37 @@ function ProductDialog({
   }, [open, product]);
 
   const saveMutation = useMutation({
-    mutationFn: () =>
-      organizationId
-        ? product
-          ? update({
-              data: {
-                organizationId,
-                productId: product.id,
-                name,
-                description,
-                categoryId: categoryId === "NONE" ? null : categoryId,
-                brand,
-                ncm,
-                mainImageUrl,
-              },
-            })
-          : create({
-              data: {
-                organizationId,
-                code,
-                name,
-                description,
-                categoryId: categoryId === "NONE" ? null : categoryId,
-                brand,
-                ncm,
-                status,
-                mainImageUrl,
-              },
-            })
-        : Promise.reject(new Error("Nenhuma organização selecionada.")),
+    mutationFn: async () => {
+      if (!organizationId) throw new Error("Nenhuma organização selecionada.");
+      if (product) {
+        await update({
+          data: {
+            organizationId,
+            productId: product.id,
+            name,
+            description,
+            categoryId: categoryId === "NONE" ? null : categoryId,
+            brand,
+            ncm,
+            mainImageUrl,
+          },
+        });
+        return;
+      }
+      await create({
+        data: {
+          organizationId,
+          code,
+          name,
+          description,
+          categoryId: categoryId === "NONE" ? null : categoryId,
+          brand,
+          ncm,
+          status,
+          mainImageUrl,
+        },
+      });
+    },
     onSuccess: () => {
       toast.success(product ? "Produto atualizado" : "Produto criado");
       onOpenChange(false);
