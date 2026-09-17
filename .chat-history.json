@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
-      "newString": "- Auditoria consultável: `listAuditLogs`/`listAuditActions` (server-side, exige `audit.read`) e tela\n  `/admin/auditoria` com busca, filtro por ação e paginação.\n- Cron autenticado: `GET /api/cron/health` (`src/routes/api/cron.health.ts`) usando\n  `authenticateCronRequest` (header `Authorization: Bearer $LOVABLE_CRON_SECRET`), rate limit\n  `cron:health` e escrita de `audit_log`.\n- Webhook receptor genérico: `POST /api/webhooks/receiver` (`src/routes/api/webhooks.receiver.ts`)\n  com assinatura HMAC-SHA256 (`x-webhook-signature`, segredo `WEBHOOK_SECRET`), idempotência via\n  tabela `webhook_events` (unique `provider + event_id`), rate limit por provider, limite de payload\n  e respostas HTTP explícitas (401/413/429/503). Desabilitado por padrão (sem `WEBHOOK_SECRET`).\n- Storage de avatares: bucket `avatars` (leitura pública, escrita restrita à própria pasta do\n  usuário, limite 1,5MB, jpeg/png/webp) + upload no perfil (`/perfil`) com pré-visualização,\n  validação de formato/tamanho no client e server functions `setMyAvatar`/`removeMyAvatar`.\n- Documentação: ADR-001, CORE-BUSINESS, este handoff.",
-      "oldString": "- Auditoria consultável: `listAuditLogs`/`listAuditActions` (server-side, exige `audit.read`) e tela\n  `/admin/auditoria` com busca, filtro por ação e paginação.\n- Documentação: ADR-001, CORE-BUSINESS, este handoff."
-    },
-    "timestamp": 1789651523359
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789651523396
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
       "newString": "- Webhooks de domínio (`/api/webhooks/receiver` pronto, mas nenhum provedor externo conectado e\n  sem `WEBHOOK_SECRET` definido em ambiente), cron/automações de negócio, filas.\n- Integrações de marketplace por API, pagamentos, e-mail transacional, notificações.\n- Modo DEMO.\n\n## DECISIONS\n\n- Tenant é `organization_id`; `store_id` não é tenant.\n- Autorização derivada de `role_permissions` no banco; nenhuma checagem por e-mail no código.\n- Nada de funcionalidade falsa: o que não existe aparece como \"em breve\" ou não aparece.\n- Regras financeiras/fiscais não são inventadas; o código as recebe depois.\n- Referência de engenharia: KS MultiMake (padrões), nunca o domínio de negócio dele.\n- Webhooks e cron desabilitados por padrão: sem segredo configurado em ambiente, os endpoints\n  respondem explicitamente em vez de fingir funcionar.\n- Upload de avatar é client-side no bucket `avatars`; o servidor nunca recebe/carrega o arquivo,\n  apenas grava a URL pública validando o caminho do usuário.\n\n## KNOWN_LIMITATIONS\n\n- Convite por e-mail depende de provedor de e-mail transacional ainda não configurado.\n- Confirmação de e-mail está ativa: após criar conta é necessário clicar no link recebido.\n- Sem testes automatizados nesta etapa.\n- Nenhum segredo de integração externa configurado (requer definir `LOVABLE_CRON_SECRET`,\n  `WEBHOOK_SECRET` e service role no Lovable Cloud para ativar cron/webhook/auditoria de sistema).",
       "oldString": "- Webhooks (`src/routes/api/public/*`), cron/automações, filas.\n- Integrações de marketplace por API, pagamentos, e-mail transacional, notificações.\n- Modo DEMO.\n\n## DECISIONS\n\n- Tenant é `organization_id`; `store_id` não é tenant.\n- Autorização derivada de `role_permissions` no banco; nenhuma checagem por e-mail no código.\n- Nada de funcionalidade falsa: o que não existe aparece como \"em breve\" ou não aparece.\n- Regras financeiras/fiscais não são inventadas; o código as recebe depois.\n- Referência de engenharia: KS MultiMake (padrões), nunca o domínio de negócio dele.\n\n## KNOWN_LIMITATIONS\n\n- Convite por e-mail depende de provedor de e-mail transacional ainda não configurado.\n- Confirmação de e-mail está ativa: após criar conta é necessário clicar no link recebido.\n- Sem testes automatizados nesta etapa.\n- Nenhum segredo de integração externa configurado."
     },
@@ -1620,5 +1604,20 @@
     "content": "    \"vite\": \"^8.0.16\",\n    \"vitest\": \"^3.2.7\"\nvitest/3.2.7 linux-x64 node-v20.20.2\n",
     "is_error": false,
     "timestamp": 1789655394954
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cat vite.config.ts 2>/dev/null | head -60",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1789655403002
+  },
+  {
+    "role": "tool_result",
+    "content": "// @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually\n// or the app will break with duplicate plugins:\n//   - tanstackStart, viteReact, tailwindcss, tsConfigPaths, nitro (build-only using cloudflare as a default target),\n//     componentTagger (dev-only), VIT",
+    "is_error": false,
+    "timestamp": 1789655403044
   }
 ]
