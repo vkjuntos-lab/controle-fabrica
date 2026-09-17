@@ -4,7 +4,7 @@
 
 ## IMPLEMENTED
 
-- Stack TanStack Start + React 19 + TypeScript + Vite 7 + Tailwind v4 + Lovable Cloud (Supabase).
+- Stack TanStack Start + React 19 + TypeScript + Vite + Tailwind v4 + Lovable Cloud (Supabase).
 - Design system em `src/styles.css` (tokens de cor, raio, sombras, tipografia Space Grotesk/DM Sans).
 - Banco recriado do zero com o schema de fundação: `organizations`, `profiles`,
   `organization_members`, `role_permissions`, `audit_log`.
