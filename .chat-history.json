@@ -3,38 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "pgrep -af \"vite\" | head|| echo \"nada\"",
-      "timeout": 15000,
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789651440469
-  },
-  {
-    "role": "tool_result",
-    "content": "1676723 sh -c vite --base=/preview/fitpal-pro/\n1676724 node /root/Zheus AI Projects/fitpal-pro/node_modules/.bin/vite --base=/preview/fitpal-pro/\n1677068 sh -c vite --base=/preview/idea-spark-pad/\n1677069 node /root/Zheus AI Projects/idea-spark-pad/node_modules/.bin/vite --base=/preview/idea-spark-p",
-    "is_error": false,
-    "timestamp": 1789651440511
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "ss -tlnp 2>/dev/null | grep -iE \"vite|node\" | head; echo \"---\"; ss -tlnp 2>/dev/null | grep 1789749",
-      "timeout": 15000,
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789651449324
-  },
-  {
-    "role": "tool_result",
-    "content": "LISTEN 0      511          0.0.0.0:4102      0.0.0.0:*    users:((\"node /opt/zheus\",pid=1536182,fd=20))             \nLISTEN 0      511          0.0.0.0:4001      0.0.0.0:*    users:((\"node /opt/zheus\",pid=1536175,fd=20))             \nLISTEN 0      511          0.0.0.0:3334      0.0.0.0:*    users:((",
-    "is_error": false,
-    "timestamp": 1789651449380
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "echo \"== cron sem auth ==\"; curl -s -o /tmp/c1 -w \"%{http_code}\\n\" http://localhost:8082/api/cron/health; cat /tmp/c1; echo\necho \"== cron com auth ==\"; curl -s -o /tmp/c2 -w \"%{http_code}\\n\" -H \"Authorization: Bearer segredo-teste-123\" http://localhost:8082/api/cron/health; cat /tmp/c2; echo",
       "timeout": 30000,
       "workdir": "/root/Zheus AI Projects/controle-fabrica"
@@ -1624,5 +1592,37 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789655285085
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/admin.permissoes.tsx",
+      "newString": "function PermissionsAdminPage() {\n  const { hasPermission, currentOrganization, isLoading: orgLoading } = useOrganization();\n  const fetchPermissions = useServerFn(listRolePermissions);\n  const savePermission = useServerFn(updateRolePermission);\n  const organizationId = currentOrganization?.organization_id;\n\n  const query = useQuery({\n    queryKey: [\"role-permissions\", \"matrix\"],\n    queryFn: () => fetchPermissions(),\n  });\n\n  const canManage = Boolean(organizationId) && hasPermission(PERMISSIONS.permissionsManage);\n\n  const toggleMutation = useMutation({\n    mutationFn: (input: { role: AppRole; permission: string; granted: boolean }) =>\n      savePermission({ data: { organizationId: organizationId!, ...input } }),\n    onSuccess: (_data, vars) => {\n      toast.success(vars.granted ? \"Permissão concedida\" : \"Permissão revogada\");\n      void query.refetch();\n    },\n    onError: (error: Error) => toast.error(\"Não foi possível salvar\", { description: error.message }),\n  });\n\n  const rows = query.data ?? [];\n  const permissions = Array.from(new Set(rows.map((r) => r.permission))).sort();\n  const granted = new Set(rows.map((r) => `${r.role}:${r.permission}`));\n\n  function handleToggle(role: AppRole, permission: string) {\n    if (!canManage || toggleMutation.isPending) return;\n    toggleMutation.mutate({ role, permission, granted: !granted.has(`${role}:${permission}`) });\n  }\n\n  return (\n    <AppShell title=\"Administração · Permissões\">\n      {orgLoading ? (\n        <LoadingState rows={3} />\n      ) : !currentOrganization ? (\n        <EmptyState title=\"Nenhuma organização selecionada\" />\n      ) : !hasPermission(PERMISSIONS.permissionsRead) ? (\n        <PermissionDenied permission={PERMISSIONS.permissionsRead} />\n      ) : (\n        <>\n          <Card>\n            <CardHeader>\n              <CardTitle className=\"text-base\">Papéis</CardTitle>\n              <CardDescription>\n                As permissões são aplicadas no banco de dados, não apenas na tela.\n              </CardDescription>\n            </CardHeader>\n            <CardContent className=\"grid gap-3 sm:grid-cols-2\">\n              {APP_ROLES.map((role) => (\n                <div key={role} className=\"rounded-lg border border-border p-3\">\n                  <p className=\"text-sm font-medium\">{ROLE_LABELS[role]}</p>\n                  <p className=\"text-xs text-muted-foreground\">{ROLE_DESCRIPTIONS[role]}</p>\n                </div>\n              ))}\n            </CardContent>\n          </Card>\n\n          <Card>\n            <CardHeader>\n              <CardTitle className=\"text-base\">Matriz de permissões</CardTitle>\n              <CardDescription>\n                {canManage\n                  ? \"Clique em uma célula para conceder ou revogar a permissão. A matriz é global e vale para todas as organizações.\"\n                  : \"Somente leitura. A edição exige a permissão \"}\n                {!canManage ? <code className=\"text-xs\">permissions.manage</code> : null}\n                .\n              </CardDescription>\n            </CardHeader>\n            <CardContent>\n              {query.isLoading ? (\n                <LoadingState rows={3} />\n              ) : query.error ? (\n                <ErrorState\n                  description={(query.error as Error).message}\n                  onRetry={() => void query.refetch()}\n                />\n              ) : !permissions.length ? (\n                <EmptyState title=\"Nenhuma permissão cadastrada\" />\n              ) : (\n                <div className=\"overflow-x-auto rounded-lg border\">\n                  <Table>\n                    <TableHeader>\n                      <TableRow>\n                        <TableHead>Permissão</TableHead>\n                        {APP_ROLES.map((role) => (\n                          <TableHead key={role} className=\"text-center\">\n                            {ROLE_LABELS[role]}\n                          </TableHead>\n                        ))}\n                      </TableRow>\n                    </TableHeader>\n                    <TableBody>\n                      {permissions.map((permission) => (\n                        <TableRow key={permission}>\n                          <TableCell>\n                            <p className=\"font-medium\">\n                              {PERMISSION_LABELS[permission] ?? permission}\n                            </p>\n                            <p className=\"text-xs text-muted-foreground\">{permission}</p>\n                          </TableCell>\n                          {APP_ROLES.map((role) => {\n                            const isGranted = granted.has(`${role}:${permission}`);\n                            const isCurrentAdmin = role === \"admin\" && permission === PERMISSIONS.permissionsManage;\n                            return (\n                              <TableCell key={role} className=\"text-center\">\n                                {canManage ? (\n                                  <Button\n                                    variant=\"ghost\"\n                                    size=\"icon\"\n                                    disabled={isCurrentAdmin || toggleMutation.isPending}\n                                    aria-label={`${isGranted ? \"Revogar\" : \"Conceder\"} ${permission} para ${ROLE_LABELS[role]}`}\n                                    onClick={() => handleToggle(role, permission)}\n                                  >\n                                    {isGranted ? (\n                                      <Check className=\"h-4 w-4 text-primary\" />\n                                    ) : (\n                                      <span className=\"text-muted-foreground\">—</span>\n                                    )}\n                                  </Button>\n                                ) : isGranted ? (\n                                  <Check className=\"mx-auto h-4 w-4 text-primary\" aria-label=\"Permitido\" />\n                                ) : (\n                                  <span className=\"text-muted-foreground\">—</span>\n                                )}\n                              </TableCell>\n                            );\n                          })}\n                        </TableRow>\n                      ))}\n                    </TableBody>\n                  </Table>\n                </div>\n              )}\n            </CardContent>\n          </Card>\n        </>\n      )}\n    </AppShell>\n  );\n}",
+      "oldString": "function PermissionsAdminPage() {\n  const { hasPermission, currentOrganization, isLoading: orgLoading } = useOrganization();\n  const fetchPermissions = useServerFn(listRolePermissions);\n\n  const query = useQuery({\n    queryKey: [\"role-permissions\", \"matrix\"],\n    queryFn: () => fetchPermissions(),\n  });\n\n  const rows = query.data ?? [];\n  const permissions = Array.from(new Set(rows.map((r) => r.permission))).sort();\n  const granted = new Set(rows.map((r) => `${r.role}:${r.permission}`));\n\n  return (\n    <AppShell title=\"Administração · Permissões\">\n      {orgLoading ? (\n        <LoadingState rows={3} />\n      ) : !currentOrganization ? (\n        <EmptyState title=\"Nenhuma organização selecionada\" />\n      ) : !hasPermission(PERMISSIONS.permissionsRead) ? (\n        <PermissionDenied permission={PERMISSIONS.permissionsRead} />\n      ) : (\n        <>\n          <Card>\n            <CardHeader>\n              <CardTitle className=\"text-base\">Papéis</CardTitle>\n              <CardDescription>\n                As permissões são aplicadas no banco de dados, não apenas na tela.\n              </CardDescription>\n            </CardHeader>\n            <CardContent className=\"grid gap-3 sm:grid-cols-2\">\n              {APP_ROLES.map((role) => (\n                <div key={role} className=\"rounded-lg border border-border p-3\">\n                  <p className=\"text-sm font-medium\">{ROLE_LABELS[role]}</p>\n                  <p className=\"text-xs text-muted-foreground\">{ROLE_DESCRIPTIONS[role]}</p>\n                </div>\n              ))}\n            </CardContent>\n          </Card>\n\n          <Card>\n            <CardHeader>\n              <CardTitle className=\"text-base\">Matriz de permissões</CardTitle>\n              <CardDescription>\n                Somente leitura nesta etapa. A edição da matriz será liberada em uma próxima fase.\n              </CardDescription>\n            </CardHeader>\n            <CardContent>\n              {query.isLoading ? (\n                <LoadingState rows={3} />\n              ) : query.error ? (\n                <ErrorState\n                  description={(query.error as Error).message}\n                  onRetry={() => void query.refetch()}\n                />\n              ) : !permissions.length ? (\n                <EmptyState title=\"Nenhuma permissão cadastrada\" />\n              ) : (\n                <div className=\"rounded-lg border\">\n                  <Table>\n                    <TableHeader>\n                      <TableRow>\n                        <TableHead>Permissão</TableHead>\n                        {APP_ROLES.map((role) => (\n                          <TableHead key={role} className=\"text-center\">\n                            {ROLE_LABELS[role]}\n                          </TableHead>\n                        ))}\n                      </TableRow>\n                    </TableHeader>\n                    <TableBody>\n                      {permissions.map((permission) => (\n                        <TableRow key={permission}>\n                          <TableCell>\n                            <p className=\"font-medium\">\n                              {PERMISSION_LABELS[permission] ?? permission}\n                            </p>\n                            <p className=\"text-xs text-muted-foreground\">{permission}</p>\n                          </TableCell>\n                          {APP_ROLES.map((role) => (\n                            <TableCell key={role} className=\"text-center\">\n                              {granted.has(`${role}:${permission}`) ? (\n                                <Check className=\"mx-auto h-4 w-4 text-primary\" aria-label=\"Permitido\" />\n                              ) : (\n                                <span className=\"text-muted-foreground\">—</span>\n                              )}\n                            </TableCell>\n                          ))}\n                        </TableRow>\n                      ))}\n                    </TableBody>\n                  </Table>\n                </div>\n              )}\n            </CardContent>\n          </Card>\n        </>\n      )}\n    </AppShell>\n  );\n}"
+    },
+    "timestamp": 1789655311046
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789655311096
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "npx tsc --noEmit 2>&1 | grep \"error TS\" | sort -u; echo FIM; npx eslint --fix src/routes/_authenticated/admin.permissoes.tsx src/lib/org/organizations.functions.ts src/lib/rbac.ts 2>&1 | tail -6; echo \"LINT OK\"",
+      "timeout": 300000,
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1789655314164
+  },
+  {
+    "role": "tool_result",
+    "content": "src/lib/org/organizations.functions.ts(345,10): error TS2339: Property 'onConflict' does not exist on type 'PostgrestFilterBuilder<{ PostgrestVersion: \"14.5\"; }, { Tables: { audit_log: { Row: { action: string; context: Json; created_at: string; id: string; organization_id: string | null; resource: s",
+    "is_error": false,
+    "timestamp": 1789655329681
   }
 ]

@@ -76,15 +76,70 @@ export type ModuleDefinition = {
 };
 
 export const PLATFORM_MODULES: ModuleDefinition[] = [
-  { key: "dashboard", label: "Dashboard", description: "Indicadores da operação.", status: "available" },
-  { key: "comercial", label: "Comercial", description: "Clientes, pedidos e vendas B2B.", status: "coming_soon" },
-  { key: "produtos", label: "Produtos", description: "Produtos, variantes e SKUs.", status: "coming_soon" },
-  { key: "estoque", label: "Estoque", description: "Inventory ledger e posição por local.", status: "coming_soon" },
-  { key: "producao", label: "Produção", description: "Matéria-prima e ordens de produção.", status: "coming_soon" },
-  { key: "marketplaces", label: "Marketplaces", description: "Lojas, importações e reconciliação.", status: "coming_soon" },
-  { key: "parceiros", label: "Parceiros", description: "Remessas, posição em posse e fechamento.", status: "coming_soon" },
-  { key: "financeiro", label: "Financeiro", description: "Cobrança, recebimento e resultado.", status: "coming_soon" },
-  { key: "relatorios", label: "Relatórios", description: "Quantidade vendida e valores.", status: "coming_soon" },
-  { key: "inteligencia", label: "Inteligência", description: "Análises e projeções.", status: "coming_soon" },
-  { key: "administracao", label: "Administração", description: "Organização, usuários e permissões.", status: "available" },
+  {
+    key: "dashboard",
+    label: "Dashboard",
+    description: "Indicadores da operação.",
+    status: "available",
+  },
+  {
+    key: "comercial",
+    label: "Comercial",
+    description: "Clientes, pedidos e vendas B2B.",
+    status: "coming_soon",
+  },
+  {
+    key: "produtos",
+    label: "Produtos",
+    description: "Produtos, variantes e SKUs.",
+    status: "coming_soon",
+  },
+  {
+    key: "estoque",
+    label: "Estoque",
+    description: "Inventory ledger e posição por local.",
+    status: "coming_soon",
+  },
+  {
+    key: "producao",
+    label: "Produção",
+    description: "Matéria-prima e ordens de produção.",
+    status: "coming_soon",
+  },
+  {
+    key: "marketplaces",
+    label: "Marketplaces",
+    description: "Lojas, importações e reconciliação.",
+    status: "coming_soon",
+  },
+  {
+    key: "parceiros",
+    label: "Parceiros",
+    description: "Remessas, posição em posse e fechamento.",
+    status: "coming_soon",
+  },
+  {
+    key: "financeiro",
+    label: "Financeiro",
+    description: "Cobrança, recebimento e resultado.",
+    status: "coming_soon",
+  },
+  {
+    key: "relatorios",
+    label: "Relatórios",
+    description: "Quantidade vendida e valores.",
+    status: "coming_soon",
+  },
+  {
+    key: "inteligencia",
+    label: "Inteligência",
+    description: "Análises e projeções.",
+    status: "coming_soon",
+  },
+  {
+    key: "administracao",
+    label: "Administração",
+    description: "Organização, usuários e permissões.",
+    status: "available",
+  },
 ];

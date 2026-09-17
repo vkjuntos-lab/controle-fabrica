@@ -16,10 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  listRolePermissions,
-  updateRolePermission,
-} from "@/lib/org/organizations.functions";
+import { listRolePermissions, updateRolePermission } from "@/lib/org/organizations.functions";
 import { useOrganization } from "@/lib/org/org-context";
 import {
   APP_ROLES,
@@ -36,7 +33,10 @@ export const Route = createFileRoute("/_authenticated/admin/permissoes")({
       { title: "Permissões — Estratégia" },
       { name: "description", content: "Matriz de papéis e permissões da plataforma Estratégia." },
       { property: "og:title", content: "Permissões — Estratégia" },
-      { property: "og:description", content: "Matriz de papéis e permissões da plataforma Estratégia." },
+      {
+        property: "og:description",
+        content: "Matriz de papéis e permissões da plataforma Estratégia.",
+      },
       { name: "robots", content: "noindex" },
     ],
   }),
@@ -46,15 +46,35 @@ export const Route = createFileRoute("/_authenticated/admin/permissoes")({
 function PermissionsAdminPage() {
   const { hasPermission, currentOrganization, isLoading: orgLoading } = useOrganization();
   const fetchPermissions = useServerFn(listRolePermissions);
+  const savePermission = useServerFn(updateRolePermission);
+  const organizationId = currentOrganization?.organization_id;
 
   const query = useQuery({
     queryKey: ["role-permissions", "matrix"],
     queryFn: () => fetchPermissions(),
   });
 
+  const canManage = Boolean(organizationId) && hasPermission(PERMISSIONS.permissionsManage);
+
+  const toggleMutation = useMutation({
+    mutationFn: (input: { role: AppRole; permission: string; granted: boolean }) =>
+      savePermission({ data: { organizationId: organizationId!, ...input } }),
+    onSuccess: (_data, vars) => {
+      toast.success(vars.granted ? "Permissão concedida" : "Permissão revogada");
+      void query.refetch();
+    },
+    onError: (error: Error) =>
+      toast.error("Não foi possível salvar", { description: error.message }),
+  });
+
   const rows = query.data ?? [];
   const permissions = Array.from(new Set(rows.map((r) => r.permission))).sort();
   const granted = new Set(rows.map((r) => `${r.role}:${r.permission}`));
+
+  function handleToggle(role: AppRole, permission: string) {
+    if (!canManage || toggleMutation.isPending) return;
+    toggleMutation.mutate({ role, permission, granted: !granted.has(`${role}:${permission}`) });
+  }
 
   return (
     <AppShell title="Administração · Permissões">
@@ -87,7 +107,10 @@ function PermissionsAdminPage() {
             <CardHeader>
               <CardTitle className="text-base">Matriz de permissões</CardTitle>
               <CardDescription>
-                Somente leitura nesta etapa. A edição da matriz será liberada em uma próxima fase.
+                {canManage
+                  ? "Clique em uma célula para conceder ou revogar a permissão. A matriz é global e vale para todas as organizações."
+                  : "Somente leitura. A edição exige a permissão "}
+                {!canManage ? <code className="text-xs">permissions.manage</code> : null}.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -101,7 +124,7 @@ function PermissionsAdminPage() {
               ) : !permissions.length ? (
                 <EmptyState title="Nenhuma permissão cadastrada" />
               ) : (
-                <div className="rounded-lg border">
+                <div className="overflow-x-auto rounded-lg border">
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -122,15 +145,37 @@ function PermissionsAdminPage() {
                             </p>
                             <p className="text-xs text-muted-foreground">{permission}</p>
                           </TableCell>
-                          {APP_ROLES.map((role) => (
-                            <TableCell key={role} className="text-center">
-                              {granted.has(`${role}:${permission}`) ? (
-                                <Check className="mx-auto h-4 w-4 text-primary" aria-label="Permitido" />
-                              ) : (
-                                <span className="text-muted-foreground">—</span>
-                              )}
-                            </TableCell>
-                          ))}
+                          {APP_ROLES.map((role) => {
+                            const isGranted = granted.has(`${role}:${permission}`);
+                            const isCurrentAdmin =
+                              role === "admin" && permission === PERMISSIONS.permissionsManage;
+                            return (
+                              <TableCell key={role} className="text-center">
+                                {canManage ? (
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    disabled={isCurrentAdmin || toggleMutation.isPending}
+                                    aria-label={`${isGranted ? "Revogar" : "Conceder"} ${permission} para ${ROLE_LABELS[role]}`}
+                                    onClick={() => handleToggle(role, permission)}
+                                  >
+                                    {isGranted ? (
+                                      <Check className="h-4 w-4 text-primary" />
+                                    ) : (
+                                      <span className="text-muted-foreground">—</span>
+                                    )}
+                                  </Button>
+                                ) : isGranted ? (
+                                  <Check
+                                    className="mx-auto h-4 w-4 text-primary"
+                                    aria-label="Permitido"
+                                  />
+                                ) : (
+                                  <span className="text-muted-foreground">—</span>
+                                )}
+                              </TableCell>
+                            );
+                          })}
                         </TableRow>
                       ))}
                     </TableBody>
