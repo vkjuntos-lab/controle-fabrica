@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "echo \"== cron sem auth ==\"; curl -s -o /tmp/c1 -w \"%{http_code}\\n\" http://localhost:8082/api/cron/health; cat /tmp/c1; echo\necho \"== cron com auth ==\"; curl -s -o /tmp/c2 -w \"%{http_code}\\n\" -H \"Authorization: Bearer segredo-teste-123\" http://localhost:8082/api/cron/health; cat /tmp/c2; echo",
-      "timeout": 30000,
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789651452511
-  },
-  {
-    "role": "tool_result",
-    "content": "== cron sem auth ==\n404\nThe server is configured with a public base URL of /preview/controle-fabrica/ - did you mean to visit /preview/controle-fabrica/api/cron/health instead?\n== cron com auth ==\n404\nThe server is configured with a public base URL of /preview/controle-fabrica/ - did you mean to vis",
-    "is_error": false,
-    "timestamp": 1789651452578
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "echo \"== cron sem auth ==\"; curl -s -o /tmp/c1 -w \"%{http_code}\\n\" http://localhost:8082/preview/controle-fabrica/api/cron/health; cat /tmp/c1; echo\necho \"== cron com auth ==\"; curl -s -o /tmp/c2 -w \"%{http_code}\\n\" -H \"Authorization: Bearer segredo-teste-123\" http://localhost:8082/preview/controle-fabrica/api/cron/health; cat /tmp/c2; echo",
       "timeout": 60000,
       "workdir": "/root/Zheus AI Projects/controle-fabrica"
@@ -1624,5 +1608,21 @@
     "content": "src/lib/org/organizations.functions.ts(345,10): error TS2339: Property 'onConflict' does not exist on type 'PostgrestFilterBuilder<{ PostgrestVersion: \"14.5\"; }, { Tables: { audit_log: { Row: { action: string; context: Json; created_at: string; id: string; organization_id: string | null; resource: s",
     "is_error": false,
     "timestamp": 1789655329681
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
+      "newString": "if (data.granted) {\n      const { error } = await supabaseAdmin\n        .from(\"role_permissions\")\n        .upsert({ role: data.role, permission: data.permission }, { onConflict: \"role, permission\" })\n        .select(\"id\");\n      if (error) throw new Error(error.message);\n    } else {",
+      "oldString": "if (data.granted) {\n      const { error } = await supabaseAdmin\n        .from(\"role_permissions\")\n        .insert({ role: data.role, permission: data.permission })\n        .onConflict(\"role, permission\")\n        .ignore();\n      if (error) throw new Error(error.message);\n    } else {"
+    },
+    "timestamp": 1789655335271
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789655335294
   }
 ]
