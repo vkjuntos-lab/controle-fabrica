@@ -1,10 +1,12 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Check } from "lucide-react";
+import { toast } from "sonner";
 
 import { AppShell } from "@/components/layout/app-shell";
 import { EmptyState, ErrorState, LoadingState, PermissionDenied } from "@/components/states";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -14,7 +16,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { listRolePermissions } from "@/lib/org/organizations.functions";
+import {
+  listRolePermissions,
+  updateRolePermission,
+} from "@/lib/org/organizations.functions";
 import { useOrganization } from "@/lib/org/org-context";
 import {
   APP_ROLES,
@@ -22,6 +27,7 @@ import {
   PERMISSIONS,
   ROLE_DESCRIPTIONS,
   ROLE_LABELS,
+  type AppRole,
 } from "@/lib/rbac";
 
 export const Route = createFileRoute("/_authenticated/admin/permissoes")({
