@@ -55,7 +55,8 @@
 - Product/Variant, atributos personalizados, códigos de barras.
 - Importação CSV/XLSX com mapeamento configurável de colunas e `external_sku`.
 - Reconciliação de parceiros, fechamento de período, geração de cobrança, registro de pagamento.
-- Webhooks (`src/routes/api/public/*`), cron/automações, filas.
+- Webhooks de domínio (`/api/webhooks/receiver` pronto, mas nenhum provedor externo conectado e
+  sem `WEBHOOK_SECRET` definido em ambiente), cron/automações de negócio, filas.
 - Integrações de marketplace por API, pagamentos, e-mail transacional, notificações.
 - Modo DEMO.
 
@@ -66,13 +67,18 @@
 - Nada de funcionalidade falsa: o que não existe aparece como "em breve" ou não aparece.
 - Regras financeiras/fiscais não são inventadas; o código as recebe depois.
 - Referência de engenharia: KS MultiMake (padrões), nunca o domínio de negócio dele.
+- Webhooks e cron desabilitados por padrão: sem segredo configurado em ambiente, os endpoints
+  respondem explicitamente em vez de fingir funcionar.
+- Upload de avatar é client-side no bucket `avatars`; o servidor nunca recebe/carrega o arquivo,
+  apenas grava a URL pública validando o caminho do usuário.
 
 ## KNOWN_LIMITATIONS
 
 - Convite por e-mail depende de provedor de e-mail transacional ainda não configurado.
 - Confirmação de e-mail está ativa: após criar conta é necessário clicar no link recebido.
 - Sem testes automatizados nesta etapa.
-- Nenhum segredo de integração externa configurado.
+- Nenhum segredo de integração externa configurado (requer definir `LOVABLE_CRON_SECRET`,
+  `WEBHOOK_SECRET` e service role no Lovable Cloud para ativar cron/webhook/auditoria de sistema).
 
 ## NEXT_STEPS
 
@@ -82,3 +88,5 @@
 4. Marketplaces/lojas e importação com mapeamento configurável de colunas.
 5. Reconciliação, fechamento de período e cobrança (server-side, auditado).
 6. Financeiro e relatórios de quantidade + valor.
+7. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a
+   `/api/webhooks/receiver` quando houver integração externa.
