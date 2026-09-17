@@ -75,13 +75,21 @@ organização, alterar papel, remover participante, adicionar participante) acon
 com RLS aplicada como o usuário. O client `service_role` é carregado dentro do handler apenas para
 localizar a conta por e-mail, após checagem de papel via `has_org_role`.
 
-Webhooks e cron ainda **não existem** neste repositório; quando existirem, ficarão em
-`src/routes/api/public/*` com validação de assinatura/segredo, idempotência e logs.
+Webhooks, cron e storage existem nesta fase:
+- Cron autenticado em `src/routes/api/cron.health.ts` (header `Authorization: Bearer $LOVABLE_CRON_SECRET`
+  via `authenticateCronRequest`, rate limit e escrita de `audit_log`).
+- Webhook receptor em `src/routes/api/webhooks.receiver.ts` (HMAC-SHA256 em `x-webhook-signature`,
+  idempotência via `webhook_events`, rate limit por provider). Sem `WEBHOOK_SECRET` no ambiente,
+  responde 503 — não há funcionalidade simulada.
+- Storage de avatares no bucket `avatars` (leitura pública, escrita restrita à pasta do próprio
+  usuário, 1,5MB) com upload na tela `/perfil` e server functions `setMyAvatar`/`removeMyAvatar`.
+- Tabela `webhook_events` criada por migration com RLS e escrita somente via service role.
 
 ## Secrets
 
-Nenhum segredo no código. Variáveis de servidor lidas com `process.env` dentro dos handlers;
-variáveis públicas via `import.meta.env.VITE_*`.
+Nenhum segredo no código. Variáveis de servidor lidas com `process.env` dentro dos handlers
+(`LOVABLE_CRON_SECRET`, `WEBHOOK_SECRET`, `SUPABASE_SERVICE_ROLE_KEY`); variáveis públicas via
+`import.meta.env.VITE_*`.
 
 ## Limitações conhecidas
 
