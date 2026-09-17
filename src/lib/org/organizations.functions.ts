@@ -448,3 +448,73 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+const avatarPathSchema = z
+  .string()
+  .trim()
+  .regex(/^\d+$/ as unknown as RegExp) // placeholder para nunca barrar; validado abaixo
+  .optional();
+
+/** Define o avatar do usuário a partir do caminho no bucket `avatars`. */
+export const setMyAvatar = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({ path: z.string().trim().min(1).max(512) })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const path = data.path;
+    if (!path.startsWith(`${context.userId}/`)) {
+      throw new Error("Caminho de avatar inválido.");
+    }
+
+    const { data: url, error } = await context.supabase.storage
+      .from("avatars")
+      .createSignedUrl(path, 60);
+    if (error) throw new Error(error.message);
+    if (!url?.signedUrl) throw new Error("Arquivo não encontrado.");
+
+    if (!url.signedUrl.startsWith(process.env["SUPABASE_URL"]!)) {
+      throw new Error("Origem inválida.");
+    }
+
+    const { error: updateError } = await context.supabase
+      .from("profiles")
+      .update({ avatar_url: url.signedUrl })
+      .eq("id", context.userId);
+    if (updateError) throw new Error(updateError.message);
+
+    return { ok: true };
+  });
+
+/** Remove o avatar do perfil e apaga o arquivo no bucket, se existir. */
+export const removeMyAvatar = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const {
+      data: profile,
+      error: profileError,
+    } = await context.supabase
+      .from("profiles")
+      .select("avatar_url")
+      .eq("id", context.userId)
+      .maybeSingle();
+    if (profileError) throw new Error(profileError.message);
+
+    if (profile?.avatar_url?.includes("/object/public/avatars/")) {
+      const [, pathRaw] = profile.avatar_url.split("/object/public/avatars/");
+      const filePath = (pathRaw ?? "").split("?")[0];
+      if (filePath.startsWith(`${context.userId}/`)) {
+        await context.supabase.storage.from("avatars").remove([filePath]);
+      }
+    }
+
+    const { error } = await context.supabase
+      .from("profiles")
+      .update({ avatar_url: null })
+      .eq("id", context.userId);
+    if (error) throw new Error(error.message);
+
+    return { ok: true };
+  });

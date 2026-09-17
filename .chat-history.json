@@ -1,18 +1,5 @@
 [
   {
-    "role": "user",
-    "content": "concluir Auditoria (18) — audit_log existe e grava em toda escrita, mas não há tela de consulta.",
-    "timestamp": 1789649644933
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/layout/app-shell.tsx"
-    },
-    "timestamp": 1789649649317
-  },
-  {
     "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/layout/app-shell.tsx</path>\n<type>file</type>\n<content>\n1: import { Link, useNavigate, useRouterState } from \"@tanstack/react-router\";\n2: import { useQueryClient } from \"@tanstack/react-query\";\n3: import {\n4:   Building2,\n5:   ChevronsUpD",
     "is_error": false,
@@ -1553,5 +1540,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts</path>\n<type>file</type>\n<content>\n425:     return actions;\n426:   });\n427: \n428: export const getMyProfile = createServerFn({ method: \"GET\" })\n429:   .middleware([requireSupabaseAuth])\n430:   .handler(async ({ con",
     "is_error": false,
     "timestamp": 1789650920044
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
+      "newString": "export const updateMyProfile = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) => z.object({ fullName: z.string().trim().max(120) }).parse(input))\n  .handler(async ({ data, context }) => {\n    const { error } = await context.supabase\n      .from(\"profiles\")\n      .update({ full_name: data.fullName || null })\n      .eq(\"id\", context.userId);\n    if (error) throw new Error(error.message);\n    return { ok: true };\n  });\n\nconst avatarPathSchema = z\n  .string()\n  .trim()\n  .regex(/^\\d+$/ as unknown as RegExp) // placeholder para nunca barrar; validado abaixo\n  .optional();\n\n/** Define o avatar do usuário a partir do caminho no bucket `avatars`. */\nexport const setMyAvatar = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({ path: z.string().trim().min(1).max(512) })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const path = data.path;\n    if (!path.startsWith(`${context.userId}/`)) {\n      throw new Error(\"Caminho de avatar inválido.\");\n    }\n\n    const { data: url, error } = await context.supabase.storage\n      .from(\"avatars\")\n      .createSignedUrl(path, 60);\n    if (error) throw new Error(error.message);\n    if (!url?.signedUrl) throw new Error(\"Arquivo não encontrado.\");\n\n    if (!url.signedUrl.startsWith(process.env[\"SUPABASE_URL\"]!)) {\n      throw new Error(\"Origem inválida.\");\n    }\n\n    const { error: updateError } = await context.supabase\n      .from(\"profiles\")\n      .update({ avatar_url: url.signedUrl })\n      .eq(\"id\", context.userId);\n    if (updateError) throw new Error(updateError.message);\n\n    return { ok: true };\n  });\n\n/** Remove o avatar do perfil e apaga o arquivo no bucket, se existir. */\nexport const removeMyAvatar = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .handler(async ({ context }) => {\n    const {\n      data: profile,\n      error: profileError,\n    } = await context.supabase\n      .from(\"profiles\")\n      .select(\"avatar_url\")\n      .eq(\"id\", context.userId)\n      .maybeSingle();\n    if (profileError) throw new Error(profileError.message);\n\n    if (profile?.avatar_url?.includes(\"/object/public/avatars/\")) {\n      const [, pathRaw] = profile.avatar_url.split(\"/object/public/avatars/\");\n      const filePath = (pathRaw ?? \"\").split(\"?\")[0];\n      if (filePath.startsWith(`${context.userId}/`)) {\n        await context.supabase.storage.from(\"avatars\").remove([filePath]);\n      }\n    }\n\n    const { error } = await context.supabase\n      .from(\"profiles\")\n      .update({ avatar_url: null })\n      .eq(\"id\", context.userId);\n    if (error) throw new Error(error.message);\n\n    return { ok: true };\n  });",
+      "oldString": "export const updateMyProfile = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) => z.object({ fullName: z.string().trim().max(120) }).parse(input))\n  .handler(async ({ data, context }) => {\n    const { error } = await context.supabase\n      .from(\"profiles\")\n      .update({ full_name: data.fullName || null })\n      .eq(\"id\", context.userId);\n    if (error) throw new Error(error.message);\n    return { ok: true };\n  });"
+    },
+    "timestamp": 1789650941111
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789650941145
   }
 ]
