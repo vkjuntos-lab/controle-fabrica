@@ -429,3 +429,161 @@ export const deleteProduct = createServerFn({ method: "POST" })
 
     return { ok: true };
   });
+
+/** Categorias do catálogo com a quantidade de produtos em cada uma. */
+export const listCategories = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ organizationId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await requireOrgPermission(
+      context.supabase,
+      data.organizationId,
+      PERMISSIONS.productsRead,
+      context.userId,
+    );
+
+    const { data: rows, error } = await context.supabase
+      .from("product_categories")
+      .select("id, name, parent_id, created_at, products(id)")
+      .eq("organization_id", data.organizationId)
+      .order("name", { ascending: true });
+    if (error) throw new Error(error.message);
+
+    const categories: CategoryRow[] = (rows ?? []).map((row) => ({
+      id: row.id,
+      name: row.name,
+      parent_id: row.parent_id,
+      product_count: row.products?.length ?? 0,
+      created_at: row.created_at,
+    }));
+
+    return categories;
+  });
+
+/** Cria uma categoria do catálogo. parentId permite subcategorias (ferramentas, calçados...). */
+export const createCategory = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        organizationId: z.string().uuid(),
+        name: z.string().trim().min(2).max(120),
+        parentId: z.string().uuid().nullable().optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireOrgPermission(
+      context.supabase,
+      data.organizationId,
+      PERMISSIONS.productsManage,
+      context.userId,
+    );
+
+    const { data: created, error } = await context.supabase
+      .from("product_categories")
+      .insert({
+        organization_id: data.organizationId,
+        name: data.name,
+        parent_id: data.parentId ?? null,
+        created_by: context.userId,
+        updated_by: context.userId,
+      })
+      .select("id, name")
+      .single();
+    if (error) throw new Error(error.message);
+
+    await context.supabase.from("audit_log").insert({
+      organization_id: data.organizationId,
+      user_id: context.userId,
+      action: "category.create",
+      resource: "product_categories",
+      resource_id: created.id,
+      context: { name: created.name },
+    });
+
+    return created;
+  });
+
+/** Renomeia/move uma categoria. */
+export const updateCategory = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        organizationId: z.string().uuid(),
+        categoryId: z.string().uuid(),
+        name: z.string().trim().min(2).max(120),
+        parentId: z.string().uuid().nullable().optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireOrgPermission(
+      context.supabase,
+      data.organizationId,
+      PERMISSIONS.productsManage,
+      context.userId,
+    );
+
+    const { error } = await context.supabase
+      .from("product_categories")
+      .update({ name: data.name, parent_id: data.parentId ?? null, updated_by: context.userId })
+      .eq("id", data.categoryId)
+      .eq("organization_id", data.organizationId);
+    if (error) throw new Error(error.message);
+
+    await context.supabase.from("audit_log").insert({
+      organization_id: data.organizationId,
+      user_id: context.userId,
+      action: "category.update",
+      resource: "product_categories",
+      resource_id: data.categoryId,
+      context: { name: data.name },
+    });
+
+    return { ok: true };
+  });
+
+/** Remove uma categoria que não esteja em uso por nenhum produto. */
+export const deleteCategory = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z.object({ organizationId: z.string().uuid(), categoryId: z.string().uuid() }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireOrgPermission(
+      context.supabase,
+      data.organizationId,
+      PERMISSIONS.productsManage,
+      context.userId,
+    );
+
+    const { data: refs, error: refsError } = await context.supabase
+      .from("products")
+      .select("id")
+      .eq("category_id", data.categoryId)
+      .eq("organization_id", data.organizationId)
+      .limit(1);
+    if (refsError) throw new Error(refsError.message);
+    if (refs?.length) {
+      throw new Error("Esta categoria possui produtos vinculados. Reatribua-os antes de excluir.");
+    }
+
+    const { error } = await context.supabase
+      .from("product_categories")
+      .delete()
+      .eq("id", data.categoryId)
+      .eq("organization_id", data.organizationId);
+    if (error) throw new Error(error.message);
+
+    await context.supabase.from("audit_log").insert({
+      organization_id: data.organizationId,
+      user_id: context.userId,
+      action: "category.delete",
+      resource: "product_categories",
+      resource_id: data.categoryId,
+    });
+
+    return { ok: true };
+  });

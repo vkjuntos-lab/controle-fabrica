@@ -3,22 +3,6 @@
     "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
-    "timestamp": 1789654798432
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts",
-      "newString": "Enums: {\n      app_role:\n        | \"admin\"\n        | \"gestor\"\n        | \"financeiro\"\n        | \"estoque\"\n        | \"producao\"\n        | \"comercial\"\n        | \"marketplace\",\n      invitation_status: \"pending\" | \"accepted\" | \"expired\" | \"revoked\",\n    }",
-      "oldString": "Enums: {\n      app_role:\n        | \"admin\"\n        | \"gestor\"\n        | \"financeiro\"\n        | \"estoque\"\n        | \"producao\"\n        | \"comercial\"\n        | \"marketplace\"\n    }"
-    },
-    "timestamp": 1789654802614
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
     "timestamp": 1789654802632
   },
   {
@@ -1664,5 +1648,21 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1789671445339
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/products/products.functions.ts",
+      "oldString": "await context.supabase.from(\"audit_log\").insert({\n      organization_id: data.organizationId,\n      user_id: context.userId,\n      action: \"product.delete\",\n      resource: \"products\",\n      resource_id: data.productId,\n    });\n\n    return { ok: true };\n  });",
+      "newString": "await context.supabase.from(\"audit_log\").insert({\n      organization_id: data.organizationId,\n      user_id: context.userId,\n      action: \"product.delete\",\n      resource: \"products\",\n      resource_id: data.productId,\n    });\n\n    return { ok: true };\n  });\n\n/** Categorias do catálogo com a quantidade de produtos em cada uma. */\nexport const listCategories = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) => z.object({ organizationId: z.string().uuid() }).parse(input))\n  .handler(async ({ data, context }) => {\n    await requireOrgPermission(\n      context.supabase,\n      data.organizationId,\n      PERMISSIONS.productsRead,\n      context.userId,\n    );\n\n    const { data: rows, error } = await context.supabase\n      .from(\"product_categories\")\n      .select(\"id, name, parent_id, created_at, products(id)\")\n      .eq(\"organization_id\", data.organizationId)\n      .order(\"name\", { ascending: true });\n    if (error) throw new Error(error.message);\n\n    const categories: CategoryRow[] = (rows ?? []).map((row) => ({\n      id: row.id,\n      name: row.name,\n      parent_id: row.parent_id,\n      product_count: row.products?.length ?? 0,\n      created_at: row.created_at,\n    }));\n\n    return categories;\n  });\n\n/** Cria uma categoria do catálogo. parentId permite subcategorias (ferramentas, calçados...). */\nexport const createCategory = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: z.string().uuid(),\n        name: z.string().trim().min(2).max(120),\n        parentId: z.string().uuid().nullable().optional(),\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    await requireOrgPermission(\n      context.supabase,\n      data.organizationId,\n      PERMISSIONS.productsManage,\n      context.userId,\n    );\n\n    const { data: created, error } = await context.supabase\n      .from(\"product_categories\")\n      .insert({\n        organization_id: data.organizationId,\n        name: data.name,\n        parent_id: data.parentId ?? null,\n        created_by: context.userId,\n        updated_by: context.userId,\n      })\n      .select(\"id, name\")\n      .single();\n    if (error) throw new Error(error.message);\n\n    await context.supabase.from(\"audit_log\").insert({\n      organization_id: data.organizationId,\n      user_id: context.userId,\n      action: \"category.create\",\n      resource: \"product_categories\",\n      resource_id: created.id,\n      context: { name: created.name },\n    });\n\n    return created;\n  });\n\n/** Renomeia/move uma categoria. */\nexport const updateCategory = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: z.string().uuid(),\n        categoryId: z.string().uuid(),\n        name: z.string().trim().min(2).max(120),\n        parentId: z.string().uuid().nullable().optional(),\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    await requireOrgPermission(\n      context.supabase,\n      data.organizationId,\n      PERMISSIONS.productsManage,\n      context.userId,\n    );\n\n    const { error } = await context.supabase\n      .from(\"product_categories\")\n      .update({ name: data.name, parent_id: data.parentId ?? null, updated_by: context.userId })\n      .eq(\"id\", data.categoryId)\n      .eq(\"organization_id\", data.organizationId);\n    if (error) throw new Error(error.message);\n\n    await context.supabase.from(\"audit_log\").insert({\n      organization_id: data.organizationId,\n      user_id: context.userId,\n      action: \"category.update\",\n      resource: \"product_categories\",\n      resource_id: data.categoryId,\n      context: { name: data.name },\n    });\n\n    return { ok: true };\n  });\n\n/** Remove uma categoria que não esteja em uso por nenhum produto. */\nexport const deleteCategory = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z.object({ organizationId: z.string().uuid(), categoryId: z.string().uuid() }).parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    await requireOrgPermission(\n      context.supabase,\n      data.organizationId,\n      PERMISSIONS.productsManage,\n      context.userId,\n    );\n\n    const { data: refs, error: refsError } = await context.supabase\n      .from(\"products\")\n      .select(\"id\")\n      .eq(\"category_id\", data.categoryId)\n      .eq(\"organization_id\", data.organizationId)\n      .limit(1);\n    if (refsError) throw new Error(refsError.message);\n    if (refs?.length) {\n      throw new Error(\"Esta categoria possui produtos vinculados. Reatribua-os antes de excluir.\");\n    }\n\n    const { error } = await context.supabase\n      .from(\"product_categories\")\n      .delete()\n      .eq(\"id\", data.categoryId)\n      .eq(\"organization_id\", data.organizationId);\n    if (error) throw new Error(error.message);\n\n    await context.supabase.from(\"audit_log\").insert({\n      organization_id: data.organizationId,\n      user_id: context.userId,\n      action: \"category.delete\",\n      resource: \"product_categories\",\n      resource_id: data.categoryId,\n    });\n\n    return { ok: true };\n  });"
+    },
+    "timestamp": 1789671450988
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789671451017
   }
 ]
