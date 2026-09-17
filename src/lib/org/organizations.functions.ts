@@ -14,7 +14,7 @@ const roleSchema = z.enum(APP_ROLES);
  * mesmo que uma política futura fique mais permissiva.
  */
 async function requireOrgPermission(
-  supabase: Parameters<typeof requireSupabaseAuth.handler>[0]["context"]["supabase"],
+  supabase: SupabaseClient<Database>,
   organizationId: string,
   permission: Permission,
   userId: string,
