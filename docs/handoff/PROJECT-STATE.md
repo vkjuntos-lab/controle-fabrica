@@ -24,7 +24,9 @@
 - Estados padrão: Loading, Empty, Error, Permission Denied, Coming Soon
   (`src/components/states/index.tsx`).
 - Telas: landing pública, `/auth`, `/reset-password`, `/dashboard`, `/onboarding`, `/perfil`,
-  `/admin/organizacao`, `/admin/usuarios`, `/admin/permissoes`.
+  `/admin/organizacao`, `/admin/usuarios`, `/admin/permissoes`, `/admin/auditoria`.
+- Auditoria consultável: `listAuditLogs`/`listAuditActions` (server-side, exige `audit.read`) e tela
+  `/admin/auditoria` com busca, filtro por ação e paginação.
 - Documentação: ADR-001, CORE-BUSINESS, este handoff.
 
 ## PARTIAL
