@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
-      "newString": "z.object({ organizationId: z.string().uuid(), memberId: z.string().uuid() }).parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    await requireOrgPermission(\n      context.supabase,\n      data.organizationId,\n      PERMISSIONS.usersManage,\n      context.userId,\n    );\n\n    const { error } = await context.supabase",
-      "oldString": "z.object({ organizationId: z.string().uuid(), memberId: z.string().uuid() }).parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { error } = await context.supabase"
-    },
-    "timestamp": 1789649478075
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789649478114
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
@@ -1522,5 +1506,20 @@
     "content": "{\n  \"search_id\": \"search_282ad2af091d0cef04d6049bea5178ca\",\n  \"results\": [\n    {\n      \"url\": \"https://tanstack.com/start/v0/docs/framework/solid/guide/server-routes\",\n      \"title\": \"Server Routes | TanStack Start Solid Docs\",\n      \"publish_date\": null,\n      \"excerpts\": [\n        \"Server routes a",
     "is_error": false,
     "timestamp": 1789650734299
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "-- Registro de eventos de webhook recebidos (idempotência + trilha de auditoria).\nCREATE TABLE public.webhook_events (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  provider text NOT NULL,\n  event_id text NOT NULL DEFAULT '',\n  signature_ok boolean NOT NULL DEFAULT false,\n  received_at timestamptz NOT NULL DEFAULT now(),\n  processed boolean NOT NULL DEFAULT false,\n  context jsonb NOT NULL DEFAULT '{}'::jsonb,\n  UNIQUE (provider, event_id)\n);\nCREATE INDEX webhook_events_received_idx ON public.webhook_events (received_at DESC);\nGRANT SELECT ON public.webhook_events TO authenticated;\nGRANT ALL ON public.webhook_events TO service_role;\nALTER TABLE public.webhook_events ENABLE ROW LEVEL SECURITY;\n\n-- Somente o service role escreve; leitura fica para auditoria futura.\nCREATE POLICY \"service_role manage webhook events\" ON public.webhook_events\n  FOR ALL TO service_role USING (true) WITH CHECK (true);",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260917093100_webhook_events.sql"
+    },
+    "timestamp": 1789650748194
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1789650748210
   }
 ]
