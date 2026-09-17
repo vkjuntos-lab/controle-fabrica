@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "write",
     "input": {
-      "content": "import { createFileRoute } from \"@tanstack/react-router\";\n\nimport { authenticateCronRequest } from \"@/integrations/supabase/cron-auth\";\nimport { writeSystemAudit } from \"@/lib/audit/functions\";\nimport { checkRateLimit } from \"@/lib/middleware/rate-limit\";\n\nfunction json(body: unknown, status = 200): Response {\n  return new Response(JSON.stringify(body), {\n    status,\n    headers: { \"content-type\": \"application/json; charset=utf-8\" },\n  });\n}\n\n/**\n * Health check acessível por agendamentos (cron). Não executa efeito\n * colateral: apenas valida autenticação, aplica rate limit e responde.\n * Para cron disparar de fato, configure `LOVABLE_CRON_SECRET` no ambiente\n * e envie `Authorization: Bearer <secret>`.\n */\nexport const Route = createFileRoute(\"/api/cron/health\")({\n  server: {\n    handlers: {\n      GET: async ({ request }) => {\n        const authError = await authenticateCronRequest(request);\n        if (authError) return authError;\n\n        if (!checkRateLimit(\"cron:health\", { limit: 10, windowMs: 60_000 })) {\n          return json({ ok: false, message: \"Muitas requisições.\" }, 429);\n        }\n\n        await writeSystemAudit({\n          action: \"cron.health\",\n          resource: \"system\",\n          result: \"success\",\n          context: { ts: new Date().toISOString() },\n        });\n\n        return json({ ok: true, status: \"healthy\", ts: new Date().toISOString() });\n      },\n    },\n  },\n});",
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/api/cron.health.ts"
-    },
-    "timestamp": 1789650765075
-  },
-  {
-    "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1789650765107
-  },
-  {
-    "role": "tool",
-    "tool": "write",
-    "input": {
       "content": "import { createHmac, timingSafeEqual } from \"node:crypto\";\n\n/**\n * Assinatura HMAC-SHA256 para webhooks. Espera-se que o remetente assine o\n * corpo bruto da requisição e envie em `x-webhook-signature` como hex.\n *\n * O segredo é lido de `WEBHOOK_SECRET` (variável de ambiente). Enquanto não\n * estiver configurado, webhooks estão desabilitados por padrão.\n */\nexport async function validateWebhookSignature(\n  rawBody: string,\n  signatureHeader: string | null,\n): Promise<\"valid\" | \"missing_secret\" | \"invalid\" | \"missing_signature\"> {\n  const secret = process.env[\"WEBHOOK_SECRET\"];\n  if (!secret) return \"missing_secret\";\n\n  const expected = createHmac(\"sha256\", secret).update(rawBody, \"utf8\").digest(\"hex\");\n  if (!signatureHeader) return \"missing_signature\";\n\n  const provided = Buffer.from(signatureHeader, \"hex\");\n  const expectedBuf = Buffer.from(expected, \"hex\");\n  if (provided.length !== expectedBuf.length) return \"invalid\";\n\n  return timingSafeEqual(provided, expectedBuf) ? \"valid\" : \"invalid\";\n}",
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/webhook/signature.ts"
     },
@@ -1625,5 +1610,20 @@
     "content": "\nCREATE POLICY \"authenticated read role permissions\" ON public.role_permissions\n  FOR SELECT TO authenticated USING (true);\n\nCREATE POLICY \"managers read audit log\" ON public.audit_log\n  FOR SELECT TO authenticated\n  USING (organization_id IS NOT NULL AND public.has_org_role(organization_id, ARRAY['",
     "is_error": false,
     "timestamp": 1789654885489
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -rn \"audit_log\" supabase/migrations/*.sql | grep -iE \"policy|grant|insert\" | head -20",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1789654891390
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260704211752_574d9eff-1e40-4974-b15b-e9ff971d42eb.sql:27:GRANT SELECT, INSERT ON public.audit_log TO authenticated;\nsupabase/migrations/20260704211752_574d9eff-1e40-4974-b15b-e9ff971d42eb.sql:28:GRANT ALL ON public.audit_log TO service_role;\nsupabase/migrations/20260704211752_5",
+    "is_error": false,
+    "timestamp": 1789654891445
   }
 ]
