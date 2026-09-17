@@ -449,12 +449,6 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-const avatarPathSchema = z
-  .string()
-  .trim()
-  .regex(/^\d+$/ as unknown as RegExp) // placeholder para nunca barrar; validado abaixo
-  .optional();
-
 /** Define o avatar do usuário a partir do caminho no bucket `avatars`. */
 export const setMyAvatar = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
