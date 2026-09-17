@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/admin.permissoes.tsx\n/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/admin.organizacao.tsx\n/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/perfil.tsx\n/root/Zheus AI Projects/controle-fabrica/src/",
-    "is_error": false,
-    "timestamp": 1789649649648
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/org-context.tsx"
-    },
-    "timestamp": 1789649650402
-  },
-  {
-    "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/org/org-context.tsx</path>\n<type>file</type>\n<content>\n1: import { useQuery } from \"@tanstack/react-query\";\n2: import { useServerFn } from \"@tanstack/react-start\";\n3: import { createContext, useContext, useEffect, useMemo, useState, type ReactNo",
     "is_error": false,
     "timestamp": 1789649650415
@@ -1558,5 +1544,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789650945207
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
+      "newString": ".handler(async ({ data, context }) => {\n    const path = data.path;\n    if (!path.startsWith(`${context.userId}/`)) {\n      throw new Error(\"Caminho de avatar inválido.\");\n    }\n\n    const { data: url } = context.supabase.storage.from(\"avatars\").getPublicUrl(path);\n    if (!url?.publicUrl) throw new Error(\"Arquivo não encontrado.\");\n\n    const { error: updateError } = await context.supabase\n      .from(\"profiles\")\n      .update({ avatar_url: url.publicUrl })\n      .eq(\"id\", context.userId);\n    if (updateError) throw new Error(updateError.message);\n\n    return { ok: true };\n  });",
+      "oldString": ".handler(async ({ data, context }) => {\n    const path = data.path;\n    if (!path.startsWith(`${context.userId}/`)) {\n      throw new Error(\"Caminho de avatar inválido.\");\n    }\n\n    const { data: url, error } = await context.supabase.storage\n      .from(\"avatars\")\n      .createSignedUrl(path, 60);\n    if (error) throw new Error(error.message);\n    if (!url?.signedUrl) throw new Error(\"Arquivo não encontrado.\");\n\n    if (!url.signedUrl.startsWith(process.env[\"SUPABASE_URL\"]!)) {\n      throw new Error(\"Origem inválida.\");\n    }\n\n    const { error: updateError } = await context.supabase\n      .from(\"profiles\")\n      .update({ avatar_url: url.signedUrl })\n      .eq(\"id\", context.userId);\n    if (updateError) throw new Error(updateError.message);\n\n    return { ok: true };\n  });"
+    },
+    "timestamp": 1789650960213
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789650960219
   }
 ]

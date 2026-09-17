@@ -463,19 +463,12 @@ export const setMyAvatar = createServerFn({ method: "POST" })
       throw new Error("Caminho de avatar inválido.");
     }
 
-    const { data: url, error } = await context.supabase.storage
-      .from("avatars")
-      .createSignedUrl(path, 60);
-    if (error) throw new Error(error.message);
-    if (!url?.signedUrl) throw new Error("Arquivo não encontrado.");
-
-    if (!url.signedUrl.startsWith(process.env["SUPABASE_URL"]!)) {
-      throw new Error("Origem inválida.");
-    }
+    const { data: url } = context.supabase.storage.from("avatars").getPublicUrl(path);
+    if (!url?.publicUrl) throw new Error("Arquivo não encontrado.");
 
     const { error: updateError } = await context.supabase
       .from("profiles")
-      .update({ avatar_url: url.signedUrl })
+      .update({ avatar_url: url.publicUrl })
       .eq("id", context.userId);
     if (updateError) throw new Error(updateError.message);
 
