@@ -97,7 +97,8 @@ Nenhum segredo no código. Variáveis de servidor lidas com `process.env` dentro
 - Matriz de permissões é somente leitura na interface (editada por migração).
 - Nenhum módulo operacional (produtos, estoque, produção, marketplaces, parceiros, financeiro)
   implementado — apenas a fundação.
-- Sem webhooks, cron, storage de arquivos ou importação de planilhas nesta etapa.
+- Cron/webhook existem no código mas ficam inativos até `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET`
+  serem definidos no ambiente.
 - Inventory ledger definido conceitualmente em `docs/business/CORE-BUSINESS.md`, ainda não modelado.
 
 ## Avisos aceitos do linter de banco

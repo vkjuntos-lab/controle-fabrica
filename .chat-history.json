@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -rn \"api\" node_modules/@tanstack/router-generator/dist/cjs/filesystem/physical/*.cjs 2>/dev/null | head; ls node_modules/@tanstack/router-generator/dist/cjs/filesystem/physical/",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789650520739
-  },
-  {
-    "role": "tool_result",
-    "content": "getRouteNodes.cjs\ngetRouteNodes.cjs.map\ngetRouteNodes.d.cts\nrootPathId.cjs\nrootPathId.cjs.map\nrootPathId.d.cts\n",
-    "is_error": false,
-    "timestamp": 1789650520760
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -rln \"loaders\\|actions\\|loader\" node_modules/@tanstack/router-generator/dist/cjs/ 2>/dev/null | head; echo \"---\"; grep -rn \"Route = createFileRoute\\|export default\\|RequestHandler\" node_modules/@tanstack/router-generator/dist/cjs/filesystem/getRouteNodes.cjs | head -5",
       "workdir": "/root/Zheus AI Projects/controle-fabrica"
     },
@@ -1617,5 +1602,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789654625275
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/architecture/ADR-001-initial-architecture.md",
+      "newString": "## Limitações conhecidas\n\n- Convite por e-mail não implementado: só é possível adicionar quem já tem conta.\n- Matriz de permissões é somente leitura na interface (editada por migração).\n- Nenhum módulo operacional (produtos, estoque, produção, marketplaces, parceiros, financeiro)\n  implementado — apenas a fundação.\n- Cron/webhook existem no código mas ficam inativos até `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET`\n  serem definidos no ambiente.\n- Inventory ledger definido conceitualmente em `docs/business/CORE-BUSINESS.md`, ainda não modelado.",
+      "oldString": "## Limitações conhecidas\n\n- Convite por e-mail não implementado: só é possível adicionar quem já tem conta.\n- Matriz de permissões é somente leitura na interface (editada por migração).\n- Nenhum módulo operacional (produtos, estoque, produção, marketplaces, parceiros, financeiro)\n  implementado — apenas a fundação.\n- Sem webhooks, cron, storage de arquivos ou importação de planilhas nesta etapa.\n- Inventory ledger definido conceitualmente em `docs/business/CORE-BUSINESS.md`, ainda não modelado."
+    },
+    "timestamp": 1789654630062
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789654630083
   }
 ]
