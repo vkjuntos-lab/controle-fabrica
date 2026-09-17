@@ -313,7 +313,7 @@ export type AuditLogRow = {
   resource: string;
   resource_id: string | null;
   result: string;
-  context: unknown;
+  context: Json | null;
   created_at: string;
   user_id: string | null;
   user_name: string | null;
