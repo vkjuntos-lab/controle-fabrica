@@ -647,8 +647,8 @@ function ProductsPage() {
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancelar</AlertDialogCancel>
                 <AlertDialogAction
-                  onClick={(e) => {
-                    e.preventDefault();
+                  onSelect={(e) => e.preventDefault()}
+                  onClick={() => {
                     if (toDelete) deleteMutation.mutate(toDelete.id);
                   }}
                 >
