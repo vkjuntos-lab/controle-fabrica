@@ -50,6 +50,7 @@ type NavItem = {
 
 const OPERATION_ITEMS: NavItem[] = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
+  { label: "Produtos", to: "/produtos", icon: Package, permission: PERMISSIONS.productsRead },
 ];
 
 const ADMIN_ITEMS: NavItem[] = [
