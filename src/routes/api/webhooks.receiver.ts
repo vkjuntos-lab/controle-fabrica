@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 
+import type { supabaseAdmin as SupabaseAdminClient } from "@/integrations/supabase/client.server";
 import { writeSystemAudit } from "@/lib/audit/functions";
 import { checkRateLimit } from "@/lib/middleware/rate-limit";
 import { validateWebhookSignature } from "@/lib/webhook/signature";
