@@ -125,37 +125,22 @@ function VariantDialog({
   }, [open, variant]);
 
   const saveMutation = useMutation({
-    mutationFn: () => {
-      if (!organizationId) return Promise.reject(new Error("Nenhuma organização selecionada."));
+    mutationFn: async () => {
+      if (!organizationId) throw new Error("Nenhuma organização selecionada.");
+      const data = {
+        sku,
+        barcode,
+        size,
+        color,
+        costPrice: toPrice(costPrice),
+        sellPrice: toPrice(sellPrice),
+        weightGrams: toPrice(weightGrams),
+      };
       if (variant) {
-        return update({
-          data: {
-            organizationId,
-            variantId: variant.id,
-            sku,
-            barcode,
-            size,
-            color,
-            costPrice: toPrice(costPrice),
-            sellPrice: toPrice(sellPrice),
-            weightGrams: toPrice(weightGrams),
-          },
-        });
+        await update({ data: { organizationId, variantId: variant.id, ...data } });
+        return;
       }
-      return create({
-        data: {
-          organizationId,
-          productId: routeParams.id,
-          sku,
-          barcode,
-          size,
-          color,
-          costPrice: toPrice(costPrice),
-          sellPrice: toPrice(sellPrice),
-          weightGrams: toPrice(weightGrams),
-          status,
-        },
-      });
+      await create({ data: { organizationId, productId: routeParams.id, ...data, status } });
     },
     onSuccess: () => {
       toast.success(variant ? "Variante atualizada" : "Variante criada");
