@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789655232253
-  },
-  {
-    "role": "tool",
-    "tool": "write",
-    "input": {
-      "content": "-- Concede a edição da matriz de permissões ao papel admin.\n-- A edição acontece server-side (service role, validada por `has_permission`\n-- com `permissions.manage`); a interface apenas chama a server function.\nINSERT INTO public.role_permissions (role, permission) VALUES\n  ('admin','permissions.manage')\nON CONFLICT (role, permission) DO NOTHING;",
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260917100002_role_permissions_manage.sql"
-    },
-    "timestamp": 1789655248909
-  },
-  {
-    "role": "tool_result",
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1789655248920
@@ -1627,5 +1612,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/produtos.tsx</path>\n<type>file</type>\n<content>\n570:                                         }\n571:                                       >\n572:                                         Descontinuar\n573:                         ",
     "is_error": false,
     "timestamp": 1789671674309
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/produtos.tsx",
+      "newString": "<DropdownMenuSeparator />\n                                    <DropdownMenuItem\n                                      className=\"text-destructive focus:text-destructive\"\n                                      disabled={p.variant_count > 0}\n                                      onClick={() => setToDelete(p)}\n                                    >\n                                      {p.variant_count > 0\n                                        ? \"Tem variantes — não exclui\"\n                                        : \"Excluir\"}\n                                    </DropdownMenuItem>",
+      "oldString": "<DropdownMenuSeparator />\n                                    <DropdownMenuItem\n                                      variant=\"destructive\"\n                                      disabled={p.variant_count > 0}\n                                      onClick={() => setToDelete(p)}\n                                    >\n                                      {p.variant_count > 0\n                                        ? \"Tem variantes — não exclui\"\n                                        : \"Excluir\"}\n                                    </DropdownMenuItem>"
+    },
+    "timestamp": 1789671676879
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789671676883
   }
 ]

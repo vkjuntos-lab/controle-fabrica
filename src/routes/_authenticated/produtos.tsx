@@ -574,7 +574,7 @@ function ProductsPage() {
                                     ) : null}
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem
-                                      variant="destructive"
+                                      className="text-destructive focus:text-destructive"
                                       disabled={p.variant_count > 0}
                                       onClick={() => setToDelete(p)}
                                     >
