@@ -307,6 +307,98 @@ export const listRolePermissions = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
+export type AuditLogRow = {
+  id: string;
+  action: string;
+  resource: string;
+  resource_id: string | null;
+  result: string;
+  context: unknown;
+  created_at: string;
+  user_id: string | null;
+  user_name: string | null;
+  user_email: string | null;
+};
+
+/**
+ * Registros de auditoria da organização (admin/gestor). Consulta paginada com
+ * busca textual em ação/recurso/resultado e opção de filtrar por ação.
+ */
+export const listAuditLogs = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        organizationId: z.string().uuid(),
+        page: z.number().int().min(1).default(1),
+        pageSize: z.number().int().min(1).max(100).default(20),
+        query: z.string().trim().max(120).optional(),
+        action: z.string().trim().max(80).optional(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    await requireOrgPermission(context.supabase, data.organizationId, PERMISSIONS.auditRead, context.userId);
+
+    const from = (data.page - 1) * data.pageSize;
+    const to = from + data.pageSize - 1;
+
+    let builder = context.supabase
+      .from("audit_log")
+      .select("*", { count: "exact" })
+      .eq("organization_id", data.organizationId)
+      .order("created_at", { ascending: false })
+      .range(from, to);
+
+    if (data.query) {
+      const like = `%${data.query}%`;
+      builder = builder.or(`action.ilike.${like},resource.ilike.${like},result.ilike.${like}`);
+    }
+    if (data.action) {
+      builder = builder.eq("action", data.action);
+    }
+
+    const { data: rows, count, error } = await builder;
+    if (error) throw new Error(error.message);
+
+    const entries = (rows ?? []) as AuditLogRow[];
+    const userIds = [...new Set(entries.map((e) => e.user_id).filter((id): id is string => Boolean(id)))];
+
+    if (userIds.length) {
+      const { data: profiles } = await context.supabase
+        .from("profiles")
+        .select("id, full_name, email")
+        .in("id", userIds);
+      const byId = new Map((profiles ?? []).map((p) => [p.id, p]));
+      for (const entry of entries) {
+        entry.user_name = entry.user_id ? byId.get(entry.user_id)?.full_name ?? null : null;
+        entry.user_email = entry.user_id ? byId.get(entry.user_id)?.email ?? null : null;
+      }
+    }
+
+    const maxPage = Math.max(1, Math.ceil((count ?? 0) / data.pageSize));
+    return { rows: entries, total: count ?? 0, page: data.page, pageSize: data.pageSize };
+
+  });
+
+/** Ações distintas já registradas na auditoria, para popular o filtro. */
+export const listAuditActions = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ organizationId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    await requireOrgPermission(context.supabase, data.organizationId, PERMISSIONS.auditRead, context.userId);
+
+    const { data: rows, error } = await context.supabase
+      .from("audit_log")
+      .select("action")
+      .eq("organization_id", data.organizationId)
+      .limit(1000);
+    if (error) throw new Error(error.message);
+
+    const actions = [...new Set((rows ?? []).map((r) => r.action))].sort();
+    return actions;
+  });
+
 export const getMyProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
