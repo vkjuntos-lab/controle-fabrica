@@ -1,41 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "-- Adiciona suporte a link de WhatsApp nos pedidos\nDO $$ \nBEGIN\n  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'orders' AND column_name = 'whatsapp_link') THEN\n    ALTER TABLE public.orders ADD COLUMN whatsapp_link text;\n  END IF;\nEND $$;\n\n-- Garante que a tabela custom",
-    "is_error": false,
-    "timestamp": 1789654254223
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts",
-      "limit": 100
-    },
-    "timestamp": 1789654265201
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts</path>\n<type>file</type>\n<content>\n1: export type Json =\n2:   | string\n3:   | number\n4:   | boolean\n5:   | null\n6:   | { [key: string]: Json | undefined }\n7:   | Json[]\n8: \n9: export type Database = {\n10:   // Allows t",
-    "is_error": false,
-    "timestamp": 1789654265237
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "ls src/routes/api/ 2>/dev/null; echo \"===\"; ls docs/ 2>/dev/null; ls docs/architecture/ docs/business/ docs/handoff/ 2>/dev/null",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789654266003
-  },
-  {
-    "role": "tool_result",
-    "content": "cron.health.ts\nwebhooks.receiver.ts\n===\narchitecture\nbusiness\nhandoff\ndocs/architecture/:\nADR-001-initial-architecture.md\n\ndocs/business/:\nCORE-BUSINESS.md\n\ndocs/handoff/:\nPROJECT-STATE.md\n",
-    "is_error": false,
-    "timestamp": 1789654266055
-  },
-  {
     "role": "tool",
     "tool": "grep",
     "input": {
@@ -1623,5 +1587,38 @@
     "content": "[\n  {\n    \"content\": \"Corrigir erro TS pré-existente em __root.tsx\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Atualizar ADR-001 (webhooks/cron/storage já existem)\",\n    \"status\": \"completed\",\n    \"priority\": \"medium\"\n  },\n  {\n    \"content\": \"Implementar convite por ",
     "is_error": false,
     "timestamp": 1789655645763
+  },
+  {
+    "role": "user",
+    "content": "# LOVABLE MASTER 002 — PRODUTOS, VARIANTES E CATÁLOGO MESTRE\n\n## CONTEXTO\n\nContinue EXATAMENTE o projeto criado no LOVABLE MASTER 001.\n\nNÃO crie outro projeto.\n\nNÃO recrie autenticação, organização, usuários, permissões, layout ou estrutura já existentes.\n\nAntes de alterar qualquer coisa:\n\n1. inspecione o código atual;\n2. identifique o que já foi implementado;\n3. reutilize componentes existentes;\n4. reutilize padrões arquiteturais existentes;\n5. preserve migrations;\n6. preserve RLS;\n7. preserve organization_id;\n8. preserve o Design System;\n9. preserve documentação;\n10. não altere funcionalidades que não fazem parte desta etapa.\n\nEsta etapa implementará o primeiro domínio empresarial real:\n\nCATÁLOGO MESTRE DE PRODUTOS.\n\nEste domínio será posteriormente utilizado por:\n\nPRODUTOS\n→ ESTOQUE\n→ PRODUÇÃO\n→ MARKETPLACES\n→ PARCEIROS\n→ B2B\n→ VENDAS\n→ CUSTOS\n→ RELATÓRIOS.\n\nPortanto, não criar estruturas temporárias.\n\n---\n\n# 1. PRINCÍPIO DO CATÁLOGO\n\nSeparar obrigatoriamente:\n\nPRODUCT\ne\nPRODUCT VARIANT.\n\nExemplo:\n\nProduto:\nSapatilha Ballet Clássica\n\nVariantes:\n\n32 / Rosa\n33 / Rosa\n34 / Rosa\n32 / Preta\n33 / Preta\n34 / Preta.\n\nO produto representa o MODELO.\n\nA variante representa a unidade comercial/operacional identificável por SKU.\n\nNão duplicar um Product inteiro apenas porque mudou tamanho ou cor.\n\n---\n\n# 2. PRODUCT\n\nCriar entidade/tabela Product.\n\nCampos iniciais:\n\nid\norganization_id\ncode\nname\ndescription\ncategory_id\nbrand\nncm\nstatus\nmain_image_url\ncreated_at\nupdated_at\ncreated_by\nupdated_by.\n\nStatus:\n\nACTIVE\nINACTIVE\nDISCONTINUED\nDRAFT.\n\nRegras:\n\n* organization_id obrigatório;\n* code único dentro da organização;\n* name obrigatório;\n* não utilizar exclusão física como comportamento padrão quando já houver referências;\n* produto inativo continua disponível para histórico;\n* NCM deve ser armazenado como texto;\n* não utilizar NCM como identificador interno.\n\nPreparar estrutura para novos campos futuramente.\n\n---\n\n# 3. PRODUCT VARIANT\n\nCriar entidade/tabela ProductVariant.\n\nCampos:\n\nid\norganization_id\nproduct_id\nsku\nbarcode\nsize\ncolor\ns",
+    "timestamp": 1789671122771
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "ls -la"
+    },
+    "timestamp": 1789671125279
+  },
+  {
+    "role": "tool_result",
+    "content": "total 1116\ndrwxr-xr-x  15 claude-runner claude-runner   4096 Sep 17 14:33 .\ndrwxr-xr-x  92 claude-runner claude-runner   4096 Sep 17 12:28 ..\n-rw-r--r--   1 root          root          138413 Sep 17 18:52 .chat-history.json\ndrwxr-xr-x   3 claude-runner claude-runner   4096 Sep 17 12:28 .claude\n-rw-r",
+    "is_error": false,
+    "timestamp": 1789671125317
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "git log --oneline -20"
+    },
+    "timestamp": 1789671125476
+  },
+  {
+    "role": "tool_result",
+    "content": "d35429c AI: alteracao automatica\n4c349c2 AI: alteracao automatica\nc5373d6 AI: alteracao automatica\n31845a1 AI: alteracao automatica\ncc796d2 AI: alteracao automatica\n8055972 AI: alteracao automatica\nb534c15 AI: alteracao automatica\n4914044 AI: alteracao automatica\n43df32a AI: alteracao automatica\na39",
+    "is_error": false,
+    "timestamp": 1789671125512
   }
 ]
