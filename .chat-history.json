@@ -3,22 +3,6 @@
     "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
-    "timestamp": 1789649769202
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/layout/app-shell.tsx",
-      "newString": "import {\n  Building2,\n  ChevronsUpDown,\n  LayoutDashboard,\n  LogOut,\n  ScrollText,\n  ShieldCheck,\n  User,\n  Users,\n} from \"lucide-react\";",
-      "oldString": "import {\n  Building2,\n  ChevronsUpDown,\n  LayoutDashboard,\n  LogOut,\n  ShieldCheck,\n  User,\n  Users,\n} from \"lucide-react\";"
-    },
-    "timestamp": 1789649773510
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
     "timestamp": 1789649773524
   },
   {
@@ -1567,5 +1551,21 @@
     "content": "⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715\n[Supabase] Missing Supabase environment variable(s): SUPABASE_SE",
     "is_error": false,
     "timestamp": 1789651076197
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/api/webhooks.receiver.ts",
+      "newString": "if (!checkRateLimit(`webhook:${provider}`, { limit: 120, windowMs: 60_000 })) {\n          return json({ ok: false, message: \"Muitas requisições.\" }, 429);\n        }\n\n        let supabaseAdmin: Awaited<\n          ReturnType<typeof import(\"@/integrations/supabase/client.server\")>\n        >[\"supabaseAdmin\"];\n        try {\n          const mod = await import(\"@/integrations/supabase/client.server\");\n          supabaseAdmin = mod.supabaseAdmin;\n          // Aciona a criação do cliente (validação de não existir service key no ambiente).\n          supabaseAdmin.from(\"webhook_events\").select(\"id\").limit(0);\n        } catch {\n          return json(\n            { ok: false, message: \"Armazenamento de webhooks indisponível no servidor.\" },\n            503,\n          );\n        }\n\n        const { data: existing, error: lookupError } = await supabaseAdmin\n          .from(\"webhook_events\")\n          .select(\"id\")\n          .eq(\"provider\", provider)\n          .eq(\"event_id\", eventId)\n          .maybeSingle();\n        if (lookupError) {\n          console.error(\"[webhook] falha ao consultar evento:\", lookupError.message);\n          return json({ ok: false, message: \"Falha ao consultar evento.\" }, 500);\n        }\n\n        if (existing) {\n          return json({ ok: true, duplicate: true, id: existing.id });\n        }",
+      "oldString": "if (!checkRateLimit(`webhook:${provider}`, { limit: 120, windowMs: 60_000 })) {\n          return json({ ok: false, message: \"Muitas requisições.\" }, 429);\n        }\n\n        const { supabaseAdmin } = await import(\"@/integrations/supabase/client.server\");\n        const { data: existing } = await supabaseAdmin\n          .from(\"webhook_events\")\n          .select(\"id\")\n          .eq(\"provider\", provider)\n          .eq(\"event_id\", eventId)\n          .maybeSingle();\n\n        if (existing) {\n          return json({ ok: true, duplicate: true, id: existing.id });\n        }"
+    },
+    "timestamp": 1789651112981
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789651113015
   }
 ]

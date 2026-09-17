@@ -56,13 +56,31 @@ export const Route = createFileRoute("/api/webhooks/receiver")({
           return json({ ok: false, message: "Muitas requisições." }, 429);
         }
 
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const { data: existing } = await supabaseAdmin
+        let supabaseAdmin: Awaited<
+          ReturnType<typeof import("@/integrations/supabase/client.server")>
+        >["supabaseAdmin"];
+        try {
+          const mod = await import("@/integrations/supabase/client.server");
+          supabaseAdmin = mod.supabaseAdmin;
+          // Aciona a criação do cliente (validação de não existir service key no ambiente).
+          supabaseAdmin.from("webhook_events").select("id").limit(0);
+        } catch {
+          return json(
+            { ok: false, message: "Armazenamento de webhooks indisponível no servidor." },
+            503,
+          );
+        }
+
+        const { data: existing, error: lookupError } = await supabaseAdmin
           .from("webhook_events")
           .select("id")
           .eq("provider", provider)
           .eq("event_id", eventId)
           .maybeSingle();
+        if (lookupError) {
+          console.error("[webhook] falha ao consultar evento:", lookupError.message);
+          return json({ ok: false, message: "Falha ao consultar evento." }, 500);
+        }
 
         if (existing) {
           return json({ ok: true, duplicate: true, id: existing.id });
