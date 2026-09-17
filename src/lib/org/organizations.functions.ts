@@ -2,9 +2,29 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { APP_ROLES } from "@/lib/rbac";
+import { APP_ROLES, PERMISSIONS, type Permission } from "@/lib/rbac";
 
 const roleSchema = z.enum(APP_ROLES);
+
+/**
+ * Checagem de permissão server-side (defesa em profundidade).
+ * RLS já impõe a política; aqui garantimos que a permissão declarada existe,
+ * mesmo que uma política futura fique mais permissiva.
+ */
+async function requireOrgPermission(
+  supabase: Parameters<typeof requireSupabaseAuth.handler>[0]["context"]["supabase"],
+  organizationId: string,
+  permission: Permission,
+  userId: string,
+): Promise<void> {
+  const { data: allowed, error } = await supabase.rpc("has_permission", {
+    _organization_id: organizationId,
+    _permission: permission,
+    _user_id: userId,
+  });
+  if (error) throw new Error(error.message);
+  if (!allowed) throw new Error("Sem permissão para esta operação.");
+}
 
 /** Organizações do usuário autenticado, com o papel dele em cada uma. */
 export const listMyOrganizations = createServerFn({ method: "GET" })

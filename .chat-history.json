@@ -185,5 +185,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql</path>\n<type>file</type>\n<content>\n152: CREATE POLICY \"members read memberships\" ON public.organization_members\n153:   FOR SELECT TO authenticated USING (user_id = auth.uid() OR",
     "is_error": false,
     "timestamp": 1789649428856
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
+      "oldString": "import { requireSupabaseAuth } from \"@/integrations/supabase/auth-middleware\";\nimport { APP_ROLES } from \"@/lib/rbac\";\n\nconst roleSchema = z.enum(APP_ROLES);",
+      "newString": "import { requireSupabaseAuth } from \"@/integrations/supabase/auth-middleware\";\nimport { APP_ROLES, PERMISSIONS, type Permission } from \"@/lib/rbac\";\n\nconst roleSchema = z.enum(APP_ROLES);\n\n/**\n * Checagem de permissão server-side (defesa em profundidade).\n * RLS já impõe a política; aqui garantimos que a permissão declarada existe,\n * mesmo que uma política futura fique mais permissiva.\n */\nasync function requireOrgPermission(\n  supabase: Parameters<typeof requireSupabaseAuth.handler>[0][\"context\"][\"supabase\"],\n  organizationId: string,\n  permission: Permission,\n  userId: string,\n): Promise<void> {\n  const { data: allowed, error } = await supabase.rpc(\"has_permission\", {\n    _organization_id: organizationId,\n    _permission: permission,\n    _user_id: userId,\n  });\n  if (error) throw new Error(error.message);\n  if (!allowed) throw new Error(\"Sem permissão para esta operação.\");\n}"
+    },
+    "timestamp": 1789649435111
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789649435135
   }
 ]
