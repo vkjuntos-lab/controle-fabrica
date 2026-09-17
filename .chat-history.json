@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789649776143
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/ui/badge.tsx"
-    },
-    "timestamp": 1789649797217
-  },
-  {
-    "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/ui/badge.tsx</path>\n<type>file</type>\n<content>\n1: import * as React from \"react\";\n2: import { cva, type VariantProps } from \"class-variance-authority\";\n3: \n4: import { cn } from \"@/lib/utils\";\n5: \n6: const badgeVariants = cva(\n7:   \"inli",
     "is_error": false,
     "timestamp": 1789649797239
@@ -1567,5 +1553,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789651124945
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sleep 2\ncurl -s -o /tmp/out4.json -w \"webhook-sem-sig:%{http_code}\\n\" -X POST -H \"Content-Type: application/json\" -H \"x-webhook-provider: test\" -H \"x-webhook-id: evt-1\" -d '{\"a\":1}' http://localhost:5999/api/webhooks/receiver\ncat /tmp/out4.json; echo\n# teste com assinatura correta: HMAC-SHA256 do body\nBODY='{\"order\":123}'\nSIG=$(printf '%s' \"$BODY\" | openssl dgst -sha256 -hmac \"seg-webhook-456\" -hex | awk '{print $2}')\ncurl -s -o /tmp/out5.json -w \"webhook-com-sig:%{http_code}\\n\" -X POST -H \"Content-Type: application/json\" -H \"x-webhook-provider: test\" -H \"x-webhook-id: evt-2\" -H \"x-webhook-signature: $SIG\" -d \"$BODY\" http://localhost:5999/api/webhooks/receiver\ncat /tmp/out5.json; echo\ncurl -s -o /tmp/out6.json -w \"webhook-assinatura-invalida:%{http_code}\\n\" -X POST -H \"Content-Type: application/json\" -H \"x-webhook-provider: test\" -H \"x-webhook-id: evt-3\" -H \"x-webhook-signature: abcdef\" -d \"$BODY\" http://localhost:5999/api/webhooks/receiver\ncat /tmp/out6.json; echo",
+      "timeout": 30000,
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1789651130689
+  },
+  {
+    "role": "tool_result",
+    "content": "webhook-sem-sig:503\n{\"ok\":false,\"message\":\"Armazenamento de webhooks indisponível no servidor.\"}\nwebhook-com-sig:503\n{\"ok\":false,\"message\":\"Armazenamento de webhooks indisponível no servidor.\"}\nwebhook-assinatura-invalida:503\n{\"ok\":false,\"message\":\"Armazenamento de webhooks indisponível no servidor.",
+    "is_error": false,
+    "timestamp": 1789651132962
   }
 ]
