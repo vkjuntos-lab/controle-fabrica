@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260713172601_c6aaea7a-8e4c-45f8-96bc-ce36ba8fded8.sql\n/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260706142256_9e5dfe79-dd7e-4349-b634-16c39557d3d1.sql\n/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260",
-    "is_error": false,
-    "timestamp": 1789654244949
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "ls src/lib/ src/lib/org/ src/components/ src/components/ui/ 2>/dev/null | head -80",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789654250310
-  },
-  {
-    "role": "tool_result",
     "content": "src/components/:\nicons.tsx\nlayout\nstates\nui\n\nsrc/components/ui/:\naccordion.tsx\nalert-dialog.tsx\nalert.tsx\naspect-ratio.tsx\navatar.tsx\nbadge.tsx\nbreadcrumb.tsx\nbutton.tsx\ncalendar.tsx\ncard.tsx\ncarousel.tsx\nchart.tsx\ncheckbox.tsx\ncollapsible.tsx\ncommand.tsx\ncontext-menu.tsx\ndialog.tsx\ndrawer.tsx\ndropd",
     "is_error": false,
     "timestamp": 1789654250349
@@ -1591,5 +1576,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789655598452
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "npx tsc --noEmit 2>&1 | grep \"error TS\" | sort -u; echo \"== TSC OK ==\"; npm test 2>&1 | tail -6; npx vite build 2>&1 | grep -iE \"error|✓ built\" | head -6; echo \"== BUILD OK ==\"",
+      "timeout": 600000,
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1789655606867
+  },
+  {
+    "role": "tool_result",
+    "content": "== TSC OK ==\n\n Test Files  4 passed (4)\n      Tests  17 passed (17)\n   Start at  14:33:38\n   Duration  980ms (transform 90ms, setup 0ms, collect 126ms, tests 19ms, environment 1ms, prepare 295ms)\n\n✓ built in 2.55s\n✓ built in 1.36s\n\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level d",
+    "is_error": false,
+    "timestamp": 1789655633801
   }
 ]
