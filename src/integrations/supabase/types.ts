@@ -174,6 +174,36 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_events: {
+        Row: {
+          context: Json
+          event_id: string
+          id: string
+          processed: boolean
+          provider: string
+          received_at: string
+          signature_ok: boolean
+        }
+        Insert: {
+          context?: Json
+          event_id?: string
+          id?: string
+          processed?: boolean
+          provider: string
+          received_at?: string
+          signature_ok?: boolean
+        }
+        Update: {
+          context?: Json
+          event_id?: string
+          id?: string
+          processed?: boolean
+          provider?: string
+          received_at?: string
+          signature_ok?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
