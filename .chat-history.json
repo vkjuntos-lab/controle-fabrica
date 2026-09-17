@@ -814,5 +814,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789649902961
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
+      "newString": "if (data.query) {\n      const like = `%${data.query}%`;\n      builder = builder.or(`action.ilike.${like},resource.ilike.${like},result.ilike.${like}`);\n    }\n    if (data.action) {\n      builder = builder.eq(\"action\", data.action);\n    }\n\n    const { data: rows, count, error } = await builder;\n    if (error) throw new Error(error.message);\n\n    const entries: AuditLogRow[] = (rows ?? []).map((row) => ({\n      id: row.id,\n      action: row.action,\n      resource: row.resource,\n      resource_id: row.resource_id,\n      result: row.result,\n      context: row.context,\n      created_at: row.created_at,\n      user_id: row.user_id,\n      user_name: null,\n      user_email: null,\n    }));\n\n    const userIds = [...new Set(entries.map((e) => e.user_id).filter((id): id is string => Boolean(id)))];\n\n    if (userIds.length) {\n      const { data: profiles } = await context.supabase\n        .from(\"profiles\")\n        .select(\"id, full_name, email\")\n        .in(\"id\", userIds);\n      const byId = new Map((profiles ?? []).map((p) => [p.id, p]));\n      for (const entry of entries) {\n        entry.user_name = entry.user_id ? byId.get(entry.user_id)?.full_name ?? null : null;\n        entry.user_email = entry.user_id ? byId.get(entry.user_id)?.email ?? null : null;\n      }\n    }\n\n    const maxPage = Math.max(1, Math.ceil((count ?? 0) / data.pageSize));\n    return { rows: entries, total: count ?? 0, page: data.page, pageSize: data.pageSize };\n  });",
+      "oldString": "if (data.query) {\n      const like = `%${data.query}%`;\n      builder = builder.or(`action.ilike.${like},resource.ilike.${like},result.ilike.${like}`);\n    }\n    if (data.action) {\n      builder = builder.eq(\"action\", data.action);\n    }\n\n    const { data: rows, count, error } = await builder;\n    if (error) throw new Error(error.message);\n\n    const entries = (rows ?? []) as AuditLogRow[];\n    const userIds = [...new Set(entries.map((e) => e.user_id).filter((id): id is string => Boolean(id)))];\n\n    if (userIds.length) {\n      const { data: profiles } = await context.supabase\n        .from(\"profiles\")\n        .select(\"id, full_name, email\")\n        .in(\"id\", userIds);\n      const byId = new Map((profiles ?? []).map((p) => [p.id, p]));\n      for (const entry of entries) {\n        entry.user_name = entry.user_id ? byId.get(entry.user_id)?.full_name ?? null : null;\n        entry.user_email = entry.user_id ? byId.get(entry.user_id)?.email ?? null : null;\n      }\n    }\n\n    const maxPage = Math.max(1, Math.ceil((count ?? 0) / data.pageSize));\n    return { rows: entries, total: count ?? 0, page: data.page, pageSize: data.pageSize };\n\n  });"
+    },
+    "timestamp": 1789649910809
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789649910834
   }
 ]

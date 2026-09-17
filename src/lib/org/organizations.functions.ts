@@ -361,7 +361,19 @@ export const listAuditLogs = createServerFn({ method: "GET" })
     const { data: rows, count, error } = await builder;
     if (error) throw new Error(error.message);
 
-    const entries = (rows ?? []) as AuditLogRow[];
+    const entries: AuditLogRow[] = (rows ?? []).map((row) => ({
+      id: row.id,
+      action: row.action,
+      resource: row.resource,
+      resource_id: row.resource_id,
+      result: row.result,
+      context: row.context,
+      created_at: row.created_at,
+      user_id: row.user_id,
+      user_name: null,
+      user_email: null,
+    }));
+
     const userIds = [...new Set(entries.map((e) => e.user_id).filter((id): id is string => Boolean(id)))];
 
     if (userIds.length) {
@@ -378,7 +390,6 @@ export const listAuditLogs = createServerFn({ method: "GET" })
 
     const maxPage = Math.max(1, Math.ceil((count ?? 0) / data.pageSize));
     return { rows: entries, total: count ?? 0, page: data.page, pageSize: data.pageSize };
-
   });
 
 /** Ações distintas já registradas na auditoria, para popular o filtro. */
