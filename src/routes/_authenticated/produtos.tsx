@@ -406,8 +406,8 @@ function ProductsPage() {
             <div>
               <h2 className="font-heading text-lg font-semibold">Catálogo mestre</h2>
               <p className="text-sm text-muted-foreground">
-                Modelos de produto e suas variantes (SKU). Este catálogo alimenta estoque,
-                produção, marketplaces e vendas.
+                Modelos de produto e suas variantes (SKU). Este catálogo alimenta estoque, produção,
+                marketplaces e vendas.
               </p>
             </div>
             {canManage ? (
@@ -435,10 +435,7 @@ function ProductsPage() {
                   placeholder="Buscar por código, nome ou marca..."
                   className="sm:max-w-sm"
                 />
-                <Select
-                  value={status}
-                  onValueChange={(v) => setStatus(v as ProductStatus | "ALL")}
-                >
+                <Select value={status} onValueChange={(v) => setStatus(v as ProductStatus | "ALL")}>
                   <SelectTrigger className="w-full sm:w-44">
                     <SelectValue />
                   </SelectTrigger>
@@ -555,8 +552,7 @@ function ProductsPage() {
                                       onClick={() =>
                                         statusMutation.mutate({
                                           productId: p.id,
-                                          status:
-                                            p.status === "ACTIVE" ? "INACTIVE" : "ACTIVE",
+                                          status: p.status === "ACTIVE" ? "INACTIVE" : "ACTIVE",
                                         })
                                       }
                                     >
@@ -580,7 +576,9 @@ function ProductsPage() {
                                       disabled={p.variant_count > 0}
                                       onClick={() => setToDelete(p)}
                                     >
-                                      {p.variant_count > 0 ? "Tem variantes — não exclui" : "Excluir"}
+                                      {p.variant_count > 0
+                                        ? "Tem variantes — não exclui"
+                                        : "Excluir"}
                                     </DropdownMenuItem>
                                   </DropdownMenuContent>
                                 </DropdownMenu>
@@ -623,13 +621,7 @@ function ProductsPage() {
           <ProductDialog
             open={dialogOpen}
             onOpenChange={setDialogOpen}
-            product={
-              editingId
-                ? detailQuery.isLoading
-                  ? null
-                  : (detailQuery.data ?? null)
-                : null
-            }
+            product={editingId ? (detailQuery.isLoading ? null : (detailQuery.data ?? null)) : null}
             categories={categoriesQuery.data}
           />
 

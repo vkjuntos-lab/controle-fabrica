@@ -73,7 +73,9 @@ import { useOrganization } from "@/lib/org/org-context";
 import { PERMISSIONS } from "@/lib/rbac";
 
 export const Route = createFileRoute("/_authenticated/produtos/$id")({
-  head: () => ({ meta: [{ name: "robots", content: "noindex" }, { title: "Produto — Estratégia" }] }),
+  head: () => ({
+    meta: [{ name: "robots", content: "noindex" }, { title: "Produto — Estratégia" }],
+  }),
   component: ProductDetailPage,
 });
 
@@ -291,7 +293,11 @@ function VariantDialog({
               Cancelar
             </Button>
             <Button type="submit" disabled={saveMutation.isPending}>
-              {saveMutation.isPending ? "Salvando..." : variant ? "Salvar alterações" : "Criar variante"}
+              {saveMutation.isPending
+                ? "Salvando..."
+                : variant
+                  ? "Salvar alterações"
+                  : "Criar variante"}
             </Button>
           </DialogFooter>
         </form>
@@ -382,7 +388,11 @@ function ProductDetailPage() {
               <div className="flex flex-col gap-4 sm:flex-row">
                 <div className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl border bg-muted/40">
                   {product.main_image_url ? (
-                    <img src={product.main_image_url} alt={product.name} className="h-full w-full object-cover" />
+                    <img
+                      src={product.main_image_url}
+                      alt={product.name}
+                      className="h-full w-full object-cover"
+                    />
                   ) : (
                     <Package className="h-8 w-8 text-muted-foreground" />
                   )}
@@ -481,9 +491,15 @@ function ProductDetailPage() {
                           <TableCell>{variant.barcode ?? "—"}</TableCell>
                           <TableCell>{variant.size ?? "—"}</TableCell>
                           <TableCell>{variant.color ?? "—"}</TableCell>
-                          <TableCell className="text-right">{formatBRL(variant.cost_price)}</TableCell>
-                          <TableCell className="text-right">{formatBRL(variant.sell_price)}</TableCell>
-                          <TableCell className="text-right">{formatWeight(variant.weight_grams)}</TableCell>
+                          <TableCell className="text-right">
+                            {formatBRL(variant.cost_price)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {formatBRL(variant.sell_price)}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            {formatWeight(variant.weight_grams)}
+                          </TableCell>
                           <TableCell>
                             <Badge
                               variant={
@@ -523,8 +539,7 @@ function ProductDetailPage() {
                                     onClick={() =>
                                       statusMutation.mutate({
                                         variantId: variant.id,
-                                        status:
-                                          variant.status === "ACTIVE" ? "INACTIVE" : "ACTIVE",
+                                        status: variant.status === "ACTIVE" ? "INACTIVE" : "ACTIVE",
                                       })
                                     }
                                   >

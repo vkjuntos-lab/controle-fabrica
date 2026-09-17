@@ -49,6 +49,7 @@ export function formatBRL(value: number | null | undefined): string {
 export function formatWeight(value: number | null | undefined): string {
   if (value == null) return "—";
   const grams = Number(value);
-  if (grams >= 1000) return `${(grams / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 2 })} kg`;
+  if (grams >= 1000)
+    return `${(grams / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 2 })} kg`;
   return `${grams.toLocaleString("pt-BR")} g`;
 }
