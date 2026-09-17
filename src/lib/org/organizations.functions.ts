@@ -179,6 +179,13 @@ export const updateMemberRole = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
+    await requireOrgPermission(
+      context.supabase,
+      data.organizationId,
+      PERMISSIONS.usersManage,
+      context.userId,
+    );
+
     const patch: { role?: z.infer<typeof roleSchema>; is_active?: boolean } = {};
     if (data.role) patch.role = data.role;
     if (typeof data.isActive === "boolean") patch.is_active = data.isActive;
