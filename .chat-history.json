@@ -1312,5 +1312,20 @@
     "content": "[\n  {\n    \"content\": \"Criar migration do bucket avatars (storage) com políticas e limite\",\n    \"status\": \"in_progress\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Criar endpoint de API /api/cron/health (autenticado)\",\n    \"status\": \"pending\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Cria",
     "is_error": false,
     "timestamp": 1789650413331
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "-- Bucket de avatares (storage). Leitura pública (bucket público), escrita e\n-- remoção restritas ao dono do arquivo (caminho `<user_id>/...`).\nINSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)\nVALUES ('avatars', 'avatars', TRUE, 1572864, ARRAY['image/jpeg','image/png','image/webp'])\nON CONFLICT (id) DO UPDATE SET\n  public = excluded.public,\n  file_size_limit = excluded.file_size_limit,\n  allowed_mime_types = excluded.allowed_mime_types;\n\n-- Leitura pública: qualquer um pode baixar avatares (não contém dados sensíveis).\nCREATE POLICY \"avatars public read\" ON storage.objects\n  FOR SELECT TO public USING (bucket_id = 'avatars');\n\n-- Inserção: apenas autenticado e apenas dentro da própria pasta.\nCREATE POLICY \"avatars insert own folder\" ON storage.objects\n  FOR INSERT TO authenticated\n  WITH CHECK (\n    bucket_id = 'avatars'\n    AND (storage.foldername(name))[1] = auth.uid()::text\n  );\n\n-- Atualização (upsert): apenas autenticado e na própria pasta.\nCREATE POLICY \"avatars update own folder\" ON storage.objects\n  FOR UPDATE TO authenticated\n  USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text)\n  WITH CHECK (\n    bucket_id = 'avatars'\n    AND (storage.foldername(name))[1] = auth.uid()::text\n  );\n\n-- Remoção: apenas o dono da pasta.\nCREATE POLICY \"avatars delete own folder\" ON storage.objects\n  FOR DELETE TO authenticated\n  USING (bucket_id = 'avatars' AND (storage.foldername(name))[1] = auth.uid()::text);",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260917093000_avatars_storage_bucket.sql"
+    },
+    "timestamp": 1789650421636
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1789650421645
   }
 ]
