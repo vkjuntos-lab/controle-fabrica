@@ -93,6 +93,13 @@ export const updateOrganization = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
+    await requireOrgPermission(
+      context.supabase,
+      data.organizationId,
+      PERMISSIONS.organizationManage,
+      context.userId,
+    );
+
     const { error } = await context.supabase
       .from("organizations")
       .update({ name: data.name, document: data.document ?? null })

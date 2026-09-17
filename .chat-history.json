@@ -264,5 +264,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789649450079
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
+      "newString": ")\n  .handler(async ({ data, context }) => {\n    await requireOrgPermission(\n      context.supabase,\n      data.organizationId,\n      PERMISSIONS.organizationManage,\n      context.userId,\n    );\n\n    const { error } = await context.supabase\n      .from(\"organizations\")\n      .update({ name: data.name, document: data.document ?? null })\n      .eq(\"id\", data.organizationId);\n    if (error) throw new Error(error.message);",
+      "oldString": ")\n  .handler(async ({ data, context }) => {\n    const { error } = await context.supabase\n      .from(\"organizations\")\n      .update({ name: data.name, document: data.document ?? null })\n      .eq(\"id\", data.organizationId);\n    if (error) throw new Error(error.message);"
+    },
+    "timestamp": 1789649468710
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789649468732
   }
 ]
