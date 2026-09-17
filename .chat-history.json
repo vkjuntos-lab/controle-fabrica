@@ -3,22 +3,6 @@
     "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
-    "timestamp": 1789649773524
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/layout/app-shell.tsx",
-      "newString": "{ label: \"Permissões\", to: \"/admin/permissoes\", icon: ShieldCheck, permission: PERMISSIONS.permissionsRead },\n  { label: \"Auditoria\", to: \"/admin/auditoria\", icon: ScrollText, permission: PERMISSIONS.auditRead },\n];",
-      "oldString": "{ label: \"Permissões\", to: \"/admin/permissoes\", icon: ShieldCheck, permission: PERMISSIONS.permissionsRead },\n];"
-    },
-    "timestamp": 1789649776140
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
     "timestamp": 1789649776143
   },
   {
@@ -1567,5 +1551,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789651113015
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/api/webhooks.receiver.ts",
+      "newString": "let supabaseAdmin: Awaited<\n          ReturnType<typeof import(\"@/integrations/supabase/client.server\")>\n        >[\"supabaseAdmin\"];\n        try {\n          const mod = await import(\"@/integrations/supabase/client.server\");\n          supabaseAdmin = mod.supabaseAdmin;\n          // Acessar o client força a inicialização (detecta service key ausente).\n          supabaseAdmin.auth.getUrl();\n        } catch {\n          return json(\n            { ok: false, message: \"Armazenamento de webhooks indisponível no servidor.\" },\n            503,\n          );\n        }",
+      "oldString": "let supabaseAdmin: Awaited<\n          ReturnType<typeof import(\"@/integrations/supabase/client.server\")>\n        >[\"supabaseAdmin\"];\n        try {\n          const mod = await import(\"@/integrations/supabase/client.server\");\n          supabaseAdmin = mod.supabaseAdmin;\n          // Aciona a criação do cliente (validação de não existir service key no ambiente).\n          supabaseAdmin.from(\"webhook_events\").select(\"id\").limit(0);\n        } catch {\n          return json(\n            { ok: false, message: \"Armazenamento de webhooks indisponível no servidor.\" },\n            503,\n          );\n        }"
+    },
+    "timestamp": 1789651124923
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789651124945
   }
 ]
