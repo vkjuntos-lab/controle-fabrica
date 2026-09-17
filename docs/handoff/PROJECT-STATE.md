@@ -116,11 +116,10 @@
 
 ## NEXT_STEPS
 
-1. Modelar Product → Variant com SKU/código de barras e atributos extensíveis.
-2. Modelar o Inventory Ledger (movimentos + visões de saldo) como fonte única do estoque.
-3. Modelar locais de estoque e posse de terceiros (parceiro).
-4. Marketplaces/lojas e importação com mapeamento configurável de colunas.
-5. Reconciliação, fechamento de período e cobrança (server-side, auditado).
-6. Financeiro e relatórios de quantidade + valor.
-7. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a
+1. Modelar o Inventory Ledger (movimentos + visões de saldo) como fonte única do estoque.
+2. Modelar locais de estoque e posse de terceiros (parceiro).
+3. Marketplaces/lojas e importação com mapeamento configurável de colunas.
+4. Reconciliação, fechamento de período e cobrança (server-side, auditado).
+5. Financeiro e relatórios de quantidade + valor.
+6. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a
    `/api/webhooks/receiver` quando houver integração externa.
