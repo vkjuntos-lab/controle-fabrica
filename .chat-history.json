@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts</path>\n<type>file</type>\n<content>\n295: \n296:     return { ok: true as const };\n297:   });\n298: \n299: export const listRolePermissions = createServerFn({ method: \"GET\" })\n300:   .middleware([requireSupabaseAuth])\n3",
-    "is_error": false,
-    "timestamp": 1789649759133
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/org/organizations.functions.ts",
-      "oldString": "export const listRolePermissions = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .handler(async ({ context }) => {\n    const { data, error } = await context.supabase\n      .from(\"role_permissions\")\n      .select(\"role, permission\")\n      .order(\"role\", { ascending: true });\n    if (error) throw new Error(error.message);\n    return data ?? [];\n  });",
-      "newString": "export const listRolePermissions = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .handler(async ({ context }) => {\n    const { data, error } = await context.supabase\n      .from(\"role_permissions\")\n      .select(\"role, permission\")\n      .order(\"role\", { ascending: true });\n    if (error) throw new Error(error.message);\n    return data ?? [];\n  });\n\nexport type AuditLogRow = {\n  id: string;\n  action: string;\n  resource: string;\n  resource_id: string | null;\n  result: string;\n  context: unknown;\n  created_at: string;\n  user_id: string | null;\n  user_name: string | null;\n  user_email: string | null;\n};\n\n/**\n * Registros de auditoria da organização (admin/gestor). Consulta paginada com\n * busca textual em ação/recurso/resultado e opção de filtrar por ação.\n */\nexport const listAuditLogs = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: z.string().uuid(),\n        page: z.number().int().min(1).default(1),\n        pageSize: z.number().int().min(1).max(100).default(20),\n        query: z.string().trim().max(120).optional(),\n        action: z.string().trim().max(80).optional(),\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    await requireOrgPermission(context.supabase, data.organizationId, PERMISSIONS.auditRead, context.userId);\n\n    const from = (data.page - 1) * data.pageSize;\n    const to = from + data.pageSize - 1;\n\n    let builder = context.supabase\n      .from(\"audit_log\")\n      .select(\"*\", { count: \"exact\" })\n      .eq(\"organization_id\", data.organizationId)\n      .order(\"created_at\", { ascending: false })\n      .range(from, to);\n\n    if (data.query) {\n      const like = `%${data.query}%`;\n      builder = builder.or(`action.ilike.${like},resource.ilike.${like},result.ilike.${like}`);\n    }\n    if (data.action) {\n      builder = builder.eq(\"action\", data.action);\n    }\n\n    const { data: rows, count, error } = await builder;\n    if (error) throw new Error(error.message);\n\n    const entries = (rows ?? []) as AuditLogRow[];\n    const userIds = [...new Set(entries.map((e) => e.user_id).filter((id): id is string => Boolean(id)))];\n\n    if (userIds.length) {\n      const { data: profiles } = await context.supabase\n        .from(\"profiles\")\n        .select(\"id, full_name, email\")\n        .in(\"id\", userIds);\n      const byId = new Map((profiles ?? []).map((p) => [p.id, p]));\n      for (const entry of entries) {\n        entry.user_name = entry.user_id ? byId.get(entry.user_id)?.full_name ?? null : null;\n        entry.user_email = entry.user_id ? byId.get(entry.user_id)?.email ?? null : null;\n      }\n    }\n\n    const maxPage = Math.max(1, Math.ceil((count ?? 0) / data.pageSize));\n    return { rows: entries, total: count ?? 0, page: data.page, pageSize: data.pageSize };\n\n  });\n\n/** Ações distintas já registradas na auditoria, para popular o filtro. */\nexport const listAuditActions = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) => z.object({ organizationId: z.string().uuid() }).parse(input))\n  .handler(async ({ data, context }) => {\n    await requireOrgPermission(context.supabase, data.organizationId, PERMISSIONS.auditRead, context.userId);\n\n    const { data: rows, error } = await context.supabase\n      .from(\"audit_log\")\n      .select(\"action\")\n      .eq(\"organization_id\", data.organizationId)\n      .limit(1000);\n    if (error) throw new Error(error.message);\n\n    const actions = [...new Set((rows ?? []).map((r) => r.action))].sort();\n    return actions;\n  });"
-    },
-    "timestamp": 1789649769166
-  },
-  {
-    "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789649769202
@@ -1568,5 +1552,20 @@
     "content": "sem-auth:401\ncom-auth:200\nUnauthorized\n{\"ok\":true,\"status\":\"healthy\",\"ts\":\"2026-09-17T13:17:51.911Z\"}\nwebhook-sem-secret:500\n<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"utf-8\" />\n    <title>This page didn't load</title>\n    <meta name=\"viewport\" content=\"width=device-width, initial-",
     "is_error": false,
     "timestamp": 1789651071994
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -iE \"webhook|error|supabase|Missing|secret\" /tmp/devserver.log | tail -20",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1789651076125
+  },
+  {
+    "role": "tool_result",
+    "content": "⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/supabase/discussions/45715\n[Supabase] Missing Supabase environment variable(s): SUPABASE_SE",
+    "is_error": false,
+    "timestamp": 1789651076197
   }
 ]
