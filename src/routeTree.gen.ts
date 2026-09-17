@@ -21,6 +21,7 @@ import { Route as AuthenticatedAdminOrganizacaoRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminPermissoesRouteImport } from './routes/_authenticated/admin.permissoes'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
 import { Route as ApiCronHealthRouteImport } from './routes/api/cron.health'
+import { Route as ApiWebhooksReceiverRouteImport } from './routes/api/webhooks.receiver'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -85,6 +86,11 @@ const ApiCronHealthRoute = ApiCronHealthRouteImport.update({
   path: '/api/cron/health',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiWebhooksReceiverRoute = ApiWebhooksReceiverRouteImport.update({
+  id: '/api/webhooks/receiver',
+  path: '/api/webhooks/receiver',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -98,6 +104,7 @@ export interface FileRoutesByFullPath {
   '/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/api/cron/health': typeof ApiCronHealthRoute
+  '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByTo {
   '/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/api/cron/health': typeof ApiCronHealthRoute
+  '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -126,6 +134,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
   '/api/cron/health': typeof ApiCronHealthRoute
+  '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/admin/permissoes'
     | '/admin/usuarios'
     | '/api/cron/health'
+    | '/api/webhooks/receiver'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -154,6 +164,7 @@ export interface FileRouteTypes {
     | '/admin/permissoes'
     | '/admin/usuarios'
     | '/api/cron/health'
+    | '/api/webhooks/receiver'
   id:
     | '__root__'
     | '/'
@@ -168,6 +179,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/permissoes'
     | '/_authenticated/admin/usuarios'
     | '/api/cron/health'
+    | '/api/webhooks/receiver'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -176,6 +188,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ApiCronHealthRoute: typeof ApiCronHealthRoute
+  ApiWebhooksReceiverRoute: typeof ApiWebhooksReceiverRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -264,6 +277,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCronHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/webhooks/receiver': {
+      id: '/api/webhooks/receiver'
+      path: '/api/webhooks/receiver'
+      fullPath: '/api/webhooks/receiver'
+      preLoaderRoute: typeof ApiWebhooksReceiverRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -296,6 +316,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ApiCronHealthRoute: ApiCronHealthRoute,
+  ApiWebhooksReceiverRoute: ApiWebhooksReceiverRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
