@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "write",
-    "input": {
-      "content": "import { createFileRoute } from \"@tanstack/react-router\";\n\nimport { writeSystemAudit } from \"@/lib/audit/functions\";\nimport { checkRateLimit } from \"@/lib/middleware/rate-limit\";\nimport { validateWebhookSignature } from \"@/lib/webhook/signature\";\n\nfunction json(body: unknown, status = 200): Response {\n  return new Response(JSON.stringify(body), {\n    status,\n    headers: { \"content-type\": \"application/json; charset=utf-8\" },\n  });\n}\n\n/**\n * Receptor genérico de webhooks. Antes de qualquer efeito colateral:\n * 1. valida assinatura HMAC (header `x-webhook-signature`);\n * 2. aplica rate limit;\n * 3. deduplica via idempotência (`x-webhook-id`) na tabela `webhook_events`.\n *\n * Enquanto `WEBHOOK_SECRET` não estiver configurado no ambiente, o endpoint\n * responde 503 — não é uma simulação, é o estado real da configuração.\n */\nexport const Route = createFileRoute(\"/api/webhooks/receiver\")({\n  server: {\n    handlers: {\n      POST: async ({ request }) => {\n        const provider = request.headers.get(\"x-webhook-provider\") ?? \"unknown\";\n        const eventId = request.headers.get(\"x-webhook-id\") ?? \"\";\n\n        const rawBody = await request.text();\n        if (rawBody.length > 1_000_000) {\n          return json({ ok: false, message: \"Payload muito grande.\" }, 413);\n        }\n\n        const signatureStatus = await validateWebhookSignature(\n          rawBody,\n          request.headers.get(\"x-webhook-signature\"),\n        );\n        if (signatureStatus === \"missing_secret\") {\n          return json(\n            { ok: false, message: \"Webhooks desabilitados: defina WEBHOOK_SECRET no ambiente.\" },\n            503,\n          );\n        }\n        if (signatureStatus in [\"invalid\", \"missing_signature\"]) {\n          await writeSystemAudit({\n            action: \"webhook.reject\",\n            resource: \"webhook_events\",\n            result: \"error\",\n            context: { provider, eventId, signatureStatus },\n          });\n          return json({ ok: false, message: \"Assinatura inválida.\" }, 401);\n        }\n\n        if (!checkRateLimit(`webhook:${provider}`, { limit: 120, windowMs: 60_000 })) {\n          return json({ ok: false, message: \"Muitas requisições.\" }, 429);\n        }\n\n        const { supabaseAdmin } = await import(\"@/integrations/supabase/client.server\");\n        const { data: existing } = await supabaseAdmin\n          .from(\"webhook_events\")\n          .select(\"id\")\n          .eq(\"provider\", provider)\n          .eq(\"event_id\", eventId)\n          .maybeSingle();\n\n        if (existing) {\n          return json({ ok: true, duplicate: true, id: existing.id });\n        }\n\n        const { data: inserted, error } = await supabaseAdmin\n          .from(\"webhook_events\")\n          .insert({ provider, event_id: eventId, signature_ok: true })\n          .select(\"id\")\n          .single();\n\n        if (error) {\n          if (error.code === \"23505\") {\n            return json({ ok: true, duplicate: true });\n          }\n          console.error(\"[webhook] falha ao persistir evento:\", error.message);\n          return json({ ok: false, message: \"Falha ao registrar evento.\" }, 500);\n        }\n\n        await writeSystemAudit({\n          action: \"webhook.received\",\n          resource: \"webhook_events\",\n          resourceId: inserted.id,\n          result: \"success\",\n          context: { provider, eventId },\n        });\n\n        return json({ ok: true, id: inserted.id, accepted: true }, 202);\n      },\n      GET: () => json({ ok: true, message: \"Webhook receiver ativo.\" }, 200),\n    },\n  },\n});",
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/api/webhooks.receiver.ts"
-    },
-    "timestamp": 1789650787699
-  },
-  {
-    "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1789650787719
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts",
@@ -1625,5 +1610,20 @@
     "content": "CREATE INDEX IF NOT EXISTS audit_log_action_idx ON public.audit_log (action);\n\nGRANT SELECT, INSERT ON public.audit_log TO authenticated;\nGRANT ALL ON public.audit_log TO service_role;\n\nALTER TABLE public.audit_log ENABLE ROW LEVEL SECURITY;\n\n-- Qualquer autenticado pode inserir sua própria linha (a",
     "is_error": false,
     "timestamp": 1789654893741
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -nE \"DROP TABLE|audit_log|CREATE POLICY\" supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql | head -40",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1789654904724
+  },
+  {
+    "role": "tool_result",
+    "content": "73:CREATE TABLE public.audit_log (\n84:CREATE INDEX audit_log_org_created_idx ON public.audit_log (organization_id, created_at DESC);\n85:GRANT SELECT ON public.audit_log TO authenticated;\n86:GRANT ALL ON public.audit_log TO service_role;\n87:ALTER TABLE public.audit_log ENABLE ROW LEVEL SECURITY;\n129:",
+    "is_error": false,
+    "timestamp": 1789654904758
   }
 ]
