@@ -14,7 +14,8 @@
 - Triggers: criação de perfil no cadastro, criador da organização como admin, `updated_at`.
 - Autenticação Supabase: entrar, criar conta, sair, recuperar senha (`/reset-password`), sessão.
 - Rotas protegidas via layout `_authenticated` (`ssr: false` + `beforeLoad`).
-- Server functions com `requireSupabaseAuth` e escrita em `audit_log`
+- Server functions com `requireSupabaseAuth`, escrita em `audit_log` e checagem explícita
+  de permissão (`has_permission`) server-side nas operações que exigem papel sensível
   (`src/lib/org/organizations.functions.ts`).
 - Contexto de organização no client (`src/lib/org/org-context.tsx`) com troca de organização e
   `hasPermission`.
