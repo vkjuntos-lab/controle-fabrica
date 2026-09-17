@@ -31,7 +31,12 @@ export default defineConfig({
           icons: [
             { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
             { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
-            { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any maskable" },
+            {
+              src: "/icons/icon-512.png",
+              sizes: "512x512",
+              type: "image/png",
+              purpose: "any maskable",
+            },
           ],
         },
         workbox: {
@@ -45,17 +50,22 @@ export default defineConfig({
               options: { cacheName: "html-cache", networkTimeoutSeconds: 3 },
             },
             {
-              urlPattern: ({ request }) => ["style", "script", "worker"].includes(request.destination),
+              urlPattern: ({ request }) =>
+                ["style", "script", "worker"].includes(request.destination),
               handler: "StaleWhileRevalidate",
               options: { cacheName: "asset-cache" },
             },
             {
               urlPattern: ({ request }) => request.destination === "image",
               handler: "CacheFirst",
-              options: { cacheName: "img-cache", expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 } },
+              options: {
+                cacheName: "img-cache",
+                expiration: { maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 },
+              },
             },
             {
-              urlPattern: ({ url }) => url.pathname.startsWith("/api/") || url.pathname.startsWith("/_serverFn/"),
+              urlPattern: ({ url }) =>
+                url.pathname.startsWith("/api/") || url.pathname.startsWith("/_serverFn/"),
               handler: "NetworkOnly",
             },
           ],

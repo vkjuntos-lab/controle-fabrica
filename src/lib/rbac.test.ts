@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  APP_ROLES,
-  PERMISSIONS,
-  PLATFORM_MODULES,
-  ROLE_LABELS,
-} from "@/lib/rbac";
+import { APP_ROLES, PERMISSIONS, PLATFORM_MODULES, ROLE_LABELS } from "@/lib/rbac";
 
 describe("rbac", () => {
   it("define os papéis iniciais da plataforma", () => {
