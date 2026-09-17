@@ -57,9 +57,7 @@ export const Route = createFileRoute("/api/webhooks/receiver")({
           return json({ ok: false, message: "Muitas requisições." }, 429);
         }
 
-        let supabaseAdmin: Awaited<
-          ReturnType<typeof import("@/integrations/supabase/client.server")>
-        >["supabaseAdmin"];
+        let supabaseAdmin: typeof SupabaseAdminClient;
         try {
           const mod = await import("@/integrations/supabase/client.server");
           supabaseAdmin = mod.supabaseAdmin;
