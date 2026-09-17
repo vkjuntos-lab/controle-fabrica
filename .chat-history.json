@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789655438820
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "npm test 2>&1 | tail -30",
-      "timeout": 240000,
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1789655441960
-  },
-  {
-    "role": "tool_result",
     "content": "\n> test\n> vitest run\n\n\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabrica\n\n ✓ src/lib/webhook/signature.test.ts (5 tests) 15ms\n ✓ src/lib/middleware/rate-limit.test.ts (3 tests) 6ms\n ✓ src/lib/rbac.test.ts (4 tests) 10ms\n ✓ src/lib/csv.test.ts (5 tests) 7ms\n\n Test Files  4 passed (4)\n      Tests ",
     "is_error": false,
     "timestamp": 1789655447220
@@ -1614,5 +1598,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1789671794654
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
+      "newString": "- PWA manifest corrigido para a marca do projeto (`/`, nome \"Estratégia\", theme_color\n  `#12213a`) — corrigido o resíduo do KS MultiMake.\n- Domínio Catálogo Mestre de Produtos (LOVABLE MASTER 002):\n  - Tabelas `products` (o MODELO), `product_variants` (unidade comercial: SKU, código de barras,\n    tamanho, cor, custo, preço de venda, peso) e `product_categories` (hierárquica via\n    `parent_id`); enums `product_status`/`product_variant_status`\n    (ACTIVE, INACTIVE, DISCONTINUED, DRAFT); coluna `attributes` jsonb para campos futuros;\n    tenant `organization_id` em tudo.\n  - RLS: leitura por qualquer membro (`is_org_member`); escrita por quem tem a permissão\n    `products.manage` (`has_permission`). Exclusão física bloqueada quando há variantes ou\n    categoria em uso — o caminho padrão para tirar de linha é o status DISCONTINUED.\n  - Permissões seedadas: `products.read` (todos os papéis) e `products.manage`\n    (admin, gestor, estoque).\n  - Server functions em `src/lib/products/products.functions.ts`: CRUD de produtos, categorias e\n    variantes com checagem de permissão server-side e escrita de `audit_log`\n    (`product.*`, `category.*`, `variant.*`).\n  - Telas `/produtos` (listagem com busca, filtro por status, paginação, criar/editar produto,\n    ativar/inativar/descontinuar/excluir) e `/produtos/$id` (detalhe do produto e gestão completa\n    de variantes). Item \"Produtos\" no menu de Operação do `AppShell`.\n- Documentação: ADR-001 (atualizado com cron/webhook/storage), CORE-BUSINESS, este handoff.",
+      "oldString": "- PWA manifest corrigido para a marca do projeto (`/`, nome \"Estratégia\", theme_color\n  `#12213a`) — corrigido o resíduo do KS MultiMake.\n- Documentação: ADR-001 (atualizado com cron/webhook/storage), CORE-BUSINESS, este handoff."
+    },
+    "timestamp": 1789671798894
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1789671798908
   }
 ]

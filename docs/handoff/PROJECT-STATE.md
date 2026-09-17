@@ -53,6 +53,23 @@
   módulos).
 - PWA manifest corrigido para a marca do projeto (`/`, nome "Estratégia", theme_color
   `#12213a`) — corrigido o resíduo do KS MultiMake.
+- Domínio Catálogo Mestre de Produtos (LOVABLE MASTER 002):
+  - Tabelas `products` (o MODELO), `product_variants` (unidade comercial: SKU, código de barras,
+    tamanho, cor, custo, preço de venda, peso) e `product_categories` (hierárquica via
+    `parent_id`); enums `product_status`/`product_variant_status`
+    (ACTIVE, INACTIVE, DISCONTINUED, DRAFT); coluna `attributes` jsonb para campos futuros;
+    tenant `organization_id` em tudo.
+  - RLS: leitura por qualquer membro (`is_org_member`); escrita por quem tem a permissão
+    `products.manage` (`has_permission`). Exclusão física bloqueada quando há variantes ou
+    categoria em uso — o caminho padrão para tirar de linha é o status DISCONTINUED.
+  - Permissões seedadas: `products.read` (todos os papéis) e `products.manage`
+    (admin, gestor, estoque).
+  - Server functions em `src/lib/products/products.functions.ts`: CRUD de produtos, categorias e
+    variantes com checagem de permissão server-side e escrita de `audit_log`
+    (`product.*`, `category.*`, `variant.*`).
+  - Telas `/produtos` (listagem com busca, filtro por status, paginação, criar/editar produto,
+    ativar/inativar/descontinuar/excluir) e `/produtos/$id` (detalhe do produto e gestão completa
+    de variantes). Item "Produtos" no menu de Operação do `AppShell`.
 - Documentação: ADR-001 (atualizado com cron/webhook/storage), CORE-BUSINESS, este handoff.
 
 ## NOT_IMPLEMENTED
