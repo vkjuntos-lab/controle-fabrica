@@ -79,7 +79,7 @@ describe("inventory ledger (regras da fonte oficial do estoque)", () => {
     expect(calculateTotalBalance(all, "V1")).toBe(100);
   });
 
-  it("reversão: original permanece e a compensação restaura o saldo", () => {
+  it("reversão: original permanece POSTED e a compensação restaura o saldo", () => {
     const original = movement({ direction: "IN", quantity: 100, movementType: "OPENING_BALANCE" });
     const reversal = buildReversal(original, "informei 100 por engano, era 0");
 
@@ -87,12 +87,16 @@ describe("inventory ledger (regras da fonte oficial do estoque)", () => {
     expect(reversal.quantity).toBe(100);
     expect(reversal.movementType).toBe("REVERSAL");
 
-    // Após a reversão, o sistema marca o original como REVERSED (não conta para
-    // o saldo) e mantém a compensação POSTED. O objeto original não é editado
-    // "no lugar" — o histórico preserva tudo.
-    const after: LedgerMovement[] = [{ ...original, status: "REVERSED" }, reversal];
+    // Convenção atual: o original NUNCA vira REVERSED — permanece POSTED e o
+    // efeito é cancelado pela compensação REVERSAL (POSTED, direção oposta).
+    // Ambos somam no saldo e o par zera o efeito líquido.
+    const after: LedgerMovement[] = [original, reversal];
     expect(original.status).toBe("POSTED");
+    expect(reversal.status).toBe("POSTED");
     expect(calculateBalance(after)).toBe(0);
+    // Status legado REVERSED também não compõe o saldo.
+    const legacy = [{ ...original, status: "REVERSED" } as LedgerMovement];
+    expect(calculateBalance(legacy)).toBe(0);
   });
 
   it("saldo negativo é bloqueado quando allow_negative_inventory = false", () => {
