@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sed -n '694,697p' supabase/migrations/20260918100000_inventory_ledger.sql; echo \"---779-780---\"; sed -n '779,782p' supabase/migrations/20260918100000_inventory_ledger.sql; echo \"---total---\"; wc -l supabase/migrations/20260918100000_inventory_ledger.sql"
-    },
-    "timestamp": 1790000977327
-  },
-  {
-    "role": "tool_result",
-    "content": "-- ============ REVERSE MOVEMENT ============\n-- Não edita o movimento original: cria um REVERSAL compensatório e relaciona\n-- ambos. O original permanece no histórico com status REVERSED.\nCREATE OR REPLACE FUNCTION public.inventory_reverse_movement(\n---779-780---\n\n-- ============ COMPLETE COUNT ===",
-    "is_error": false,
-    "timestamp": 1790000977350
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "head -693 supabase/migrations/20260918100000_inventory_ledger.sql > /tmp/opencode/ledger_p1.sql && tail -n +780 supabase/migrations/20260918100000_inventory_ledger.sql >> /tmp/opencode/ledger_p1.sql && wc -l /tmp/opencode/ledger_p1.sql && sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f /tmp/opencode/ledger_p1.sql >/tmp/mig_out.txt 2>&1 && echo LEDGER_P1_OK || (echo FAIL; grep -m1 -i error /tmp/mig_out.txt | head -c 400)"
     },
     "timestamp": 1790000981203
@@ -1485,5 +1471,21 @@
     "content": "88:psql:/tmp/opencode/teste_inv003.sql:459: NOTICE:  PASS  E1 contagem iniciada\n89:psql:/tmp/opencode/teste_inv003.sql:459: NOTICE:  PASS  E2 snapshot de itens criado\n90:psql:/tmp/opencode/teste_inv003.sql:459: NOTICE:  PASS  E3 movimentação bloqueada durante contagem\n91:psql:/tmp/opencode/teste_inv",
     "is_error": false,
     "timestamp": 1790002139845
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql",
+      "limit": 40,
+      "offset": 538
+    },
+    "timestamp": 1790002156696
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql</path>\n<type>file</type>\n<content>\n538:  IF NOT FOUND THEN RAISE EXCEPTION 'Item não encontrado.'; END IF;\n539:  RETURN jsonb_build_object('ok',true,'difference',d);\n540: END;\n541: $$;\n542: CREA",
+    "is_error": false,
+    "timestamp": 1790002156719
   }
 ]
