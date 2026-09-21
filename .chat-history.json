@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/tmp/opencode/bootstrap_inv.sql",
-      "oldString": "CREATE TABLE IF NOT EXISTS storage.buckets (id text primary key, name text, public boolean default false, created_at timestamptz default now());",
-      "newString": "CREATE TABLE IF NOT EXISTS storage.buckets (id text primary key, name text, public boolean default false, file_size_limit bigint, allowed_mime_types text[], owner uuid, created_at timestamptz default now());\nALTER TABLE storage.buckets ADD COLUMN IF NOT EXISTS file_size_limit bigint;\nALTER TABLE storage.buckets ADD COLUMN IF NOT EXISTS allowed_mime_types text[];"
-    },
-    "timestamp": 1790000963578
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790000963603
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "sudo -u postgres psql -c \"DROP DATABASE IF EXISTS tmp_inv003a;\" >/dev/null 2>&1; sudo -u postgres createdb tmp_inv003a && sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f /tmp/opencode/bootstrap_inv.sql && echo BOOTSTRAP_OK"
@@ -1486,5 +1470,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790002109803
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/tmp/opencode/teste_inv003.sql",
+      "newString": "PERFORM pg_temp.check('D2 reversão remove efeito IN do Fábrica (-30)',\n    v_after_fab = v_before_fab - 30,\n    concat(v_before_fab, ' -> ', v_after_fab));\n  PERFORM pg_temp.check('D3 reversão restaura efeito OUT do CD (+30)',\n    v_after_wh = v_before_wh + 30,\n    concat(v_before_wh, ' -> ', v_after_wh));",
+      "oldString": "PERFORM pg_temp.check('D2 saldo Fábrica voltou ao anterior', v_after_fab = v_before_fab,\n    v_before_fab || ' -> ' || v_after_fab);\n  PERFORM pg_temp.check('D3 saldo CD voltou ao anterior', v_after_wh = v_before_wh,\n    v_before_wh || ' -> ' || v_after_wh);"
+    },
+    "timestamp": 1790002113546
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790002113571
   }
 ]
