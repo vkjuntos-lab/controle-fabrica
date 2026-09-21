@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "python3 -c \"\nimport json\nwith open('.chat-history.json') as f:\n    data = json.load(f)\nfor i, item in enumerate(data):\n    if i < 158: continue\n    if i > 181: break\n    role = item.get('role')\n    if role in ('tool','assistant'):\n        c = item.get('content','')\n        if role=='tool':\n            print(f'[{i}] TOOL_RESULT:', (c[:200] if isinstance(c,str) else '').replace(chr(10),' '))\n        else:\n            if isinstance(c,str): print(f'[{i}] ASSISTANT:', c[:200])\n            else:\n                for part in c:\n                    if part.get('type')=='text': print(f'[{i}] ASSISTANT:', part.get('text','')[:200])\n        print()\n\""
-    },
-    "timestamp": 1790000534083
-  },
-  {
-    "role": "tool_result",
-    "content": "[159] TOOL_RESULT: \n\n[161] TOOL_RESULT: \n\n[163] TOOL_RESULT: \n\n[165] TOOL_RESULT: \n\n[167] TOOL_RESULT: \n\n[169] TOOL_RESULT: \n\n[171] TOOL_RESULT: \n\n[173] TOOL_RESULT: \n\n[175] TOOL_RESULT: \n\n[177] TOOL_RESULT: \n\n[179] TOOL_RESULT: \n\n[181] TOOL_RESULT: \n\n",
-    "is_error": false,
-    "timestamp": 1790000534128
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "python3 -c \"\nimport json\nwith open('.chat-history.json') as f:\n    data = json.load(f)\nfor i, item in enumerate(data):\n    if i < 139: continue\n    if i > 181: break\n    if item.get('role')=='assistant':\n        for part in item.get('content',[]):\n            if part.get('type')=='toolCall' or 'name' in part:\n                print(f'[{i}] CALL:', json.dumps(part, ensure_ascii=False)[:300])\n            elif part.get('type')=='text':\n                print(f'[{i}] TEXT:', part.get('text','')[:300])\nprint('--- últimos 5 itens brutos ---')\nfor i, item in enumerate(data[-12:]):\n    print(i+len(data)-12, json.dumps(item, ensure_ascii=False)[:400])\n\""
     },
     "timestamp": 1790000538157
@@ -1485,5 +1471,19 @@
     "content": "403:    (v->>'items')::int >= 1, concat('items=', v->>'items'));\n419:    AND (v->>'difference')::numeric = 7, concat('diff=', v->>'difference'));\n427:  PERFORM pg_temp.check('E7 saldo incorporou +7', v_after = v_before + 7, concat(v_before, ' -> ', v_after));\n480:    (v_q->>'total')::int > 0, concat",
     "is_error": false,
     "timestamp": 1790001626732
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"A16\\|'Origem deve ser'\\|'Lote não pertence'\\|allow_negative_override sempre\\|A24\" /tmp/opencode/teste_inv003.sql"
+    },
+    "timestamp": 1790001630035
+  },
+  {
+    "role": "tool_result",
+    "content": "144:  PERFORM pg_temp.expect_error('A16 localização inativa rejeitada',\n182:  PERFORM pg_temp.expect_error('A24 allow_negative_override sempre recusado',\n472:    'Origem deve ser');\n475:    'Lote não pertence');\n",
+    "is_error": false,
+    "timestamp": 1790001630053
   }
 ]
