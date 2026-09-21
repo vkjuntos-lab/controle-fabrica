@@ -356,8 +356,8 @@ BEGIN
   FOR v_item IN SELECT * FROM jsonb_array_elements(_items) AS it
   LOOP
     BEGIN
-      v_variant_id := (v_item.it->>'variant_id')::uuid;
-      v_quantity := (v_item.it->>'quantity')::numeric;
+      v_variant_id := (v_item.value->>'variant_id')::uuid;
+      v_quantity := (v_item.value->>'quantity')::numeric;
     EXCEPTION WHEN others THEN
       RAISE EXCEPTION 'Item de transferência inválido (variant_id e quantity numérica são obrigatórios).';
     END;
