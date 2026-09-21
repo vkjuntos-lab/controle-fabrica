@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"BEGIN\\|ROLLBACK\\|COMMIT\\|ERROR\\|D[0-9]\\|F[0-9]\" /tmp/opencode/run6.log | sed -n '1,80p'"
-    },
-    "timestamp": 1790002085701
-  },
-  {
-    "role": "tool_result",
-    "content": "5:BEGIN\n14:COMMIT\n15:BEGIN\n42:COMMIT\n43:BEGIN\n52:COMMIT\n53:BEGIN\n70:COMMIT\n71:BEGIN\n73:psql:/tmp/opencode/teste_inv003.sql:382: NOTICE:  PASS  D1 reversão de transferência cria 2 compensações\n74:psql:/tmp/opencode/teste_inv003.sql:382: NOTICE:  FAIL  D2 saldo Fábrica voltou ao anterior  [-40.000 -> ",
-    "is_error": false,
-    "timestamp": 1790002085731
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/tmp/opencode/teste_inv003.sql",
@@ -1601,5 +1587,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790006280915
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "/tmp/opencode/rebuild_db.sh",
+      "timeout": 120000
+    },
+    "timestamp": 1790006285264
+  },
+  {
+    "role": "tool_result",
+    "content": "rebuild OK (erros: 0)\n",
+    "is_error": false,
+    "timestamp": 1790006286448
   }
 ]
