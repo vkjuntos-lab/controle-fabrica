@@ -76,12 +76,13 @@ function CountsPage() {
   const fetchLocations = useServerFn(listInventoryLocations);
   const createCount = useServerFn(createInventoryCount);
 
+  const [page, setPage] = useState(1);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [locationId, setLocationId] = useState("");
 
   const countsQuery = useQuery({
-    queryKey: ["inventory-counts", organizationId],
-    queryFn: () => fetchCounts({ data: { organizationId: organizationId! } }),
+    queryKey: ["inventory-counts", organizationId, page],
+    queryFn: () => fetchCounts({ data: { organizationId: organizationId!, page } }),
     enabled: Boolean(organizationId),
   });
 
@@ -154,7 +155,7 @@ function CountsPage() {
                   description={(countsQuery.error as Error).message}
                   onRetry={() => void countsQuery.refetch()}
                 />
-              ) : !countsQuery.data?.length ? (
+              ) : !countsQuery.data?.rows.length ? (
                 <EmptyState
                   title="Nenhuma contagem"
                   description="Inicie uma contagem para reconciliar o estoque físico."
@@ -168,13 +169,15 @@ function CountsPage() {
                         <TableHead>Localização</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Progresso</TableHead>
+                        <TableHead>Divergências</TableHead>
+                        <TableHead>Responsável</TableHead>
                         <TableHead>Criada em</TableHead>
                         <TableHead>Concluída em</TableHead>
                         <TableHead className="text-right">Ações</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {countsQuery.data.map((count) => (
+                      {countsQuery.data.rows.map((count) => (
                         <TableRow key={count.id}>
                           <TableCell className="font-medium">{count.location_name}</TableCell>
                           <TableCell>
@@ -183,6 +186,8 @@ function CountsPage() {
                           <TableCell className="text-sm">
                             {count.counted_count}/{count.items_count} itens
                           </TableCell>
+                          <TableCell>{count.differences}</TableCell>
+                          <TableCell>{count.responsible}</TableCell>
                           <TableCell className="text-sm text-muted-foreground">
                             {new Date(count.created_at).toLocaleString("pt-BR")}
                           </TableCell>
@@ -204,6 +209,20 @@ function CountsPage() {
                   </Table>
                 </div>
               )}
+              {countsQuery.data && countsQuery.data.total > 50 ? (
+                <div className="mt-4 flex justify-between">
+                  <Button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+                    Anterior
+                  </Button>
+                  <span>Página {page}</span>
+                  <Button
+                    disabled={page * 50 >= countsQuery.data.total}
+                    onClick={() => setPage((p) => p + 1)}
+                  >
+                    Próxima
+                  </Button>
+                </div>
+              ) : null}
             </CardContent>
           </Card>
 
@@ -213,7 +232,8 @@ function CountsPage() {
                 <DialogTitle>Nova contagem</DialogTitle>
                 <DialogDescription>
                   Serão incluídas todas as variantes ativas com o saldo do sistema na localização
-                  escolhida.
+                  escolhida. A localização ficará bloqueada para movimentos até concluir ou
+                  cancelar.
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">

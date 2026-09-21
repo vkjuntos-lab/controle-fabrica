@@ -1,6 +1,6 @@
 # Estado do projeto — handoff contínuo
 
-Última atualização: LOVABLE MASTER 003 — Inventory Ledger (estoque por movimentos imutáveis) sobre o MASTER 002 (Catálogo de Produtos) e a fundação do MASTER 001. Etapa atual: validação e endurecimento transacional do ledger (migration `20260921100000_inventory_integrity.sql`) com harness local de 80 cenários + sincronização do código TS e docs.
+Última atualização: LOVABLE MASTER 003 — Inventory Ledger (estoque por movimentos imutáveis) sobre o MASTER 002 (Catálogo de Produtos) e a fundação do MASTER 001. Etapa atual: integração das telas com as RPCs, migration complementar `20260923100000_inventory_workflows.sql` e testes PostgreSQL reproduzíveis. Validação local; publicação não verificada.
 
 ## IMPLEMENTED
 
@@ -81,10 +81,10 @@
   - Semântica de saldo: somente `POSTED` soma. O status legado `REVERSED` não é mais gravado
     (migrado para `POSTED`); correção gera compensação `REVERSAL` (POSTED, direção oposta) e o
     original permanece `POSTED` — o par soma zero. `PENDING`/`CANCELED` nunca somam. `quantity` é
-    sempre positiva e `direction` (IN/OUT) decide o sinal. Reversões nunca são bloqueadas por saldo
+    sempre positiva e `direction` (IN/OUT) decide o sinal. Reversões também respeitam o bloqueio de saldo
     negativo; `_allow_negative_override` é sempre recusado.
   - Operações transacionais: `inventory_post_movement` (valida saldo, advisory lock por
-    variante+localização, idempotência por `UNIQUE(organization_id, idempotency_key)`, recusa tipos
+    organização, idempotência por `UNIQUE(organization_id, idempotency_key)`, recusa tipos
     dedicados), `inventory_post_transfer` (par OUT+IN atômico; `TRANSFER`, `PARTNER_SHIPMENT` e
     `PARTNER_RETURN`), `inventory_reverse_movement` (compensa por inteiro — inclusive transferências —
     com `REVERSAL`, original permanece `POSTED`) e `inventory_complete_count` (snapshot por lote,
@@ -92,8 +92,8 @@
   - Integridade transacional (migration `20260921100000_inventory_integrity.sql`): `batch_id` e
     `inventory_count_item_key` (NULLS NOT DISTINCT) em itens de contagem, `inventory_one_reversal`
     (uma compensação por movimento), `inventory_one_open_count` (uma contagem aberta por localização),
-    `inventory_lock` (trava por organização), soma de contagens na view de saldos e guard de tenant
-    (`inventory_guard_relations`). Migração validada por harness local no Postgres (80/80 cenários).
+    `inventory_lock` (trava por organização), saldo derivado exclusivamente dos movimentos e guard de tenant
+    (`inventory_guard_relations`). Verificação reproduzível em `scripts/test-inventory-db.py`; a alegação anterior de 80 testes sem arquivo reproduzível foi substituída pelos cenários documentados.
   - Estoque negativo bloqueado por padrão; liberável por organização
     (`organization_inventory_settings.allow_negative_inventory`). Remessa a parceiro não é venda
     (não gera receita/AR). Movimentos nunca são editados/excluídos — correção por reversão.
@@ -110,9 +110,18 @@
     de movimento e de transferência/remessa.
 - Documentação: ADR-001 (cron/webhook/storage), CORE-BUSINESS, INVENTORY (novo), este handoff.
 
+- Complemento MASTER 003: posição paginada/agregada no banco, busca barcode, categorias/status,
+  agrupamentos, dashboard quantitativo, CSV de todas as páginas da posição, contagem por lote
+  via RPC, leitura barcode textual, cartões mobile, filtros de movimentos por variante/usuário/status,
+  inventários paginados com responsável/divergências. Transferência preserva lote e confere payload
+  de retries. Auditoria de localização/configuração transacional e antes/depois das postagens.
+- Negativo exige configuração + `inventory.allow_negative`; referências de contagem são reservadas
+  à RPC privada. Harness PostgreSQL testa RLS, permissões, atomicidade, lotes, concorrência real,
+  estorno, contagem e mais de mil SKUs.
+
 ## NOT_IMPLEMENTED
 
-- Módulos: Comercial, Produção, Marketplaces, Parceiros, Financeiro, Relatórios,
+- Módulos/telas completos: Comercial, Produção (migration preparatória preexistente preservada), Marketplaces, Parceiros, Financeiro, Relatórios,
   Inteligência (marcados como `coming_soon` em `src/lib/rbac.ts`, fora do menu operacional).
 - Valorização financeira do estoque (custo/valor por movimento) — o ledger registra quantidades.
 - Integração automática de venda/produção/compra com o ledger (hoje os lançamentos são feitos
@@ -149,6 +158,17 @@
 
 ## KNOWN_LIMITATIONS
 
+- Nova migration validada localmente, não aplicada ao Lovable Cloud nesta execução. Falta smoke
+  test autenticado publicado. Ver relatório `docs/handoff/MASTER-003-VALIDATION.md`.
+- Replay limpo da migration histórica `20260918100000_inventory_ledger.sql` precisa carregar esse
+  arquivo com `check_function_bodies=off` por erro legado de alvo record; o harness isola e documenta
+  esse passo. Migrations publicadas foram preservadas.
+- Barcode via teclado/leitor físico; câmera não implementada. CSV de posição completo; CSV de
+  movimentos exporta a página indicada. XLSX/importação inicial não implementados.
+- Contagem bloqueia localização até conclusão/cancelamento. Lock por organização prioriza
+  integridade sobre paralelismo. Sem reservas/valorização financeira.
+
+
 - Envio automático de e-mail de convite: não existe — o link é copiado e compartilhado
   manualmente (WhatsApp, e-mail externo, etc.). Um provedor de e-mail transacional seria
   necessário para envio automático.
@@ -167,3 +187,9 @@
 4. Reconciliação de parceiros, fechamento de período e cobrança (server-side, auditado).
 5. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a
    `/api/webhooks/receiver` quando houver integração externa.
+
+## VALIDAÇÃO DESTA CONTINUAÇÃO
+
+Relatório completo: `docs/handoff/MASTER-003-VALIDATION.md`.
+30 testes unitários, harness PostgreSQL (9 grupos), TypeScript, build e lint do domínio verificados.
+A implantação no banco publicado não faz parte da evidência local e permanece pendente.

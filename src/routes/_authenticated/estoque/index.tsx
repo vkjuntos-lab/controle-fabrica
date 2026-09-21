@@ -4,6 +4,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { Download, PackageSearch, Plus, Warehouse } from "lucide-react";
 import { useDeferredValue, useEffect, useState } from "react";
 
+import { toast } from "sonner";
+import { OperationalSummary } from "@/components/inventory/operational-summary";
+import { listCategories } from "@/lib/products/products.functions";
 import { MovementDialog } from "@/components/inventory/movement-dialog";
 import { AppShell } from "@/components/layout/app-shell";
 import { EmptyState, ErrorState, LoadingState, PermissionDenied } from "@/components/states";
@@ -28,7 +31,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { downloadCsv, toCsv } from "@/lib/csv";
-import { formatQuantity } from "@/lib/inventory/constants";
+import { formatQuantity, type MovementType } from "@/lib/inventory/constants";
 import {
   listInventoryLocations,
   listInventoryPositions,
@@ -60,23 +63,42 @@ function InventoryPositionPage() {
   const fetchPositions = useServerFn(listInventoryPositions);
   const fetchLocations = useServerFn(listInventoryLocations);
 
+  const fetchCategories = useServerFn(listCategories);
+  const categories = useQuery({
+    queryKey: ["product-categories", organizationId],
+    queryFn: () => fetchCategories({ data: { organizationId: organizationId! } }),
+    enabled: Boolean(organizationId && hasPermission(PERMISSIONS.productsRead)),
+  });
+  const [categoryId, setCategoryId] = useState("ALL");
+  const [status, setStatus] = useState<"ALL" | "ACTIVE" | "INACTIVE" | "DRAFT" | "DISCONTINUED">(
+    "ALL",
+  );
+  const [groupBy, setGroupBy] = useState<"none" | "product" | "location">("none");
+  const [exporting, setExporting] = useState(false);
   const [query, setQuery] = useState("");
   const deferredQuery = useDeferredValue(query);
   const [locationId, setLocationId] = useState("ALL");
   const [onlyBelowMinimum, setOnlyBelowMinimum] = useState(false);
   const [page, setPage] = useState(1);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [seed, setSeed] = useState<{ variantId?: string; locationId?: string }>({});
+  const [seed, setSeed] = useState<{
+    variantId?: string;
+    locationId?: string;
+    movementType?: MovementType;
+  }>({});
 
   useEffect(() => {
     setPage(1);
-  }, [deferredQuery, locationId, onlyBelowMinimum]);
+  }, [organizationId, deferredQuery, locationId, onlyBelowMinimum, categoryId, status, groupBy]);
 
   const positionsQuery = useQuery({
     queryKey: [
       "inventory-positions",
       organizationId,
       deferredQuery,
+      categoryId,
+      status,
+      groupBy,
       locationId,
       onlyBelowMinimum,
       page,
@@ -86,6 +108,9 @@ function InventoryPositionPage() {
         data: {
           organizationId: organizationId!,
           query: deferredQuery,
+          categoryId: categoryId === "ALL" ? undefined : categoryId,
+          status: status === "ALL" ? undefined : status,
+          groupBy: groupBy === "none" ? undefined : groupBy,
           locationId: locationId === "ALL" ? undefined : locationId,
           onlyBelowMinimum,
           page,
@@ -103,43 +128,71 @@ function InventoryPositionPage() {
 
   const data = positionsQuery.data;
   const canMove =
-    hasPermission(PERMISSIONS.inventoryMove) || hasPermission(PERMISSIONS.inventoryAdjust);
+    hasPermission(PERMISSIONS.inventoryMove) ||
+    hasPermission(PERMISSIONS.inventoryAdjust) ||
+    hasPermission(PERMISSIONS.inventoryOpeningBalance);
 
-  function handleExport() {
+  async function handleExport() {
     if (!data?.rows.length) {
       return;
     }
-    const csv = toCsv(
-      data.rows.map((row) => ({
-        produto: row.product_name,
-        codigo: row.product_code,
-        sku: row.sku,
-        tamanho: row.size ?? "",
-        cor: row.color ?? "",
-        localizacao: row.location_name,
-        codigo_local: row.location_code,
-        saldo: row.on_hand,
-        minimo: row.minimum_stock,
-        reposicao: row.reorder_point,
-        abaixo_minimo: row.below_minimum ? "sim" : "nao",
-        ultima_movimentacao: row.last_movement_at ?? "",
-      })),
-      [
-        "produto",
-        "codigo",
-        "sku",
-        "tamanho",
-        "cor",
-        "localizacao",
-        "codigo_local",
-        "saldo",
-        "minimo",
-        "reposicao",
-        "abaixo_minimo",
-        "ultima_movimentacao",
-      ],
-    );
-    downloadCsv("estoque-posicao.csv", csv);
+    setExporting(true);
+    try {
+      const rows: InventoryPositionRow[] = [];
+      let next = 1;
+      while (true) {
+        const result = await fetchPositions({
+          data: {
+            organizationId: organizationId!,
+            query: deferredQuery,
+            locationId: locationId === "ALL" ? undefined : locationId,
+            categoryId: categoryId === "ALL" ? undefined : categoryId,
+            status: status === "ALL" ? undefined : status,
+            onlyBelowMinimum,
+            page: next,
+            pageSize: 200,
+          },
+        });
+        rows.push(...result.rows);
+        if (next * 200 >= result.total) break;
+        next++;
+      }
+      const csv = toCsv(
+        rows.map((row) => ({
+          produto: row.product_name,
+          codigo: row.product_code,
+          sku: row.sku,
+          tamanho: row.size ?? "",
+          cor: row.color ?? "",
+          localizacao: row.location_name,
+          codigo_local: row.location_code,
+          saldo: row.on_hand,
+          minimo: row.minimum_stock,
+          reposicao: row.reorder_point,
+          abaixo_minimo: row.below_minimum ? "sim" : "nao",
+          ultima_movimentacao: row.last_movement_at ?? "",
+        })),
+        [
+          "produto",
+          "codigo",
+          "sku",
+          "tamanho",
+          "cor",
+          "localizacao",
+          "codigo_local",
+          "saldo",
+          "minimo",
+          "reposicao",
+          "abaixo_minimo",
+          "ultima_movimentacao",
+        ],
+      );
+      downloadCsv("estoque-posicao.csv", csv);
+    } catch (error) {
+      toast.error("Falha na exportação", { description: (error as Error).message });
+    } finally {
+      setExporting(false);
+    }
   }
 
   return (
@@ -161,7 +214,29 @@ function InventoryPositionPage() {
               </p>
             </div>
             {canMove ? (
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
+                {hasPermission(PERMISSIONS.inventoryAdjust) ? (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSeed({ movementType: "ADJUSTMENT_IN" });
+                      setDialogOpen(true);
+                    }}
+                  >
+                    Ajustar estoque
+                  </Button>
+                ) : null}
+                {hasPermission(PERMISSIONS.inventoryOpeningBalance) ? (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSeed({ movementType: "OPENING_BALANCE" });
+                      setDialogOpen(true);
+                    }}
+                  >
+                    Abertura de estoque
+                  </Button>
+                ) : null}
                 <Button
                   variant="outline"
                   onClick={() => {
@@ -176,6 +251,7 @@ function InventoryPositionPage() {
             ) : null}
           </div>
 
+          <OperationalSummary organizationId={organizationId!} />
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0">
               <CardTitle className="text-base">Saldos por localização</CardTitle>
@@ -183,10 +259,10 @@ function InventoryPositionPage() {
                 variant="outline"
                 size="sm"
                 onClick={handleExport}
-                disabled={!data?.rows.length}
+                disabled={exporting || !data?.rows.length}
               >
                 <Download className="mr-2 h-4 w-4" />
-                Exportar CSV
+                {exporting ? "Exportando..." : "Exportar CSV"}
               </Button>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -197,7 +273,7 @@ function InventoryPositionPage() {
                     id="position-search"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Produto, SKU, tamanho, cor, local..."
+                    placeholder="Produto, SKU, barcode, tamanho, cor..."
                   />
                 </div>
                 <div className="space-y-2 sm:w-56">
@@ -227,6 +303,58 @@ function InventoryPositionPage() {
                 </p>
               </div>
 
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div>
+                  <Label>Categoria</Label>
+                  <Select value={categoryId} onValueChange={setCategoryId}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ALL">Todas</SelectItem>
+                      {categories.data?.map((c) => (
+                        <SelectItem key={c.id} value={c.id}>
+                          {c.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Status da variante</Label>
+                  <Select value={status} onValueChange={(v) => setStatus(v as typeof status)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[
+                        ["ALL", "Todos"],
+                        ["ACTIVE", "Ativo"],
+                        ["INACTIVE", "Inativo"],
+                        ["DRAFT", "Rascunho"],
+                        ["DISCONTINUED", "Descontinuado"],
+                      ].map(([v, l]) => (
+                        <SelectItem key={v} value={v}>
+                          {l}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Agrupar</Label>
+                  <Select value={groupBy} onValueChange={(v) => setGroupBy(v as typeof groupBy)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">Variante / localização</SelectItem>
+                      <SelectItem value="product">Produto</SelectItem>
+                      <SelectItem value="location">Localização</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               {positionsQuery.isLoading ? (
                 <LoadingState rows={5} />
               ) : positionsQuery.error ? (
@@ -236,41 +364,91 @@ function InventoryPositionPage() {
                 />
               ) : !data?.rows.length ? (
                 <EmptyState
-                  title="Nenhuma posição de estoque"
-                  description="Registre uma abertura de estoque ou uma entrada para começar."
+                  title="Nenhum resultado para os filtros"
+                  description="Revise os filtros ou cadastre produtos e localizações para começar."
                   icon={<Warehouse className="h-8 w-8" />}
                 />
               ) : (
                 <>
-                  <div className="overflow-x-auto rounded-lg border">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Produto / SKU</TableHead>
-                          <TableHead>Localização</TableHead>
-                          <TableHead className="text-right">Saldo</TableHead>
-                          <TableHead className="text-right">Mínimo</TableHead>
-                          <TableHead>Última movimentação</TableHead>
-                          <TableHead className="text-right">Ações</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
+                  {groupBy !== "none" ? (
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {data.groups.map((g) => (
+                        <div key={g.id} className="rounded-lg border p-4">
+                          <p>{g.name}</p>
+                          <strong>{formatQuantity(g.on_hand)} un. On Hand</strong>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <>
+                      <div className="grid gap-3 sm:hidden">
                         {data.rows.map((row) => (
-                          <PositionRow
+                          <div
                             key={`${row.variant_id}:${row.location_id}`}
-                            row={row}
-                            canMove={canMove}
-                            onAdjust={() => {
-                              setSeed({ variantId: row.variant_id, locationId: row.location_id });
-                              setDialogOpen(true);
-                            }}
-                          />
+                            className="space-y-2 rounded-lg border p-3"
+                          >
+                            <p className="font-medium">{row.product_name}</p>
+                            <p className="text-sm">
+                              {row.sku} · {[row.size, row.color].filter(Boolean).join(" / ")}
+                            </p>
+                            <p>
+                              {row.location_name}:{" "}
+                              <strong>{formatQuantity(row.on_hand)} On Hand</strong>
+                            </p>
+                            {row.below_minimum ? (
+                              <Badge variant="destructive">Abaixo do mínimo</Badge>
+                            ) : null}
+                            {canMove ? (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setSeed({
+                                    variantId: row.variant_id,
+                                    locationId: row.location_id,
+                                  });
+                                  setDialogOpen(true);
+                                }}
+                              >
+                                Movimentar
+                              </Button>
+                            ) : null}
+                          </div>
                         ))}
-                      </TableBody>
-                    </Table>
-                  </div>
-
-                  {data.total > PAGE_SIZE ? (
+                      </div>
+                      <div className="hidden overflow-x-auto rounded-lg border sm:block">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Produto / SKU</TableHead>
+                              <TableHead>Localização</TableHead>
+                              <TableHead className="text-right">On Hand</TableHead>
+                              <TableHead className="text-right">Mínimo</TableHead>
+                              <TableHead>Última movimentação</TableHead>
+                              <TableHead className="text-right">Ações</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {data.rows.map((row) => (
+                              <PositionRow
+                                key={`${row.variant_id}:${row.location_id}`}
+                                row={row}
+                                canMove={canMove}
+                                onAdjust={() => {
+                                  setSeed({
+                                    variantId: row.variant_id,
+                                    locationId: row.location_id,
+                                  });
+                                  setDialogOpen(true);
+                                }}
+                              />
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </>
+                  )}
+                  {(groupBy === "none" ? data.total : data.group_total) > PAGE_SIZE ? (
                     <div className="flex items-center justify-between">
                       <Button
                         variant="outline"
@@ -281,12 +459,20 @@ function InventoryPositionPage() {
                         Anterior
                       </Button>
                       <span className="text-sm text-muted-foreground">
-                        Página {data.page} de {Math.max(1, Math.ceil(data.total / PAGE_SIZE))}
+                        Página {data.page} de{" "}
+                        {Math.max(
+                          1,
+                          Math.ceil(
+                            (groupBy === "none" ? data.total : data.group_total) / PAGE_SIZE,
+                          ),
+                        )}
                       </span>
                       <Button
                         variant="outline"
                         size="sm"
-                        disabled={page * PAGE_SIZE >= data.total}
+                        disabled={
+                          page * PAGE_SIZE >= (groupBy === "none" ? data.total : data.group_total)
+                        }
                         onClick={() => setPage((p) => p + 1)}
                       >
                         Próxima
@@ -301,6 +487,7 @@ function InventoryPositionPage() {
           <MovementDialog
             open={dialogOpen}
             onOpenChange={setDialogOpen}
+            initialMovementType={seed.movementType}
             initialVariantId={seed.variantId}
             initialLocationId={seed.locationId}
           />

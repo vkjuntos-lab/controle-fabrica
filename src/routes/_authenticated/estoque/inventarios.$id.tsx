@@ -5,6 +5,7 @@ import { ArrowLeft, CheckCircle2, XCircle } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
+import { BarcodeInput } from "@/components/inventory/barcode-input";
 import { AppShell } from "@/components/layout/app-shell";
 import { EmptyState, ErrorState, LoadingState, PermissionDenied } from "@/components/states";
 import { Badge } from "@/components/ui/badge";
@@ -71,15 +72,13 @@ function CountDetailPage() {
   });
 
   useEffect(() => {
-    if (!countQuery.data) return;
-    const next: Record<string, string> = {};
-    for (const item of countQuery.data.items) {
-      next[item.id] = item.counted_quantity == null ? "" : String(item.counted_quantity);
-    }
-    setDrafts(next);
-  }, [countQuery.data]);
+    setDrafts({});
+  }, [organizationId, id]);
 
   const invalidate = () => {
+    void queryClient.invalidateQueries({
+      predicate: (q) => String(q.queryKey[0]).startsWith("inventory-"),
+    });
     void queryClient.invalidateQueries({ queryKey: ["inventory-count"] });
     void queryClient.invalidateQueries({ queryKey: ["inventory-counts"] });
     void queryClient.invalidateQueries({ queryKey: ["inventory-positions"] });
@@ -91,7 +90,14 @@ function CountDetailPage() {
       saveItem({
         data: { organizationId: organizationId!, countId: id, itemId, countedQuantity: value },
       }),
-    onSuccess: invalidate,
+    onSuccess: (_result, variables) => {
+      setDrafts((previous) => {
+        const next = { ...previous };
+        delete next[variables.itemId];
+        return next;
+      });
+      invalidate();
+    },
     onError: (error: Error) =>
       toast.error("Não foi possível salvar o item", { description: error.message }),
   });
@@ -133,20 +139,30 @@ function CountDetailPage() {
     if (!count) return [];
     if (!onlyDivergent) return count.items;
     return count.items.filter((item) => {
-      const draft = drafts[item.id];
+      const draft =
+        drafts[item.id] ?? (item.counted_quantity == null ? "" : String(item.counted_quantity));
       if (draft === undefined || draft === "")
         return item.counted_quantity == null && item.system_quantity !== 0;
       return Number(draft) - item.system_quantity !== 0;
     });
   }, [count, drafts, onlyDivergent]);
 
+  const unsaved =
+    count?.items.some(
+      (item) =>
+        drafts[item.id] !== undefined &&
+        (drafts[item.id] === "" ? null : Number(drafts[item.id])) !== item.counted_quantity,
+    ) ?? false;
+
   function commitItem(itemId: string, rawDraft: string | undefined) {
+    if (!editable || saveMutation.isPending) return;
     const raw = (rawDraft ?? "").trim();
     const value = raw === "" ? null : Number(raw);
     if (value != null && (!Number.isFinite(value) || value < 0)) {
       toast.error("Quantidade inválida");
       return;
     }
+    if (value === count?.items.find((i) => i.id === itemId)?.counted_quantity) return;
     saveMutation.mutate({ itemId, value });
   }
 
@@ -191,7 +207,10 @@ function CountDetailPage() {
                   <XCircle className="mr-2 h-4 w-4" />
                   Cancelar contagem
                 </Button>
-                <Button onClick={() => setConfirmOpen(true)}>
+                <Button
+                  disabled={saveMutation.isPending || !hasPermission(PERMISSIONS.inventoryAdjust)}
+                  onClick={() => setConfirmOpen(true)}
+                >
                   <CheckCircle2 className="mr-2 h-4 w-4" />
                   Concluir contagem
                 </Button>
@@ -210,104 +229,174 @@ function CountDetailPage() {
                 Somente divergências
               </Button>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                A localização fica bloqueada para movimentação até concluir ou cancelar esta
+                contagem. Revise as divergências antes de confirmar.
+              </p>
+              {editable ? (
+                <BarcodeInput
+                  disabled={saveMutation.isPending}
+                  onScan={(code) => {
+                    const matches = count.items.filter((i) => i.barcode === code || i.sku === code);
+                    if (matches.length !== 1) {
+                      toast.error(
+                        matches.length
+                          ? "Há vários lotes. Informe a quantidade no item do lote correspondente."
+                          : "Código não encontrado nesta contagem.",
+                      );
+                      return;
+                    }
+                    const item = matches[0];
+                    const current = Number(drafts[item.id] || item.counted_quantity || 0);
+                    setDrafts((previous) => ({ ...previous, [item.id]: String(current + 1) }));
+                    saveMutation.mutate({ itemId: item.id, value: current + 1 });
+                  }}
+                />
+              ) : null}
+              {count.items.length && !visibleItems.length ? (
+                <EmptyState title="Nenhuma divergência encontrada" />
+              ) : null}
               {!count.items.length ? (
                 <EmptyState title="Nenhum item nesta contagem" />
               ) : (
-                <div className="overflow-x-auto rounded-lg border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Produto</TableHead>
-                        <TableHead>Variante</TableHead>
-                        <TableHead className="text-right">Sistema</TableHead>
-                        <TableHead className="w-32 text-right">Contado</TableHead>
-                        <TableHead className="text-right">Diferença</TableHead>
-                        <TableHead>Status</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {visibleItems.map((item) => {
-                        const draft = drafts[item.id];
-                        const draftNumber =
-                          draft === undefined || draft === "" ? null : Number(draft);
-                        const difference =
-                          draftNumber == null
-                            ? item.difference
-                            : draftNumber - item.system_quantity;
-                        return (
-                          <TableRow key={item.id}>
-                            <TableCell className="font-medium">{item.product_name}</TableCell>
-                            <TableCell>
-                              <span className="font-mono text-xs">{item.sku}</span>
-                              {item.size || item.color ? (
-                                <span className="ml-1 text-xs text-muted-foreground">
-                                  {[item.size, item.color].filter(Boolean).join(" · ")}
+                <>
+                  <div className="space-y-3 sm:hidden">
+                    {visibleItems.map((item) => {
+                      const draft =
+                        drafts[item.id] ??
+                        (item.counted_quantity == null ? "" : String(item.counted_quantity));
+                      return (
+                        <div key={item.id} className="space-y-2 rounded-lg border p-3">
+                          <p className="font-medium">{item.product_name}</p>
+                          <p className="text-sm">
+                            {item.sku} ·{" "}
+                            {[item.size, item.color, item.batch_code].filter(Boolean).join(" / ")}
+                          </p>
+                          <p>Sistema: {formatQuantity(item.system_quantity)}</p>
+                          <Input
+                            aria-label={`Quantidade contada de ${item.sku}`}
+                            type="number"
+                            min="0"
+                            step="0.001"
+                            inputMode="decimal"
+                            disabled={!editable || saveMutation.isPending}
+                            value={draft}
+                            onChange={(e) =>
+                              setDrafts((previous) => ({ ...previous, [item.id]: e.target.value }))
+                            }
+                            onBlur={(e) => commitItem(item.id, e.target.value)}
+                          />
+                          <p className="text-sm">
+                            Diferença:{" "}
+                            {draft === ""
+                              ? "Não contado"
+                              : formatQuantity(Number(draft) - item.system_quantity)}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="hidden overflow-x-auto rounded-lg border sm:block">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Produto</TableHead>
+                          <TableHead>Variante</TableHead>
+                          <TableHead className="text-right">Sistema</TableHead>
+                          <TableHead className="w-32 text-right">Contado</TableHead>
+                          <TableHead className="text-right">Diferença</TableHead>
+                          <TableHead>Status</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {visibleItems.map((item) => {
+                          const draft =
+                            drafts[item.id] ??
+                            (item.counted_quantity == null ? "" : String(item.counted_quantity));
+                          const draftNumber =
+                            draft === undefined || draft === "" ? null : Number(draft);
+                          const difference =
+                            draftNumber == null
+                              ? item.difference
+                              : draftNumber - item.system_quantity;
+                          return (
+                            <TableRow key={item.id}>
+                              <TableCell className="font-medium">{item.product_name}</TableCell>
+                              <TableCell>
+                                <span className="font-mono text-xs">
+                                  {item.sku}
+                                  {item.batch_code ? ` · Lote ${item.batch_code}` : ""}
                                 </span>
-                              ) : null}
-                            </TableCell>
-                            <TableCell className="text-right font-mono">
-                              {formatQuantity(item.system_quantity)}
-                            </TableCell>
-                            <TableCell>
-                              <Input
-                                type="number"
-                                min="0"
-                                step="0.001"
-                                inputMode="decimal"
-                                className="text-right"
-                                disabled={!editable}
-                                value={draft ?? ""}
-                                onChange={(e) =>
-                                  setDrafts((prev) => ({ ...prev, [item.id]: e.target.value }))
-                                }
-                                onBlur={(e) => commitItem(item.id, e.target.value)}
-                                onKeyDown={(e) => {
-                                  if (e.key === "Enter") {
-                                    (e.target as HTMLInputElement).blur();
+                                {item.size || item.color ? (
+                                  <span className="ml-1 text-xs text-muted-foreground">
+                                    {[item.size, item.color].filter(Boolean).join(" · ")}
+                                  </span>
+                                ) : null}
+                              </TableCell>
+                              <TableCell className="text-right font-mono">
+                                {formatQuantity(item.system_quantity)}
+                              </TableCell>
+                              <TableCell>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  step="0.001"
+                                  inputMode="decimal"
+                                  className="text-right"
+                                  disabled={!editable || saveMutation.isPending}
+                                  value={draft ?? ""}
+                                  onChange={(e) =>
+                                    setDrafts((prev) => ({ ...prev, [item.id]: e.target.value }))
                                   }
-                                }}
-                              />
-                            </TableCell>
-                            <TableCell className="text-right font-mono">
-                              {difference == null ? (
-                                <span className="text-muted-foreground">—</span>
-                              ) : difference === 0 ? (
-                                <span className="text-muted-foreground">0</span>
-                              ) : (
-                                <span
-                                  className={
-                                    difference > 0 ? "text-emerald-600" : "text-destructive"
+                                  onBlur={(e) => commitItem(item.id, e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      (e.target as HTMLInputElement).blur();
+                                    }
+                                  }}
+                                />
+                              </TableCell>
+                              <TableCell className="text-right font-mono">
+                                {difference == null ? (
+                                  <span className="text-muted-foreground">—</span>
+                                ) : difference === 0 ? (
+                                  <span className="text-muted-foreground">0</span>
+                                ) : (
+                                  <span
+                                    className={
+                                      difference > 0 ? "text-emerald-600" : "text-destructive"
+                                    }
+                                  >
+                                    {difference > 0 ? "+" : ""}
+                                    {formatQuantity(difference)}
+                                  </span>
+                                )}
+                              </TableCell>
+                              <TableCell>
+                                <Badge
+                                  variant={
+                                    item.counted_quantity == null
+                                      ? "secondary"
+                                      : difference === 0
+                                        ? "outline"
+                                        : "default"
                                   }
                                 >
-                                  {difference > 0 ? "+" : ""}
-                                  {formatQuantity(difference)}
-                                </span>
-                              )}
-                            </TableCell>
-                            <TableCell>
-                              <Badge
-                                variant={
-                                  item.counted_quantity == null
-                                    ? "secondary"
+                                  {item.counted_quantity == null
+                                    ? "Pendente"
                                     : difference === 0
-                                      ? "outline"
-                                      : "default"
-                                }
-                              >
-                                {item.counted_quantity == null
-                                  ? "Pendente"
-                                  : difference === 0
-                                    ? "OK"
-                                    : "Divergente"}
-                              </Badge>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                </div>
+                                      ? "OK"
+                                      : "Divergente"}
+                                </Badge>
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>
@@ -332,7 +421,12 @@ function CountDetailPage() {
                 </Button>
                 <Button
                   onClick={() => completeMutation.mutate()}
-                  disabled={completeMutation.isPending}
+                  disabled={
+                    completeMutation.isPending ||
+                    saveMutation.isPending ||
+                    unsaved ||
+                    !hasPermission(PERMISSIONS.inventoryAdjust)
+                  }
                 >
                   {completeMutation.isPending ? "Concluindo..." : "Concluir e lançar ajustes"}
                 </Button>

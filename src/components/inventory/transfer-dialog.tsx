@@ -25,6 +25,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { locationTypeLabel } from "@/lib/inventory/constants";
 import {
+  listBatches,
   listInventoryLocations,
   listVariantOptions,
   postInventoryTransfer,
@@ -34,7 +35,7 @@ import { PERMISSIONS } from "@/lib/rbac";
 
 type TransferType = "TRANSFER" | "PARTNER_SHIPMENT" | "PARTNER_RETURN";
 
-type Item = { key: string; variantId: string; quantity: string };
+type Item = { key: string; variantId: string; quantity: string; batchId?: string };
 
 export function TransferDialog({
   open,
@@ -49,6 +50,8 @@ export function TransferDialog({
   const organizationId = currentOrganization?.organization_id;
   const queryClient = useQueryClient();
   const fetchLocations = useServerFn(listInventoryLocations);
+  const fetchBatches = useServerFn(listBatches);
+  const [variantSearch, setVariantSearch] = useState("");
   const fetchVariants = useServerFn(listVariantOptions);
   const postTransfer = useServerFn(postInventoryTransfer);
 
@@ -58,6 +61,7 @@ export function TransferDialog({
   const [items, setItems] = useState<Item[]>([
     { key: crypto.randomUUID(), variantId: "", quantity: "" },
   ]);
+  const [idempotencyKey, setIdempotencyKey] = useState(crypto.randomUUID());
   const [notes, setNotes] = useState("");
 
   const allTypes: { value: TransferType; label: string; enabled: boolean }[] = [
@@ -87,9 +91,16 @@ export function TransferDialog({
   });
 
   const variantsQuery = useQuery({
-    queryKey: ["inventory-variant-options", organizationId],
-    queryFn: () => fetchVariants({ data: { organizationId: organizationId! } }),
+    queryKey: ["inventory-variant-options", organizationId, variantSearch],
+    queryFn: () =>
+      fetchVariants({ data: { organizationId: organizationId!, query: variantSearch } }),
     enabled: Boolean(organizationId && open),
+  });
+
+  const batches = useQuery({
+    queryKey: ["inventory-batches", organizationId],
+    queryFn: () => fetchBatches({ data: { organizationId: organizationId! } }),
+    enabled: Boolean(open && organizationId),
   });
 
   useEffect(() => {
@@ -99,6 +110,7 @@ export function TransferDialog({
     setDestinationLocationId("");
     setItems([{ key: crypto.randomUUID(), variantId: "", quantity: "" }]);
     setNotes("");
+    setIdempotencyKey(crypto.randomUUID());
   }, [open, defaultTransferType]);
 
   const mutation = useMutation({
@@ -106,8 +118,12 @@ export function TransferDialog({
       if (!organizationId) throw new Error("Nenhuma organização selecionada.");
       const validItems = items
         .filter((i) => i.variantId && Number(i.quantity) > 0)
-        .map((i) => ({ variantId: i.variantId, quantity: Number(i.quantity) }));
-      await postTransfer({
+        .map((i) => ({
+          variantId: i.variantId,
+          quantity: Number(i.quantity),
+          batchId: i.batchId || null,
+        }));
+      return await postTransfer({
         data: {
           organizationId,
           sourceLocationId,
@@ -115,10 +131,21 @@ export function TransferDialog({
           transferType,
           items: validItems,
           notes: notes || null,
+          idempotencyKey,
         },
       });
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
+      if (
+        result &&
+        typeof result === "object" &&
+        !Array.isArray(result) &&
+        typeof result.warning === "string"
+      )
+        toast.warning(result.warning);
+      void queryClient.invalidateQueries({
+        predicate: (q) => String(q.queryKey[0]).startsWith("inventory-"),
+      });
       toast.success("Operação registrada");
       void queryClient.invalidateQueries({ queryKey: ["inventory-positions"] });
       void queryClient.invalidateQueries({ queryKey: ["inventory-movements"] });
@@ -140,8 +167,8 @@ export function TransferDialog({
       return;
     }
     const validItems = items.filter((i) => i.variantId && Number(i.quantity) > 0);
-    if (!validItems.length) {
-      toast.error("Adicione ao menos um item com quantidade");
+    if (!validItems.length || validItems.length !== items.length) {
+      toast.error("Preencha todos os itens com variante e quantidade válida");
       return;
     }
     mutation.mutate();
@@ -158,6 +185,19 @@ export function TransferDialog({
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
+            aria-label="Buscar variantes"
+            placeholder="Buscar produto, SKU ou barcode"
+            value={variantSearch}
+            onChange={(e) => setVariantSearch(e.target.value)}
+          />
+          {variantsQuery.error || locationsQuery.error || batches.error ? (
+            <p role="alert">
+              {variantsQuery.error?.message ??
+                locationsQuery.error?.message ??
+                batches.error?.message}
+            </p>
+          ) : null}
           <div className="grid gap-4 sm:grid-cols-3">
             <div className="space-y-2">
               <Label>Operação *</Label>
@@ -234,7 +274,9 @@ export function TransferDialog({
                     value={item.variantId}
                     onValueChange={(v) =>
                       setItems((prev) =>
-                        prev.map((it) => (it.key === item.key ? { ...it, variantId: v } : it)),
+                        prev.map((it) =>
+                          it.key === item.key ? { ...it, variantId: v, batchId: undefined } : it,
+                        ),
                       )
                     }
                   >
@@ -251,6 +293,32 @@ export function TransferDialog({
                   </Select>
                 </div>
                 <div className="w-32">
+                  <Select
+                    value={item.batchId || "NONE"}
+                    onValueChange={(v) =>
+                      setItems((previous) =>
+                        previous.map((it) =>
+                          it.key === item.key
+                            ? { ...it, batchId: v === "NONE" ? undefined : v }
+                            : it,
+                        ),
+                      )
+                    }
+                  >
+                    <SelectTrigger aria-label="Lote">
+                      <SelectValue placeholder="Sem lote" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="NONE">Sem lote</SelectItem>
+                      {batches.data
+                        ?.filter((b) => b.variant_id === item.variantId)
+                        .map((b) => (
+                          <SelectItem key={b.id} value={b.id}>
+                            {b.batch_code}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
                   <Input
                     type="number"
                     min="0"

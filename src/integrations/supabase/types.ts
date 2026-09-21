@@ -461,6 +461,7 @@ export type Database = {
         Row: {
           batch_code: string;
           created_at: string;
+          updated_at: string;
           created_by: string | null;
           expires_at: string | null;
           id: string;
@@ -472,6 +473,7 @@ export type Database = {
         Insert: {
           batch_code: string;
           created_at?: string;
+          updated_at?: string;
           created_by?: string | null;
           expires_at?: string | null;
           id?: string;
@@ -483,6 +485,7 @@ export type Database = {
         Update: {
           batch_code?: string;
           created_at?: string;
+          updated_at?: string;
           created_by?: string | null;
           expires_at?: string | null;
           id?: string;
@@ -532,7 +535,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["inventory_count_item_status"];
           system_quantity?: number;
           updated_at?: string;
-          batch_id: string | null;
+          batch_id?: string | null;
           variant_id: string;
         };
         Update: {
@@ -969,11 +972,41 @@ export type Database = {
       };
     };
     Functions: {
-      inventory_start_count: { Args: { _organization_id: string; _location_id: string }; Returns: Json };
-      inventory_save_count_item: { Args: { _organization_id: string; _count_id: string; _item_id: string; _quantity: number | null }; Returns: Json };
-      inventory_cancel_count: { Args: { _organization_id: string; _count_id: string }; Returns: Json };
-      inventory_query_positions: { Args: { _organization_id: string; _filters?: Json; _page?: number; _page_size?: number }; Returns: Json };
-      inventory_dashboard: { Args: { _organization_id: string; _from: string; _to: string }; Returns: Json };
+      inventory_search_variants: {
+        Args: { _organization_id: string; _query?: string; _active_only?: boolean };
+        Returns: Json;
+      };
+      inventory_list_counts: { Args: { _organization_id: string; _page?: number }; Returns: Json };
+      inventory_actor_options: { Args: { _organization_id: string }; Returns: Json };
+      inventory_read_count: {
+        Args: { _organization_id: string; _count_id: string };
+        Returns: Json;
+      };
+      inventory_start_count: {
+        Args: { _organization_id: string; _location_id: string };
+        Returns: Json;
+      };
+      inventory_save_count_item: {
+        Args: {
+          _organization_id: string;
+          _count_id: string;
+          _item_id: string;
+          _quantity: number | null;
+        };
+        Returns: Json;
+      };
+      inventory_cancel_count: {
+        Args: { _organization_id: string; _count_id: string };
+        Returns: Json;
+      };
+      inventory_query_positions: {
+        Args: { _organization_id: string; _filters?: Json; _page?: number; _page_size?: number };
+        Returns: Json;
+      };
+      inventory_dashboard: {
+        Args: { _organization_id: string; _from: string; _to: string };
+        Returns: Json;
+      };
 
       has_org_role: {
         Args: {
@@ -1070,13 +1103,7 @@ export type Database = {
       inventory_count_status: "DRAFT" | "IN_PROGRESS" | "REVIEW" | "COMPLETED" | "CANCELED";
       inventory_location_status: "ACTIVE" | "INACTIVE";
       inventory_location_type:
-        | "FACTORY"
-        | "WAREHOUSE"
-        | "OWN_STORE"
-        | "MARKETPLACE"
-        | "PARTNER"
-        | "TRANSIT"
-        | "OTHER";
+        "FACTORY" | "WAREHOUSE" | "OWN_STORE" | "MARKETPLACE" | "PARTNER" | "TRANSIT" | "OTHER";
       inventory_movement_direction: "IN" | "OUT";
       inventory_movement_status: "PENDING" | "POSTED" | "REVERSED" | "CANCELED";
       inventory_movement_type:
@@ -1096,12 +1123,7 @@ export type Database = {
         | "MANUAL_CORRECTION"
         | "REVERSAL";
       inventory_transfer_status:
-        | "DRAFT"
-        | "PENDING"
-        | "APPROVED"
-        | "IN_TRANSIT"
-        | "COMPLETED"
-        | "CANCELED";
+        "DRAFT" | "PENDING" | "APPROVED" | "IN_TRANSIT" | "COMPLETED" | "CANCELED";
       product_status: "ACTIVE" | "INACTIVE" | "DISCONTINUED" | "DRAFT";
       product_variant_status: "ACTIVE" | "INACTIVE" | "DISCONTINUED" | "DRAFT";
     };
@@ -1267,7 +1289,14 @@ export const Constants = {
         "MANUAL_CORRECTION",
         "REVERSAL",
       ],
-      inventory_transfer_status: ["DRAFT", "PENDING", "APPROVED", "IN_TRANSIT", "COMPLETED", "CANCELED"],
+      inventory_transfer_status: [
+        "DRAFT",
+        "PENDING",
+        "APPROVED",
+        "IN_TRANSIT",
+        "COMPLETED",
+        "CANCELED",
+      ],
       product_status: ["ACTIVE", "INACTIVE", "DISCONTINUED", "DRAFT"],
       product_variant_status: ["ACTIVE", "INACTIVE", "DISCONTINUED", "DRAFT"],
     },

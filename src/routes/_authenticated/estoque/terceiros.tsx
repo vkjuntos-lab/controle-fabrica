@@ -38,17 +38,18 @@ function ThirdPartyPage() {
   const { currentOrganization, hasPermission, isLoading: orgLoading } = useOrganization();
   const organizationId = currentOrganization?.organization_id;
   const fetchPositions = useServerFn(listThirdPartyPositions);
+  const [page, setPage] = useState(1);
   const [shipmentOpen, setShipmentOpen] = useState(false);
 
   const positionsQuery = useQuery({
-    queryKey: ["inventory-third-party", organizationId],
-    queryFn: () => fetchPositions({ data: { organizationId: organizationId! } }),
+    queryKey: ["inventory-third-party", organizationId, page],
+    queryFn: () => fetchPositions({ data: { organizationId: organizationId!, page } }),
     enabled: Boolean(organizationId),
   });
 
   const data = positionsQuery.data;
   const canShip = hasPermission(PERMISSIONS.inventoryMove);
-  const totalUnits = (data?.rows ?? []).reduce((acc, r) => acc + r.on_hand, 0);
+  const totalUnits = data?.total_on_hand ?? 0;
 
   return (
     <AppShell title="Estoque · Em terceiros">
@@ -64,8 +65,8 @@ function ThirdPartyPage() {
             <div>
               <h2 className="font-heading text-lg font-semibold">Em poder de terceiros</h2>
               <p className="text-sm text-muted-foreground">
-                Saldos em localizações do tipo parceiro. Remessa não é venda — a propriedade
-                permanece com a empresa.
+                Saldos em localizações do tipo parceiro. Remessa não é venda — a propriedade pode
+                continuar com a organização.
               </p>
             </div>
             {canShip ? (
@@ -150,6 +151,27 @@ function ThirdPartyPage() {
                   </Table>
                 </div>
               )}
+              {data && data.total > 50 ? (
+                <div className="mt-4 flex justify-between">
+                  <Button
+                    variant="outline"
+                    disabled={page === 1}
+                    onClick={() => setPage((p) => p - 1)}
+                  >
+                    Anterior
+                  </Button>
+                  <span>
+                    Página {page} de {Math.ceil(data.total / 50)}
+                  </span>
+                  <Button
+                    variant="outline"
+                    disabled={page * 50 >= data.total}
+                    onClick={() => setPage((p) => p + 1)}
+                  >
+                    Próxima
+                  </Button>
+                </div>
+              ) : null}
             </CardContent>
           </Card>
 

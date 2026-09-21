@@ -85,7 +85,7 @@ export function canPostOut(
   allowNegative: boolean,
 ): PostOutResult {
   const balanceAfter = balance - outQuantity;
-  if (outQuantity <= 0)
+  if (!Number.isFinite(balance) || !Number.isFinite(outQuantity) || outQuantity <= 0)
     return { ok: false, reason: "Quantidade deve ser maior que zero.", balanceAfter };
   if (!allowNegative && balanceAfter < 0) {
     return {

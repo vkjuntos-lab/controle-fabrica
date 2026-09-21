@@ -99,6 +99,30 @@ async function requireOrgPermission(
   if (!allowed) throw new Error("Sem permissão para esta operação.");
 }
 
+/** Rejeições de membros ficam em transação separada da operação que falhou. */
+async function auditRejectedOperation(
+  supabase: SupabaseClient<Database>,
+  organizationId: string,
+  userId: string,
+  operation: string,
+  reason: string,
+) {
+  const { data: member } = await supabase.rpc("is_org_member", {
+    _organization_id: organizationId,
+    _user_id: userId,
+  });
+  if (!member) return; // Não gravar contexto em organização alheia.
+  const { error } = await supabase.from("audit_log").insert({
+    organization_id: organizationId,
+    user_id: userId,
+    action: "inventory.rejected",
+    resource: "inventory_movements",
+    result: "rejected",
+    context: { operation, reason },
+  });
+  if (error) throw new Error(`${reason} (Não foi possível registrar a rejeição na auditoria.)`);
+}
+
 /* ============================================================
  * Leitura — localizações
  * ============================================================ */
@@ -144,16 +168,18 @@ export const listInventoryLocations = createServerFn({ method: "GET" })
     const { data: rows, error } = await builder;
     if (error) throw new Error(error.message);
 
-    const { data: balances, error: balanceError } = await context.supabase
-      .from("inventory_balances")
-      .select("location_id, on_hand")
-      .eq("organization_id", data.organizationId);
+    const { data: summary, error: balanceError } = await context.supabase.rpc(
+      "inventory_dashboard",
+      {
+        _organization_id: data.organizationId,
+        _from: new Date().toISOString(),
+        _to: new Date().toISOString(),
+      },
+    );
     if (balanceError) throw new Error(balanceError.message);
-
-    const totals = new Map<string, number>();
-    for (const b of balances ?? []) {
-      totals.set(b.location_id, (totals.get(b.location_id) ?? 0) + num(b.on_hand));
-    }
+    const totals = new Map(
+      (summary as unknown as InventoryDashboard).locations.map((l) => [l.id, l.on_hand]),
+    );
 
     return (rows ?? []).map((row): InventoryLocationRow => ({
       id: row.id,
@@ -200,15 +226,6 @@ export const createInventoryLocation = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    await context.supabase.from("audit_log").insert({
-      organization_id: data.organizationId,
-      user_id: context.userId,
-      action: "inventory.location.create",
-      resource: "inventory_locations",
-      resource_id: created.id,
-      context: { code: created.code, type: created.type },
-    });
-
     return created;
   });
 
@@ -245,15 +262,6 @@ export const updateInventoryLocation = createServerFn({ method: "POST" })
       .eq("organization_id", data.organizationId);
     if (error) throw new Error(error.message);
 
-    await context.supabase.from("audit_log").insert({
-      organization_id: data.organizationId,
-      user_id: context.userId,
-      action: "inventory.location.update",
-      resource: "inventory_locations",
-      resource_id: data.locationId,
-      context: { type: data.type, status: data.status },
-    });
-
     return { ok: true };
   });
 
@@ -285,6 +293,8 @@ export type InventoryPositionResult = {
   page: number;
   pageSize: number;
   total_on_hand: number;
+  groups: { id: string; name: string; on_hand: number }[];
+  group_total: number;
 };
 
 /**
@@ -300,6 +310,10 @@ export const listInventoryPositions = createServerFn({ method: "GET" })
         query: z.string().trim().max(120).optional(),
         locationId: z.string().uuid().optional(),
         locationType: locationTypeSchema.optional(),
+        productId: z.string().uuid().optional(),
+        categoryId: z.string().uuid().optional(),
+        status: z.enum(["ACTIVE", "INACTIVE", "DRAFT", "DISCONTINUED"]).optional(),
+        groupBy: z.enum(["product", "location"]).optional(),
         onlyBelowMinimum: z.boolean().default(false),
         page: z.number().int().min(1).default(1),
         pageSize: z.number().int().min(1).max(200).default(50),
@@ -314,136 +328,24 @@ export const listInventoryPositions = createServerFn({ method: "GET" })
       context.userId,
     );
 
-    const [balancesRes, locationsRes, variantsRes] = await Promise.all([
-      context.supabase
-        .from("inventory_balances")
-        .select("variant_id, location_id, on_hand, last_movement_at")
-        .eq("organization_id", data.organizationId),
-      context.supabase
-        .from("inventory_locations")
-        .select("id, code, name, type, status")
-        .eq("organization_id", data.organizationId),
-      context.supabase
-        .from("product_variants")
-        .select("id, sku, size, color, minimum_stock, reorder_point, products(name, code)")
-        .eq("organization_id", data.organizationId),
-    ]);
-    if (balancesRes.error) throw new Error(balancesRes.error.message);
-    if (locationsRes.error) throw new Error(locationsRes.error.message);
-    if (variantsRes.error) throw new Error(variantsRes.error.message);
-
-    const locations = new Map((locationsRes.data ?? []).map((l) => [l.id, l]));
-    const variants = new Map(
-      (variantsRes.data ?? []).map((v) => {
-        const product = first(v.products as Relation<{ name: string; code: string }>);
-        return [
-          v.id,
-          {
-            sku: v.sku,
-            size: v.size,
-            color: v.color,
-            minimum_stock: num(v.minimum_stock),
-            reorder_point: num(v.reorder_point),
-            product_name: product?.name ?? "—",
-            product_code: product?.code ?? "",
-          },
-        ];
-      }),
-    );
-
-    // Agrega por variante + localização (ignora a granularidade de lote).
-    const grouped = new Map<
-      string,
-      { variant_id: string; location_id: string; on_hand: number; last_movement_at: string | null }
-    >();
-    for (const b of balancesRes.data ?? []) {
-      const key = `${b.variant_id}:${b.location_id}`;
-      const current = grouped.get(key);
-      const onHand = num(b.on_hand);
-      if (current) {
-        current.on_hand += onHand;
-        if (
-          b.last_movement_at &&
-          (!current.last_movement_at || b.last_movement_at > current.last_movement_at)
-        ) {
-          current.last_movement_at = b.last_movement_at;
-        }
-      } else {
-        grouped.set(key, {
-          variant_id: b.variant_id,
-          location_id: b.location_id,
-          on_hand: onHand,
-          last_movement_at: b.last_movement_at,
-        });
-      }
-    }
-
-    const query = data.query?.toLowerCase();
-    let rows: InventoryPositionRow[] = [];
-    for (const entry of grouped.values()) {
-      const location = locations.get(entry.location_id);
-      const variant = variants.get(entry.variant_id);
-      if (!location || !variant) continue;
-      if (data.locationId && entry.location_id !== data.locationId) continue;
-      if (data.locationType && location.type !== data.locationType) continue;
-
-      const belowMinimum = entry.on_hand < variant.minimum_stock;
-      if (data.onlyBelowMinimum && !belowMinimum) continue;
-
-      if (query) {
-        const haystack = [
-          variant.sku,
-          variant.product_name,
-          variant.product_code,
-          variant.size ?? "",
-          variant.color ?? "",
-          location.name,
-          location.code,
-        ]
-          .join(" ")
-          .toLowerCase();
-        if (!haystack.includes(query)) continue;
-      }
-
-      rows.push({
-        variant_id: entry.variant_id,
-        location_id: entry.location_id,
-        on_hand: entry.on_hand,
-        last_movement_at: entry.last_movement_at,
-        sku: variant.sku,
-        product_name: variant.product_name,
-        product_code: variant.product_code,
-        size: variant.size,
-        color: variant.color,
-        location_name: location.name,
-        location_code: location.code,
-        location_type: location.type,
-        minimum_stock: variant.minimum_stock,
-        reorder_point: variant.reorder_point,
-        below_minimum: belowMinimum,
-      });
-    }
-
-    rows.sort((a, b) => a.product_name.localeCompare(b.product_name) || a.sku.localeCompare(b.sku));
-    const totalOnHand = rows.reduce((acc, r) => acc + r.on_hand, 0);
-
-    const total = rows.length;
-    const from = (data.page - 1) * data.pageSize;
-    rows = rows.slice(from, from + data.pageSize);
-
-    return {
-      rows,
-      total,
-      page: data.page,
-      pageSize: data.pageSize,
-      total_on_hand: totalOnHand,
-    } satisfies InventoryPositionResult;
+    const { data: result, error } = await context.supabase.rpc("inventory_query_positions", {
+      _organization_id: data.organizationId,
+      _filters: data,
+      _page: data.page,
+      _page_size: data.pageSize,
+    });
+    if (error) throw new Error(error.message);
+    return result as unknown as InventoryPositionResult;
   });
 
 /** Posição em poder de terceiros (localizações do tipo PARTNER). */
 export const listThirdPartyPositions = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ organizationId: z.string().uuid() }).parse(input))
+  .inputValidator((input) =>
+    z
+      .object({ organizationId: z.string().uuid(), page: z.number().int().min(1).default(1) })
+      .parse(input),
+  )
   .handler(async ({ data, context }) => {
     await requireOrgPermission(
       context.supabase,
@@ -452,89 +354,14 @@ export const listThirdPartyPositions = createServerFn({ method: "GET" })
       context.userId,
     );
 
-    const { data: partners, error: partnerError } = await context.supabase
-      .from("inventory_locations")
-      .select("id, code, name, type, status")
-      .eq("organization_id", data.organizationId)
-      .eq("type", "PARTNER");
-    if (partnerError) throw new Error(partnerError.message);
-
-    const partnerIds = (partners ?? []).map((p) => p.id);
-    if (!partnerIds.length) return { partners: [], rows: [] as InventoryPositionRow[] };
-
-    const { data: balances, error: balanceError } = await context.supabase
-      .from("inventory_balances")
-      .select("variant_id, location_id, on_hand, last_movement_at")
-      .eq("organization_id", data.organizationId)
-      .in("location_id", partnerIds);
-    if (balanceError) throw new Error(balanceError.message);
-
-    const variantIds = [...new Set((balances ?? []).map((b) => b.variant_id))];
-    const { data: variantRows, error: variantError } = variantIds.length
-      ? await context.supabase
-          .from("product_variants")
-          .select("id, sku, size, color, minimum_stock, reorder_point, products(name, code)")
-          .eq("organization_id", data.organizationId)
-          .in("id", variantIds)
-      : { data: [], error: null };
-    if (variantError) throw new Error(variantError.message);
-
-    const variants = new Map(
-      (variantRows ?? []).map((v) => {
-        const product = first(v.products as Relation<{ name: string; code: string }>);
-        return [
-          v.id,
-          {
-            sku: v.sku,
-            size: v.size,
-            color: v.color,
-            minimum_stock: num(v.minimum_stock),
-            reorder_point: num(v.reorder_point),
-            product_name: product?.name ?? "—",
-            product_code: product?.code ?? "",
-          },
-        ];
-      }),
-    );
-    const locations = new Map((partners ?? []).map((p) => [p.id, p]));
-
-    const rows: InventoryPositionRow[] = [];
-    for (const b of balances ?? []) {
-      const variant = variants.get(b.variant_id);
-      const location = locations.get(b.location_id);
-      if (!variant || !location) continue;
-      const onHand = num(b.on_hand);
-      rows.push({
-        variant_id: b.variant_id,
-        location_id: b.location_id,
-        on_hand: onHand,
-        last_movement_at: b.last_movement_at,
-        sku: variant.sku,
-        product_name: variant.product_name,
-        product_code: variant.product_code,
-        size: variant.size,
-        color: variant.color,
-        location_name: location.name,
-        location_code: location.code,
-        location_type: "PARTNER",
-        minimum_stock: variant.minimum_stock,
-        reorder_point: variant.reorder_point,
-        below_minimum: onHand < variant.minimum_stock,
-      });
-    }
-    rows.sort(
-      (a, b) => a.location_name.localeCompare(b.location_name) || a.sku.localeCompare(b.sku),
-    );
-
-    return {
-      partners: (partners ?? []).map((p) => ({
-        id: p.id,
-        code: p.code,
-        name: p.name,
-        status: p.status,
-      })),
-      rows,
-    };
+    const { data: result, error } = await context.supabase.rpc("inventory_query_positions", {
+      _organization_id: data.organizationId,
+      _filters: { locationType: "PARTNER" },
+      _page: data.page,
+      _page_size: 50,
+    });
+    if (error) throw new Error(error.message);
+    return result as unknown as InventoryPositionResult;
   });
 
 /* ============================================================
@@ -555,7 +382,6 @@ export type PostMovementInput = {
   referenceId?: string | null;
   batchId?: string | null;
   idempotencyKey?: string | null;
-  allowNegativeOverride?: boolean;
 };
 
 /** Registra um movimento no ledger via RPC (validação de saldo no banco). */
@@ -577,7 +403,6 @@ export const postInventoryMovement = createServerFn({ method: "POST" })
         referenceId: z.string().uuid().nullable().optional(),
         batchId: z.string().uuid().nullable().optional(),
         idempotencyKey: z.string().trim().max(160).nullable().optional(),
-        allowNegativeOverride: z.boolean().optional(),
       })
       .parse(input),
   )
@@ -596,9 +421,17 @@ export const postInventoryMovement = createServerFn({ method: "POST" })
       _batch_id: data.batchId ?? undefined,
       _idempotency_key: data.idempotencyKey ?? undefined,
       _direction: data.direction ?? undefined,
-      _allow_negative_override: data.allowNegativeOverride ?? undefined,
     });
-    if (error) throw new Error(error.message);
+    if (error) {
+      await auditRejectedOperation(
+        context.supabase,
+        data.organizationId,
+        context.userId,
+        "postInventoryMovement",
+        error.message,
+      );
+      throw new Error(error.message);
+    }
     return result as Json;
   });
 
@@ -607,7 +440,7 @@ export type PostTransferInput = {
   sourceLocationId: string;
   destinationLocationId: string;
   transferType: "TRANSFER" | "PARTNER_SHIPMENT" | "PARTNER_RETURN";
-  items: { variantId: string; quantity: number }[];
+  items: { variantId: string; quantity: number; batchId?: string | null }[];
   notes?: string | null;
   idempotencyKey?: string | null;
 };
@@ -626,6 +459,7 @@ export const postInventoryTransfer = createServerFn({ method: "POST" })
           .array(
             z.object({
               variantId: z.string().uuid(),
+              batchId: z.string().uuid().nullable().optional(),
               quantity: quantitySchema,
             }),
           )
@@ -638,6 +472,7 @@ export const postInventoryTransfer = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const items = data.items.map((item) => ({
       variant_id: item.variantId,
+      batch_id: item.batchId ?? null,
       quantity: item.quantity,
     }));
     const { data: result, error } = await context.supabase.rpc("inventory_post_transfer", {
@@ -649,7 +484,16 @@ export const postInventoryTransfer = createServerFn({ method: "POST" })
       _notes: data.notes ?? undefined,
       _idempotency_key: data.idempotencyKey ?? undefined,
     });
-    if (error) throw new Error(error.message);
+    if (error) {
+      await auditRejectedOperation(
+        context.supabase,
+        data.organizationId,
+        context.userId,
+        "postInventoryTransfer",
+        error.message,
+      );
+      throw new Error(error.message);
+    }
     return result as Json;
   });
 
@@ -670,7 +514,16 @@ export const reverseInventoryMovement = createServerFn({ method: "POST" })
       _movement_id: data.movementId,
       _reason: data.reason,
     });
-    if (error) throw new Error(error.message);
+    if (error) {
+      await auditRejectedOperation(
+        context.supabase,
+        data.organizationId,
+        context.userId,
+        "reverseInventoryMovement",
+        error.message,
+      );
+      throw new Error(error.message);
+    }
     return result as Json;
   });
 
@@ -747,6 +600,7 @@ export const listInventoryMovements = createServerFn({ method: "GET" })
         status: movementStatusSchema.optional(),
         locationId: z.string().uuid().optional(),
         variantId: z.string().uuid().optional(),
+        userId: z.string().uuid().optional(),
         dateFrom: z.string().datetime().optional(),
         dateTo: z.string().datetime().optional(),
         page: z.number().int().min(1).default(1),
@@ -773,12 +627,14 @@ export const listInventoryMovements = createServerFn({ method: "GET" })
       )
       .eq("organization_id", data.organizationId)
       .order("occurred_at", { ascending: false })
+      .order("id", { ascending: false })
       .range(from, to);
 
     if (data.movementType) builder = builder.eq("movement_type", data.movementType);
     if (data.direction) builder = builder.eq("direction", data.direction);
     if (data.status) builder = builder.eq("status", data.status);
     if (data.locationId) builder = builder.eq("location_id", data.locationId);
+    if (data.userId) builder = builder.eq("created_by", data.userId);
     if (data.variantId) builder = builder.eq("variant_id", data.variantId);
     if (data.dateFrom) builder = builder.gte("occurred_at", data.dateFrom);
     if (data.dateTo) builder = builder.lte("occurred_at", data.dateTo);
@@ -887,11 +743,12 @@ export const getInventoryMovement = createServerFn({ method: "GET" })
     );
 
     let reversedBy: { id: string; occurred_at: string } | null = null;
-    if (row.reversed_by_id) {
+    {
       const { data: reversal } = await context.supabase
         .from("inventory_movements")
         .select("id, occurred_at")
-        .eq("id", row.reversed_by_id)
+        .eq("reversal_of_id", row.id)
+        .eq("organization_id", data.organizationId)
         .maybeSingle();
       reversedBy = reversal ?? null;
     }
@@ -919,6 +776,7 @@ export const getInventoryMovement = createServerFn({ method: "GET" })
       location_type: location?.type ?? "OTHER",
       batch_code: batch?.batch_code ?? null,
       batch_expires_at: batch?.expires_at ?? null,
+      reversed_by_id: reversedBy?.id ?? null,
       reversed_by: reversedBy,
       reversal_of: reversalOf,
     };
@@ -1076,43 +934,19 @@ export const listVariantOptions = createServerFn({ method: "GET" })
     z
       .object({
         organizationId: z.string().uuid(),
+        activeOnly: z.boolean().default(true),
         query: z.string().trim().max(120).optional(),
       })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    await requireOrgPermission(
-      context.supabase,
-      data.organizationId,
-      PERMISSIONS.inventoryRead,
-      context.userId,
-    );
-
-    let builder = context.supabase
-      .from("product_variants")
-      .select("id, sku, size, color, status, products(name)")
-      .eq("organization_id", data.organizationId)
-      .eq("status", "ACTIVE")
-      .order("sku", { ascending: true })
-      .limit(500);
-
-    if (data.query) builder = builder.ilike("sku", `%${data.query}%`);
-
-    const { data: rows, error } = await builder;
-    if (error) throw new Error(error.message);
-
-    return (rows ?? []).map((row): VariantOption => {
-      const product = first(row.products as Relation<{ name: string }>);
-      const attrs = [row.size, row.color].filter(Boolean).join(" · ");
-      return {
-        id: row.id,
-        sku: row.sku,
-        label: `${row.sku} — ${product?.name ?? "—"}${attrs ? ` (${attrs})` : ""}`,
-        size: row.size,
-        color: row.color,
-        product_name: product?.name ?? "—",
-      };
+    const { data: result, error } = await context.supabase.rpc("inventory_search_variants", {
+      _organization_id: data.organizationId,
+      _query: data.query,
+      _active_only: data.activeOnly,
     });
+    if (error) throw new Error(error.message);
+    return result as unknown as VariantOption[];
   });
 
 export type BatchRow = {
@@ -1284,14 +1118,6 @@ export const updateInventorySettings = createServerFn({ method: "POST" })
     );
     if (error) throw new Error(error.message);
 
-    await context.supabase.from("audit_log").insert({
-      organization_id: data.organizationId,
-      user_id: context.userId,
-      action: "inventory.settings.update",
-      resource: "organization_inventory_settings",
-      context: { allow_negative_inventory: data.allowNegativeInventory },
-    });
-
     return { ok: true };
   });
 
@@ -1309,54 +1135,24 @@ export type InventoryCountRow = {
   completed_at: string | null;
   items_count: number;
   counted_count: number;
+  differences: number;
+  responsible: string;
 };
 
 export const listInventoryCounts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
     z
-      .object({
-        organizationId: z.string().uuid(),
-        status: countStatusSchema.optional(),
-      })
+      .object({ organizationId: z.string().uuid(), page: z.number().int().min(1).default(1) })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    await requireOrgPermission(
-      context.supabase,
-      data.organizationId,
-      PERMISSIONS.inventoryRead,
-      context.userId,
-    );
-
-    let builder = context.supabase
-      .from("inventory_counts")
-      .select(
-        "id, status, location_id, created_at, started_at, completed_at, inventory_locations(name), inventory_count_items(id, counted_quantity)",
-      )
-      .eq("organization_id", data.organizationId)
-      .order("created_at", { ascending: false })
-      .limit(200);
-    if (data.status) builder = builder.eq("status", data.status);
-
-    const { data: rows, error } = await builder;
-    if (error) throw new Error(error.message);
-
-    return (rows ?? []).map((row): InventoryCountRow => {
-      const location = first(row.inventory_locations as Relation<{ name: string }>);
-      const items = row.inventory_count_items ?? [];
-      return {
-        id: row.id,
-        status: row.status,
-        location_id: row.location_id,
-        location_name: location?.name ?? "—",
-        created_at: row.created_at,
-        started_at: row.started_at,
-        completed_at: row.completed_at,
-        items_count: items.length,
-        counted_count: items.filter((i) => i.counted_quantity != null).length,
-      };
+    const { data: result, error } = await context.supabase.rpc("inventory_list_counts", {
+      _organization_id: data.organizationId,
+      _page: data.page,
     });
+    if (error) throw new Error(error.message);
+    return result as unknown as { rows: InventoryCountRow[]; total: number };
   });
 
 export type InventoryCountItemRow = {
@@ -1366,6 +1162,9 @@ export type InventoryCountItemRow = {
   product_name: string;
   size: string | null;
   color: string | null;
+  barcode: string | null;
+  batch_id: string | null;
+  batch_code: string | null;
   system_quantity: number;
   counted_quantity: number | null;
   difference: number | null;
@@ -1378,69 +1177,21 @@ export const getInventoryCount = createServerFn({ method: "GET" })
     z.object({ organizationId: z.string().uuid(), countId: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    await requireOrgPermission(
-      context.supabase,
-      data.organizationId,
-      PERMISSIONS.inventoryRead,
-      context.userId,
-    );
-
-    const { data: count, error } = await context.supabase
-      .from("inventory_counts")
-      .select("*, inventory_locations(name, code, type)")
-      .eq("id", data.countId)
-      .eq("organization_id", data.organizationId)
-      .maybeSingle();
-    if (error) throw new Error(error.message);
-    if (!count) throw new Error("Contagem não encontrada.");
-
-    const { data: items, error: itemError } = await context.supabase
-      .from("inventory_count_items")
-      .select(
-        "id, variant_id, system_quantity, counted_quantity, difference, status, product_variants(sku, size, color, products(name))",
-      )
-      .eq("inventory_count_id", data.countId)
-      .order("created_at", { ascending: true });
-    if (itemError) throw new Error(itemError.message);
-
-    const location = first(
-      count.inventory_locations as Relation<{ name: string; code: string; type: LocationType }>,
-    );
-
-    const rows: InventoryCountItemRow[] = (items ?? []).map((item) => {
-      const variant = first(
-        item.product_variants as Relation<{
-          sku: string;
-          size: string | null;
-          color: string | null;
-          products: Relation<{ name: string }>;
-        }>,
-      );
-      const product = variant ? first(variant.products) : null;
-      return {
-        id: item.id,
-        variant_id: item.variant_id,
-        sku: variant?.sku ?? "—",
-        product_name: product?.name ?? "—",
-        size: variant?.size ?? null,
-        color: variant?.color ?? null,
-        system_quantity: num(item.system_quantity),
-        counted_quantity: item.counted_quantity == null ? null : num(item.counted_quantity),
-        difference: item.difference == null ? null : num(item.difference),
-        status: item.status,
-      };
+    const { data: result, error } = await context.supabase.rpc("inventory_read_count", {
+      _organization_id: data.organizationId,
+      _count_id: data.countId,
     });
-
-    return {
-      id: count.id,
-      status: count.status,
-      location_id: count.location_id,
-      location_name: location?.name ?? "—",
-      location_code: location?.code ?? "",
-      created_at: count.created_at,
-      started_at: count.started_at,
-      completed_at: count.completed_at,
-      items: rows,
+    if (error) throw new Error(error.message);
+    return result as unknown as {
+      id: string;
+      status: CountStatus;
+      location_id: string;
+      location_name: string;
+      location_code: string;
+      created_at: string;
+      started_at: string | null;
+      completed_at: string | null;
+      items: InventoryCountItemRow[];
     };
   });
 
@@ -1455,76 +1206,12 @@ export const createInventoryCount = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    await requireOrgPermission(
-      context.supabase,
-      data.organizationId,
-      PERMISSIONS.inventoryCount,
-      context.userId,
-    );
-
-    const { data: count, error } = await context.supabase
-      .from("inventory_counts")
-      .insert({
-        organization_id: data.organizationId,
-        location_id: data.locationId,
-        status: "IN_PROGRESS",
-        started_at: new Date().toISOString(),
-        created_by: context.userId,
-      })
-      .select("id")
-      .single();
-    if (error) throw new Error(error.message);
-
-    const [variantsRes, balancesRes] = await Promise.all([
-      context.supabase
-        .from("product_variants")
-        .select("id")
-        .eq("organization_id", data.organizationId)
-        .eq("status", "ACTIVE")
-        .limit(2000),
-      context.supabase
-        .from("inventory_balances")
-        .select("variant_id, on_hand")
-        .eq("organization_id", data.organizationId)
-        .eq("location_id", data.locationId),
-    ]);
-    if (variantsRes.error) throw new Error(variantsRes.error.message);
-    if (balancesRes.error) throw new Error(balancesRes.error.message);
-
-    const balanceByVariant = new Map<string, number>();
-    for (const b of balancesRes.data ?? []) {
-      balanceByVariant.set(
-        b.variant_id,
-        (balanceByVariant.get(b.variant_id) ?? 0) + num(b.on_hand),
-      );
-    }
-
-    const items = (variantsRes.data ?? []).map((v) => ({
-      organization_id: data.organizationId,
-      inventory_count_id: count.id,
-      variant_id: v.id,
-      batch_id: null,
-      system_quantity: balanceByVariant.get(v.id) ?? 0,
-      status: "PENDING" as const,
-    }));
-
-    if (items.length) {
-      const { error: itemError } = await context.supabase
-        .from("inventory_count_items")
-        .insert(items);
-      if (itemError) throw new Error(itemError.message);
-    }
-
-    await context.supabase.from("audit_log").insert({
-      organization_id: data.organizationId,
-      user_id: context.userId,
-      action: "inventory.count.create",
-      resource: "inventory_counts",
-      resource_id: count.id,
-      context: { location_id: data.locationId, items: items.length },
+    const { data: result, error } = await context.supabase.rpc("inventory_start_count", {
+      _organization_id: data.organizationId,
+      _location_id: data.locationId,
     });
-
-    return { id: count.id, items: items.length };
+    if (error) throw new Error(error.message);
+    return result as unknown as { id: string; items: number };
   });
 
 export const updateInventoryCountItem = createServerFn({ method: "POST" })
@@ -1540,48 +1227,14 @@ export const updateInventoryCountItem = createServerFn({ method: "POST" })
       .parse(input),
   )
   .handler(async ({ data, context }) => {
-    await requireOrgPermission(
-      context.supabase,
-      data.organizationId,
-      PERMISSIONS.inventoryCount,
-      context.userId,
-    );
-
-    const { data: item, error } = await context.supabase
-      .from("inventory_count_items")
-      .select("id, system_quantity")
-      .eq("id", data.itemId)
-      .eq("inventory_count_id", data.countId)
-      .eq("organization_id", data.organizationId)
-      .maybeSingle();
+    const { data: result, error } = await context.supabase.rpc("inventory_save_count_item", {
+      _organization_id: data.organizationId,
+      _count_id: data.countId,
+      _item_id: data.itemId,
+      _quantity: data.countedQuantity,
+    });
     if (error) throw new Error(error.message);
-    if (!item) throw new Error("Item de contagem não encontrado.");
-
-    const systemQuantity = num(item.system_quantity);
-    const patch =
-      data.countedQuantity == null
-        ? {
-            counted_quantity: null,
-            difference: null,
-            status: "PENDING" as const,
-            updated_at: new Date().toISOString(),
-          }
-        : {
-            counted_quantity: data.countedQuantity,
-            difference: data.countedQuantity - systemQuantity,
-            status: "COUNTED" as const,
-            updated_at: new Date().toISOString(),
-          };
-
-    const { error: updateError } = await context.supabase
-      .from("inventory_count_items")
-      .update(patch)
-      .eq("id", data.itemId)
-      .eq("inventory_count_id", data.countId)
-      .eq("organization_id", data.organizationId);
-    if (updateError) throw new Error(updateError.message);
-
-    return { ok: true, difference: patch.difference ?? null };
+    return result as unknown as { ok: boolean; difference: number | null };
   });
 
 export const completeInventoryCount = createServerFn({ method: "POST" })
@@ -1601,7 +1254,16 @@ export const completeInventoryCount = createServerFn({ method: "POST" })
       _organization_id: data.organizationId,
       _count_id: data.countId,
     });
-    if (error) throw new Error(error.message);
+    if (error) {
+      await auditRejectedOperation(
+        context.supabase,
+        data.organizationId,
+        context.userId,
+        "completeInventoryCount",
+        error.message,
+      );
+      throw new Error(error.message);
+    }
     return result as Json;
   });
 
@@ -1611,28 +1273,51 @@ export const cancelInventoryCount = createServerFn({ method: "POST" })
     z.object({ organizationId: z.string().uuid(), countId: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    await requireOrgPermission(
-      context.supabase,
-      data.organizationId,
-      PERMISSIONS.inventoryCount,
-      context.userId,
-    );
-
-    const { error } = await context.supabase
-      .from("inventory_counts")
-      .update({ status: "CANCELED" })
-      .eq("id", data.countId)
-      .eq("organization_id", data.organizationId)
-      .in("status", ["DRAFT", "IN_PROGRESS", "REVIEW"]);
-    if (error) throw new Error(error.message);
-
-    await context.supabase.from("audit_log").insert({
-      organization_id: data.organizationId,
-      user_id: context.userId,
-      action: "inventory.count.cancel",
-      resource: "inventory_counts",
-      resource_id: data.countId,
+    const { data: result, error } = await context.supabase.rpc("inventory_cancel_count", {
+      _organization_id: data.organizationId,
+      _count_id: data.countId,
     });
+    if (error) throw new Error(error.message);
+    return result as unknown as { ok: boolean };
+  });
 
-    return { ok: true };
+export type InventoryDashboard = {
+  skus_with_balance: number;
+  zero_skus: number;
+  in_quantity: number;
+  out_quantity: number;
+  adjustments: number;
+  open_differences: number;
+  locations: { id: string; name: string; on_hand: number }[];
+};
+export const getInventoryDashboard = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        organizationId: z.string().uuid(),
+        from: z.string().datetime(),
+        to: z.string().datetime(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: result, error } = await context.supabase.rpc("inventory_dashboard", {
+      _organization_id: data.organizationId,
+      _from: data.from,
+      _to: data.to,
+    });
+    if (error) throw new Error(error.message);
+    return result as unknown as InventoryDashboard;
+  });
+
+export const listInventoryActors = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) => z.object({ organizationId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { data: result, error } = await context.supabase.rpc("inventory_actor_options", {
+      _organization_id: data.organizationId,
+    });
+    if (error) throw new Error(error.message);
+    return result as unknown as { id: string; name: string }[];
   });

@@ -26,6 +26,16 @@ function movement(
 }
 
 describe("inventory ledger (regras da fonte oficial do estoque)", () => {
+  it("somente POSTED compõe saldo", () => {
+    const movements = (["POSTED", "PENDING", "REVERSED", "CANCELED"] as const).map((status) =>
+      movement({ direction: "IN", quantity: 10, status }),
+    );
+    expect(calculateBalance(movements)).toBe(10);
+  });
+  it("quantidades não finitas e não positivas são rejeitadas", () => {
+    for (const quantity of [NaN, Infinity, -Infinity, 0, -1])
+      expect(canPostOut(10, quantity, true).ok).toBe(false);
+  });
   it("entrada +100 = saldo 100", () => {
     const movements = [movement({ direction: "IN", quantity: 100 })];
     expect(calculateBalance(movements)).toBe(100);
@@ -110,7 +120,7 @@ describe("inventory ledger (regras da fonte oficial do estoque)", () => {
     expect(canPostOut(balance, 12, true).ok).toBe(true);
   });
 
-  it("concorrência: duas saídas simultâneas validam o saldo a cada postagem", () => {
+  it("validação sequencial de duas saídas (concorrência real testada no PostgreSQL)", () => {
     // Saldo = 10. Usuário A tira 8; usuário B tira 7 ao mesmo tempo.
     // O padrão proibido validaria os dois contra o saldo antigo e terminaria
     // em saldo negativo. O padrão do ledger revalida após cada POST e bloqueia

@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeftRight, Download, Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { MovementDialog } from "@/components/inventory/movement-dialog";
 import { AppShell } from "@/components/layout/app-shell";
@@ -38,6 +38,8 @@ import {
   type MovementType,
 } from "@/lib/inventory/constants";
 import {
+  listInventoryActors,
+  listVariantOptions,
   listInventoryLocations,
   listInventoryMovements,
 } from "@/lib/inventory/inventory.functions";
@@ -64,6 +66,27 @@ function MovementsPage() {
   const fetchMovements = useServerFn(listInventoryMovements);
   const fetchLocations = useServerFn(listInventoryLocations);
 
+  const fetchActors = useServerFn(listInventoryActors);
+  const fetchVariants = useServerFn(listVariantOptions);
+  const [variantSearch, setVariantSearch] = useState("");
+  const [variantId, setVariantId] = useState("ALL");
+  const [userId, setUserId] = useState("ALL");
+  const [status, setStatus] = useState<"ALL" | "POSTED" | "PENDING" | "REVERSED" | "CANCELED">(
+    "ALL",
+  );
+  const actors = useQuery({
+    queryKey: ["inventory-actors", organizationId],
+    queryFn: () => fetchActors({ data: { organizationId: organizationId! } }),
+    enabled: Boolean(organizationId && hasPermission(PERMISSIONS.inventoryMovementsRead)),
+  });
+  const variants = useQuery({
+    queryKey: ["inventory-filter-variants", organizationId, variantSearch],
+    queryFn: () =>
+      fetchVariants({
+        data: { organizationId: organizationId!, query: variantSearch, activeOnly: false },
+      }),
+    enabled: Boolean(organizationId && hasPermission(PERMISSIONS.inventoryMovementsRead)),
+  });
   const [movementType, setMovementType] = useState<MovementType | "ALL">("ALL");
   const [direction, setDirection] = useState<MovementDirection | "ALL">("ALL");
   const [locationId, setLocationId] = useState("ALL");
@@ -72,11 +95,15 @@ function MovementsPage() {
   const [page, setPage] = useState(1);
   const [dialogOpen, setDialogOpen] = useState(false);
 
+  useEffect(() => setPage(1), [organizationId, variantId, userId, status]);
   const movementsQuery = useQuery({
     queryKey: [
       "inventory-movements",
       organizationId,
       movementType,
+      variantId,
+      userId,
+      status,
       direction,
       locationId,
       dateFrom,
@@ -87,11 +114,14 @@ function MovementsPage() {
       fetchMovements({
         data: {
           organizationId: organizationId!,
+          variantId: variantId === "ALL" ? undefined : variantId,
+          userId: userId === "ALL" ? undefined : userId,
+          status: status === "ALL" ? undefined : status,
           movementType: movementType === "ALL" ? undefined : movementType,
           direction: direction === "ALL" ? undefined : direction,
           locationId: locationId === "ALL" ? undefined : locationId,
           dateFrom: dateFrom ? new Date(`${dateFrom}T00:00:00`).toISOString() : undefined,
-          dateTo: dateTo ? new Date(`${dateTo}T23:59:59`).toISOString() : undefined,
+          dateTo: dateTo ? new Date(`${dateTo}T23:59:59.999`).toISOString() : undefined,
           page,
           pageSize: PAGE_SIZE,
         },
@@ -164,7 +194,7 @@ function MovementsPage() {
                 disabled={!data?.rows.length}
               >
                 <Download className="mr-2 h-4 w-4" />
-                Exportar CSV
+                Exportar página CSV
               </Button>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -258,6 +288,62 @@ function MovementsPage() {
                 </div>
               </div>
 
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div className="space-y-2">
+                  <Label>Produto / variante</Label>
+                  <Input
+                    value={variantSearch}
+                    onChange={(e) => setVariantSearch(e.target.value)}
+                    placeholder="Buscar produto, SKU ou barcode"
+                  />
+                  <Select value={variantId} onValueChange={setVariantId}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ALL">Todos</SelectItem>
+                      {variants.data?.map((v) => (
+                        <SelectItem key={v.id} value={v.id}>
+                          {v.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Usuário</Label>
+                  <Select value={userId} onValueChange={setUserId}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="ALL">Todos</SelectItem>
+                      {actors.data?.map((v) => (
+                        <SelectItem key={v.id} value={v.id}>
+                          {v.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label>Status</Label>
+                  <Select value={status} onValueChange={(v) => setStatus(v as typeof status)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {["ALL", "POSTED", "PENDING", "REVERSED", "CANCELED"].map((v) => (
+                        <SelectItem key={v} value={v}>
+                          {v === "ALL"
+                            ? "Todos"
+                            : movementStatusLabel(v as Exclude<typeof status, "ALL">)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               {movementsQuery.isLoading ? (
                 <LoadingState rows={5} />
               ) : movementsQuery.error ? (
@@ -281,7 +367,10 @@ function MovementsPage() {
                           <TableHead>Tipo</TableHead>
                           <TableHead>Produto / SKU</TableHead>
                           <TableHead>Localização</TableHead>
-                          <TableHead className="text-right">Qtd.</TableHead>
+                          <TableHead className="text-right">Entrada</TableHead>
+                          <TableHead className="text-right">Saída</TableHead>
+                          <TableHead>Referência</TableHead>
+                          <TableHead>Usuário</TableHead>
                           <TableHead>Status</TableHead>
                           <TableHead className="text-right">Detalhe</TableHead>
                         </TableRow>
@@ -299,13 +388,24 @@ function MovementsPage() {
                             </TableCell>
                             <TableCell>
                               <p className="truncate font-medium">{row.product_name}</p>
-                              <p className="font-mono text-xs text-muted-foreground">{row.sku}</p>
+                              <p className="font-mono text-xs text-muted-foreground">
+                                {row.sku} · {[row.size, row.color].filter(Boolean).join(" / ")}
+                              </p>
                             </TableCell>
                             <TableCell>{row.location_name}</TableCell>
                             <TableCell className="text-right font-mono">
-                              {row.direction === "IN" ? "+" : "−"}
-                              {formatQuantity(row.quantity)} {row.unit}
+                              {row.direction === "IN" ? formatQuantity(row.quantity) : "—"}
                             </TableCell>
+                            <TableCell className="text-right font-mono">
+                              {row.direction === "OUT" ? formatQuantity(row.quantity) : "—"}
+                            </TableCell>
+                            <TableCell className="text-xs">
+                              {row.reference_type ?? "—"}
+                              {row.reference_id ? (
+                                <p className="font-mono">{row.reference_id}</p>
+                              ) : null}
+                            </TableCell>
+                            <TableCell>{row.created_by_name ?? row.created_by ?? "—"}</TableCell>
                             <TableCell>
                               <Badge variant={row.status === "POSTED" ? "outline" : "secondary"}>
                                 {movementStatusLabel(row.status)}

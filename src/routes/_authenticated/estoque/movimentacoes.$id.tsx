@@ -76,7 +76,17 @@ function MovementDetailPage() {
   const mutation = useMutation({
     mutationFn: () =>
       reverseMovement({ data: { organizationId: organizationId!, movementId: id, reason } }),
-    onSuccess: () => {
+    onSuccess: (result) => {
+      if (
+        result &&
+        typeof result === "object" &&
+        !Array.isArray(result) &&
+        typeof result.warning === "string"
+      )
+        toast.warning(result.warning);
+      void queryClient.invalidateQueries({
+        predicate: (q) => String(q.queryKey[0]).startsWith("inventory-"),
+      });
       toast.success("Movimento revertido");
       setRevertOpen(false);
       setReason("");
@@ -136,11 +146,12 @@ function MovementDetailPage() {
               </div>
             </div>
             {movement.status === "POSTED" &&
+            !movement.reversed_by_id &&
             hasPermission(PERMISSIONS.inventoryReverse) &&
             movement.movement_type !== "REVERSAL" ? (
               <Button variant="outline" onClick={() => setRevertOpen(true)}>
                 <RotateCcw className="mr-2 h-4 w-4" />
-                Reverter movimento
+                Reverter operação
               </Button>
             ) : null}
           </div>
@@ -231,7 +242,8 @@ function MovementDetailPage() {
                 <DialogTitle>Reverter movimento</DialogTitle>
                 <DialogDescription>
                   Uma reversão cria um novo movimento compensatório. O original permanece no
-                  histórico — nada é excluído.
+                  histórico — nada é excluído. Em transferência ou remessa, toda a operação é
+                  compensada, incluindo as duas localizações.
                 </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleRevert} className="space-y-4">
