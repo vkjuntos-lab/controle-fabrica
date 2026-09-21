@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "git diff --stat && echo \"---DIFF---\" && git diff src/integrations/supabase/types.ts | head -50"
-    },
-    "timestamp": 1790000434653
-  },
-  {
-    "role": "tool_result",
-    "content": "---DIFF---\n",
-    "is_error": false,
-    "timestamp": 1790000434687
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "ls -la src/lib/inventory.ownership-backup/ && ls supabase/migrations/"
     },
     "timestamp": 1790000435379
@@ -1468,5 +1454,19 @@
     "content": "ALTER TABLE\nexit=0\n      1 psql:/tmp/opencode/teste_inv003.sql:514: FAIL  F2 movimento com lote de outra variante rejeitado  [msg inesperada: Sem permissão para esta operação de estoque.]\n      1 psql:/tmp/opencode/teste_inv003.sql:514: FAIL  F1 transferência com local de outra org rejeitada  [msg i",
     "is_error": false,
     "timestamp": 1790001434401
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"ERROR\\|ROLLBACK\\|BEGIN\\|COMMIT\\|line 40\\|line 43\" /tmp/opencode/run2.log | head -30; echo \"---- perm check ----\"; sudo -u postgres psql -d tmp_inv003a -c \"SELECT count(*) FROM public.organizations; SELECT count(*) FROM public.profiles; SELECT count(*) FROM auth.users;\""
+    },
+    "timestamp": 1790001440732
+  },
+  {
+    "role": "tool_result",
+    "content": "5:BEGIN\n9:psql:/tmp/opencode/teste_inv003.sql:46: ERROR:  duplicate key value violates unique constraint \"organization_members_organization_id_user_id_key\"\n11:psql:/tmp/opencode/teste_inv003.sql:49: ERROR:  current transaction is aborted, commands ignored until end of transaction block\n12:psql:/tmp/",
+    "is_error": false,
+    "timestamp": 1790001440814
   }
 ]
