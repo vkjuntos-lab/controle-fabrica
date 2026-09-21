@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "git log --oneline --diff-filter=A -- \"src/lib/products/products.functions.ts\" \"supabase/migrations/20260917110000_catalog_mestre.sql\" | head; echo \"===\"; git log --oneline -3 -- \"src/lib/products/products.functions.ts\""
-    },
-    "timestamp": 1789671774875
-  },
-  {
-    "role": "tool_result",
-    "content": "9619ae8 AI: alteracao automatica\n15332a8 AI: alteracao automatica\n===\n8c06a2f AI: alteracao automatica\n1bab7d8 AI: alteracao automatica\n44702a1 AI: alteracao automatica\n",
-    "is_error": false,
-    "timestamp": 1789671774984
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md"
@@ -1399,5 +1385,50 @@
     "content": "import { defineConfig } from \"vitest/config\";\nimport { fileURLToPath } from \"node:url\";\n\nexport default defineConfig({\n  resolve: {\n    alias: {\n      \"@\": fileURLToPath(new URL(\"./src\", import.meta.url)),\n    },\n  },\n  test: {\n    environment: \"node\",\n    include: [\"src/**/*.test.ts\"],\n  },\n});\n===",
     "is_error": false,
     "timestamp": 1790000775855
+  },
+  {
+    "role": "tool",
+    "tool": "todowrite",
+    "input": {
+      "todos": [
+        {
+          "content": "Reconstruir schema completo num PostgreSQL local (todas as migrations) com roles anon/authenticated/service_role e extensões",
+          "status": "in_progress",
+          "priority": "high"
+        },
+        {
+          "content": "Validar a migration inventory_integrity aplicada (invariantes: reversible, contagem, saldo negativo, tipos dedicados)",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Rodar cenários funcionais reais no Postgres (post movement, transfer, reverse, count) e conferir saldos",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Sincronizar semântica do código TS com a migration (ledger.ts, constants.ts, ledger.test.ts)",
+          "status": "pending",
+          "priority": "medium"
+        },
+        {
+          "content": "Rodar testes Vitest e typecheck",
+          "status": "pending",
+          "priority": "medium"
+        },
+        {
+          "content": "Atualizar PROJECT-STATE.md e docs de arquitetura com a nova convenção de saldo",
+          "status": "pending",
+          "priority": "low"
+        }
+      ]
+    },
+    "timestamp": 1790000808391
+  },
+  {
+    "role": "tool_result",
+    "content": "[\n  {\n    \"content\": \"Reconstruir schema completo num PostgreSQL local (todas as migrations) com roles anon/authenticated/service_role e extensões\",\n    \"status\": \"in_progress\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Validar a migration inventory_integrity aplicada (invariantes: reversible,",
+    "is_error": false,
+    "timestamp": 1790000808395
   }
 ]
