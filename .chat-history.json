@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd /tmp/opencode && perl -pi -e \"s/'items=' \\|\\| v->>'items'\\)/concat('items=', v->>'items'))/; s/'diff=' \\|\\| v->>'difference'\\)/concat('diff=', v->>'difference'))/; s/v_before \\|\\| ' -> ' \\|\\| v_after/concat(v_before, ' -> ', v_after)/; s/'total=' \\|\\| v_q->>'total'\\)/concat('total=', v_q->>'total'))/g\" teste_inv003.sql && grep -n \"concat('items='\\|concat('diff=\\|concat('total\\|concat(v_before\" teste_inv003.sql"
-    },
-    "timestamp": 1790001626719
-  },
-  {
-    "role": "tool_result",
-    "content": "403:    (v->>'items')::int >= 1, concat('items=', v->>'items'));\n419:    AND (v->>'difference')::numeric = 7, concat('diff=', v->>'difference'));\n427:  PERFORM pg_temp.check('E7 saldo incorporou +7', v_after = v_before + 7, concat(v_before, ' -> ', v_after));\n480:    (v_q->>'total')::int > 0, concat",
-    "is_error": false,
-    "timestamp": 1790001626732
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"A16\\|'Origem deve ser'\\|'Lote não pertence'\\|allow_negative_override sempre\\|A24\" /tmp/opencode/teste_inv003.sql"
     },
     "timestamp": 1790001630035
@@ -1531,5 +1517,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790002469206
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/INVENTORY.md",
+      "newString": "- `inventory_post_movement` — lança um movimento simples, valida saldo (bloqueia negativo quando\n  `allow_negative_inventory = false`), usa advisory lock por variante+localização para evitar\n  corrida e é idempotente por `idempotency_key`. Recusa tipos dedicados. O parâmetro\n  `_allow_negative_override` é sempre recusado (nenhum estouro silencioso de saldo).\n- `inventory_post_transfer` — cria, **na mesma transação**, a saída na origem e a entrada no\n  destino. Controla os três fluxos:\n  - `TRANSFER` → `TRANSFER_OUT` + `TRANSFER_IN` (exige `inventory.transfer`);\n  - `PARTNER_SHIPMENT` → saída física + entrada na localização do parceiro (exige `inventory.move`);\n  - `PARTNER_RETURN` → saída do parceiro + entrada física (exige `inventory.move`).\n- `inventory_reverse_movement` — cria uma compensação `REVERSAL` de direção oposta mantendo o par\n  somando zero. O original **permanece `POSTED`** (status `REVERSED` não existe mais). Transferências\n  e remessas são compensadas por inteiro (as duas pernas); a chamada é idempotente e uma\n  compensação jamais pode ser estornada por outra. Reversões nunca são bloqueadas por saldo negativo.\n- `inventory_lock` — trava de organização (`pg_advisory_xact_lock`) que serializa todas as operações\n  de escrita do domínio.\n- `inventory_complete_count` — aplica as divergências de uma contagem como ajustes\n  (`ADJUSTMENT_IN`/`ADJUSTMENT_OUT`), uma vez por item contado. O snapshot é **por lote** e a\n  localização fica bloqueada para movimentação (DRAFT/IN_PROGRESS/REVIEW) até conclusão/cancelamento.\n- `inventory_get_balance` — leitura pontual do saldo.",
+      "oldString": "- `inventory_post_movement` — lança um movimento simples, valida saldo (bloqueia negativo quando\n  `allow_negative_inventory = false`) e usa advisory lock por variante+localização para evitar\n  corrida. Recusa tipos dedicados.\n- `inventory_post_transfer` — cria, **na mesma transação**, a saída na origem e a entrada no\n  destino. Controla os três fluxos:\n  - `TRANSFER` → `TRANSFER_OUT` + `TRANSFER_IN` (exige `inventory.transfer`);\n  - `PARTNER_SHIPMENT` → saída física + entrada na localização do parceiro (exige `inventory.move`);\n  - `PARTNER_RETURN` → saída do parceiro + entrada física (exige `inventory.move`).\n- `inventory_reverse_movement` — marca o original como `REVERSED` e cria um `REVERSAL` de direção\n  oposta, mantendo o par somando zero.\n- `inventory_complete_count` — aplica as divergências de uma contagem como ajustes\n  (`ADJUSTMENT_IN`/`ADJUSTMENT_OUT`), uma vez por item contado.\n- `inventory_get_balance` — leitura pontual do saldo."
+    },
+    "timestamp": 1790002476810
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790002476813
   }
 ]

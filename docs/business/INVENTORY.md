@@ -88,17 +88,23 @@ existem por RPCs dedicadas, que garantem o par completo.
 ## Operações (RPCs transacionais)
 
 - `inventory_post_movement` — lança um movimento simples, valida saldo (bloqueia negativo quando
-  `allow_negative_inventory = false`) e usa advisory lock por variante+localização para evitar
-  corrida. Recusa tipos dedicados.
+  `allow_negative_inventory = false`), usa advisory lock por variante+localização para evitar
+  corrida e é idempotente por `idempotency_key`. Recusa tipos dedicados. O parâmetro
+  `_allow_negative_override` é sempre recusado (nenhum estouro silencioso de saldo).
 - `inventory_post_transfer` — cria, **na mesma transação**, a saída na origem e a entrada no
   destino. Controla os três fluxos:
   - `TRANSFER` → `TRANSFER_OUT` + `TRANSFER_IN` (exige `inventory.transfer`);
   - `PARTNER_SHIPMENT` → saída física + entrada na localização do parceiro (exige `inventory.move`);
   - `PARTNER_RETURN` → saída do parceiro + entrada física (exige `inventory.move`).
-- `inventory_reverse_movement` — marca o original como `REVERSED` e cria um `REVERSAL` de direção
-  oposta, mantendo o par somando zero.
+- `inventory_reverse_movement` — cria uma compensação `REVERSAL` de direção oposta mantendo o par
+  somando zero. O original **permanece `POSTED`** (status `REVERSED` não existe mais). Transferências
+  e remessas são compensadas por inteiro (as duas pernas); a chamada é idempotente e uma
+  compensação jamais pode ser estornada por outra. Reversões nunca são bloqueadas por saldo negativo.
+- `inventory_lock` — trava de organização (`pg_advisory_xact_lock`) que serializa todas as operações
+  de escrita do domínio.
 - `inventory_complete_count` — aplica as divergências de uma contagem como ajustes
-  (`ADJUSTMENT_IN`/`ADJUSTMENT_OUT`), uma vez por item contado.
+  (`ADJUSTMENT_IN`/`ADJUSTMENT_OUT`), uma vez por item contado. O snapshot é **por lote** e a
+  localização fica bloqueada para movimentação (DRAFT/IN_PROGRESS/REVIEW) até conclusão/cancelamento.
 - `inventory_get_balance` — leitura pontual do saldo.
 
 ## Regras de negócio
