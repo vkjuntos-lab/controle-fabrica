@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/tmp/opencode/teste_inv003.sql",
-      "limit": 10,
-      "offset": 181
-    },
-    "timestamp": 1790001646112
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/tmp/opencode/teste_inv003.sql</path>\n<type>file</type>\n<content>\n181:   -- Override de saldo negativo é sempre recusado\n182:   PERFORM pg_temp.expect_error('A24 allow_negative_override sempre recusado',\n183:     'SELECT public.inventory_post_movement(''20000000-0000-0000-0000-000000000001'','",
-    "is_error": false,
-    "timestamp": 1790001646123
-  },
-  {
-    "role": "tool",
     "tool": "grep",
     "input": {
       "pattern": "_user_id|allow_negative_override|inventory_post_movement",
@@ -1535,5 +1519,55 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790002490286
+  },
+  {
+    "role": "tool",
+    "tool": "todowrite",
+    "input": {
+      "todos": [
+        {
+          "content": "Reconstruir schema completo em PostgreSQL local (roles/extensions/stubs)",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Validar migration inventory_integrity aplicada",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Rodar cenários funcionais no Postgres (harness 80/80 PASS)",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Corrigir bugs reais da migration (v_item.value x2, REVERSAL fora do gate negativo)",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Sincronizar semântica TS com a migration (ledger.ts, ledger.test.ts, inventory.functions.ts)",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Rodar Vitest, typecheck, build e lint escopado",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Atualizar PROJECT-STATE.md e INVENTORY.md",
+          "priority": "medium",
+          "status": "completed"
+        }
+      ]
+    },
+    "timestamp": 1790002495193
+  },
+  {
+    "role": "tool_result",
+    "content": "[\n  {\n    \"content\": \"Reconstruir schema completo em PostgreSQL local (roles/extensions/stubs)\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Validar migration inventory_integrity aplicada\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Roda",
+    "is_error": false,
+    "timestamp": 1790002495195
   }
 ]
