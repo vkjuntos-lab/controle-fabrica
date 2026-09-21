@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"inventory_reverse_movement\" supabase/migrations/20260918100000_inventory_ledger.sql"
-    },
-    "timestamp": 1790000984694
-  },
-  {
-    "role": "tool_result",
-    "content": "697:CREATE OR REPLACE FUNCTION public.inventory_reverse_movement(\n879:REVOKE ALL ON FUNCTION public.inventory_reverse_movement(uuid, uuid, text, uuid) FROM PUBLIC, anon;\n888:GRANT EXECUTE ON FUNCTION public.inventory_reverse_movement(uuid, uuid, text, uuid) TO authenticated;\n889:GRANT EXECUTE ON FUN",
-    "is_error": false,
-    "timestamp": 1790000984715
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "head -693 supabase/migrations/20260918100000_inventory_ledger.sql > /tmp/opencode/ledger_p1.sql\ncat >> /tmp/opencode/ledger_p1.sql <<'SQL'\nCREATE OR REPLACE FUNCTION public.inventory_reverse_movement(\n  _organization_id uuid, _movement_id uuid, _reason text, _user_id uuid DEFAULT auth.uid()\n) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$\nBEGIN\n  RETURN '{\"deduped\": false}'::jsonb;\nEND;\n$$;\nSQL\ntail -n +780 supabase/migrations/20260918100000_inventory_ledger.sql >> /tmp/opencode/ledger_p1.sql\nsudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f /tmp/opencode/ledger_p1.sql >/tmp/mig_out.txt 2>&1 && echo LEDGER_P1_OK || (echo FAIL; grep -m1 -i error /tmp/mig_out.txt | head -c 400)"
     },
     "timestamp": 1790001002797
@@ -1489,5 +1475,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql</path>\n<type>file</type>\n<content>\n505: -- Snapshot por lote; nunca usa saldo agregado para ajustar um lote diferente.\n506: REVOKE INSERT, UPDATE ON public.inventory_counts, public.inventory_cou",
     "is_error": false,
     "timestamp": 1790002158608
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql",
+      "limit": 18,
+      "offset": 527
+    },
+    "timestamp": 1790002160657
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql</path>\n<type>file</type>\n<content>\n527: CREATE FUNCTION public.inventory_save_count_item(_organization_id uuid,_count_id uuid,_item_id uuid,_quantity numeric)\n528: RETURNS jsonb LANGUAGE plpgsql",
+    "is_error": false,
+    "timestamp": 1790002160687
   }
 ]
