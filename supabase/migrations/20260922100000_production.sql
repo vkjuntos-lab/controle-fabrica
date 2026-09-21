@@ -255,7 +255,7 @@ CREATE TABLE public.production_loss_reasons (
   organization_id uuid REFERENCES public.organizations(id) ON DELETE CASCADE,
   code text NOT NULL,
   label text NOT NULL,
-  status public.unit_status NOT NULL DEFAULT 'ACTIVE',
+  status text NOT NULL DEFAULT 'ACTIVE' CHECK (status IN ('ACTIVE','INACTIVE')),
   sort_order integer NOT NULL DEFAULT 0,
   created_at timestamptz NOT NULL DEFAULT now()
 );
