@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "import type { Database } from \"@/integrations/supabase/types\";\n\nexport type ProductStatus = Database[\"public\"][\"Enums\"][\"product_status\"];\nexport type ProductVariantStatus = Database[\"public\"][\"Enums\"][\"product_variant_status\"];\n\nexport const PRODUCT_STATUS_VALUES: ProductStatus[] = [\n  \"ACTIVE\",\n  ",
-    "is_error": false,
-    "timestamp": 1789992530156
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc 'cat supabase/migrations/20260917110000_catalog_mestre.sql'"
-    },
-    "timestamp": 1789992537697
-  },
-  {
-    "role": "tool_result",
     "content": "-- Catálogo Mestre de Produtos.\n--\n-- O PRODUCT é o MODELO (sapatilha ballet clássica); a PRODUCT VARIANT é a\n-- unidade comercial/operacional identificável por SKU (32/rosa, 32/preta...).\n-- Nunca duplicar um Product inteiro porque mudou tamanho/cor — as variantes\n-- absorvem tamanho, cor, código d",
     "is_error": false,
     "timestamp": 1789992537712
@@ -1430,5 +1416,20 @@
     "content": "createdb: error: database creation failed: ERROR:  database \"tmp_inv003a\" already exists\nBOOTSTRAP OK\n",
     "is_error": false,
     "timestamp": 1790000893207
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "FAIL=0; TOTAL=0; for f in $(ls supabase/migrations/202609*.sql | sort); do TOTAL=$((TOTAL+1)); base=$(basename \"$f\"); if ! sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f \"$f\" >/tmp/mig_out.txt 2>&1; then echo \"FAIL $base: $(grep -m1 -i 'error' /tmp/mig_out.txt | head -c 400)\"; FAIL=$((FAIL+1)); fi; done; echo \"---\"; echo \"APLICADAS: $TOTAL, FALHAS: $FAIL\"",
+      "timeout": 300000
+    },
+    "timestamp": 1790000898834
+  },
+  {
+    "role": "tool_result",
+    "content": "FAIL 20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql: psql:supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql:26: ERROR:  schema \"auth\" does not exist\nFAIL 20260915211508_ec17904b-1fc9-4516-b4e2-b37ba9be6436.sql: psql:supabase/migrations/20260915211508_ec17904b-1fc9-",
+    "is_error": false,
+    "timestamp": 1790000899731
   }
 ]
