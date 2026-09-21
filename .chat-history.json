@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"saldo=' \\|\\\"saldo='\\|'diff=\\|'items=\\|'total=\\|v_before || ' -> '\" /tmp/opencode/teste_inv003.sql"
-    },
-    "timestamp": 1790001623683
-  },
-  {
-    "role": "tool_result",
-    "content": "403:    (v->>'items')::int >= 1, 'items=' || v->>'items');\n419:    AND (v->>'difference')::numeric = 7, 'diff=' || v->>'difference');\n427:  PERFORM pg_temp.check('E7 saldo incorporou +7', v_after = v_before + 7, v_before || ' -> ' || v_after);\n480:    (v_q->>'total')::int > 0, 'total=' || v_q->>'tot",
-    "is_error": false,
-    "timestamp": 1790001623722
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd /tmp/opencode && perl -pi -e \"s/'items=' \\|\\| v->>'items'\\)/concat('items=', v->>'items'))/; s/'diff=' \\|\\| v->>'difference'\\)/concat('diff=', v->>'difference'))/; s/v_before \\|\\| ' -> ' \\|\\| v_after/concat(v_before, ' -> ', v_after)/; s/'total=' \\|\\| v_q->>'total'\\)/concat('total=', v_q->>'total'))/g\" teste_inv003.sql && grep -n \"concat('items='\\|concat('diff=\\|concat('total\\|concat(v_before\" teste_inv003.sql"
     },
     "timestamp": 1790001626719
@@ -1529,5 +1515,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md</path>\n<type>file</type>\n<content>\n1: # Estado do projeto — handoff contínuo\n2: \n3: Última atualização: LOVABLE MASTER 003 — Inventory Ledger (estoque por movimentos imutáveis) sobre o MASTER 002 (Catálogo de Produtos) e a ",
     "is_error": false,
     "timestamp": 1790002462355
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/INVENTORY.md",
+      "newString": "## Semântica de saldo\n\nSomente movimentos `POSTED` entram no saldo.\n\n- `POSTED`: movimento válido e efetivo. É o **único** status que soma.\n- `REVERSAL`: a correção de um movimento. O **original permanece `POSTED`** (nunca muda de status)\n  e o efeito é cancelado por uma compensação `REVERSAL` (também `POSTED`, direção oposta e mesma\n  quantidade) — o par soma zero. O original nunca é editado nem estornado.\n- `REVERSED` (legado): status que não é mais gravado. Movimentos antigos que tinham esse status\n  foram migrados para `POSTED` e o efeito foi compensado por `REVERSAL`. Caso ainda existam em\n  dados históricos, **não compõem o saldo**.\n- `PENDING` e `CANCELED`: rascunhos/descartados, nunca somam.\n- Consequência: uma reversão **sempre** pode executar, mesmo que o saldo atual seja negativo —\n  a compensação restaura o líquido e não depende da autorização de estoque negativo.\n\nExemplo de reversão de uma saída de 20:\n\n```\noriginal   OUT 20  POSTED    (conta: −20, permanece POSTED)\nreversão   IN  20  POSTED    (conta: +20, compensação REVERSAL)\n                          líquido: 0\n```",
+      "oldString": "## Semântica de saldo\n\nSomente `POSTED` e `REVERSED` entram no saldo.\n\n- `POSTED`: movimento válido e efetivo.\n- `REVERSED`: movimento original que foi estornado. **Ele continua contando** no saldo, porque o\n  efeito líquido é dado pelo par original + reversão. O estorno é um movimento `REVERSAL` de\n  direção oposta, `POSTED`, que zera o par.\n- `PENDING` e `CANCELED`: rascunhos/descartados, nunca somam.\n\nExemplo de reversão de uma saída de 20:\n\n```\noriginal   OUT 20  POSTED    (conta: −20)\nreversão   IN  20  POSTED    (conta: +20)\n                          líquido: 0\n```"
+    },
+    "timestamp": 1790002469161
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790002469206
   }
 ]

@@ -40,19 +40,24 @@ possível a qualquer momento.
 
 ## Semântica de saldo
 
-Somente `POSTED` e `REVERSED` entram no saldo.
+Somente movimentos `POSTED` entram no saldo.
 
-- `POSTED`: movimento válido e efetivo.
-- `REVERSED`: movimento original que foi estornado. **Ele continua contando** no saldo, porque o
-  efeito líquido é dado pelo par original + reversão. O estorno é um movimento `REVERSAL` de
-  direção oposta, `POSTED`, que zera o par.
+- `POSTED`: movimento válido e efetivo. É o **único** status que soma.
+- `REVERSAL`: a correção de um movimento. O **original permanece `POSTED`** (nunca muda de status)
+  e o efeito é cancelado por uma compensação `REVERSAL` (também `POSTED`, direção oposta e mesma
+  quantidade) — o par soma zero. O original nunca é editado nem estornado.
+- `REVERSED` (legado): status que não é mais gravado. Movimentos antigos que tinham esse status
+  foram migrados para `POSTED` e o efeito foi compensado por `REVERSAL`. Caso ainda existam em
+  dados históricos, **não compõem o saldo**.
 - `PENDING` e `CANCELED`: rascunhos/descartados, nunca somam.
+- Consequência: uma reversão **sempre** pode executar, mesmo que o saldo atual seja negativo —
+  a compensação restaura o líquido e não depende da autorização de estoque negativo.
 
 Exemplo de reversão de uma saída de 20:
 
 ```
-original   OUT 20  POSTED    (conta: −20)
-reversão   IN  20  POSTED    (conta: +20)
+original   OUT 20  POSTED    (conta: −20, permanece POSTED)
+reversão   IN  20  POSTED    (conta: +20, compensação REVERSAL)
                           líquido: 0
 ```
 
