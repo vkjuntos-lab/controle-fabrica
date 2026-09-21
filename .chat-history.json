@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -rln \"pg_cron\\|pg_net\" supabase/migrations/*.sql"
-    },
-    "timestamp": 1790000843422
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20260711174001_199c685f-feb6-4270-8245-3d80b381b49b.sql\nsupabase/migrations/20260720124849_d00f8076-8cab-4d85-89f1-7592be62e06a.sql\n",
-    "is_error": false,
-    "timestamp": 1790000843432
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "for f in supabase/migrations/20260811000000_waseller_schema.sql supabase/migrations/20260917110000_catalog_mestre.sql supabase/migrations/20260918100000_inventory_ledger.sql supabase/migrations/20240808143900_batch_persistence.sql; do echo \"=== $f ===\"; grep -n \"CREATE EXTENSION\\|CREATE FUNCTION\\|CREATE TABLE\\|CREATE TYPE\\|ALTER TABLE\" \"$f\" | head -40; done"
     },
     "timestamp": 1790000844174
@@ -1480,5 +1466,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790001958156
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/tmp/opencode/teste_inv003.sql",
+      "newString": "-- inventário não cruza tenant: org 2 só vê o próprio catálogo, sem dados da org 1\n  v_q := public.inventory_query_positions('20000000-0000-0000-0000-000000000002', '{}'::jsonb, 1, 50);\n  PERFORM pg_temp.check('F6 org 2 não vê dados da org 1',\n    (v_q->>'total_on_hand')::numeric = 0\n      AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(coalesce(v_q->'rows','[]'::jsonb)) r\n        WHERE r->>'variant_id' = '50000000-0000-0000-0000-000000000001'),\n    concat('total=', v_q->>'total'));",
+      "oldString": "-- inventário não cruza tenant: posições da org 2 são vazias\n  v_q := public.inventory_query_positions('20000000-0000-0000-0000-000000000002', '{}'::jsonb, 1, 50);\n  PERFORM pg_temp.check('F6 org 2 não vê nada do domínio', (v_q->>'total')::int = 0,\n    concat('total=', v_q->>'total'));"
+    },
+    "timestamp": 1790001965271
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790001965281
   }
 ]
