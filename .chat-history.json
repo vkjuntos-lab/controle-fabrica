@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n -A8 \"handle_new_organization\" supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql | head -20"
-    },
-    "timestamp": 1790001479176
-  },
-  {
-    "role": "tool_result",
-    "content": "193:CREATE OR REPLACE FUNCTION public.handle_new_organization()\n194-RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$\n195-BEGIN\n196-  INSERT INTO public.organization_members (organization_id, user_id, role)\n197-  VALUES (NEW.id, COALESCE(NEW.created_by, auth.uid()), 'a",
-    "is_error": false,
-    "timestamp": 1790001479192
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/tmp/opencode/teste_inv003.sql",
@@ -1533,5 +1519,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/inventory/inventory.functions.ts</path>\n<type>file</type>\n<content>\n1488:         .eq(\"organization_id\", data.organizationId)\n1489:         .eq(\"location_id\", data.locationId),\n1490:     ]);\n1491:     if (variantsRes.error) throw new Error(varia",
     "is_error": false,
     "timestamp": 1790002363000
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"batch_id\" supabase/migrations/20260921100000_inventory_integrity.sql | head -8; echo \"--- types.ts count item ---\"; grep -n -A12 \"inventory_count_items_insert\" src/integrations/supabase/types.ts | head -18"
+    },
+    "timestamp": 1790002369045
+  },
+  {
+    "role": "tool_result",
+    "content": "4:ALTER TABLE public.inventory_count_items ADD COLUMN batch_id uuid REFERENCES public.inventory_batches(id);\n6:  (inventory_count_id, variant_id, batch_id) NULLS NOT DISTINCT;\n16:SELECT organization_id, variant_id, location_id, batch_id,\n20:GROUP BY organization_id, variant_id, location_id, batch_id",
+    "is_error": false,
+    "timestamp": 1790002369079
   }
 ]
