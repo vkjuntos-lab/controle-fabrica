@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "psql:supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql:5: ERROR:  role \"postgres\" does not exist\n",
-    "is_error": true,
-    "timestamp": 1789993052202
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"psql -h /tmp -p 55432 -U inventory_test -d postgres -c 'CREATE ROLE postgres;' && psql -h /tmp -p 55432 -U inventory_test -d postgres -v ON_ERROR_STOP=1 -f supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql -f supabase/migrations/20260917110000_catalog_mestre.sql -f supabase/migrations/20260918100000_inventory_ledger.sql -f supabase/migrations/20260921100000_inventory_integrity.sql > /tmp/inventory-migrate.log\""
-    },
-    "timestamp": 1789993063109
-  },
-  {
-    "role": "tool_result",
     "content": "psql:supabase/migrations/20260918100000_inventory_ledger.sql:778: ERROR:  \"v_reversal_row\" is not a scalar variable\nLINE 61: ..._jsonb(inventory_movements.*) INTO v_reversal_id, v_reversal...\n                                                              ^\n",
     "is_error": true,
     "timestamp": 1789993063131
@@ -1456,5 +1442,20 @@
     "content": "                                                       List of functions\n Schema |      Name      | Result data type |                            Argument data types                            | Type \n--------+----------------+------------------+------------------------------------------------------",
     "is_error": false,
     "timestamp": 1790001093557
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "-- Validação local das invariantes do Inventory Ledger (MASTER 003)\n-- Roda como superuser com auth.uid() definido por SET LOCAL.\nBEGIN;\nSET LOCAL request.jwt.claim.sub = '10000000-0000-0000-0000-000000000001';\n\nCREATE TEMP TABLE t_reg (nome text primary key, ok bool NOT NULL, detalhe text);\nCREATE OR REPLACE FUNCTION pg_temp.check(p_nome text, p_ok boolean, p_detalhe text DEFAULT NULL)\nRETURNS void LANGUAGE plpgsql AS $$\nBEGIN\n  INSERT INTO t_reg VALUES (p_nome, COALESCE(p_ok,false), p_detalhe)\n    ON CONFLICT (nome) DO UPDATE SET ok = EXCLUDED.ok, detalhe = EXCLUDED.detalhe;\n  IF p_ok THEN RAISE NOTICE 'PASS  %', p_nome;\n  ELSE RAISE NOTICE 'FAIL  %  [%]', p_nome, p_detalhe; END IF;\nEND $$;\n\nCREATE OR REPLACE FUNCTION pg_temp.expect_error(p_nome text, p_sql text, p_msg text DEFAULT NULL)\nRETURNS void LANGUAGE plpgsql AS $$\nBEGIN\n  BEGIN\n    EXECUTE p_sql;\n    PERFORM pg_temp.check(p_nome, false, 'não lançou exceção');\n  EXCEPTION WHEN others THEN\n    IF p_msg IS NULL OR position(p_msg in SQLERRM) > 0 THEN\n      PERFORM pg_temp.check(p_nome, true, substring(SQLERRM, 1, 120));\n    ELSE\n      PERFORM pg_temp.check(p_nome, false, 'msg inesperada: ' || substring(SQLERRM, 1, 160));\n    END IF;\n  END;\nEND $$;\n\n-- ============ SETUP ============\nINSERT INTO auth.users(id, email) VALUES\n  ('10000000-0000-0000-0000-000000000001', 'admin@fabrica.test');\nINSERT INTO public.organizations(id, name, slug) VALUES\n  ('20000000-0000-0000-0000-000000000001', 'Fábrica Teste', 'fabrica-teste'),\n  ('20000000-0000-0000-0000-000000000002', 'Outra Fábrica', 'outra-fabrica');\nINSERT INTO public.profiles(id, full_name) VALUES\n  ('10000000-0000-0000-0000-000000000001', 'Admin Teste');\nINSERT INTO public.organization_members(organization_id, user_id, role) VALUES\n  ('20000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-000000000001', 'admin'),\n  ('20000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-000000000001', 'admin');\nINSERT INTO public.products(id, organization_id, code, name, status) VALUES\n  ('40000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000001', 'P-001', 'Sapatilha', 'ACTIVE'),\n  ('40000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000002', 'P-002', 'Tênis', 'ACTIVE');\nINSERT INTO public.product_variants(id, organization_id, product_id, sku, size, color, status) VALUES\n  ('50000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000001', '40000000-0000-0000-0000-000000000001', 'SKU-001', '34', 'Rosa', 'ACTIVE'),\n  ('50000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000002', '40000000-0000-0000-0000-000000000002', 'SKU-002', '40', 'Preto', 'ACTIVE');\nINSERT INTO public.inventory_locations(id, organization_id, code, name, type, status) VALUES\n  ('30000000-0000-0000-0000-000000000001', '20000000-0000-0000-0000-000000000001', 'FAB', 'Fábrica', 'FACTORY', 'ACTIVE'),\n  ('30000000-0000-0000-0000-000000000002', '20000000-0000-0000-0000-000000000001', 'CD', 'Estoque Central', 'WAREHOUSE', 'ACTIVE'),\n  ('30000000-0000-0000-0000-000000000003', '20000000-0000-0000-0000-000000000001', 'PAR-A', 'Parceiro A', 'PARTNER', 'ACTIVE'),\n  ('30000000-0000-0000-0000-000000000004', '20000000-0000-0000-0000-000000000002', 'OUTRO', 'Depósito Outra', 'WAREHOUSE', 'ACTIVE');\n\nDO $$ BEGIN\n  PERFORM pg_temp.check('setup: items criados',\n    (SELECT count(*) = 2 FROM public.product_variants));\nEND $$;\nCOMMIT;",
+      "filePath": "/tmp/opencode/teste_inv003.sql"
+    },
+    "timestamp": 1790001158624
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790001158644
   }
 ]
