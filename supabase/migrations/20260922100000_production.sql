@@ -705,7 +705,7 @@ BEGIN
   UPDATE public.production_orders SET status='RELEASED', released_at=now(), approved_by=_user_id, updated_by=_user_id
     WHERE id=_order_id RETURNING * INTO v_order;
   INSERT INTO public.production_order_status_history(organization_id,production_order_id,from_status,to_status,note,changed_by)
-  VALUES (_organization_id,_order_id,'DRAFT','RELEASED',nullif(trim(_note),''),_user_id);
+  VALUES (_organization_id,_order_id,v_from,'RELEASED',nullif(trim(_note),''),_user_id);
   INSERT INTO public.audit_log(organization_id,user_id,action,resource,resource_id,context)
   VALUES (_organization_id,_user_id,'production.order.release','production_orders',_order_id::text,
     jsonb_build_object('code',v_order.code,'materials_missing',v_items));
