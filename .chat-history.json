@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "      const belowMinimum = entry.on_hand < variant.minimum_stock;\n      if (data.onlyBelowMinimum && !belowMinimum) continue;\n\n      if (query) {\n        const haystack = [\n          variant.sku,\n          variant.product_name,\n          variant.product_code,\n          variant.size ?? \"\",\n          ",
-    "is_error": false,
-    "timestamp": 1789992802399
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"pg_lsclusters; cat supabase/migrations/20260915203409_0a9422ec-4c5a-4764-b2e5-8b233b1b85a1.sql | head -60; cat src/routes/_authenticated/estoque/inventarios.\\\\\"'$id.tsx'"
-    },
-    "timestamp": 1789992802512
-  },
-  {
-    "role": "tool_result",
     "content": "Ver Cluster Port Status Owner     Data directory              Log file\n18  main    5432 down   <unknown> /var/lib/postgresql/18/main /var/log/postgresql/postgresql-18-main.log\nCREATE OR REPLACE FUNCTION public.__setup_exec(sql text) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path = pu",
     "is_error": false,
     "timestamp": 1789992802517
@@ -1451,5 +1437,19 @@
     "content": "-- ============ REVERSE MOVEMENT ============\n-- Não edita o movimento original: cria um REVERSAL compensatório e relaciona\n-- ambos. O original permanece no histórico com status REVERSED.\nCREATE OR REPLACE FUNCTION public.inventory_reverse_movement(\n---779-780---\n\n-- ============ COMPLETE COUNT ===",
     "is_error": false,
     "timestamp": 1790000977350
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "head -693 supabase/migrations/20260918100000_inventory_ledger.sql > /tmp/opencode/ledger_p1.sql && tail -n +780 supabase/migrations/20260918100000_inventory_ledger.sql >> /tmp/opencode/ledger_p1.sql && wc -l /tmp/opencode/ledger_p1.sql && sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f /tmp/opencode/ledger_p1.sql >/tmp/mig_out.txt 2>&1 && echo LEDGER_P1_OK || (echo FAIL; grep -m1 -i error /tmp/mig_out.txt | head -c 400)"
+    },
+    "timestamp": 1790000981203
+  },
+  {
+    "role": "tool_result",
+    "content": "907 /tmp/opencode/ledger_p1.sql\nFAIL\npsql:/tmp/opencode/ledger_p1.sql:793: ERROR:  function public.inventory_reverse_movement(uuid, uuid, text, uuid) does not exist\n",
+    "is_error": false,
+    "timestamp": 1790000981351
   }
 ]
