@@ -931,7 +931,7 @@ CREATE FUNCTION public.production_cancel_order(
   _organization_id uuid, _order_id uuid, _reason text, _user_id uuid DEFAULT auth.uid()
 ) RETURNS jsonb
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
-DECLARE v_order public.production_orders;
+DECLARE v_order public.production_orders; v_from public.production_order_status;
 BEGIN
   IF _user_id IS DISTINCT FROM auth.uid() THEN RAISE EXCEPTION 'Usuário inválido para esta operação.'; END IF;
   IF NOT public.has_permission(_organization_id, 'production.cancel', _user_id) THEN

@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sudo -u postgres psql -d tmp_inv003a -f /tmp/opencode/teste_inv003.sql > /tmp/opencode/run6.log 2>&1; echo \"exit=$?\"; grep -E \"PASS|FAIL\" /tmp/opencode/run6.log | sed 's/NOTICE: *//;s/psql:[^ ]* //' > /tmp/opencode/res6.txt; echo \"PASS=$(grep -c PASS /tmp/opencode/res6.txt)  FAIL=$(grep -c FAIL /tmp/opencode/res6.txt)  TOTAL=$(wc -l < /tmp/opencode/res6.txt)\"; \"Total block D/F tests:\"; grep -E \" D[0-9]| F[0-9]\" /tmp/opencode/res6.txt | sed 's/.*PASS  //;s/.*FAIL  //' | head -40",
-      "timeout": 180000
-    },
-    "timestamp": 1790002010489
-  },
-  {
-    "role": "tool_result",
-    "content": "exit=0\nPASS=74  FAIL=3  TOTAL=77\n/bin/bash: line 1: Total block D/F tests:: No such file or directory\nD1 reversão de transferência cria 2 compensações\nD2 saldo Fábrica voltou ao anterior  [-40.000 -> -70.000]\nD3 saldo CD voltou ao anterior  [50.000 -> 80.000]\nD4 original da transferência permanece P",
-    "is_error": false,
-    "timestamp": 1790002010648
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sudo -u postgres psql -d tmp_inv003a -c \"SELECT action, count(*) FROM public.audit_log WHERE organization_id='20000000-0000-0000-0000-000000000001' GROUP BY action ORDER BY action;\""
     },
     "timestamp": 1790002037294
@@ -1591,5 +1576,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260922100000_production.sql</path>\n<type>file</type>\n<content>\n930: CREATE FUNCTION public.production_cancel_order(\n931:   _organization_id uuid, _order_id uuid, _reason text, _user_id uuid DEFAULT auth.uid()\n932: ) RETURNS jsonb\n9",
     "is_error": false,
     "timestamp": 1790006258151
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260922100000_production.sql",
+      "newString": "CREATE FUNCTION public.production_cancel_order(\n  _organization_id uuid, _order_id uuid, _reason text, _user_id uuid DEFAULT auth.uid()\n) RETURNS jsonb\nLANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$\nDECLARE v_order public.production_orders; v_from public.production_order_status;\nBEGIN",
+      "oldString": "CREATE FUNCTION public.production_cancel_order(\n  _organization_id uuid, _order_id uuid, _reason text, _user_id uuid DEFAULT auth.uid()\n) RETURNS jsonb\nLANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$\nDECLARE v_order public.production_orders;\nBEGIN"
+    },
+    "timestamp": 1790006261022
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790006261054
   }
 ]
