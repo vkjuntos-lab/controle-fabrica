@@ -519,6 +519,7 @@ export type Database = {
           status: Database["public"]["Enums"]["inventory_count_item_status"];
           system_quantity: number;
           updated_at: string;
+          batch_id: string | null;
           variant_id: string;
         };
         Insert: {
@@ -531,6 +532,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["inventory_count_item_status"];
           system_quantity?: number;
           updated_at?: string;
+          batch_id: string | null;
           variant_id: string;
         };
         Update: {
@@ -543,6 +545,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["inventory_count_item_status"];
           system_quantity?: number;
           updated_at?: string;
+          batch_id?: string | null;
           variant_id?: string;
         };
         Relationships: [
@@ -966,6 +969,12 @@ export type Database = {
       };
     };
     Functions: {
+      inventory_start_count: { Args: { _organization_id: string; _location_id: string }; Returns: Json };
+      inventory_save_count_item: { Args: { _organization_id: string; _count_id: string; _item_id: string; _quantity: number | null }; Returns: Json };
+      inventory_cancel_count: { Args: { _organization_id: string; _count_id: string }; Returns: Json };
+      inventory_query_positions: { Args: { _organization_id: string; _filters?: Json; _page?: number; _page_size?: number }; Returns: Json };
+      inventory_dashboard: { Args: { _organization_id: string; _from: string; _to: string }; Returns: Json };
+
       has_org_role: {
         Args: {
           _organization_id: string;
