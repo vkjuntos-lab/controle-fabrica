@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/tmp/opencode/teste_inv003.sql",
-      "newString": "\\set ON_ERROR_STOP off\n\n-- Helpers criados FORA de transação para persistirem na sessão do psql.\nCREATE TEMP TABLE IF NOT EXISTS t_reg (nome text primary key, ok bool NOT NULL, detalhe text);\nCREATE TEMP TABLE IF NOT EXISTS t_state (k text primary key, v text);\nCREATE OR REPLACE FUNCTION pg_temp.check(p_nome text, p_ok boolean, p_detalhe text DEFAULT NULL)\nRETURNS void LANGUAGE plpgsql AS $$\nBEGIN\n  INSERT INTO t_reg VALUES (p_nome, COALESCE(p_ok,false), p_detalhe)\n    ON CONFLICT (nome) DO UPDATE SET ok = EXCLUDED.ok, detalhe = EXCLUDED.detalhe;\n  IF p_ok THEN RAISE NOTICE 'PASS  %', p_nome;\n  ELSE RAISE NOTICE 'FAIL  %  [%]', p_nome, p_detalhe; END IF;\nEND $$;\nCREATE OR REPLACE FUNCTION pg_temp.expect_error(p_nome text, p_sql text, p_msg text DEFAULT NULL)\nRETURNS void LANGUAGE plpgsql AS $$\nBEGIN\n  BEGIN\n    EXECUTE p_sql;\n    PERFORM pg_temp.check(p_nome, false, 'não lançou exceção');\n  EXCEPTION WHEN others THEN\n    IF p_msg IS NULL OR position(coalesce(p_msg,'') in SQLERRM) > 0 THEN\n      PERFORM pg_temp.check(p_nome, true, substring(SQLERRM, 1, 120));\n    ELSE\n      PERFORM pg_temp.check(p_nome, false, 'msg inesperada: ' || substring(SQLERRM, 1, 160));\n    END IF;\n  END;\nEND $$;\n\n-- ============================================================\n-- SETUP\n-- ============================================================\nBEGIN;",
-      "oldString": "\\set ON_ERROR_STOP off\n\n-- ============================================================\n-- SETUP\n-- ============================================================\nBEGIN;"
-    },
-    "timestamp": 1790001308679
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790001308704
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/tmp/opencode/teste_inv003.sql",
       "newString": "SET LOCAL request.jwt.claim.sub = '10000000-0000-0000-0000-000000000001';\nINSERT INTO auth.users(id, email, raw_user_meta_data) VALUES\n  ('10000000-0000-0000-0000-000000000001', 'admin@fabrica.test',\n   '{\"full_name\":\"Admin Teste\"}'::jsonb);\nINSERT INTO public.organizations(id, name, slug) VALUES\n  ('20000000-0000-0000-0000-000000000001', 'Fábrica Teste', 'fabrica-teste'),\n  ('20000000-0000-0000-0000-000000000002', 'Outra Fábrica', 'outra-fabrica');\nINSERT INTO public.organization_members(organization_id, user_id, role) VALUES",
       "oldString": "SET LOCAL request.jwt.claim.sub = '10000000-0000-0000-0000-000000000001';\nCREATE TEMP TABLE IF NOT EXISTS t_reg (nome text primary key, ok bool NOT NULL, detalhe text);\nCREATE TEMP TABLE IF NOT EXISTS t_state (k text primary key, v text);\n\nCREATE OR REPLACE FUNCTION pg_temp.check(p_nome text, p_ok boolean, p_detalhe text DEFAULT NULL)\nRETURNS void LANGUAGE plpgsql AS $$\nBEGIN\n  INSERT INTO t_reg VALUES (p_nome, COALESCE(p_ok,false), p_detalhe)\n    ON CONFLICT (nome) DO UPDATE SET ok = EXCLUDED.ok, detalhe = EXCLUDED.detalhe;\n  IF p_ok THEN RAISE NOTICE 'PASS  %', p_nome;\n  ELSE RAISE NOTICE 'FAIL  %  [%]', p_nome, p_detalhe; END IF;\nEND $$;\n\nCREATE OR REPLACE FUNCTION pg_temp.expect_error(p_nome text, p_sql text, p_msg text DEFAULT NULL)\nRETURNS void LANGUAGE plpgsql AS $$\nBEGIN\n  BEGIN\n    EXECUTE p_sql;\n    PERFORM pg_temp.check(p_nome, false, 'não lançou exceção');\n  EXCEPTION WHEN others THEN\n    IF p_msg IS NULL OR position(coalesce(p_msg,'') in SQLERRM) > 0 THEN\n      PERFORM pg_temp.check(p_nome, true, substring(SQLERRM, 1, 120));\n    ELSE\n      PERFORM pg_temp.check(p_nome, false, 'msg inesperada: ' || substring(SQLERRM, 1, 160));\n    END IF;\n  END;\nEND $$;\n\nINSERT INTO auth.users(id, email) VALUES\n  ('10000000-0000-0000-0000-000000000001', 'admin@fabrica.test');\nINSERT INTO public.organizations(id, name, slug) VALUES\n  ('20000000-0000-0000-0000-000000000001', 'Fábrica Teste', 'fabrica-teste'),\n  ('20000000-0000-0000-0000-000000000002', 'Outra Fábrica', 'outra-fabrica');\nINSERT INTO public.profiles(id, full_name) VALUES\n  ('10000000-0000-0000-0000-000000000001', 'Admin Teste');\nINSERT INTO public.organization_members(organization_id, user_id, role) VALUES"
     },
@@ -1535,5 +1519,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/inventory/constants.ts</path>\n<type>file</type>\n<content>\n95:     value: \"REVERSAL\",\n96:     label: \"Reversão/estorno\",\n97:     direction: \"FLEX\",\n98:     permission: \"inventory.reverse\",\n99:   },\n100: ];\n101: \n102: export function movementTypeL",
     "is_error": false,
     "timestamp": 1790002274313
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -rn \"POSTED.*REVERSED\\|REVERSED\" src --include=\"*.ts\" --include=\"*.tsx\" | grep -v \"REVERSAL\" | grep -v \"types.ts\""
+    },
+    "timestamp": 1790002299555
+  },
+  {
+    "role": "tool_result",
+    "content": "src/lib/inventory.ownership-backup/inventory.functions.ts:36:const movementStatusSchema = z.enum([\"PENDING\", \"POSTED\", \"REVERSED\", \"CANCELED\"]);\nsrc/lib/inventory.ownership-backup/constants.ts:118:  { value: \"REVERSED\", label: \"Revertido\" },\nsrc/lib/inventory.ownership-backup/ledger.test.ts:90:    /",
+    "is_error": false,
+    "timestamp": 1790002299598
   }
 ]
