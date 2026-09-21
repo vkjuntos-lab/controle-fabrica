@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "write",
-    "input": {
-      "filePath": "/tmp/opencode/bootstrap_inv.sql",
-      "content": "CREATE EXTENSION IF NOT EXISTS pgcrypto;\nCREATE EXTENSION IF NOT EXISTS pg_trgm;\nCREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";\nCREATE SCHEMA IF NOT EXISTS auth;\nCREATE SCHEMA IF NOT EXISTS storage;\nCREATE OR REPLACE FUNCTION auth.uid() RETURNS uuid\nLANGUAGE sql STABLE AS\n$$ SELECT nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;\nCREATE TABLE IF NOT EXISTS auth.users (id uuid primary key, email text, created_at timestamptz default now());\nCREATE TABLE IF NOT EXISTS storage.buckets (id text primary key, name text, public boolean default false, created_at timestamptz default now());\nCREATE TABLE IF NOT EXISTS storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text, owner uuid, created_at timestamptz default now());\nCREATE OR REPLACE FUNCTION storage.foldername(name text) RETURNS text[]\nLANGUAGE sql IMMUTABLE AS $$ SELECT string_to_array(name, '/') $$;"
-    },
-    "timestamp": 1790000911366
-  },
-  {
-    "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1790000911388
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "sudo -u postgres psql -c \"DROP DATABASE IF EXISTS tmp_inv003a;\" >/dev/null 2>&1; sudo -u postgres createdb tmp_inv003a && sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f /tmp/opencode/bootstrap_inv.sql && echo BOOTSTRAP_OK && sudo -u postgres psql -d tmp_inv003a -c \"\\dn; \\df auth.uid\""
@@ -1490,5 +1475,19 @@
     "content": "                               Table \"public.audit_log\"\n     Column      |           Type           | Collation | Nullable |      Default      \n-----------------+--------------------------+-----------+----------+-------------------\n id              | uuid                     |           | not null |",
     "is_error": false,
     "timestamp": 1790002048349
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sudo -u postgres psql -d tmp_inv003a -c \"BEGIN; SET LOCAL request.jwt.claim.sub='10000000-0000-0000-0000-000000000001';\nSELECT id FROM public.inventory_movements WHERE organization_id='20000000-0000-0000-0000-000000000001' AND movement_type='OPENING_BALANCE' AND location_id='30000000-0000-0000-0000-000000000002' ORDER BY created_at LIMIT 1 \\gset\nSELECT public.inventory_reverse_movement('20000000-0000-0000-0000-000000000001', :id, 'debug manual');\nSELECT action, resource_id FROM public.audit_log WHERE action='inventory.reverse';\nROLLBACK;\" 2>&1 | tail -12"
+    },
+    "timestamp": 1790002056131
+  },
+  {
+    "role": "tool_result",
+    "content": "ERROR:  syntax error at or near \"\\\"\nLINE 2: ...00-0000-0000-000000000002' ORDER BY created_at LIMIT 1 \\gset\n                                                                  ^\n",
+    "is_error": false,
+    "timestamp": 1790002056197
   }
 ]
