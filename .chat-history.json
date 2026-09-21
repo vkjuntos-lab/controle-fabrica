@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "FAIL=0; TOTAL=0; for f in $(ls supabase/migrations/202609*.sql | sort); do TOTAL=$((TOTAL+1)); base=$(basename \"$f\"); if ! sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f \"$f\" >/tmp/mig_out.txt 2>&1; then echo \"FAIL $base: $(grep -m1 -i 'error' /tmp/mig_out.txt | head -c 400)\"; FAIL=$((FAIL+1)); fi; done; echo \"---\"; echo \"APLICADAS: $TOTAL, FALHAS: $FAIL\"",
-      "timeout": 300000
-    },
-    "timestamp": 1790000918252
-  },
-  {
-    "role": "tool_result",
-    "content": "FAIL 20260917093000_avatars_storage_bucket.sql: psql:supabase/migrations/20260917093000_avatars_storage_bucket.sql:8: ERROR:  column \"file_size_limit\" of relation \"buckets\" does not exist\nFAIL 20260918100000_inventory_ledger.sql: psql:supabase/migrations/20260918100000_inventory_ledger.sql:778: ERRO",
-    "is_error": false,
-    "timestamp": 1790000919249
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql",
@@ -1489,5 +1474,19 @@
     "content": " a95743ff-bd8b-41a2-846c-e1dd53bb0b88\n",
     "is_error": false,
     "timestamp": 1790002062284
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sudo -u postgres psql -d tmp_inv003a -c \"BEGIN; SET LOCAL request.jwt.claim.sub='10000000-0000-0000-0000-000000000001';\nSELECT public.inventory_reverse_movement('20000000-0000-0000-0000-000000000001', 'a95743ff-bd8b-41a2-846c-e1dd53bb0b88', 'debug manual');\nSELECT action, resource_id, (context->>'reason') AS motivo FROM public.audit_log WHERE organization_id='20000000-0000-0000-0000-000000000001' AND action='inventory.reverse';\nROLLBACK;\" 2>&1 | tail -12"
+    },
+    "timestamp": 1790002066721
+  },
+  {
+    "role": "tool_result",
+    "content": "SET\n                                                                                inventory_reverse_movement                                                                                 \n------------------------------------------------------------------------------------------------------------",
+    "is_error": false,
+    "timestamp": 1790002066799
   }
 ]
