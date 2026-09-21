@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "git cat-file -e \"HEAD:src/lib/inventory.ownership-backup/constants.ts\" 2>&1 && echo \"BACKUP IN HEAD\" || echo \"BACKUP NOT IN HEAD\"; git cat-file -e \"HEAD:supabase/migrations/20260921100000_inventory_integrity.sql\" 2>&1 && echo \"MIGRATION IN HEAD\" || echo \"MIGRATION NOT IN HEAD\"; git log --oneline -3 -- src/lib/inventory.ownership-backup/ supabase/migrations/20260921100000_inventory_integrity.sql"
-    },
-    "timestamp": 1790000590363
-  },
-  {
-    "role": "tool_result",
-    "content": "BACKUP IN HEAD\nMIGRATION IN HEAD\n9dc39fb AI: alteracao automatica\n",
-    "is_error": false,
-    "timestamp": 1790000590491
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "git log --oneline --graph --all -20 2>&1; echo \"===HEAD===\"; git rev-parse HEAD; echo \"===branch===\"; git branch -a"
     },
     "timestamp": 1790000596603
@@ -1501,5 +1487,19 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790001664718
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sudo -u postgres dropdb --if-exists tmp_inv003a && sudo -u postgres createdb tmp_inv003a && for f in supabase/migrations/20260915*.sql supabase/migrations/20260916*.sql 20260917*.sql 20260918*.sql; do :; done; echo \"DB recriado\""
+    },
+    "timestamp": 1790001666618
+  },
+  {
+    "role": "tool_result",
+    "content": "DB recriado\n",
+    "is_error": false,
+    "timestamp": 1790001666772
   }
 ]
