@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "          location_id: string;\n          on_hand: number | null;\n          organization_id: string;\n          variant_id: string;\n        };\n        Relationships: [];\n      };\n    };\n    Functions: {\n      has_org_role: {\n        Args: {\n          _organization_id: string;\n          _roles: Databas",
-    "is_error": false,
-    "timestamp": 1789993063188
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"PGOPTIONS='-c check_function_bodies=off' psql -h /tmp -p 55432 -U inventory_test -d postgres -v ON_ERROR_STOP=1 -f supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql -f supabase/migrations/20260917110000_catalog_mestre.sql -f supabase/migrations/20260918100000_inventory_ledger.sql > /tmp/inventory-migrate.log 2>&1 && psql -h /tmp -p 55432 -U inventory_test -d postgres -v ON_ERROR_STOP=1 -f supabase/migrations/20260921100000_inventory_integrity.sql >> /tmp/inventory-migrate.log\""
-    },
-    "timestamp": 1789993147253
-  },
-  {
-    "role": "tool_result",
     "content": "",
     "is_error": false,
     "timestamp": 1789993147438
@@ -1458,5 +1444,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790001272282
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sudo -u postgres psql -d tmp_inv003a -f /tmp/opencode/teste_inv003.sql 2>&1 | tail -80",
+      "timeout": 180000
+    },
+    "timestamp": 1790001275141
+  },
+  {
+    "role": "tool_result",
+    "content": "BEGIN\nSET\nCREATE TABLE\nCREATE TABLE\nCREATE FUNCTION\nCREATE FUNCTION\npsql:/tmp/opencode/teste_inv003.sql:40: ERROR:  record \"new\" has no field \"raw_user_meta_data\"\nCONTEXT:  SQL statement \"INSERT INTO public.profiles (id, full_name, email)\n  VALUES (NEW.id, NULLIF(NEW.raw_user_meta_data->>'full_name'",
+    "is_error": false,
+    "timestamp": 1790001275227
   }
 ]
