@@ -413,8 +413,8 @@ BEGIN
   -- Movimentos OUT (origem) + IN (destino) na mesma transação.
   FOR v_item IN SELECT * FROM jsonb_array_elements(_items) AS it
   LOOP
-    v_variant_id := (v_item.it->>'variant_id')::uuid;
-    v_quantity := (v_item.it->>'quantity')::numeric;
+    v_variant_id := (v_item.value->>'variant_id')::uuid;
+    v_quantity := (v_item.value->>'quantity')::numeric;
 
     INSERT INTO public.inventory_movements (
       organization_id, variant_id, location_id,
