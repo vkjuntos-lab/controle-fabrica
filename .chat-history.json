@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "\n  UPDATE public.inventory_counts\n    SET status = 'COMPLETED', completed_at = now()\n    WHERE id = _count_id AND organization_id = _organization_id;\n\n  UPDATE public.inventory_count_items\n    SET status = 'ADJUSTED'\n    WHERE inventory_count_id = _count_id AND counted_quantity IS NOT NULL;\n\n  INSER",
-    "is_error": false,
-    "timestamp": 1789992793947
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"sed -n '1,390p' src/lib/inventory/inventory.functions.ts\""
-    },
-    "timestamp": 1789992802316
-  },
-  {
-    "role": "tool_result",
     "content": "import { createServerFn } from \"@tanstack/react-start\";\nimport type { SupabaseClient } from \"@supabase/supabase-js\";\nimport { z } from \"zod\";\n\nimport { requireSupabaseAuth } from \"@/integrations/supabase/auth-middleware\";\nimport type { Database, Json } from \"@/integrations/supabase/types\";\nimport ty",
     "is_error": false,
     "timestamp": 1789992802327
@@ -1450,5 +1436,20 @@
     "content": "fundação FAIL=0\n",
     "is_error": false,
     "timestamp": 1790000969024
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "for f in 20260917093000_avatars_storage_bucket 20260917093100_webhook_events 20260917100000_invitations 20260917100001_audit_log_insert_policy 20260917100002_role_permissions_manage 20260917110000_catalog_mestre; do base=\"$f.sql\"; if ! sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f \"supabase/migrations/$base\" >/tmp/mig_out.txt 2>&1; then echo \"FAIL $base: $(grep -m1 -i 'error' /tmp/mig_out.txt | head -c 300)\"; fi; done; echo \"done\"",
+      "timeout": 180000
+    },
+    "timestamp": 1790000971284
+  },
+  {
+    "role": "tool_result",
+    "content": "done\n",
+    "is_error": false,
+    "timestamp": 1790000971629
   }
 ]
