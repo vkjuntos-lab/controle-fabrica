@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/tmp/opencode/teste_inv003.sql",
-      "newString": "v := public.inventory_reverse_movement('20000000-0000-0000-0000-000000000001', v_mid, 'errei abertura');\n  PERFORM pg_temp.check('D7 reversão simples cria 1 compensação',\n    jsonb_array_length(v->'movement_ids') = 1, v->>'movement_ids');\n  PERFORM pg_temp.check('D8 saldo CD desconta 100 após estorno da abertura',\n    public.inventory_get_balance('20000000-0000-0000-0000-000000000001',\n      '50000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000002') = v_before_wh - 100);\n\n  -- Reverter a compensação é proibido\n  PERFORM pg_temp.expect_error('D9 compensação não pode ser estornada',\n    format('SELECT public.inventory_reverse_movement(''20000000-0000-0000-0000-000000000001'', %L, ''x'')', (v->>'movement_id')::uuid),\n    'Uma compensação não pode ser estornada');",
-      "oldString": "v := public.inventory_reverse_movement('20000000-0000-0000-0000-000000000001', v_mid, 'errei abertura');\n  PERFORM pg_temp.check('D7 reversão simples cria 1 compensação',\n    jsonb_array_length(v->'movement_ids') = 1, v->>'movement_ids');\n  PERFORM pg_temp.check('D8 saldo CD descresce após estorno da abertura',\n    public.inventory_get_balance('20000000-0000-0000-0000-000000000001',\n      '50000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000002') = v_before_wh - 100);\n\n  -- Reverter a compensação é proibido\n  v := public.inventory_reverse_movement('20000000-0000-0000-0000-000000000001', (v->>'movement_id')::uuid, 'x');\n  PERFORM pg_temp.expect_error('D9 compensação não pode ser estornada',\n    format('SELECT public.inventory_reverse_movement(''20000000-0000-0000-0000-000000000001'', %L, ''x'')', (v->>'movement_id')::uuid),\n    'Uma compensação não pode ser estornada');"
-    },
-    "timestamp": 1790002109778
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790002109803
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/tmp/opencode/teste_inv003.sql",
       "newString": "PERFORM pg_temp.check('D2 reversão remove efeito IN do Fábrica (-30)',\n    v_after_fab = v_before_fab - 30,\n    concat(v_before_fab, ' -> ', v_after_fab));\n  PERFORM pg_temp.check('D3 reversão restaura efeito OUT do CD (+30)',\n    v_after_wh = v_before_wh + 30,\n    concat(v_before_wh, ' -> ', v_after_wh));",
       "oldString": "PERFORM pg_temp.check('D2 saldo Fábrica voltou ao anterior', v_after_fab = v_before_fab,\n    v_before_fab || ' -> ' || v_after_fab);\n  PERFORM pg_temp.check('D3 saldo CD voltou ao anterior', v_after_wh = v_before_wh,\n    v_before_wh || ' -> ' || v_after_wh);"
     },
@@ -1601,5 +1585,21 @@
     "content": "<path>/tmp/opencode/teste_inv003.sql</path>\n<type>file</type>\n<content>\n1: -- Validação local das invariantes do Inventory Ledger (MASTER 003)\n2: -- Roda como superuser com auth.uid() definido via SET LOCAL em cada transação.\n3: -- Cada bloco é uma transação separada; o estado persiste e a tabela te",
     "is_error": false,
     "timestamp": 1790006288815
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260922100000_production.sql",
+      "limit": 55,
+      "offset": 1050
+    },
+    "timestamp": 1790006296240
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260922100000_production.sql</path>\n<type>file</type>\n<content>\n1050:   ('admin','production.order.create'),('gestor','production.order.create'),('estoque','production.order.create'),\n1051:   ('producao','production.order.create'),\n",
+    "is_error": false,
+    "timestamp": 1790006296260
   }
 ]
