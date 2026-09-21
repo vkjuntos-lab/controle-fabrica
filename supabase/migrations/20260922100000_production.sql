@@ -947,10 +947,11 @@ BEGIN
     OR EXISTS (SELECT 1 FROM public.production_losses WHERE production_order_id=_order_id) THEN
     RAISE EXCEPTION 'Ordem com movimentações não pode ser apagada: reverta os movimentos no ledger antes.';
   END IF;
+  v_from := v_order.status;
   UPDATE public.production_orders SET status='CANCELED', canceled_at=now(), canceled_by=_user_id,
     cancel_reason=trim(_reason), updated_by=_user_id WHERE id=_order_id RETURNING * INTO v_order;
   INSERT INTO public.production_order_status_history(organization_id,production_order_id,from_status,to_status,note,changed_by)
-  VALUES (_organization_id,_order_id,v_order.status,'CANCELED',trim(_reason),_user_id);
+  VALUES (_organization_id,_order_id,v_from,'CANCELED',trim(_reason),_user_id);
   INSERT INTO public.audit_log(organization_id,user_id,action,resource,resource_id,context)
   VALUES (_organization_id,_user_id,'production.order.cancel','production_orders',_order_id::text,
     jsonb_build_object('code',v_order.code,'reason',trim(_reason)));
