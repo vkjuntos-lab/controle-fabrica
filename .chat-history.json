@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"rg -n 'CREATE TABLE|CREATE.*FUNCTION|DROP SCHEMA|CREATE TYPE' supabase/migrations/20260915*.sql; sed -n '650,900p' src/lib/inventory/inventory.functions.ts; cat src/components/inventory/movement-dialog.tsx | head -170; cat src/integrations/supabase/types.ts | tail -220\""
-    },
-    "timestamp": 1789992813785
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20260915203409_0a9422ec-4c5a-4764-b2e5-8b233b1b85a1.sql:1:CREATE OR REPLACE FUNCTION public.__setup_exec(sql text) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $fn$ BEGIN EXECUTE sql; END; $fn$; REVOKE ALL ON FUNCTION public.__setup_exec(text) FROM P",
-    "is_error": false,
-    "timestamp": 1789992813793
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"id; ls -ld /tmp /usr/lib/postgresql/18/bin; cat vitest.config.ts; rg -n 'Functions:|inventory_get_balance|inventory_balances|inventory_batches' src/integrations/supabase/types.ts\""
     },
     "timestamp": 1789992813858
@@ -1454,5 +1440,19 @@
     "content": "697:CREATE OR REPLACE FUNCTION public.inventory_reverse_movement(\n879:REVOKE ALL ON FUNCTION public.inventory_reverse_movement(uuid, uuid, text, uuid) FROM PUBLIC, anon;\n888:GRANT EXECUTE ON FUNCTION public.inventory_reverse_movement(uuid, uuid, text, uuid) TO authenticated;\n889:GRANT EXECUTE ON FUN",
     "is_error": false,
     "timestamp": 1790000984715
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "head -693 supabase/migrations/20260918100000_inventory_ledger.sql > /tmp/opencode/ledger_p1.sql\ncat >> /tmp/opencode/ledger_p1.sql <<'SQL'\nCREATE OR REPLACE FUNCTION public.inventory_reverse_movement(\n  _organization_id uuid, _movement_id uuid, _reason text, _user_id uuid DEFAULT auth.uid()\n) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$\nBEGIN\n  RETURN '{\"deduped\": false}'::jsonb;\nEND;\n$$;\nSQL\ntail -n +780 supabase/migrations/20260918100000_inventory_ledger.sql >> /tmp/opencode/ledger_p1.sql\nsudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f /tmp/opencode/ledger_p1.sql >/tmp/mig_out.txt 2>&1 && echo LEDGER_P1_OK || (echo FAIL; grep -m1 -i error /tmp/mig_out.txt | head -c 400)"
+    },
+    "timestamp": 1790001002797
+  },
+  {
+    "role": "tool_result",
+    "content": "FAIL\npsql:/tmp/opencode/ledger_p1.sql:24: ERROR:  type \"inventory_location_type\" already exists\n",
+    "is_error": false,
+    "timestamp": 1790001002874
   }
 ]
