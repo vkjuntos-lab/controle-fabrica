@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sudo -u postgres psql -d tmp_inv003a -tAc \"SELECT typname FROM pg_type WHERE typname LIKE 'inventory%';\"; echo \"---migrations aplicadas?---\"; sudo -u postgres psql -d tmp_inv003a -tAc \"SELECT count(*) FROM pg_tables WHERE schemaname='public' AND tablename LIKE 'inventory%';\"; sudo -u postgres psql -d tmp_inv003a -c \"\\dt public.inventory*\" 2>&1 | head"
-    },
-    "timestamp": 1790001015702
-  },
-  {
-    "role": "tool_result",
-    "content": "inventory_balances\ninventory_batch_status\ninventory_batches\ninventory_count_item_status\ninventory_count_items\ninventory_count_status\ninventory_counts\ninventory_location_status\ninventory_location_type\ninventory_locations\ninventory_movement_direction\ninventory_movement_status\ninventory_movement_type\ni",
-    "is_error": false,
-    "timestamp": 1790001015888
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sudo -u postgres psql -c \"DROP DATABASE IF EXISTS tmp_inv003a;\" && sudo -u postgres createdb tmp_inv003a && sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f /tmp/opencode/bootstrap_inv.sql && echo BOOTSTRAP_OK && sudo -u postgres psql -d tmp_inv003a -tAc \"SELECT count(*) FROM pg_type WHERE typname LIKE 'inventory%';\""
     },
     "timestamp": 1790001034516
@@ -1493,5 +1479,21 @@
     "content": "<path>/tmp/opencode/teste_inv003.sql</path>\n<type>file</type>\n<content>\n385: \n386: -- ============================================================\n387: -- E. CONTAGEM FÍSICA (bloqueia localização + ajustes por divergência)\n388: -- ============================================================\n389: BEG",
     "is_error": false,
     "timestamp": 1790002187633
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/tmp/opencode/teste_inv003.sql",
+      "newString": "-- Estado: Parceiro A tem saldo +20 (proveniente da remessa) e é positivo.\n  v_before := public.inventory_get_balance('20000000-0000-0000-0000-000000000001',\n    '50000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000003');\n\n  -- Iniciar contagem no Parceiro A\n  v := public.inventory_start_count('20000000-0000-0000-0000-000000000001',\n    '30000000-0000-0000-0000-000000000003');\n  v_cid := (v->>'id')::uuid;\n  PERFORM pg_temp.check('E1 contagem iniciada', v_cid IS NOT NULL);\n  PERFORM pg_temp.check('E2 snapshot de itens criado',\n    (v->>'items')::int >= 1, concat('items=', v->>'items'));\n\n  -- Localização bloqueada para movimentação durante contagem\n  PERFORM pg_temp.expect_error('E3 movimentação bloqueada durante contagem',\n    'SELECT public.inventory_post_movement(''20000000-0000-0000-0000-000000000001'',''50000000-0000-0000-0000-000000000001'',''30000000-0000-0000-0000-000000000003'',''ADJUSTMENT_IN'',5,''x'')',\n    'Localização em contagem');\n  PERFORM pg_temp.expect_error('E4 transferência da localização bloqueada',\n    'SELECT public.inventory_post_transfer(''20000000-0000-0000-0000-000000000001'',''30000000-0000-0000-0000-000000000003'',''30000000-0000-0000-0000-000000000002'',jsonb_build_array(jsonb_build_object(''variant_id'',''50000000-0000-0000-0000-000000000001'',''quantity'',1)),''TRANSFER'')',\n    'Localização em contagem');\n\n  -- Gravar uma divergência no item do SKU-001\n  SELECT id INTO v_item FROM public.inventory_count_items\n    WHERE inventory_count_id = v_cid AND variant_id = '50000000-0000-0000-0000-000000000001'\n    ORDER BY id LIMIT 1;\n  v := public.inventory_save_count_item('20000000-0000-0000-0000-000000000001', v_cid, v_item, v_before + 7);\n  PERFORM pg_temp.check('E5 contagem gravada (diferença +7)', (v->>'ok')::boolean\n    AND (v->>'difference')::numeric = 7, concat('diff=', v->>'difference'));\n\n  -- Concluir: gera ADJUSTMENT_IN +7\n  v_res := public.inventory_complete_count('20000000-0000-0000-0000-000000000001', v_cid);\n  PERFORM pg_temp.check('E6 contagem concluída com 1 ajuste', (v_res->>'adjustments_created')::int = 1,\n    concat('ajustes=', v_res->>'adjustments_created'));\n  v_after := public.inventory_get_balance('20000000-0000-0000-0000-000000000001',\n    '50000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000003');\n  PERFORM pg_temp.check('E7 saldo incorporou +7', v_after = v_before + 7, concat(v_before, ' -> ', v_after));\n  PERFORM pg_temp.check('E8 contagem ficou COMPLETED',\n    (SELECT status='COMPLETED' FROM public.inventory_counts WHERE id=v_cid));\n\n  -- Localização liberada após conclusão\n  v := public.inventory_post_movement(\n    '20000000-0000-0000-0000-000000000001', '50000000-0000-0000-0000-000000000001',\n    '30000000-0000-0000-0000-000000000003', 'ADJUSTMENT_IN', 1, 'pós-contagem');\n  PERFORM pg_temp.check('E9 localização liberada após concluir', NOT (v->>'deduped')::boolean);",
+      "oldString": "-- Estado: CD tem abertura 100 (?) menos estorno... calculamos via balanço\n  v_before := public.inventory_get_balance('20000000-0000-0000-0000-000000000001',\n    '50000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000002');\n\n  -- Iniciar contagem no CD\n  v := public.inventory_start_count('20000000-0000-0000-0000-000000000001',\n    '30000000-0000-0000-0000-000000000002');\n  v_cid := (v->>'id')::uuid;\n  PERFORM pg_temp.check('E1 contagem iniciada', v_cid IS NOT NULL);\n  PERFORM pg_temp.check('E2 snapshot de itens criado',\n    (v->>'items')::int >= 1, concat('items=', v->>'items'));\n\n  -- Localização bloqueada para movimentação durante contagem\n  PERFORM pg_temp.expect_error('E3 movimentação bloqueada durante contagem',\n    'SELECT public.inventory_post_movement(''20000000-0000-0000-0000-000000000001'',''50000000-0000-0000-0000-000000000001'',''30000000-0000-0000-0000-000000000002'',''ADJUSTMENT_IN'',5,''x'')',\n    'Localização em contagem');\n  PERFORM pg_temp.expect_error('E4 transferência da localização bloqueada',\n    'SELECT public.inventory_post_transfer(''20000000-0000-0000-0000-000000000001'',''30000000-0000-0000-0000-000000000002'',''30000000-0000-0000-0000-000000000001'',jsonb_build_array(jsonb_build_object(''variant_id'',''50000000-0000-0000-0000-000000000001'',''quantity'',1)),''TRANSFER'')',\n    'Localização em contagem');\n\n  -- Gravar uma divergência no item do SKU-001\n  SELECT id INTO v_item FROM public.inventory_count_items\n    WHERE inventory_count_id = v_cid AND variant_id = '50000000-0000-0000-0000-000000000001'\n    ORDER BY id LIMIT 1;\n  v := public.inventory_save_count_item('20000000-0000-0000-0000-000000000001', v_cid, v_item, v_before + 7);\n  PERFORM pg_temp.check('E5 contagem gravada (diferença +7)', (v->>'ok')::boolean\n    AND (v->>'difference')::numeric = 7, concat('diff=', v->>'difference'));\n\n  -- Concluir: gera ADJUSTMENT_IN +7\n  v_res := public.inventory_complete_count('20000000-0000-0000-0000-000000000001', v_cid);\n  PERFORM pg_temp.check('E6 contagem concluída com 1 ajuste', (v_res->>'adjustments_created')::int = 1,\n    concat('ajustes=', v_res->>'adjustments_created'));\n  v_after := public.inventory_get_balance('20000000-0000-0000-0000-000000000001',\n    '50000000-0000-0000-0000-000000000001', '30000000-0000-0000-0000-000000000002');\n  PERFORM pg_temp.check('E7 saldo incorporou +7', v_after = v_before + 7, concat(v_before, ' -> ', v_after));\n  PERFORM pg_temp.check('E8 contagem ficou COMPLETED',\n    (SELECT status='COMPLETED' FROM public.inventory_counts WHERE id=v_cid));\n\n  -- Localização liberada após conclusão\n  v := public.inventory_post_movement(\n    '20000000-0000-0000-0000-000000000001', '50000000-0000-0000-0000-000000000001',\n    '30000000-0000-0000-0000-000000000002', 'ADJUSTMENT_IN', 1, 'pós-contagem');\n  PERFORM pg_temp.check('E9 localização liberada após concluir', NOT (v->>'deduped')::boolean);"
+    },
+    "timestamp": 1790002205162
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790002205190
   }
 ]
