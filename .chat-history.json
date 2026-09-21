@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "for f in supabase/migrations/20260811000000_waseller_schema.sql supabase/migrations/20260917110000_catalog_mestre.sql supabase/migrations/20260918100000_inventory_ledger.sql supabase/migrations/20240808143900_batch_persistence.sql; do echo \"=== $f ===\"; grep -n \"CREATE EXTENSION\\|CREATE FUNCTION\\|CREATE TABLE\\|CREATE TYPE\\|ALTER TABLE\" \"$f\" | head -40; done"
-    },
-    "timestamp": 1790000844174
-  },
-  {
-    "role": "tool_result",
-    "content": "=== supabase/migrations/20260811000000_waseller_schema.sql ===\n5:    ALTER TABLE public.orders ADD COLUMN whatsapp_link text;\n13:    ALTER TABLE public.customers ADD COLUMN phone text;\n=== supabase/migrations/20260917110000_catalog_mestre.sql ===\n16:CREATE TYPE public.product_status AS ENUM ('ACTIVE",
-    "is_error": false,
-    "timestamp": 1790000844217
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "for f in 20260711174001_199c685f-feb6-4270-8245-3d80b381b49b 20260720124849_d00f8076-8cab-4d85-89f1-7592be62e06a; do echo \"=== $f ===\"; grep -n \"CREATE EXTENSION\\|CREATE TABLE\\|CREATE OR REPLACE FUNCTION\\|CREATE POLICY\\|CREATE TRIGGER\\|ALTER TABLE\\|CREATE OR REPLACE VIEW\\|CREATE FUNCTION\" \"supabase/migrations/$f.sql\" | head -30; done"
     },
     "timestamp": 1790000854256
@@ -1482,5 +1468,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790001965281
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres dropdb --if-exists tmp_inv003a; sudo -u postgres createdb tmp_inv003a; sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f /tmp/opencode/bootstrap_inv.sql > /tmp/opencode/rebuild3.log 2>&1; for f in \\\n  20260915203409_0a9422ec-4c5a-4764-b2e5-8b233b1b85a1 \\\n  20260915203634_4f230478-83c1-4a61-9a88-8328e6268a4d \\\n  20260915203719_bcfd1105-5739-4b5d-8751-5a8bd859cb77 \\\n  20260915203928_27db022f-7c11-478e-a8bc-49540367304b \\\n  20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e \\\n  20260915211508_ec17904b-1fc9-4516-b4e2-b37ba9be6436 \\\n  20260915211527_57318115-7e5a-439f-9a40-99d7f58bbc1b \\\n  20260917093000_avatars_storage_bucket \\\n  20260917093100_webhook_events \\\n  20260917100000_invitations \\\n  20260917100001_audit_log_insert_policy \\\n  20260917100002_role_permissions_manage \\\n  20260917110000_catalog_mestre \\\n  ../..; do :; done\nfor f in supabase/migrations/20260915203409*.sql supabase/migrations/20260915203634*.sql supabase/migrations/20260915203719*.sql supabase/migrations/20260915203928*.sql supabase/migrations/20260915210457*.sql supabase/migrations/20260915211508*.sql supabase/migrations/20260915211527*.sql supabase/migrations/20260917093000*.sql supabase/migrations/20260917093100*.sql supabase/migrations/20260917100000_invitations.sql supabase/migrations/20260917100001*.sql supabase/migrations/20260917100002*.sql supabase/migrations/20260917110000*.sql; do sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f \"$f\" >> /tmp/opencode/rebuild3.log 2>&1 || echo \"FAIL $(basename $f)\"; done\nsudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f /tmp/opencode/ledger_p1.sql >> /tmp/opencode/rebuild3.log 2>&1 || echo \"FAIL ledger_p1\"\nsudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f supabase/migrations/20260921100000_inventory_integrity.sql >> /tmp/opencode/rebuild3.log 2>&1 || echo \"FAIL integrity\"\necho \"erros: $(grep -ci error /tmp/opencode/rebuild3.log)\"",
+      "timeout": 240000
+    },
+    "timestamp": 1790001972209
+  },
+  {
+    "role": "tool_result",
+    "content": "erros: 0\n",
+    "is_error": false,
+    "timestamp": 1790001973342
   }
 ]
