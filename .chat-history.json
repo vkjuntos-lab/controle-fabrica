@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sudo -u postgres psql -c \"DROP DATABASE IF EXISTS tmp_inv003a;\" >/dev/null 2>&1; sudo -u postgres createdb tmp_inv003a && sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f /tmp/opencode/bootstrap_inv.sql && echo BOOTSTRAP_OK && sudo -u postgres psql -d tmp_inv003a -c \"\\dn; \\df auth.uid\""
-    },
-    "timestamp": 1790000914346
-  },
-  {
-    "role": "tool_result",
-    "content": "BOOTSTRAP_OK\n       List of schemas\n  Name   |       Owner       \n---------+-------------------\n auth    | postgres\n public  | pg_database_owner\n storage | postgres\n(3 rows)\n\n",
-    "is_error": false,
-    "timestamp": 1790000914732
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "FAIL=0; TOTAL=0; for f in $(ls supabase/migrations/202609*.sql | sort); do TOTAL=$((TOTAL+1)); base=$(basename \"$f\"); if ! sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f \"$f\" >/tmp/mig_out.txt 2>&1; then echo \"FAIL $base: $(grep -m1 -i 'error' /tmp/mig_out.txt | head -c 400)\"; FAIL=$((FAIL+1)); fi; done; echo \"---\"; echo \"APLICADAS: $TOTAL, FALHAS: $FAIL\"",
       "timeout": 300000
     },
@@ -1489,5 +1475,19 @@
     "content": "ERROR:  syntax error at or near \"\\\"\nLINE 2: ...00-0000-0000-000000000002' ORDER BY created_at LIMIT 1 \\gset\n                                                                  ^\n",
     "is_error": false,
     "timestamp": 1790002056197
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sudo -u postgres psql -d tmp_inv003a -t -c \"SELECT id FROM public.inventory_movements WHERE organization_id='20000000-0000-0000-0000-000000000001' AND movement_type='OPENING_BALANCE' AND location_id='30000000-0000-0000-0000-000000000002' ORDER BY created_at LIMIT 1;\" | head -1"
+    },
+    "timestamp": 1790002062218
+  },
+  {
+    "role": "tool_result",
+    "content": " a95743ff-bd8b-41a2-846c-e1dd53bb0b88\n",
+    "is_error": false,
+    "timestamp": 1790002062284
   }
 ]
