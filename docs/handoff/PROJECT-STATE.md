@@ -78,14 +78,22 @@
     localização, status de transferência/contagem/lote. Tenant `organization_id` em tudo.
   - View `inventory_balances` (`security_invoker = on`) e RPC `inventory_get_balance` derivam o
     saldo por variante + localização + lote.
-  - Semântica de saldo: somente `POSTED` e `REVERSED` somam (`REVERSED` continua contando, pois o
-    par original + estorno dá o líquido); `PENDING`/`CANCELED` nunca somam. `quantity` é sempre
-    positiva e `direction` (IN/OUT) decide o sinal.
+  - Semântica de saldo: somente `POSTED` soma. O status legado `REVERSED` não é mais gravado
+    (migrado para `POSTED`); correção gera compensação `REVERSAL` (POSTED, direção oposta) e o
+    original permanece `POSTED` — o par soma zero. `PENDING`/`CANCELED` nunca somam. `quantity` é
+    sempre positiva e `direction` (IN/OUT) decide o sinal. Reversões nunca são bloqueadas por saldo
+    negativo; `_allow_negative_override` é sempre recusado.
   - Operações transacionais: `inventory_post_movement` (valida saldo, advisory lock por
     variante+localização, idempotência por `UNIQUE(organization_id, idempotency_key)`, recusa tipos
     dedicados), `inventory_post_transfer` (par OUT+IN atômico; `TRANSFER`, `PARTNER_SHIPMENT` e
-    `PARTNER_RETURN`), `inventory_reverse_movement` (marca o original como `REVERSED` e cria
-    `REVERSAL` oposto) e `inventory_complete_count` (aplica divergências como ajustes).
+    `PARTNER_RETURN`), `inventory_reverse_movement` (compensa por inteiro — inclusive transferências —
+    com `REVERSAL`, original permanece `POSTED`) e `inventory_complete_count` (snapshot por lote,
+    aplica divergências como ajustes e bloqueia a localização durante a contagem).
+  - Integridade transacional (migration `20260921100000_inventory_integrity.sql`): `batch_id` e
+    `inventory_count_item_key` (NULLS NOT DISTINCT) em itens de contagem, `inventory_one_reversal`
+    (uma compensação por movimento), `inventory_one_open_count` (uma contagem aberta por localização),
+    `inventory_lock` (trava por organização), soma de contagens na view de saldos e guard de tenant
+    (`inventory_guard_relations`). Migração validada por harness local no Postgres (80/80 cenários).
   - Estoque negativo bloqueado por padrão; liberável por organização
     (`organization_inventory_settings.allow_negative_inventory`). Remessa a parceiro não é venda
     (não gera receita/AR). Movimentos nunca são editados/excluídos — correção por reversão.

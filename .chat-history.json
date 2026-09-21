@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/tmp/opencode/teste_inv003.sql",
-      "limit": 18,
-      "offset": 142
-    },
-    "timestamp": 1790001631542
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/tmp/opencode/teste_inv003.sql</path>\n<type>file</type>\n<content>\n142:   -- Localização inativa\n143:   UPDATE public.inventory_locations SET status = 'INACTIVE' WHERE id = '30000000-0000-0000-0000-000000000002';\n144:   PERFORM pg_temp.expect_error('A16 localização inativa rejeitada',\n145:     ",
-    "is_error": false,
-    "timestamp": 1790001631565
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/tmp/opencode/teste_inv003.sql",
@@ -1535,5 +1519,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790002480148
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
+      "newString": "- Semântica de saldo: somente `POSTED` soma. O status legado `REVERSED` não é mais gravado\n    (migrado para `POSTED`); correção gera compensação `REVERSAL` (POSTED, direção oposta) e o\n    original permanece `POSTED` — o par soma zero. `PENDING`/`CANCELED` nunca somam. `quantity` é\n    sempre positiva e `direction` (IN/OUT) decide o sinal. Reversões nunca são bloqueadas por saldo\n    negativo; `_allow_negative_override` é sempre recusado.\n  - Operações transacionais: `inventory_post_movement` (valida saldo, advisory lock por\n    variante+localização, idempotência por `UNIQUE(organization_id, idempotency_key)`, recusa tipos\n    dedicados), `inventory_post_transfer` (par OUT+IN atômico; `TRANSFER`, `PARTNER_SHIPMENT` e\n    `PARTNER_RETURN`), `inventory_reverse_movement` (compensa por inteiro — inclusive transferências —\n    com `REVERSAL`, original permanece `POSTED`) e `inventory_complete_count` (snapshot por lote,\n    aplica divergências como ajustes e bloqueia a localização durante a contagem).\n  - Integridade transacional (migration `20260921100000_inventory_integrity.sql`): `batch_id` e\n    `inventory_count_item_key` (NULLS NOT DISTINCT) em itens de contagem, `inventory_one_reversal`\n    (uma compensação por movimento), `inventory_one_open_count` (uma contagem aberta por localização),\n    `inventory_lock` (trava por organização), soma de contagens na view de saldos e guard de tenant\n    (`inventory_guard_relations`). Migração validada por harness local no Postgres (80/80 cenários).",
+      "oldString": "- Semântica de saldo: somente `POSTED` e `REVERSED` somam (`REVERSED` continua contando, pois o\n    par original + estorno dá o líquido); `PENDING`/`CANCELED` nunca somam. `quantity` é sempre\n    positiva e `direction` (IN/OUT) decide o sinal.\n  - Operações transacionais: `inventory_post_movement` (valida saldo, advisory lock por\n    variante+localização, idempotência por `UNIQUE(organization_id, idempotency_key)`, recusa tipos\n    dedicados), `inventory_post_transfer` (par OUT+IN atômico; `TRANSFER`, `PARTNER_SHIPMENT` e\n    `PARTNER_RETURN`), `inventory_reverse_movement` (marca o original como `REVERSED` e cria\n    `REVERSAL` oposto) e `inventory_complete_count` (aplica divergências como ajustes)."
+    },
+    "timestamp": 1790002487861
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790002487907
   }
 ]
