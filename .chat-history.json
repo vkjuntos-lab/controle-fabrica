@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
-      "newString": "## NOT_IMPLEMENTED\n\n- Módulos: Comercial, Estoque, Produção, Marketplaces, Parceiros, Financeiro, Relatórios,\n  Inteligência (marcados como `coming_soon` em `src/lib/rbac.ts`, fora do menu operacional).\n- Inventory Ledger (modelo de movimentos de estoque por variante).\n- Atributos personalizados editáveis na tela (o campo `attributes` jsonb já existe nas tabelas\n  de produto/variante).\n- Importação CSV/XLSX com mapeamento configurável de colunas e `external_sku`.",
-      "oldString": "## NOT_IMPLEMENTED\n\n- Módulos: Comercial, Produtos, Estoque, Produção, Marketplaces, Parceiros, Financeiro, Relatórios,\n  Inteligência (marcados como `coming_soon` em `src/lib/rbac.ts`, fora do menu operacional).\n- Inventory Ledger (modelo de movimentos de estoque).\n- Product/Variant, atributos personalizados, códigos de barras.\n- Importação CSV/XLSX com mapeamento configurável de colunas e `external_sku`."
-    },
-    "timestamp": 1789671801652
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1789671801675
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
       "newString": "## NEXT_STEPS\n\n1. Modelar o Inventory Ledger (movimentos + visões de saldo) como fonte única do estoque.\n2. Modelar locais de estoque e posse de terceiros (parceiro).\n3. Marketplaces/lojas e importação com mapeamento configurável de colunas.\n4. Reconciliação, fechamento de período e cobrança (server-side, auditado).\n5. Financeiro e relatórios de quantidade + valor.\n6. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a\n   `/api/webhooks/receiver` quando houver integração externa.",
       "oldString": "## NEXT_STEPS\n\n1. Modelar Product → Variant com SKU/código de barras e atributos extensíveis.\n2. Modelar o Inventory Ledger (movimentos + visões de saldo) como fonte única do estoque.\n3. Modelar locais de estoque e posse de terceiros (parceiro).\n4. Marketplaces/lojas e importação com mapeamento configurável de colunas.\n5. Reconciliação, fechamento de período e cobrança (server-side, auditado).\n6. Financeiro e relatórios de quantidade + valor.\n7. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a\n   `/api/webhooks/receiver` quando houver integração externa."
     },
@@ -1426,5 +1410,19 @@
     "content": " extname \n---------\n plpgsql\n(1 row)\n\n===CREATE EXTENSION usages===\nCREATE EXTENSION IF NOT EXISTS pg_cron;\nCREATE EXTENSION IF NOT EXISTS pg_net;\nCREATE EXTENSION IF NOT EXISTS pg_trgm;\n",
     "is_error": false,
     "timestamp": 1790000815323
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sudo -u postgres psql -c \"SELECT name, default_version, installed_version FROM pg_available_extensions WHERE name IN ('pg_cron','pg_net','pg_trgm','pgcrypto','uuid-ossp','postgis');\" 2>&1"
+    },
+    "timestamp": 1790000820166
+  },
+  {
+    "role": "tool_result",
+    "content": "   name    | default_version | installed_version \n-----------+-----------------+-------------------\n pgcrypto  | 1.4             | \n pg_trgm   | 1.6             | \n uuid-ossp | 1.1             | \n(3 rows)\n\n",
+    "is_error": false,
+    "timestamp": 1790000820269
   }
 ]
