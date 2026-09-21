@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "/usr/bin/psql\nAGENTS.md\neslint.config.js\nvite.config.ts\ncapacitor.config.ts\nsupabase/config.toml\nsrc/lib/webhook/signature.test.ts\nsrc/lib/inventory/ledger.test.ts\nsrc/lib/csv.test.ts\nsrc/lib/rbac.test.ts\nsrc/lib/middleware/rate-limit.test.ts\ntsconfig.json\nvitest.config.ts\n",
-    "is_error": false,
-    "timestamp": 1789992788094
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"sed -n '390,850p' supabase/migrations/20260918100000_inventory_ledger.sql\""
-    },
-    "timestamp": 1789992793877
-  },
-  {
-    "role": "tool_result",
     "content": "    WHEN 'OPENING_BALANCE' THEN 'IN'\n    WHEN 'PURCHASE_RECEIPT' THEN 'IN'\n    WHEN 'PRODUCTION_OUTPUT' THEN 'IN'\n    WHEN 'SALE_RETURN' THEN 'IN'\n    WHEN 'PRODUCTION_CONSUMPTION' THEN 'OUT'\n    WHEN 'SALE' THEN 'OUT'\n    WHEN 'ADJUSTMENT_OUT' THEN 'OUT'\n    WHEN 'LOSS' THEN 'OUT'\n    ELSE NULL\n  E",
     "is_error": false,
     "timestamp": 1789992793886
@@ -1449,5 +1435,19 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790000963603
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sudo -u postgres psql -c \"DROP DATABASE IF EXISTS tmp_inv003a;\" >/dev/null 2>&1; sudo -u postgres createdb tmp_inv003a && sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f /tmp/opencode/bootstrap_inv.sql && echo BOOTSTRAP_OK"
+    },
+    "timestamp": 1790000965522
+  },
+  {
+    "role": "tool_result",
+    "content": "psql:/tmp/opencode/bootstrap_inv.sql:11: NOTICE:  column \"file_size_limit\" of relation \"buckets\" already exists, skipping\npsql:/tmp/opencode/bootstrap_inv.sql:12: NOTICE:  column \"allowed_mime_types\" of relation \"buckets\" already exists, skipping\nBOOTSTRAP_OK\n",
+    "is_error": false,
+    "timestamp": 1790000965752
   }
 ]
