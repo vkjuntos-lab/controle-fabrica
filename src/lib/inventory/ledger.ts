@@ -3,10 +3,11 @@
  *
  * REGRAS (fonte de verdade conceitual, espelhada no banco):
  *   * quantity é SEMPRE positiva; a direção (IN/OUT) decide o sinal.
- *   * Movimentos POSTED e REVERSED compõem o saldo; PENDING e CANCELED nunca
- *     somam. "REVERSED" é anotação do original estornado que permanece no
- *     saldo — o efeito é cancelado pelo REVERSAL de direção oposta (o par
- *     soma zero), jamais por edição do movimento.
+ *   * SOMENTE movimentos POSTED compõem o saldo. PENDING e CANCELED nunca
+ *     somam. O status REVERSED (legado) também não compõe — a convenção atual
+ *     mantém o original POSTED e cancela o efeito com uma compensação REVERSAL
+ *     (POSTED, direção oposta e mesma quantidade: o par soma zero), jamais por
+ *     edição ou estorno do próprio movimento.
  *   * Movimento consolidado não é editado nem excluído; correção gera
  *     movimento compensatório (REVERSAL / ajuste / correção manual).
  *   * Saldo = SUM(IN) - SUM(OUT).
