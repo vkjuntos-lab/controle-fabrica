@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sha256sum src/lib/inventory/*.ts src/lib/inventory.ownership-backup/*.ts; echo \"===DIFF vs HEAD===\"; git diff HEAD --stat -- src/lib/ 2>&1 | tail -20"
-    },
-    "timestamp": 1790000568698
-  },
-  {
-    "role": "tool_result",
-    "content": "3946a10874331d3fd55d41af96da7cd428650fc8da2465cdea57198595fc86a7  src/lib/inventory/constants.ts\n2376d86ac7468dffe212909180422337c17091a02663832f133baa89cd786d10  src/lib/inventory/inventory.functions.ts\nb5280f08fd155dd6eb1855eeda051d8ef6b97cc9e38bcab788722160f5eb6eca  src/lib/inventory/ledger.test.",
-    "is_error": false,
-    "timestamp": 1790000568734
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "git config --get core.untrackedCache; git status --porcelain -uall 2>&1; echo \"EXIT:$?\""
     },
     "timestamp": 1790000576280
@@ -1495,5 +1481,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/inventory/inventory.functions.ts</path>\n<type>file</type>\n<content>\n560: \n561: /** Registra um movimento no ledger via RPC (validação de saldo no banco). */\n562: export const postInventoryMovement = createServerFn({ method: \"POST\" })\n563:   .mid",
     "is_error": false,
     "timestamp": 1790001655448
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/tmp/opencode/teste_inv003.sql",
+      "newString": "'SELECT public.inventory_post_movement(''20000000-0000-0000-0000-000000000001'',''50000000-0000-0000-0000-000000000001'',''30000000-0000-0000-0000-000000000001'',''ADJUSTMENT_OUT'',5000,''x'',now(),''un'',NULL,NULL,NULL,NULL,NULL,''10000000-0000-0000-0000-000000000001'',true)',\n    'Override de saldo negativo');",
+      "oldString": "'SELECT public.inventory_post_movement(''20000000-0000-0000-0000-000000000001'',''50000000-0000-0000-0000-000000000001'',''30000000-0000-0000-0000-000000000001'',''ADJUSTMENT_OUT'',5000,''x'',now(),''un'',NULL,NULL,NULL,NULL,NULL,NULL,true)',\n    'Override de saldo negativo');"
+    },
+    "timestamp": 1790001661299
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790001661314
   }
 ]
