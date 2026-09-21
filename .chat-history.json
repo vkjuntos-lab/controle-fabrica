@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "import { createServerFn } from \"@tanstack/react-start\";\nimport type { SupabaseClient } from \"@supabase/supabase-js\";\nimport { z } from \"zod\";\n\nimport { requireSupabaseAuth } from \"@/integrations/supabase/auth-middleware\";\nimport type { Database, Json } from \"@/integrations/supabase/types\";\nimport ty",
-    "is_error": false,
-    "timestamp": 1789992802327
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"sed -n '390,720p' src/lib/inventory/inventory.functions.ts; cat src/components/inventory/movement-dialog.tsx\""
-    },
-    "timestamp": 1789992802391
-  },
-  {
-    "role": "tool_result",
     "content": "      const belowMinimum = entry.on_hand < variant.minimum_stock;\n      if (data.onlyBelowMinimum && !belowMinimum) continue;\n\n      if (query) {\n        const haystack = [\n          variant.sku,\n          variant.product_name,\n          variant.product_code,\n          variant.size ?? \"\",\n          ",
     "is_error": false,
     "timestamp": 1789992802399
@@ -1451,5 +1437,19 @@
     "content": "done\n",
     "is_error": false,
     "timestamp": 1790000971629
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '694,697p' supabase/migrations/20260918100000_inventory_ledger.sql; echo \"---779-780---\"; sed -n '779,782p' supabase/migrations/20260918100000_inventory_ledger.sql; echo \"---total---\"; wc -l supabase/migrations/20260918100000_inventory_ledger.sql"
+    },
+    "timestamp": 1790000977327
+  },
+  {
+    "role": "tool_result",
+    "content": "-- ============ REVERSE MOVEMENT ============\n-- Não edita o movimento original: cria um REVERSAL compensatório e relaciona\n-- ambos. O original permanece no histórico com status REVERSED.\nCREATE OR REPLACE FUNCTION public.inventory_reverse_movement(\n---779-780---\n\n-- ============ COMPLETE COUNT ===",
+    "is_error": false,
+    "timestamp": 1790000977350
   }
 ]
