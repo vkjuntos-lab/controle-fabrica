@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "set -o pipefail\napply() {\n  local f=\"$1\"\n  if sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f \"$f\" >/tmp/mig_out.txt 2>&1; then\n    echo \"OK   $(basename \"$f\")\"\n  else\n    echo \"FAIL $(basename \"$f\"): $(grep -m1 -i 'error' /tmp/mig_out.txt | head -c 300)\"\n  fi\n}\nfor base in 20260915203409_0a9422ec-4c5a-4764-b2e5-8b233b1b85a1 \\\n  20260915203634_4f230478-83c1-4a61-9a88-8328e6268a4d \\\n  20260915203719_bcfd1105-5739-4b5d-8751-5a8bd859cb77 \\\n  20260915203928_27db022f-7c11-478e-a8bc-49540367304b \\\n  20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e \\\n  20260915211508_ec17904b-1fc9-4516-b4e2-b37ba9be6436 \\\n  20260915211527_57318115-7e5a-439f-9a40-99d7f58bbc1b \\\n  20260917093000_avatars_storage_bucket \\\n  20260917093100_webhook_events \\\n  20260917100000_invitations \\\n  20260917100001_audit_log_insert_policy \\\n  20260917100002_role_permissions_manage \\\n  20260917110000_catalog_mestre; do\n  apply \"supabase/migrations/$base.sql\"\ndone\necho \"--- inventory ledger (com stub reverse) ---\"\napply /tmp/opencode/ledger_p1.sql\necho \"--- integrity ---\"\napply supabase/migrations/20260921100000_inventory_integrity.sql",
-      "timeout": 300000
-    },
-    "timestamp": 1790001044707
-  },
-  {
-    "role": "tool_result",
-    "content": "OK   20260915203409_0a9422ec-4c5a-4764-b2e5-8b233b1b85a1.sql\nOK   20260915203634_4f230478-83c1-4a61-9a88-8328e6268a4d.sql\nOK   20260915203719_bcfd1105-5739-4b5d-8751-5a8bd859cb77.sql\nOK   20260915203928_27db022f-7c11-478e-a8bc-49540367304b.sql\nOK   20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e",
-    "is_error": false,
-    "timestamp": 1790001045684
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sudo -u postgres psql -d tmp_inv003a -c \"\\d public.organizations\" 2>&1 | head -30; echo \"===profiles===\"; sudo -u postgres psql -d tmp_inv003a -c \"\\d public.profiles\" 2>&1 | head -20; echo \"===role_permissions===\"; sudo -u postgres psql -d tmp_inv003a -c \"SELECT role, permission FROM public.role_permissions WHERE permission LIKE 'inventory%' ORDER BY permission;\" 2>&1"
     },
     "timestamp": 1790001065718
@@ -1496,5 +1481,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790002213177
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "chmod +x /tmp/opencode/rebuild_db.sh && /tmp/opencode/rebuild_db.sh && sudo -u postgres psql -d tmp_inv003a -f /tmp/opencode/teste_inv003.sql > /tmp/opencode/run8.log 2>&1; echo \"exit=$?\"; echo \"=== t_reg final ===\"; tail -4 /tmp/opencode/run8.log; echo \"=== FAILs (log) ===\"; grep \"FAIL\" /tmp/opencode/run8.log | sed 's/NOTICE: *//;s/psql:[^ ]* //'; echo \"=== ERRORs (log) ===\"; grep -c \"ERROR\" /tmp/opencode/run8.log",
+      "timeout": 300000
+    },
+    "timestamp": 1790002215447
+  },
+  {
+    "role": "tool_result",
+    "content": "rebuild OK (erros: 0)\nexit=0\n=== t_reg final ===\n--------+--------+-------\n     80 |      0 |    80\n(1 row)\n\n=== FAILs (log) ===\n=== ERRORs (log) ===\n0\n",
+    "is_error": false,
+    "timestamp": 1790002216781
   }
 ]
