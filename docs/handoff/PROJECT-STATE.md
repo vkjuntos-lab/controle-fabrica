@@ -1,6 +1,6 @@
 # Estado do projeto — handoff contínuo
 
-Última atualização: LOVABLE MASTER 003 — Inventory Ledger (estoque por movimentos imutáveis) sobre o MASTER 002 (Catálogo de Produtos) e a fundação do MASTER 001.
+Última atualização: LOVABLE MASTER 003 — Inventory Ledger (estoque por movimentos imutáveis) sobre o MASTER 002 (Catálogo de Produtos) e a fundação do MASTER 001. Etapa atual: validação e endurecimento transacional do ledger (migration `20260921100000_inventory_integrity.sql`) com harness local de 80 cenários + sincronização do código TS e docs.
 
 ## IMPLEMENTED
 
