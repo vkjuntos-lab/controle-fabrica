@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"inventory\\.[a-z_.]*'\" supabase/migrations/20260921100000_inventory_integrity.sql | grep -i \"action\\|'inventory\\.\" | head -40"
-    },
-    "timestamp": 1790001936181
-  },
-  {
-    "role": "tool_result",
-    "content": "35:  IF _user_id IS DISTINCT FROM auth.uid() OR NOT public.has_permission(_organization_id, 'inventory.read') THEN\n77:    IF NOT public.has_permission(NEW.organization_id,'inventory.allow_negative') THEN\n82:  VALUES(NEW.organization_id,auth.uid(),CASE WHEN v_after<0 THEN 'inventory.negative_warning'",
-    "is_error": false,
-    "timestamp": 1790001936196
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql",
@@ -1555,5 +1541,55 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/inventory/inventory.functions.ts</path>\n<type>file</type>\n<content>\n1073: export const listVariantOptions = createServerFn({ method: \"GET\" })\n1074:   .middleware([requireSupabaseAuth])\n1075:   .inputValidator((input) =>\n1076:     z\n1077:       .",
     "is_error": false,
     "timestamp": 1790006069154
+  },
+  {
+    "role": "tool",
+    "tool": "todowrite",
+    "input": {
+      "todos": [
+        {
+          "content": "FASE A — Migration SQL do domínio industrial (units, item_type, BOM, ordens, consumo, output, perdas, RLS, RPCs, permissões, seeds)",
+          "status": "in_progress",
+          "priority": "high"
+        },
+        {
+          "content": "Aplicar migration no Postgres local (rebuild) e validar com harness SQL (cenário industrial 100 un)",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "FASE B — Regenerar/atualizar types.ts e criar src/lib/production (constants + functions)",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "FASE C — RBAC (permissões production.*), módulo produção, menu AppShell e BarcodeInput",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "FASE D — Telas: dashboard, matérias-primas (+detalhe), fichas técnicas (BOM), ordens (+detalhe/operação)",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "FASE E — Testes vitest (BOM lógica pura, explosão, custo/histórico) e verificação tsc/build",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "FASE F — Docs PRODUCTION.md + PROJECT-STATE.md e relatório final",
+          "status": "pending",
+          "priority": "medium"
+        }
+      ]
+    },
+    "timestamp": 1790006098574
+  },
+  {
+    "role": "tool_result",
+    "content": "[\n  {\n    \"content\": \"FASE A — Migration SQL do domínio industrial (units, item_type, BOM, ordens, consumo, output, perdas, RLS, RPCs, permissões, seeds)\",\n    \"status\": \"in_progress\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Aplicar migration no Postgres local (rebuild) e validar com harness",
+    "is_error": false,
+    "timestamp": 1790006098578
   }
 ]
