@@ -1,18 +1,5 @@
 [
   {
-    "role": "assistant",
-    "content": "A correção mantém o original e a compensação como movimentos POSTED, sem editar o lançamento original. Transferências e remessas serão estornadas por inteiro, e a contagem física bloqueará temporariamente a localização para evitar divergências durante a conferência. Preparei um PostgreSQL local isolado para testar essas regras sem tocar no banco publicado.\n",
-    "timestamp": 1789993041346
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc 'cat supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql; cat supabase/migrations/20260915211527_57318115-7e5a-439f-9a40-99d7f58bbc1b.sql'"
-    },
-    "timestamp": 1789993052029
-  },
-  {
     "role": "tool_result",
     "content": "-- Reset: remove legacy schema objects (all tables were empty)\nDROP SCHEMA public CASCADE;\nCREATE SCHEMA public;\nGRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;\nGRANT ALL ON SCHEMA public TO postgres;\n\n-- ============ ENUMS ============\nCREATE TYPE public.app_role AS ENUM ('admin'",
     "is_error": false,
@@ -1455,5 +1442,19 @@
     "content": "                           Table \"public.organizations\"\n   Column   |           Type           | Collation | Nullable |      Default      \n------------+--------------------------+-----------+----------+-------------------\n id         | uuid                     |           | not null | gen_random_uui",
     "is_error": false,
     "timestamp": 1790001065901
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sudo -u postgres psql -d tmp_inv003a -c \"\\d public.product_variants\" 2>&1 | head -30; echo \"===locations===\"; sudo -u postgres psql -d tmp_inv003a -c \"\\d public.inventory_locations\" 2>&1 | head -25; echo \"===products===\"; sudo -u postgres psql -d tmp_inv003a -c \"\\d public.products\" 2>&1 | head -22"
+    },
+    "timestamp": 1790001072837
+  },
+  {
+    "role": "tool_result",
+    "content": "                                   Table \"public.product_variants\"\n     Column      |           Type           | Collation | Nullable |             Default              \n-----------------+--------------------------+-----------+----------+----------------------------------\n id              | uuid    ",
+    "is_error": false,
+    "timestamp": 1790001073039
   }
 ]
