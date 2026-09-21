@@ -5,22 +5,6 @@
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql",
       "limit": 40,
-      "offset": 700
-    },
-    "timestamp": 1790000929039
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql</path>\n<type>file</type>\n<content>\n700:   _reason text,\n701:   _user_id uuid DEFAULT auth.uid()\n702: )\n703: RETURNS jsonb\n704: LANGUAGE plpgsql\n705: SECURITY DEFINER\n706: SET search_path = public\n7",
-    "is_error": false,
-    "timestamp": 1790000929049
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql",
-      "limit": 40,
       "offset": 660
     },
     "timestamp": 1790000934835
@@ -1486,5 +1470,19 @@
     "content": " reversals | posted \n-----------+--------\n         0 |     12\n(1 row)\n\n id | organization_id | user_id | action | resource | resource_id | result | context | created_at \n----+-----------------+---------+--------+----------+-------------+--------+---------+------------\n(0 rows)\n\n movement_type | dire",
     "is_error": false,
     "timestamp": 1790002076159
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"BEGIN\\|ROLLBACK\\|COMMIT\\|ERROR\\|D[0-9]\\|F[0-9]\" /tmp/opencode/run6.log | sed -n '1,80p'"
+    },
+    "timestamp": 1790002085701
+  },
+  {
+    "role": "tool_result",
+    "content": "5:BEGIN\n14:COMMIT\n15:BEGIN\n42:COMMIT\n43:BEGIN\n52:COMMIT\n53:BEGIN\n70:COMMIT\n71:BEGIN\n73:psql:/tmp/opencode/teste_inv003.sql:382: NOTICE:  PASS  D1 reversão de transferência cria 2 compensações\n74:psql:/tmp/opencode/teste_inv003.sql:382: NOTICE:  FAIL  D2 saldo Fábrica voltou ao anterior  [-40.000 -> ",
+    "is_error": false,
+    "timestamp": 1790002085731
   }
 ]
