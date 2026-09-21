@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "    WHEN 'OPENING_BALANCE' THEN 'IN'\n    WHEN 'PURCHASE_RECEIPT' THEN 'IN'\n    WHEN 'PRODUCTION_OUTPUT' THEN 'IN'\n    WHEN 'SALE_RETURN' THEN 'IN'\n    WHEN 'PRODUCTION_CONSUMPTION' THEN 'OUT'\n    WHEN 'SALE' THEN 'OUT'\n    WHEN 'ADJUSTMENT_OUT' THEN 'OUT'\n    WHEN 'LOSS' THEN 'OUT'\n    ELSE NULL\n  E",
-    "is_error": false,
-    "timestamp": 1789992793886
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"sed -n '850,1100p' supabase/migrations/20260918100000_inventory_ledger.sql; ls /usr/lib/postgresql; sed -n '1,250p' src/routes/_authenticated/estoque/index.tsx\""
-    },
-    "timestamp": 1789992793940
-  },
-  {
-    "role": "tool_result",
     "content": "\n  UPDATE public.inventory_counts\n    SET status = 'COMPLETED', completed_at = now()\n    WHERE id = _count_id AND organization_id = _organization_id;\n\n  UPDATE public.inventory_count_items\n    SET status = 'ADJUSTED'\n    WHERE inventory_count_id = _count_id AND counted_quantity IS NOT NULL;\n\n  INSER",
     "is_error": false,
     "timestamp": 1789992793947
@@ -1449,5 +1435,20 @@
     "content": "psql:/tmp/opencode/bootstrap_inv.sql:11: NOTICE:  column \"file_size_limit\" of relation \"buckets\" already exists, skipping\npsql:/tmp/opencode/bootstrap_inv.sql:12: NOTICE:  column \"allowed_mime_types\" of relation \"buckets\" already exists, skipping\nBOOTSTRAP_OK\n",
     "is_error": false,
     "timestamp": 1790000965752
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "FAIL=0; for f in 20260915203409_0a9422ec-4c5a-4764-b2e5-8b233b1b85a1 20260915203634_4f230478-83c1-4a61-9a88-8328e6268a4d 20260915203719_bcfd1105-5739-4b5d-8751-5a8bd859cb77 20260915203928_27db022f-7c11-478e-a8bc-49540367304b 20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e 20260915211508_ec17904b-1fc9-4516-b4e2-b37ba9be6436 20260915211527_57318115-7e5a-439f-9a40-99d7f58bbc1b; do base=\"$f.sql\"; if ! sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f \"supabase/migrations/$base\" >/tmp/mig_out.txt 2>&1; then echo \"FAIL $base: $(grep -m1 -i 'error' /tmp/mig_out.txt | head -c 300)\"; FAIL=$((FAIL+1)); fi; done; echo \"fundação FAIL=$FAIL\"",
+      "timeout": 180000
+    },
+    "timestamp": 1790000968606
+  },
+  {
+    "role": "tool_result",
+    "content": "fundação FAIL=0\n",
+    "is_error": false,
+    "timestamp": 1790000969024
   }
 ]
