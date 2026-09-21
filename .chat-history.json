@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"A16\\|'Origem deve ser'\\|'Lote não pertence'\\|allow_negative_override sempre\\|A24\" /tmp/opencode/teste_inv003.sql"
-    },
-    "timestamp": 1790001630035
-  },
-  {
-    "role": "tool_result",
-    "content": "144:  PERFORM pg_temp.expect_error('A16 localização inativa rejeitada',\n182:  PERFORM pg_temp.expect_error('A24 allow_negative_override sempre recusado',\n472:    'Origem deve ser');\n475:    'Lote não pertence');\n",
-    "is_error": false,
-    "timestamp": 1790001630053
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/tmp/opencode/teste_inv003.sql",
@@ -1533,5 +1519,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790002476813
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/INVENTORY.md",
+      "newString": "- `status`: `PENDING`, `POSTED`, `REVERSED` (legado, não é mais gravado), `CANCELED`.\n- `reference_type` / `reference_id`: origem do fato (venda, compra, produção, ajuste…).\n- `idempotency_key`: evita lançamento duplicado (único por organização).\n- `reversal_of_id`: liga a compensação `REVERSAL` ao movimento original.",
+      "oldString": "- `status`: `PENDING`, `POSTED`, `REVERSED`, `CANCELED`.\n- `reference_type` / `reference_id`: origem do fato (venda, compra, produção, ajuste…).\n- `idempotency_key`: evita lançamento duplicado (único por organização).\n- `reversal_of_id` / `reversed_by_id`: liga original e estorno."
+    },
+    "timestamp": 1790002480126
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790002480148
   }
 ]

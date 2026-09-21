@@ -33,10 +33,10 @@ possível a qualquer momento.
 
 - `direction`: `IN` ou `OUT` — decide o sinal. `quantity` é **sempre positiva**.
 - `movement_type`: natureza do movimento (ver tabela abaixo).
-- `status`: `PENDING`, `POSTED`, `REVERSED`, `CANCELED`.
+- `status`: `PENDING`, `POSTED`, `REVERSED` (legado, não é mais gravado), `CANCELED`.
 - `reference_type` / `reference_id`: origem do fato (venda, compra, produção, ajuste…).
 - `idempotency_key`: evita lançamento duplicado (único por organização).
-- `reversal_of_id` / `reversed_by_id`: liga original e estorno.
+- `reversal_of_id`: liga a compensação `REVERSAL` ao movimento original.
 
 ## Semântica de saldo
 
