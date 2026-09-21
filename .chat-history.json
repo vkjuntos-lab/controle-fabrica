@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sudo -u postgres psql -c \"DROP DATABASE IF EXISTS tmp_inv003;\" && sudo -u postgres createdb tmp_inv003 && sudo -u postgres psql -d tmp_inv003 -v ON_ERROR_STOP=0 -c \"CREATE EXTENSION IF NOT EXISTS pgcrypto; CREATE EXTENSION IF NOT EXISTS pg_trgm; CREATE EXTENSION IF NOT EXISTS uuid-ossp;\" 2>&1"
-    },
-    "timestamp": 1790000862795
-  },
-  {
-    "role": "tool_result",
-    "content": "NOTICE:  database \"tmp_inv003\" does not exist, skipping\nDROP DATABASE\nERROR:  syntax error at or near \"-\"\nLINE 1: ...OT EXISTS pg_trgm; CREATE EXTENSION IF NOT EXISTS uuid-ossp;\n                                                                 ^\n",
-    "is_error": false,
-    "timestamp": 1790000863256
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sudo -u postgres psql -d tmp_inv003 -v ON_ERROR_STOP=1 -c 'CREATE EXTENSION IF NOT EXISTS pgcrypto; CREATE EXTENSION IF NOT EXISTS pg_trgm; CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";' 2>&1"
     },
     "timestamp": 1790000865698
@@ -1484,5 +1470,19 @@
     "content": "exit=0\nPASS=68  FAIL=1  TOTAL=69\n--- FAILs ---\nFAIL  F9 audit de reversão gravado  [<NULL>]\n--- ERRORs para conferir ---\n1\n",
     "is_error": false,
     "timestamp": 1790001975919
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n -B1 -A3 \"ERROR\" /tmp/opencode/run5.log; echo \"=== migration 480-505 ===\"; sed -n '480,505p' \"/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql\""
+    },
+    "timestamp": 1790001981418
+  },
+  {
+    "role": "tool_result",
+    "content": "72-SET\n73:psql:/tmp/opencode/teste_inv003.sql:382: ERROR:  Saldo insuficiente nesta localização/lote. Saldo: -40.000.\n74-CONTEXT:  PL/pgSQL function inventory_guard_movement() line 31 at RAISE\n75-SQL statement \"INSERT INTO public.inventory_movements(organization_id,variant_id,location_id,batch_id,mo",
+    "is_error": false,
+    "timestamp": 1790001981453
   }
 ]
