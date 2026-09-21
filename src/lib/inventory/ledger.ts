@@ -33,15 +33,15 @@ export type LedgerMovement = {
   status: LedgerStatus;
 };
 
-/** Impacto de um movimento no saldo. PENDING e CANCELED não impactam. */
+/** Impacto de um movimento no saldo. Somente POSTED impacta. */
 export function movementImpact(
   movement: Pick<LedgerMovement, "direction" | "quantity" | "status">,
 ): number {
-  if (movement.status === "PENDING" || movement.status === "CANCELED") return 0;
+  if (movement.status !== "POSTED") return 0;
   return movement.direction === "IN" ? movement.quantity : -movement.quantity;
 }
 
-/** Saldo derivado: soma dos movimentos válidos (POSTED e REVERSED). */
+/** Saldo derivado: soma dos movimentos POSTED. */
 export function calculateBalance(movements: LedgerMovement[]): number {
   return movements.reduce((acc, m) => acc + movementImpact(m), 0);
 }
