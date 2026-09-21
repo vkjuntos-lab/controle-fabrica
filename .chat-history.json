@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -rhn \"auth\\.\\|storage\\.\\|schema auth\\|schema storage\" supabase/migrations/20260915*.sql supabase/migrations/20260917*.sql supabase/migrations/20260918*.sql | grep -oE \"auth\\.[a-z_.()+ ]+|storage\\.[a-z_.()]+\" | sort -u | head -30"
-    },
-    "timestamp": 1790000886122
-  },
-  {
-    "role": "tool_result",
-    "content": "auth.uid()\nauth.users\nstorage.buckets\nstorage.foldername(name))\nstorage.objects\n",
-    "is_error": false,
-    "timestamp": 1790000886157
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sudo -u postgres createdb tmp_inv003a 2>/dev/null || sudo -u postgres psql -c \"DROP DATABASE IF EXISTS tmp_inv003a\" >/dev/null && sudo -u postgres createdb tmp_inv003a && sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -c '\nCREATE EXTENSION IF NOT EXISTS pgcrypto;\nCREATE EXTENSION IF NOT EXISTS pg_trgm;\nCREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";\nCREATE SCHEMA IF NOT EXISTS auth;\nCREATE SCHEMA IF NOT EXISTS storage;\nCREATE OR REPLACE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$ SELECT nullif(current_setting('\"'\"'request.jwt.claim.sub'\"'\"', true), '\"'\"''\"'\"')::uuid $$;\nCREATE TABLE IF NOT EXISTS auth.users (id uuid primary key, email text, created_at timestamptz default now());\nCREATE TABLE IF NOT EXISTS storage.buckets (id text primary key, name text, public boolean default false, created_at timestamptz default now());\nCREATE TABLE IF NOT EXISTS storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text, owner uuid, created_at timestamptz default now());\nCREATE FUNCTION storage.foldername(name text) RETURNS text[] LANGUAGE sql IMMUTABLE AS $$ SELECT string_to_array(name, '\"'\"'/'\"'\"') $$;\n' 2>&1 | tail -5; echo \"BOOTSTRAP OK\""
     },
     "timestamp": 1790000893057
@@ -1488,5 +1474,20 @@
     "content": "erros rebuild: 0\n",
     "is_error": false,
     "timestamp": 1790002007366
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sudo -u postgres psql -d tmp_inv003a -f /tmp/opencode/teste_inv003.sql > /tmp/opencode/run6.log 2>&1; echo \"exit=$?\"; grep -E \"PASS|FAIL\" /tmp/opencode/run6.log | sed 's/NOTICE: *//;s/psql:[^ ]* //' > /tmp/opencode/res6.txt; echo \"PASS=$(grep -c PASS /tmp/opencode/res6.txt)  FAIL=$(grep -c FAIL /tmp/opencode/res6.txt)  TOTAL=$(wc -l < /tmp/opencode/res6.txt)\"; \"Total block D/F tests:\"; grep -E \" D[0-9]| F[0-9]\" /tmp/opencode/res6.txt | sed 's/.*PASS  //;s/.*FAIL  //' | head -40",
+      "timeout": 180000
+    },
+    "timestamp": 1790002010489
+  },
+  {
+    "role": "tool_result",
+    "content": "exit=0\nPASS=74  FAIL=3  TOTAL=77\n/bin/bash: line 1: Total block D/F tests:: No such file or directory\nD1 reversão de transferência cria 2 compensações\nD2 saldo Fábrica voltou ao anterior  [-40.000 -> -70.000]\nD3 saldo CD voltou ao anterior  [50.000 -> 80.000]\nD4 original da transferência permanece P",
+    "is_error": false,
+    "timestamp": 1790002010648
   }
 ]
