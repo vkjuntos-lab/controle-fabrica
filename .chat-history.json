@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "head -693 supabase/migrations/20260918100000_inventory_ledger.sql > /tmp/opencode/ledger_p1.sql && tail -n +780 supabase/migrations/20260918100000_inventory_ledger.sql >> /tmp/opencode/ledger_p1.sql && wc -l /tmp/opencode/ledger_p1.sql && sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f /tmp/opencode/ledger_p1.sql >/tmp/mig_out.txt 2>&1 && echo LEDGER_P1_OK || (echo FAIL; grep -m1 -i error /tmp/mig_out.txt | head -c 400)"
-    },
-    "timestamp": 1790000981203
-  },
-  {
-    "role": "tool_result",
-    "content": "907 /tmp/opencode/ledger_p1.sql\nFAIL\npsql:/tmp/opencode/ledger_p1.sql:793: ERROR:  function public.inventory_reverse_movement(uuid, uuid, text, uuid) does not exist\n",
-    "is_error": false,
-    "timestamp": 1790000981351
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"inventory_reverse_movement\" supabase/migrations/20260918100000_inventory_ledger.sql"
     },
     "timestamp": 1790000984694
@@ -1487,5 +1473,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql</path>\n<type>file</type>\n<content>\n538:  IF NOT FOUND THEN RAISE EXCEPTION 'Item não encontrado.'; END IF;\n539:  RETURN jsonb_build_object('ok',true,'difference',d);\n540: END;\n541: $$;\n542: CREA",
     "is_error": false,
     "timestamp": 1790002156719
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql",
+      "limit": 25,
+      "offset": 505
+    },
+    "timestamp": 1790002158573
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql</path>\n<type>file</type>\n<content>\n505: -- Snapshot por lote; nunca usa saldo agregado para ajustar um lote diferente.\n506: REVOKE INSERT, UPDATE ON public.inventory_counts, public.inventory_cou",
+    "is_error": false,
+    "timestamp": 1790002158608
   }
 ]
