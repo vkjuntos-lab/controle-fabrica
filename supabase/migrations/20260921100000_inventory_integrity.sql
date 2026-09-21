@@ -72,7 +72,7 @@ BEGIN
   v_after := v_before + CASE NEW.direction WHEN 'IN' THEN NEW.quantity ELSE -NEW.quantity END;
   SELECT coalesce((SELECT allow_negative_inventory FROM public.organization_inventory_settings
     WHERE organization_id=NEW.organization_id),false) INTO v_negative;
-  IF NEW.direction='OUT' AND v_after < 0 THEN
+  IF NEW.direction='OUT' AND v_after < 0 AND NEW.movement_type <> 'REVERSAL' THEN
     IF NOT v_negative THEN RAISE EXCEPTION 'Saldo insuficiente nesta localização/lote. Saldo: %.', v_before; END IF;
     IF NOT public.has_permission(NEW.organization_id,'inventory.allow_negative') THEN
       RAISE EXCEPTION 'Sem permissão para gerar estoque negativo.';
