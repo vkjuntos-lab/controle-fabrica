@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sudo -u postgres psql -c \"DROP DATABASE IF EXISTS tmp_inv003a;\" && sudo -u postgres createdb tmp_inv003a && sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f /tmp/opencode/bootstrap_inv.sql && echo BOOTSTRAP_OK && sudo -u postgres psql -d tmp_inv003a -tAc \"SELECT count(*) FROM pg_type WHERE typname LIKE 'inventory%';\""
-    },
-    "timestamp": 1790001034516
-  },
-  {
-    "role": "tool_result",
-    "content": "DROP DATABASE\npsql:/tmp/opencode/bootstrap_inv.sql:11: NOTICE:  column \"file_size_limit\" of relation \"buckets\" already exists, skipping\npsql:/tmp/opencode/bootstrap_inv.sql:12: NOTICE:  column \"allowed_mime_types\" of relation \"buckets\" already exists, skipping\nBOOTSTRAP_OK\n0\n",
-    "is_error": false,
-    "timestamp": 1790001034855
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "set -o pipefail\napply() {\n  local f=\"$1\"\n  if sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f \"$f\" >/tmp/mig_out.txt 2>&1; then\n    echo \"OK   $(basename \"$f\")\"\n  else\n    echo \"FAIL $(basename \"$f\"): $(grep -m1 -i 'error' /tmp/mig_out.txt | head -c 300)\"\n  fi\n}\nfor base in 20260915203409_0a9422ec-4c5a-4764-b2e5-8b233b1b85a1 \\\n  20260915203634_4f230478-83c1-4a61-9a88-8328e6268a4d \\\n  20260915203719_bcfd1105-5739-4b5d-8751-5a8bd859cb77 \\\n  20260915203928_27db022f-7c11-478e-a8bc-49540367304b \\\n  20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e \\\n  20260915211508_ec17904b-1fc9-4516-b4e2-b37ba9be6436 \\\n  20260915211527_57318115-7e5a-439f-9a40-99d7f58bbc1b \\\n  20260917093000_avatars_storage_bucket \\\n  20260917093100_webhook_events \\\n  20260917100000_invitations \\\n  20260917100001_audit_log_insert_policy \\\n  20260917100002_role_permissions_manage \\\n  20260917110000_catalog_mestre; do\n  apply \"supabase/migrations/$base.sql\"\ndone\necho \"--- inventory ledger (com stub reverse) ---\"\napply /tmp/opencode/ledger_p1.sql\necho \"--- integrity ---\"\napply supabase/migrations/20260921100000_inventory_integrity.sql",
       "timeout": 300000
     },
@@ -1495,5 +1481,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790002205190
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "#!/usr/bin/env bash\n# Rebuilds the local test DB tmp_inv003a from migrations.\nset -e\ncd \"/root/Zheus AI Projects/controle-fabrica\"\nLOG=/tmp/opencode/rebuild.log\nsudo -u postgres dropdb --if-exists tmp_inv003a\nsudo -u postgres createdb tmp_inv003a\nsudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f /tmp/opencode/bootstrap_inv.sql > \"$LOG\" 2>&1\nfor f in \\\n  20260915203409_0a9422ec-4c5a-4764-b2e5-8b233b1b85a1.sql \\\n  20260915203634_4f230478-83c1-4a61-9a88-8328e6268a4d.sql \\\n  20260915203719_bcfd1105-5739-4b5d-8751-5a8bd859cb77.sql \\\n  20260915203928_27db022f-7c11-478e-a8bc-49540367304b.sql \\\n  20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql \\\n  20260915211508_ec17904b-1fc9-4516-b4e2-b37ba9be6436.sql \\\n  20260915211527_57318115-7e5a-439f-9a40-99d7f58bbc1b.sql \\\n  20260917093000_avatars_storage_bucket.sql \\\n  20260917093100_webhook_events.sql \\\n  20260917100000_invitations.sql \\\n  20260917100001_audit_log_insert_policy.sql \\\n  20260917100002_role_permissions_manage.sql \\\n  20260917110000_catalog_mestre.sql; do\n  sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f \"supabase/migrations/$f\" >> \"$LOG\" 2>&1\ndone\nsudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f /tmp/opencode/ledger_p1.sql >> \"$LOG\" 2>&1\nsudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f supabase/migrations/20260921100000_inventory_integrity.sql >> \"$LOG\" 2>&1\nif grep -qi error \"$LOG\"; then grep -i error \"$LOG\"; exit 1; fi\necho \"rebuild OK (erros: 0)\"",
+      "filePath": "/tmp/opencode/rebuild_db.sh"
+    },
+    "timestamp": 1790002213175
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790002213177
   }
 ]
