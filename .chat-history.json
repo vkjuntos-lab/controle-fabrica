@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "FAIL supabase/migrations/20260917110000_catalog_mestre.sql\npsql:supabase/migrations/20260917110000_catalog_mestre.sql:16: ERROR:  type \"product_status\" already exists\n",
-    "is_error": false,
-    "timestamp": 1790001676812
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -ln \"product_status\" supabase/migrations/2026091*.sql supabase/migrations/20260917*.sql; echo \"---catalog line 10-20---\"; sed -n '10,20p' supabase/migrations/20260917110000_catalog_mestre.sql"
-    },
-    "timestamp": 1790001683377
-  },
-  {
-    "role": "tool_result",
     "content": "supabase/migrations/20260917110000_catalog_mestre.sql\nsupabase/migrations/20260917110000_catalog_mestre.sql\n---catalog line 10-20---\n--   * sem exclusão física como comportamento padrão quando há referências;\n--   * produto inativo continua disponível para histórico;\n--   * NCM é texto (nunca identi",
     "is_error": false,
     "timestamp": 1790001683401
@@ -1556,5 +1542,19 @@
     "content": "<path>/tmp/opencode/rebuild_db.sh</path>\n<type>file</type>\n<content>\n1: #!/usr/bin/env bash\n2: # Rebuilds the local test DB tmp_inv003a from migrations.\n3: set -e\n4: cd \"/root/Zheus AI Projects/controle-fabrica\"\n5: LOG=/tmp/opencode/rebuild.log\n6: sudo -u postgres dropdb --if-exists tmp_inv003a\n7: s",
     "is_error": false,
     "timestamp": 1790004518327
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/tmp/opencode/bootstrap_inv.sql"
+    },
+    "timestamp": 1790004525019
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/tmp/opencode/bootstrap_inv.sql</path>\n<type>file</type>\n<content>\n1: CREATE EXTENSION IF NOT EXISTS pgcrypto;\n2: CREATE EXTENSION IF NOT EXISTS pg_trgm;\n3: CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\";\n4: CREATE SCHEMA IF NOT EXISTS auth;\n5: CREATE SCHEMA IF NOT EXISTS storage;\n6: CREATE OR REP",
+    "is_error": false,
+    "timestamp": 1790004525036
   }
 ]
