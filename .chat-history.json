@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sudo -u postgres psql -d tmp_inv003a -f /tmp/opencode/teste_inv003.sql > /tmp/opencode/run1.log 2>&1; echo \"exit=$?\"; grep -c \"PASS\" /tmp/opencode/run1.log; grep -c \"FAIL\" /tmp/opencode/run1.log",
-      "timeout": 180000
-    },
-    "timestamp": 1790001423633
-  },
-  {
-    "role": "tool_result",
-    "content": "exit=0\n0\n3\n",
-    "is_error": false,
-    "timestamp": 1790001423710
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/tmp/opencode/run1.log"
@@ -1531,5 +1516,20 @@
     "content": "  \"scripts\": {\n    \"dev\": \"vite dev\",\n    \"build\": \"vite build\",\n    \"build:dev\": \"vite build --mode development\",\n    \"preview\": \"vite preview\",\n    \"lint\": \"eslint .\",\n    \"test\": \"vitest run\",\n    \"format\": \"prettier --write .\"\n  },\n  \"dependencies\": {\n    \"@ai-sdk/openai-compatible\": \"^3.0.6\",\n ",
     "is_error": false,
     "timestamp": 1790002301903
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && npx vitest run 2>&1 | tail -25",
+      "timeout": 240000
+    },
+    "timestamp": 1790002304960
+  },
+  {
+    "role": "tool_result",
+    "content": " FAIL  src/lib/inventory.ownership-backup/ledger.test.ts > inventory ledger (regras da fonte oficial do estoque) > reversão: original permanece e a compensação restaura o saldo\nAssertionError: expected -100 to be +0 // Object.is equality\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- 0\u001b[39m\n\u001b[31",
+    "is_error": false,
+    "timestamp": 1790002307716
   }
 ]
