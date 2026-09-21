@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/tmp/opencode/teste_inv003.sql",
-      "newString": "PERFORM pg_temp.check('D2 reversão remove efeito IN do Fábrica (-30)',\n    v_after_fab = v_before_fab - 30,\n    concat(v_before_fab, ' -> ', v_after_fab));\n  PERFORM pg_temp.check('D3 reversão restaura efeito OUT do CD (+30)',\n    v_after_wh = v_before_wh + 30,\n    concat(v_before_wh, ' -> ', v_after_wh));",
-      "oldString": "PERFORM pg_temp.check('D2 saldo Fábrica voltou ao anterior', v_after_fab = v_before_fab,\n    v_before_fab || ' -> ' || v_after_fab);\n  PERFORM pg_temp.check('D3 saldo CD voltou ao anterior', v_after_wh = v_before_wh,\n    v_before_wh || ' -> ' || v_after_wh);"
-    },
-    "timestamp": 1790002113546
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790002113571
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -n \"v_before_fab ||\\|v_before_wh ||\\|v_before ||\" /tmp/opencode/teste_inv003.sql"
@@ -1601,5 +1585,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260922100000_production.sql</path>\n<type>file</type>\n<content>\n1050:   ('admin','production.order.create'),('gestor','production.order.create'),('estoque','production.order.create'),\n1051:   ('producao','production.order.create'),\n",
     "is_error": false,
     "timestamp": 1790006296260
+  },
+  {
+    "role": "tool",
+    "tool": "grep",
+    "input": {
+      "path": "/tmp/opencode/teste_inv003.sql",
+      "pattern": "org_members|role_permissions|has_permission|inventory.move|permission"
+    },
+    "timestamp": 1790006298597
+  },
+  {
+    "role": "tool_result",
+    "content": "Found 100 matches (more matches available)\n/tmp/opencode/ledger_p1.sql:\n  Line 26: CREATE TYPE public.inventory_movement_direction AS ENUM ('IN', 'OUT');\n\n  Line 27: CREATE TYPE public.inventory_movement_type AS ENUM (\n\n  Line 44: CREATE TYPE public.inventory_movement_status AS ENUM ('PENDING', 'POS",
+    "is_error": false,
+    "timestamp": 1790006298657
   }
 ]
