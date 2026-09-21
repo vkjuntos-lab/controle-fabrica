@@ -1503,6 +1503,7 @@ export const createInventoryCount = createServerFn({ method: "POST" })
       organization_id: data.organizationId,
       inventory_count_id: count.id,
       variant_id: v.id,
+      batch_id: null,
       system_quantity: balanceByVariant.get(v.id) ?? 0,
       status: "PENDING" as const,
     }));
