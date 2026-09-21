@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "head -693 supabase/migrations/20260918100000_inventory_ledger.sql > /tmp/opencode/ledger_p1.sql\ncat >> /tmp/opencode/ledger_p1.sql <<'SQL'\nCREATE OR REPLACE FUNCTION public.inventory_reverse_movement(\n  _organization_id uuid, _movement_id uuid, _reason text, _user_id uuid DEFAULT auth.uid()\n) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$\nBEGIN\n  RETURN '{\"deduped\": false}'::jsonb;\nEND;\n$$;\nSQL\ntail -n +780 supabase/migrations/20260918100000_inventory_ledger.sql >> /tmp/opencode/ledger_p1.sql\nsudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f /tmp/opencode/ledger_p1.sql >/tmp/mig_out.txt 2>&1 && echo LEDGER_P1_OK || (echo FAIL; grep -m1 -i error /tmp/mig_out.txt | head -c 400)"
-    },
-    "timestamp": 1790001002797
-  },
-  {
-    "role": "tool_result",
-    "content": "FAIL\npsql:/tmp/opencode/ledger_p1.sql:24: ERROR:  type \"inventory_location_type\" already exists\n",
-    "is_error": false,
-    "timestamp": 1790001002874
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sudo -u postgres psql -d tmp_inv003a -tAc \"SELECT typname FROM pg_type WHERE typname LIKE 'inventory%';\"; echo \"---migrations aplicadas?---\"; sudo -u postgres psql -d tmp_inv003a -tAc \"SELECT count(*) FROM pg_tables WHERE schemaname='public' AND tablename LIKE 'inventory%';\"; sudo -u postgres psql -d tmp_inv003a -c \"\\dt public.inventory*\" 2>&1 | head"
     },
     "timestamp": 1790001015702
@@ -1491,5 +1477,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql</path>\n<type>file</type>\n<content>\n527: CREATE FUNCTION public.inventory_save_count_item(_organization_id uuid,_count_id uuid,_item_id uuid,_quantity numeric)\n528: RETURNS jsonb LANGUAGE plpgsql",
     "is_error": false,
     "timestamp": 1790002160687
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/tmp/opencode/teste_inv003.sql",
+      "limit": 75,
+      "offset": 385
+    },
+    "timestamp": 1790002187619
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/tmp/opencode/teste_inv003.sql</path>\n<type>file</type>\n<content>\n385: \n386: -- ============================================================\n387: -- E. CONTAGEM FÍSICA (bloqueia localização + ajustes por divergência)\n388: -- ============================================================\n389: BEG",
+    "is_error": false,
+    "timestamp": 1790002187633
   }
 ]
