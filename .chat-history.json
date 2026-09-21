@@ -3,34 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sudo -u postgres psql -d tmp_inv003a -c \"\\d public.organizations\" 2>&1 | head -30; echo \"===profiles===\"; sudo -u postgres psql -d tmp_inv003a -c \"\\d public.profiles\" 2>&1 | head -20; echo \"===role_permissions===\"; sudo -u postgres psql -d tmp_inv003a -c \"SELECT role, permission FROM public.role_permissions WHERE permission LIKE 'inventory%' ORDER BY permission;\" 2>&1"
-    },
-    "timestamp": 1790001065718
-  },
-  {
-    "role": "tool_result",
-    "content": "                           Table \"public.organizations\"\n   Column   |           Type           | Collation | Nullable |      Default      \n------------+--------------------------+-----------+----------+-------------------\n id         | uuid                     |           | not null | gen_random_uui",
-    "is_error": false,
-    "timestamp": 1790001065901
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sudo -u postgres psql -d tmp_inv003a -c \"\\d public.product_variants\" 2>&1 | head -30; echo \"===locations===\"; sudo -u postgres psql -d tmp_inv003a -c \"\\d public.inventory_locations\" 2>&1 | head -25; echo \"===products===\"; sudo -u postgres psql -d tmp_inv003a -c \"\\d public.products\" 2>&1 | head -22"
-    },
-    "timestamp": 1790001072837
-  },
-  {
-    "role": "tool_result",
-    "content": "                                   Table \"public.product_variants\"\n     Column      |           Type           | Collation | Nullable |             Default              \n-----------------+--------------------------+-----------+----------+----------------------------------\n id              | uuid    ",
-    "is_error": false,
-    "timestamp": 1790001073039
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sudo -u postgres psql -d tmp_inv003a -c \"\\df public.has_permission\" 2>&1 | head -20; echo \"===inventory funcs===\"; sudo -u postgres psql -d tmp_inv003a -c \"\\df public.inventory_*\" 2>&1 | tail -20; echo \"===enum direcoes===\"; sudo -u postgres psql -d tmp_inv003a -tAc \"SELECT enum_range(NULL::public.inventory_movement_type);\""
     },
     "timestamp": 1790001093377
@@ -1496,5 +1468,69 @@
     "content": "rebuild OK (erros: 0)\nexit=0\n=== t_reg final ===\n--------+--------+-------\n     80 |      0 |    80\n(1 row)\n\n=== FAILs (log) ===\n=== ERRORs (log) ===\n0\n",
     "is_error": false,
     "timestamp": 1790002216781
+  },
+  {
+    "role": "tool",
+    "tool": "todowrite",
+    "input": {
+      "todos": [
+        {
+          "content": "Reconstruir schema completo em PostgreSQL local (roles/extensions/stubs)",
+          "status": "completed",
+          "priority": "high"
+        },
+        {
+          "content": "Validar migration inventory_integrity aplicada",
+          "status": "completed",
+          "priority": "high"
+        },
+        {
+          "content": "Rodar cenários funcionais no Postgres (harness 80/80 PASS)",
+          "status": "completed",
+          "priority": "high"
+        },
+        {
+          "content": "Corrigir bugs reais da migration (v_item.value x2, REVERSAL fora do gate negativo)",
+          "status": "completed",
+          "priority": "high"
+        },
+        {
+          "content": "Sincronizar semântica TS com a migration (ledger.ts, constants.ts, ledger.test.ts, types)",
+          "status": "in_progress",
+          "priority": "high"
+        },
+        {
+          "content": "Rodar Vitest e typecheck",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Atualizar PROJECT-STATE.md e docs de arquitetura",
+          "status": "pending",
+          "priority": "medium"
+        }
+      ]
+    },
+    "timestamp": 1790002225081
+  },
+  {
+    "role": "tool_result",
+    "content": "[\n  {\n    \"content\": \"Reconstruir schema completo em PostgreSQL local (roles/extensions/stubs)\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Validar migration inventory_integrity aplicada\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Roda",
+    "is_error": false,
+    "timestamp": 1790002225084
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && ls src/lib/inventory/ && echo \"--- grep REVERSED nos .ts ---\" && grep -rn \"REVERSED\" src/lib/inventory/ src/integrations/supabase/types.ts | head -40"
+    },
+    "timestamp": 1790002227066
+  },
+  {
+    "role": "tool_result",
+    "content": "constants.ts\ninventory.functions.ts\nledger.test.ts\nledger.ts\n--- grep REVERSED nos .ts ---\nsrc/lib/inventory/inventory.functions.ts:36:const movementStatusSchema = z.enum([\"PENDING\", \"POSTED\", \"REVERSED\", \"CANCELED\"]);\nsrc/lib/inventory/constants.ts:118:  { value: \"REVERSED\", label: \"Revertido\" },\ns",
+    "is_error": false,
+    "timestamp": 1790002227100
   }
 ]
