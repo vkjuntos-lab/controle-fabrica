@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sudo -u postgres psql -d tmp_inv003a -c \"SELECT count(*) FILTER (WHERE movement_type='REVERSAL') AS reversals, count(*) FILTER (WHERE status='POSTED') AS posted FROM public.inventory_movements;\" -c \"SELECT * FROM public.audit_log WHERE action='inventory.reverse' LIMIT 3;\" -c \"SELECT movement_type, direction, quantity, reversal_of_id, reference_type, reference_id, location_id FROM public.inventory_movements WHERE movement_type='REVERSAL' LIMIT 6;\""
-    },
-    "timestamp": 1790002076086
-  },
-  {
-    "role": "tool_result",
-    "content": " reversals | posted \n-----------+--------\n         0 |     12\n(1 row)\n\n id | organization_id | user_id | action | resource | resource_id | result | context | created_at \n----+-----------------+---------+--------+----------+-------------+--------+---------+------------\n(0 rows)\n\n movement_type | dire",
-    "is_error": false,
-    "timestamp": 1790002076159
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"BEGIN\\|ROLLBACK\\|COMMIT\\|ERROR\\|D[0-9]\\|F[0-9]\" /tmp/opencode/run6.log | sed -n '1,80p'"
     },
     "timestamp": 1790002085701
@@ -1599,5 +1585,21 @@
     "content": "<path>/tmp/opencode/rebuild_db.sh</path>\n<type>file</type>\n<content>\n1: #!/usr/bin/env bash\n2: # Rebuilds the local test DB tmp_inv003a from migrations.\n3: set -e\n4: cd \"/root/Zheus AI Projects/controle-fabrica\"\n5: LOG=/tmp/opencode/rebuild.log\n6: sudo -u postgres dropdb --if-exists tmp_inv003a\n7: s",
     "is_error": false,
     "timestamp": 1790006278775
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/tmp/opencode/rebuild_db.sh",
+      "newString": "sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f supabase/migrations/20260921100000_inventory_integrity.sql >> \"$LOG\" 2>&1\nsudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f supabase/migrations/20260922100000_production.sql >> \"$LOG\" 2>&1",
+      "oldString": "sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f supabase/migrations/20260921100000_inventory_integrity.sql >> \"$LOG\" 2>&1"
+    },
+    "timestamp": 1790006280893
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790006280915
   }
 ]
