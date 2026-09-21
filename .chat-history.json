@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql",
-      "limit": 40,
-      "offset": 660
-    },
-    "timestamp": 1790000934835
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql</path>\n<type>file</type>\n<content>\n660:     INSERT INTO public.inventory_movements (\n661:       organization_id, variant_id, location_id,\n662:       movement_type, direction, quantity, unit,\n663:  ",
-    "is_error": false,
-    "timestamp": 1790000934877
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -n \"CREATE FUNCTION\\|CREATE OR REPLACE FUNCTION\\|CREATE VIEW\\|CREATE OR REPLACE VIEW\\|CREATE POLICY\\|CREATE TRIGGER\\|CREATE UNIQUE INDEX\\|CREATE INDEX\\|CREATE TABLE\\|CREATE TYPE\" supabase/migrations/20260918100000_inventory_ledger.sql"
@@ -1484,5 +1468,21 @@
     "content": "5:BEGIN\n14:COMMIT\n15:BEGIN\n42:COMMIT\n43:BEGIN\n52:COMMIT\n53:BEGIN\n70:COMMIT\n71:BEGIN\n73:psql:/tmp/opencode/teste_inv003.sql:382: NOTICE:  PASS  D1 reversão de transferência cria 2 compensações\n74:psql:/tmp/opencode/teste_inv003.sql:382: NOTICE:  FAIL  D2 saldo Fábrica voltou ao anterior  [-40.000 -> ",
     "is_error": false,
     "timestamp": 1790002085731
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/tmp/opencode/teste_inv003.sql",
+      "limit": 22,
+      "offset": 356
+    },
+    "timestamp": 1790002102669
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/tmp/opencode/teste_inv003.sql</path>\n<type>file</type>\n<content>\n356:       AND movement_type='OPENING_BALANCE' AND location_id='30000000-0000-0000-0000-000000000002'\n357:     ORDER BY created_at LIMIT 1;\n358:   v_before_wh := public.inventory_get_balance('20000000-0000-0000-0000-000000000001",
+    "is_error": false,
+    "timestamp": 1790002102681
   }
 ]
