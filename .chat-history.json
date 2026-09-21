@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/tmp/opencode/teste_inv003.sql",
-      "newString": "-- inventário não cruza tenant: org 2 só vê o próprio catálogo, sem dados da org 1\n  v_q := public.inventory_query_positions('20000000-0000-0000-0000-000000000002', '{}'::jsonb, 1, 50);\n  PERFORM pg_temp.check('F6 org 2 não vê dados da org 1',\n    (v_q->>'total_on_hand')::numeric = 0\n      AND NOT EXISTS (SELECT 1 FROM jsonb_array_elements(coalesce(v_q->'rows','[]'::jsonb)) r\n        WHERE r->>'variant_id' = '50000000-0000-0000-0000-000000000001'),\n    concat('total=', v_q->>'total'));",
-      "oldString": "-- inventário não cruza tenant: posições da org 2 são vazias\n  v_q := public.inventory_query_positions('20000000-0000-0000-0000-000000000002', '{}'::jsonb, 1, 50);\n  PERFORM pg_temp.check('F6 org 2 não vê nada do domínio', (v_q->>'total')::int = 0,\n    concat('total=', v_q->>'total'));"
-    },
-    "timestamp": 1790001965271
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790001965281
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres dropdb --if-exists tmp_inv003a; sudo -u postgres createdb tmp_inv003a; sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f /tmp/opencode/bootstrap_inv.sql > /tmp/opencode/rebuild3.log 2>&1; for f in \\\n  20260915203409_0a9422ec-4c5a-4764-b2e5-8b233b1b85a1 \\\n  20260915203634_4f230478-83c1-4a61-9a88-8328e6268a4d \\\n  20260915203719_bcfd1105-5739-4b5d-8751-5a8bd859cb77 \\\n  20260915203928_27db022f-7c11-478e-a8bc-49540367304b \\\n  20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e \\\n  20260915211508_ec17904b-1fc9-4516-b4e2-b37ba9be6436 \\\n  20260915211527_57318115-7e5a-439f-9a40-99d7f58bbc1b \\\n  20260917093000_avatars_storage_bucket \\\n  20260917093100_webhook_events \\\n  20260917100000_invitations \\\n  20260917100001_audit_log_insert_policy \\\n  20260917100002_role_permissions_manage \\\n  20260917110000_catalog_mestre \\\n  ../..; do :; done\nfor f in supabase/migrations/20260915203409*.sql supabase/migrations/20260915203634*.sql supabase/migrations/20260915203719*.sql supabase/migrations/20260915203928*.sql supabase/migrations/20260915210457*.sql supabase/migrations/20260915211508*.sql supabase/migrations/20260915211527*.sql supabase/migrations/20260917093000*.sql supabase/migrations/20260917093100*.sql supabase/migrations/20260917100000_invitations.sql supabase/migrations/20260917100001*.sql supabase/migrations/20260917100002*.sql supabase/migrations/20260917110000*.sql; do sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f \"$f\" >> /tmp/opencode/rebuild3.log 2>&1 || echo \"FAIL $(basename $f)\"; done\nsudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f /tmp/opencode/ledger_p1.sql >> /tmp/opencode/rebuild3.log 2>&1 || echo \"FAIL ledger_p1\"\nsudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f supabase/migrations/20260921100000_inventory_integrity.sql >> /tmp/opencode/rebuild3.log 2>&1 || echo \"FAIL integrity\"\necho \"erros: $(grep -ci error /tmp/opencode/rebuild3.log)\"",
@@ -1587,5 +1571,21 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790006202281
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260922100000_production.sql",
+      "oldString": "DECLARE v_order public.production_orders; v_missing numeric; v_items integer;\nBEGIN\n  IF _user_id IS DISTINCT FROM auth.uid() THEN RAISE EXCEPTION 'Usuário inválido para esta operação.'; END IF;\n  IF NOT public.has_permission(_organization_id, 'production.order.release', _user_id) THEN\n    RAISE EXCEPTION 'Sem permissão para liberar ordem de produção.';\n  END IF;\n  SELECT * INTO v_order FROM public.production_orders WHERE id=_order_id AND organization_id=_organization_id FOR UPDATE;\n  IF NOT FOUND THEN RAISE EXCEPTION 'Ordem de produção não encontrada.'; END IF;\n  IF v_order.status NOT IN ('DRAFT','PLANNED') THEN RAISE EXCEPTION 'Somente ordens em elaboração/planejada podem ser liberadas.'; END IF;",
+      "newString": "DECLARE v_order public.production_orders; v_missing numeric; v_items integer; v_from public.production_order_status;\nBEGIN\n  IF _user_id IS DISTINCT FROM auth.uid() THEN RAISE EXCEPTION 'Usuário inválido para esta operação.'; END IF;\n  IF NOT public.has_permission(_organization_id, 'production.order.release', _user_id) THEN\n    RAISE EXCEPTION 'Sem permissão para liberar ordem de produção.';\n  END IF;\n  SELECT * INTO v_order FROM public.production_orders WHERE id=_order_id AND organization_id=_organization_id FOR UPDATE;\n  IF NOT FOUND THEN RAISE EXCEPTION 'Ordem de produção não encontrada.'; END IF;\n  IF v_order.status NOT IN ('DRAFT','PLANNED') THEN RAISE EXCEPTION 'Somente ordens em elaboração/planejada podem ser liberadas.'; END IF;\n  v_from := v_order.status;"
+    },
+    "timestamp": 1790006213042
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790006213072
   }
 ]

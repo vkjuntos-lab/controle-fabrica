@@ -683,7 +683,7 @@ CREATE FUNCTION public.production_release_order(
   _organization_id uuid, _order_id uuid, _note text DEFAULT NULL, _user_id uuid DEFAULT auth.uid()
 ) RETURNS jsonb
 LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
-DECLARE v_order public.production_orders; v_missing numeric; v_items integer;
+DECLARE v_order public.production_orders; v_missing numeric; v_items integer; v_from public.production_order_status;
 BEGIN
   IF _user_id IS DISTINCT FROM auth.uid() THEN RAISE EXCEPTION 'Usuário inválido para esta operação.'; END IF;
   IF NOT public.has_permission(_organization_id, 'production.order.release', _user_id) THEN
@@ -692,6 +692,7 @@ BEGIN
   SELECT * INTO v_order FROM public.production_orders WHERE id=_order_id AND organization_id=_organization_id FOR UPDATE;
   IF NOT FOUND THEN RAISE EXCEPTION 'Ordem de produção não encontrada.'; END IF;
   IF v_order.status NOT IN ('DRAFT','PLANNED') THEN RAISE EXCEPTION 'Somente ordens em elaboração/planejada podem ser liberadas.'; END IF;
+  v_from := v_order.status;
   IF NOT EXISTS (SELECT 1 FROM public.production_order_materials WHERE production_order_id=_order_id) THEN
     RAISE EXCEPTION 'Ordem sem materiais: informe uma ficha técnica com componentes antes de liberar.';
   END IF;
