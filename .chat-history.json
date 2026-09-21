@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "FAIL=0; TOTAL=0; for f in $(ls supabase/migrations/202609*.sql | sort); do TOTAL=$((TOTAL+1)); base=$(basename \"$f\"); if ! sudo -u postgres psql -d tmp_inv003a -v ON_ERROR_STOP=1 -q -f \"$f\" >/tmp/mig_out.txt 2>&1; then echo \"FAIL $base: $(grep -m1 -i 'error' /tmp/mig_out.txt | head -c 400)\"; FAIL=$((FAIL+1)); fi; done; echo \"---\"; echo \"APLICADAS: $TOTAL, FALHAS: $FAIL\"",
-      "timeout": 300000
-    },
-    "timestamp": 1790000898834
-  },
-  {
-    "role": "tool_result",
-    "content": "FAIL 20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql: psql:supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql:26: ERROR:  schema \"auth\" does not exist\nFAIL 20260915211508_ec17904b-1fc9-4516-b4e2-b37ba9be6436.sql: psql:supabase/migrations/20260915211508_ec17904b-1fc9-",
-    "is_error": false,
-    "timestamp": 1790000899731
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sudo -u postgres psql -d tmp_inv003a -c \"\\dn\" 2>&1; echo \"---tabelas auth?---\"; sudo -u postgres psql -d tmp_inv003a -c \"\\dt auth.*\" 2>&1"
     },
     "timestamp": 1790000903639
@@ -1489,5 +1474,21 @@
     "content": "           action           | count \n----------------------------+-------\n inventory.adjustment       |     5\n inventory.count.cancel     |     2\n inventory.count.complete   |     1\n inventory.count.create     |     3\n inventory.ledger.post      |    10\n inventory.movement.post    |     1\n inventory",
     "is_error": false,
     "timestamp": 1790002037360
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql",
+      "limit": 40,
+      "offset": 460
+    },
+    "timestamp": 1790002042114
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql</path>\n<type>file</type>\n<content>\n460:     'movement_ids', to_jsonb(v_movement_ids)\n461:   );\n462: END;\n463: $$;\n464: \n465: CREATE OR REPLACE FUNCTION public.inventory_reverse_movement(\n466:  _",
+    "is_error": false,
+    "timestamp": 1790002042136
   }
 ]
