@@ -22,9 +22,17 @@ import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminOrganizacaoRouteImport } from './routes/_authenticated/admin.organizacao'
 import { Route as AuthenticatedAdminPermissoesRouteImport } from './routes/_authenticated/admin.permissoes'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
+import { Route as AuthenticatedEstoqueIndexRouteImport } from './routes/_authenticated/estoque/index'
+import { Route as AuthenticatedEstoqueInventariosRouteImport } from './routes/_authenticated/estoque/inventarios'
+import { Route as AuthenticatedEstoqueLocationsRouteImport } from './routes/_authenticated/estoque/locations'
+import { Route as AuthenticatedEstoqueMovimentacoesRouteImport } from './routes/_authenticated/estoque/movimentacoes'
+import { Route as AuthenticatedEstoqueTerceirosRouteImport } from './routes/_authenticated/estoque/terceiros'
+import { Route as AuthenticatedEstoqueTransferenciasRouteImport } from './routes/_authenticated/estoque/transferencias'
 import { Route as AuthenticatedProdutosIdRouteImport } from './routes/_authenticated/produtos.$id'
 import { Route as ApiCronHealthRouteImport } from './routes/api/cron.health'
 import { Route as ApiWebhooksReceiverRouteImport } from './routes/api/webhooks.receiver'
+import { Route as AuthenticatedEstoqueInventariosIdRouteImport } from './routes/_authenticated/estoque/inventarios.$id'
+import { Route as AuthenticatedEstoqueMovimentacoesIdRouteImport } from './routes/_authenticated/estoque/movimentacoes.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -94,6 +102,42 @@ const AuthenticatedAdminUsuariosRoute =
     path: '/admin/usuarios',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedEstoqueIndexRoute =
+  AuthenticatedEstoqueIndexRouteImport.update({
+    id: '/estoque/',
+    path: '/estoque/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEstoqueInventariosRoute =
+  AuthenticatedEstoqueInventariosRouteImport.update({
+    id: '/estoque/inventarios',
+    path: '/estoque/inventarios',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEstoqueLocationsRoute =
+  AuthenticatedEstoqueLocationsRouteImport.update({
+    id: '/estoque/locations',
+    path: '/estoque/locations',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEstoqueMovimentacoesRoute =
+  AuthenticatedEstoqueMovimentacoesRouteImport.update({
+    id: '/estoque/movimentacoes',
+    path: '/estoque/movimentacoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEstoqueTerceirosRoute =
+  AuthenticatedEstoqueTerceirosRouteImport.update({
+    id: '/estoque/terceiros',
+    path: '/estoque/terceiros',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedEstoqueTransferenciasRoute =
+  AuthenticatedEstoqueTransferenciasRouteImport.update({
+    id: '/estoque/transferencias',
+    path: '/estoque/transferencias',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProdutosIdRoute = AuthenticatedProdutosIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -109,6 +153,18 @@ const ApiWebhooksReceiverRoute = ApiWebhooksReceiverRouteImport.update({
   path: '/api/webhooks/receiver',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedEstoqueInventariosIdRoute =
+  AuthenticatedEstoqueInventariosIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedEstoqueInventariosRoute,
+  } as any)
+const AuthenticatedEstoqueMovimentacoesIdRoute =
+  AuthenticatedEstoqueMovimentacoesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedEstoqueMovimentacoesRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -123,9 +179,17 @@ export interface FileRoutesByFullPath {
   '/admin/organizacao': typeof AuthenticatedAdminOrganizacaoRoute
   '/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/estoque/inventarios': typeof AuthenticatedEstoqueInventariosRouteWithChildren
+  '/estoque/locations': typeof AuthenticatedEstoqueLocationsRoute
+  '/estoque/movimentacoes': typeof AuthenticatedEstoqueMovimentacoesRouteWithChildren
+  '/estoque/terceiros': typeof AuthenticatedEstoqueTerceirosRoute
+  '/estoque/transferencias': typeof AuthenticatedEstoqueTransferenciasRoute
   '/produtos/$id': typeof AuthenticatedProdutosIdRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
+  '/estoque/': typeof AuthenticatedEstoqueIndexRoute
+  '/estoque/inventarios/$id': typeof AuthenticatedEstoqueInventariosIdRoute
+  '/estoque/movimentacoes/$id': typeof AuthenticatedEstoqueMovimentacoesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -140,9 +204,17 @@ export interface FileRoutesByTo {
   '/admin/organizacao': typeof AuthenticatedAdminOrganizacaoRoute
   '/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/estoque/inventarios': typeof AuthenticatedEstoqueInventariosRouteWithChildren
+  '/estoque/locations': typeof AuthenticatedEstoqueLocationsRoute
+  '/estoque/movimentacoes': typeof AuthenticatedEstoqueMovimentacoesRouteWithChildren
+  '/estoque/terceiros': typeof AuthenticatedEstoqueTerceirosRoute
+  '/estoque/transferencias': typeof AuthenticatedEstoqueTransferenciasRoute
   '/produtos/$id': typeof AuthenticatedProdutosIdRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
+  '/estoque': typeof AuthenticatedEstoqueIndexRoute
+  '/estoque/inventarios/$id': typeof AuthenticatedEstoqueInventariosIdRoute
+  '/estoque/movimentacoes/$id': typeof AuthenticatedEstoqueMovimentacoesIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -159,9 +231,17 @@ export interface FileRoutesById {
   '/_authenticated/admin/organizacao': typeof AuthenticatedAdminOrganizacaoRoute
   '/_authenticated/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/_authenticated/estoque/inventarios': typeof AuthenticatedEstoqueInventariosRouteWithChildren
+  '/_authenticated/estoque/locations': typeof AuthenticatedEstoqueLocationsRoute
+  '/_authenticated/estoque/movimentacoes': typeof AuthenticatedEstoqueMovimentacoesRouteWithChildren
+  '/_authenticated/estoque/terceiros': typeof AuthenticatedEstoqueTerceirosRoute
+  '/_authenticated/estoque/transferencias': typeof AuthenticatedEstoqueTransferenciasRoute
   '/_authenticated/produtos/$id': typeof AuthenticatedProdutosIdRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
+  '/_authenticated/estoque/': typeof AuthenticatedEstoqueIndexRoute
+  '/_authenticated/estoque/inventarios/$id': typeof AuthenticatedEstoqueInventariosIdRoute
+  '/_authenticated/estoque/movimentacoes/$id': typeof AuthenticatedEstoqueMovimentacoesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -178,9 +258,17 @@ export interface FileRouteTypes {
     | '/admin/organizacao'
     | '/admin/permissoes'
     | '/admin/usuarios'
+    | '/estoque/inventarios'
+    | '/estoque/locations'
+    | '/estoque/movimentacoes'
+    | '/estoque/terceiros'
+    | '/estoque/transferencias'
     | '/produtos/$id'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
+    | '/estoque/'
+    | '/estoque/inventarios/$id'
+    | '/estoque/movimentacoes/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -195,9 +283,17 @@ export interface FileRouteTypes {
     | '/admin/organizacao'
     | '/admin/permissoes'
     | '/admin/usuarios'
+    | '/estoque/inventarios'
+    | '/estoque/locations'
+    | '/estoque/movimentacoes'
+    | '/estoque/terceiros'
+    | '/estoque/transferencias'
     | '/produtos/$id'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
+    | '/estoque'
+    | '/estoque/inventarios/$id'
+    | '/estoque/movimentacoes/$id'
   id:
     | '__root__'
     | '/'
@@ -213,9 +309,17 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/organizacao'
     | '/_authenticated/admin/permissoes'
     | '/_authenticated/admin/usuarios'
+    | '/_authenticated/estoque/inventarios'
+    | '/_authenticated/estoque/locations'
+    | '/_authenticated/estoque/movimentacoes'
+    | '/_authenticated/estoque/terceiros'
+    | '/_authenticated/estoque/transferencias'
     | '/_authenticated/produtos/$id'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
+    | '/_authenticated/estoque/'
+    | '/_authenticated/estoque/inventarios/$id'
+    | '/_authenticated/estoque/movimentacoes/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -321,6 +425,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsuariosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/estoque/': {
+      id: '/_authenticated/estoque/'
+      path: '/estoque'
+      fullPath: '/estoque/'
+      preLoaderRoute: typeof AuthenticatedEstoqueIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/estoque/inventarios': {
+      id: '/_authenticated/estoque/inventarios'
+      path: '/estoque/inventarios'
+      fullPath: '/estoque/inventarios'
+      preLoaderRoute: typeof AuthenticatedEstoqueInventariosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/estoque/locations': {
+      id: '/_authenticated/estoque/locations'
+      path: '/estoque/locations'
+      fullPath: '/estoque/locations'
+      preLoaderRoute: typeof AuthenticatedEstoqueLocationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/estoque/movimentacoes': {
+      id: '/_authenticated/estoque/movimentacoes'
+      path: '/estoque/movimentacoes'
+      fullPath: '/estoque/movimentacoes'
+      preLoaderRoute: typeof AuthenticatedEstoqueMovimentacoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/estoque/terceiros': {
+      id: '/_authenticated/estoque/terceiros'
+      path: '/estoque/terceiros'
+      fullPath: '/estoque/terceiros'
+      preLoaderRoute: typeof AuthenticatedEstoqueTerceirosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/estoque/transferencias': {
+      id: '/_authenticated/estoque/transferencias'
+      path: '/estoque/transferencias'
+      fullPath: '/estoque/transferencias'
+      preLoaderRoute: typeof AuthenticatedEstoqueTransferenciasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/produtos/$id': {
       id: '/_authenticated/produtos/$id'
       path: '/$id'
@@ -342,6 +488,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWebhooksReceiverRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/estoque/inventarios/$id': {
+      id: '/_authenticated/estoque/inventarios/$id'
+      path: '/$id'
+      fullPath: '/estoque/inventarios/$id'
+      preLoaderRoute: typeof AuthenticatedEstoqueInventariosIdRouteImport
+      parentRoute: typeof AuthenticatedEstoqueInventariosRoute
+    }
+    '/_authenticated/estoque/movimentacoes/$id': {
+      id: '/_authenticated/estoque/movimentacoes/$id'
+      path: '/$id'
+      fullPath: '/estoque/movimentacoes/$id'
+      preLoaderRoute: typeof AuthenticatedEstoqueMovimentacoesIdRouteImport
+      parentRoute: typeof AuthenticatedEstoqueMovimentacoesRoute
+    }
   }
 }
 
@@ -358,6 +518,36 @@ const AuthenticatedProdutosRouteWithChildren =
     AuthenticatedProdutosRouteChildren,
   )
 
+interface AuthenticatedEstoqueInventariosRouteChildren {
+  AuthenticatedEstoqueInventariosIdRoute: typeof AuthenticatedEstoqueInventariosIdRoute
+}
+
+const AuthenticatedEstoqueInventariosRouteChildren: AuthenticatedEstoqueInventariosRouteChildren =
+  {
+    AuthenticatedEstoqueInventariosIdRoute:
+      AuthenticatedEstoqueInventariosIdRoute,
+  }
+
+const AuthenticatedEstoqueInventariosRouteWithChildren =
+  AuthenticatedEstoqueInventariosRoute._addFileChildren(
+    AuthenticatedEstoqueInventariosRouteChildren,
+  )
+
+interface AuthenticatedEstoqueMovimentacoesRouteChildren {
+  AuthenticatedEstoqueMovimentacoesIdRoute: typeof AuthenticatedEstoqueMovimentacoesIdRoute
+}
+
+const AuthenticatedEstoqueMovimentacoesRouteChildren: AuthenticatedEstoqueMovimentacoesRouteChildren =
+  {
+    AuthenticatedEstoqueMovimentacoesIdRoute:
+      AuthenticatedEstoqueMovimentacoesIdRoute,
+  }
+
+const AuthenticatedEstoqueMovimentacoesRouteWithChildren =
+  AuthenticatedEstoqueMovimentacoesRoute._addFileChildren(
+    AuthenticatedEstoqueMovimentacoesRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
@@ -367,6 +557,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminOrganizacaoRoute: typeof AuthenticatedAdminOrganizacaoRoute
   AuthenticatedAdminPermissoesRoute: typeof AuthenticatedAdminPermissoesRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
+  AuthenticatedEstoqueInventariosRoute: typeof AuthenticatedEstoqueInventariosRouteWithChildren
+  AuthenticatedEstoqueLocationsRoute: typeof AuthenticatedEstoqueLocationsRoute
+  AuthenticatedEstoqueMovimentacoesRoute: typeof AuthenticatedEstoqueMovimentacoesRouteWithChildren
+  AuthenticatedEstoqueTerceirosRoute: typeof AuthenticatedEstoqueTerceirosRoute
+  AuthenticatedEstoqueTransferenciasRoute: typeof AuthenticatedEstoqueTransferenciasRoute
+  AuthenticatedEstoqueIndexRoute: typeof AuthenticatedEstoqueIndexRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -378,6 +574,15 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminOrganizacaoRoute: AuthenticatedAdminOrganizacaoRoute,
   AuthenticatedAdminPermissoesRoute: AuthenticatedAdminPermissoesRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
+  AuthenticatedEstoqueInventariosRoute:
+    AuthenticatedEstoqueInventariosRouteWithChildren,
+  AuthenticatedEstoqueLocationsRoute: AuthenticatedEstoqueLocationsRoute,
+  AuthenticatedEstoqueMovimentacoesRoute:
+    AuthenticatedEstoqueMovimentacoesRouteWithChildren,
+  AuthenticatedEstoqueTerceirosRoute: AuthenticatedEstoqueTerceirosRoute,
+  AuthenticatedEstoqueTransferenciasRoute:
+    AuthenticatedEstoqueTransferenciasRoute,
+  AuthenticatedEstoqueIndexRoute: AuthenticatedEstoqueIndexRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

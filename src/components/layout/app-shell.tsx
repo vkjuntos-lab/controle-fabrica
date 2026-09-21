@@ -1,15 +1,20 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
+  ArrowLeftRight,
   Building2,
   ChevronsUpDown,
+  ClipboardList,
+  Handshake,
   LayoutDashboard,
   LogOut,
+  MapPin,
   Package,
   ScrollText,
   ShieldCheck,
   User,
   Users,
+  Warehouse,
 } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -51,6 +56,42 @@ type NavItem = {
 const OPERATION_ITEMS: NavItem[] = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
   { label: "Produtos", to: "/produtos", icon: Package, permission: PERMISSIONS.productsRead },
+  {
+    label: "Estoque",
+    to: "/estoque",
+    icon: Warehouse,
+    permission: PERMISSIONS.inventoryRead,
+  },
+  {
+    label: "Movimentações",
+    to: "/estoque/movimentacoes",
+    icon: ArrowLeftRight,
+    permission: PERMISSIONS.inventoryMovementsRead,
+  },
+  {
+    label: "Transferências",
+    to: "/estoque/transferencias",
+    icon: Handshake,
+    permission: PERMISSIONS.inventoryRead,
+  },
+  {
+    label: "Localizações",
+    to: "/estoque/locations",
+    icon: MapPin,
+    permission: PERMISSIONS.inventoryRead,
+  },
+  {
+    label: "Em terceiros",
+    to: "/estoque/terceiros",
+    icon: Building2,
+    permission: PERMISSIONS.inventoryRead,
+  },
+  {
+    label: "Inventário",
+    to: "/estoque/inventarios",
+    icon: ClipboardList,
+    permission: PERMISSIONS.inventoryCount,
+  },
 ];
 
 const ADMIN_ITEMS: NavItem[] = [
@@ -166,7 +207,10 @@ function NavSection({ label, items }: { label: string; items: NavItem[] }) {
         <SidebarMenu>
           {visible.map((item) => (
             <SidebarMenuItem key={item.to}>
-              <SidebarMenuButton asChild isActive={pathname === item.to}>
+              <SidebarMenuButton
+                asChild
+                isActive={pathname === item.to || pathname.startsWith(`${item.to}/`)}
+              >
                 <Link to={item.to}>
                   <item.icon />
                   <span>{item.label}</span>

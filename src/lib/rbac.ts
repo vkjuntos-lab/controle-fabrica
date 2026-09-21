@@ -50,6 +50,15 @@ export const PERMISSIONS = {
   auditRead: "audit.read",
   productsRead: "products.read",
   productsManage: "products.manage",
+  inventoryRead: "inventory.read",
+  inventoryMovementsRead: "inventory.movements.read",
+  inventoryMove: "inventory.move",
+  inventoryAdjust: "inventory.adjust",
+  inventoryTransfer: "inventory.transfer",
+  inventoryCount: "inventory.count",
+  inventoryOpeningBalance: "inventory.opening_balance",
+  inventoryReverse: "inventory.reverse",
+  inventoryManageLocations: "inventory.manage_locations",
 } as const;
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -64,6 +73,15 @@ export const PERMISSION_LABELS: Record<string, string> = {
   "audit.read": "Ver auditoria",
   "products.read": "Ver catálogo de produtos",
   "products.manage": "Gerenciar catálogo de produtos",
+  "inventory.read": "Ver posição de estoque",
+  "inventory.movements.read": "Ver movimentações de estoque",
+  "inventory.move": "Movimentar estoque (entradas/saídas)",
+  "inventory.adjust": "Ajustar estoque",
+  "inventory.transfer": "Realizar transferências",
+  "inventory.count": "Fazer inventário físico",
+  "inventory.opening_balance": "Abrir saldo de estoque",
+  "inventory.reverse": "Reverter movimentações",
+  "inventory.manage_locations": "Gerenciar localizações",
 };
 
 /**
@@ -102,7 +120,7 @@ export const PLATFORM_MODULES: ModuleDefinition[] = [
     key: "estoque",
     label: "Estoque",
     description: "Inventory ledger e posição por local.",
-    status: "coming_soon",
+    status: "available",
   },
   {
     key: "producao",

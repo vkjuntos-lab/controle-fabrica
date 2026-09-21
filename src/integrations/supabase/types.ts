@@ -305,8 +305,10 @@ export type Database = {
           created_at: string;
           created_by: string | null;
           id: string;
+          minimum_stock: number;
           organization_id: string;
           product_id: string;
+          reorder_point: number;
           sell_price: number | null;
           size: string | null;
           sku: string;
@@ -323,8 +325,10 @@ export type Database = {
           created_at?: string;
           created_by?: string | null;
           id?: string;
+          minimum_stock?: number;
           organization_id: string;
           product_id: string;
+          reorder_point?: number;
           sell_price?: number | null;
           size?: string | null;
           sku: string;
@@ -341,8 +345,10 @@ export type Database = {
           created_at?: string;
           created_by?: string | null;
           id?: string;
+          minimum_stock?: number;
           organization_id?: string;
           product_id?: string;
+          reorder_point?: number;
           sell_price?: number | null;
           size?: string | null;
           sku?: string;
@@ -451,9 +457,513 @@ export type Database = {
           },
         ];
       };
+      inventory_batches: {
+        Row: {
+          batch_code: string;
+          created_at: string;
+          created_by: string | null;
+          expires_at: string | null;
+          id: string;
+          manufactured_at: string | null;
+          organization_id: string;
+          status: Database["public"]["Enums"]["inventory_batch_status"];
+          variant_id: string;
+        };
+        Insert: {
+          batch_code: string;
+          created_at?: string;
+          created_by?: string | null;
+          expires_at?: string | null;
+          id?: string;
+          manufactured_at?: string | null;
+          organization_id: string;
+          status?: Database["public"]["Enums"]["inventory_batch_status"];
+          variant_id: string;
+        };
+        Update: {
+          batch_code?: string;
+          created_at?: string;
+          created_by?: string | null;
+          expires_at?: string | null;
+          id?: string;
+          manufactured_at?: string | null;
+          organization_id?: string;
+          status?: Database["public"]["Enums"]["inventory_batch_status"];
+          variant_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "inventory_batches_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inventory_batches_variant_id_fkey";
+            columns: ["variant_id"];
+            isOneToOne: false;
+            referencedRelation: "product_variants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      inventory_count_items: {
+        Row: {
+          counted_quantity: number | null;
+          created_at: string;
+          difference: number | null;
+          id: string;
+          inventory_count_id: string;
+          organization_id: string;
+          status: Database["public"]["Enums"]["inventory_count_item_status"];
+          system_quantity: number;
+          updated_at: string;
+          variant_id: string;
+        };
+        Insert: {
+          counted_quantity?: number | null;
+          created_at?: string;
+          difference?: number | null;
+          id?: string;
+          inventory_count_id: string;
+          organization_id: string;
+          status?: Database["public"]["Enums"]["inventory_count_item_status"];
+          system_quantity?: number;
+          updated_at?: string;
+          variant_id: string;
+        };
+        Update: {
+          counted_quantity?: number | null;
+          created_at?: string;
+          difference?: number | null;
+          id?: string;
+          inventory_count_id?: string;
+          organization_id?: string;
+          status?: Database["public"]["Enums"]["inventory_count_item_status"];
+          system_quantity?: number;
+          updated_at?: string;
+          variant_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "inventory_count_items_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inventory_count_items_inventory_count_id_fkey";
+            columns: ["inventory_count_id"];
+            isOneToOne: false;
+            referencedRelation: "inventory_counts";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inventory_count_items_variant_id_fkey";
+            columns: ["variant_id"];
+            isOneToOne: false;
+            referencedRelation: "product_variants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      inventory_counts: {
+        Row: {
+          completed_at: string | null;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          location_id: string;
+          organization_id: string;
+          started_at: string | null;
+          status: Database["public"]["Enums"]["inventory_count_status"];
+          updated_at: string;
+        };
+        Insert: {
+          completed_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          location_id: string;
+          organization_id: string;
+          started_at?: string | null;
+          status?: Database["public"]["Enums"]["inventory_count_status"];
+          updated_at?: string;
+        };
+        Update: {
+          completed_at?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          location_id?: string;
+          organization_id?: string;
+          started_at?: string | null;
+          status?: Database["public"]["Enums"]["inventory_count_status"];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "inventory_counts_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inventory_counts_location_id_fkey";
+            columns: ["location_id"];
+            isOneToOne: false;
+            referencedRelation: "inventory_locations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      inventory_locations: {
+        Row: {
+          address_id: string | null;
+          code: string;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          marketplace_store_id: string | null;
+          name: string;
+          organization_id: string;
+          partner_id: string | null;
+          status: Database["public"]["Enums"]["inventory_location_status"];
+          type: Database["public"]["Enums"]["inventory_location_type"];
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          address_id?: string | null;
+          code: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          marketplace_store_id?: string | null;
+          name: string;
+          organization_id: string;
+          partner_id?: string | null;
+          status?: Database["public"]["Enums"]["inventory_location_status"];
+          type?: Database["public"]["Enums"]["inventory_location_type"];
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          address_id?: string | null;
+          code?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          marketplace_store_id?: string | null;
+          name?: string;
+          organization_id?: string;
+          partner_id?: string | null;
+          status?: Database["public"]["Enums"]["inventory_location_status"];
+          type?: Database["public"]["Enums"]["inventory_location_type"];
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "inventory_locations_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      inventory_movements: {
+        Row: {
+          batch_id: string | null;
+          created_at: string;
+          created_by: string | null;
+          direction: Database["public"]["Enums"]["inventory_movement_direction"];
+          external_reference: string | null;
+          id: string;
+          idempotency_key: string | null;
+          location_id: string;
+          movement_type: Database["public"]["Enums"]["inventory_movement_type"];
+          occurred_at: string;
+          organization_id: string;
+          quantity: number;
+          reason: string | null;
+          reference_id: string | null;
+          reference_type: string | null;
+          reversal_of_id: string | null;
+          reversed_by_id: string | null;
+          source: string | null;
+          status: Database["public"]["Enums"]["inventory_movement_status"];
+          unit: string;
+          variant_id: string;
+        };
+        Insert: {
+          batch_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          direction: Database["public"]["Enums"]["inventory_movement_direction"];
+          external_reference?: string | null;
+          id?: string;
+          idempotency_key?: string | null;
+          location_id: string;
+          movement_type: Database["public"]["Enums"]["inventory_movement_type"];
+          occurred_at?: string;
+          organization_id: string;
+          quantity: number;
+          reason?: string | null;
+          reference_id?: string | null;
+          reference_type?: string | null;
+          reversal_of_id?: string | null;
+          reversed_by_id?: string | null;
+          source?: string | null;
+          status?: Database["public"]["Enums"]["inventory_movement_status"];
+          unit?: string;
+          variant_id: string;
+        };
+        Update: {
+          batch_id?: string | null;
+          created_at?: string;
+          created_by?: string | null;
+          direction?: Database["public"]["Enums"]["inventory_movement_direction"];
+          external_reference?: string | null;
+          id?: string;
+          idempotency_key?: string | null;
+          location_id?: string;
+          movement_type?: Database["public"]["Enums"]["inventory_movement_type"];
+          occurred_at?: string;
+          organization_id?: string;
+          quantity?: number;
+          reason?: string | null;
+          reference_id?: string | null;
+          reference_type?: string | null;
+          reversal_of_id?: string | null;
+          reversed_by_id?: string | null;
+          source?: string | null;
+          status?: Database["public"]["Enums"]["inventory_movement_status"];
+          unit?: string;
+          variant_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "inventory_movements_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inventory_movements_variant_id_fkey";
+            columns: ["variant_id"];
+            isOneToOne: false;
+            referencedRelation: "product_variants";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inventory_movements_location_id_fkey";
+            columns: ["location_id"];
+            isOneToOne: false;
+            referencedRelation: "inventory_locations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inventory_movements_batch_id_fkey";
+            columns: ["batch_id"];
+            isOneToOne: false;
+            referencedRelation: "inventory_batches";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inventory_movements_reversal_of_id_fkey";
+            columns: ["reversal_of_id"];
+            isOneToOne: false;
+            referencedRelation: "inventory_movements";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inventory_movements_reversed_by_id_fkey";
+            columns: ["reversed_by_id"];
+            isOneToOne: false;
+            referencedRelation: "inventory_movements";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      inventory_transfer_items: {
+        Row: {
+          created_at: string;
+          id: string;
+          organization_id: string;
+          quantity: number;
+          transfer_id: string;
+          variant_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          organization_id: string;
+          quantity: number;
+          transfer_id: string;
+          variant_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          organization_id?: string;
+          quantity?: number;
+          transfer_id?: string;
+          variant_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "inventory_transfer_items_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inventory_transfer_items_transfer_id_fkey";
+            columns: ["transfer_id"];
+            isOneToOne: false;
+            referencedRelation: "inventory_transfers";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inventory_transfer_items_variant_id_fkey";
+            columns: ["variant_id"];
+            isOneToOne: false;
+            referencedRelation: "product_variants";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      inventory_transfers: {
+        Row: {
+          approved_at: string | null;
+          approved_by: string | null;
+          completed_at: string | null;
+          created_at: string;
+          destination_location_id: string;
+          id: string;
+          idempotency_key: string | null;
+          notes: string | null;
+          organization_id: string;
+          requested_at: string;
+          requested_by: string | null;
+          source_location_id: string;
+          status: Database["public"]["Enums"]["inventory_transfer_status"];
+          transfer_type: string;
+          updated_at: string;
+        };
+        Insert: {
+          approved_at?: string | null;
+          approved_by?: string | null;
+          completed_at?: string | null;
+          created_at?: string;
+          destination_location_id: string;
+          id?: string;
+          idempotency_key?: string | null;
+          notes?: string | null;
+          organization_id: string;
+          requested_at?: string;
+          requested_by?: string | null;
+          source_location_id: string;
+          status?: Database["public"]["Enums"]["inventory_transfer_status"];
+          transfer_type?: string;
+          updated_at?: string;
+        };
+        Update: {
+          approved_at?: string | null;
+          approved_by?: string | null;
+          completed_at?: string | null;
+          created_at?: string;
+          destination_location_id?: string;
+          id?: string;
+          idempotency_key?: string | null;
+          notes?: string | null;
+          organization_id?: string;
+          requested_at?: string;
+          requested_by?: string | null;
+          source_location_id?: string;
+          status?: Database["public"]["Enums"]["inventory_transfer_status"];
+          transfer_type?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "inventory_transfers_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: false;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inventory_transfers_source_location_id_fkey";
+            columns: ["source_location_id"];
+            isOneToOne: false;
+            referencedRelation: "inventory_locations";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "inventory_transfers_destination_location_id_fkey";
+            columns: ["destination_location_id"];
+            isOneToOne: false;
+            referencedRelation: "inventory_locations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      organization_inventory_settings: {
+        Row: {
+          allow_negative_inventory: boolean;
+          created_at: string;
+          id: string;
+          organization_id: string;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          allow_negative_inventory?: boolean;
+          created_at?: string;
+          id?: string;
+          organization_id: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          allow_negative_inventory?: boolean;
+          created_at?: string;
+          id?: string;
+          organization_id?: string;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "organization_inventory_settings_organization_id_fkey";
+            columns: ["organization_id"];
+            isOneToOne: true;
+            referencedRelation: "organizations";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
-      [_ in never]: never;
+      inventory_balances: {
+        Row: {
+          batch_id: string | null;
+          last_movement_at: string | null;
+          location_id: string;
+          on_hand: number | null;
+          organization_id: string;
+          variant_id: string;
+        };
+        Relationships: [];
+      };
     };
     Functions: {
       has_org_role: {
@@ -471,6 +981,62 @@ export type Database = {
           _user_id?: string;
         };
         Returns: boolean;
+      };
+      inventory_complete_count: {
+        Args: { _count_id: string; _organization_id: string; _user_id?: string };
+        Returns: Json;
+      };
+      inventory_get_balance: {
+        Args: {
+          _batch_id?: string;
+          _location_id?: string;
+          _organization_id: string;
+          _user_id?: string;
+          _variant_id: string;
+        };
+        Returns: number;
+      };
+      inventory_post_movement: {
+        Args: {
+          _allow_negative_override?: boolean;
+          _batch_id?: string;
+          _direction?: Database["public"]["Enums"]["inventory_movement_direction"];
+          _idempotency_key?: string;
+          _location_id: string;
+          _movement_type: Database["public"]["Enums"]["inventory_movement_type"];
+          _occurred_at?: string;
+          _organization_id: string;
+          _quantity: number;
+          _reason?: string;
+          _reference_id?: string;
+          _reference_type?: string;
+          _unit?: string;
+          _user_id?: string;
+          _variant_id: string;
+        };
+        Returns: Json;
+      };
+      inventory_post_transfer: {
+        Args: {
+          _destination_location_id: string;
+          _idempotency_key?: string;
+          _items: Json;
+          _notes?: string;
+          _organization_id: string;
+          _source_location_id: string;
+          _transfer_type?: string;
+          _user_id?: string;
+        };
+        Returns: Json;
+      };
+      inventory_reverse_movement: {
+        Args: {
+          _movement_id: string;
+          _organization_id: string;
+          _reason: string;
+          _user_id?: string;
+        };
+        Returns: Json;
       };
       is_org_member: {
         Args: { _organization_id: string; _user_id?: string };
@@ -490,6 +1056,43 @@ export type Database = {
       app_role:
         "admin" | "gestor" | "financeiro" | "estoque" | "producao" | "comercial" | "marketplace";
       invitation_status: "pending" | "accepted" | "expired" | "revoked";
+      inventory_batch_status: "ACTIVE" | "EXPIRED" | "DISABLED";
+      inventory_count_item_status: "PENDING" | "COUNTED" | "ADJUSTED";
+      inventory_count_status: "DRAFT" | "IN_PROGRESS" | "REVIEW" | "COMPLETED" | "CANCELED";
+      inventory_location_status: "ACTIVE" | "INACTIVE";
+      inventory_location_type:
+        | "FACTORY"
+        | "WAREHOUSE"
+        | "OWN_STORE"
+        | "MARKETPLACE"
+        | "PARTNER"
+        | "TRANSIT"
+        | "OTHER";
+      inventory_movement_direction: "IN" | "OUT";
+      inventory_movement_status: "PENDING" | "POSTED" | "REVERSED" | "CANCELED";
+      inventory_movement_type:
+        | "OPENING_BALANCE"
+        | "PURCHASE_RECEIPT"
+        | "PRODUCTION_OUTPUT"
+        | "PRODUCTION_CONSUMPTION"
+        | "SALE"
+        | "SALE_RETURN"
+        | "PARTNER_SHIPMENT"
+        | "PARTNER_RETURN"
+        | "TRANSFER_IN"
+        | "TRANSFER_OUT"
+        | "ADJUSTMENT_IN"
+        | "ADJUSTMENT_OUT"
+        | "LOSS"
+        | "MANUAL_CORRECTION"
+        | "REVERSAL";
+      inventory_transfer_status:
+        | "DRAFT"
+        | "PENDING"
+        | "APPROVED"
+        | "IN_TRANSIT"
+        | "COMPLETED"
+        | "CANCELED";
       product_status: "ACTIVE" | "INACTIVE" | "DISCONTINUED" | "DRAFT";
       product_variant_status: "ACTIVE" | "INACTIVE" | "DISCONTINUED" | "DRAFT";
     };
@@ -623,6 +1226,39 @@ export const Constants = {
         "marketplace",
       ],
       invitation_status: ["pending", "accepted", "expired", "revoked"],
+      inventory_batch_status: ["ACTIVE", "EXPIRED", "DISABLED"],
+      inventory_count_item_status: ["PENDING", "COUNTED", "ADJUSTED"],
+      inventory_count_status: ["DRAFT", "IN_PROGRESS", "REVIEW", "COMPLETED", "CANCELED"],
+      inventory_location_status: ["ACTIVE", "INACTIVE"],
+      inventory_location_type: [
+        "FACTORY",
+        "WAREHOUSE",
+        "OWN_STORE",
+        "MARKETPLACE",
+        "PARTNER",
+        "TRANSIT",
+        "OTHER",
+      ],
+      inventory_movement_direction: ["IN", "OUT"],
+      inventory_movement_status: ["PENDING", "POSTED", "REVERSED", "CANCELED"],
+      inventory_movement_type: [
+        "OPENING_BALANCE",
+        "PURCHASE_RECEIPT",
+        "PRODUCTION_OUTPUT",
+        "PRODUCTION_CONSUMPTION",
+        "SALE",
+        "SALE_RETURN",
+        "PARTNER_SHIPMENT",
+        "PARTNER_RETURN",
+        "TRANSFER_IN",
+        "TRANSFER_OUT",
+        "ADJUSTMENT_IN",
+        "ADJUSTMENT_OUT",
+        "LOSS",
+        "MANUAL_CORRECTION",
+        "REVERSAL",
+      ],
+      inventory_transfer_status: ["DRAFT", "PENDING", "APPROVED", "IN_TRANSIT", "COMPLETED", "CANCELED"],
       product_status: ["ACTIVE", "INACTIVE", "DISCONTINUED", "DRAFT"],
       product_variant_status: ["ACTIVE", "INACTIVE", "DISCONTINUED", "DRAFT"],
     },

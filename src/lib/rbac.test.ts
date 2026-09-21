@@ -23,7 +23,7 @@ describe("rbac", () => {
   });
 
   it("não declara módulo operacional como disponível antes de existir", () => {
-    const disponiveis = ["dashboard", "administracao", "produtos"];
+    const disponiveis = ["dashboard", "administracao", "produtos", "estoque"];
     const opcionais = PLATFORM_MODULES.filter((m) => !disponiveis.includes(m.key));
     for (const mod of opcionais) {
       expect(mod.status).toBe("coming_soon");
@@ -32,5 +32,16 @@ describe("rbac", () => {
 
   it("expõe a permissão de edição da matriz", () => {
     expect(PERMISSIONS.permissionsManage).toBe("permissions.manage");
+  });
+
+  it("reconhece as permissões do domínio de estoque", () => {
+    expect(PERMISSIONS.inventoryRead).toBe("inventory.read");
+    expect(PERMISSIONS.inventoryMovementsRead).toBe("inventory.movements.read");
+    expect(PERMISSIONS.inventoryAdjust).toBe("inventory.adjust");
+    expect(PERMISSIONS.inventoryTransfer).toBe("inventory.transfer");
+    expect(PERMISSIONS.inventoryCount).toBe("inventory.count");
+    expect(PERMISSIONS.inventoryOpeningBalance).toBe("inventory.opening_balance");
+    expect(PERMISSIONS.inventoryReverse).toBe("inventory.reverse");
+    expect(PERMISSIONS.inventoryManageLocations).toBe("inventory.manage_locations");
   });
 });

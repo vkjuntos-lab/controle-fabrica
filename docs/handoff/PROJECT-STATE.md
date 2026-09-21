@@ -1,6 +1,6 @@
 # Estado do projeto — handoff contínuo
 
-Última atualização: LOVABLE MASTER 002 — Catálogo Mestre de Produtos (Product + Variant + Categorias) sobre a fundação completa do MASTER 001.
+Última atualização: LOVABLE MASTER 003 — Inventory Ledger (estoque por movimentos imutáveis) sobre o MASTER 002 (Catálogo de Produtos) e a fundação do MASTER 001.
 
 ## IMPLEMENTED
 
@@ -70,13 +70,45 @@
   - Telas `/produtos` (listagem com busca, filtro por status, paginação, criar/editar produto,
     ativar/inativar/descontinuar/excluir) e `/produtos/$id` (detalhe do produto e gestão completa
     de variantes). Item "Produtos" no menu de Operação do `AppShell`.
-- Documentação: ADR-001 (atualizado com cron/webhook/storage), CORE-BUSINESS, este handoff.
+- Domínio Estoque — Inventory Ledger (LOVABLE MASTER 003):
+  - O saldo **nunca** é um campo: é derivado dos movimentos. Tabelas `inventory_locations`,
+    `inventory_movements` (ledger imutável), `inventory_batches`, `inventory_transfers` +
+    `inventory_transfer_items`, `inventory_counts` + `inventory_count_items` e
+    `organization_inventory_settings`; enums de tipo/direção/status de movimento, tipo/status de
+    localização, status de transferência/contagem/lote. Tenant `organization_id` em tudo.
+  - View `inventory_balances` (`security_invoker = on`) e RPC `inventory_get_balance` derivam o
+    saldo por variante + localização + lote.
+  - Semântica de saldo: somente `POSTED` e `REVERSED` somam (`REVERSED` continua contando, pois o
+    par original + estorno dá o líquido); `PENDING`/`CANCELED` nunca somam. `quantity` é sempre
+    positiva e `direction` (IN/OUT) decide o sinal.
+  - Operações transacionais: `inventory_post_movement` (valida saldo, advisory lock por
+    variante+localização, idempotência por `UNIQUE(organization_id, idempotency_key)`, recusa tipos
+    dedicados), `inventory_post_transfer` (par OUT+IN atômico; `TRANSFER`, `PARTNER_SHIPMENT` e
+    `PARTNER_RETURN`), `inventory_reverse_movement` (marca o original como `REVERSED` e cria
+    `REVERSAL` oposto) e `inventory_complete_count` (aplica divergências como ajustes).
+  - Estoque negativo bloqueado por padrão; liberável por organização
+    (`organization_inventory_settings.allow_negative_inventory`). Remessa a parceiro não é venda
+    (não gera receita/AR). Movimentos nunca são editados/excluídos — correção por reversão.
+  - Permissões seedadas: `inventory.read`, `inventory.movements.read`, `inventory.move`,
+    `inventory.adjust`, `inventory.transfer`, `inventory.count`, `inventory.opening_balance`,
+    `inventory.reverse`, `inventory.manage_locations` (admin/gestor/estoque com todas; demais papéis
+    com leitura). Módulo "Estoque" passou de `coming_soon` para `available` em `src/lib/rbac.ts`.
+  - Server functions em `src/lib/inventory/inventory.functions.ts`; lógica pura do ledger em
+    `src/lib/inventory/ledger.ts` (`ledger.ts` + testes) e labels/opções em
+    `src/lib/inventory/constants.ts`. Tipos manuais atualizados em `src/integrations/supabase/types.ts`.
+  - Telas: `/estoque` (posição, alerta de mínimo, exportação), `/estoque/movimentacoes` (+ `/$id`
+    com reversão), `/estoque/transferencias`, `/estoque/locations`, `/estoque/terceiros` e
+    `/estoque/inventarios` (+ `/$id`). Itens no menu de Operação do `AppShell`; dialog reutilizável
+    de movimento e de transferência/remessa.
+- Documentação: ADR-001 (cron/webhook/storage), CORE-BUSINESS, INVENTORY (novo), este handoff.
 
 ## NOT_IMPLEMENTED
 
-- Módulos: Comercial, Estoque, Produção, Marketplaces, Parceiros, Financeiro, Relatórios,
+- Módulos: Comercial, Produção, Marketplaces, Parceiros, Financeiro, Relatórios,
   Inteligência (marcados como `coming_soon` em `src/lib/rbac.ts`, fora do menu operacional).
-- Inventory Ledger (modelo de movimentos de estoque por variante).
+- Valorização financeira do estoque (custo/valor por movimento) — o ledger registra quantidades.
+- Integração automática de venda/produção/compra com o ledger (hoje os lançamentos são feitos
+  pelas telas de estoque; os módulos de origem ainda não existem).
 - Atributos personalizados editáveis na tela (o campo `attributes` jsonb já existe nas tabelas
   de produto/variante).
 - Importação CSV/XLSX com mapeamento configurável de colunas e `external_sku`.
@@ -102,6 +134,10 @@
   o serviço nunca envia e-mail; a página de aceite informa e orienta sem expor demais.
 - Edição de permissões é global (role_permissions sem tenant) e pode ser feita por qualquer
   admin em qualquer organização; a server function valida que o chamador tem `permissions.manage`.
+- Estoque é um ledger imutável: o saldo é sempre derivado dos movimentos, nunca armazenado em
+  coluna. Nada é editado ou excluído; correções/estornos são movimentos novos (reversão).
+- Tipos de movimento que exigem par (transferência, remessa/retorno de parceiro, reversão) só
+  podem ser criados pelas RPCs dedicadas, nunca direto por `inventory_post_movement`.
 
 ## KNOWN_LIMITATIONS
 
@@ -116,10 +152,10 @@
 
 ## NEXT_STEPS
 
-1. Modelar o Inventory Ledger (movimentos + visões de saldo) como fonte única do estoque.
-2. Modelar locais de estoque e posse de terceiros (parceiro).
+1. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,
+   `PURCHASE_RECEIPT`, `PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`).
+2. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.
 3. Marketplaces/lojas e importação com mapeamento configurável de colunas.
-4. Reconciliação, fechamento de período e cobrança (server-side, auditado).
-5. Financeiro e relatórios de quantidade + valor.
-6. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a
+4. Reconciliação de parceiros, fechamento de período e cobrança (server-side, auditado).
+5. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a
    `/api/webhooks/receiver` quando houver integração externa.
