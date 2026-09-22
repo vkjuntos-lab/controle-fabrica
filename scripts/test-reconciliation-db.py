@@ -74,7 +74,7 @@ def run():
  assert json.loads(rpc('rec_close',q(org)+','+q(rid)))['already']
  assert sql(f'SELECT event_type||chr(124)||status FROM domain_events WHERE event_key={q("reconciliation:closed:"+rid)}')=='PARTNER_RECONCILIATION_CLOSED|PUBLISHED'
  rpc('rec_process',','.join(map(q,[org,rid])),fail='fechada')
- sql(f"UPDATE partner_reconciliation_items SET quantity=1 WHERE reconciliation_id={q(rid)}",a,fail='CLOSED')
+ sql(f"UPDATE partner_reconciliation_items SET quantity=1 WHERE reconciliation_id={q(rid)}",fail='CLOSED é imutável')
  print('PASS: price rule prevails, reprocess after SKU backfill, close, idempotent close and immutability')
  rpc('rec_reopen',q(org)+','+q(rid)+','+q('Ajuste pós-fechamento'))
  rpc('rec_adjustment',','.join(map(q,[org,rid,'CREDIT','10','Crédito pós-fechamento'])))

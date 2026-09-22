@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"rec_create\" \"/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql\" | head"
-    },
-    "timestamp": 1790116670059
-  },
-  {
-    "role": "tool_result",
-    "content": "688:CREATE FUNCTION public.rec_create(_org uuid,_data jsonb,_user_id uuid DEFAULT auth.uid())\n1169:   'rec_create','rec_preview','rec_process','rec_reprocess_item','rec_exception_resolve','rec_adjustment','rec_close','rec_reopen','rec_cancel','rec_reverse_item','rec_query') LOOP\n",
-    "is_error": false,
-    "timestamp": 1790116670097
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
@@ -1487,5 +1473,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n379: CREATE FUNCTION public.reconciliation_guard() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n380: DECLARE j jsonb:=to_j",
     "is_error": false,
     "timestamp": 1790117276017
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py",
+      "newString": "rpc('rec_process',','.join(map(q,[org,rid])),fail='fechada')\n sql(f\"UPDATE partner_reconciliation_items SET quantity=1 WHERE reconciliation_id={q(rid)}\",fail='CLOSED é imutável')",
+      "oldString": "rpc('rec_process',','.join(map(q,[org,rid])),fail='fechada')\n sql(f\"UPDATE partner_reconciliation_items SET quantity=1 WHERE reconciliation_id={q(rid)}\",a,fail='CLOSED')"
+    },
+    "timestamp": 1790117279135
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790117279160
   }
 ]
