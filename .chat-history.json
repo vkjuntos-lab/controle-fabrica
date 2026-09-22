@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "oldString": "PERFORM public.reconciliation_require(_org,'marketplace.manage');\n  INSERT INTO public.external_sku_mappings(organization_id,store_id,external_sku,variant_id,created_by,updated_at)\n  VALUES (_org,nullif((_data->>'store_id')::uuid::text,'')::uuid,trim(_data->>'external_sku'),(_data->>'variant_id')::uuid,auth.uid(),now())\n  ON CONFLICT(organization_id,store_id,external_sku) WHERE false DO NOTHING;\n  SELECT id INTO v_id FROM public.external_sku_mappings WHERE organization_id=_org\n    AND store_id IS NOT DISTINCT FROM (nullif((_data->>'store_id')::uuid::text,'')::uuid) AND external_sku=trim(_data->>'external_sku') LIMIT 1;\n  IF v_id IS NULL THEN\n    INSERT INTO public.external_sku_mappings(organization_id,store_id,external_sku,variant_id,created_by)\n    VALUES (_org,nullif((_data->>'store_id')::uuid::text,'')::uuid,trim(_data->>'external_sku'),(_data->>'variant_id')::uuid,auth.uid())\n    RETURNING id INTO v_id;\n  ELSE\n    UPDATE public.external_sku_mappings SET variant_id=(_data->>'variant_id')::uuid,updated_at=now() WHERE id=v_id;\n  END IF;",
-      "newString": "PERFORM public.reconciliation_require(_org,'marketplace.manage');\n  IF (_data->>'external_sku') IS NULL OR (_data->>'variant_id') IS NULL THEN RAISE EXCEPTION 'SKU externo e variante obrigatórios.'; END IF;\n  UPDATE public.external_sku_mappings SET variant_id=(_data->>'variant_id')::uuid,updated_at=now()\n  WHERE organization_id=_org AND store_id IS NOT DISTINCT FROM (nullif(_data->>'store_id','')::uuid) AND external_sku=trim(_data->>'external_sku')\n  RETURNING id INTO v_id;\n  IF v_id IS NULL THEN\n    INSERT INTO public.external_sku_mappings(organization_id,store_id,external_sku,variant_id,created_by)\n    VALUES (_org,nullif(_data->>'store_id','')::uuid,trim(_data->>'external_sku'),(_data->>'variant_id')::uuid,auth.uid())\n    RETURNING id INTO v_id;\n  END IF;"
-    },
-    "timestamp": 1790115535339
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790115535371
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
       "newString": "RETURNING id INTO v_sale;\n  -- Venda dentro de período já CLOSED é venda tardia: registra e sinaliza exceção.\n  IF EXISTS(SELECT 1 FROM public.partner_reconciliations r JOIN public.marketplace_stores st2 ON st2.id=v_store_id\n    WHERE r.organization_id=_org AND r.partner_id=st2.partner_id AND r.status='CLOSED'\n    AND r.period_start<=(_data->>'sale_date')::date AND r.period_end>=(_data->>'sale_date')::date) THEN\n    INSERT INTO public.reconciliation_exceptions(organization_id,marketplace_sale_id,store_id,partner_id,exception_type,severity,status,message,created_by)\n    SELECT _org,v_sale,v_store_id,st2.partner_id,'LATE_SALE_AFTER_CLOSING','WARNING','OPEN',\n      'Venda com data dentro de fechamento CLOSED: reabra o período para reconciliá-la.',auth.uid()\n    FROM public.marketplace_stores st2 WHERE st2.id=v_store_id;\n  END IF;\n  PERFORM public.reconciliation_audit(_org,'marketplace.sale.register','marketplace_sales',v_sale,jsonb_build_object('data',_data,'deduped',false));",
       "oldString": "RETURNING id INTO v_sale;\n  PERFORM public.reconciliation_audit(_org,'marketplace.sale.register','marketplace_sales',v_sale,jsonb_build_object('data',_data,'deduped',false));"
     },
@@ -1574,5 +1558,20 @@
     "content": "Traceback (most recent call last):\n  File \"<stdin>\", line 15, in <module>\n  File \"<string>\", line 21, in <module>\n  File \"<string>\", line 18, in prepare\n  File \"<string>\", line 16, in act\n  File \"<string>\", line 9, in rpc\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\"",
     "is_error": false,
     "timestamp": 1790116508627
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test2/data -m immediate stop >/dev/null 2>&1; rm -rf /tmp/recon-test2 && mkdir -p /tmp/recon-test2 && chown postgres /tmp/recon-test2 && sudo -u postgres /usr/lib/postgresql/18/bin/initdb -D /tmp/recon-test2/data -A trust -U postgres >/dev/null 2>&1 && sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test2/data -l /tmp/recon-test2/log -o \"-p 55439 -k /tmp/recon-test2\" start >/dev/null 2>&1 && cd \"/root/Zheus AI Projects/controle-fabrica\" && chown -R postgres scripts && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | tail -8",
+      "timeout": 300000
+    },
+    "timestamp": 1790116514689
+  },
+  {
+    "role": "tool_result",
+    "content": "CONTEXT:  PL/pgSQL function reconciliation_guard_relations() line 23 at RAISE\nSQL statement \"INSERT INTO public.partner_reconciliation_items(organization_id,reconciliation_id,marketplace_sale_id,partner_id,store_id,variant_id,\n    quantity,gross_amount)\n  SELECT _org,v_rec,s.id,s.store_id,v_partner,",
+    "is_error": false,
+    "timestamp": 1790116517220
   }
 ]
