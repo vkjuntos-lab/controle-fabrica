@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "newString": "'net_billable',(SELECT round((SELECT coalesce(sum(billable_amount),0) FROM public.partner_reconciliation_items WHERE reconciliation_id=v_rec.id AND status='RECONCILED')\n        +(SELECT coalesce(sum(CASE adjustment_type WHEN 'CREDIT' THEN amount ELSE -amount END),0) FROM public.partner_reconciliation_adjustments WHERE reconciliation_id=v_rec.id),2)),",
-      "oldString": "'net_billable',(SELECT round((SELECT coalesce(sum(billable_amount),0) FROM public.partner_reconciliation_items WHERE reconciliation_id=v_rec.id AND status='RECONCILED')\n        +(SELECT coalesce(sum(CASE adjustment_type WHEN 'CREDIT' THEN amount ELSE -amount END),0) FROM public.partner_reconciliation_adjustments WHERE reconciliation_id=v_rec.id)),2)),"
-    },
-    "timestamp": 1790116949987
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790116950013
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | grep -E 'PASS|AssertionError|ERROR' | tail -10",
@@ -1478,5 +1462,20 @@
     "content": "after reverse, original status/reversed_by_id: POSTED|false\n",
     "is_error": false,
     "timestamp": 1790117694679
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 - <<'PYEOF'\nimport importlib.util, subprocess\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('db','scripts/test-inventory-db.py')\ndb=importlib.util.module_from_spec(spec);spec.loader.exec_module(db)\ndb.setup()\nfor line in subprocess.run(db.BASE,input=\"SELECT '\\n'||prosrc FROM pg_proc WHERE proname='inventory_reverse_movement_core';\",text=True,capture_output=True).stdout.splitlines():\n    if 'reversed_by_id' in line or 'status' in line or 'UPDATE' in line: print(line)\ndb.cleanup()\nPYEOF",
+      "timeout": 120000
+    },
+    "timestamp": 1790117701985
+  },
+  {
+    "role": "tool_result",
+    "content": " IF original.status<>'POSTED' THEN RAISE EXCEPTION 'Somente POSTED pode ser estornado.'; END IF;\n",
+    "is_error": false,
+    "timestamp": 1790117703191
   }
 ]
