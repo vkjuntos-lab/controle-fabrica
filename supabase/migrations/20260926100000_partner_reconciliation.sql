@@ -826,8 +826,8 @@ $$;
 CREATE FUNCTION public.rec_process(_org uuid,_reconciliation_id uuid,_limit int DEFAULT NULL,_item_ids uuid[] DEFAULT NULL,_user_id uuid DEFAULT auth.uid())
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE
-  v_rec record; v_item record; v_result jsonb; v_reconciled int:=0; v_exception int:=0; v_canceled int:=0; v_skipped int:=0; v_billable numeric:=0;
-  v_units numeric:=0; v_blocking int:=0; v_status text;
+  v_rec record; v_item uuid; v_result jsonb; v_reconciled int:=0; v_exception int:=0; v_canceled int:=0;
+  v_already int:=0; v_blocking int:=0; v_status text;
 BEGIN
   IF _user_id IS DISTINCT FROM auth.uid() THEN RAISE EXCEPTION 'Usuário inválido.'; END IF;
   PERFORM public.reconciliation_require(_org,'reconciliation.process');
@@ -836,41 +836,30 @@ BEGIN
   IF v_rec.id IS NULL THEN RAISE EXCEPTION 'Reconciliação não encontrada.'; END IF;
   IF v_rec.status IN ('CLOSED','CANCELED') THEN RAISE EXCEPTION 'Reconciliação fechada/cancelada.'; END IF;
   IF v_rec.status='DRAFT' THEN UPDATE public.partner_reconciliations SET status='PROCESSING' WHERE id=_reconciliation_id; END IF;
-  IF _limit IS NULL AND _item_ids IS NULL THEN
-    FOR v_item IN SELECT i.id FROM public.partner_reconciliation_items i
-      WHERE i.reconciliation_id=_reconciliation_id AND i.status IN ('PENDING','EXCEPTION','VALIDATED')
-      ORDER BY i.id
-    LOOP
-      v_result:=public.rec_process_item(_org,_reconciliation_id,v_item.id,_user_id);
-      IF (v_result->>'status')='RECONCILED' THEN v_reconciled:=v_reconciled+1; v_skipped:=v_skipped+v_result->>'already'; END IF;
-      IF (v_result->>'status')='EXCEPTION' THEN v_exception:=v_exception+1; END IF;
-      IF (v_result->>'status')='CANCELED' THEN v_canceled:=v_canceled+1; END IF;
-    END LOOP;
-  ELSE
-    FOR v_item IN SELECT i.id FROM public.partner_reconciliation_items i
-      WHERE i.reconciliation_id=_reconciliation_id AND (_item_ids IS NULL OR i.id=ANY(_item_ids))
-        AND (_limit IS NULL OR i.id IN (SELECT id FROM public.partner_reconciliation_items WHERE reconciliation_id=_reconciliation_id AND status IN ('PENDING','EXCEPTION','VALIDATED') ORDER BY id LIMIT _limit))
-      ORDER BY i.id
-    LOOP
-      v_result:=public.rec_process_item(_org,_reconciliation_id,v_item.id,_user_id);
-      IF (v_result->>'status')='RECONCILED' THEN v_reconciled:=v_reconciled+1; END IF;
-      IF (v_result->>'status')='EXCEPTION' THEN v_exception:=v_exception+1; END IF;
-      IF (v_result->>'status')='CANCELED' THEN v_canceled:=v_canceled+1; END IF;
-    END LOOP;
-  END IF;
-  SELECT count(*),coalesce(sum(quantity),0),coalesce(sum(billable_amount),0) INTO v_units,v_billable
-  FROM (SELECT 1) x LEFT JOIN (SELECT quantity,billable_amount FROM public.partner_reconciliation_items WHERE reconciliation_id=_reconciliation_id AND status='RECONCILED') i ON true;
-  IF v_skipped>0 THEN NULL; END IF;
+  FOR v_item IN SELECT i.id FROM public.partner_reconciliation_items i
+    WHERE i.reconciliation_id=_reconciliation_id AND i.status IN ('PENDING','EXCEPTION','VALIDATED')
+    AND (_item_ids IS NULL OR i.id=ANY(_item_ids))
+    ORDER BY i.id
+    LIMIT coalesce(_limit,(SELECT count(*) FROM public.partner_reconciliation_items WHERE reconciliation_id=_reconciliation_id AND status IN ('PENDING','EXCEPTION','VALIDATED')))
+  LOOP
+    v_result:=public.rec_process_item(_org,_reconciliation_id,v_item,_user_id);
+    IF (v_result->>'status')='RECONCILED' THEN
+      IF (v_result->>'already')::boolean THEN v_already:=v_already+1; ELSE v_reconciled:=v_reconciled+1; END IF;
+    END IF;
+    IF (v_result->>'status')='EXCEPTION' THEN v_exception:=v_exception+1; END IF;
+    IF (v_result->>'status')='CANCELED' THEN v_canceled:=v_canceled+1; END IF;
+  END LOOP;
   SELECT count(*) INTO v_blocking FROM public.reconciliation_exceptions
     WHERE organization_id=_org AND reconciliation_id=_reconciliation_id AND severity='BLOCKING' AND status IN ('OPEN','IN_REVIEW');
   v_status:=CASE WHEN v_blocking>0 THEN 'REVIEW_REQUIRED' ELSE 'READY_TO_CLOSE' END;
   UPDATE public.partner_reconciliations SET status=v_status,
     units_sold=(SELECT coalesce(sum(quantity),0) FROM public.partner_reconciliation_items WHERE reconciliation_id=_reconciliation_id AND status='RECONCILED'),
+    gross_amount=(SELECT coalesce(sum(gross_amount),0) FROM public.partner_reconciliation_items WHERE reconciliation_id=_reconciliation_id AND status='RECONCILED'),
     billable_amount=(SELECT coalesce(sum(billable_amount),0) FROM public.partner_reconciliation_items WHERE reconciliation_id=_reconciliation_id AND status='RECONCILED'),
     exceptions_count=(SELECT count(*) FROM public.reconciliation_exceptions WHERE organization_id=_org AND reconciliation_id=_reconciliation_id AND status IN ('OPEN','IN_REVIEW')),
     updated_at=now() WHERE id=_reconciliation_id;
   RETURN jsonb_build_object('reconciliation_id',_reconciliation_id,'status',v_status,
-    'reconciled',v_reconciled,'exceptions',v_exception,'canceled',v_canceled,'blocking_open',v_blocking);
+    'reconciled',v_reconciled,'already',v_already,'exceptions',v_exception,'canceled',v_canceled,'blocking_open',v_blocking);
 END;
 $$;
 
