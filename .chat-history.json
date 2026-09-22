@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "limit": 60,
-      "offset": 370
-    },
-    "timestamp": 1790116049075
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n370:   'reconciliation_exceptions','partner_reconciliation_adjustments','domain_events'] LOOP\n371:   EXECUTE format('CREATE TRIGGER reconciliation_tenant_gu",
-    "is_error": false,
-    "timestamp": 1790116049091
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
@@ -1569,5 +1553,19 @@
     "content": " assert balance(ploc)==70\n # Price rule must prevail: commercial table linked before the first process.\n table=json.loads(rpc('price_save_table',q(org)+','+q(json.dumps({'code':'PT-25','name':'Partner 25','valid_from':'2026-01-01'}))))['id']\n rpc('price_save_item',q(org)+','+q(json.dumps({'price_tab",
     "is_error": false,
     "timestamp": 1790116705167
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 - <<'EOF'\nimport importlib.util,json\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('inventory_db',Path('scripts/test-inventory-db.py'))\ndb=importlib.util.module_from_spec(spec);spec.loader.exec_module(db)\nq,sql,uid=db.q,db.sql,db.uid\ndb.TMP=Path('/tmp/recon-test2');db.BASE=[str(Path('/usr/lib/postgresql/18/bin')/'psql'),'-X','-h','/tmp/recon-test2','-p','55439','-U','postgres','-d','postgres','-v','ON_ERROR_STOP=1','-Atq']\n# re-run setup begin, then just call rec_process after setup via importing harness pieces\nsrc=Path('scripts/test-reconciliation-db.py').read_text()\n# strip the asserts into prints by running module but replacing rpc rec_process portion\nimport re\n# simpler: patch harness run() at rec_process return\nhead=src.split('r=json.loads(rpc(\\'rec_process\\'')\nprint('split ok')\nEOF"
+    },
+    "timestamp": 1790116707595
+  },
+  {
+    "role": "tool_result",
+    "content": "split ok\n",
+    "is_error": false,
+    "timestamp": 1790116707682
   }
 ]
