@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cat > /tmp/net.sql <<'EOF'\nSELECT jsonb_build_object('net',(SELECT round(\n  (SELECT coalesce(sum(billable_amount),0) FROM public.partner_reconciliation_items WHERE reconciliation_id='00000000-0000-0000-0000-000000000000' AND status='RECONCILED')\n +(SELECT coalesce(sum(CASE adjustment_type WHEN 'CREDIT' THEN amount ELSE -amount END),0) FROM public.partner_reconciliation_adjustments WHERE reconciliation_id='00000000-0000-0000-0000-000000000000')),2));\nEOF\ncd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py > /tmp/run2.log 2>&1; cat > /tmp/apply.py <<'EOF'\nimport importlib.util\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('inv',Path('/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py'))\nm=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)\nm.TMP=Path('/tmp/recon-test2')\nm.sql(Path('/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql').read_text())\nEOF\necho \"applying migrations...\"\nsudo -u postgres python3 /tmp/apply.py 2>&1 | tail -2",
-      "timeout": 300000
-    },
-    "timestamp": 1790116928681
-  },
-  {
-    "role": "tool_result",
-    "content": "applying migrations...\n\tIs the server running locally and accepting connections on that socket?\n\n",
-    "is_error": false,
-    "timestamp": 1790116930677
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 - <<'EOF' 2>&1 | tail -3\nimport importlib.util\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('inv',Path('scripts/test-inventory-db.py'))\nm=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)\nm.TMP=Path('/tmp/recon-test2')\nfrom pathlib import Path\n# fresh cluster\nimport subprocess\nfor c in [['/usr/lib/postgresql/18/bin/pg_ctl','-D','/tmp/recon-test2/data','stop'],]: pass\n# recreate\nimport shutil\nshutil.rmtree('/tmp/recon-test2',ignore_errors=True)\nPath('/tmp/recon-test2').mkdir()\nsubprocess.run(['chown','postgres','/tmp/recon-test2'])\nsubprocess.run(['/bin/su','postgres','-s','/bin/bash','-c','/usr/lib/postgresql/18/bin/initdb -D /tmp/recon-test2/data -A trust -U postgres'])\nsubprocess.run(['/bin/su','postgres','-s','/bin/bash','-c','/usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test2/data -l /tmp/recon-test2/log -o \"-p 55439 -k /tmp/recon-test2\" start'])\nprint('cluster up')\nEOF",
       "timeout": 120000
     },
@@ -1479,5 +1464,19 @@
     "content": "direct UPDATE: ERROR:  Movimento consolidado não é editado nem excluído.\n",
     "is_error": false,
     "timestamp": 1790117670811
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"current_setting\\|set_config\\|reversed_by_id\\|reversal\" supabase/migrations/20260923100000_inventory_workflows.sql supabase/migrations/20260922100000_production.sql | head"
+    },
+    "timestamp": 1790117674339
+  },
+  {
+    "role": "tool_result",
+    "content": "(no output)",
+    "is_error": false,
+    "timestamp": 1790117674355
   }
 ]
