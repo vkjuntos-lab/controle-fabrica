@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -oE 'CREATE (OR REPLACE )?FUNCTION public\\.[a-z_]+' supabase/migrations/20260924100000_partners.sql | sort -u"
-    },
-    "timestamp": 1790110738419
-  },
-  {
-    "role": "tool_result",
-    "content": "CREATE FUNCTION public.inventory_reverse_movement\nCREATE FUNCTION public.partner_adjustment_guard\nCREATE FUNCTION public.partner_audit\nCREATE FUNCTION public.partner_create_operation\nCREATE FUNCTION public.partner_document_allowed\nCREATE FUNCTION public.partner_guard\nCREATE FUNCTION public.partner_l",
-    "is_error": false,
-    "timestamp": 1790110738450
-  },
-  {
-    "role": "tool",
     "tool": "grep",
     "input": {
       "path": "/root/Zheus AI Projects/controle-fabrica/src/lib/rbac.ts",
@@ -1567,5 +1553,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790115967472
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "newString": "ELSIF TG_TABLE_NAME='partner_reconciliations' THEN\n    IF OLD.status='CLOSED' AND NEW.status<>'REOPENED' THEN RAISE EXCEPTION 'Fechamento CLOSED é histórico.'; END IF;\n    IF OLD.status='CLOSED' AND NEW.status='REOPENED' THEN\n      IF (j-'status'-'reopened_by'-'reopened_at'-'updated_at')<>(jold-'status'-'reopened_by'-'reopened_at'-'updated_at') THEN RAISE EXCEPTION 'Reabertura só muda status e dados de reabertura.'; END IF;\n    ELSE\n      IF (j-'status'-'cutoff_at'-'notes'-'reviewed_by'-'reviewed_at'-'closed_by'-'closed_at'-'reopened_by'-'reopened_at'\n          -'sales_count'-'units_sold'-'gross_amount'-'billable_amount'-'exceptions_count'-'snapshot'-'updated_at')\n         <>(jold-'status'-'cutoff_at'-'notes'-'reviewed_by'-'reviewed_at'-'closed_by'-'closed_at'-'reopened_by'-'reopened_at'\n          -'sales_count'-'units_sold'-'gross_amount'-'billable_amount'-'exceptions_count'-'snapshot'-'updated_at')\n         THEN RAISE EXCEPTION 'Dados do fechamento imutáveis fora do RPC.'; END IF;\n    END IF;",
+      "oldString": "ELSIF TG_TABLE_NAME='partner_reconciliations' THEN\n    IF OLD.status='CLOSED' AND NEW.status<>'REOPENED' THEN RAISE EXCEPTION 'Fechamento CLOSED é histórico.'; END IF;\n    IF OLD.status='CLOSED' AND NEW.status='REOPENED' THEN\n      IF (j-'status'-'reopened_by'-'reopened_at'-'updated_at')<>(jold-'status'-'reopened_by'-'reopened_at'-'updated_at') THEN RAISE EXCEPTION 'Reabertura só muda status e dados de reabertura.'; END IF;\n    ELSIF OLD.status<>'CLOSED' AND OLD.status<>'REOPENED' THEN\n      IF (j-'status'-'cutoff_at'-'notes'-'reviewed_by'-'reviewed_at'-'closed_by'-'closed_at'-'reopened_by'-'reopened_at'\n          -'sales_count'-'units_sold'-'gross_amount'-'billable_amount'-'exceptions_count'-'snapshot'-'updated_at')\n         <>(jold-'status'-'cutoff_at'-'notes'-'reviewed_by'-'reviewed_at'-'closed_by'-'closed_at'-'reopened_by'-'reopened_at'\n          -'sales_count'-'units_sold'-'gross_amount'-'billable_amount'-'exceptions_count'-'snapshot'-'updated_at')\n         THEN RAISE EXCEPTION 'Dados do fechamento imutáveis fora do RPC.'; END IF;\n    END IF;"
+    },
+    "timestamp": 1790115979615
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790115979660
   }
 ]
