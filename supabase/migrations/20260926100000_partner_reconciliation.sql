@@ -708,7 +708,7 @@ BEGIN
   -- Vendas elegíveis viram itens PENDING (uma venda -> no máximo um item, índice único).
   INSERT INTO public.partner_reconciliation_items(organization_id,reconciliation_id,marketplace_sale_id,partner_id,store_id,variant_id,
     quantity,gross_amount)
-  SELECT _org,v_rec,s.id,s.store_id,v_partner,s.variant_id,s.quantity,s.gross_amount
+  SELECT _org,v_rec,s.id,v_partner,s.store_id,s.variant_id,s.quantity,s.gross_amount
   FROM public.rec_eligible_sales(_org,v_partner,v_start,v_end) s
   ON CONFLICT(organization_id,marketplace_sale_id) WHERE status<>'CANCELED' DO NOTHING;
   SELECT count(*),coalesce(sum(quantity),0),coalesce(sum(gross_amount),0) INTO v_count,v_units,v_gross
