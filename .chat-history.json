@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "limit": 120,
-      "offset": 1040
-    },
-    "timestamp": 1790116746204
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n1040:   UPDATE public.marketplace_sales SET status='EXCEPTION',updated_at=now() WHERE id=v_item.marketplace_sale_id;\n1041:   PERFORM public.reconciliation_a",
-    "is_error": false,
-    "timestamp": 1790116746262
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py.dbg 2>&1 | grep -B5 -A10 'sale_date' | head -30",
@@ -1493,5 +1477,19 @@
     "content": "8:--     movimento de REVERSAL (ou ADJUSTMENT / MANUAL_CORRECTION).\n42:  'REVERSAL'\n104:-- REVERSED e cria um movimento compensatório (movement_type = REVERSAL).\n125:  -- movimento é uma REVERSAL; reversed_by_id marca o original revertido.\n139:      'PARTNER_SHIPMENT','PARTNER_RETURN','TRANSFER_IN',",
     "is_error": false,
     "timestamp": 1790117467993
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -rn \"inventory.internal\\|current_setting\\|SET LOCAL\\|RUNNING_AS\\|bypass\\|inventory_reversal\" supabase/migrations/20260923100000_inventory_workflows.sql supabase/migrations/20260918100000_inventory_ledger.sql | head"
+    },
+    "timestamp": 1790117471336
+  },
+  {
+    "role": "tool_result",
+    "content": "(no output)",
+    "is_error": false,
+    "timestamp": 1790117471346
   }
 ]
