@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py",
-      "limit": 45,
-      "offset": 30
-    },
-    "timestamp": 1790116801467
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py</path>\n<type>file</type>\n<content>\n30:   d=json.loads(rpc('partner_query',q(org)+\",'shipment',\"+q(json.dumps({'id':s}))))\n31:   for i in d['items']:act(s,'pick',{'item_id':i['id'],'quantity':i['quantity']})\n32:  def shi",
-    "is_error": false,
-    "timestamp": 1790116801488
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py",
@@ -1487,5 +1471,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py</path>\n<type>file</type>\n<content>\n1: #!/usr/bin/env python3\n2: \"\"\"MASTER 007 acceptance tests in a disposable PostgreSQL cluster, no real organization data.\"\"\"\n3: import importlib.util\n4: import json\n5: import subproce",
     "is_error": false,
     "timestamp": 1790117511345
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-inventory-db.py 2>&1 | grep -E 'PASS|AssertionError|ERROR' | tail",
+      "timeout": 300000
+    },
+    "timestamp": 1790117515429
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: arithmetic, adjustment and business acceptance 70/10/20 = 100; no financial module\nPASS: negative balance, override rejection, reason, RLS, permissions, immutable ledger\nPASS: idempotency, duplicate SKU transfer rollback, immutable reversal and retry\nPASS: actual concurrent withdrawals and ide",
+    "is_error": false,
+    "timestamp": 1790117518212
   }
 ]
