@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "newString": "'exceptions',coalesce((SELECT jsonb_agg(to_jsonb(e) ORDER BY e.created_at) FROM public.reconciliation_exceptions e WHERE e.reconciliation_id=r.id),'[]'::jsonb),\n      'adjustments',coalesce((SELECT jsonb_agg(to_jsonb(a) ORDER BY a.created_at) FROM public.partner_reconciliation_adjustments a WHERE a.reconciliation_id=r.id),'[]'::jsonb),",
-      "oldString": "'exceptions',coalesce((SELECT jsonb_agg(to_jsonb(e)) FROM public.reconciliation_exceptions e WHERE e.reconciliation_id=r.id ORDER BY e.created_at),'[]'::jsonb),\n      'adjustments',coalesce((SELECT jsonb_agg(to_jsonb(a)) FROM public.partner_reconciliation_adjustments a WHERE a.reconciliation_id=r.id ORDER BY a.created_at),'[]'::jsonb),"
-    },
-    "timestamp": 1790116783204
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790116783223
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py.dbg 2>&1 | grep -E 'PROC|ITEMS0|ERROR' | head",
@@ -1488,5 +1472,19 @@
     "content": "  act(s,'approve');act(s,'start_picking')\n  d=json.loads(rpc('partner_query',q(org)+\",'shipment',\"+q(json.dumps({'id':s}))))\n  for i in d['items']:act(s,'pick',{'item_id':i['id'],'quantity':i['quantity']})\n def ship(qty):sh=create(qty);prepare(sh);act(sh,'ship')\n opening(100);ship(70)\n assert balanc",
     "is_error": false,
     "timestamp": 1790117494559
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -rn \"inventory_immutable\\|WHEN (OLD\\|reversed_by_id IS\" supabase/migrations/20260921100000_inventory_integrity.sql supabase/migrations/20260922100000_production.sql supabase/migrations/20260923100000_inventory_workflows.sql 2>/dev/null | head"
+    },
+    "timestamp": 1790117499933
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260921100000_inventory_integrity.sql:89:CREATE TRIGGER inventory_immutable BEFORE INSERT OR UPDATE OR DELETE ON public.inventory_movements\n",
+    "is_error": false,
+    "timestamp": 1790117499971
   }
 ]
