@@ -77,10 +77,10 @@ def run():
  sql(f"UPDATE partner_reconciliation_items SET quantity=1 WHERE reconciliation_id={q(rid)}",fail='CLOSED é imutável')
  print('PASS: price rule prevails, reprocess after SKU backfill, close, idempotent close and immutability')
  rpc('rec_reopen',q(org)+','+q(rid)+','+q('Ajuste pós-fechamento'))
+ rpc('rec_adjustment',','.join(map(q,[org,rid,'BAD',5,'Inválido'])),fail='Ajuste inválido')
  rpc('rec_adjustment',','.join(map(q,[org,rid,'CREDIT','10','Crédito pós-fechamento'])))
  close3=json.loads(rpc('rec_close',q(org)+','+q(rid)))
  assert round(close3['snapshot']['totals']['net_billable'],2)==160.00
- rpc('rec_adjustment',','.join(map(q,[org,rid,'BAD',5,'Inválido'])),fail='Ajuste inválido')
  print('PASS: reopen, credit adjustment and re-close net billable 3x25+10=160, validation')
  items2=json.loads(rpc('rec_query',q(org)+",'reconciliation',"+q(json.dumps({'id':rid}))))['items']
  target=next(i for i in items2 if i['external_order_id']=='O-1')
