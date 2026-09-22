@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 - <<'EOF' 2>&1 | tail -3\nimport importlib.util\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('inv',Path('scripts/test-inventory-db.py'))\nm=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)\nm.TMP=Path('/tmp/recon-test2')\nfrom pathlib import Path\n# fresh cluster\nimport subprocess\nfor c in [['/usr/lib/postgresql/18/bin/pg_ctl','-D','/tmp/recon-test2/data','stop'],]: pass\n# recreate\nimport shutil\nshutil.rmtree('/tmp/recon-test2',ignore_errors=True)\nPath('/tmp/recon-test2').mkdir()\nsubprocess.run(['chown','postgres','/tmp/recon-test2'])\nsubprocess.run(['/bin/su','postgres','-s','/bin/bash','-c','/usr/lib/postgresql/18/bin/initdb -D /tmp/recon-test2/data -A trust -U postgres'])\nsubprocess.run(['/bin/su','postgres','-s','/bin/bash','-c','/usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test2/data -l /tmp/recon-test2/log -o \"-p 55439 -k /tmp/recon-test2\" start'])\nprint('cluster up')\nEOF",
-      "timeout": 120000
-    },
-    "timestamp": 1790116934497
-  },
-  {
-    "role": "tool_result",
-    "content": "Password: su: Authentication failure\nPassword: su: Authentication failure\ncluster up\n",
-    "is_error": false,
-    "timestamp": 1790116936606
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py > /tmp/run3.log 2>&1; grep -m1 'ERROR' /tmp/run3.log; ls -la /usr/lib/postgresql/18/bin/psql; sudo -u postgres psql -X -h /tmp/recon-test2 -p 55439 -U postgres -d postgres -Atq -c \"SELECT current_database()\" 2>&1",
       "timeout": 300000
     },
@@ -1478,5 +1463,20 @@
     "content": "(no output)",
     "is_error": false,
     "timestamp": 1790117674355
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 - <<'PYEOF'\nimport importlib.util\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('db','scripts/test-inventory-db.py')\ndb=importlib.util.module_from_spec(spec);spec.loader.exec_module(db)\ndb.setup()\nimport subprocess\nfor line in subprocess.run(db.BASE,input=\"SELECT tgname,tgenabled,tgfoid::regprocedure FROM pg_trigger WHERE tgrelid='inventory_movements'::regclass GROUP BY 1,2,3 ORDER BY 1;\",text=True,capture_output=True).stdout.strip().splitlines():\n    print(line)\ndb.cleanup()\nPYEOF",
+      "timeout": 120000
+    },
+    "timestamp": 1790117682940
+  },
+  {
+    "role": "tool_result",
+    "content": "RI_ConstraintTrigger_a_16944|O|\"RI_FKey_setnull_del\"()\nRI_ConstraintTrigger_a_16945|O|\"RI_FKey_noaction_upd\"()\nRI_ConstraintTrigger_a_16949|O|\"RI_FKey_setnull_del\"()\nRI_ConstraintTrigger_a_16950|O|\"RI_FKey_noaction_upd\"()\nRI_ConstraintTrigger_a_17708|O|\"RI_FKey_noaction_del\"()\nRI_ConstraintTrigger_a",
+    "is_error": false,
+    "timestamp": 1790117684103
   }
 ]
