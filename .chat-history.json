@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test2/data -m immediate stop >/dev/null 2>&1; rm -rf /tmp/recon-test2 && mkdir -p /tmp/recon-test2 && chown postgres /tmp/recon-test2 && sudo -u postgres /usr/lib/postgresql/18/bin/initdb -D /tmp/recon-test2/data -A trust -U postgres >/dev/null 2>&1 && sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test2/data -l /tmp/recon-test2/log -o \"-p 55439 -k /tmp/recon-test2\" start >/dev/null 2>&1 && cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | tail -10",
-      "timeout": 300000
-    },
-    "timestamp": 1790116700451
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nPASS: preview totals and DRAFT close without posting stock\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py\", line 142, in <module>\n    try:",
-    "is_error": false,
-    "timestamp": 1790116703275
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sed -n '55,70p' scripts/test-reconciliation-db.py"
     },
     "timestamp": 1790116705145
@@ -1485,5 +1470,19 @@
     "content": "\nCREATE FUNCTION public.rec_adjustment(_org uuid,_reconciliation_id uuid,_type text,_amount numeric,_reason text,_user_id uuid DEFAULT auth.uid())\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE v_id uuid; v_bill numeric;\nBEGIN\n  IF _user_id IS DISTINCT FROM auth",
     "is_error": false,
     "timestamp": 1790117422774
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"rec_adjustment\\|net_billable\" scripts/test-reconciliation-db.py"
+    },
+    "timestamp": 1790117427197
+  },
+  {
+    "role": "tool_result",
+    "content": "80: rpc('rec_adjustment',','.join(map(q,[org,rid,'CREDIT','10','Crédito pós-fechamento'])))\n82: assert round(close3['snapshot']['totals']['net_billable'],2)==160.00\n83: rpc('rec_adjustment',','.join(map(q,[org,rid,'BAD',5,'Inválido'])),fail='Ajuste inválido')\n",
+    "is_error": false,
+    "timestamp": 1790117427227
   }
 ]
