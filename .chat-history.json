@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py.dbg 2>&1 | grep -E '^ERROR|LINE [0-9]+:' | head",
-      "timeout": 300000
-    },
-    "timestamp": 1790116777024
-  },
-  {
-    "role": "tool_result",
-    "content": "LINE 6: ...eptions e WHERE e.reconciliation_id=r.id ORDER BY e.created_...\n",
-    "is_error": false,
-    "timestamp": 1790116778892
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
@@ -1489,5 +1474,19 @@
     "content": "44:CREATE TYPE public.inventory_movement_status AS ENUM ('PENDING', 'POSTED', 'REVERSED', 'CANCELED');\n104:-- REVERSED e cria um movimento compensatório (movement_type = REVERSAL).\n124:  -- Correção por estorno: reversal_of_id aponta o original quando este\n126:  reversal_of_id uuid REFERENCES public",
     "is_error": false,
     "timestamp": 1790117491967
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sed -n '30,60p' scripts/test-reconciliation-db.py"
+    },
+    "timestamp": 1790117494527
+  },
+  {
+    "role": "tool_result",
+    "content": "  act(s,'approve');act(s,'start_picking')\n  d=json.loads(rpc('partner_query',q(org)+\",'shipment',\"+q(json.dumps({'id':s}))))\n  for i in d['items']:act(s,'pick',{'item_id':i['id'],'quantity':i['quantity']})\n def ship(qty):sh=create(qty);prepare(sh);act(sh,'ship')\n opening(100);ship(70)\n assert balanc",
+    "is_error": false,
+    "timestamp": 1790117494559
   }
 ]
