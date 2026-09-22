@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py.dbg 2>&1 | tail -12",
-      "timeout": 300000
-    },
-    "timestamp": 1790116771238
-  },
-  {
-    "role": "tool_result",
-    "content": "        WHERE i.reconciliation_id=r.id AND i.status<>'CANCELED' GROUP BY v.sku,p.name ORDER BY v.sku)q),'[]'::jsonb),\n      'by_day',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT s.sale_date d,count(*) items,sum(i.quantity) units,sum(i.billable_amount) billable\n        FROM public.partner_rec",
-    "is_error": false,
-    "timestamp": 1790116773176
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py.dbg 2>&1 | grep -E '^ERROR|LINE [0-9]+:' | head",
       "timeout": 300000
     },
@@ -1490,5 +1475,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260922100000_production.sql</path>\n<type>file</type>\n<content>\n329: CREATE OR REPLACE FUNCTION public.inventory_guard_movement() RETURNS trigger\n330: LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$\n331: DECLARE v_b",
     "is_error": false,
     "timestamp": 1790117486329
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"current_setting\\|set_config\\|reversal\\|REVERSED\" supabase/migrations/20260918100000_inventory_ledger.sql | sed -n '1,40p'"
+    },
+    "timestamp": 1790117491938
+  },
+  {
+    "role": "tool_result",
+    "content": "44:CREATE TYPE public.inventory_movement_status AS ENUM ('PENDING', 'POSTED', 'REVERSED', 'CANCELED');\n104:-- REVERSED e cria um movimento compensatório (movement_type = REVERSAL).\n124:  -- Correção por estorno: reversal_of_id aponta o original quando este\n126:  reversal_of_id uuid REFERENCES public",
+    "is_error": false,
+    "timestamp": 1790117491967
   }
 ]
