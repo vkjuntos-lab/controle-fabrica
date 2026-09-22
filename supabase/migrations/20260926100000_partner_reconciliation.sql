@@ -731,17 +731,14 @@ BEGIN
   IF v_item.status='RECONCILED' AND v_item.inventory_effect_status='APPLIED' THEN
     RETURN jsonb_build_object('item_id',v_item.id,'status','RECONCILED','already',true,'movement_id',v_item.inventory_movement_id);
   END IF;
-  -- 1) Loja/parceiro.
-  SELECT st.id,st.ownership_type,st.partner_id INTO v_partner
-  FROM public.marketplace_stores st JOIN public.marketplace_sales s ON s.store_id=st.id
-  WHERE s.id=v_item.marketplace_sale_id LIMIT 1;
-  IF v_item.id IS NULL THEN NULL; END IF;
-  IF v_partner IS NULL OR NOT EXISTS(SELECT 1 FROM public.marketplace_stores WHERE id=(v_item.store_id) AND organization_id=_org) THEN
+  -- 1) Loja/parceiro (STORE_PARTNER_MISMATCH).
+  IF NOT EXISTS(SELECT 1 FROM public.marketplace_stores WHERE organization_id=_org AND id=v_item.store_id) THEN
     RETURN jsonb_build_object('item_id',v_item.id,'status','EXCEPTION','exception_type','STORE_PARTNER_MISMATCH');
   END IF;
-  IF (SELECT ownership_type FROM public.marketplace_stores WHERE id=v_item.store_id)<>'PARTNER' THEN
+  IF (SELECT ownership_type FROM public.marketplace_stores WHERE organization_id=_org AND id=v_item.store_id)<>'PARTNER'
+    OR (SELECT partner_id FROM public.marketplace_stores WHERE organization_id=_org AND id=v_item.store_id) IS DISTINCT FROM v_item.partner_id THEN
     PERFORM public.reconciliation_insert_exception(_org,v_rec.id,v_item.id,v_item.marketplace_sale_id,v_item.partner_id,v_item.store_id,v_item.variant_id,
-      'STORE_PARTNER_MISMATCH','WARNING','Loja não é de parceiro; fora do fechamento.',NULL);
+      'STORE_PARTNER_MISMATCH','WARNING','Loja não pertence ao parceiro deste fechamento.',NULL);
     UPDATE public.partner_reconciliation_items SET status='CANCELED',error_message='Loja fora do escopo de parceiros',updated_at=now() WHERE id=_item_id;
     RETURN jsonb_build_object('item_id',v_item.id,'status','CANCELED');
   END IF;
