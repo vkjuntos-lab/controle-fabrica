@@ -1,18 +1,5 @@
 [
   {
-    "role": "assistant",
-    "content": "A estrutura de empresas, contatos, endereços, perfis, remessas e devoluções está criada em uma migration nova. A expedição usa a transferência transacional do estoque, com retry sem duplicação; devoluções vinculadas conferem o total já devolvido e preservam a quantidade original enviada. Estou exercitando esses fluxos no PostgreSQL enquanto construo as telas.\n",
-    "timestamp": 1790107746526
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\nimport re\np=Path('supabase/migrations/20260924100000_partners.sql');s=p.read_text();a=s.index('CREATE FUNCTION public.partner_query');b=s.index('\\\\n\"'$$;'\"',a)+4;s=s[:a]+re.sub(r'\\\\bresult\\\\b','v_result',s[a:b])+s[b:];p.write_text(s)\nPY\npython3 scripts/test-partners-db.py\""
-    },
-    "timestamp": 1790107828226
-  },
-  {
     "role": "tool",
     "tool": "Bash",
     "input": {
@@ -1413,5 +1400,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790110812903
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
+      "newString": "## VALIDAÇÃO DESTA CONTINUAÇÃO\n\nRelatórios: `docs/handoff/MASTER-003-VALIDATION.md` e `docs/handoff/MASTER-006-VALIDATION.md`.\n30 testes unitários, harness PostgreSQL do estoque e de parceiros (9 grupos cada), TypeScript, build\ne lint do domínio verificados. A implantação no banco publicado não faz parte da evidência local e\npermanece pendente.",
+      "oldString": "## VALIDAÇÃO DESTA CONTINUAÇÃO\n\nRelatório completo: `docs/handoff/MASTER-003-VALIDATION.md`.\n30 testes unitários, harness PostgreSQL (9 grupos), TypeScript, build e lint do domínio verificados.\nA implantação no banco publicado não faz parte da evidência local e permanece pendente."
+    },
+    "timestamp": 1790110817986
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790110818026
   }
 ]

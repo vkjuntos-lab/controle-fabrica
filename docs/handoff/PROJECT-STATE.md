@@ -244,6 +244,7 @@ local; publicação não verificada.
 
 ## VALIDAÇÃO DESTA CONTINUAÇÃO
 
-Relatório completo: `docs/handoff/MASTER-003-VALIDATION.md`.
-30 testes unitários, harness PostgreSQL (9 grupos), TypeScript, build e lint do domínio verificados.
-A implantação no banco publicado não faz parte da evidência local e permanece pendente.
+Relatórios: `docs/handoff/MASTER-003-VALIDATION.md` e `docs/handoff/MASTER-006-VALIDATION.md`.
+30 testes unitários, harness PostgreSQL do estoque e de parceiros (9 grupos cada), TypeScript, build
+e lint do domínio verificados. A implantação no banco publicado não faz parte da evidência local e
+permanece pendente.
