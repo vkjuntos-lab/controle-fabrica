@@ -1,17 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "OK whitespace\n",
-    "is_error": false,
-    "timestamp": 1790110836426
-  },
-  {
-    "role": "tool_result",
-    "content": "Checking formatting...\n[warn] docs/handoff/MASTER-006-VALIDATION.md\n[warn] Code style issues found in the above file. Run Prettier with --write to fix.\n",
-    "is_error": false,
-    "timestamp": 1790110836964
-  },
-  {
     "role": "tool",
     "tool": "bash",
     "input": {
@@ -1574,5 +1562,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790116122328
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "newString": "INSERT INTO public.partner_reconciliation_items(organization_id,reconciliation_id,marketplace_sale_id,partner_id,store_id,variant_id,\n    quantity,gross_amount)\n  SELECT _org,v_rec,s.id,s.store_id,v_partner,s.variant_id,s.quantity,s.gross_amount\n  FROM public.rec_eligible_sales(_org,v_partner,v_start,v_end) s\n  ON CONFLICT(organization_id,marketplace_sale_id) WHERE status<>'CANCELED' DO NOTHING;",
+      "oldString": "INSERT INTO public.partner_reconciliation_items(organization_id,reconciliation_id,marketplace_sale_id,partner_id,store_id,variant_id,\n    quantity,gross_amount)\n  SELECT _org,v_rec,s.id,s.store_id,v_partner,s.variant_id,s.quantity,s.gross_amount\n  FROM public.rec_eligible_sales(_org,v_partner,v_start,v_end) s\n  ON CONFLICT(organization_id,marketplace_sale_id) DO NOTHING;"
+    },
+    "timestamp": 1790116124460
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790116124492
   }
 ]

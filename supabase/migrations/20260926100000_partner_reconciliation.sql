@@ -703,7 +703,7 @@ BEGIN
     quantity,gross_amount)
   SELECT _org,v_rec,s.id,s.store_id,v_partner,s.variant_id,s.quantity,s.gross_amount
   FROM public.rec_eligible_sales(_org,v_partner,v_start,v_end) s
-  ON CONFLICT(organization_id,marketplace_sale_id) DO NOTHING;
+  ON CONFLICT(organization_id,marketplace_sale_id) WHERE status<>'CANCELED' DO NOTHING;
   SELECT count(*),coalesce(sum(quantity),0),coalesce(sum(gross_amount),0) INTO v_count,v_units,v_gross
   FROM public.partner_reconciliation_items WHERE reconciliation_id=v_rec;
   UPDATE public.partner_reconciliations SET sales_count=v_count,units_sold=v_units,gross_amount=v_gross WHERE id=v_rec;
