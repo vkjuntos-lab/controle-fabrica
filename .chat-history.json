@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "grep",
-    "input": {
-      "path": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "pattern": "^CREATE FUNCTION public\\."
-    },
-    "timestamp": 1790116140366
-  },
-  {
-    "role": "tool_result",
-    "content": "Found 73 matches\n/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260706173434_f0a913f5-c8c5-4701-a754-c2518dd831a5.sql:\n  Line 151: CREATE FUNCTION public.storefront_get_order(_code text)\n\n\n/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260706174558_9c04b2d1-022d-4b9a-",
-    "is_error": false,
-    "timestamp": 1790116140401
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
@@ -1555,5 +1540,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790116783223
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py.dbg 2>&1 | grep -E 'PROC|ITEMS0|ERROR' | head",
+      "timeout": 300000
+    },
+    "timestamp": 1790116784632
+  },
+  {
+    "role": "tool_result",
+    "content": "PROC {\"status\": \"REVIEW_REQUIRED\", \"already\": 0, \"canceled\": 0, \"exceptions\": 3, \"reconciled\": 0, \"blocking_open\": 3, \"reconciliation_id\": \"5e69668e-8d52-4f0a-a213-6875767faa4d\"}\nITEMS0 [{\"id\": \"3c255db8-552c-4d44-9c27-f6825c59bdb5\", \"sku\": \"B-34-ROSA\", \"status\": \"EXCEPTION\", \"quantity\": 2.0, \"store",
+    "is_error": false,
+    "timestamp": 1790116786507
   }
 ]
