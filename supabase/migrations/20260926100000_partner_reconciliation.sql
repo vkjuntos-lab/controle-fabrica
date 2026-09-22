@@ -795,7 +795,7 @@ BEGIN
   v_balance:=public.rec_balance_asof(_org,v_variant,v_location,v_occurred+interval '1 day');
   IF v_balance<v_item.quantity THEN
     PERFORM public.reconciliation_insert_exception(_org,v_rec.id,v_item.id,v_item.marketplace_sale_id,v_item.partner_id,v_item.store_id,v_variant,
-      'INSUFFICIENT_PARTNER_STOCK','BLOCKING',format('Saldo insuficiente do parceiro na data: %.3f < %.3f.',v_balance,v_item.quantity),
+      'INSUFFICIENT_PARTNER_STOCK','BLOCKING',format('Saldo insuficiente do parceiro na data: %s < %s.',to_char(v_balance,'FM9999999990.000'),to_char(v_item.quantity,'FM9999999990.000')),
       jsonb_build_object('balance',v_balance,'required',v_item.quantity));
     UPDATE public.partner_reconciliation_items SET status='EXCEPTION',exception_status='INSUFFICIENT_PARTNER_STOCK',updated_at=now() WHERE id=_item_id;
     RETURN jsonb_build_object('item_id',v_item.id,'status','EXCEPTION','exception_type','INSUFFICIENT_PARTNER_STOCK');

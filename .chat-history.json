@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "newString": "IF EXISTS(SELECT 1 FROM public.partner_reconciliations WHERE organization_id=_org AND partner_id=v_partner AND status<>'CANCELED'\n    AND period_start<=v_end AND period_end>=v_start) THEN\n    RAISE EXCEPTION 'Período sobreposto a um fechamento ativo. Reabra-o (se fechado) antes de criar novo.'; END IF;",
-      "oldString": "IF EXISTS(SELECT 1 FROM public.partner_reconciliations WHERE organization_id=_org AND partner_id=v_partner AND status='CLOSED'\n    AND period_start<=v_end AND period_end>=v_start) THEN\n    RAISE EXCEPTION 'Período sobreposto a fechamento CLOSED. Reabra-o antes de criar novo.'; END IF;"
-    },
-    "timestamp": 1790116039194
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790116039234
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
@@ -1572,5 +1556,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n795:   v_balance:=public.rec_balance_asof(_org,v_variant,v_location,v_occurred+interval '1 day');\n796:   IF v_balance<v_item.quantity THEN\n797:     PERFORM ",
     "is_error": false,
     "timestamp": 1790116694808
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "newString": "'INSUFFICIENT_PARTNER_STOCK','BLOCKING',format('Saldo insuficiente do parceiro na data: %s < %s.',to_char(v_balance,'FM9999999990.000'),to_char(v_item.quantity,'FM9999999990.000')),",
+      "oldString": "'INSUFFICIENT_PARTNER_STOCK','BLOCKING',format('Saldo insuficiente do parceiro na data: %.3f < %.3f.',v_balance,v_item.quantity),"
+    },
+    "timestamp": 1790116697983
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790116698000
   }
 ]
