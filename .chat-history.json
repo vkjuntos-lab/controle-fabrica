@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sudo -u postgres psql -X -h /tmp/recon-test -p 55439 -U postgres -d postgres -c \"DROP DATABASE postgres\" -c \"CREATE DATABASE postgres\" >/dev/null 2>&1; sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test/data -m immediate stop >/dev/null 2>&1; cd \"/root/Zheus AI Projects/controle-fabrica\" && chown -R postgres scripts && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | tail -30",
-      "timeout": 300000
-    },
-    "timestamp": 1790116387201
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS: 70-unit partner shipment, store and idempotent SKU mapping\nPASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py\", line 142, in <module>\n  ",
-    "is_error": false,
-    "timestamp": 1790116389159
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
@@ -1499,5 +1484,19 @@
     "content": "\"'net_billable',(SELECT round((SELECT coalesce(sum(billable_amount),0) FROM public.partner_reconciliation_items WHERE reconciliation_id=v_rec.id AND status='RECONCILED')\\n        +(SELECT coalesce(sum(CASE adjustment_type WHEN 'CREDIT' THEN amount ELSE -amount END),0) FROM public.partner_reconciliat",
     "is_error": false,
     "timestamp": 1790117021273
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PYEOF'\nsrc=open('supabase/migrations/20260926100000_partner_reconciliation.sql').read()\ni=src.index('CREATE FUNCTION public.rec_close')\nj=src.index('CREATE FUNCTION public.rec_reopen')\nbody=src[i:j].splitlines()\nimport re\ndepth=0\nfor n,l in enumerate(body,1):\n    # count parens not inside quotes/comments\n    out=[];inq=False;esc=False\n    for ch in l:\n        if inq:\n            if esc: esc=False\n            elif ch=='\\\\': esc=True\n            elif ch==\"'\": inq=False\n            continue\n        if ch==\"'\": inq=True\n        elif ch=='(': depth+=1\n        elif ch==')': depth-=1\n    print(n,depth,l[:72])\nPYEOF"
+    },
+    "timestamp": 1790117025834
+  },
+  {
+    "role": "tool_result",
+    "content": "1 0 CREATE FUNCTION public.rec_close(_org uuid,_reconciliation_id uuid,_note\n2 0 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public A\n3 0 DECLARE v_rec record; v_blocking int; v_snapshot jsonb; v_domain uuid;\n4 0 BEGIN\n5 0   IF _user_id IS DISTINCT FROM auth.uid() THEN RAISE EXCE",
+    "is_error": false,
+    "timestamp": 1790117025865
   }
 ]
