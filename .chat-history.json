@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"2026\" scripts/test-reconciliation-db.py"
-    },
-    "timestamp": 1790116816729
-  },
-  {
-    "role": "tool_result",
-    "content": "16: db.sql((Path(__file__).parent.parent/'supabase/migrations'/'20260926100000_partner_reconciliation.sql').read_text())\n52: prev=json.loads(rpc('rec_preview',','.join(map(q,[org,p,'2026-09-17','2026-09-27']))))\n54: rec=json.loads(rpc('rec_create',q(org)+','+q(json.dumps({'partner_id':p,'period_star",
-    "is_error": false,
-    "timestamp": 1790116816747
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py",
@@ -1484,5 +1470,19 @@
     "content": "supabase/migrations/20260924100000_partners.sql:509:ALTER FUNCTION public.inventory_reverse_movement(uuid,uuid,text,uuid) RENAME TO inventory_reverse_movement_core;\nsupabase/migrations/20260924100000_partners.sql:510:REVOKE ALL ON FUNCTION public.inventory_reverse_movement_core(uuid,uuid,text,uuid) ",
     "is_error": false,
     "timestamp": 1790117572289
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"CREATE FUNCTION public.inventory_guard_movement\\|CREATE OR REPLACE FUNCTION public.inventory_guard_movement\\|CREATE TRIGGER\" supabase/migrations/20260918100000_inventory_ledger.sql | head"
+    },
+    "timestamp": 1790117577320
+  },
+  {
+    "role": "tool_result",
+    "content": "262:CREATE TRIGGER inventory_locations_updated_at BEFORE UPDATE ON public.inventory_locations\n264:CREATE TRIGGER inventory_batches_updated_at BEFORE UPDATE ON public.inventory_batches\n266:CREATE TRIGGER inventory_transfers_updated_at BEFORE UPDATE ON public.inventory_transfers\n268:CREATE TRIGGER inv",
+    "is_error": false,
+    "timestamp": 1790117577343
   }
 ]
