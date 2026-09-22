@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "newString": "-- 1) Loja/parceiro (STORE_PARTNER_MISMATCH).\n  IF NOT EXISTS(SELECT 1 FROM public.marketplace_stores WHERE organization_id=_org AND id=v_item.store_id) THEN\n    RETURN jsonb_build_object('item_id',v_item.id,'status','EXCEPTION','exception_type','STORE_PARTNER_MISMATCH');\n  END IF;\n  IF (SELECT ownership_type FROM public.marketplace_stores WHERE organization_id=_org AND id=v_item.store_id)<>'PARTNER'\n    OR (SELECT partner_id FROM public.marketplace_stores WHERE organization_id=_org AND id=v_item.store_id) IS DISTINCT FROM v_item.partner_id THEN\n    PERFORM public.reconciliation_insert_exception(_org,v_rec.id,v_item.id,v_item.marketplace_sale_id,v_item.partner_id,v_item.store_id,v_item.variant_id,\n      'STORE_PARTNER_MISMATCH','WARNING','Loja não pertence ao parceiro deste fechamento.',NULL);\n    UPDATE public.partner_reconciliation_items SET status='CANCELED',error_message='Loja fora do escopo de parceiros',updated_at=now() WHERE id=_item_id;\n    RETURN jsonb_build_object('item_id',v_item.id,'status','CANCELED');\n  END IF;",
-      "oldString": "-- 1) Loja/parceiro.\n  SELECT st.id,st.ownership_type,st.partner_id INTO v_partner\n  FROM public.marketplace_stores st JOIN public.marketplace_sales s ON s.store_id=st.id\n  WHERE s.id=v_item.marketplace_sale_id LIMIT 1;\n  IF v_item.id IS NULL THEN NULL; END IF;\n  IF v_partner IS NULL OR NOT EXISTS(SELECT 1 FROM public.marketplace_stores WHERE id=(v_item.store_id) AND organization_id=_org) THEN\n    RETURN jsonb_build_object('item_id',v_item.id,'status','EXCEPTION','exception_type','STORE_PARTNER_MISMATCH');\n  END IF;\n  IF (SELECT ownership_type FROM public.marketplace_stores WHERE id=v_item.store_id)<>'PARTNER' THEN\n    PERFORM public.reconciliation_insert_exception(_org,v_rec.id,v_item.id,v_item.marketplace_sale_id,v_item.partner_id,v_item.store_id,v_item.variant_id,\n      'STORE_PARTNER_MISMATCH','WARNING','Loja não é de parceiro; fora do fechamento.',NULL);\n    UPDATE public.partner_reconciliation_items SET status='CANCELED',error_message='Loja fora do escopo de parceiros',updated_at=now() WHERE id=_item_id;\n    RETURN jsonb_build_object('item_id',v_item.id,'status','CANCELED');\n  END IF;"
-    },
-    "timestamp": 1790115967450
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790115967472
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
       "newString": "ELSIF TG_TABLE_NAME='partner_reconciliations' THEN\n    IF OLD.status='CLOSED' AND NEW.status<>'REOPENED' THEN RAISE EXCEPTION 'Fechamento CLOSED é histórico.'; END IF;\n    IF OLD.status='CLOSED' AND NEW.status='REOPENED' THEN\n      IF (j-'status'-'reopened_by'-'reopened_at'-'updated_at')<>(jold-'status'-'reopened_by'-'reopened_at'-'updated_at') THEN RAISE EXCEPTION 'Reabertura só muda status e dados de reabertura.'; END IF;\n    ELSE\n      IF (j-'status'-'cutoff_at'-'notes'-'reviewed_by'-'reviewed_at'-'closed_by'-'closed_at'-'reopened_by'-'reopened_at'\n          -'sales_count'-'units_sold'-'gross_amount'-'billable_amount'-'exceptions_count'-'snapshot'-'updated_at')\n         <>(jold-'status'-'cutoff_at'-'notes'-'reviewed_by'-'reviewed_at'-'closed_by'-'closed_at'-'reopened_by'-'reopened_at'\n          -'sales_count'-'units_sold'-'gross_amount'-'billable_amount'-'exceptions_count'-'snapshot'-'updated_at')\n         THEN RAISE EXCEPTION 'Dados do fechamento imutáveis fora do RPC.'; END IF;\n    END IF;",
       "oldString": "ELSIF TG_TABLE_NAME='partner_reconciliations' THEN\n    IF OLD.status='CLOSED' AND NEW.status<>'REOPENED' THEN RAISE EXCEPTION 'Fechamento CLOSED é histórico.'; END IF;\n    IF OLD.status='CLOSED' AND NEW.status='REOPENED' THEN\n      IF (j-'status'-'reopened_by'-'reopened_at'-'updated_at')<>(jold-'status'-'reopened_by'-'reopened_at'-'updated_at') THEN RAISE EXCEPTION 'Reabertura só muda status e dados de reabertura.'; END IF;\n    ELSIF OLD.status<>'CLOSED' AND OLD.status<>'REOPENED' THEN\n      IF (j-'status'-'cutoff_at'-'notes'-'reviewed_by'-'reviewed_at'-'closed_by'-'closed_at'-'reopened_by'-'reopened_at'\n          -'sales_count'-'units_sold'-'gross_amount'-'billable_amount'-'exceptions_count'-'snapshot'-'updated_at')\n         <>(jold-'status'-'cutoff_at'-'notes'-'reviewed_by'-'reviewed_at'-'closed_by'-'closed_at'-'reopened_by'-'reopened_at'\n          -'sales_count'-'units_sold'-'gross_amount'-'billable_amount'-'exceptions_count'-'snapshot'-'updated_at')\n         THEN RAISE EXCEPTION 'Dados do fechamento imutáveis fora do RPC.'; END IF;\n    END IF;"
     },
@@ -1573,5 +1557,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790116684646
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test2/data -m immediate stop >/dev/null 2>&1; rm -rf /tmp/recon-test2 && mkdir -p /tmp/recon-test2 && chown postgres /tmp/recon-test2 && sudo -u postgres /usr/lib/postgresql/18/bin/initdb -D /tmp/recon-test2/data -A trust -U postgres >/dev/null 2>&1 && sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test2/data -l /tmp/recon-test2/log -o \"-p 55439 -k /tmp/recon-test2\" start >/dev/null 2>&1 && cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | tail -10",
+      "timeout": 300000
+    },
+    "timestamp": 1790116686390
+  },
+  {
+    "role": "tool_result",
+    "content": "    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  unrecognized format() type specifier \".\"\nHINT:  For a single \"%\" use \"%%\".\nCONTEXT:  SQL statement \"SELECT public.reconciliation_insert_exception(_org,v_rec.id,v_item.id,v_item.marketplace_sale_id,v_item.partne",
+    "is_error": false,
+    "timestamp": 1790116689142
   }
 ]
