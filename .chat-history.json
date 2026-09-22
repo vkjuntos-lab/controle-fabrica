@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('src/components/inventory/movement-dialog.tsx');s=p.read_text().replace('  listInventoryLocations,','  listBatches,\\\\n  createBatch,\\\\n  listInventoryLocations,');s=s.replace('  const fetchVariants =','  const fetchBatches = useServerFn(listBatches);\\\\n  const saveBatch = useServerFn(createBatch);\\\\n  const [batchId, setBatchId] = useState(\\\"NONE\\\");\\\\n  const [batchCode, setBatchCode] = useState(\\\"\\\");\\\\n  const [variantSearch, setVariantSearch] = useState(\\\"\\\");\\\\n  const fetchVariants =');s=s.replace('[\\\"inventory-variant-options\\\", organizationId]', '[\\\"inventory-variant-options\\\", organizationId, variantSearch]').replace('fetchVariants({ data: { organizationId: organizationId\"'! } })'\"', 'fetchVariants({ data: { organizationId: organizationId\"'!, query: variantSearch } })'\"');s=s.replace('  const locationsQuery =', '''  const batches = useQuery({queryKey:[\\\"inventory-batches\\\",organizationId,variantId],queryFn:()=>fetchBatches({data:{organizationId:organizationId\"'!,variantId}}),enabled:Boolean(open && organizationId && variantId)});\n  const batchMutation = useMutation({mutationFn:()=>saveBatch({data:{organizationId:organizationId!,variantId,batchCode}}),onSuccess: result=>{setBatchId(result.id);setBatchCode(\"\");void batches.refetch();},onError:(error:Error)=>toast.error(error.message)});\n  useEffect(()=>{setBatchId(\"NONE\");},[variantId]);\n  const locationsQuery ='\"''');s=s.replace('          idempotencyKey,', '          idempotencyKey,\\\\n          batchId: batchId === \\\"NONE\\\" ? null : batchId,');s=s.replace('            <Select value={variantId}', '<Input aria-label=\\\"Buscar variante\\\" value={variantSearch} onChange={e=>setVariantSearch(e.target.value)} placeholder=\\\"Buscar por produto, SKU ou barcode\\\"/>\\\\n            <Select value={variantId}');s=s.replace('          <div className=\\\"grid gap-4 sm:grid-cols-2\\\">','''          <div className=\\\"space-y-2\\\"><Label>Lote (opcional)</Label><Select value={batchId} onValueChange={setBatchId}><SelectTrigger><SelectValue/></SelectTrigger><SelectContent><SelectItem value=\\\"NONE\\\">Sem lote</SelectItem>{batches.data?.map(b=><SelectItem key={b.id} value={b.id}>{b.batch_code}</SelectItem>)}</SelectContent></Select>\n          {hasPermission(\\\"inventory.move\\\") && variantId ? <div className=\\\"flex gap-2\\\"><Input aria-label=\\\"Código do novo lote\\\" value={batchCode} onChange={e=>setBatchCode(e.target.value)} placeholder=\\\"Novo lote\\\"/><Button type=\\\"button\\\" variant=\\\"outline\\\" disabled={\"'!batchCode.trim() || batchMutation.isPending} onClick={()=>batchMutation.mutate()}>Criar lote</Button></div>:null}\n          {batches.error ? <p role=\"alert\">{batches.error.message}</p>:null}</div>\n          <div className=\"grid gap-4 sm:grid-cols-2\">'\"''',1);p.write_text(s)\np=Path('src/components/inventory/transfer-dialog.tsx');s=p.read_text().replace('  listInventoryLocations,','  listBatches,\\\\n  listInventoryLocations,').replace('type Item = { key: string; variantId: string; quantity: string };','type Item = { key: string; variantId: string; quantity: string; batchId?: string };');s=s.replace('  const fetchVariants =', '  const fetchBatches = useServerFn(listBatches);\\\\n  const [variantSearch,setVariantSearch] = useState(\\\"\\\");\\\\n  const fetchVariants =');s=s.replace('[\\\"inventory-variant-options\\\", organizationId]', '[\\\"inventory-variant-options\\\", organizationId, variantSearch]').replace('fetchVariants({ data: { organizationId: organizationId\"'! } })'\"', 'fetchVariants({ data: { organizationId: organizationId\"'!, query: variantSearch } })'\"');s=s.replace('  useEffect(() => {','  const batches = useQuery({queryKey:[\\\"inventory-batches\\\",organizationId],queryFn:()=>fetchBatches({data:{organizationId:organizationId\"'!}}),enabled:Boolean(open && organizationId)});'\"\\\\n\\\\n  useEffect(() => {',1).replace('({ variantId: i.variantId, quantity: Number(i.quantity) })', '({ variantId: i.variantId, quantity: Number(i.quantity), batchId: i.batchId || null })');s=s.replace('        <form onSubmit={handleSubmit} className=\\\"space-y-4\\\">','''        <form onSubmit={handleSubmit} className=\\\"space-y-4\\\">\n          <Input aria-label=\\\"Buscar variantes\\\" placeholder=\\\"Buscar produto, SKU ou barcode\\\" value={variantSearch} onChange={e=>setVariantSearch(e.target.value)}/>\n          {variantsQuery.error || locationsQuery.error || batches.error ? <p role=\\\"alert\\\">{variantsQuery.error?.message ?? locationsQuery.error?.message ?? batches.error?.message}</p>:null}''');p.write_text(s)\nPY\nrg -n 'items.map|quantity|setItems|variantId:' src/components/inventory/transfer-dialog.tsx | tail -22\nnpx tsc --noEmit > /tmp/tsc.log 2>&1\""
-    },
-    "timestamp": 1790007349695
-  },
-  {
-    "role": "tool_result",
-    "content": "",
-    "is_error": true,
-    "timestamp": 1790007369140
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"sed -n '240,290p' src/components/inventory/transfer-dialog.tsx; cat /tmp/tsc.log; sed -n '35,64p' docs/business/INVENTORY.md; sed -n '245,275p' src/routes/_authenticated/estoque/movimentacoes.tsx\""
     },
     "timestamp": 1790007393127
@@ -1432,5 +1418,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/config/env.server.ts</path>\n<type>file</type>\n<content>\n1: import { z } from 'zod';\n2: \n3: const serverEnvSchema = z.object({\n4:   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),\n5:   META_APP_SECRET: z.string().optional(),\n6:   GEMINI_API_KEY",
     "is_error": false,
     "timestamp": 1790091568133
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "git log --oneline -20",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790091570316
+  },
+  {
+    "role": "tool_result",
+    "content": "d78e811 AI: alteracao automatica\n0bc65db AI: alteracao automatica\nab71109 AI: alteracao automatica\n5ae0cdd AI: alteracao automatica\n4c61837 AI: alteracao automatica\n3c2b863 AI: alteracao automatica\ne997494 AI: alteracao automatica\n5b350a0 AI: alteracao automatica\ndfdf723 AI: alteracao automatica\n356",
+    "is_error": false,
+    "timestamp": 1790091570334
   }
 ]
