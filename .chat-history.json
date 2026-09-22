@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "rm -rf /tmp/recon-test && mkdir -p /tmp/recon-test && chown postgres /tmp/recon-test && sudo -u postgres /usr/lib/postgresql/18/bin/initdb -D /tmp/recon-test/data -A trust -U postgres 2>&1 | tail -3"
-    },
-    "timestamp": 1790116182060
-  },
-  {
-    "role": "tool_result",
-    "content": "\n    /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test/data -l logfile start\n\n",
-    "is_error": false,
-    "timestamp": 1790116182746
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test/data -l /tmp/recon-test/log -o \"-p 55439 -k /tmp/recon-test\" start && sleep 1 && echo started"
     },
     "timestamp": 1790116184239
@@ -1553,5 +1539,20 @@
     "content": "PASS: 70-unit partner shipment, store and idempotent SKU mapping\nPASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nPASS: preview totals and DRAFT close without posting stock\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/s",
     "is_error": false,
     "timestamp": 1790116836400
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PYEOF'\nfrom pathlib import Path\ns=Path('scripts/test-reconciliation-db.py').read_text()\nn=\"r2=json.loads(rpc('rec_process',','.join(map(q,[org,rid]))));assert r2['already']==2 and balance(ploc)==65\"\ns=s.replace(n,\"r2=json.loads(rpc('rec_process',','.join(map(q,[org,rid]))));print('R2',json.dumps(r2),'BAL',balance(ploc));assert r2['already']==2 and balance(ploc)==65\")\nPath('/tmp/harness2.py').write_text(s)\nPYEOF\ncd \"/root/Zheus AI Projects/controle-fabrica\" && cp /tmp/harness2.py scripts/test-reconciliation-db.py.dbg && sudo -u postgres python3 scripts/test-reconciliation-db.py.dbg 2>&1 | grep -E 'R2|PASS|ERROR|Assert' | head",
+      "timeout": 300000
+    },
+    "timestamp": 1790116839559
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: 70-unit partner shipment, store and idempotent SKU mapping\nPASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nPASS: preview totals and DRAFT close without posting stock\nR2 {\"status\": \"REVIEW_REQUIRED\", \"already\": 0, \"canceled\": 0, \"exceptions\": 1, \"recon",
+    "is_error": false,
+    "timestamp": 1790116841359
   }
 ]
