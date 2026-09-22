@@ -850,10 +850,10 @@ BEGIN
   IF v_rec.status IN ('CLOSED','CANCELED') THEN RAISE EXCEPTION 'Reconciliação fechada/cancelada.'; END IF;
   IF v_rec.status='DRAFT' THEN UPDATE public.partner_reconciliations SET status='PROCESSING' WHERE id=_reconciliation_id; END IF;
   FOR v_item IN SELECT i.id FROM public.partner_reconciliation_items i
-    WHERE i.reconciliation_id=_reconciliation_id AND i.status IN ('PENDING','EXCEPTION','VALIDATED')
+    WHERE i.reconciliation_id=_reconciliation_id AND i.status IN ('PENDING','EXCEPTION','VALIDATED','RECONCILED')
     AND (_item_ids IS NULL OR i.id=ANY(_item_ids))
     ORDER BY i.id
-    LIMIT coalesce(_limit,(SELECT count(*) FROM public.partner_reconciliation_items WHERE reconciliation_id=_reconciliation_id AND status IN ('PENDING','EXCEPTION','VALIDATED')))
+    LIMIT coalesce(_limit,(SELECT count(*) FROM public.partner_reconciliation_items WHERE reconciliation_id=_reconciliation_id AND status IN ('PENDING','EXCEPTION','VALIDATED','RECONCILED')))
   LOOP
     v_result:=public.rec_process_item(_org,_reconciliation_id,v_item,_user_id);
     IF (v_result->>'status')='RECONCILED' THEN
