@@ -37,8 +37,8 @@ def run():
  rpc('marketplace_save_mapping',q(org)+','+q(json.dumps({'external_sku':'SKU-A','variant_id':variant})))  # upsert, stays single
  assert sql("SELECT count(*) FROM external_sku_mappings WHERE organization_id="+q(org))=='1'
  print('PASS: 70-unit partner shipment, store and idempotent SKU mapping')
- def sale(order,sku,qty,gross,date='2026-09-01',event=None,extra=None,fail=None,user=a):
-  data={'store_id':store,'sale_date':date,'external_order_id':order,'external_sku':sku,'quantity':qty,'gross_amount':gross}
+ def sale(order,sku,qty,gross,date=None,event=None,extra=None,fail=None,user=a):
+  data={'store_id':store,'sale_date':date or datetime.date.today().isoformat(),'external_order_id':order,'external_sku':sku,'quantity':qty,'gross_amount':gross}
   if event:data['external_event_id']=event
   if extra:data.update(extra)
   return rpc('marketplace_register_sale',q(org)+','+q(json.dumps(data)),user,fail)
