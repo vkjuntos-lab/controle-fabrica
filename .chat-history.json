@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260924100000_partners.sql"
-    },
-    "timestamp": 1790115123454
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260924100000_partners.sql</path>\n<type>file</type>\n<content>\n1: -- MASTER 006. Remessa não é venda. Estoque permanece exclusivamente no ledger.\n2: BEGIN;\n3: CREATE TABLE public.companies (\n4:  id uuid PRIMARY KEY DEFAULT gen_random",
-    "is_error": false,
-    "timestamp": 1790115123495
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-partners-db.py"
     },
     "timestamp": 1790115123609
@@ -1559,5 +1545,20 @@
     "content": "     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n     GRANT USAGE ON SCHEMA auth TO authenticated,anon; GRANT EXECUTE ON FUNCTION auth.uid() TO authenticated,anon;\"\"\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
     "is_error": false,
     "timestamp": 1790116212936
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test/data -m immediate stop 2>&1 | tail -1; rm -rf /tmp/recon-test && mkdir -p /tmp/recon-test && chown postgres /tmp/recon-test && sudo -u postgres /usr/lib/postgresql/18/bin/initdb -D /tmp/recon-test/data -A trust -U postgres 2>&1 | tail -1 && sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test/data -l /tmp/recon-test/log -o \"-p 55439 -k /tmp/recon-test\" start 2>&1 | tail -1",
+      "timeout": 60000
+    },
+    "timestamp": 1790116214853
+  },
+  {
+    "role": "tool_result",
+    "content": "server stopped\n\nserver started\n",
+    "is_error": false,
+    "timestamp": 1790116215745
   }
 ]
