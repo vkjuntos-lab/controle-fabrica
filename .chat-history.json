@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test2/data -m immediate stop >/dev/null 2>&1; rm -rf /tmp/recon-test2 && mkdir -p /tmp/recon-test2 && chown postgres /tmp/recon-test2 && sudo -u postgres /usr/lib/postgresql/18/bin/initdb -D /tmp/recon-test2/data -A trust -U postgres >/dev/null 2>&1 && sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test2/data -l /tmp/recon-test2/log -o \"-p 55439 -k /tmp/recon-test2\" start >/dev/null 2>&1 && cd \"/root/Zheus AI Projects/controle-fabrica\" && chown -R postgres scripts && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | tail -8",
-      "timeout": 300000
-    },
-    "timestamp": 1790116514689
-  },
-  {
-    "role": "tool_result",
-    "content": "CONTEXT:  PL/pgSQL function reconciliation_guard_relations() line 23 at RAISE\nSQL statement \"INSERT INTO public.partner_reconciliation_items(organization_id,reconciliation_id,marketplace_sale_id,partner_id,store_id,variant_id,\n    quantity,gross_amount)\n  SELECT _org,v_rec,s.id,s.store_id,v_partner,",
-    "is_error": false,
-    "timestamp": 1790116517220
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | grep -B2 -A20 \"ERROR\\|AssertionError\" | head -40",
       "timeout": 300000
     },
@@ -1487,5 +1472,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n948:   SELECT jsonb_build_object(\n949:     'reconciliation_id',v_rec.id,'partner_id',v_rec.partner_id,\n950:     'period',jsonb_build_object('start',v_rec.pe",
     "is_error": false,
     "timestamp": 1790117211276
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "newString": "'net_billable',(SELECT round((SELECT coalesce(sum(billable_amount),0) FROM public.partner_reconciliation_items WHERE reconciliation_id=v_rec.id AND status='RECONCILED')\n        +(SELECT coalesce(sum(CASE adjustment_type WHEN 'CREDIT' THEN amount ELSE -amount END),0) FROM public.partner_reconciliation_adjustments WHERE reconciliation_id=v_rec.id),2))),",
+      "oldString": "'net_billable',(SELECT round((SELECT coalesce(sum(billable_amount),0) FROM public.partner_reconciliation_items WHERE reconciliation_id=v_rec.id AND status='RECONCILED')\n        +(SELECT coalesce(sum(CASE adjustment_type WHEN 'CREDIT' THEN amount ELSE -amount END),0) FROM public.partner_reconciliation_adjustments WHERE reconciliation_id=v_rec.id),2)),"
+    },
+    "timestamp": 1790117227548
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790117227571
   }
 ]
