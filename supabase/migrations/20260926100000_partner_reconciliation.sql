@@ -319,7 +319,7 @@ SELECT r::public.app_role,p FROM unnest(ARRAY['admin','gestor','estoque','comerc
 INSERT INTO public.role_permissions(role,permission)
 SELECT r::public.app_role,p FROM unnest(ARRAY['admin','gestor','estoque']) r CROSS JOIN unnest(ARRAY[
  'reconciliation.create','reconciliation.process','reconciliation.review','reconciliation.resolve_exception',
- 'reconciliation.close','reconciliation.reopen','reconciliation.reverse','partner_pricing.manage','marketplace.manage']) p ON CONFLICT DO NOTHING;
+ 'reconciliation.close','reconciliation.reopen','reconciliation.cancel','reconciliation.reverse','partner_pricing.manage','marketplace.manage']) p ON CONFLICT DO NOTHING;
 INSERT INTO public.role_permissions(role,permission)
 SELECT r::public.app_role,p FROM unnest(ARRAY['financeiro']) r CROSS JOIN unnest(ARRAY[
  'reconciliation.review','reconciliation.close']) p ON CONFLICT DO NOTHING;
