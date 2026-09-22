@@ -126,7 +126,7 @@ def run():
                         ('rec_reverse_item',q(org)+','+q(target['id'])+','+q('Sem permissão'),reader2)]:
   db.call(fun,args,user,fail='permissão')
  print('PASS: RBAC, tenant isolation and read-only roles')
- sql(f"UPDATE marketplace_sales SET quantity=5 WHERE organization_id={q(org)}",a,fail='imutáveis')
+ sql(f"UPDATE marketplace_sales SET quantity=5 WHERE organization_id={q(org)}",fail='imutáveis')
  sql(f"DELETE FROM marketplace_sales WHERE organization_id={q(org)}",fail='exclu.' )
  rpc('rec_query',q(org)+",'dashboard',"+q('{}'),a)
  print('PASS: immutable sales guard and dashboard readable')

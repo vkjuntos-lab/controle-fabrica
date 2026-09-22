@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "oldString": "SELECT _org,v_rec,s.id,s.store_id,v_partner,s.variant_id,s.quantity,s.gross_amount\n  FROM public.rec_eligible_sales(_org,v_partner,v_start,v_end) s",
-      "newString": "SELECT _org,v_rec,s.id,v_partner,s.store_id,s.variant_id,s.quantity,s.gross_amount\n  FROM public.rec_eligible_sales(_org,v_partner,v_start,v_end) s"
-    },
-    "timestamp": 1790116675109
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790116675144
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test2/data -m immediate stop >/dev/null 2>&1; rm -rf /tmp/recon-test2 && mkdir -p /tmp/recon-test2 && chown postgres /tmp/recon-test2 && sudo -u postgres /usr/lib/postgresql/18/bin/initdb -D /tmp/recon-test2/data -A trust -U postgres >/dev/null 2>&1 && sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test2/data -l /tmp/recon-test2/log -o \"-p 55439 -k /tmp/recon-test2\" start >/dev/null 2>&1 && cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | tail -10",
@@ -1489,5 +1473,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py</path>\n<type>file</type>\n<content>\n124:  reader2=uid();sql(f\"INSERT INTO auth.users(id,email) VALUES({q(reader2)},'r2@recon.test'); INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(reade",
     "is_error": false,
     "timestamp": 1790117401274
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py",
+      "newString": "sql(f\"UPDATE marketplace_sales SET quantity=5 WHERE organization_id={q(org)}\",fail='imutáveis')\n sql(f\"DELETE FROM marketplace_sales WHERE organization_id={q(org)}\",fail='exclu.' )",
+      "oldString": "sql(f\"UPDATE marketplace_sales SET quantity=5 WHERE organization_id={q(org)}\",a,fail='imutáveis')\n sql(f\"DELETE FROM marketplace_sales WHERE organization_id={q(org)}\",fail='exclu.' )"
+    },
+    "timestamp": 1790117403028
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790117403067
   }
 ]
