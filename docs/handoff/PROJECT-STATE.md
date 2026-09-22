@@ -116,7 +116,7 @@ local; publicação não verificada.
   - Tabelas `companies`, `company_roles` (papéis simultâneos PARTNER/CUSTOMER/SUPPLIER/RESELLER),
     `company_contacts`, `company_addresses`, `partner_profiles`, `partner_shipments` +
     `partner_shipment_items` e `partner_returns` + `partner_return_items`. Tenant em tudo.
-  - Docimentos normalizados (CPF/CNPJ/OTHER) com validação de formato server-side (RPC + Zod);
+  - Documentos normalizados (CPF/CNPJ/OTHER) com validação de formato server-side (RPC + Zod);
     código único por organização; contatos com um principal ativo; endereços com um principal por tipo.
   - `partner_save_company` cria, na mesma transação, perfil PARTNER e localização PARTNER vinculada
     por `inventory_locations.partner_id`; `partner_create_operation` cria remessa/devolução;
