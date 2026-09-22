@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "newString": "IF v_price IS NULL AND v_net IS NULL THEN\n    PERFORM public.reconciliation_insert_exception(_org,v_rec.id,v_item.id,v_item.marketplace_sale_id,v_item.partner_id,v_item.store_id,v_variant,\n      'PRICE_NOT_FOUND','WARNING','Sem preço de referência para a SKU na data da venda.',NULL);\n    UPDATE public.partner_reconciliation_items SET status='EXCEPTION',exception_status='PRICE_NOT_FOUND',updated_at=now() WHERE id=_item_id;\n    RETURN jsonb_build_object('item_id',v_item.id,'status','EXCEPTION','exception_type','PRICE_NOT_FOUND');\n  END IF;\n  v_rule:='PRICE_TABLE';\n  IF v_price IS NULL THEN v_price:=round(v_net/v_item.quantity,2); v_rule:='SALE_REFERENCE'; END IF;\n  v_billable:=round(v_price*v_item.quantity,2);",
-      "oldString": "IF v_price IS NULL AND v_net IS NULL THEN\n    PERFORM public.reconciliation_insert_exception(_org,v_rec.id,v_item.id,v_item.marketplace_sale_id,v_item.partner_id,v_item.store_id,v_variant,\n      'PRICE_NOT_FOUND','WARNING','Sem preço de referência para a SKU na data da venda.',NULL);\n    UPDATE public.partner_reconciliation_items SET status='EXCEPTION',exception_status='PRICE_NOT_FOUND',updated_at=now() WHERE id=_item_id;\n    RETURN jsonb_build_object('item_id',v_item.id,'status','EXCEPTION','exception_type','PRICE_NOT_FOUND');\n  END IF;\n  IF v_price IS NULL THEN v_price:=round(v_net/v_item.quantity,2); END IF;\n  v_billable:=round(v_price*v_item.quantity,2);"
-    },
-    "timestamp": 1790116368730
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790116368774
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
       "newString": "v_price_json:=jsonb_build_object('unit_price',v_price,'rule',v_rule,'net_reference',v_net);",
       "oldString": "v_price_json:=jsonb_build_object('unit_price',v_price,'rule','PRICE_TABLE','net_reference',v_net);"
     },
@@ -1507,5 +1491,19 @@
     "content": "open 35 close 34\nrec_close opens 66 closes 65\nrec_query opens 255 closes 255\n",
     "is_error": false,
     "timestamp": 1790116983585
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PYEOF'\na=\"\"\"'net_billable',(SELECT round((SELECT coalesce(sum(billable_amount),0) FROM public.partner_reconciliation_items WHERE reconciliation_id=v_rec.id AND status='RECONCILED')\n        +(SELECT coalesce(sum(CASE adjustment_type WHEN 'CREDIT' THEN amount ELSE -amount END),0) FROM public.partner_reconciliation_adjustments WHERE reconciliation_id=v_rec.id),2)),\"\"\"\nprint('a opens',a.count('('),'closes',a.count(')'))\nPYEOF"
+    },
+    "timestamp": 1790116987768
+  },
+  {
+    "role": "tool_result",
+    "content": "a opens 8 closes 8\n",
+    "is_error": false,
+    "timestamp": 1790116987808
   }
 ]
