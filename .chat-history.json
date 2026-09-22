@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && cp /tmp/harness.py scripts/test-reconciliation-db.py.dbg && sudo -u postgres python3 scripts/test-reconciliation-db.py.dbg 2>&1 | grep -E 'PROC|PASS|AssertionError|ERROR' | head",
-      "timeout": 300000
-    },
-    "timestamp": 1790116722322
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS: 70-unit partner shipment, store and idempotent SKU mapping\nPASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nPASS: preview totals and DRAFT close without posting stock\nPROC {\"status\": \"REVIEW_REQUIRED\", \"already\": 0, \"canceled\": 0, \"exceptions\": 3, \"rec",
-    "is_error": false,
-    "timestamp": 1790116724145
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PYEOF'\nfrom pathlib import Path\ns=Path('scripts/test-reconciliation-db.py').read_text()\nn=\"print('PASS: preview totals and DRAFT close without posting stock')\"\ns=s.replace(n,n+\"\"\"\nrec=json.loads(rpc('rec_query',q(org)+\",'reconciliation',\"+q(json.dumps({'id':rid}))))\nprint('ITEMQUERY',json.dumps(rec['items'],default=str))\nexc=json.loads(rpc('rec_query',q(org)+\",'exceptions',\"+q(json.dumps({'reconciliation_id':rid}))))\nprint('EXCQ',json.dumps(exc,default=str))\n\"\"\")\nPath('scripts/test-reconciliation-db.py.dbg').write_text(s)\nprint('patched')\nPYEOF\nsudo -u postgres python3 scripts/test-reconciliation-db.py.dbg 2>&1 | grep -E 'ITEMQUERY|EXCQ' | head",
       "timeout": 300000
     },
@@ -1493,5 +1478,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql</path>\n<type>file</type>\n<content>\n730:   -- Idempotente por construção: uma mesma reversão para o mesmo movimento não\n731:   -- duplica (double-click, chamada repetida).\n732:   SELECT id INTO v_re",
     "is_error": false,
     "timestamp": 1790117454177
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql",
+      "limit": 40,
+      "offset": 30
+    },
+    "timestamp": 1790117456507
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql</path>\n<type>file</type>\n<content>\n30: CREATE OR REPLACE FUNCTION public.inventory_get_balance(\n31:   _organization_id uuid, _variant_id uuid, _location_id uuid DEFAULT NULL,\n32:   _batch_id uui",
+    "is_error": false,
+    "timestamp": 1790117456536
   }
 ]
