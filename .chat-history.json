@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql"
-    },
-    "timestamp": 1790115131767
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql</path>\n<type>file</type>\n<content>\n1: -- ============================================================\n2: -- Inventory Ledger — fonte oficial do estoque (LOVABLE MASTER 003).\n3: --\n4: -- Princípios ",
-    "is_error": false,
-    "timestamp": 1790115131805
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql"
     },
     "timestamp": 1790115134886
@@ -1563,5 +1549,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n1082:       'by_sku',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT v.sku,p.name product_name,count(*) items,sum(i.quantity) units,sum(i.billable_amou",
     "is_error": false,
     "timestamp": 1790116221262
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "newString": "'by_day',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT s.sale_date d,count(*) items,sum(i.quantity) units,sum(i.billable_amount) billable",
+      "oldString": "'by_day',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT s.sale_date day,count(*) items,sum(i.quantity) units,sum(i.billable_amount) billable"
+    },
+    "timestamp": 1790116223222
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790116223239
   }
 ]

@@ -1082,7 +1082,7 @@ BEGIN
       'by_sku',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT v.sku,p.name product_name,count(*) items,sum(i.quantity) units,sum(i.billable_amount) billable
         FROM public.partner_reconciliation_items i LEFT JOIN public.product_variants v ON v.id=i.variant_id LEFT JOIN public.products p ON p.id=v.product_id
         WHERE i.reconciliation_id=r.id AND i.status<>'CANCELED' GROUP BY v.sku,p.name ORDER BY v.sku)q),'[]'::jsonb),
-      'by_day',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT s.sale_date day,count(*) items,sum(i.quantity) units,sum(i.billable_amount) billable
+      'by_day',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT s.sale_date d,count(*) items,sum(i.quantity) units,sum(i.billable_amount) billable
         FROM public.partner_reconciliation_items i JOIN public.marketplace_sales s ON s.id=i.marketplace_sale_id WHERE i.reconciliation_id=r.id AND i.status<>'CANCELED' GROUP BY s.sale_date ORDER BY s.sale_date)q),'[]'::jsonb),
       'by_marketplace',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT st.marketplace,count(*) items,sum(i.quantity) units,sum(i.billable_amount) billable
         FROM public.partner_reconciliation_items i JOIN public.marketplace_stores st ON st.id=i.store_id WHERE i.reconciliation_id=r.id AND i.status<>'CANCELED' GROUP BY st.marketplace ORDER BY st.marketplace)q),'[]'::jsonb),
