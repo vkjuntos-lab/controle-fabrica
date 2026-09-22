@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/rbac.ts",
-      "offset": 120
-    },
-    "timestamp": 1790115151327
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/rbac.ts</path>\n<type>file</type>\n<content>\n120:   \"inventory.transfer\": \"Realizar transferências\",\n121:   \"inventory.count\": \"Fazer inventário físico\",\n122:   \"inventory.opening_balance\": \"Abrir saldo de estoque\",\n123:   \"inventory.reverse\": \"Re",
-    "is_error": false,
-    "timestamp": 1790115151345
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "ls src/components/ui | head -80 && echo \"===STATES===\" && ls src/components/states 2>/dev/null; ls src/components 2>/dev/null"
@@ -1622,5 +1607,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790116365444
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "newString": "IF v_price IS NULL AND v_net IS NULL THEN\n    PERFORM public.reconciliation_insert_exception(_org,v_rec.id,v_item.id,v_item.marketplace_sale_id,v_item.partner_id,v_item.store_id,v_variant,\n      'PRICE_NOT_FOUND','WARNING','Sem preço de referência para a SKU na data da venda.',NULL);\n    UPDATE public.partner_reconciliation_items SET status='EXCEPTION',exception_status='PRICE_NOT_FOUND',updated_at=now() WHERE id=_item_id;\n    RETURN jsonb_build_object('item_id',v_item.id,'status','EXCEPTION','exception_type','PRICE_NOT_FOUND');\n  END IF;\n  v_rule:='PRICE_TABLE';\n  IF v_price IS NULL THEN v_price:=round(v_net/v_item.quantity,2); v_rule:='SALE_REFERENCE'; END IF;\n  v_billable:=round(v_price*v_item.quantity,2);",
+      "oldString": "IF v_price IS NULL AND v_net IS NULL THEN\n    PERFORM public.reconciliation_insert_exception(_org,v_rec.id,v_item.id,v_item.marketplace_sale_id,v_item.partner_id,v_item.store_id,v_variant,\n      'PRICE_NOT_FOUND','WARNING','Sem preço de referência para a SKU na data da venda.',NULL);\n    UPDATE public.partner_reconciliation_items SET status='EXCEPTION',exception_status='PRICE_NOT_FOUND',updated_at=now() WHERE id=_item_id;\n    RETURN jsonb_build_object('item_id',v_item.id,'status','EXCEPTION','exception_type','PRICE_NOT_FOUND');\n  END IF;\n  IF v_price IS NULL THEN v_price:=round(v_net/v_item.quantity,2); END IF;\n  v_billable:=round(v_price*v_item.quantity,2);"
+    },
+    "timestamp": 1790116368730
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790116368774
   }
 ]

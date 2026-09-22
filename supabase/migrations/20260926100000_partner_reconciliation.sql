@@ -784,7 +784,8 @@ BEGIN
     UPDATE public.partner_reconciliation_items SET status='EXCEPTION',exception_status='PRICE_NOT_FOUND',updated_at=now() WHERE id=_item_id;
     RETURN jsonb_build_object('item_id',v_item.id,'status','EXCEPTION','exception_type','PRICE_NOT_FOUND');
   END IF;
-  IF v_price IS NULL THEN v_price:=round(v_net/v_item.quantity,2); END IF;
+  v_rule:='PRICE_TABLE';
+  IF v_price IS NULL THEN v_price:=round(v_net/v_item.quantity,2); v_rule:='SALE_REFERENCE'; END IF;
   v_billable:=round(v_price*v_item.quantity,2);
   -- 4) Estoque do parceiro na data da venda (posição histórica) + baixa atômica.
   v_occurred:=(((SELECT sale_date FROM public.marketplace_sales WHERE id=v_item.marketplace_sale_id))::timestamp AT TIME ZONE 'UTC');
