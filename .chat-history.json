@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "newString": "CREATE FUNCTION public.price_save_item(_org uuid,_data jsonb,_item_id uuid DEFAULT NULL,_user_id uuid DEFAULT auth.uid())\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE v_item_id uuid;\n\nBEGIN\n  IF _user_id IS DISTINCT FROM auth.uid() THEN RAISE EXCEPTION 'Usuário inválido.'; END IF;\n  PERFORM public.reconciliation_require(_org,'partner_pricing.manage');",
-      "oldString": "CREATE FUNCTION public.price_save_item(_org uuid,_id_required boolean DEFAULT true,_data jsonb DEFAULT '{}'::jsonb,_item_id uuid DEFAULT NULL,_user_id uuid DEFAULT auth.uid())\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE v_item_id uuid;\nBEGIN\n  IF _user_id IS DISTINCT FROM auth.uid() THEN RAISE EXCEPTION 'Usuário inválido.'; END IF;\n  PERFORM public.reconciliation_require(_org,'partner_pricing.manage');"
-    },
-    "timestamp": 1790116341694
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790116341734
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
       "newString": "-- 3) Preço: regra comercial vence; senão referência líquida do pedido.\n  SELECT public.rec_sale_net(gross_amount,discount_amount,platform_fee,shipping_fee) INTO v_net\n  FROM public.marketplace_sales WHERE id=v_item.marketplace_sale_id;\n  v_price:=public.rec_resolve_price(_org,v_variant,v_item.partner_id,(SELECT sale_date FROM public.marketplace_sales WHERE id=v_item.marketplace_sale_id));\n  IF v_price IS NULL AND v_net IS NULL THEN\n    PERFORM public.reconciliation_insert_exception(_org,v_rec.id,v_item.id,v_item.marketplace_sale_id,v_item.partner_id,v_item.store_id,v_variant,\n      'PRICE_NOT_FOUND','WARNING','Sem preço de referência para a SKU na data da venda.',NULL);\n    UPDATE public.partner_reconciliation_items SET status='EXCEPTION',exception_status='PRICE_NOT_FOUND',updated_at=now() WHERE id=_item_id;\n    RETURN jsonb_build_object('item_id',v_item.id,'status','EXCEPTION','exception_type','PRICE_NOT_FOUND');\n  END IF;\n  IF v_price IS NULL THEN v_price:=round(v_net/v_item.quantity,2); END IF;\n  v_billable:=round(v_price*v_item.quantity,2);",
       "oldString": "-- 3) Preço: regra comercial vence; senão referência do pedido.\n  v_price:=public.rec_resolve_price(_org,v_variant,v_item.partner_id,(SELECT sale_date FROM public.marketplace_sales WHERE id=v_item.marketplace_sale_id));\n  IF v_price IS NULL THEN\n    PERFORM public.reconciliation_insert_exception(_org,v_rec.id,v_item.id,v_item.marketplace_sale_id,v_item.partner_id,v_item.store_id,v_variant,\n      'PRICE_NOT_FOUND','WARNING','Sem preço de referência para a SKU na data da venda.',NULL);\n    UPDATE public.partner_reconciliation_items SET status='EXCEPTION',exception_status='PRICE_NOT_FOUND',updated_at=now() WHERE id=_item_id;\n    RETURN jsonb_build_object('item_id',v_item.id,'status','EXCEPTION','exception_type','PRICE_NOT_FOUND');\n  END IF;\n  SELECT public.rec_sale_net(gross_amount,discount_amount,platform_fee,shipping_fee) INTO v_net\n  FROM public.marketplace_sales WHERE id=v_item.marketplace_sale_id;\n  v_billable:=round(v_price*v_item.quantity,2);"
     },
@@ -1511,5 +1495,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n964:     INTO v_snapshot;\n965:   UPDATE public.partner_reconciliations SET status='CLOSED',snapshot=v_snapshot,cutoff_at=now(),closed_by=_user_id,closed_at=",
     "is_error": false,
     "timestamp": 1790116959140
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"net_billable\" supabase/migrations/20260926100000_partner_reconciliation.sql; echo ===; sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | grep -B8 'INTO specified' | head -20",
+      "timeout": 300000
+    },
+    "timestamp": 1790116966664
+  },
+  {
+    "role": "tool_result",
+    "content": "955:      'net_billable',(SELECT round((SELECT coalesce(sum(billable_amount),0) FROM public.partner_reconciliation_items WHERE reconciliation_id=v_rec.id AND status='RECONCILED')\n===\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py\", line",
+    "is_error": false,
+    "timestamp": 1790116967875
   }
 ]
