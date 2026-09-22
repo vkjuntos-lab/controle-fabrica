@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "newString": "ELSIF TG_TABLE_NAME IN ('partner_price_links','price_tables','price_table_items') THEN\n    IF TG_TABLE_NAME='partner_price_links' AND (j-'valid_to'-'updated_at')<>(jold-'valid_to'-'updated_at') THEN RAISE EXCEPTION 'Vínculo imutável fora do RPC.'; END IF;\n    IF TG_TABLE_NAME='price_tables' AND (j-'status'-'name'-'valid_to'-'notes'-'updated_at')<>(jold-'status'-'name'-'valid_to'-'notes'-'updated_at') THEN RAISE EXCEPTION 'Tabela imutável fora do RPC.'; END IF;\n    IF TG_TABLE_NAME='price_table_items' AND (j-'unit_price'-'valid_to'-'status'-'updated_at')<>(jold-'unit_price'-'valid_to'-'status'-'updated_at') THEN RAISE EXCEPTION 'Item de preço imutável fora do RPC.'; END IF;\n  ELSIF TG_TABLE_NAME='marketplace_stores'\n    AND (j-'code'-'name'-'marketplace'-'marketplace_store_id'-'ownership_type'-'partner_id'-'status'-'notes'-'updated_by'-'updated_at')\n      <>(jold-'code'-'name'-'marketplace'-'marketplace_store_id'-'ownership_type'-'partner_id'-'status'-'notes'-'updated_by'-'updated_at')\n    THEN RAISE EXCEPTION 'Loja imutável fora do RPC.';\n  ELSIF TG_TABLE_NAME='external_sku_mappings'\n    AND (j-'variant_id'-'updated_at')<>(jold-'variant_id'-'updated_at') THEN RAISE EXCEPTION 'Mapeamento imutável fora do RPC.';\n  END IF;\n  RETURN NEW;",
-      "oldString": "ELSIF TG_TABLE_NAME='partner_price_links' AND (j-'valid_to'-'updated_at')<>(jold-'valid_to'-'updated_at') THEN RAISE EXCEPTION 'Vínculo imutável fora do RPC.'; END IF;\n    IF TG_TABLE_NAME='price_tables' AND (j-'status'-'name'-'valid_to'-'notes'-'updated_at')<>(jold-'status'-'name'-'valid_to'-'notes'-'updated_at') THEN RAISE EXCEPTION 'Tabela imutável fora do RPC.'; END IF;\n    IF TG_TABLE_NAME='price_table_items' AND (j-'unit_price'-'valid_to'-'status'-'updated_at')<>(jold-'unit_price'-'valid_to'-'status'-'updated_at') THEN RAISE EXCEPTION 'Item de preço imutável fora do RPC.'; END IF;\n  ELSIF TG_TABLE_NAME='marketplace_stores'\n    AND (j-'code'-'name'-'marketplace'-'marketplace_store_id'-'ownership_type'-'partner_id'-'status'-'notes'-'updated_by'-'updated_at')\n      <>(jold-'code'-'name'-'marketplace'-'marketplace_store_id'-'ownership_type'-'partner_id'-'status'-'notes'-'updated_by'-'updated_at')\n    THEN RAISE EXCEPTION 'Loja imutável fora do RPC.';\n  ELSIF TG_TABLE_NAME='external_sku_mappings'\n    AND (j-'variant_id'-'updated_at')<>(jold-'variant_id'-'updated_at') THEN RAISE EXCEPTION 'Mapeamento imutável fora do RPC.';\n  END IF;\n  RETURN NEW;"
-    },
-    "timestamp": 1790116210938
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790116210962
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "sudo -u postgres python3 /tmp/recon-check.py 2>&1 | tail -8",
@@ -1555,5 +1539,21 @@
     "content": "PASS: 70-unit partner shipment, store and idempotent SKU mapping\nPASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nPASS: preview totals and DRAFT close without posting stock\nPASS: SKU_NOT_MAPPED exception, price-rule billable, no double posting on reprocess\nA",
     "is_error": false,
     "timestamp": 1790116859219
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "limit": 55,
+      "offset": 910
+    },
+    "timestamp": 1790116861790
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n910: END;\n911: $$;\n912: \n913: CREATE FUNCTION public.rec_adjustment(_org uuid,_reconciliation_id uuid,_type text,_amount numeric,_reason text,_user_id uuid ",
+    "is_error": false,
+    "timestamp": 1790116861821
   }
 ]
