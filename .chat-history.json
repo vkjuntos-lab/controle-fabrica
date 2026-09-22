@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py"
-    },
-    "timestamp": 1790115495893
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py</path>\n<type>file</type>\n<content>\n1: #!/usr/bin/env python3\n2: \"\"\"Isolated PostgreSQL integration tests. Never connects to a deployed database.\"\"\"\n3: import concurrent.futures\n4: import json\n5: import os\n6: from pathlib imp",
-    "is_error": false,
-    "timestamp": 1790115495929
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-partners-db.py"
     },
     "timestamp": 1790115497569
@@ -1572,5 +1558,20 @@
     "content": "16:def act(s,action,data=None):data=data or {};return rpc('partner_shipment_action',q(org)+','+q(s)+','+q(action)+','+json.dumps(data))\n16:def act(s,action,data=None):data=data or {};return rpc('partner_shipment_action',q(org)+','+q(s)+','+q(action)+','+json.dumps(data))\n",
     "is_error": false,
     "timestamp": 1790116492019
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test2/data -m immediate stop >/dev/null 2>&1; rm -rf /tmp/recon-test2 && mkdir -p /tmp/recon-test2 && chown postgres /tmp/recon-test2 && sudo -u postgres /usr/lib/postgresql/18/bin/initdb -D /tmp/recon-test2/data -A trust -U postgres >/dev/null 2>&1 && sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test2/data -l /tmp/recon-test2/log -o \"-p 55439 -k /tmp/recon-test2\" start >/dev/null 2>&1 && sudo -u postgres python3 /tmp/recon-check.py >/dev/null 2>&1 && cd /tmp && python3 - <<'EOF'\nimport json\nprint(repr(json.dumps({})))\nEOF",
+      "timeout": 180000
+    },
+    "timestamp": 1790116499700
+  },
+  {
+    "role": "tool_result",
+    "content": "'{}'\n",
+    "is_error": false,
+    "timestamp": 1790116501118
   }
 ]
