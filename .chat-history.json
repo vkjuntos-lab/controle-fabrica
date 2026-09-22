@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py",
-      "newString": "def sale(order,sku,qty,gross,date=None,event=None,extra=None,fail=None,user=a):\n  data={'store_id':store,'sale_date':date or datetime.date.today().isoformat(),'external_order_id':order,'external_sku':sku,'quantity':qty,'gross_amount':gross}",
-      "oldString": "def sale(order,sku,qty,gross,date='2026-09-01',event=None,extra=None,fail=None,user=a):\n  data={'store_id':store,'sale_date':date,'external_order_id':order,'external_sku':sku,'quantity':qty,'gross_amount':gross}"
-    },
-    "timestamp": 1790116806711
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790116806742
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py",
       "newString": "import importlib.util\nimport json\nimport subprocess\nfrom pathlib import Path\nimport concurrent.futures\nimport datetime",
       "oldString": "import importlib.util\nimport json\nimport subprocess\nfrom pathlib import Path\nimport concurrent.futures"
     },
@@ -1486,5 +1470,19 @@
     "content": "PASS: arithmetic, adjustment and business acceptance 70/10/20 = 100; no financial module\nPASS: negative balance, override rejection, reason, RLS, permissions, immutable ledger\nPASS: idempotency, duplicate SKU transfer rollback, immutable reversal and retry\nPASS: actual concurrent withdrawals and ide",
     "is_error": false,
     "timestamp": 1790117518212
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"inventory_immutable\\|DROP TRIGGER\\|inventory_reverse\\|guard_movement\" supabase/migrations/20260922100000_production.sql supabase/migrations/20260923100000_inventory_workflows.sql supabase/migrations/20260924100000_partners.sql | head -20"
+    },
+    "timestamp": 1790117563925
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260922100000_production.sql:329:CREATE OR REPLACE FUNCTION public.inventory_guard_movement() RETURNS trigger\nsupabase/migrations/20260922100000_production.sql:378:REVOKE ALL ON FUNCTION public.inventory_guard_movement() FROM PUBLIC, anon, authenticated;\nsupabase/migrations/2026",
+    "is_error": false,
+    "timestamp": 1790117563961
   }
 ]
