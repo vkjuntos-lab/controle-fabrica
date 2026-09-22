@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "newString": "IF TG_TABLE_NAME='marketplace_sales' THEN\n    IF OLD.status='RECONCILED' THEN\n      IF NEW.status<>'EXCEPTION' THEN RAISE EXCEPTION 'Venda reconcileida consolidada: corrija pelo estorno da reconciliação.'; END IF;\n      IF (j-'status'-'updated_at')<>(jold-'status'-'updated_at') THEN RAISE EXCEPTION 'Estorno só muda status.'; END IF;\n    ELSIF NEW.status='RECONCILED' AND NEW.reconciliation_item_id IS NOT NULL THEN\n      IF (j-'status'-'reconciliation_item_id'-'updated_at')<>(jold-'status'-'reconciliation_item_id'-'updated_at') THEN RAISE EXCEPTION 'Somente status e item na reconciliação.'; END IF;\n    ELSE\n      IF (j-'status'-'variant_id'-'updated_at')<>(jold-'status'-'variant_id'-'updated_at') THEN RAISE EXCEPTION 'Campos de venda imutáveis.'; END IF;\n    END IF;",
-      "oldString": "IF TG_TABLE_NAME='marketplace_sales' THEN\n    IF OLD.status='RECONCILED' THEN\n      IF NEW.status='EXCEPTION' AND _userless_timestamp()/*placeholder*/ THEN NULL; END IF;\n      IF (NEW.status='EXCEPTION') AND (j-'status'-'updated_at')<>(jold-'status'-'updated_at') THEN RAISE EXCEPTION 'Estorno só muda status.'; END IF;\n      IF NEW.status<>'EXCEPTION' THEN RAISE EXCEPTION 'Venda reconcileida consolidada: corrija pelo estorno da reconciliação.'; END IF;\n    ELSIF NEW.status='RECONCILED' AND NEW.reconciliation_item_id IS NOT NULL THEN\n      IF (j-'status'-'reconciliation_item_id'-'updated_at')<>(jold-'status'-'reconciliation_item_id'-'updated_at') THEN RAISE EXCEPTION 'Somente status e item na reconciliação.'; END IF;\n    ELSE\n      IF (j-'status'-'variant_id'-'updated_at')<>(jold-'status'-'variant_id'-'updated_at') THEN RAISE EXCEPTION 'Campos de venda imutáveis.'; END IF;\n    END IF;"
-    },
-    "timestamp": 1790116060289
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790116060317
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
@@ -1565,5 +1549,19 @@
     "content": "Traceback (most recent call last):\n  File \"<stdin>\", line 1, in <module>\nNameError: name 'Path' is not defined\n",
     "is_error": false,
     "timestamp": 1790116709719
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PYEOF'\nfrom pathlib import Path\ns=Path('scripts/test-reconciliation-db.py').read_text()\nneedle=\"r=json.loads(rpc('rec_process',','.join(map(q,[org,rid]))))\\n assert r['status']=='REVIEW_REQUIRED'\"\ns=s.replace(needle,needle.replace(\"assert r['status']=='REVIEW_REQUIRED'\",\"print('PROC',json.dumps(r))\")+\"\\n assert r['status']=='REVIEW_REQUIRED'\")\nPath('/tmp/harness.py').write_text(s)\nprint(needle in open('scripts/test-reconciliation-db.py').read(), 'patched')\nPYEOF"
+    },
+    "timestamp": 1790116712141
+  },
+  {
+    "role": "tool_result",
+    "content": "True patched\n",
+    "is_error": false,
+    "timestamp": 1790116712195
   }
 ]
