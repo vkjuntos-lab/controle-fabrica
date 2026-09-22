@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
-      "newString": "O checkout não contém o MASTER 005 (MarketplaceStore). Etapa atual: módulo de parceiros validado",
-      "oldString": "O checkout não contém o MASTER 005 (MarketplaceStore). Etapa atual: modulo de parceiros validado"
-    },
-    "timestamp": 1790110830095
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790110830109
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
       "newString": "- Tipos de movimento que exigem par (transferência, remessa/retorno de parceiro, reversão) só\n  podem ser criados pelas RPCs dedicadas, nunca direto por `inventory_post_movement`.\n- Remessa não é venda e não gera receita/AR; o estoque do parceiro é derivado do ledger, sem tabela\n  de saldo. Quantidade enviada ≠ vendida; posse física não muda a titularidade.\n- Remessa/devolução recebida é imutável e o estorno genérico do par de movimentos vinculado é\n  bloqueado; correção física exige novo documento (ou ajuste autorizado com motivo), nunca\n  reinterpretação de fatos históricos.\n- Vínculo parceiro → loja só será criado quando o MASTER 005 existir, com FK composta e\n  organization_id; nada de tabela substituta de loja nesta fase.",
       "oldString": "- Tipos de movimento que exigem par (transferência, remessa/retorno de parceiro, reversão) só\n  podem ser criados pelas RPCs dedicadas, nunca direto por `inventory_post_movement`."
     },
@@ -1575,5 +1559,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n918:   RETURN jsonb_build_object('id',v_id,'billable_amount',v_bill);\n919: END;\n920: $$;\n921: \n922: CREATE FUNCTION public.rec_close(_org uuid,_reconciliati",
     "is_error": false,
     "timestamp": 1790116091625
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "newString": "ELSIF TG_TABLE_NAME='partner_reconciliation_items' THEN\n    IF EXISTS(SELECT 1 FROM public.partner_reconciliations WHERE id=OLD.reconciliation_id AND status='CLOSED')\n      THEN RAISE EXCEPTION 'Item de fechamento CLOSED é imutável.'; END IF;\n    IF (j-'status'-'unit_reference_value'-'billable_amount'-'price_snapshot'-'exception_status'-'inventory_effect_status'",
+      "oldString": "ELSIF TG_TABLE_NAME='partner_reconciliation_items' THEN\n    IF EXISTS(SELECT 1 FROM public.partner_reconciliations WHERE id=OLD.reconciliation_id AND status='CLOSED')\n      THEN RAISE EXCEPTION 'Item de fechamento CLOSED é imutável.'; END IF;\n    IF NEW.status<>OLD.status AND NEW.status NOT IN ('PENDING','VALIDATED','RECONCILED','EXCEPTION','REVERSED','CANCELED') AND OLD.status<>'NEW' THEN NULL; END IF;\n    IF (j-'status'-'unit_reference_value'-'billable_amount'-'price_snapshot'-'exception_status'-'inventory_effect_status'"
+    },
+    "timestamp": 1790116101455
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790116101490
   }
 ]

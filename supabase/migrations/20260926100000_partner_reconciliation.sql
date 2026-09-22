@@ -400,7 +400,6 @@ BEGIN
   ELSIF TG_TABLE_NAME='partner_reconciliation_items' THEN
     IF EXISTS(SELECT 1 FROM public.partner_reconciliations WHERE id=OLD.reconciliation_id AND status='CLOSED')
       THEN RAISE EXCEPTION 'Item de fechamento CLOSED é imutável.'; END IF;
-    IF NEW.status<>OLD.status AND NEW.status NOT IN ('PENDING','VALIDATED','RECONCILED','EXCEPTION','REVERSED','CANCELED') AND OLD.status<>'NEW' THEN NULL; END IF;
     IF (j-'status'-'unit_reference_value'-'billable_amount'-'price_snapshot'-'exception_status'-'inventory_effect_status'
         -'inventory_movement_id'-'reversed_movement_id'-'error_message'-'updated_at')
        <>(jold-'status'-'unit_reference_value'-'billable_amount'-'price_snapshot'-'exception_status'-'inventory_effect_status'
