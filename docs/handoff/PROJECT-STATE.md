@@ -1,6 +1,10 @@
 # Estado do projeto — handoff contínuo
 
-Última atualização: LOVABLE MASTER 003 — Inventory Ledger (estoque por movimentos imutáveis) sobre o MASTER 002 (Catálogo de Produtos) e a fundação do MASTER 001. Etapa atual: integração das telas com as RPCs, migration complementar `20260923100000_inventory_workflows.sql` e testes PostgreSQL reproduzíveis. Validação local; publicação não verificada.
+Última atualização: LOVABLE MASTER 006 — Empresas parceiras, remessas, estoque em terceiros e
+devoluções, sobre o MASTER 003 (Inventory Ledger), MASTER 002 (Catálogo) e a fundação do MASTER 001.
+O checkout não contém o MASTER 005 (MarketplaceStore). Etapa atual: modulo de parceiros validado
+localmente (`20260924100000_partners.sql`, telas, RBAC e testes PostgreSQL reproduzíveis). Validação
+local; publicação não verificada.
 
 ## IMPLEMENTED
 
