@@ -343,6 +343,9 @@ DECLARE v_data jsonb:=to_jsonb(NEW); v_pair text[]; v_id uuid; v_org uuid;
 BEGIN
   IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Histórico não pode ser excluído.'; END IF;
   IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAISE EXCEPTION 'Organização imutável.'; END IF;
+  IF NOT EXISTS(SELECT 1 FROM unnest(ARRAY['marketplace_stores','marketplace_sales','marketplace_import_rows','external_sku_mappings','partner_reconciliations','partner_reconciliation_items','reconciliation_exceptions','partner_reconciliation_adjustments','price_table_items','partner_price_links']) t(t) WHERE t=TG_TABLE_NAME) THEN
+    RETURN NEW;
+  END IF;
   FOREACH v_pair SLICE 1 IN ARRAY CASE TG_TABLE_NAME
     WHEN 'marketplace_stores' THEN ARRAY[['partner_id','partner_profiles']]
     WHEN 'marketplace_sales' THEN ARRAY[['store_id','marketplace_stores'],['variant_id','product_variants'],['import_id','marketplace_imports'],['reconciliation_item_id','partner_reconciliation_items']]

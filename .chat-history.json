@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "limit": 108,
-      "offset": 712
-    },
-    "timestamp": 1790115961916
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n712: -- =====================================================================\n713: -- 11. RPC: processar item (validação + baixa SALE). Núcleo compartilhado",
-    "is_error": false,
-    "timestamp": 1790115961938
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
@@ -1573,5 +1557,21 @@
     "content": "    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  slice dimension (1) is out of the valid range 0..0\nCONTEXT:  PL/pgSQL function reconciliation_guard_relations() line 6 at FOREACH over array\nSQL statement \"INSERT INTO public.price_tables(organization_id,code,n",
     "is_error": false,
     "timestamp": 1790116679844
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "newString": "IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Histórico não pode ser excluído.'; END IF;\n  IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAISE EXCEPTION 'Organização imutável.'; END IF;\n  IF NOT EXISTS(SELECT 1 FROM unnest(ARRAY['marketplace_stores','marketplace_sales','marketplace_import_rows','external_sku_mappings','partner_reconciliations','partner_reconciliation_items','reconciliation_exceptions','partner_reconciliation_adjustments','price_table_items','partner_price_links']) t(t) WHERE t=TG_TABLE_NAME) THEN\n    RETURN NEW;\n  END IF;\n  FOREACH v_pair SLICE 1 IN ARRAY CASE TG_TABLE_NAME",
+      "oldString": "IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Histórico não pode ser excluído.'; END IF;\n  IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAISE EXCEPTION 'Organização imutável.'; END IF;\n  FOREACH v_pair SLICE 1 IN ARRAY CASE TG_TABLE_NAME"
+    },
+    "timestamp": 1790116684597
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790116684646
   }
 ]
