@@ -53,6 +53,10 @@ def run():
  rec=json.loads(rpc('rec_create',q(org)+','+q(json.dumps({'partner_id':p,'period_start':'2026-09-01','period_end':'2026-09-30'}))))
  rid=rec['reconciliation_id'];assert rec['sales']==3 and rec['gross']==120
  assert balance(ploc)==70
+ # Price rule must prevail: commercial table linked before the first process.
+ table=json.loads(rpc('price_save_table',q(org)+','+q(json.dumps({'code':'PT-25','name':'Partner 25','valid_from':'2026-01-01'}))))['id']
+ rpc('price_save_item',q(org)+','+q(json.dumps({'price_table_id':table,'variant_id':variant,'unit_price':25})))
+ rpc('price_link_partner',q(org)+','+q(json.dumps({'partner_id':p,'price_table_id':table})))
  print('PASS: preview totals and DRAFT close without posting stock')
  r=json.loads(rpc('rec_process',','.join(map(q,[org,rid]))))
  assert r['status']=='REVIEW_REQUIRED' and r['reconciled']==2 and r['exceptions']==1 and balance(ploc)==65

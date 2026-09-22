@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "grep",
-    "input": {
-      "pattern": "export const listInventoryLocations|export const createInventoryCount|requireSupabaseAuth",
-      "include": "*.ts",
-      "path": "/root/Zheus AI Projects/controle-fabrica/src/lib/inventory"
-    },
-    "timestamp": 1790115151756
-  },
-  {
-    "role": "tool_result",
-    "content": "Found 28 matches\n/root/Zheus AI Projects/controle-fabrica/src/lib/inventory/inventory.functions.ts:\n  Line 5: import { requireSupabaseAuth } from \"@/integrations/supabase/auth-middleware\";\n\n  Line 142: export const listInventoryLocations = createServerFn({ method: \"GET\" })\n\n  Line 143:   .middleware",
-    "is_error": false,
-    "timestamp": 1790115151787
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/inventory/inventory.functions.ts",
@@ -1625,5 +1609,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790116370357
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py",
+      "newString": "rec=json.loads(rpc('rec_create',q(org)+','+q(json.dumps({'partner_id':p,'period_start':'2026-09-01','period_end':'2026-09-30'}))))\n rid=rec['reconciliation_id'];assert rec['sales']==3 and rec['gross']==120\n assert balance(ploc)==70\n # Price rule must prevail: commercial table linked before the first process.\n table=json.loads(rpc('price_save_table',q(org)+','+q(json.dumps({'code':'PT-25','name':'Partner 25','valid_from':'2026-01-01'}))))['id']\n rpc('price_save_item',q(org)+','+q(json.dumps({'price_table_id':table,'variant_id':variant,'unit_price':25})))\n rpc('price_link_partner',q(org)+','+q(json.dumps({'partner_id':p,'price_table_id':table})))\n print('PASS: preview totals and DRAFT close without posting stock')",
+      "oldString": "rec=json.loads(rpc('rec_create',q(org)+','+q(json.dumps({'partner_id':p,'period_start':'2026-09-01','period_end':'2026-09-30'}))))\n rid=rec['reconciliation_id'];assert rec['sales']==3 and rec['gross']==120\n assert balance(ploc)==70\n print('PASS: preview totals and DRAFT close without posting stock')"
+    },
+    "timestamp": 1790116375160
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790116375171
   }
 ]
