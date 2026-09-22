@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && cat > /tmp/dbg5.py <<'EOF'\nimport importlib.util,json\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('inventory_db',Path('scripts/test-inventory-db.py'))\ndb=importlib.util.module_from_spec(spec);spec.loader.exec_module(db)\nq,sql,uid=db.q,db.sql,db.uid\ndb.TMP=Path('/tmp/recon-test2');db.BASE=[str(Path('/usr/lib/postgresql/18/bin')/'psql'),'-X','-h','/tmp/recon-test2','-p','55439','-U','postgres','-d','postgres','-v','ON_ERROR_STOP=1','-Atq']\na,org,product,variant,factory=[uid() for _ in range(5)]\nsql(f\"INSERT INTO auth.users(id,email) VALUES({q(a)},'a@x'); INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'A','a',{q(a)}); INSERT INTO products(id,organization_id,code,name) VALUES({q(product)},{q(org)},'B','Ballet'); INSERT INTO product_variants(id,organization_id,product_id,sku,barcode) VALUES({q(variant)},{q(org)},{q(product)},'B','123'); INSERT INTO inventory_locations(id,organization_id,code,name,type) VALUES({q(factory)},{q(org)},'FAB','Fab','FACTORY');\")\ndef rpc(n,args,u=a,fail=None):return db.call(n,args,u,fail)\nc=rpc('partner_save_company',q(org)+','+q(json.dumps({'code':'R1','legal_name':'P','roles':['PARTNER'],'status':'ACTIVE'})))\nd=json.loads(rpc('partner_query',q(org)+\",'company',\"+q(json.dumps({'id':c}))))\np=d['profile']['id'];ploc=d['profile']['default_inventory_location_id']\nrpc('inventory_post_movement',','.join(map(q,[org,variant,factory,'OPENING_BALANCE']))+',100')\ndef create(qty):return rpc('partner_create_operation',q(org)+','+q('shipment')+','+q(json.dumps({'partner_id':p,'source_location_id':factory,'destination_location_id':ploc,'items':[{'variant_id':variant,'quantity':qty,'condition':'SELLABLE','reason':'t'}]})))\ndef act(s,action,data=None):data=data or {};return rpc('partner_shipment_action',q(org)+','+q(s)+','+q(action)+','+q(json.dumps(data)))\ndef prepare(s):\n act(s,'approve');act(s,'start_picking')\n d=json.loads(rpc('partner_query',q(org)+\",'shipment',\"+q(json.dumps({'id':s}))))\n for i in d['items']:act(s,'pick',{'item_id':i['id'],'quantity':i['quantity']})\ns0=create(100);prepare(s0);act(s0,'ship')\nrpc('marketplace_save_store',q(org)+','+q(json.dumps({'code':'ML','name':'ML','marketplace':'MERCADO_LIVRE','ownership_type':'PARTNER','partner_id':p,'status':'ACTIVE'})))\nrpc('marketplace_save_mapping',q(org)+','+q(json.dumps({'external_sku':'SKU-A','variant_id':variant})))\ndef sale(o,ev):return rpc('marketplace_register_sale',q(org)+','+q(json.dumps({'store_id':json.loads(rpc('rec_query',q(org)+\",'dashboard',\"+q('{}')))['active_partner_stores'] if False else None,'sale_date':'today','external_order_id':o,'external_sku':'SKU-A','quantity':1,'gross_amount':30,'external_event_id':ev}))) if False else None\nprint('nope')\nEOF\necho skip"
-    },
-    "timestamp": 1790116902646
-  },
-  {
-    "role": "tool_result",
-    "content": "skip\n",
-    "is_error": false,
-    "timestamp": 1790116902691
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | grep -A120 'AssertionError: ERROR:  subquery' | head -130 | tail -5; echo =====; sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 > /tmp/run.log; rg -A140 'subquery must' /tmp/run.log | sed -n '120,145p'",
       "timeout": 300000
     },
@@ -1478,5 +1464,20 @@
     "content": "Traceback (most recent call last):\n  File \"<stdin>\", line 9, in <module>\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  syntax error at or near \"=>\"\nLINE 1: ...2",
     "is_error": false,
     "timestamp": 1790117650707
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 - <<'PYEOF'\nimport importlib.util\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('db','scripts/test-inventory-db.py')\ndb=importlib.util.module_from_spec(spec);spec.loader.exec_module(db)\ndb.setup()\nq,sql,uid=db.q,db.sql,db.uid\na=uid();org,product,variant,factory,store,partner=[uid() for _ in range(6)]\nsql(f\"INSERT INTO auth.users(id,email) VALUES({q(a)},'a@t'); INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'A','a',{q(a)}); INSERT INTO products(id,organization_id,code,name) VALUES({q(product)},{q(org)},'B','B'); INSERT INTO product_variants(id,organization_id,product_id,sku) VALUES({q(variant)},{q(org)},{q(product)},'SKU-X'); INSERT INTO inventory_locations(id,organization_id,code,name,type) VALUES({q(factory)},{q(org)},'F','Fab','FACTORY'),({q(store)},{q(org)},'S','Loja','OWN_STORE');\")\nr=sql(f\"SELECT public.inventory_post_movement({q(org)},{q(variant)},{q(factory)},'TRANSFER_IN',10,{q('_reason').replace('_','')}=>'x')::text\") if False else None\nr=db.call('inventory_post_movement',','.join(map(q,[org,variant,factory,'TRANSFER_IN']))+',10',a)\nmid=sql(f\"SELECT id FROM inventory_movements WHERE organization_id={q(org)} AND direction='IN' LIMIT 1\")\nrev=db.call('inventory_reverse_movement',','.join(map(q,[org,mid,'correção'])),a)\nprint('rev ok:',rev[:120])\ntry:\n    db.call('inventory_reverse_movement',','.join(map(q,[org,mid,'duplicado'])),a,fail='deduped')\n    print('dedup ok')\nexcept Exception as e: print('dedup err',e)\ndb.cleanup()\nPYEOF",
+      "timeout": 120000
+    },
+    "timestamp": 1790117657247
+  },
+  {
+    "role": "tool_result",
+    "content": "Traceback (most recent call last):\n  File \"<stdin>\", line 10, in <module>\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 28, in call\n    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                             ",
+    "is_error": false,
+    "timestamp": 1790117658292
   }
 ]
