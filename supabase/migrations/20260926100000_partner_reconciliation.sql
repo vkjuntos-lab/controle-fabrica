@@ -808,7 +808,7 @@ BEGIN
       v_occurred,_user_id,'POSTED','partner-sale:'||v_item.marketplace_sale_id||':inventory','RECONCILIATION')
     RETURNING id INTO v_move;
   END IF;
-  v_price_json:=jsonb_build_object('unit_price',v_price,'rule','PRICE_TABLE','net_reference',v_net);
+  v_price_json:=jsonb_build_object('unit_price',v_price,'rule',v_rule,'net_reference',v_net);
   UPDATE public.partner_reconciliation_items SET status='RECONCILED',exception_status=NULL,unit_reference_value=v_price,
     billable_amount=v_billable,price_snapshot=v_price_json,inventory_effect_status='APPLIED',inventory_movement_id=v_move,error_message=NULL,updated_at=now()
   WHERE id=_item_id;
