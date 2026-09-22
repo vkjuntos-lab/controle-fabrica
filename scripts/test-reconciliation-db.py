@@ -65,9 +65,6 @@ def run():
  assert sku_z['status']=='EXCEPTION' and sku_z['exception_status']=='SKU_NOT_MAPPED'
  r2=json.loads(rpc('rec_process',','.join(map(q,[org,rid]))));assert r2['already']==2 and balance(ploc)==65
  print('PASS: SKU_NOT_MAPPED exception, price-rule billable, no double posting on reprocess')
- table=json.loads(rpc('price_save_table',q(org)+','+q(json.dumps({'code':'PT-25','name':'Partner 25','valid_from':'2026-01-01'}))))['id']
- rpc('price_save_item',q(org)+',false,'+q(json.dumps({'price_table_id':table,'variant_id':variant,'unit_price':25})))
- rpc('price_link_partner',q(org)+','+q(json.dumps({'partner_id':p,'price_table_id':table})))
  rpc('marketplace_save_mapping',q(org)+','+q(json.dumps({'external_sku':'SKU-Z','variant_id':variant})))
  rr=json.loads(rpc('rec_reprocess_item',q(org)+','+q(sku_z['id'])))
  assert rr['status']=='RECONCILED' and balance(ploc)==64

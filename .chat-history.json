@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/inventory/inventory.functions.ts",
-      "offset": 1,
-      "limit": 200
-    },
-    "timestamp": 1790115153628
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/inventory/inventory.functions.ts</path>\n<type>file</type>\n<content>\n1: import { createServerFn } from \"@tanstack/react-start\";\n2: import type { SupabaseClient } from \"@supabase/supabase-js\";\n3: import { z } from \"zod\";\n4: \n5: import { requireSup",
-    "is_error": false,
-    "timestamp": 1790115153645
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/auth-middleware.ts"
     },
     "timestamp": 1790115154312
@@ -1625,5 +1609,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790116375171
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py",
+      "newString": "r2=json.loads(rpc('rec_process',','.join(map(q,[org,rid]))));assert r2['already']==2 and balance(ploc)==65\n print('PASS: SKU_NOT_MAPPED exception, price-rule billable, no double posting on reprocess')\n rpc('marketplace_save_mapping',q(org)+','+q(json.dumps({'external_sku':'SKU-Z','variant_id':variant})))",
+      "oldString": "r2=json.loads(rpc('rec_process',','.join(map(q,[org,rid]))));assert r2['already']==2 and balance(ploc)==65\n print('PASS: SKU_NOT_MAPPED exception, price-rule billable, no double posting on reprocess')\n table=json.loads(rpc('price_save_table',q(org)+','+q(json.dumps({'code':'PT-25','name':'Partner 25','valid_from':'2026-01-01'}))))['id']\n rpc('price_save_item',q(org)+',false,'+q(json.dumps({'price_table_id':table,'variant_id':variant,'unit_price':25})))\n rpc('price_link_partner',q(org)+','+q(json.dumps({'partner_id':p,'price_table_id':table})))\n rpc('marketplace_save_mapping',q(org)+','+q(json.dumps({'external_sku':'SKU-Z','variant_id':variant})))"
+    },
+    "timestamp": 1790116378320
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790116378336
   }
 ]
