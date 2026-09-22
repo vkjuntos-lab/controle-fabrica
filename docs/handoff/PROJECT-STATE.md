@@ -2,7 +2,7 @@
 
 Última atualização: LOVABLE MASTER 006 — Empresas parceiras, remessas, estoque em terceiros e
 devoluções, sobre o MASTER 003 (Inventory Ledger), MASTER 002 (Catálogo) e a fundação do MASTER 001.
-O checkout não contém o MASTER 005 (MarketplaceStore). Etapa atual: modulo de parceiros validado
+O checkout não contém o MASTER 005 (MarketplaceStore). Etapa atual: módulo de parceiros validado
 localmente (`20260924100000_partners.sql`, telas, RBAC e testes PostgreSQL reproduzíveis). Validação
 local; publicação não verificada.
 
