@@ -1,22 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "bunx prettier --check \"docs/handoff/PROJECT-STATE.md\" \"docs/handoff/MASTER-006-VALIDATION.md\" 2>&1 | tail -5",
-      "timeout": 120000
-    },
-    "timestamp": 1790110836332
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "git diff --check && echo \"OK whitespace\""
-    },
-    "timestamp": 1790110836383
-  },
-  {
     "role": "tool_result",
     "content": "OK whitespace\n",
     "is_error": false,
@@ -1575,5 +1558,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n210:   exception_status text CHECK(exception_status IN ('PARTNER_NOT_MAPPED','PARTNER_LOCATION_NOT_CONFIGURED','SKU_NOT_MAPPED',\n211:     'INSUFFICIENT_PART",
     "is_error": false,
     "timestamp": 1790116113362
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "newString": "UNIQUE(organization_id,id),\n  FOREIGN KEY(organization_id,reconciliation_id) REFERENCES public.partner_reconciliations(organization_id,id),\n  FOREIGN KEY(organization_id,partner_id) REFERENCES public.partner_profiles(organization_id,id),\n  FOREIGN KEY(organization_id,store_id) REFERENCES public.marketplace_stores(organization_id,id),\n  CHECK(quantity>0)\n);\n-- Uma venda -> no máximo um item ativo (CANCELED sai do escopo: venda volta elegível).\nCREATE UNIQUE INDEX partner_reconcil_item_one_active ON public.partner_reconciliation_items(organization_id,marketplace_sale_id) NULLS NOT DISTINCT WHERE status<>'CANCELED';\nCREATE INDEX partner_reconcil_item_reconcil ON public.partner_reconciliation_items(organization_id,reconciliation_id,status);",
+      "oldString": "UNIQUE(organization_id,id),\n  UNIQUE NULLS NOT DISTINCT(organization_id,marketplace_sale_id),\n  FOREIGN KEY(organization_id,reconciliation_id) REFERENCES public.partner_reconciliations(organization_id,id),\n  FOREIGN KEY(organization_id,partner_id) REFERENCES public.partner_profiles(organization_id,id),\n  FOREIGN KEY(organization_id,store_id) REFERENCES public.marketplace_stores(organization_id,id),\n  CHECK(quantity>0)\n);\nCREATE INDEX partner_reconcil_item_reconcil ON public.partner_reconciliation_items(organization_id,reconciliation_id,status);"
+    },
+    "timestamp": 1790116122287
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790116122328
   }
 ]

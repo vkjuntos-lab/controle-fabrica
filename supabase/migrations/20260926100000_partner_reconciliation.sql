@@ -217,12 +217,13 @@ CREATE TABLE public.partner_reconciliation_items (
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
   UNIQUE(organization_id,id),
-  UNIQUE NULLS NOT DISTINCT(organization_id,marketplace_sale_id),
   FOREIGN KEY(organization_id,reconciliation_id) REFERENCES public.partner_reconciliations(organization_id,id),
   FOREIGN KEY(organization_id,partner_id) REFERENCES public.partner_profiles(organization_id,id),
   FOREIGN KEY(organization_id,store_id) REFERENCES public.marketplace_stores(organization_id,id),
   CHECK(quantity>0)
 );
+-- Uma venda -> no máximo um item ativo (CANCELED sai do escopo: venda volta elegível).
+CREATE UNIQUE INDEX partner_reconcil_item_one_active ON public.partner_reconciliation_items(organization_id,marketplace_sale_id) NULLS NOT DISTINCT WHERE status<>'CANCELED';
 CREATE INDEX partner_reconcil_item_reconcil ON public.partner_reconciliation_items(organization_id,reconciliation_id,status);
 
 CREATE TABLE public.reconciliation_exceptions (
