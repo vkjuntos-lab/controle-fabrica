@@ -393,7 +393,7 @@ BEGIN
   ELSIF TG_TABLE_NAME='partner_reconciliations' THEN
     IF OLD.status='CLOSED' AND NEW.status<>'REOPENED' THEN RAISE EXCEPTION 'Fechamento CLOSED é histórico.'; END IF;
     IF OLD.status='CLOSED' AND NEW.status='REOPENED' THEN
-      IF (j-'status'-'reopened_by'-'reopened_at'-'updated_at')<>(jold-'status'-'reopened_by'-'reopened_at'-'updated_at') THEN RAISE EXCEPTION 'Reabertura só muda status e dados de reabertura.'; END IF;
+      IF (j-'status'-'notes'-'reopened_by'-'reopened_at'-'updated_at')<>(jold-'status'-'notes'-'reopened_by'-'reopened_at'-'updated_at') THEN RAISE EXCEPTION 'Reabertura só muda status e dados de reabertura.'; END IF;
     ELSE
       IF (j-'status'-'cutoff_at'-'notes'-'reviewed_by'-'reviewed_at'-'closed_by'-'closed_at'-'reopened_by'-'reopened_at'
           -'sales_count'-'units_sold'-'gross_amount'-'billable_amount'-'exceptions_count'-'snapshot'-'updated_at')

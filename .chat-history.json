@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "grep",
-    "input": {
-      "pattern": "%.*f",
-      "include": "*.sql",
-      "path": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql"
-    },
-    "timestamp": 1790116693295
-  },
-  {
-    "role": "tool_result",
-    "content": "Found 11 matches\n/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260922100000_production.sql:\n  Line 365:     IF NOT v_negative THEN RAISE EXCEPTION 'Saldo insuficiente nesta localização/lote. Saldo: %.', v_before; END IF;\n\n\n/root/Zheus AI Projects/controle-fabrica/supabase/migrations",
-    "is_error": false,
-    "timestamp": 1790116693313
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
@@ -1488,5 +1472,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n977: CREATE FUNCTION public.rec_reopen(_org uuid,_reconciliation_id uuid,_reason text,_user_id uuid DEFAULT auth.uid())\n978: RETURNS jsonb LANGUAGE plpgsql ",
     "is_error": false,
     "timestamp": 1790117410763
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "newString": "IF OLD.status='CLOSED' AND NEW.status='REOPENED' THEN\n      IF (j-'status'-'notes'-'reopened_by'-'reopened_at'-'updated_at')<>(jold-'status'-'notes'-'reopened_by'-'reopened_at'-'updated_at') THEN RAISE EXCEPTION 'Reabertura só muda status e dados de reabertura.'; END IF;",
+      "oldString": "IF OLD.status='CLOSED' AND NEW.status='REOPENED' THEN\n      IF (j-'status'-'reopened_by'-'reopened_at'-'updated_at')<>(jold-'status'-'reopened_by'-'reopened_at'-'updated_at') THEN RAISE EXCEPTION 'Reabertura só muda status e dados de reabertura.'; END IF;"
+    },
+    "timestamp": 1790117416654
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790117416679
   }
 ]
