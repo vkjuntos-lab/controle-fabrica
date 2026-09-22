@@ -1084,8 +1084,8 @@ BEGIN
         ORDER BY s.sale_date,i.id)
         FROM public.partner_reconciliation_items i JOIN public.marketplace_sales s ON s.id=i.marketplace_sale_id JOIN public.marketplace_stores st ON st.id=i.store_id
         LEFT JOIN public.product_variants v ON v.id=i.variant_id LEFT JOIN public.products p ON p.id=v.product_id WHERE i.reconciliation_id=r.id),'[]'::jsonb),
-      'exceptions',coalesce((SELECT jsonb_agg(to_jsonb(e)) FROM public.reconciliation_exceptions e WHERE e.reconciliation_id=r.id ORDER BY e.created_at),'[]'::jsonb),
-      'adjustments',coalesce((SELECT jsonb_agg(to_jsonb(a)) FROM public.partner_reconciliation_adjustments a WHERE a.reconciliation_id=r.id ORDER BY a.created_at),'[]'::jsonb),
+      'exceptions',coalesce((SELECT jsonb_agg(to_jsonb(e) ORDER BY e.created_at) FROM public.reconciliation_exceptions e WHERE e.reconciliation_id=r.id),'[]'::jsonb),
+      'adjustments',coalesce((SELECT jsonb_agg(to_jsonb(a) ORDER BY a.created_at) FROM public.partner_reconciliation_adjustments a WHERE a.reconciliation_id=r.id),'[]'::jsonb),
       'by_sku',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT v.sku,p.name product_name,count(*) items,sum(i.quantity) units,sum(i.billable_amount) billable
         FROM public.partner_reconciliation_items i LEFT JOIN public.product_variants v ON v.id=i.variant_id LEFT JOIN public.products p ON p.id=v.product_id
         WHERE i.reconciliation_id=r.id AND i.status<>'CANCELED' GROUP BY v.sku,p.name ORDER BY v.sku)q),'[]'::jsonb),
