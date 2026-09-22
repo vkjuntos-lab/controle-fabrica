@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "edit",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "newString": "v_price_json:=jsonb_build_object('unit_price',v_price,'rule',v_rule,'net_reference',v_net);",
-      "oldString": "v_price_json:=jsonb_build_object('unit_price',v_price,'rule','PRICE_TABLE','net_reference',v_net);"
-    },
-    "timestamp": 1790116370332
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790116370357
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py",
       "newString": "rec=json.loads(rpc('rec_create',q(org)+','+q(json.dumps({'partner_id':p,'period_start':'2026-09-01','period_end':'2026-09-30'}))))\n rid=rec['reconciliation_id'];assert rec['sales']==3 and rec['gross']==120\n assert balance(ploc)==70\n # Price rule must prevail: commercial table linked before the first process.\n table=json.loads(rpc('price_save_table',q(org)+','+q(json.dumps({'code':'PT-25','name':'Partner 25','valid_from':'2026-01-01'}))))['id']\n rpc('price_save_item',q(org)+','+q(json.dumps({'price_table_id':table,'variant_id':variant,'unit_price':25})))\n rpc('price_link_partner',q(org)+','+q(json.dumps({'partner_id':p,'price_table_id':table})))\n print('PASS: preview totals and DRAFT close without posting stock')",
       "oldString": "rec=json.loads(rpc('rec_create',q(org)+','+q(json.dumps({'partner_id':p,'period_start':'2026-09-01','period_end':'2026-09-30'}))))\n rid=rec['reconciliation_id'];assert rec['sales']==3 and rec['gross']==120\n assert balance(ploc)==70\n print('PASS: preview totals and DRAFT close without posting stock')"
@@ -1505,5 +1489,20 @@
     "content": "a opens 8 closes 8\n",
     "is_error": false,
     "timestamp": 1790116987808
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd /tmp && cat > /tmp/synt.sql <<'EOF'\nDROP FUNCTION IF EXISTS public.__c(uuid);\nCREATE FUNCTION public.__c(_org uuid) RETURNS jsonb LANGUAGE plpgsql AS $$\nDECLARE v_snapshot jsonb; v_rec record; v_domain uuid; v_tmp numeric;\nBEGIN\n SELECT 1 INTO v_tmp;\n SELECT jsonb_build_object('net_billable',(SELECT round((SELECT coalesce(sum(billable_amount),0) FROM (VALUES (1.0)) x(billable_amount) WHERE 1=1)\n   +(SELECT coalesce(sum(CASE WHEN true THEN 1.0 ELSE -1.0 END),0)),2))) INTO v_snapshot;\n INSERT INTO auth.users(id,email) VALUES (gen_random_uuid(),'z@x')\n ON CONFLICT DO NOTHING\n RETURNING id INTO v_domain;\n RETURN v_snapshot;\nEND; $$;\nEOF\nsudo -u postgres psql -X -h /tmp/recon-test2 -p 55439 -U postgres -d postgres -v ON_ERROR_STOP=1 -Atq -f /tmp/synt.sql 2>&1 | head -5",
+      "timeout": 60000
+    },
+    "timestamp": 1790116993764
+  },
+  {
+    "role": "tool_result",
+    "content": "psql: error: connection to server on socket \"/tmp/recon-test2/.s.PGSQL.55439\" failed: No such file or directory\n\tIs the server running locally and accepting connections on that socket?\n",
+    "is_error": false,
+    "timestamp": 1790116993820
   }
 ]
