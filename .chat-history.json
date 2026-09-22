@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && rm -f scripts/test-reconciliation-db.py.dbg && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | tail -8",
-      "timeout": 300000
-    },
-    "timestamp": 1790116763839
-  },
-  {
-    "role": "tool_result",
-    "content": "Traceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py\", line 142, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py\", line 62, in run\n    assert r['status']=='REVI",
-    "is_error": false,
-    "timestamp": 1790116765842
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PYEOF'\nfrom pathlib import Path\ns=Path('scripts/test-reconciliation-db.py').read_text()\nn=\"r=json.loads(rpc('rec_process',','.join(map(q,[org,rid]))))\\n assert r['status']=='REVIEW_REQUIRED'\"\ns=s.replace(n,\"r=json.loads(rpc('rec_process',','.join(map(q,[org,rid]))))\\n print('PROC',json.dumps(r))\\n items0=json.loads(rpc('rec_query',q(org)+\\\",'reconciliation',\\\"+q(json.dumps({'id':rid}))))['items']\\n print('ITEMS0',json.dumps(items0,default=str))\\n assert r['status']=='REVIEW_REQUIRED'\")\nPath('scripts/test-reconciliation-db.py.dbg').write_text(s)\nprint('ok')\nPYEOF\nsudo -u postgres python3 scripts/test-reconciliation-db.py.dbg 2>&1 | grep -E 'PROC|ITEMS0' | head",
       "timeout": 300000
     },
@@ -1490,5 +1475,19 @@
     "content": "86:    orig=first['movement_id']; r=json.loads(call('inventory_reverse_movement',','.join(map(q,[org,orig,'Correção'])),a))\n89:    assert json.loads(call('inventory_reverse_movement',','.join(map(q,[org,orig,'Repetido'])),a))['deduped']\n90:    call('inventory_reverse_movement',','.join(map(q,[org,r[",
     "is_error": false,
     "timestamp": 1790117478824
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"CREATE TRIGGER.*inventory_movements\\|CREATE OR REPLACE FUNCTION public.inventory_guard_movement\\|CREATE FUNCTION public.inventory_guard_movement\" supabase/migrations/20260918100000_inventory_ledger.sql supabase/migrations/20260921100000_inventory_integrity.sql supabase/migrations/20260922100000_production.sql supabase/migrations/20260923100000_inventory_workflows.sql"
+    },
+    "timestamp": 1790117483486
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260921100000_inventory_integrity.sql:45:CREATE FUNCTION public.inventory_guard_movement() RETURNS trigger\nsupabase/migrations/20260921100000_inventory_integrity.sql:89:CREATE TRIGGER inventory_immutable BEFORE INSERT OR UPDATE OR DELETE ON public.inventory_movements\nsupabase/mi",
+    "is_error": false,
+    "timestamp": 1790117483526
   }
 ]
