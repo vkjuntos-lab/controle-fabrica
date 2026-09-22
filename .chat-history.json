@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "newString": "IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Histórico não pode ser excluído.'; END IF;\n  IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAISE EXCEPTION 'Organização imutável.'; END IF;\n  IF NOT EXISTS(SELECT 1 FROM unnest(ARRAY['marketplace_stores','marketplace_sales','marketplace_import_rows','external_sku_mappings','partner_reconciliations','partner_reconciliation_items','reconciliation_exceptions','partner_reconciliation_adjustments','price_table_items','partner_price_links']) t(t) WHERE t=TG_TABLE_NAME) THEN\n    RETURN NEW;\n  END IF;\n  FOREACH v_pair SLICE 1 IN ARRAY CASE TG_TABLE_NAME",
-      "oldString": "IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Histórico não pode ser excluído.'; END IF;\n  IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAISE EXCEPTION 'Organização imutável.'; END IF;\n  FOREACH v_pair SLICE 1 IN ARRAY CASE TG_TABLE_NAME"
-    },
-    "timestamp": 1790116684597
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790116684646
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test2/data -m immediate stop >/dev/null 2>&1; rm -rf /tmp/recon-test2 && mkdir -p /tmp/recon-test2 && chown postgres /tmp/recon-test2 && sudo -u postgres /usr/lib/postgresql/18/bin/initdb -D /tmp/recon-test2/data -A trust -U postgres >/dev/null 2>&1 && sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test2/data -l /tmp/recon-test2/log -o \"-p 55439 -k /tmp/recon-test2\" start >/dev/null 2>&1 && cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | tail -10",
@@ -1489,5 +1473,19 @@
     "content": "PASS: 70-unit partner shipment, store and idempotent SKU mapping\nPASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nPASS: preview totals and DRAFT close without posting stock\nPASS: SKU_NOT_MAPPED exception, price-rule billable, no double posting on reprocess\nP",
     "is_error": false,
     "timestamp": 1790117407038
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"CREATE FUNCTION public.rec_reopen\" supabase/migrations/20260926100000_partner_reconciliation.sql"
+    },
+    "timestamp": 1790117409514
+  },
+  {
+    "role": "tool_result",
+    "content": "977:CREATE FUNCTION public.rec_reopen(_org uuid,_reconciliation_id uuid,_reason text,_user_id uuid DEFAULT auth.uid())\n",
+    "is_error": false,
+    "timestamp": 1790117409534
   }
 ]
