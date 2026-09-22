@@ -56,7 +56,7 @@ detalhe com Outlet), `src/integrations/supabase/types.ts`, `src/routeTree.gen.ts
 
 ## MIGRATIONS E TABELAS
 
-Migration nova: `20260924100000_partners.sql` (asm, posterior às migrations preparatórias de
+Migration nova: `20260924100000_partners.sql` (posterior às migrations preparatórias de
 produção existentes). Tabelas novas: `companies`, `company_roles`, `company_contacts`,
 `company_addresses`, `partner_profiles`, `partner_shipments`, `partner_shipment_items`,
 `partner_returns`, `partner_return_items`. FKs relevadas para o ledger existente
