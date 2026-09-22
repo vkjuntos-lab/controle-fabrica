@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test/data -m immediate stop >/dev/null 2>&1; rm -rf /tmp/recon-test && mkdir -p /tmp/recon-test && chown postgres /tmp/recon-test && sudo -u postgres /usr/lib/postgresql/18/bin/initdb -D /tmp/recon-test/data -A trust -U postgres >/dev/null 2>&1 && sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test/data -l /tmp/recon-test/log -o \"-p 55439 -k /tmp/recon-test\" start >/dev/null 2>&1 && sudo -u postgres python3 /tmp/recon-check.py 2>&1 | tail -3",
-      "timeout": 120000
-    },
-    "timestamp": 1790116383194
-  },
-  {
-    "role": "tool_result",
-    "content": "OK 20260924100000_partners.sql\nOK 20260926100000_partner_reconciliation.sql\nALL MIGRATIONS OK\n",
-    "is_error": false,
-    "timestamp": 1790116384577
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sudo -u postgres psql -X -h /tmp/recon-test -p 55439 -U postgres -d postgres -c \"DROP DATABASE postgres\" -c \"CREATE DATABASE postgres\" >/dev/null 2>&1; sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test/data -m immediate stop >/dev/null 2>&1; cd \"/root/Zheus AI Projects/controle-fabrica\" && chown -R postgres scripts && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | tail -30",
       "timeout": 300000
     },
@@ -1500,5 +1485,19 @@
     "content": "  1   0 CREATE FUNCTION public.rec_close(_org uuid,_reconciliation_id uuid,_no\n  2   0 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public\n  3   0 DECLARE v_rec record; v_blocking int; v_snapshot jsonb; v_domain uuid;\n  4   0 BEGIN\n  5   0   IF _user_id IS DISTINCT FROM auth.uid()",
     "is_error": false,
     "timestamp": 1790117014768
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PYEOF'\nimport re\nsrc=open('supabase/migrations/20260926100000_partner_reconciliation.sql').read()\ni=src.index(\"'net_billable'\")\nj=src.index(\"'items',coalesce\",i)\ns=src[i:j]\nprint(repr(s))\nprint('opens',s.count('('),'closes',s.count(')'))\nPYEOF"
+    },
+    "timestamp": 1790117021241
+  },
+  {
+    "role": "tool_result",
+    "content": "\"'net_billable',(SELECT round((SELECT coalesce(sum(billable_amount),0) FROM public.partner_reconciliation_items WHERE reconciliation_id=v_rec.id AND status='RECONCILED')\\n        +(SELECT coalesce(sum(CASE adjustment_type WHEN 'CREDIT' THEN amount ELSE -amount END),0) FROM public.partner_reconciliat",
+    "is_error": false,
+    "timestamp": 1790117021273
   }
 ]
