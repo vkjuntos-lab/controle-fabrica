@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
-      "newString": "## KNOWN_LIMITATIONS\n\n- Nova migration validada localmente, não aplicada ao Lovable Cloud nesta execução. Falta smoke\n  test autenticado publicado. Ver relatórios `docs/handoff/MASTER-003-VALIDATION.md` e\n  `docs/handoff/MASTER-006-VALIDATION.md`.\n- O harness PostgreSQL roda como usuário não root (`initdb` recusa root); reproduzir via\n  `su - claude-runner` conforme documentado no relatório do MASTER 006.\n- Replay limpo da migration histórica `20260918100000_inventory_ledger.sql` precisa carregar esse\n  arquivo com `check_function_bodies=off` por erro legado de alvo record; o harness isola e documenta\n  esse passo. Migrations publicadas foram preservadas.\n- Barcode via teclado/leitor físico; câmera não implementada. CSV de posição completo; CSV de\n  movimentos exporta a página indicada. XLSX/importação inicial não implementados.\n- Contagem bloqueia localização até conclusão/cancelamento. Lock por organização prioriza\n  integridade sobre paralelismo. Sem reservas/valorização financeira.\n- O checkout não contém o MASTER 005 (MarketplaceStore); o vínculo parceiro → loja é uma pendência\n  explícita e nenhuma funcionalidade falsa de marketplace foi declarada.",
-      "oldString": "## KNOWN_LIMITATIONS\n\n- Nova migration validada localmente, não aplicada ao Lovable Cloud nesta execução. Falta smoke\n  test autenticado publicado. Ver relatório `docs/handoff/MASTER-003-VALIDATION.md`."
-    },
-    "timestamp": 1790110808858
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790110808877
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
       "newString": "## NEXT_STEPS\n\n1. Implementar/validar o MASTER 005 (MarketplaceStore e importação com mapeamento de colunas) e\n   então o vínculo da loja com ownership_type PARTNER à `partner_profiles`/Company.\n2. Reconciliação de parceiros, fechamento de período e cobrança (server-side, auditado, idempotente) —\n   só depois de validar MASTER 005.\n3. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,\n   `PURCHASE_RECEIPT`, `PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`).\n4. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.\n5. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a\n   `/api/webhooks/receiver` quando houver integração externa.",
       "oldString": "## NEXT_STEPS\n\n1. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,\n   `PURCHASE_RECEIPT`, `PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`).\n2. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.\n3. Marketplaces/lojas e importação com mapeamento configurável de colunas.\n4. Reconciliação de parceiros, fechamento de período e cobrança (server-side, auditado).\n5. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a\n   `/api/webhooks/receiver` quando houver integração externa."
     },
@@ -1574,5 +1558,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790116068588
+  },
+  {
+    "role": "tool",
+    "tool": "grep",
+    "input": {
+      "pattern": "reconciliation\\.(create|process|review|resolve_exception|close|reopen|reverse|cancel)",
+      "path": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql"
+    },
+    "timestamp": 1790116071332
+  },
+  {
+    "role": "tool_result",
+    "content": "Found 19 matches\n/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql:\n  Line 321:  'reconciliation.create','reconciliation.process','reconciliation.review','reconciliation.resolve_exception',\n\n  Line 322:  'reconciliation.close','reconciliation.reop",
+    "is_error": false,
+    "timestamp": 1790116071351
   }
 ]
