@@ -195,6 +195,13 @@ local; publicação não verificada.
   coluna. Nada é editado ou excluído; correções/estornos são movimentos novos (reversão).
 - Tipos de movimento que exigem par (transferência, remessa/retorno de parceiro, reversão) só
   podem ser criados pelas RPCs dedicadas, nunca direto por `inventory_post_movement`.
+- Remessa não é venda e não gera receita/AR; o estoque do parceiro é derivado do ledger, sem tabela
+  de saldo. Quantidade enviada ≠ vendida; posse física não muda a titularidade.
+- Remessa/devolução recebida é imutável e o estorno genérico do par de movimentos vinculado é
+  bloqueado; correção física exige novo documento (ou ajuste autorizado com motivo), nunca
+  reinterpretação de fatos históricos.
+- Vínculo parceiro → loja só será criado quando o MASTER 005 existir, com FK composta e
+  organization_id; nada de tabela substituta de loja nesta fase.
 
 ## KNOWN_LIMITATIONS
 

@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "",
-    "is_error": true,
-    "timestamp": 1790108117757
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"git status --short; rg -n 'sum\\\\(i.quantity\\\\)|i.return_id' supabase/migrations/20260924100000_partners.sql\""
-    },
-    "timestamp": 1790108271759
-  },
-  {
-    "role": "tool_result",
     "content": " M .chat-history.json\n M scripts/test-inventory-db.py\n M src/components/layout/app-shell.tsx\n M src/integrations/supabase/types.ts\n M src/lib/rbac.ts\n M src/routeTree.gen.ts\n?? scripts/__pycache__/\n?? scripts/test-partners-db.py\n?? src/components/partners/\n?? src/lib/partners/\n?? src/routes/_authent",
     "is_error": false,
     "timestamp": 1790108271766
@@ -1420,5 +1406,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790110830109
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
+      "newString": "- Tipos de movimento que exigem par (transferência, remessa/retorno de parceiro, reversão) só\n  podem ser criados pelas RPCs dedicadas, nunca direto por `inventory_post_movement`.\n- Remessa não é venda e não gera receita/AR; o estoque do parceiro é derivado do ledger, sem tabela\n  de saldo. Quantidade enviada ≠ vendida; posse física não muda a titularidade.\n- Remessa/devolução recebida é imutável e o estorno genérico do par de movimentos vinculado é\n  bloqueado; correção física exige novo documento (ou ajuste autorizado com motivo), nunca\n  reinterpretação de fatos históricos.\n- Vínculo parceiro → loja só será criado quando o MASTER 005 existir, com FK composta e\n  organization_id; nada de tabela substituta de loja nesta fase.",
+      "oldString": "- Tipos de movimento que exigem par (transferência, remessa/retorno de parceiro, reversão) só\n  podem ser criados pelas RPCs dedicadas, nunca direto por `inventory_post_movement`."
+    },
+    "timestamp": 1790110833202
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790110833219
   }
 ]
