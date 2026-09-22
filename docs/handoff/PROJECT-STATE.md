@@ -199,7 +199,19 @@ local; publicação não verificada.
 ## KNOWN_LIMITATIONS
 
 - Nova migration validada localmente, não aplicada ao Lovable Cloud nesta execução. Falta smoke
-  test autenticado publicado. Ver relatório `docs/handoff/MASTER-003-VALIDATION.md`.
+  test autenticado publicado. Ver relatórios `docs/handoff/MASTER-003-VALIDATION.md` e
+  `docs/handoff/MASTER-006-VALIDATION.md`.
+- O harness PostgreSQL roda como usuário não root (`initdb` recusa root); reproduzir via
+  `su - claude-runner` conforme documentado no relatório do MASTER 006.
+- Replay limpo da migration histórica `20260918100000_inventory_ledger.sql` precisa carregar esse
+  arquivo com `check_function_bodies=off` por erro legado de alvo record; o harness isola e documenta
+  esse passo. Migrations publicadas foram preservadas.
+- Barcode via teclado/leitor físico; câmera não implementada. CSV de posição completo; CSV de
+  movimentos exporta a página indicada. XLSX/importação inicial não implementados.
+- Contagem bloqueia localização até conclusão/cancelamento. Lock por organização prioriza
+  integridade sobre paralelismo. Sem reservas/valorização financeira.
+- O checkout não contém o MASTER 005 (MarketplaceStore); o vínculo parceiro → loja é uma pendência
+  explícita e nenhuma funcionalidade falsa de marketplace foi declarada.
 - Replay limpo da migration histórica `20260918100000_inventory_ledger.sql` precisa carregar esse
   arquivo com `check_function_bodies=off` por erro legado de alvo record; o harness isola e documenta
   esse passo. Migrations publicadas foram preservadas.
