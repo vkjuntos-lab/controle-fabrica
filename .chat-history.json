@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "newString": "CREATE FUNCTION public.rec_cancel(_org uuid,_reconciliation_id uuid,_reason text DEFAULT NULL,_user_id uuid DEFAULT auth.uid())\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE v_record record;\nBEGIN\n  IF _user_id IS DISTINCT FROM auth.uid() THEN RAISE EXCEPTION 'Usuário inválido.'; END IF;\n  PERFORM public.reconciliation_require(_org,'reconciliation.cancel');\n  PERFORM public.inventory_lock(_org);\n  SELECT * INTO v_record FROM public.partner_reconciliations WHERE id=_reconciliation_id AND organization_id=_org FOR UPDATE;\n  IF v_record.id IS NULL THEN RAISE EXCEPTION 'Reconciliação não encontrada.'; END IF;\n  IF v_record.status IN ('CLOSED','CANCELED') THEN RAISE EXCEPTION 'Reconciliação fechada/cancelada não é cancelável.'; END IF;\n  IF EXISTS(SELECT 1 FROM public.partner_reconciliation_items\n      WHERE reconciliation_id=_reconciliation_id AND status IN ('RECONCILED','REVERSED') AND inventory_effect_status='APPLIED') THEN\n    RAISE EXCEPTION 'Há baixas de estoque aplicadas; use estorno, não cancelamento.'; END IF;\n  UPDATE public.partner_reconciliation_items SET status='CANCELED',updated_at=now()\n    WHERE reconciliation_id=_reconciliation_id AND status IN ('PENDING','EXCEPTION','VALIDATED');\n  UPDATE public.partner_reconciliations SET status='CANCELED',notes=COALESCE(notes||E'\\nCancelado: '||trim(coalesce(_reason,'--')),'Cancelado: '||trim(coalesce(_reason,'--'))),\n    updated_at=now() WHERE id=_reconciliation_id;\n  PERFORM public.reconciliation_audit(_org,'reconciliation.cancel','partner_reconciliations',_reconciliation_id,jsonb_build_object('reason',_reason));\n  RETURN jsonb_build_object('id',_reconciliation_id,'status','CANCELED');\nEND;\n$$;\n\nCREATE FUNCTION public.rec_reverse_item(_org uuid,_item_id uuid,_reason text,_user_id uuid DEFAULT auth.uid())",
-      "oldString": "CREATE FUNCTION public.rec_reverse_item(_org uuid,_item_id uuid,_reason text,_user_id uuid DEFAULT auth.uid())"
-    },
-    "timestamp": 1790116046344
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790116046369
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
@@ -1571,5 +1555,19 @@
     "content": "PASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nPASS: preview totals and DRAFT close without posting stock\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py\", line 142, in <module>\n    try:",
     "is_error": false,
     "timestamp": 1790116703275
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sed -n '55,70p' scripts/test-reconciliation-db.py"
+    },
+    "timestamp": 1790116705145
+  },
+  {
+    "role": "tool_result",
+    "content": " assert balance(ploc)==70\n # Price rule must prevail: commercial table linked before the first process.\n table=json.loads(rpc('price_save_table',q(org)+','+q(json.dumps({'code':'PT-25','name':'Partner 25','valid_from':'2026-01-01'}))))['id']\n rpc('price_save_item',q(org)+','+q(json.dumps({'price_tab",
+    "is_error": false,
+    "timestamp": 1790116705167
   }
 ]
