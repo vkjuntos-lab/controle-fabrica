@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "newString": "FOR v_item IN SELECT i.id FROM public.partner_reconciliation_items i\n    WHERE i.reconciliation_id=_reconciliation_id AND i.status IN ('PENDING','EXCEPTION','VALIDATED','RECONCILED')\n    AND (_item_ids IS NULL OR i.id=ANY(_item_ids))\n    ORDER BY i.id\n    LIMIT coalesce(_limit,(SELECT count(*) FROM public.partner_reconciliation_items WHERE reconciliation_id=_reconciliation_id AND status IN ('PENDING','EXCEPTION','VALIDATED','RECONCILED')))",
-      "oldString": "FOR v_item IN SELECT i.id FROM public.partner_reconciliation_items i\n    WHERE i.reconciliation_id=_reconciliation_id AND i.status IN ('PENDING','EXCEPTION','VALIDATED')\n    AND (_item_ids IS NULL OR i.id=ANY(_item_ids))\n    ORDER BY i.id\n    LIMIT coalesce(_limit,(SELECT count(*) FROM public.partner_reconciliation_items WHERE reconciliation_id=_reconciliation_id AND status IN ('PENDING','EXCEPTION','VALIDATED')))"
-    },
-    "timestamp": 1790116850107
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790116850148
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && rm -f scripts/test-reconciliation-db.py.dbg && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | tail -12",
@@ -1482,5 +1466,20 @@
     "content": "supabase/migrations/20260921100000_inventory_integrity.sql:45:CREATE FUNCTION public.inventory_guard_movement() RETURNS trigger\nsupabase/migrations/20260921100000_inventory_integrity.sql:90:FOR EACH ROW EXECUTE FUNCTION public.inventory_guard_movement();\nsupabase/migrations/20260921100000_inventory_",
     "is_error": false,
     "timestamp": 1790117606321
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres timeout 150 python3 scripts/test-reconciliation-db.py 2>&1 | tail -30",
+      "timeout": 180000
+    },
+    "timestamp": 1790117611546
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: 70-unit partner shipment, store and idempotent SKU mapping\nPASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nPASS: preview totals and DRAFT close without posting stock\nPASS: SKU_NOT_MAPPED exception, price-rule billable, no double posting on reprocess\nP",
+    "is_error": false,
+    "timestamp": 1790117613677
   }
 ]
