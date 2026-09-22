@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "newString": "UNIQUE(organization_id,id),\n  FOREIGN KEY(organization_id,reconciliation_id) REFERENCES public.partner_reconciliations(organization_id,id),\n  FOREIGN KEY(organization_id,partner_id) REFERENCES public.partner_profiles(organization_id,id),\n  FOREIGN KEY(organization_id,store_id) REFERENCES public.marketplace_stores(organization_id,id),\n  CHECK(quantity>0)\n);\n-- Uma venda -> no máximo um item ativo (CANCELED sai do escopo: venda volta elegível).\nCREATE UNIQUE INDEX partner_reconcil_item_one_active ON public.partner_reconciliation_items(organization_id,marketplace_sale_id) NULLS NOT DISTINCT WHERE status<>'CANCELED';\nCREATE INDEX partner_reconcil_item_reconcil ON public.partner_reconciliation_items(organization_id,reconciliation_id,status);",
-      "oldString": "UNIQUE(organization_id,id),\n  UNIQUE NULLS NOT DISTINCT(organization_id,marketplace_sale_id),\n  FOREIGN KEY(organization_id,reconciliation_id) REFERENCES public.partner_reconciliations(organization_id,id),\n  FOREIGN KEY(organization_id,partner_id) REFERENCES public.partner_profiles(organization_id,id),\n  FOREIGN KEY(organization_id,store_id) REFERENCES public.marketplace_stores(organization_id,id),\n  CHECK(quantity>0)\n);\nCREATE INDEX partner_reconcil_item_reconcil ON public.partner_reconciliation_items(organization_id,reconciliation_id,status);"
-    },
-    "timestamp": 1790116122287
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790116122328
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
       "newString": "INSERT INTO public.partner_reconciliation_items(organization_id,reconciliation_id,marketplace_sale_id,partner_id,store_id,variant_id,\n    quantity,gross_amount)\n  SELECT _org,v_rec,s.id,s.store_id,v_partner,s.variant_id,s.quantity,s.gross_amount\n  FROM public.rec_eligible_sales(_org,v_partner,v_start,v_end) s\n  ON CONFLICT(organization_id,marketplace_sale_id) WHERE status<>'CANCELED' DO NOTHING;",
       "oldString": "INSERT INTO public.partner_reconciliation_items(organization_id,reconciliation_id,marketplace_sale_id,partner_id,store_id,variant_id,\n    quantity,gross_amount)\n  SELECT _org,v_rec,s.id,s.store_id,v_partner,s.variant_id,s.quantity,s.gross_amount\n  FROM public.rec_eligible_sales(_org,v_partner,v_start,v_end) s\n  ON CONFLICT(organization_id,marketplace_sale_id) DO NOTHING;"
     },
@@ -1555,5 +1539,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n1040:   UPDATE public.marketplace_sales SET status='EXCEPTION',updated_at=now() WHERE id=v_item.marketplace_sale_id;\n1041:   PERFORM public.reconciliation_a",
     "is_error": false,
     "timestamp": 1790116746262
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py.dbg 2>&1 | grep -B5 -A10 'sale_date' | head -30",
+      "timeout": 300000
+    },
+    "timestamp": 1790116756203
+  },
+  {
+    "role": "tool_result",
+    "content": "    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                                                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n    ",
+    "is_error": false,
+    "timestamp": 1790116758075
   }
 ]
