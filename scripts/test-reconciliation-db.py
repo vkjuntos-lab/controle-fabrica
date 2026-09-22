@@ -49,9 +49,9 @@ def run():
  assert sql(f'SELECT count(*) FROM marketplace_sales WHERE organization_id={q(org)}')=='3'
  assert balance(ploc)==70
  print('PASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)')
- prev=json.loads(rpc('rec_preview',','.join(map(q,[org,p,'2026-09-01','2026-09-30']))))
+ prev=json.loads(rpc('rec_preview',','.join(map(q,[org,p,'2026-09-17','2026-09-27']))))
  assert prev['sales']==3 and prev['units']==6 and round(prev['gross'],2)==120.00
- rec=json.loads(rpc('rec_create',q(org)+','+q(json.dumps({'partner_id':p,'period_start':'2026-09-01','period_end':'2026-09-30'}))))
+ rec=json.loads(rpc('rec_create',q(org)+','+q(json.dumps({'partner_id':p,'period_start':'2026-09-17','period_end':'2026-09-27'}))))
  rid=rec['reconciliation_id'];assert rec['sales']==3 and rec['gross']==120
  assert balance(ploc)==70
  # Price rule must prevail: commercial table linked before the first process.
@@ -93,7 +93,7 @@ def run():
  sale('O-LATE','SKU-A',1,30,date='2026-09-15',event='EV-LATE')
  assert sql(f"SELECT count(*) FROM reconciliation_exceptions WHERE exception_type='LATE_SALE_AFTER_CLOSING' AND organization_id={q(org)}")=='1'
  sale('O-LATE2','SKU-A',1,30,date='2026-09-15',event='EV-LATE2')
- rpc('rec_create',q(org)+','+q(json.dumps({'partner_id':p,'period_start':'2026-09-01','period_end':'2026-09-30'})),fail='sobreposto')
+ rpc('rec_create',q(org)+','+q(json.dumps({'partner_id':p,'period_start':'2026-09-17','period_end':'2026-09-27'})),fail='sobreposto')
  print('PASS: late sale warning inside closed period and overlapping guard')
  opening(5);ship(4);assert balance(ploc)==75
  big=sale('O-BIG','SKU-A',999,1000,date='2026-10-01',event='EV-BIG')
