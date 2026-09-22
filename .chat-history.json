@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | grep -E 'PASS|AssertionError|ERROR:*' | tail -8",
-      "timeout": 300000
-    },
-    "timestamp": 1790116857333
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS: 70-unit partner shipment, store and idempotent SKU mapping\nPASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nPASS: preview totals and DRAFT close without posting stock\nPASS: SKU_NOT_MAPPED exception, price-rule billable, no double posting on reprocess\nA",
-    "is_error": false,
-    "timestamp": 1790116859219
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
@@ -1480,5 +1465,19 @@
     "content": "(no output)",
     "is_error": false,
     "timestamp": 1790117617467
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"CREATE TRIGGER\\|DROP TRIGGER\" supabase/migrations/20260923100000_inventory_workflows.sql supabase/migrations/20260922100000_production.sql supabase/migrations/20260924100000_partners.sql | head -20"
+    },
+    "timestamp": 1790117622252
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260923100000_inventory_workflows.sql:536:CREATE TRIGGER inventory_location_audit AFTER INSERT OR UPDATE ON public.inventory_locations FOR EACH ROW EXECUTE FUNCTION public.inventory_audit_catalog();\nsupabase/migrations/20260923100000_inventory_workflows.sql:537:CREATE TRIGGER in",
+    "is_error": false,
+    "timestamp": 1790117622274
   }
 ]
