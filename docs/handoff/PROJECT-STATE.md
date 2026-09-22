@@ -112,7 +112,35 @@ local; publicação não verificada.
     com reversão), `/estoque/transferencias`, `/estoque/locations`, `/estoque/terceiros` e
     `/estoque/inventarios` (+ `/$id`). Itens no menu de Operação do `AppShell`; dialog reutilizável
     de movimento e de transferência/remessa.
-- Documentação: ADR-001 (cron/webhook/storage), CORE-BUSINESS, INVENTORY (novo), este handoff.
+- Domínio Parceiros (LOVABLE MASTER 006):
+  - Tabelas `companies`, `company_roles` (papéis simultâneos PARTNER/CUSTOMER/SUPPLIER/RESELLER),
+    `company_contacts`, `company_addresses`, `partner_profiles`, `partner_shipments` +
+    `partner_shipment_items` e `partner_returns` + `partner_return_items`. Tenant em tudo.
+  - Docimentos normalizados (CPF/CNPJ/OTHER) com validação de formato server-side (RPC + Zod);
+    código único por organização; contatos com um principal ativo; endereços com um principal por tipo.
+  - `partner_save_company` cria, na mesma transação, perfil PARTNER e localização PARTNER vinculada
+    por `inventory_locations.partner_id`; `partner_create_operation` cria remessa/devolução;
+    `partner_shipment_action` avança a máquina de estados; `partner_receive_return` recebe devolução.
+  - Remessa não é venda: SHIPPED transfere origem → parceiro via o mesmo núcleo privado
+    `inventory_transfer_internal` usado por `inventory_post_transfer`; DELIVERED só confirma. Estoque
+    do parceiro é derivado do ledger; nenhuma tabela de saldo. Devolução não altera a remessa
+    histórica; SELLABLE volta ao normal, DAMAGED/DEFECTIVE/OTHER exigem QUARANTINE/INSPECTION.
+  - Picking com scan (nome/SKU/barcode), expedição exige tudo separado, retry idempotente
+    (`transfer_id` + chave `partner-shipment:<id>`), entrega sem segunda postagem, lock por
+    organização. Romaneio autenticado; bucket privado `partner-documents` preparado (upload real pendente).
+  - Permissões: `partners.read/create/update/block`, `partner_contacts.manage`,
+    `partner_addresses.manage`, `partner_shipments.read/create/approve/pick/ship/receive/cancel`,
+    `partner_returns.read/create/receive`, `partner_inventory.read/adjust`; admin/gestor/estoque com
+    operação completa, demais papéis com leitura. RPCs SECURITY DEFINER validam tenant e permissão;
+    núcleo do ledger permanece privado. Auditoria em toda transição/expedição/devolução.
+  - Telas: `/parceiros` (empresas, busca, dashboard), `/parceiros/empresas/$id` (Parceiro 360:
+    dados, contatos, endereços, remessas, estoque, devoluções e histórico paginado),
+    `/parceiros/estoque` (posição atual/histórica com CSV), `/parceiros/remessas` (+ `/$id`) e
+    `/parceiros/devolucoes` (+ `/$id`). Itens no menu Operação do `AppShell`. Rotas de detalhe de
+    estoque ganharam Outlet para habilitar o Parceiro 360.
+  - Regras: remessa não gera receita/AR, quantidade enviada ≠ vendida, posse física não muda
+    titularidade, limites/condições de pagamento/reconciliação ficam para extensão futura.
+- Documentação: ADR-001/ADR-006, CORE-BUSINESS, INVENTORY, PARTNERS, PARTNER-SHIPMENTS, este handoff.
 
 - Complemento MASTER 003: posição paginada/agregada no banco, busca barcode, categorias/status,
   agrupamentos, dashboard quantitativo, CSV de todas as páginas da posição, contagem por lote
