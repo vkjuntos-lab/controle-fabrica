@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "limit": 55,
-      "offset": 910
-    },
-    "timestamp": 1790116861790
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n910: END;\n911: $$;\n912: \n913: CREATE FUNCTION public.rec_adjustment(_org uuid,_reconciliation_id uuid,_type text,_amount numeric,_reason text,_user_id uuid ",
-    "is_error": false,
-    "timestamp": 1790116861821
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | grep -B12 'subquery must return only one column' | head -16",
@@ -1479,5 +1463,20 @@
     "content": "supabase/migrations/20260923100000_inventory_workflows.sql:536:CREATE TRIGGER inventory_location_audit AFTER INSERT OR UPDATE ON public.inventory_locations FOR EACH ROW EXECUTE FUNCTION public.inventory_audit_catalog();\nsupabase/migrations/20260923100000_inventory_workflows.sql:537:CREATE TRIGGER in",
     "is_error": false,
     "timestamp": 1790117622274
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 - <<'PYEOF'\nimport importlib.util, json\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('db','scripts/test-inventory-db.py')\ndb=importlib.util.module_from_spec(spec);spec.loader.exec_module(db)\ndb.setup()\nq,sql,id_u=db.q,db.sql,db.uid\na=id_u()\nsql(f\"INSERT INTO auth.users(id,email) VALUES({q(a)},'a@x')\")\nR=db.BASE\ndef ps(qu):\n    import subprocess\n    return subprocess.run(R,input=qu,text=True,capture_output=True).stdout.strip().splitlines()\nprint(ps(\"SELECT trigger_name||' ON '||event_object_table FROM information_schema.triggers WHERE event_object_table='inventory_movements' AND trigger_name='inventory_immutable';\"))\nprint(ps(\"SELECT prosrc FROM pg_proc WHERE proname='inventory_guard_movement' LIMIT 1;\"))\ndb.cleanup()\nPYEOF",
+      "timeout": 120000
+    },
+    "timestamp": 1790117631277
+  },
+  {
+    "role": "tool_result",
+    "content": "['inventory_immutable ON inventory_movements', 'inventory_immutable ON inventory_movements', 'inventory_immutable ON inventory_movements']\n['DECLARE v_before numeric; v_after numeric; v_negative boolean;', 'BEGIN', \"  IF TG_OP <> 'INSERT' THEN RAISE EXCEPTION 'Movimento consolidado não é editado nem",
+    "is_error": false,
+    "timestamp": 1790117632416
   }
 ]
