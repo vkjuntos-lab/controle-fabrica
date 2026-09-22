@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/MASTER-006-VALIDATION.md",
-      "oldString": "Migration nova: `20260924100000_partners.sql` (asm, posterior às migrations preparatórias de",
-      "newString": "Migration nova: `20260924100000_partners.sql` (posterior às migrations preparatórias de"
-    },
-    "timestamp": 1790110776986
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790110777014
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -n \"RGBAC\" \"docs/handoff/MASTER-006-VALIDATION.md\""
@@ -1573,5 +1557,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n955:   RETURNING id INTO v_domain;\n956:   PERFORM public.reconciliation_audit(_org,'reconciliation.close','partner_reconciliations',v_rec.id,jsonb_build_obj",
     "is_error": false,
     "timestamp": 1790116041590
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "newString": "CREATE FUNCTION public.rec_cancel(_org uuid,_reconciliation_id uuid,_reason text DEFAULT NULL,_user_id uuid DEFAULT auth.uid())\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE v_record record;\nBEGIN\n  IF _user_id IS DISTINCT FROM auth.uid() THEN RAISE EXCEPTION 'Usuário inválido.'; END IF;\n  PERFORM public.reconciliation_require(_org,'reconciliation.cancel');\n  PERFORM public.inventory_lock(_org);\n  SELECT * INTO v_record FROM public.partner_reconciliations WHERE id=_reconciliation_id AND organization_id=_org FOR UPDATE;\n  IF v_record.id IS NULL THEN RAISE EXCEPTION 'Reconciliação não encontrada.'; END IF;\n  IF v_record.status IN ('CLOSED','CANCELED') THEN RAISE EXCEPTION 'Reconciliação fechada/cancelada não é cancelável.'; END IF;\n  IF EXISTS(SELECT 1 FROM public.partner_reconciliation_items\n      WHERE reconciliation_id=_reconciliation_id AND status IN ('RECONCILED','REVERSED') AND inventory_effect_status='APPLIED') THEN\n    RAISE EXCEPTION 'Há baixas de estoque aplicadas; use estorno, não cancelamento.'; END IF;\n  UPDATE public.partner_reconciliation_items SET status='CANCELED',updated_at=now()\n    WHERE reconciliation_id=_reconciliation_id AND status IN ('PENDING','EXCEPTION','VALIDATED');\n  UPDATE public.partner_reconciliations SET status='CANCELED',notes=COALESCE(notes||E'\\nCancelado: '||trim(coalesce(_reason,'--')),'Cancelado: '||trim(coalesce(_reason,'--'))),\n    updated_at=now() WHERE id=_reconciliation_id;\n  PERFORM public.reconciliation_audit(_org,'reconciliation.cancel','partner_reconciliations',_reconciliation_id,jsonb_build_object('reason',_reason));\n  RETURN jsonb_build_object('id',_reconciliation_id,'status','CANCELED');\nEND;\n$$;\n\nCREATE FUNCTION public.rec_reverse_item(_org uuid,_item_id uuid,_reason text,_user_id uuid DEFAULT auth.uid())",
+      "oldString": "CREATE FUNCTION public.rec_reverse_item(_org uuid,_item_id uuid,_reason text,_user_id uuid DEFAULT auth.uid())"
+    },
+    "timestamp": 1790116046344
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790116046369
   }
 ]

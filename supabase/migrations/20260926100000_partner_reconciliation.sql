@@ -975,6 +975,28 @@ BEGIN
 END;
 $$;
 
+CREATE FUNCTION public.rec_cancel(_org uuid,_reconciliation_id uuid,_reason text DEFAULT NULL,_user_id uuid DEFAULT auth.uid())
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE v_record record;
+BEGIN
+  IF _user_id IS DISTINCT FROM auth.uid() THEN RAISE EXCEPTION 'Usuário inválido.'; END IF;
+  PERFORM public.reconciliation_require(_org,'reconciliation.cancel');
+  PERFORM public.inventory_lock(_org);
+  SELECT * INTO v_record FROM public.partner_reconciliations WHERE id=_reconciliation_id AND organization_id=_org FOR UPDATE;
+  IF v_record.id IS NULL THEN RAISE EXCEPTION 'Reconciliação não encontrada.'; END IF;
+  IF v_record.status IN ('CLOSED','CANCELED') THEN RAISE EXCEPTION 'Reconciliação fechada/cancelada não é cancelável.'; END IF;
+  IF EXISTS(SELECT 1 FROM public.partner_reconciliation_items
+      WHERE reconciliation_id=_reconciliation_id AND status IN ('RECONCILED','REVERSED') AND inventory_effect_status='APPLIED') THEN
+    RAISE EXCEPTION 'Há baixas de estoque aplicadas; use estorno, não cancelamento.'; END IF;
+  UPDATE public.partner_reconciliation_items SET status='CANCELED',updated_at=now()
+    WHERE reconciliation_id=_reconciliation_id AND status IN ('PENDING','EXCEPTION','VALIDATED');
+  UPDATE public.partner_reconciliations SET status='CANCELED',notes=COALESCE(notes||E'\nCancelado: '||trim(coalesce(_reason,'--')),'Cancelado: '||trim(coalesce(_reason,'--'))),
+    updated_at=now() WHERE id=_reconciliation_id;
+  PERFORM public.reconciliation_audit(_org,'reconciliation.cancel','partner_reconciliations',_reconciliation_id,jsonb_build_object('reason',_reason));
+  RETURN jsonb_build_object('id',_reconciliation_id,'status','CANCELED');
+END;
+$$;
+
 CREATE FUNCTION public.rec_reverse_item(_org uuid,_item_id uuid,_reason text,_user_id uuid DEFAULT auth.uid())
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE v_item record; v_move uuid; v_rev uuid;
