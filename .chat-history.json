@@ -1,30 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "  });\n\nexport type PostTransferInput = {\n  organizationId: string;\n  sourceLocationId: string;\n  destinationLocationId: string;\n  transferType: \"TRANSFER\" | \"PARTNER_SHIPMENT\" | \"PARTNER_RETURN\";\n  items: { variantId: string; quantity: number; batchId?: string | null }[];\n  notes?: string | null;\n  ",
-    "is_error": false,
-    "timestamp": 1790007228491
-  },
-  {
-    "role": "assistant",
-    "content": "A posição de estoque agora consulta e pagina os saldos no banco, inclui barcode, categorias e agrupamento por produto ou localização. A exportação percorre todos os resultados filtrados. Também acrescentei indicadores quantitativos e leitura por barcode na contagem; estou verificando os fluxos de lotes, permissões e erros antes do build final.\n",
-    "timestamp": 1790007233421
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"cat > /tmp/inventory_queries.sql <<'SQL'\nCREATE FUNCTION public.inventory_search_variants(_organization_id uuid,_query text DEFAULT '',_active_only boolean DEFAULT true)\nRETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS \"'$$\nBEGIN\n IF NOT public.has_permission(_organization_id,'\"'inventory.read') AND NOT public.has_permission(_organization_id,'inventory.movements.read') THEN RAISE EXCEPTION 'Sem permissão.'; END IF;\n RETURN coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT v.id,v.sku,v.size,v.color,p.name AS product_name,\n concat_ws(' — ',v.sku,p.name,concat_ws(' / ',v.size,v.color)) AS label\n FROM public.product_variants v JOIN public.products p ON p.id=v.product_id AND p.organization_id=v.organization_id\n WHERE v.organization_id=_organization_id AND (NOT _active_only OR v.status='ACTIVE')\n AND (coalesce(_query,'')='' OR strpos(lower(concat_ws(' ',v.sku,v.barcode,p.name,v.size,v.color)),lower(_query))>0)\n ORDER BY CASE WHEN v.barcode=_query OR v.sku=_query THEN 0 ELSE 1 END,v.sku,v.id LIMIT 50)q),'[]'::jsonb);\nEND;\n\"'$$;\nCREATE FUNCTION public.inventory_list_counts(_organization_id uuid,_page integer DEFAULT 1)\nRETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\nBEGIN\n IF NOT public.has_permission(_organization_id,'\"'inventory.read') THEN RAISE EXCEPTION 'Sem permissão.'; END IF;\n IF _page<1 THEN RAISE EXCEPTION 'Página inválida.'; END IF;\n RETURN jsonb_build_object('total',(SELECT count(*) FROM public.inventory_counts WHERE organization_id=_organization_id),\n 'rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (\n SELECT c.*,l.name AS location_name,coalesce(p.full_name,p.email,c.created_by::text) AS responsible,\n (SELECT count(*) FROM public.inventory_count_items WHERE inventory_count_id=c.id) AS items_count,\n (SELECT count(*) FROM public.inventory_count_items WHERE inventory_count_id=c.id AND counted_quantity IS NOT NULL) AS counted_count,\n (SELECT count(*) FROM public.inventory_count_items WHERE inventory_count_id=c.id AND difference<>0) AS differences\n FROM public.inventory_counts c JOIN public.inventory_locations l ON l.id=c.location_id LEFT JOIN public.profiles p ON p.id=c.created_by\n WHERE c.organization_id=_organization_id ORDER BY c.created_at DESC,c.id LIMIT 50 OFFSET (_page-1)*50)q),'[]'::jsonb));\nEND;\n\"'$$;\nCREATE FUNCTION public.inventory_actor_options(_organization_id uuid) RETURNS jsonb\nLANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\nBEGIN\n IF NOT public.has_permission(_organization_id,'\"'inventory.movements.read') THEN RAISE EXCEPTION 'Sem permissão.'; END IF;\n RETURN coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT p.id,coalesce(p.full_name,p.email,p.id::text) AS name\n FROM public.profiles p WHERE EXISTS(SELECT 1 FROM public.organization_members m WHERE m.organization_id=_organization_id AND m.user_id=p.id)\n OR EXISTS(SELECT 1 FROM public.inventory_movements m WHERE m.organization_id=_organization_id AND m.created_by=p.id)\n ORDER BY name)q),'[]'::jsonb);\nEND;\n\"'$$;\nREVOKE ALL ON FUNCTION public.inventory_search_variants(uuid,text,boolean),public.inventory_list_counts(uuid,integer),public.inventory_actor_options(uuid) FROM PUBLIC,anon;\nGRANT EXECUTE ON FUNCTION public.inventory_search_variants(uuid,text,boolean),public.inventory_list_counts(uuid,integer),public.inventory_actor_options(uuid) TO authenticated;\nSQL\npython3 - <<'\"'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20260922100000_inventory_workflows.sql');s=p.read_text().replace('\\\\nCOMMIT;', '\\\\n'+Path('/tmp/inventory_queries.sql').read_text()+'\\\\nCOMMIT;');p.write_text(s)\np=Path('src/integrations/supabase/types.ts');s=p.read_text().replace('    Functions: {','''    Functions: {\n      inventory_search_variants: { Args: { _organization_id: string; _query?: string; _active_only?: boolean }; Returns: Json };\n      inventory_list_counts: { Args: { _organization_id: string; _page?: number }; Returns: Json };\n      inventory_actor_options: { Args: { _organization_id: string }; Returns: Json };''');p.write_text(s)\np=Path('src/lib/inventory/inventory.functions.ts');s=p.read_text()\na=s.index('export const listVariantOptions');b=s.index('export type BatchRow',a);part=s[a:b];x=part.index('  .handler');part=part[:x]+'''  .handler(async ({ data, context }) => {\n    const {data: result,error}=await context.supabase.rpc(\\\"inventory_search_variants\\\",{_organization_id:data.organizationId,_query:data.query,_active_only:data.activeOnly});\n    if(error) throw new Error(error.message);\n    return result as unknown as VariantOption[];\n  });\n\n''';part=part.replace('        query: z.string()', '        activeOnly: z.boolean().default(true),\\\\n        query: z.string()');s=s[:a]+part+s[b:]\na=s.index('export const listInventoryCounts');b=s.index('export type InventoryCountItemRow',a);s=s[:a]+'''export const listInventoryCounts = createServerFn({method:\\\"GET\\\"}).middleware([requireSupabaseAuth])\n .inputValidator(input=>z.object({organizationId:z.string().uuid(),page:z.number().int().min(1).default(1)}).parse(input))\n .handler(async ({data,context})=>{\n const {data:result,error}=await context.supabase.rpc(\\\"inventory_list_counts\\\",{_organization_id:data.organizationId,_page:data.page});\n if(error) throw new Error(error.message);\n return result as unknown as {rows:InventoryCountRow[];total:number};\n });\n\n'''+s[b:]\ns=s.replace('  counted_count: number;', '  counted_count: number;\\\\n  differences: number;\\\\n  responsible: string;')\ns=s.replace('              variantId: z.string().uuid(),\\\\n              quantity:', '              variantId: z.string().uuid(),\\\\n              batchId: z.string().uuid().nullable().optional(),\\\\n              quantity:').replace('      variant_id: item.variantId,\\\\n      quantity:', '      variant_id: item.variantId,\\\\n      batch_id: item.batchId ?? null,\\\\n      quantity:')\na=s.index('export const listInventoryMovements');b=s.index('export const getInventoryMovement',a);part=s[a:b].replace('        variantId: z.string().uuid().optional(),','        variantId: z.string().uuid().optional(),\\\\n        userId: z.string().uuid().optional(),').replace('    if (data.variantId)', '    if (data.userId) builder = builder.eq(\\\"created_by\\\", data.userId);\\\\n    if (data.variantId)').replace('.order(\\\"occurred_at\\\", { ascending: false })', '.order(\\\"occurred_at\\\", { ascending: false }).order(\\\"id\\\", {ascending:false})');s=s[:a]+part+s[b:]\ns+='''\nexport const listInventoryActors = createServerFn({method:\\\"GET\\\"}).middleware([requireSupabaseAuth])\n .inputValidator(input=>z.object({organizationId:z.string().uuid()}).parse(input))\n .handler(async({data,context})=>{const {data:result,error}=await context.supabase.rpc(\\\"inventory_actor_options\\\",{_organization_id:data.organizationId});if(error) throw new Error(error.message);return result as unknown as {id:string;name:string}[];});\n'''\np.write_text(s)\np=Path('src/routes/_authenticated/estoque/inventarios.tsx');s=p.read_text().replace('  const [dialogOpen', '  const [page, setPage] = useState(1);\\\\n  const [dialogOpen').replace('[\\\"inventory-counts\\\", organizationId]','[\\\"inventory-counts\\\", organizationId, page]').replace('fetchCounts({ data: { organizationId: organizationId\"'! } })'\"','fetchCounts({ data: { organizationId: organizationId\"'!, page } })'\"').replace('countsQuery.data?.length','countsQuery.data?.rows.length').replace('countsQuery.data.map','countsQuery.data.rows.map').replace('<TableHead>Progresso</TableHead>', '<TableHead>Progresso</TableHead><TableHead>Divergências</TableHead><TableHead>Responsável</TableHead>').replace('{count.counted_count}/{count.items_count} itens\\\\n                          </TableCell>', '{count.counted_count}/{count.items_count} itens\\\\n                          </TableCell><TableCell>{count.differences}</TableCell><TableCell>{count.responsible}</TableCell>');s=s.replace('            </CardContent>', '''              {countsQuery.data && countsQuery.data.total>50 ? <div className=\\\"mt-4 flex justify-between\\\"><Button disabled={page===1} onClick={()=>setPage(p=>p-1)}>Anterior</Button><span>Página {page}</span><Button disabled={page*50>=countsQuery.data.total} onClick={()=>setPage(p=>p+1)}>Próxima</Button></div>:null}\n            </CardContent>''',1).replace('                  escolhida.', '                  escolhida. A localização ficará bloqueada para movimentos até concluir ou cancelar.');p.write_text(s)\np=Path('src/routes/_authenticated/estoque/inventarios.\"'$id.tsx'\"');s=p.read_text();a=s.index('  useEffect(() => {');b=s.index('\\\\n\\\\n  const invalidate',a);s=s[:a]+'''  useEffect(() => { setDrafts({}); }, [organizationId, id]);'''+s[b:];s=s.replace('const draft = drafts[item.id];', 'const draft = drafts[item.id] ?? (item.counted_quantity == null ? \\\"\\\" : String(item.counted_quantity));');s=s.replace('  function commitItem(','''  const unsaved = count?.items.some(item => drafts[item.id] \"'!== undefined && (drafts[item.id] === \"\" ? null : Number(drafts[item.id])) !== item.counted_quantity) ?? false;\n\n  function commitItem('\"''');s=s.replace('disabled={completeMutation.isPending || saveMutation.isPending ||', 'disabled={completeMutation.isPending || saveMutation.isPending || unsaved ||');p.write_text(s)\nPY\""
-    },
-    "timestamp": 1790007305022
-  },
-  {
-    "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790007305035
-  },
-  {
     "role": "tool",
     "tool": "Bash",
     "input": {
@@ -1429,5 +1404,33 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/config</path>\n<type>directory</type>\n<entries>\nenv.server.ts\n\n(1 entries)\n</entries>",
     "is_error": false,
     "timestamp": 1790091564883
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd /root/Zheus AI Projects/controle-fabrica && git log --oneline -20"
+    },
+    "timestamp": 1790091567380
+  },
+  {
+    "role": "tool_result",
+    "content": "/bin/bash: line 1: cd: too many arguments\n",
+    "is_error": false,
+    "timestamp": 1790091567391
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/config/env.server.ts"
+    },
+    "timestamp": 1790091568102
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/config/env.server.ts</path>\n<type>file</type>\n<content>\n1: import { z } from 'zod';\n2: \n3: const serverEnvSchema = z.object({\n4:   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),\n5:   META_APP_SECRET: z.string().optional(),\n6:   GEMINI_API_KEY",
+    "is_error": false,
+    "timestamp": 1790091568133
   }
 ]
