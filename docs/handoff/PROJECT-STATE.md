@@ -153,15 +153,23 @@ local; publicação não verificada.
 
 ## NOT_IMPLEMENTED
 
-- Módulos/telas completos: Comercial, Produção (migration preparatória preexistente preservada), Marketplaces, Parceiros, Financeiro, Relatórios,
-  Inteligência (marcados como `coming_soon` em `src/lib/rbac.ts`, fora do menu operacional).
+- Módulos/telas completos: Comercial, Produção (migration preparatória `20260922100000_production.sql`
+  preservada), Marketplaces, Financeiro, Relatórios, Inteligência (marcados como `coming_soon` em
+  `src/lib/rbac.ts`, fora do menu operacional).
+- MASTER 005 (MarketplaceStore, lojas vinculadas a parceiros, importação de relatórios e mapeamento
+  de SKU) não está neste checkout; o vínculo parceiro → loja será feito quando o módulo existir, sem
+  duplicar lojas nem baixar estoque por MarketplaceSale.
 - Valorização financeira do estoque (custo/valor por movimento) — o ledger registra quantidades.
 - Integração automática de venda/produção/compra com o ledger (hoje os lançamentos são feitos
   pelas telas de estoque; os módulos de origem ainda não existem).
 - Atributos personalizados editáveis na tela (o campo `attributes` jsonb já existe nas tabelas
   de produto/variante).
 - Importação CSV/XLSX com mapeamento configurável de colunas e `external_sku`.
-- Reconciliação de parceiros, fechamento de período, geração de cobrança, registro de pagamento.
+- Reconciliação de parceiros, fechamento de período, geração de cobrança, registro de pagamento,
+  limites de crédito e condições de pagamento.
+- Upload/lista de anexos de remessa em `partner-documents` (preparação de Storage pronta), QR Code
+  de remessa, editor de itens de documento consolidado e central de exceções de inventário.
+- Recebimento parcial/trânsito em duas etapas de remessa (DELIVERED é pontual).
 - Webhooks de domínio (`/api/webhooks/receiver` pronto, mas nenhum provedor externo conectado e
   sem `WEBHOOK_SECRET` definido em ambiente), cron/automações de negócio, filas.
 - Integrações de marketplace por API, pagamentos, e-mail transacional, notificações.
