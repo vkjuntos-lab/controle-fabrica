@@ -416,10 +416,15 @@ BEGIN
     IF (j-'updated_at')<>(jold-'updated_at') THEN RAISE EXCEPTION 'Ajuste imutável.'; END IF;
   ELSIF TG_TABLE_NAME='domain_events' THEN
     IF (j-'status'-'attempts'-'published_at'-'updated_at')<>(jold-'status'-'attempts'-'published_at'-'updated_at') THEN RAISE EXCEPTION 'Evento de domínio imutável.'; END IF;
-  ELSIF TG_TABLE_NAME IN ('partner_price_links','price_tables','price_table_items') THEN
-    IF TG_TABLE_NAME='partner_price_links' AND (j-'valid_to'-'updated_at')<>(jold-'valid_to'-'updated_at') THEN RAISE EXCEPTION 'Vínculo imutável fora do RPC.'; END IF;
+  ELSIF TG_TABLE_NAME='partner_price_links' AND (j-'valid_to'-'updated_at')<>(jold-'valid_to'-'updated_at') THEN RAISE EXCEPTION 'Vínculo imutável fora do RPC.'; END IF;
     IF TG_TABLE_NAME='price_tables' AND (j-'status'-'name'-'valid_to'-'notes'-'updated_at')<>(jold-'status'-'name'-'valid_to'-'notes'-'updated_at') THEN RAISE EXCEPTION 'Tabela imutável fora do RPC.'; END IF;
     IF TG_TABLE_NAME='price_table_items' AND (j-'unit_price'-'valid_to'-'status'-'updated_at')<>(jold-'unit_price'-'valid_to'-'status'-'updated_at') THEN RAISE EXCEPTION 'Item de preço imutável fora do RPC.'; END IF;
+  ELSIF TG_TABLE_NAME='marketplace_stores'
+    AND (j-'code'-'name'-'marketplace'-'marketplace_store_id'-'ownership_type'-'partner_id'-'status'-'notes'-'updated_by'-'updated_at')
+      <>(jold-'code'-'name'-'marketplace'-'marketplace_store_id'-'ownership_type'-'partner_id'-'status'-'notes'-'updated_by'-'updated_at')
+    THEN RAISE EXCEPTION 'Loja imutável fora do RPC.';
+  ELSIF TG_TABLE_NAME='external_sku_mappings'
+    AND (j-'variant_id'-'updated_at')<>(jold-'variant_id'-'updated_at') THEN RAISE EXCEPTION 'Mapeamento imutável fora do RPC.';
   END IF;
   RETURN NEW;
 END;
