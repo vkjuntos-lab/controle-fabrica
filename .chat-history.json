@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "rg -il \"marketplace_sale|marketplace_store|external_sku|ExternalSkuMapping|import_row|ImportRow|MarketplaceSale\" --glob '!node_modules/**' --glob '!bun.lock' . 2>/dev/null | head -50"
-    },
-    "timestamp": 1790115112191
-  },
-  {
-    "role": "tool_result",
-    "content": "(no output)",
-    "is_error": false,
-    "timestamp": 1790115112214
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "ls src/lib/*/ && echo \"===RBAC===\" && sed -n '1,120p' src/lib/rbac.ts"
     },
     "timestamp": 1790115112367
@@ -1553,5 +1539,20 @@
     "content": "waiting for server to start.... done\nserver started\nstarted\n",
     "is_error": false,
     "timestamp": 1790116185378
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && cat > /tmp/recon-check.py <<'EOF'\nimport os\nfrom pathlib import Path\nROOT=Path('/root/Zheus AI Projects/controle-fabrica')\nBIN='/usr/lib/postgresql/18/bin'\nTMP='/tmp/recon-test'\nPORT='55439'\nBASE=[BIN+'/psql','-X','-h',TMP,'-p',PORT,'-U','postgres','-d','postgres','-v','ON_ERROR_STOP=1','-Atq']\ndef sql(query,user=None,fail=None):\n    prefix=f\"SET ROLE authenticated; SET request.jwt.claim.sub='{user}';\" if user else ''\n    p=__import__('subprocess').run(BASE,input=prefix+query,text=True,capture_output=True)\n    if fail:\n        assert p.returncode and fail.lower() in p.stderr.lower(),(fail,p.stdout,p.stderr)\n        return\n    assert not p.returncode,p.stderr\n    return p.stdout.strip()\nsql(\"\"\"CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role BYPASSRLS;\n CREATE SCHEMA storage; CREATE TABLE storage.buckets(id text PRIMARY KEY,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);\n CREATE TABLE storage.objects(id uuid DEFAULT gen_random_uuid(),bucket_id text,name text);\n ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY; GRANT USAGE ON SCHEMA storage TO authenticated;\n GRANT SELECT,INSERT,UPDATE,DELETE ON storage.objects TO authenticated;\n CREATE SCHEMA auth; CREATE TABLE auth.users(id uuid PRIMARY KEY,email text,raw_user_meta_data jsonb DEFAULT '{}');\n CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$ SELECT nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;\n GRANT USAGE ON SCHEMA auth TO authenticated,anon; GRANT EXECUTE ON FUNCTION auth.uid() TO authenticated,anon;\"\"\")\nmigrations=['20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql','20260917110000_catalog_mestre.sql','20260918100000_inventory_ledger.sql','20260921100000_inventory_integrity.sql']\nmigrations+=['20260922100000_production.sql','20260923100000_inventory_workflows.sql','20260924100000_partners.sql','20260926100000_partner_reconciliation.sql']\nfor name in migrations:\n    prefix='SET check_function_bodies=off;' if name.startswith('20260918') else ''\n    body=(ROOT/'supabase/migrations'/name).read_text()\n    sql(prefix+body)\n    print('OK',name)\nprint('ALL MIGRATIONS OK')\nEOF\nsudo -u postgres python3 /tmp/recon-check.py 2>&1 | tail -15",
+      "timeout": 180000
+    },
+    "timestamp": 1790116191906
+  },
+  {
+    "role": "tool_result",
+    "content": "OK 20260921100000_inventory_integrity.sql\nOK 20260922100000_production.sql\nOK 20260923100000_inventory_workflows.sql\nOK 20260924100000_partners.sql\nTraceback (most recent call last):\n  File \"/tmp/recon-check.py\", line 29, in <module>\n    sql(prefix+body)\n    ~~~^^^^^^^^^^^^^\n  File \"/tmp/recon-check",
+    "is_error": false,
+    "timestamp": 1790116192390
   }
 ]
