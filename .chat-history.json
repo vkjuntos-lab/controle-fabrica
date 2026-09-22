@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "limit": 36,
-      "offset": 341
-    },
-    "timestamp": 1790116393459
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n341: CREATE FUNCTION public.reconciliation_guard_relations() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n342: DECLARE v_d",
-    "is_error": false,
-    "timestamp": 1790116393490
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test/data -m immediate stop >/dev/null 2>&1; cd \"/root/Zheus AI Projects/controle-fabrica\" && rm -rf /tmp/recon-test2 && mkdir -p /tmp/recon-test2 && chown postgres /tmp/recon-test2 && sudo -u postgres /usr/lib/postgresql/18/bin/initdb -D /tmp/recon-test2/data -A trust -U postgres >/dev/null 2>&1 && sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test2/data -l /tmp/recon-test2/log -o \"-p 55439 -k /tmp/recon-test2\" start >/dev/null 2>&1 && sed -i 's#TMP=.*#TMP=\"/tmp/recon-test2\"#' /tmp/recon-check.py && sudo -u postgres python3 /tmp/recon-check.py >/dev/null 2>&1 && echo READY",
@@ -1498,5 +1482,21 @@
     "content": "1 0 CREATE FUNCTION public.rec_close(_org uuid,_reconciliation_id uuid,_note\n2 0 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public A\n3 0 DECLARE v_rec record; v_blocking int; v_snapshot jsonb; v_domain uuid;\n4 0 BEGIN\n5 0   IF _user_id IS DISTINCT FROM auth.uid() THEN RAISE EXCE",
     "is_error": false,
     "timestamp": 1790117025865
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "limit": 6,
+      "offset": 960
+    },
+    "timestamp": 1790117031337
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n960:       JOIN public.marketplace_sales s ON s.id=i.marketplace_sale_id WHERE i.reconciliation_id=v_rec.id AND i.status='RECONCILED' ORDER BY s.sale_date,i",
+    "is_error": false,
+    "timestamp": 1790117031367
   }
 ]
