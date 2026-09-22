@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | grep -B2 -A20 \"ERROR\\|AssertionError\" | head -40",
-      "timeout": 300000
-    },
-    "timestamp": 1790116521230
-  },
-  {
-    "role": "tool_result",
-    "content": "    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  Referência fora da organização.\nCONTEXT:  PL/pgSQL function reconciliation_guard_relations() line 23 at RAISE\nSQL statement \"INSERT INTO public.partner_reconciliation_items(organization_id,reconciliation_id,mar",
-    "is_error": false,
-    "timestamp": 1790116522972
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cat > /tmp/dbg2.py <<'EOF'\nimport importlib.util,json\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('inventory_db',Path('/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py'))\ndb=importlib.util.module_from_spec(spec);spec.loader.exec_module(db)\nq,sql,uid=db.q,db.sql,db.uid\ndb.TMP=Path('/tmp/recon-test2');db.BASE=[str(Path('/usr/lib/postgresql/18/bin')/'psql'),'-X','-h','/tmp/recon-test2','-p','55439','-U','postgres','-d','postgres','-v','ON_ERROR_STOP=1','-Atq']\na,org,product,variant,factory=[uid() for _ in range(5)]\nsql(f\"INSERT INTO auth.users(id,email) VALUES({q(a)},'a@x'); INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'A','a',{q(a)}); INSERT INTO products(id,organization_id,code,name) VALUES({q(product)},{q(org)},'B','Ballet'); INSERT INTO product_variants(id,organization_id,product_id,sku,barcode) VALUES({q(variant)},{q(org)},{q(product)},'B','123'); INSERT INTO inventory_locations(id,organization_id,code,name,type) VALUES({q(factory)},{q(org)},'FAB','Fab','FACTORY');\")\ndef rpc(n,args,u=a,fail=None):return db.call(n,args,u,fail)\nc=rpc('partner_save_company',q(org)+','+q(json.dumps({'code':'R1','legal_name':'P','roles':['PARTNER'],'status':'ACTIVE'})))\nd=json.loads(rpc('partner_query',q(org)+\",'company',\"+q(json.dumps({'id':c}))))\np=d['profile']['id'];ploc=d['profile']['default_inventory_location_id']\nrpc('inventory_post_movement',','.join(map(q,[org,variant,factory,'OPENING_BALANCE']))+',100')\ndef create(qty):return rpc('partner_create_operation',q(org)+','+q('shipment')+','+q(json.dumps({'partner_id':p,'source_location_id':factory,'destination_location_id':ploc,'items':[{'variant_id':variant,'quantity':qty,'condition':'SELLABLE','reason':'t'}]})))\ndef act(s,action,data=None):data=data or {};return rpc('partner_shipment_action',q(org)+','+q(s)+','+q(action)+','+q(json.dumps(data)))\ndef prepare(s):\n act(s,'approve');act(s,'start_picking')\n d=json.loads(rpc('partner_query',q(org)+\",'shipment',\"+q(json.dumps({'id':s}))))\n for i in d['items']:act(s,'pick',{'item_id':i['id'],'quantity':i['quantity']})\ns=create(70);prepare(s);act(s,'ship')\nstore=json.loads(rpc('marketplace_save_store',q(org)+','+q(json.dumps({'code':'ML','name':'ML','marketplace':'MERCADO_LIVRE','ownership_type':'PARTNER','partner_id':p,'status':'ACTIVE'}))))['id']\nrpc('marketplace_save_mapping',q(org)+','+q(json.dumps({'external_sku':'SKU-A','variant_id':variant})))\ndef sale(order,sku,qty,gross,ev):return rpc('marketplace_register_sale',q(org)+','+q(json.dumps({'store_id':store,'sale_date':'2026-09-01','external_order_id':order,'external_sku':sku,'quantity':qty,'gross_amount':gross,'external_event_id':ev})))\nsale('O-1','SKU-A',3,60,'EV-1');sale('O-2','SKU-A',2,40,'EV-2');sale('O-3','SKU-Z',1,20,'EV-3')\nprint('DIAG org=',org)\nprint('partner org',sql(f'SELECT organization_id FROM partner_profiles WHERE id={q(p)}'))\nprint('store org',sql(f'SELECT organization_id FROM marketplace_stores WHERE id={q(store)}'))\nfor row in sql(f\"SELECT id,store_id,variant_id,organization_id,status,reconciliation_item_id FROM marketplace_sales WHERE organization_id={q(org)}\").splitlines():\n print('SALE',row)\nrec=rpc('rec_create',q(org)+','+q(json.dumps({'partner_id':p,'period_start':'2026-09-01','period_end':'2026-09-30'})),fail=None)\nEOF\nsudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test2/data -m immediate stop >/dev/null 2>&1; rm -rf /tmp/recon-test2 && mkdir -p /tmp/recon-test2 && chown postgres /tmp/recon-test2 && sudo -u postgres /usr/lib/postgresql/18/bin/initdb -D /tmp/recon-test2/data -A trust -U postgres >/dev/null 2>&1 && sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test2/data -l /tmp/recon-test2/log -o \"-p 55439 -k /tmp/recon-test2\" start >/dev/null 2>&1 && sudo -u postgres python3 /tmp/recon-check.py >/dev/null 2>&1 && sudo -u postgres python3 /tmp/dbg2.py 2>&1 | tail -12",
       "timeout": 180000
     },
@@ -1488,5 +1473,19 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790117227571
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PYEOF'\nsrc=open('supabase/migrations/20260926100000_partner_reconciliation.sql').read()\ni=src.index('CREATE FUNCTION public.rec_close')\nj=src.index('CREATE FUNCTION public.rec_reopen')\ndef depth(s):\n    d=0;inq=False;esc=False\n    for ch in s:\n        if inq:\n            if esc:esc=False\n            elif ch=='\\\\':esc=True\n            elif ch==\"'\":inq=False\n            continue\n        if ch==\"'\":inq=True\n        elif ch=='(':d+=1\n        elif ch==')':d-=1\n    return d\nprint('rec_close depth',depth(src[i:j]))\nPYEOF"
+    },
+    "timestamp": 1790117229799
+  },
+  {
+    "role": "tool_result",
+    "content": "rec_close depth 0\n",
+    "is_error": false,
+    "timestamp": 1790117229840
   }
 ]
