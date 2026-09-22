@@ -1,18 +1,5 @@
 [
   {
-    "role": "assistant",
-    "content": "Os testes de isolamento entre organizações, permissões e devoluções parciais passaram. Também encontrei um problema nas rotas existentes de inventário: os detalhes estavam aninhados sob listagens sem ponto de renderização. Vou corrigir esse encaixe para que os links de movimentos e contagens usados pelo Parceiro 360 abram corretamente.\n",
-    "timestamp": 1790108742382
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('src/lib/rbac.test.ts');s=p.read_text().replace('\\\"produtos\\\", \\\"estoque\\\"','\\\"produtos\\\", \\\"estoque\\\", \\\"parceiros\\\"');p.write_text(s)\nfor name,component in [('inventarios','CountsPage'),('movimentacoes','MovementsPage')]:\n p=Path(f'src/routes/_authenticated/estoque/{name}.tsx');s=p.read_text().replace('createFileRoute, Link','createFileRoute, Outlet, useRouterState, Link');s=s.replace(f'  component: {component},','  component: InventoryRoute,',1);s+=f'''\\\\n// Detail routes share the authenticated layout, not the list page contents.\nfunction InventoryRoute() {{\n const detail=useRouterState({{select:state=>state.matches.some(match=>match.routeId===\\\"/_authenticated/estoque/{name}/\"'$id\")}});\n return detail?<Outlet/>:<{component}/>;\n}}\n'\"''';p.write_text(s)\np=Path('src/components/partners/pages.tsx');s=p.read_text().replace('disabled={mutation.isPending}\\\\n                      onScan','disabled={mutation.isPending || q.isFetching}\\\\n                      onScan');p.write_text(s)\np=Path('package.json');s=p.read_text().replace('\\\"test:inventory:db\\\": \\\"python3 scripts/test-inventory-db.py\\\",','\\\"test:inventory:db\\\": \\\"python3 scripts/test-inventory-db.py\\\",\\\\n    \\\"test:partners:db\\\": \\\"python3 scripts/test-partners-db.py\\\",');p.write_text(s)\nPY\nnpx prettier --write src/lib/rbac.test.ts src/routes/_authenticated/estoque/inventarios.tsx src/routes/_authenticated/estoque/movimentacoes.tsx src/components/partners src/routes/_authenticated/parceiros > /tmp/partners-format.log 2>&1\nnpm run typecheck > /tmp/partners-types.log 2>&1\nnpm run test > /tmp/partners-unit.log 2>&1\""
-    },
-    "timestamp": 1790108759648
-  },
-  {
     "role": "tool",
     "tool": "Bash",
     "input": {
@@ -1477,5 +1464,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py</path>\n<type>file</type>\n<content>\n1: #!/usr/bin/env python3\n2: \"\"\"Isolated PostgreSQL integration tests. Never connects to a deployed database.\"\"\"\n3: import concurrent.futures\n4: import json\n5: import os\n6: from pathlib imp",
     "is_error": false,
     "timestamp": 1790115127145
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql"
+    },
+    "timestamp": 1790115131767
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql</path>\n<type>file</type>\n<content>\n1: -- ============================================================\n2: -- Inventory Ledger — fonte oficial do estoque (LOVABLE MASTER 003).\n3: --\n4: -- Princípios ",
+    "is_error": false,
+    "timestamp": 1790115131805
   }
 ]
