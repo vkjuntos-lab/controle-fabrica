@@ -953,7 +953,7 @@ BEGIN
       'billable_items',(SELECT coalesce(sum(billable_amount),0) FROM public.partner_reconciliation_items WHERE reconciliation_id=v_rec.id AND status='RECONCILED'),
       'adjustments',(SELECT coalesce(sum(CASE adjustment_type WHEN 'CREDIT' THEN amount ELSE -amount END),0) FROM public.partner_reconciliation_adjustments WHERE reconciliation_id=v_rec.id),
       'net_billable',(SELECT round((SELECT coalesce(sum(billable_amount),0) FROM public.partner_reconciliation_items WHERE reconciliation_id=v_rec.id AND status='RECONCILED')
-        +(SELECT coalesce(sum(CASE adjustment_type WHEN 'CREDIT' THEN amount ELSE -amount END),0) FROM public.partner_reconciliation_adjustments WHERE reconciliation_id=v_rec.id)),2)),
+        +(SELECT coalesce(sum(CASE adjustment_type WHEN 'CREDIT' THEN amount ELSE -amount END),0) FROM public.partner_reconciliation_adjustments WHERE reconciliation_id=v_rec.id),2)),
     'items',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT i.id,i.variant_id,i.quantity,i.unit_reference_value,i.gross_amount,i.billable_amount,i.price_snapshot,
       v.sku,v.size,v.color,p.name product_name,s.external_order_id,s.external_sku,s.store_id,s.sale_date
       FROM public.partner_reconciliation_items i JOIN public.product_variants v ON v.id=i.variant_id JOIN public.products p ON p.id=v.product_id
