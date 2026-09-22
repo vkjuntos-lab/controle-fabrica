@@ -687,9 +687,9 @@ BEGIN
     RAISE EXCEPTION 'Parceiro e período (igual ou maior) obrigatórios.'; END IF;
   IF NOT EXISTS(SELECT 1 FROM public.partner_profiles WHERE id=v_partner AND organization_id=_org AND operational_status='ACTIVE') THEN
     RAISE EXCEPTION 'Parceiro inativo ou fora da organização.'; END IF;
-  IF EXISTS(SELECT 1 FROM public.partner_reconciliations WHERE organization_id=_org AND partner_id=v_partner AND status='CLOSED'
+  IF EXISTS(SELECT 1 FROM public.partner_reconciliations WHERE organization_id=_org AND partner_id=v_partner AND status<>'CANCELED'
     AND period_start<=v_end AND period_end>=v_start) THEN
-    RAISE EXCEPTION 'Período sobreposto a fechamento CLOSED. Reabra-o antes de criar novo.'; END IF;
+    RAISE EXCEPTION 'Período sobreposto a um fechamento ativo. Reabra-o (se fechado) antes de criar novo.'; END IF;
   INSERT INTO public.partner_reconciliations(organization_id,partner_id,period_start,period_end,frequency,status,created_by)
   VALUES (_org,v_partner,v_start,v_end,coalesce(_data->>'frequency',
     (SELECT settlement_frequency FROM public.partner_profiles WHERE id=v_partner)),'DRAFT',_user_id)
