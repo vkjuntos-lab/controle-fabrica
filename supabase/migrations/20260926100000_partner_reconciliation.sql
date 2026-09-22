@@ -378,10 +378,15 @@ BEGIN
   IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Histórico não pode ser excluído.'; END IF;
   IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAISE EXCEPTION 'Organização imutável.'; END IF;
   IF TG_TABLE_NAME='marketplace_sales' THEN
-    IF OLD.status='RECONCILED' THEN RAISE EXCEPTION 'Venda reconcileida consolidada: corrija pelo estorno da reconciliação.'; END IF;
-    IF NEW.status='RECONCILED' AND NEW.reconciliation_item_id IS NOT NULL THEN
+    IF OLD.status='RECONCILED' THEN
+      IF NEW.status='EXCEPTION' AND _userless_timestamp()/*placeholder*/ THEN NULL; END IF;
+      IF (NEW.status='EXCEPTION') AND (j-'status'-'updated_at')<>(jold-'status'-'updated_at') THEN RAISE EXCEPTION 'Estorno só muda status.'; END IF;
+      IF NEW.status<>'EXCEPTION' THEN RAISE EXCEPTION 'Venda reconcileida consolidada: corrija pelo estorno da reconciliação.'; END IF;
+    ELSIF NEW.status='RECONCILED' AND NEW.reconciliation_item_id IS NOT NULL THEN
       IF (j-'status'-'reconciliation_item_id'-'updated_at')<>(jold-'status'-'reconciliation_item_id'-'updated_at') THEN RAISE EXCEPTION 'Somente status e item na reconciliação.'; END IF;
-    ELSIF (j-'status'-'variant_id'-'updated_at')<>(jold-'status'-'variant_id'-'updated_at') THEN RAISE EXCEPTION 'Campos de venda imutáveis.'; END IF;
+    ELSE
+      IF (j-'status'-'variant_id'-'updated_at')<>(jold-'status'-'variant_id'-'updated_at') THEN RAISE EXCEPTION 'Campos de venda imutáveis.'; END IF;
+    END IF;
   ELSIF TG_TABLE_NAME='partner_reconciliations' THEN
     IF OLD.status='CLOSED' AND NEW.status<>'REOPENED' THEN RAISE EXCEPTION 'Fechamento CLOSED é histórico.'; END IF;
     IF OLD.status='CLOSED' AND NEW.status='REOPENED' THEN
