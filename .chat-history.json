@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sudo -u postgres /usr/lib/postgresql/18/bin/python3 /tmp/harness.py 2>&1 | grep -E 'PROC|PASS|AssertionError|ERROR' | head",
-      "timeout": 300000
-    },
-    "timestamp": 1790116713621
-  },
-  {
-    "role": "tool_result",
-    "content": "(no output)",
-    "is_error": false,
-    "timestamp": 1790116713638
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sudo -u postgres /usr/lib/postgresql/18/bin/python3 /tmp/harness.py 2>&1 | tail -15",
       "timeout": 300000
     },
@@ -1491,5 +1476,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py</path>\n<type>file</type>\n<content>\n85:  items2=json.loads(rpc('rec_query',q(org)+\",'reconciliation',\"+q(json.dumps({'id':rid}))))['items']\n86:  target=next(i for i in items2 if i['external_order_id']=='O-1')\n87:  rpc('r",
     "is_error": false,
     "timestamp": 1790117441326
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"Movimento consolidado\" supabase/migrations/*.sql"
+    },
+    "timestamp": 1790117443343
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260918100000_inventory_ledger.sql:7:--   * Movimento consolidado NÃO é editado nem excluído. Correção = novo\nsupabase/migrations/20260921100000_inventory_integrity.sql:49:  IF TG_OP <> 'INSERT' THEN RAISE EXCEPTION 'Movimento consolidado não é editado nem excluído.'; END IF;\nsu",
+    "is_error": false,
+    "timestamp": 1790117443382
   }
 ]
