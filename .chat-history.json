@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd /tmp && python3 - <<'EOF'\ns=open('/tmp/dbg3.py').read()\n# instead of manual check, drop straight to rec_create with instrumented guard\ns=s.replace(\"\"\"sql(f\"SELECT organization_id FROM public.{tbl} WHERE id={q(rid_sid)}\")\"\"\",\"\"\"sql(f\"SELECT organization_id FROM public.{tbl} WHERE id={q(rid_sid)}\")\"\"\")\n# Append guard-level instrumentation: temporarily alter trigger to ignore then call\nextra=\"\"\"\nsql(f\"ALTER TABLE public.partner_reconciliation_items DISABLE TRIGGER reconciliation_tenant_guard\")\ntry:\n print('rec_create=',rpc('rec_create',q(org)+','+q(json.dumps({'partner_id':p,'period_start':'2026-09-01','period_end':'2026-09-30'})),fail=None))\nexcept Exception as e:\n print('rec_create FAILS even without tenant guard:',e)\n\"\"\"\ns=s+extra\nopen('/tmp/dbg3.py','w').write(s)\nEOF\ngrep -c \"rec_create\" /tmp/dbg3.py"
-    },
-    "timestamp": 1790116587374
-  },
-  {
-    "role": "tool_result",
-    "content": "2\n",
-    "is_error": false,
-    "timestamp": 1790116587412
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"reconciliation_guard_relations\" \"/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql\" | head"
     },
     "timestamp": 1790116635053
@@ -1488,5 +1474,19 @@
     "content": "PASS: 70-unit partner shipment, store and idempotent SKU mapping\nPASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nPASS: preview totals and DRAFT close without posting stock\nPASS: SKU_NOT_MAPPED exception, price-rule billable, no double posting on reprocess\nA",
     "is_error": false,
     "timestamp": 1790117239888
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sed -n '70,84p' scripts/test-reconciliation-db.py"
+    },
+    "timestamp": 1790117241648
+  },
+  {
+    "role": "tool_result",
+    "content": " rr=json.loads(rpc('rec_reprocess_item',q(org)+','+q(sku_z['id'])))\n assert rr['status']=='RECONCILED' and balance(ploc)==64\n r3=json.loads(rpc('rec_process',','.join(map(q,[org,rid]))));assert r3['status']=='READY_TO_CLOSE'\n close=json.loads(rpc('rec_close',q(org)+','+q(rid)));assert close['status'",
+    "is_error": false,
+    "timestamp": 1790117241658
   }
 ]
