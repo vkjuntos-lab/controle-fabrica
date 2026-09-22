@@ -58,8 +58,12 @@ def run():
  rpc('price_save_item',q(org)+','+q(json.dumps({'price_table_id':table,'variant_id':variant,'unit_price':25})))
  rpc('price_link_partner',q(org)+','+q(json.dumps({'partner_id':p,'price_table_id':table})))
  print('PASS: preview totals and DRAFT close without posting stock')
+rec=json.loads(rpc('rec_query',q(org)+",'reconciliation',"+q(json.dumps({'id':rid}))))
+print('ITEMQUERY',json.dumps(rec['items'],default=str))
+exc=json.loads(rpc('rec_query',q(org)+",'exceptions',"+q(json.dumps({'reconciliation_id':rid}))))
+print('EXCQ',json.dumps(exc,default=str))
+
  r=json.loads(rpc('rec_process',','.join(map(q,[org,rid]))))
- print('PROC',json.dumps(r))
  assert r['status']=='REVIEW_REQUIRED' and r['reconciled']==2 and r['exceptions']==1 and balance(ploc)==65
  items=json.loads(rpc('rec_query',q(org)+",'reconciliation',"+q(json.dumps({'id':rid}))))['items']
  sku_z=next(i for i in items if i['external_sku']=='SKU-Z')

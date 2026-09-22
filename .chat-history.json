@@ -4,22 +4,6 @@
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "limit": 80,
-      "offset": 520
-    },
-    "timestamp": 1790116077100
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n520:   RETURN jsonb_build_object('id',v_id);\n521: END;\n522: $$;\n523: \n524: CREATE FUNCTION public.marketplace_register_sale(_org uuid,_data jsonb,_user_id u",
-    "is_error": false,
-    "timestamp": 1790116077105
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
       "limit": 70,
       "offset": 918
     },
@@ -1558,5 +1542,20 @@
     "content": "PASS: 70-unit partner shipment, store and idempotent SKU mapping\nPASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nPASS: preview totals and DRAFT close without posting stock\nPROC {\"status\": \"REVIEW_REQUIRED\", \"already\": 0, \"canceled\": 0, \"exceptions\": 3, \"rec",
     "is_error": false,
     "timestamp": 1790116724145
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PYEOF'\nfrom pathlib import Path\ns=Path('scripts/test-reconciliation-db.py').read_text()\nn=\"print('PASS: preview totals and DRAFT close without posting stock')\"\ns=s.replace(n,n+\"\"\"\nrec=json.loads(rpc('rec_query',q(org)+\",'reconciliation',\"+q(json.dumps({'id':rid}))))\nprint('ITEMQUERY',json.dumps(rec['items'],default=str))\nexc=json.loads(rpc('rec_query',q(org)+\",'exceptions',\"+q(json.dumps({'reconciliation_id':rid}))))\nprint('EXCQ',json.dumps(exc,default=str))\n\"\"\")\nPath('scripts/test-reconciliation-db.py.dbg').write_text(s)\nprint('patched')\nPYEOF\nsudo -u postgres python3 scripts/test-reconciliation-db.py.dbg 2>&1 | grep -E 'ITEMQUERY|EXCQ' | head",
+      "timeout": 300000
+    },
+    "timestamp": 1790116728795
+  },
+  {
+    "role": "tool_result",
+    "content": "patched\n",
+    "is_error": false,
+    "timestamp": 1790116728900
   }
 ]
