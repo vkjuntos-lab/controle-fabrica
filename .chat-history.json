@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PYEOF'\nfrom pathlib import Path\ns=Path('scripts/test-reconciliation-db.py').read_text()\nn=\"print('PASS: preview totals and DRAFT close without posting stock')\\n r=json.loads(rpc('rec_process',','.join(map(q,[org,rid]))))\\n assert r['status']=='REVIEW_REQUIRED'\"\ns=s.replace(n,\"print('PASS: preview totals and DRAFT close without posting stock')\\n rec=json.loads(rpc('rec_query',q(org)+\\\",'reconciliation',\\\"+q(json.dumps({'id':rid}))))\\n print('ITEMQUERY',json.dumps(rec['items'],default=str))\\n exc=json.loads(rpc('rec_query',q(org)+\\\",'exceptions',\\\"+q(json.dumps({'reconciliation_id':rid}))))\\n print('EXCQ',json.dumps(exc,default=str))\\n r=json.loads(rpc('rec_process',','.join(map(q,[org,rid]))))\\n assert r['status']=='REVIEW_REQUIRED'\")\nPath('scripts/test-reconciliation-db.py.dbg').write_text(s)\nprint('ok')\nPYEOF\nsudo -u postgres python3 scripts/test-reconciliation-db.py.dbg 2>&1 | grep -E 'ITEMQUERY|EXCQ|PASS|Assert|ERROR' | head",
-      "timeout": 300000
-    },
-    "timestamp": 1790116742618
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\nPASS: 70-unit partner shipment, store and idempotent SKU mapping\nPASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nPASS: preview totals and DRAFT close without posting stock\nAssertionError: ERROR:  column \"s.sale_date\" must appear in the GROUP BY clause or",
-    "is_error": false,
-    "timestamp": 1790116744610
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
@@ -1494,5 +1479,19 @@
     "content": "44:CREATE TYPE public.inventory_movement_status AS ENUM ('PENDING', 'POSTED', 'REVERSED', 'CANCELED');\n104:-- REVERSED e cria um movimento compensatório (movement_type = REVERSAL).\n125:  -- movimento é uma REVERSAL; reversed_by_id marca o original revertido.\n127:  reversed_by_id uuid REFERENCES publ",
     "is_error": false,
     "timestamp": 1790117463784
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"inventory_guard_movement\\|REVERSAL\\|reversal_batch\\|reversal_source\\|SET RUN\\|SET res\" supabase/migrations/20260918100000_inventory_ledger.sql | head; echo ---; grep -n \"inventory_reverse_movement\" supabase/migrations/20260918100000_inventory_ledger.sql"
+    },
+    "timestamp": 1790117467968
+  },
+  {
+    "role": "tool_result",
+    "content": "8:--     movimento de REVERSAL (ou ADJUSTMENT / MANUAL_CORRECTION).\n42:  'REVERSAL'\n104:-- REVERSED e cria um movimento compensatório (movement_type = REVERSAL).\n125:  -- movimento é uma REVERSAL; reversed_by_id marca o original revertido.\n139:      'PARTNER_SHIPMENT','PARTNER_RETURN','TRANSFER_IN',",
+    "is_error": false,
+    "timestamp": 1790117467993
   }
 ]
