@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "145296 .chat-history.json\n<class 'list'>\n200\n",
-    "is_error": false,
-    "timestamp": 1790114989117
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "python3 -c \"\nimport json\nd=json.load(open('.chat-history.json'))\nfor e in d[-8:]:\n    r=e.get('role','?')\n    c=e.get('content','')\n    if isinstance(c,list):\n        c=' '.join(str(p.get('text','')) for p in c if isinstance(p,dict))\n    print('='*20,r)\n    print(str(c)[:2000])\n\""
-    },
-    "timestamp": 1790114990881
-  },
-  {
-    "role": "tool_result",
     "content": "==================== tool_result\n/root/Zheus AI Projects/controle-fabrica/AGENTS.md\n/root/Zheus AI Projects/controle-fabrica/src/routes/README.md\n/root/Zheus AI Projects/controle-fabrica/docs/architecture/ADR-001-initial-architecture.md\n/root/Zheus AI Projects/controle-fabrica/docs/architecture/ADR-",
     "is_error": false,
     "timestamp": 1790114990918
@@ -1597,5 +1583,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n336: $$;\n337: CREATE FUNCTION public.reconciliation_audit(_org uuid,_action text,_table text,_id uuid,_context jsonb DEFAULT '{}') RETURNS void LANGUAGE sql",
     "is_error": false,
     "timestamp": 1790116171628
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "ls /usr/lib/postgresql/18/bin 2>/dev/null | head -3; which psql; ls \"/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql\""
+    },
+    "timestamp": 1790116175129
+  },
+  {
+    "role": "tool_result",
+    "content": "clusterdb\ncreatedb\ncreateuser\n/usr/bin/psql\n/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql\n",
+    "is_error": false,
+    "timestamp": 1790116175212
   }
 ]
