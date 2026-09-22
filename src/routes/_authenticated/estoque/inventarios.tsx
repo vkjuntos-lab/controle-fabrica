@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useRouterState, Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { ClipboardList, Plus } from "lucide-react";
 import { useState, type FormEvent } from "react";
@@ -51,7 +51,7 @@ export const Route = createFileRoute("/_authenticated/estoque/inventarios")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: CountsPage,
+  component: InventoryRoute,
 });
 
 function CountStatusBadge({ status }: { status: string }) {
@@ -267,4 +267,13 @@ function CountsPage() {
       )}
     </AppShell>
   );
+}
+
+// Detail routes share the authenticated layout, not the list page contents.
+function InventoryRoute() {
+  const detail = useRouterState({
+    select: (state) =>
+      state.matches.some((match) => match.routeId === "/_authenticated/estoque/inventarios/$id"),
+  });
+  return detail ? <Outlet /> : <CountsPage />;
 }

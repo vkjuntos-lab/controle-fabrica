@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Outlet, useRouterState, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { ArrowLeftRight, Download, Plus } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -54,7 +54,7 @@ export const Route = createFileRoute("/_authenticated/estoque/movimentacoes")({
       { name: "robots", content: "noindex" },
     ],
   }),
-  component: MovementsPage,
+  component: InventoryRoute,
 });
 
 const PAGE_SIZE = 30;
@@ -457,4 +457,13 @@ function MovementsPage() {
       )}
     </AppShell>
   );
+}
+
+// Detail routes share the authenticated layout, not the list page contents.
+function InventoryRoute() {
+  const detail = useRouterState({
+    select: (state) =>
+      state.matches.some((match) => match.routeId === "/_authenticated/estoque/movimentacoes/$id"),
+  });
+  return detail ? <Outlet /> : <MovementsPage />;
 }

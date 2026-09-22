@@ -54,6 +54,19 @@ type NavItem = {
 };
 
 const OPERATION_ITEMS: NavItem[] = [
+  { label: "Parceiros", to: "/parceiros", icon: Handshake, permission: PERMISSIONS.partnersRead },
+  {
+    label: "Remessas de parceiros",
+    to: "/parceiros/remessas",
+    icon: Package,
+    permission: PERMISSIONS.partnerShipmentsRead,
+  },
+  {
+    label: "Devoluções de parceiros",
+    to: "/parceiros/devolucoes",
+    icon: ArrowLeftRight,
+    permission: PERMISSIONS.partnerReturnsRead,
+  },
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
   { label: "Produtos", to: "/produtos", icon: Package, permission: PERMISSIONS.productsRead },
   {

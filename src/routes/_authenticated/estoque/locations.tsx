@@ -54,6 +54,8 @@ import {
   type InventoryLocationRow,
 } from "@/lib/inventory/inventory.functions";
 import { useOrganization } from "@/lib/org/org-context";
+import { queryPartners } from "@/lib/partners/partners.functions";
+import type { PartnerList, CompanyRow } from "@/lib/partners/types";
 import { PERMISSIONS } from "@/lib/rbac";
 
 export const Route = createFileRoute("/_authenticated/estoque/locations")({
@@ -76,12 +78,28 @@ function LocationDialog({
   onOpenChange: (value: boolean) => void;
   location: InventoryLocationRow | null;
 }) {
-  const { currentOrganization } = useOrganization();
+  const { currentOrganization, hasPermission } = useOrganization();
   const organizationId = currentOrganization?.organization_id;
   const queryClient = useQueryClient();
   const create = useServerFn(createInventoryLocation);
   const update = useServerFn(updateInventoryLocation);
 
+  const queryPartnersFn = useServerFn(queryPartners);
+  const [partnerSearch, setPartnerSearch] = useState("");
+  const [partnerId, setPartnerId] = useState<string | null>(null);
+  const [purpose, setPurpose] = useState<"NORMAL" | "QUARANTINE" | "INSPECTION">("NORMAL");
+  const partners = useQuery({
+    queryKey: ["partners", "location-options", organizationId, partnerSearch],
+    queryFn: async () =>
+      (await queryPartnersFn({
+        data: {
+          organizationId: organizationId!,
+          kind: "companies",
+          filters: { query: partnerSearch },
+        },
+      })) as PartnerList,
+    enabled: open && Boolean(organizationId) && hasPermission("partners.read"),
+  });
   const [code, setCode] = useState("");
   const [name, setName] = useState("");
   const [type, setType] = useState<LocationType>("WAREHOUSE");
@@ -90,6 +108,8 @@ function LocationDialog({
   useEffect(() => {
     if (!open) return;
     setCode(location?.code ?? "");
+    setPartnerId(location?.partner_id ?? null);
+    setPurpose(location?.operational_purpose ?? "NORMAL");
     setName(location?.name ?? "");
     setType(location?.type ?? "WAREHOUSE");
     setStatus(location?.status ?? "ACTIVE");
@@ -100,11 +120,21 @@ function LocationDialog({
       if (!organizationId) throw new Error("Nenhuma organização selecionada.");
       if (location) {
         await update({
-          data: { organizationId, locationId: location.id, name, type, status },
+          data: {
+            organizationId,
+            locationId: location.id,
+            name,
+            type,
+            status,
+            operationalPurpose: purpose,
+            partnerId,
+          },
         });
         return;
       }
-      await create({ data: { organizationId, code, name, type } });
+      await create({
+        data: { organizationId, code, name, type, operationalPurpose: purpose, partnerId },
+      });
     },
     onSuccess: () => {
       toast.success(location ? "Localização atualizada" : "Localização criada");
@@ -190,6 +220,53 @@ function LocationDialog({
               </div>
             ) : null}
           </div>
+          <div className="space-y-2">
+            <Label>Finalidade operacional</Label>
+            <Select value={purpose} onValueChange={(v) => setPurpose(v as typeof purpose)}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="NORMAL">Normal</SelectItem>
+                <SelectItem value="QUARANTINE">Quarentena / avaria</SelectItem>
+                <SelectItem value="INSPECTION">Inspeção</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {type === "PARTNER" ? (
+            <div className="space-y-2">
+              <Label>Empresa parceira</Label>
+              {location?.partner_id ? (
+                <p className="text-sm text-muted-foreground">
+                  Vínculo preservado: {location.partner_id}
+                </p>
+              ) : (
+                <>
+                  <Input
+                    placeholder="Buscar empresa"
+                    value={partnerSearch}
+                    onChange={(e) => setPartnerSearch(e.target.value)}
+                  />
+                  <select
+                    aria-label="Empresa parceira"
+                    className="h-10 w-full rounded border bg-background px-3"
+                    value={partnerId ?? ""}
+                    onChange={(e) => setPartnerId(e.target.value || null)}
+                  >
+                    <option value="">Sem vínculo</option>
+                    {((partners.data?.rows ?? []) as CompanyRow[])
+                      .filter((p) => p.partner_id)
+                      .map((p) => (
+                        <option value={p.partner_id!} key={p.id}>
+                          {p.legal_name}
+                        </option>
+                      ))}
+                  </select>
+                  {partners.error ? <p role="alert">{partners.error.message}</p> : null}
+                </>
+              )}
+            </div>
+          ) : null}
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancelar
@@ -310,7 +387,16 @@ function LocationsPage() {
                               {location.code}
                             </p>
                           </TableCell>
-                          <TableCell>{locationTypeLabel(location.type)}</TableCell>
+                          <TableCell>
+                            {locationTypeLabel(location.type)} ·{" "}
+                            {
+                              {
+                                NORMAL: "Normal",
+                                QUARANTINE: "Quarentena",
+                                INSPECTION: "Inspeção",
+                              }[location.operational_purpose]
+                            }
+                          </TableCell>
                           <TableCell>
                             <Badge variant={location.status === "ACTIVE" ? "default" : "secondary"}>
                               {locationStatusLabel(location.status)}

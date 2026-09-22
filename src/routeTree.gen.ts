@@ -28,11 +28,18 @@ import { Route as AuthenticatedEstoqueLocationsRouteImport } from './routes/_aut
 import { Route as AuthenticatedEstoqueMovimentacoesRouteImport } from './routes/_authenticated/estoque/movimentacoes'
 import { Route as AuthenticatedEstoqueTerceirosRouteImport } from './routes/_authenticated/estoque/terceiros'
 import { Route as AuthenticatedEstoqueTransferenciasRouteImport } from './routes/_authenticated/estoque/transferencias'
+import { Route as AuthenticatedParceirosIndexRouteImport } from './routes/_authenticated/parceiros/index'
+import { Route as AuthenticatedParceirosDevolucoesRouteImport } from './routes/_authenticated/parceiros/devolucoes'
+import { Route as AuthenticatedParceirosEstoqueRouteImport } from './routes/_authenticated/parceiros/estoque'
+import { Route as AuthenticatedParceirosRemessasRouteImport } from './routes/_authenticated/parceiros/remessas'
 import { Route as AuthenticatedProdutosIdRouteImport } from './routes/_authenticated/produtos.$id'
 import { Route as ApiCronHealthRouteImport } from './routes/api/cron.health'
 import { Route as ApiWebhooksReceiverRouteImport } from './routes/api/webhooks.receiver'
 import { Route as AuthenticatedEstoqueInventariosIdRouteImport } from './routes/_authenticated/estoque/inventarios.$id'
 import { Route as AuthenticatedEstoqueMovimentacoesIdRouteImport } from './routes/_authenticated/estoque/movimentacoes.$id'
+import { Route as AuthenticatedParceirosDevolucoesIdRouteImport } from './routes/_authenticated/parceiros/devolucoes_.$id'
+import { Route as AuthenticatedParceirosEmpresasIdRouteImport } from './routes/_authenticated/parceiros/empresas.$id'
+import { Route as AuthenticatedParceirosRemessasIdRouteImport } from './routes/_authenticated/parceiros/remessas_.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -138,6 +145,30 @@ const AuthenticatedEstoqueTransferenciasRoute =
     path: '/estoque/transferencias',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedParceirosIndexRoute =
+  AuthenticatedParceirosIndexRouteImport.update({
+    id: '/parceiros/',
+    path: '/parceiros/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedParceirosDevolucoesRoute =
+  AuthenticatedParceirosDevolucoesRouteImport.update({
+    id: '/parceiros/devolucoes',
+    path: '/parceiros/devolucoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedParceirosEstoqueRoute =
+  AuthenticatedParceirosEstoqueRouteImport.update({
+    id: '/parceiros/estoque',
+    path: '/parceiros/estoque',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedParceirosRemessasRoute =
+  AuthenticatedParceirosRemessasRouteImport.update({
+    id: '/parceiros/remessas',
+    path: '/parceiros/remessas',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProdutosIdRoute = AuthenticatedProdutosIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -165,6 +196,24 @@ const AuthenticatedEstoqueMovimentacoesIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedEstoqueMovimentacoesRoute,
   } as any)
+const AuthenticatedParceirosDevolucoesIdRoute =
+  AuthenticatedParceirosDevolucoesIdRouteImport.update({
+    id: '/parceiros/devolucoes_/$id',
+    path: '/parceiros/devolucoes/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedParceirosEmpresasIdRoute =
+  AuthenticatedParceirosEmpresasIdRouteImport.update({
+    id: '/parceiros/empresas/$id',
+    path: '/parceiros/empresas/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedParceirosRemessasIdRoute =
+  AuthenticatedParceirosRemessasIdRouteImport.update({
+    id: '/parceiros/remessas_/$id',
+    path: '/parceiros/remessas/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -184,12 +233,19 @@ export interface FileRoutesByFullPath {
   '/estoque/movimentacoes': typeof AuthenticatedEstoqueMovimentacoesRouteWithChildren
   '/estoque/terceiros': typeof AuthenticatedEstoqueTerceirosRoute
   '/estoque/transferencias': typeof AuthenticatedEstoqueTransferenciasRoute
+  '/parceiros/devolucoes': typeof AuthenticatedParceirosDevolucoesRoute
+  '/parceiros/estoque': typeof AuthenticatedParceirosEstoqueRoute
+  '/parceiros/remessas': typeof AuthenticatedParceirosRemessasRoute
   '/produtos/$id': typeof AuthenticatedProdutosIdRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
   '/estoque/': typeof AuthenticatedEstoqueIndexRoute
+  '/parceiros/': typeof AuthenticatedParceirosIndexRoute
   '/estoque/inventarios/$id': typeof AuthenticatedEstoqueInventariosIdRoute
   '/estoque/movimentacoes/$id': typeof AuthenticatedEstoqueMovimentacoesIdRoute
+  '/parceiros/devolucoes/$id': typeof AuthenticatedParceirosDevolucoesIdRoute
+  '/parceiros/empresas/$id': typeof AuthenticatedParceirosEmpresasIdRoute
+  '/parceiros/remessas/$id': typeof AuthenticatedParceirosRemessasIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -209,12 +265,19 @@ export interface FileRoutesByTo {
   '/estoque/movimentacoes': typeof AuthenticatedEstoqueMovimentacoesRouteWithChildren
   '/estoque/terceiros': typeof AuthenticatedEstoqueTerceirosRoute
   '/estoque/transferencias': typeof AuthenticatedEstoqueTransferenciasRoute
+  '/parceiros/devolucoes': typeof AuthenticatedParceirosDevolucoesRoute
+  '/parceiros/estoque': typeof AuthenticatedParceirosEstoqueRoute
+  '/parceiros/remessas': typeof AuthenticatedParceirosRemessasRoute
   '/produtos/$id': typeof AuthenticatedProdutosIdRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
   '/estoque': typeof AuthenticatedEstoqueIndexRoute
+  '/parceiros': typeof AuthenticatedParceirosIndexRoute
   '/estoque/inventarios/$id': typeof AuthenticatedEstoqueInventariosIdRoute
   '/estoque/movimentacoes/$id': typeof AuthenticatedEstoqueMovimentacoesIdRoute
+  '/parceiros/devolucoes/$id': typeof AuthenticatedParceirosDevolucoesIdRoute
+  '/parceiros/empresas/$id': typeof AuthenticatedParceirosEmpresasIdRoute
+  '/parceiros/remessas/$id': typeof AuthenticatedParceirosRemessasIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -236,12 +299,19 @@ export interface FileRoutesById {
   '/_authenticated/estoque/movimentacoes': typeof AuthenticatedEstoqueMovimentacoesRouteWithChildren
   '/_authenticated/estoque/terceiros': typeof AuthenticatedEstoqueTerceirosRoute
   '/_authenticated/estoque/transferencias': typeof AuthenticatedEstoqueTransferenciasRoute
+  '/_authenticated/parceiros/devolucoes': typeof AuthenticatedParceirosDevolucoesRoute
+  '/_authenticated/parceiros/estoque': typeof AuthenticatedParceirosEstoqueRoute
+  '/_authenticated/parceiros/remessas': typeof AuthenticatedParceirosRemessasRoute
   '/_authenticated/produtos/$id': typeof AuthenticatedProdutosIdRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
   '/_authenticated/estoque/': typeof AuthenticatedEstoqueIndexRoute
+  '/_authenticated/parceiros/': typeof AuthenticatedParceirosIndexRoute
   '/_authenticated/estoque/inventarios/$id': typeof AuthenticatedEstoqueInventariosIdRoute
   '/_authenticated/estoque/movimentacoes/$id': typeof AuthenticatedEstoqueMovimentacoesIdRoute
+  '/_authenticated/parceiros/devolucoes_/$id': typeof AuthenticatedParceirosDevolucoesIdRoute
+  '/_authenticated/parceiros/empresas/$id': typeof AuthenticatedParceirosEmpresasIdRoute
+  '/_authenticated/parceiros/remessas_/$id': typeof AuthenticatedParceirosRemessasIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -263,12 +333,19 @@ export interface FileRouteTypes {
     | '/estoque/movimentacoes'
     | '/estoque/terceiros'
     | '/estoque/transferencias'
+    | '/parceiros/devolucoes'
+    | '/parceiros/estoque'
+    | '/parceiros/remessas'
     | '/produtos/$id'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
     | '/estoque/'
+    | '/parceiros/'
     | '/estoque/inventarios/$id'
     | '/estoque/movimentacoes/$id'
+    | '/parceiros/devolucoes/$id'
+    | '/parceiros/empresas/$id'
+    | '/parceiros/remessas/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -288,12 +365,19 @@ export interface FileRouteTypes {
     | '/estoque/movimentacoes'
     | '/estoque/terceiros'
     | '/estoque/transferencias'
+    | '/parceiros/devolucoes'
+    | '/parceiros/estoque'
+    | '/parceiros/remessas'
     | '/produtos/$id'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
     | '/estoque'
+    | '/parceiros'
     | '/estoque/inventarios/$id'
     | '/estoque/movimentacoes/$id'
+    | '/parceiros/devolucoes/$id'
+    | '/parceiros/empresas/$id'
+    | '/parceiros/remessas/$id'
   id:
     | '__root__'
     | '/'
@@ -314,12 +398,19 @@ export interface FileRouteTypes {
     | '/_authenticated/estoque/movimentacoes'
     | '/_authenticated/estoque/terceiros'
     | '/_authenticated/estoque/transferencias'
+    | '/_authenticated/parceiros/devolucoes'
+    | '/_authenticated/parceiros/estoque'
+    | '/_authenticated/parceiros/remessas'
     | '/_authenticated/produtos/$id'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
     | '/_authenticated/estoque/'
+    | '/_authenticated/parceiros/'
     | '/_authenticated/estoque/inventarios/$id'
     | '/_authenticated/estoque/movimentacoes/$id'
+    | '/_authenticated/parceiros/devolucoes_/$id'
+    | '/_authenticated/parceiros/empresas/$id'
+    | '/_authenticated/parceiros/remessas_/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -467,6 +558,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEstoqueTransferenciasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/parceiros/': {
+      id: '/_authenticated/parceiros/'
+      path: '/parceiros'
+      fullPath: '/parceiros/'
+      preLoaderRoute: typeof AuthenticatedParceirosIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/parceiros/devolucoes': {
+      id: '/_authenticated/parceiros/devolucoes'
+      path: '/parceiros/devolucoes'
+      fullPath: '/parceiros/devolucoes'
+      preLoaderRoute: typeof AuthenticatedParceirosDevolucoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/parceiros/estoque': {
+      id: '/_authenticated/parceiros/estoque'
+      path: '/parceiros/estoque'
+      fullPath: '/parceiros/estoque'
+      preLoaderRoute: typeof AuthenticatedParceirosEstoqueRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/parceiros/remessas': {
+      id: '/_authenticated/parceiros/remessas'
+      path: '/parceiros/remessas'
+      fullPath: '/parceiros/remessas'
+      preLoaderRoute: typeof AuthenticatedParceirosRemessasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/produtos/$id': {
       id: '/_authenticated/produtos/$id'
       path: '/$id'
@@ -501,6 +620,27 @@ declare module '@tanstack/react-router' {
       fullPath: '/estoque/movimentacoes/$id'
       preLoaderRoute: typeof AuthenticatedEstoqueMovimentacoesIdRouteImport
       parentRoute: typeof AuthenticatedEstoqueMovimentacoesRoute
+    }
+    '/_authenticated/parceiros/devolucoes_/$id': {
+      id: '/_authenticated/parceiros/devolucoes_/$id'
+      path: '/parceiros/devolucoes/$id'
+      fullPath: '/parceiros/devolucoes/$id'
+      preLoaderRoute: typeof AuthenticatedParceirosDevolucoesIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/parceiros/empresas/$id': {
+      id: '/_authenticated/parceiros/empresas/$id'
+      path: '/parceiros/empresas/$id'
+      fullPath: '/parceiros/empresas/$id'
+      preLoaderRoute: typeof AuthenticatedParceirosEmpresasIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/parceiros/remessas_/$id': {
+      id: '/_authenticated/parceiros/remessas_/$id'
+      path: '/parceiros/remessas/$id'
+      fullPath: '/parceiros/remessas/$id'
+      preLoaderRoute: typeof AuthenticatedParceirosRemessasIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
@@ -562,7 +702,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEstoqueMovimentacoesRoute: typeof AuthenticatedEstoqueMovimentacoesRouteWithChildren
   AuthenticatedEstoqueTerceirosRoute: typeof AuthenticatedEstoqueTerceirosRoute
   AuthenticatedEstoqueTransferenciasRoute: typeof AuthenticatedEstoqueTransferenciasRoute
+  AuthenticatedParceirosDevolucoesRoute: typeof AuthenticatedParceirosDevolucoesRoute
+  AuthenticatedParceirosEstoqueRoute: typeof AuthenticatedParceirosEstoqueRoute
+  AuthenticatedParceirosRemessasRoute: typeof AuthenticatedParceirosRemessasRoute
   AuthenticatedEstoqueIndexRoute: typeof AuthenticatedEstoqueIndexRoute
+  AuthenticatedParceirosIndexRoute: typeof AuthenticatedParceirosIndexRoute
+  AuthenticatedParceirosDevolucoesIdRoute: typeof AuthenticatedParceirosDevolucoesIdRoute
+  AuthenticatedParceirosEmpresasIdRoute: typeof AuthenticatedParceirosEmpresasIdRoute
+  AuthenticatedParceirosRemessasIdRoute: typeof AuthenticatedParceirosRemessasIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -582,7 +729,15 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEstoqueTerceirosRoute: AuthenticatedEstoqueTerceirosRoute,
   AuthenticatedEstoqueTransferenciasRoute:
     AuthenticatedEstoqueTransferenciasRoute,
+  AuthenticatedParceirosDevolucoesRoute: AuthenticatedParceirosDevolucoesRoute,
+  AuthenticatedParceirosEstoqueRoute: AuthenticatedParceirosEstoqueRoute,
+  AuthenticatedParceirosRemessasRoute: AuthenticatedParceirosRemessasRoute,
   AuthenticatedEstoqueIndexRoute: AuthenticatedEstoqueIndexRoute,
+  AuthenticatedParceirosIndexRoute: AuthenticatedParceirosIndexRoute,
+  AuthenticatedParceirosDevolucoesIdRoute:
+    AuthenticatedParceirosDevolucoesIdRoute,
+  AuthenticatedParceirosEmpresasIdRoute: AuthenticatedParceirosEmpresasIdRoute,
+  AuthenticatedParceirosRemessasIdRoute: AuthenticatedParceirosRemessasIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

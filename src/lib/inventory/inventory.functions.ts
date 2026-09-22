@@ -128,6 +128,8 @@ async function auditRejectedOperation(
  * ============================================================ */
 
 export type InventoryLocationRow = {
+  partner_id: string | null;
+  operational_purpose: "NORMAL" | "QUARANTINE" | "INSPECTION";
   id: string;
   code: string;
   name: string;
@@ -188,6 +190,8 @@ export const listInventoryLocations = createServerFn({ method: "GET" })
       type: row.type,
       status: row.status,
       on_hand_total: totals.get(row.id) ?? 0,
+      partner_id: row.partner_id,
+      operational_purpose: row.operational_purpose,
       created_at: row.created_at,
     }));
   });
@@ -201,6 +205,8 @@ export const createInventoryLocation = createServerFn({ method: "POST" })
         code: locationCodeSchema,
         name: z.string().trim().min(2).max(120),
         type: locationTypeSchema.default("WAREHOUSE"),
+        operationalPurpose: z.enum(["NORMAL", "QUARANTINE", "INSPECTION"]).default("NORMAL"),
+        partnerId: z.string().uuid().nullable().optional(),
       })
       .parse(input),
   )
@@ -219,6 +225,8 @@ export const createInventoryLocation = createServerFn({ method: "POST" })
         code: data.code,
         name: data.name,
         type: data.type,
+        operational_purpose: data.operationalPurpose,
+        partner_id: data.partnerId,
         created_by: context.userId,
         updated_by: context.userId,
       })
@@ -239,6 +247,8 @@ export const updateInventoryLocation = createServerFn({ method: "POST" })
         name: z.string().trim().min(2).max(120),
         type: locationTypeSchema,
         status: locationStatusSchema,
+        operationalPurpose: z.enum(["NORMAL", "QUARANTINE", "INSPECTION"]).optional(),
+        partnerId: z.string().uuid().nullable().optional(),
       })
       .parse(input),
   )
@@ -255,6 +265,8 @@ export const updateInventoryLocation = createServerFn({ method: "POST" })
       .update({
         name: data.name,
         type: data.type,
+        operational_purpose: data.operationalPurpose,
+        partner_id: data.partnerId,
         status: data.status,
         updated_by: context.userId,
       })

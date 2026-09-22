@@ -41,6 +41,25 @@ export const ROLE_DESCRIPTIONS: Record<AppRole, string> = {
 
 /** Permissões atualmente reconhecidas pela aplicação. */
 export const PERMISSIONS = {
+  partnersRead: "partners.read",
+  partnersCreate: "partners.create",
+  partnersUpdate: "partners.update",
+  partnersBlock: "partners.block",
+  partnerContactsManage: "partner_contacts.manage",
+  partnerAddressesManage: "partner_addresses.manage",
+  partnerShipmentsRead: "partner_shipments.read",
+  partnerShipmentsCreate: "partner_shipments.create",
+  partnerShipmentsApprove: "partner_shipments.approve",
+  partnerShipmentsPick: "partner_shipments.pick",
+  partnerShipmentsShip: "partner_shipments.ship",
+  partnerShipmentsReceive: "partner_shipments.receive",
+  partnerShipmentsCancel: "partner_shipments.cancel",
+  partnerReturnsRead: "partner_returns.read",
+  partnerReturnsCreate: "partner_returns.create",
+  partnerReturnsReceive: "partner_returns.receive",
+  partnerInventoryRead: "partner_inventory.read",
+  partnerInventoryAdjust: "partner_inventory.adjust",
+
   organizationRead: "organization.read",
   organizationManage: "organization.manage",
   usersRead: "users.read",
@@ -65,6 +84,25 @@ export const PERMISSIONS = {
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 
 export const PERMISSION_LABELS: Record<string, string> = {
+  "partners.read": "Ver empresas parceiras",
+  "partners.create": "Cadastrar empresas",
+  "partners.update": "Editar empresas",
+  "partners.block": "Bloquear parceiros",
+  "partner_contacts.manage": "Gerenciar contatos",
+  "partner_addresses.manage": "Gerenciar endereços",
+  "partner_shipments.read": "Ver remessas",
+  "partner_shipments.create": "Criar remessas",
+  "partner_shipments.approve": "Aprovar remessas",
+  "partner_shipments.pick": "Separar itens",
+  "partner_shipments.ship": "Expedir remessas",
+  "partner_shipments.receive": "Confirmar entregas",
+  "partner_shipments.cancel": "Cancelar remessas",
+  "partner_returns.read": "Ver devoluções",
+  "partner_returns.create": "Criar devoluções",
+  "partner_returns.receive": "Receber devoluções",
+  "partner_inventory.read": "Ver estoque de parceiros",
+  "partner_inventory.adjust": "Ajustar estoque de parceiros",
+
   "organization.read": "Ver organização",
   "organization.manage": "Editar organização",
   "users.read": "Ver participantes",
@@ -139,8 +177,8 @@ export const PLATFORM_MODULES: ModuleDefinition[] = [
   {
     key: "parceiros",
     label: "Parceiros",
-    description: "Remessas, posição em posse e fechamento.",
-    status: "coming_soon",
+    description: "Empresas, remessas, estoque em terceiros e devoluções.",
+    status: "available",
   },
   {
     key: "financeiro",

@@ -28,20 +28,29 @@ def uid(): return str(uuid.uuid4())
 def call(name, args, user, fail=None): return sql(f"SELECT public.{name}({args});", user, fail)
 def q(s): return "'"+str(s).replace("'", "''")+"'"
 
-def run():
+def setup():
     subprocess.run([str(BIN/'initdb'),'-D',str(TMP/'data'),'-A','trust','-U','postgres'],check=True,stdout=subprocess.DEVNULL)
     subprocess.run([str(BIN/'pg_ctl'),'-D',str(TMP/'data'),'-l',str(TMP/'log'),'-o',f'-p {PORT} -k {TMP} -c listen_addresses=','start'],check=True,stdout=subprocess.DEVNULL)
     sql("""CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role BYPASSRLS;
+      CREATE SCHEMA storage;
+      CREATE TABLE storage.buckets(id text PRIMARY KEY,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
+      CREATE TABLE storage.objects(id uuid DEFAULT gen_random_uuid(),bucket_id text,name text);
+      ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
+      GRANT USAGE ON SCHEMA storage TO authenticated;
+      GRANT SELECT,INSERT,UPDATE,DELETE ON storage.objects TO authenticated;
       CREATE SCHEMA auth; CREATE TABLE auth.users(id uuid PRIMARY KEY,email text,raw_user_meta_data jsonb DEFAULT '{}');
       CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$ SELECT nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
       GRANT USAGE ON SCHEMA auth TO authenticated,anon; GRANT EXECUTE ON FUNCTION auth.uid() TO authenticated,anon;""")
     migrations = ['20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql','20260917110000_catalog_mestre.sql','20260918100000_inventory_ledger.sql','20260921100000_inventory_integrity.sql']
-    migrations += ['20260922100000_production.sql','20260923100000_inventory_workflows.sql']
+    migrations += ['20260922100000_production.sql','20260923100000_inventory_workflows.sql','20260924100000_partners.sql']
     for name in migrations:
         # Historical migration contains an invalid record target in an obsolete RPC.
         # Preserve its bytes; defer function compilation only for that historical file.
         prefix = 'SET check_function_bodies=off;' if name.startswith('20260918100000') else ''
         sql(prefix+(ROOT/'supabase/migrations'/name).read_text())
+
+def run():
+    setup()
     a,b,reader,org,other,product,variant,factory,store,partner = [uid() for _ in range(10)]
     sql(f"INSERT INTO auth.users(id,email) VALUES ({q(a)},'a@test'),({q(b)},'b@test'),({q(reader)},'r@test'); INSERT INTO organizations(id,name,slug,created_by) VALUES ({q(org)},'A','a',{q(a)}),({q(other)},'B','b',{q(b)}); INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(reader)},'comercial'); INSERT INTO products(id,organization_id,code,name) VALUES({q(product)},{q(org)},'BALLET','Sapatilha Ballet'); INSERT INTO product_variants(id,organization_id,product_id,sku,size,color,barcode) VALUES({q(variant)},{q(org)},{q(product)},'BALLET-34-ROSA','34','Rosa','123456');")
     for loc,name,typ in [(factory,'Fábrica','FACTORY'),(store,'Loja','OWN_STORE'),(partner,'Parceiro A','PARTNER')]:
@@ -151,9 +160,11 @@ def run():
     print('PASS: more than 1000 SKUs, pagination, zero-stock dashboard, barcode search')
 
 
-try:
-    run()
-finally:
+def cleanup():
     if (TMP/'data/postmaster.pid').exists():
         subprocess.run([str(BIN/'pg_ctl'),'-D',str(TMP/'data'),'-m','immediate','stop'],stdout=subprocess.DEVNULL)
     shutil.rmtree(TMP)
+
+if __name__ == '__main__':
+    try: run()
+    finally: cleanup()

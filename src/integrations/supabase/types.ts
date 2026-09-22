@@ -633,6 +633,7 @@ export type Database = {
           created_at: string;
           created_by: string | null;
           id: string;
+          operational_purpose: "NORMAL" | "QUARANTINE" | "INSPECTION";
           marketplace_store_id: string | null;
           name: string;
           organization_id: string;
@@ -648,6 +649,7 @@ export type Database = {
           created_at?: string;
           created_by?: string | null;
           id?: string;
+          operational_purpose?: "NORMAL" | "QUARANTINE" | "INSPECTION";
           marketplace_store_id?: string | null;
           name: string;
           organization_id: string;
@@ -663,6 +665,7 @@ export type Database = {
           created_at?: string;
           created_by?: string | null;
           id?: string;
+          operational_purpose?: "NORMAL" | "QUARANTINE" | "INSPECTION";
           marketplace_store_id?: string | null;
           name?: string;
           organization_id?: string;
@@ -972,6 +975,25 @@ export type Database = {
       };
     };
     Functions: {
+      partner_query: {
+        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };
+        Returns: Json;
+      };
+      partner_save_company: { Args: { _org: string; _data: Json; _id?: string }; Returns: string };
+      partner_save_detail: {
+        Args: { _org: string; _company: string; _kind: string; _data: Json; _id?: string };
+        Returns: string;
+      };
+      partner_create_operation: {
+        Args: { _org: string; _kind: string; _data: Json };
+        Returns: string;
+      };
+      partner_shipment_action: {
+        Args: { _org: string; _id: string; _action: string; _data?: Json };
+        Returns: Json;
+      };
+      partner_receive_return: { Args: { _org: string; _id: string }; Returns: Json };
+
       inventory_search_variants: {
         Args: { _organization_id: string; _query?: string; _active_only?: boolean };
         Returns: Json;
