@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "find src/routes/_authenticated -type f | sort && echo \"===WCL===\" && wc -l supabase/migrations/202609*.sql src/lib/partners/partners.functions.ts src/lib/inventory/inventory.functions.ts src/lib/inventory/ledger.ts src/integrations/supabase/types.ts scripts/test-partners-db.py scripts/test-inventory-db.py"
-    },
-    "timestamp": 1790115119770
-  },
-  {
-    "role": "tool_result",
-    "content": "src/routes/_authenticated/admin.auditoria.tsx\nsrc/routes/_authenticated/admin.organizacao.tsx\nsrc/routes/_authenticated/admin.permissoes.tsx\nsrc/routes/_authenticated/admin.usuarios.tsx\nsrc/routes/_authenticated/dashboard.tsx\nsrc/routes/_authenticated/estoque/index.tsx\nsrc/routes/_authenticated/esto",
-    "is_error": false,
-    "timestamp": 1790115119792
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated"
@@ -1556,5 +1542,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n375: \n376: CREATE FUNCTION public.reconciliation_guard() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n377: DECLARE j jsonb",
     "is_error": false,
     "timestamp": 1790116198449
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "newString": "ELSIF TG_TABLE_NAME IN ('partner_price_links','price_tables','price_table_items') THEN\n    IF TG_TABLE_NAME='partner_price_links' AND (j-'valid_to'-'updated_at')<>(jold-'valid_to'-'updated_at') THEN RAISE EXCEPTION 'Vínculo imutável fora do RPC.'; END IF;\n    IF TG_TABLE_NAME='price_tables' AND (j-'status'-'name'-'valid_to'-'notes'-'updated_at')<>(jold-'status'-'name'-'valid_to'-'notes'-'updated_at') THEN RAISE EXCEPTION 'Tabela imutável fora do RPC.'; END IF;\n    IF TG_TABLE_NAME='price_table_items' AND (j-'unit_price'-'valid_to'-'status'-'updated_at')<>(jold-'unit_price'-'valid_to'-'status'-'updated_at') THEN RAISE EXCEPTION 'Item de preço imutável fora do RPC.'; END IF;\n  ELSIF TG_TABLE_NAME='marketplace_stores'\n    AND (j-'code'-'name'-'marketplace'-'marketplace_store_id'-'ownership_type'-'partner_id'-'status'-'notes'-'updated_by'-'updated_at')\n      <>(jold-'code'-'name'-'marketplace'-'marketplace_store_id'-'ownership_type'-'partner_id'-'status'-'notes'-'updated_by'-'updated_at')\n    THEN RAISE EXCEPTION 'Loja imutável fora do RPC.';\n  ELSIF TG_TABLE_NAME='external_sku_mappings'\n    AND (j-'variant_id'-'updated_at')<>(jold-'variant_id'-'updated_at') THEN RAISE EXCEPTION 'Mapeamento imutável fora do RPC.';\n  END IF;\n  RETURN NEW;",
+      "oldString": "ELSIF TG_TABLE_NAME='partner_price_links' AND (j-'valid_to'-'updated_at')<>(jold-'valid_to'-'updated_at') THEN RAISE EXCEPTION 'Vínculo imutável fora do RPC.'; END IF;\n    IF TG_TABLE_NAME='price_tables' AND (j-'status'-'name'-'valid_to'-'notes'-'updated_at')<>(jold-'status'-'name'-'valid_to'-'notes'-'updated_at') THEN RAISE EXCEPTION 'Tabela imutável fora do RPC.'; END IF;\n    IF TG_TABLE_NAME='price_table_items' AND (j-'unit_price'-'valid_to'-'status'-'updated_at')<>(jold-'unit_price'-'valid_to'-'status'-'updated_at') THEN RAISE EXCEPTION 'Item de preço imutável fora do RPC.'; END IF;\n  ELSIF TG_TABLE_NAME='marketplace_stores'\n    AND (j-'code'-'name'-'marketplace'-'marketplace_store_id'-'ownership_type'-'partner_id'-'status'-'notes'-'updated_by'-'updated_at')\n      <>(jold-'code'-'name'-'marketplace'-'marketplace_store_id'-'ownership_type'-'partner_id'-'status'-'notes'-'updated_by'-'updated_at')\n    THEN RAISE EXCEPTION 'Loja imutável fora do RPC.';\n  ELSIF TG_TABLE_NAME='external_sku_mappings'\n    AND (j-'variant_id'-'updated_at')<>(jold-'variant_id'-'updated_at') THEN RAISE EXCEPTION 'Mapeamento imutável fora do RPC.';\n  END IF;\n  RETURN NEW;"
+    },
+    "timestamp": 1790116210938
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790116210962
   }
 ]
