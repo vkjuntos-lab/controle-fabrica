@@ -3,34 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\np='/tmp/update.py'\ns=open(p).read().replace(\\\"backup=Path('.git/inventory-original')/p.parent.name/p.name;backup.parent.mkdir(parents=True,exist_ok=True)\\\",\\\"backup=p.with_name(p.name+'.original');\\\\n  with open('.git/info/exclude','a') as exclude: exclude.write('\\\\\\\\n'+str(backup)+' /'.replace(' ','' )+'\\\\\\\\n')\\\")\nopen(p,'w').write(s)\nPY\npython3 /tmp/update.py\nnpx tsc --noEmit > /tmp/tsc.log 2>&1\""
-    },
-    "timestamp": 1790006848946
-  },
-  {
-    "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790006864903
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"cat > scripts/test-inventory-db.py <<'PY'\n#\"'!/usr/bin/env python3\n\"\"\"Isolated PostgreSQL integration tests. Never connects to a deployed database.\"\"\"\nimport concurrent.futures\nimport json\nimport os\nfrom pathlib import Path\nimport shutil\nimport subprocess\nimport tempfile\nimport uuid\n\nROOT = Path(__file__).resolve().parents[1]\nBIN = Path(os.environ.get('\"'PG_BIN', '/usr/lib/postgresql/18/bin'))\nTMP = Path(tempfile.mkdtemp(prefix='inventory-test-'))\nPORT = '55439'\nBASE = [str(BIN / 'psql'), '-X', '-h', str(TMP), '-p', PORT, '-U', 'postgres', '-d', 'postgres', '-v', 'ON_ERROR_STOP=1', '-Atq']\n\ndef sql(query, user=None, fail=None):\n    prefix = f\\\"SET ROLE authenticated; SET request.jwt.claim.sub='{user}';\\\" if user else ''\n    p = subprocess.run(BASE, input=prefix+query, text=True, capture_output=True)\n    if fail:\n        assert p.returncode and fail.lower() in p.stderr.lower(), (fail, p.stdout, p.stderr)\n        return\n    assert not p.returncode, p.stderr\n    return p.stdout.strip()\n\ndef uid(): return str(uuid.uuid4())\ndef call(name, args, user, fail=None): return sql(f\\\"SELECT public.{name}({args});\\\", user, fail)\ndef q(s): return \\\"'\\\"+str(s).replace(\\\"'\\\", \\\"''\\\")+\\\"'\\\"\n\ndef run():\n    subprocess.run([str(BIN/'initdb'),'-D',str(TMP/'data'),'-A','trust','-U','postgres'],check=True,stdout=subprocess.DEVNULL)\n    subprocess.run([str(BIN/'pg_ctl'),'-D',str(TMP/'data'),'-l',str(TMP/'log'),'-o',f'-p {PORT} -k {TMP} -c listen_addresses=','start'],check=True,stdout=subprocess.DEVNULL)\n    sql(\\\"\\\"\\\"CREATE ROLE anon; CREATE ROLE authenticated; CREATE ROLE service_role BYPASSRLS;\n      CREATE SCHEMA auth; CREATE TABLE auth.users(id uuid PRIMARY KEY,email text,raw_user_meta_data jsonb DEFAULT '{}');\n      CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS \"'$$ SELECT nullif(current_setting('\"'request.jwt.claim.sub',true),'')::uuid \"'$$;\n      GRANT USAGE ON SCHEMA auth TO authenticated,anon; GRANT EXECUTE ON FUNCTION auth.uid() TO authenticated,anon;\"\"\")\n    migrations = ['\"'20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql','20260917110000_catalog_mestre.sql','20260918100000_inventory_ledger.sql','20260921100000_inventory_integrity.sql']\n    migrations += sorted(p.name for p in (ROOT/'supabase/migrations').glob('20260922*.sql'))\n    for name in migrations:\n        # Historical migration contains an invalid record target in an obsolete RPC.\n        # Preserve its bytes; defer function compilation only for that historical file.\n        prefix = 'SET check_function_bodies=off;' if name.startswith('20260918100000') else ''\n        sql(prefix+(ROOT/'supabase/migrations'/name).read_text())\n    a,b,reader,org,other,product,variant,factory,store,partner = [uid() for _ in range(10)]\n    sql(f\\\"INSERT INTO auth.users(id,email) VALUES ({q(a)},'a@test'),({q(b)},'b@test'),({q(reader)},'r@test'); INSERT INTO organizations(id,name,slug,created_by) VALUES ({q(org)},'A','a',{q(a)}),({q(other)},'B','b',{q(b)}); INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(reader)},'comercial'); INSERT INTO products(id,organization_id,code,name) VALUES({q(product)},{q(org)},'BALLET','Sapatilha Ballet'); INSERT INTO product_variants(id,organization_id,product_id,sku,size,color,barcode) VALUES({q(variant)},{q(org)},{q(product)},'BALLET-34-ROSA','34','Rosa','123456');\\\")\n    for loc,name,typ in [(factory,'Fábrica','FACTORY'),(store,'Loja','OWN_STORE'),(partner,'Parceiro A','PARTNER')]:\n        sql(f\\\"INSERT INTO inventory_locations(id,organization_id,code,name,type) VALUES({q(loc)},{q(org)},{q(name)},{q(name)},{q(typ)});\\\")\n    def post(typ,qty,loc=factory,key=None,user=a,fail=None,extra=''):\n        return call('inventory_post_movement',','.join(map(q,[org,variant,loc,typ]))+f\\\",{qty},_reason=>'Teste'\\\"+(f\\\",_idempotency_key=>{q(key)}\\\" if key else '')+extra,user,fail)\n    def balance(loc=None): return float(call('inventory_get_balance',q(org)+','+q(variant)+( ','+q(loc) if loc else ''),a))\n    def transfer(qty,dest,typ='TRANSFER',items=None,key=None,fail=None):\n        items = items or [{'variant_id':variant,'quantity':qty}]\n        return call('inventory_post_transfer',','.join(map(q,[org,factory,dest,json.dumps(items),typ]))+(f\\\",_idempotency_key=>{q(key)}\\\" if key else ''),a,fail)\n    post('OPENING_BALANCE',100); assert balance()==100\n    post('SALE',20); assert balance()==80\n    post('SALE_RETURN',2); assert balance()==82\n    post('ADJUSTMENT_OUT',1); assert balance()==81\n    post('ADJUSTMENT_IN',19); assert balance()==100\n    transfer(10,store); transfer(20,partner,'PARTNER_SHIPMENT')\n    assert [balance(l) for l in [factory,store,partner]]==[70,10,20] and balance()==100\n    assert sql(\\\"SELECT count(*) FROM information_schema.tables WHERE table_schema='public' AND table_name IN ('sales','receivables','revenue')\\\")=='0'\n    print('PASS: arithmetic, adjustment and business acceptance 70/10/20 = 100; no financial module')\n    post('SALE',71,fail='Saldo insuficiente'); post('SALE',71,extra=',_allow_negative_override=>true',fail='Override')\n    post('ADJUSTMENT_IN',1,extra=\\\",_direction=>'OUT'\\\",fail='Direção')\n    call('inventory_post_movement',','.join(map(q,[org,variant,factory,'ADJUSTMENT_OUT']))+',1',a,fail='Motivo')\n    post('SALE',1,user=reader,fail='permissão'); post('SALE',1,user=b,fail='permissão')\n    assert sql(f'SELECT count(*) FROM inventory_movements WHERE organization_id={q(org)}',b)=='0'\n    call('inventory_get_balance',','.join(map(q,[org,variant]))+f',_user_id=>{q(a)}',b,fail='permissão')\n    sql(f'UPDATE inventory_movements SET quantity=1 WHERE organization_id={q(org)}',a,fail='permission denied')\n    sql(f'DELETE FROM inventory_movements WHERE organization_id={q(org)}',fail='não é editado')\n    print('PASS: negative balance, override rejection, reason, RLS, permissions, immutable ledger')\n    first=json.loads(post('PURCHASE_RECEIPT',5,key='event-1')); again=json.loads(post('PURCHASE_RECEIPT',5,key='event-1'))\n    assert again['deduped'] and first['movement_id']==again['movement_id']\n    post('PURCHASE_RECEIPT',6,key='event-1',fail='outro conteúdo')\n    before=balance(); transfer(40,store,items=[{'variant_id':variant,'quantity':40}]*2,fail='Saldo insuficiente'); assert balance()==before\n    orig=first['movement_id']; r=json.loads(call('inventory_reverse_movement',','.join(map(q,[org,orig,'Correção'])),a))\n    assert balance()==100\n    assert sql(f'SELECT status FROM inventory_movements WHERE id={q(orig)}')=='POSTED'\n    assert json.loads(call('inventory_reverse_movement',','.join(map(q,[org,orig,'Repetido'])),a))['deduped']\n    call('inventory_reverse_movement',','.join(map(q,[org,r['movement_id'],'Reverter estorno'])),a,fail='compensação')\n    print('PASS: idempotency, duplicate SKU transfer rollback, immutable reversal and retry')\n    # Real overlapping sessions: lock holder sleeps after first withdrawal; second waits.\n    def concurrent_out(qty,delay):\n        statement=f\\\"SELECT inventory_post_movement({q(org)},{q(variant)},{q(factory)},'SALE',{qty});\\\"\n        return subprocess.run(BASE,input=f\\\"SET ROLE authenticated; SET request.jwt.claim.sub={q(a)}; BEGIN; {statement} SELECT pg_sleep({delay}); COMMIT;\\\",text=True,capture_output=True)\n    with concurrent.futures.ThreadPoolExecutor() as pool:\n        results=list(pool.map(lambda args:concurrent_out(*args),[(60,0.4),(50,0)]))\n    assert sum(r.returncode==0 for r in results)==1 and balance(factory)>=0\n    with concurrent.futures.ThreadPoolExecutor() as pool:\n        ids=list(pool.map(lambda _:json.loads(post('PURCHASE_RECEIPT',1,key='race-key'))['movement_id'],range(2)))\n    assert len(set(ids))==1\n    print('PASS: actual concurrent withdrawals and idempotency in separate PostgreSQL sessions')\n    count=json.loads(call('inventory_start_count',q(org)+','+q(factory),a))['id']\n    post('SALE',1,fail='contagem')\n    item=sql(f'SELECT id FROM inventory_count_items WHERE inventory_count_id={q(count)} AND variant_id={q(variant)}')\n    call('inventory_save_count_item',','.join(map(q,[org,count,item]))+',8',a)\n    call('inventory_complete_count',q(org)+','+q(count),a); assert balance(factory)==8\n    call('inventory_save_count_item',','.join(map(q,[org,count,item]))+',9',a,fail='aberta')\n    call('inventory_complete_count',q(org)+','+q(count),a,fail='andamento')\n    print('PASS: count snapshot, location freeze, confirmation, no repeated completion/edit')\n    positions=json.loads(call('inventory_query_positions',q(org)+',\\\\'{\\\"query\\\":\\\"123456\\\"}\\\\'',a))\n    assert positions['total']==3\n    call('inventory_query_positions',q(org),b,fail='permissão')\n    assert sql(f\\\"SELECT count(*) FROM audit_log WHERE organization_id={q(org)} AND context ? 'before' AND context ? 'after'\\\")\"'!='\"'0'\n    print('PASS: barcode positions, tenant isolation, before/after audit')\n\ntry:\n    run()\nfinally:\n    if (TMP/'data/postmaster.pid').exists():\n        subprocess.run([str(BIN/'pg_ctl'),'-D',str(TMP/'data'),'-m','immediate','stop'],stdout=subprocess.DEVNULL)\n    shutil.rmtree(TMP)\nPY\npython3 scripts/test-inventory-db.py\""
-    },
-    "timestamp": 1790006933261
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS: arithmetic, adjustment and business acceptance 70/10/20 = 100; no financial module\nPASS: negative balance, override rejection, reason, RLS, permissions, immutable ledger\nPASS: idempotency, duplicate SKU transfer rollback, immutable reversal and retry\nPASS: actual concurrent withdrawals and ide",
-    "is_error": false,
-    "timestamp": 1790006935018
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"cat /tmp/tsc.log; cat src/routes/_authenticated/estoque/terceiros.tsx | head -120; rg -n 'reversed|canReverse' 'src/routes/_authenticated/estoque/movimentacoes.\"'$id.tsx'\"'; sed -n '470,525p' supabase/migrations/20260921100000_inventory_integrity.sql\""
     },
     "timestamp": 1790006940345
@@ -1428,5 +1400,33 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica</path>\n<type>directory</type>\n<entries>\n.chat-history.json\n.claude/\n.env\n.git/\n.gitignore\n.lovable/\n.output.inventory-previous/\n.output/\n.prettierignore\n.prettierrc\n.references/\n.tanstack/\n.wrangler.inventory-previous/\n.wrangler/\nAGENTS.md\nbun.lock\nbunf",
     "is_error": false,
     "timestamp": 1790091355379
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/package.json"
+    },
+    "timestamp": 1790091358150
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/package.json</path>\n<type>file</type>\n<content>\n1: {\n2:   \"name\": \"tanstack_start_ts\",\n3:   \"private\": true,\n4:   \"sideEffects\": false,\n5:   \"type\": \"module\",\n6:   \"scripts\": {\n7:     \"dev\": \"vite dev\",\n8:     \"build\": \"vite build\",\n9:     \"build:dev\": ",
+    "is_error": false,
+    "timestamp": 1790091358170
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/AGENTS.md"
+    },
+    "timestamp": 1790091360639
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/AGENTS.md</path>\n<type>file</type>\n<content>\n1: <!-- LOVABLE:BEGIN -->\n2: > [!IMPORTANT]\n3: > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting\n4: > published git history — force pushing, or rebasing/amending/squashing commits",
+    "is_error": false,
+    "timestamp": 1790091360649
   }
 ]
