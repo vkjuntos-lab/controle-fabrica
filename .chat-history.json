@@ -1,21 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\np='src/components/partners/pages.tsx';s=open(p).read().replace('</CardContent></Card></Card>','</CardContent></Card>');open(p,'w').write(s)\nPY\nnpx prettier --write src/components/partners src/lib/partners src/routes/_authenticated/parceiros > /tmp/partners-format.log 2>&1\nnpm run typecheck\""
-    },
-    "timestamp": 1790108307805
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"sed -n '1,140p' supabase/migrations/20260924100000_partners.sql; cat src/components/inventory/location-dialog.tsx; rg -n 'saveInventoryLocation|operational_purpose' src/lib/inventory src/components/inventory; sed -n '490,584p' supabase/migrations/20260924100000_partners.sql\""
-    },
-    "timestamp": 1790108308875
-  },
-  {
     "role": "tool_result",
     "content": "-- MASTER 006. Remessa não é venda. Estoque permanece exclusivamente no ledger.\nBEGIN;\nCREATE TABLE public.companies (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES public.organizations,\n code text NOT NULL CHECK(length(trim(code))>0), legal_name text NOT N",
     "is_error": false,
@@ -1428,5 +1412,19 @@
     "content": "On branch main\nYour branch is up to date with 'origin/main'.\n\nnothing to commit, working tree clean\n===\n.chat-history.json\n===\n-rw-r--r-- 1 root root 9566 Sep 22 21:00 docs/handoff/MASTER-006-VALIDATION.md\n",
     "is_error": false,
     "timestamp": 1790110858944
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "git ls-files docs/ | head -20; echo \"===\"; cat .gitignore; echo \"===\"; git check-ignore -v \"docs/handoff/MASTER-006-VALIDATION.md\" \"docs/handoff/PROJECT-STATE.md\" 2>&1"
+    },
+    "timestamp": 1790110863688
+  },
+  {
+    "role": "tool_result",
+    "content": "docs/architecture/ADR-001-initial-architecture.md\ndocs/architecture/ADR-006-PARTNER-SHIPMENTS.md\ndocs/business/CORE-BUSINESS.md\ndocs/business/INVENTORY.md\ndocs/business/PARTNER-SHIPMENTS.md\ndocs/business/PARTNERS.md\ndocs/handoff/MASTER-003-VALIDATION.md\ndocs/handoff/MASTER-006-VALIDATION.md\ndocs/han",
+    "is_error": false,
+    "timestamp": 1790110863726
   }
 ]
