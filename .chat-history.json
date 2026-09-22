@@ -1,31 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "PASS: simple shipment 100→80/20, dispatch retry, delivery without second posting, no sale/finance\nPASS: multiple partial returns, immutable sent quantity, return retry and quantity cap\nPASS: insufficient stock rollback, state machine, no generic reversal of dispatched shipment\nPASS: real concurrent ",
-    "is_error": false,
-    "timestamp": 1790108632493
-  },
-  {
-    "role": "tool_result",
-    "content": "",
-    "is_error": true,
-    "timestamp": 1790108645859
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\np='scripts/test-partners-db.py';s=open(p).read();needle=\\\" print('PASS: damaged returns quarantine, contacts, addresses, positions and dashboard')\\\";s=s.replace(needle,needle+'''\n # RBAC is enforced by PostgreSQL, not only by buttons/server adapters.\n reader=uid();sql(f\\\"INSERT INTO auth.users(id,email) VALUES({q(reader)},'reader@partner.test'); INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(reader)},'comercial')\\\")\n for name,args in [('partner_save_company',q(org)+','+q(json.dumps({'code':'DENIED','legal_name':'Denied'}))),('partner_shipment_action',q(org)+','+q(s)+\\\",'ship'\\\"),('partner_receive_return',q(org)+','+q(r)),('partner_save_detail',q(org)+','+q(c)+\\\",'contact','{\\\\\\\\\\\\\\\"name\\\\\\\\\\\\\\\":\\\\\\\\\\\\\\\"Denied\\\\\\\\\\\\\\\"}'\\\")]:\n  rpc(name,args,user=reader,fail='permissão')\n sql(f\\\"UPDATE partner_shipment_items SET quantity=1 WHERE shipment_id={q(s)}\\\",a,fail='permission denied')\n sql(f\\\"UPDATE partner_shipment_items SET quantity=1 WHERE shipment_id={q(s)}\\\",fail='imutável')\n sql(f\\\"DELETE FROM partner_shipments WHERE id={q(s)}\\\",fail='excluído')\n sql(f\\\"UPDATE inventory_locations SET partner_id={q(p2)} WHERE id={q(loc)}\\\",fail='imutável')\n rpc('inventory_transfer_internal',','.join(map(q,[org,factory,loc,json.dumps([{'variant_id':variant,'quantity':1}])])),fail='permission denied')\n rpc('inventory_post_transfer',','.join(map(q,[org,factory,loc,json.dumps([{'variant_id':variant,'quantity':1}])])),fail='domínio')\n sql(\\\"INSERT INTO role_permissions(role,permission) VALUES('comercial','inventory.adjust') ON CONFLICT DO NOTHING\\\")\n rpc('inventory_post_movement',','.join(map(q,[org,variant,loc,'ADJUSTMENT_IN']))+\\\",1,_reason=>'Teste'\\\",user=reader,fail='partner_inventory.adjust')\n sql(\\\"DELETE FROM role_permissions WHERE role='comercial' AND permission='inventory.adjust'\\\")\n for table in ['companies','company_roles','partner_profiles','company_contacts','company_addresses','partner_shipments','partner_shipment_items','partner_returns','partner_return_items']:\n  assert sql(f'SELECT count(*) FROM {table} WHERE organization_id={q(org)}',b)=='0'\n print('PASS: server-side permissions, private core denied, immutable history and partner location; partner adjustment requires dedicated permission')\n # Exact independent multi-partner scenario and multiple returns acceptance.\n block.update(status='ACTIVE',blocked_reason='');rpc('partner_save_company',q(org)+','+q(json.dumps(block))+','+q(c))\n variant=uid();sql(f\\\"INSERT INTO product_variants(id,organization_id,product_id,sku,size,color) VALUES({q(variant)},{q(org)},{q(product)},'B-35-ROSA','35','Rosa')\\\")\n opening(200);ship_a=create(50);ship_b=create(30,partner=p2,location=loc2)\n prepare(ship_a);prepare(ship_b);act(ship_a,'ship');act(ship_b,'ship')\n assert [balance(x) for x in [factory,loc,loc2]]==[120,50,30]\n ship_100=create(100);prepare(ship_100);act(ship_100,'ship')\n for qty in [10,15]:\n  rr=create(qty,'return',ship_100);rpc('partner_receive_return',q(org)+','+q(rr))\n detail=json.loads(rpc('partner_query',q(org)+\\\",'shipment',\\\"+q(json.dumps({'id':ship_100}))))\n assert detail['returned_units']==25 and detail['items'][0]['quantity']==100\n assert sum(balance(x) for x in [factory,loc,loc2])==200\n print('PASS: multi-partner 200→120/50/30; shipment 100 with returns 10+15 retains original 100 and controlled total 200')\n # Document formatting normalization/duplicates are enforced even through direct RPC.\n doc={'code':'DOC','legal_name':'Documento','roles':['CUSTOMER'],'document_type':'CPF','document_number':'123.456.789-01'}\n rpc('partner_save_company',q(org)+','+q(json.dumps(doc)));doc.update(code='DUP',document_number='12345678901');rpc('partner_save_company',q(org)+','+q(json.dumps(doc)),fail='duplicate key')\n doc.update(code='INVALID',document_number='123');rpc('partner_save_company',q(org)+','+q(json.dumps(doc)),fail='Formato')\n for kind in ['shipment_report','return_report','history']:\n  report=json.loads(rpc('partner_query',q(org)+','+q(kind)+','+q(json.dumps({'partner_id':p}))))\n  assert report['total']>0 and len(report['rows'])<=50\n path=f'{org}/{s}/{uid()}.pdf'\n sql(f\\\"INSERT INTO storage.objects(bucket_id,name) VALUES('partner-documents',{q(path)})\\\",a)\n assert sql(\\\"SELECT count(*) FROM storage.objects\\\",a)=='1' and sql(\\\"SELECT count(*) FROM storage.objects\\\",b)=='0'\n sql(f\\\"INSERT INTO storage.objects(bucket_id,name) VALUES('partner-documents',{q(path)})\\\",b,fail='row-level security')\n assert sql(\\\"SELECT public FROM storage.buckets WHERE id='partner-documents'\\\")=='f'\n assert sql(f\\\"SELECT partner_document_allowed({q(path)},false)\\\",a)=='t'\n assert sql(\\\"SELECT partner_document_allowed('bad-path',false)\\\",a)=='f'\n print('PASS: document normalization/format, item-level reports, paginated partner history and private shipment document policies')\n''');open(p,'w').write(s)\nPY\npython3 scripts/test-partners-db.py\""
-    },
-    "timestamp": 1790108692127
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS: simple shipment 100→80/20, dispatch retry, delivery without second posting, no sale/finance\nPASS: multiple partial returns, immutable sent quantity, return retry and quantity cap\nPASS: insufficient stock rollback, state machine, no generic reversal of dispatched shipment\nPASS: real concurrent ",
-    "is_error": false,
-    "timestamp": 1790108695563
-  },
-  {
     "role": "tool",
     "tool": "Bash",
     "input": {
@@ -1474,5 +1448,33 @@
     "content": "Found 100 matches (more matches available)\n/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260713172601_c6aaea7a-8e4c-45f8-96bc-ce36ba8fded8.sql:\n  Line 5:     'list_login_operators','list_login_stores',\n\n  Line 6:     'storefront_available_stock','storefront_cancel_order','storefront",
     "is_error": false,
     "timestamp": 1790115103835
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "rg -il \"marketplace_sale|marketplace_store|external_sku|ExternalSkuMapping|import_row|ImportRow|MarketplaceSale\" --glob '!node_modules/**' --glob '!bun.lock' . 2>/dev/null | head -50"
+    },
+    "timestamp": 1790115112191
+  },
+  {
+    "role": "tool_result",
+    "content": "(no output)",
+    "is_error": false,
+    "timestamp": 1790115112214
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "ls src/lib/*/ && echo \"===RBAC===\" && sed -n '1,120p' src/lib/rbac.ts"
+    },
+    "timestamp": 1790115112367
+  },
+  {
+    "role": "tool_result",
+    "content": "src/lib/audit/:\nfunctions.ts\n\nsrc/lib/config/:\nenv.server.ts\n\nsrc/lib/inventory/:\nconstants.ts\ninventory.functions.ts\nledger.test.ts\nledger.ts\n\nsrc/lib/middleware/:\nrate-limit.test.ts\nrate-limit.ts\n\nsrc/lib/monitoring/:\nhealth.functions.ts\nlogger.ts\n\nsrc/lib/org/:\norg-context.tsx\norganizations.funct",
+    "is_error": false,
+    "timestamp": 1790115112431
   }
 ]
