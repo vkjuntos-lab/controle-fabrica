@@ -379,9 +379,8 @@ BEGIN
   IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAISE EXCEPTION 'Organização imutável.'; END IF;
   IF TG_TABLE_NAME='marketplace_sales' THEN
     IF OLD.status='RECONCILED' THEN
-      IF NEW.status='EXCEPTION' AND _userless_timestamp()/*placeholder*/ THEN NULL; END IF;
-      IF (NEW.status='EXCEPTION') AND (j-'status'-'updated_at')<>(jold-'status'-'updated_at') THEN RAISE EXCEPTION 'Estorno só muda status.'; END IF;
       IF NEW.status<>'EXCEPTION' THEN RAISE EXCEPTION 'Venda reconcileida consolidada: corrija pelo estorno da reconciliação.'; END IF;
+      IF (j-'status'-'updated_at')<>(jold-'status'-'updated_at') THEN RAISE EXCEPTION 'Estorno só muda status.'; END IF;
     ELSIF NEW.status='RECONCILED' AND NEW.reconciliation_item_id IS NOT NULL THEN
       IF (j-'status'-'reconciliation_item_id'-'updated_at')<>(jold-'status'-'reconciliation_item_id'-'updated_at') THEN RAISE EXCEPTION 'Somente status e item na reconciliação.'; END IF;
     ELSE
