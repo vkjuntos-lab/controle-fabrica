@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "newString": "ELSIF TG_TABLE_NAME='partner_price_links' AND (j-'valid_to'-'updated_at')<>(jold-'valid_to'-'updated_at') THEN RAISE EXCEPTION 'Vínculo imutável fora do RPC.'; END IF;\n    IF TG_TABLE_NAME='price_tables' AND (j-'status'-'name'-'valid_to'-'notes'-'updated_at')<>(jold-'status'-'name'-'valid_to'-'notes'-'updated_at') THEN RAISE EXCEPTION 'Tabela imutável fora do RPC.'; END IF;\n    IF TG_TABLE_NAME='price_table_items' AND (j-'unit_price'-'valid_to'-'status'-'updated_at')<>(jold-'unit_price'-'valid_to'-'status'-'updated_at') THEN RAISE EXCEPTION 'Item de preço imutável fora do RPC.'; END IF;\n  ELSIF TG_TABLE_NAME='marketplace_stores'\n    AND (j-'code'-'name'-'marketplace'-'marketplace_store_id'-'ownership_type'-'partner_id'-'status'-'notes'-'updated_by'-'updated_at')\n      <>(jold-'code'-'name'-'marketplace'-'marketplace_store_id'-'ownership_type'-'partner_id'-'status'-'notes'-'updated_by'-'updated_at')\n    THEN RAISE EXCEPTION 'Loja imutável fora do RPC.';\n  ELSIF TG_TABLE_NAME='external_sku_mappings'\n    AND (j-'variant_id'-'updated_at')<>(jold-'variant_id'-'updated_at') THEN RAISE EXCEPTION 'Mapeamento imutável fora do RPC.';\n  END IF;",
-      "oldString": "ELSIF TG_TABLE_NAME IN ('partner_price_links','price_tables','price_table_items') THEN\n    IF TG_TABLE_NAME='partner_price_links' AND (j-'valid_to'-'updated_at')<>(jold-'valid_to'-'updated_at') THEN RAISE EXCEPTION 'Vínculo imutável fora do RPC.'; END IF;\n    IF TG_TABLE_NAME='price_tables' AND (j-'status'-'name'-'valid_to'-'notes'-'updated_at')<>(jold-'status'-'name'-'valid_to'-'notes'-'updated_at') THEN RAISE EXCEPTION 'Tabela imutável fora do RPC.'; END IF;\n    IF TG_TABLE_NAME='price_table_items' AND (j-'unit_price'-'valid_to'-'status'-'updated_at')<>(jold-'unit_price'-'valid_to'-'status'-'updated_at') THEN RAISE EXCEPTION 'Item de preço imutável fora do RPC.'; END IF;\n  END IF;"
-    },
-    "timestamp": 1790116161962
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790116161991
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
@@ -1553,5 +1537,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790116806742
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py",
+      "newString": "import importlib.util\nimport json\nimport subprocess\nfrom pathlib import Path\nimport concurrent.futures\nimport datetime",
+      "oldString": "import importlib.util\nimport json\nimport subprocess\nfrom pathlib import Path\nimport concurrent.futures"
+    },
+    "timestamp": 1790116808767
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790116808778
   }
 ]
