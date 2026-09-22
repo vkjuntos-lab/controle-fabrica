@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"reconciliation_guard_relations\" \"/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql\" | head"
-    },
-    "timestamp": 1790116635053
-  },
-  {
-    "role": "tool_result",
-    "content": "341:CREATE FUNCTION public.reconciliation_guard_relations() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n372:  EXECUTE format('CREATE TRIGGER reconciliation_tenant_guard BEFORE INSERT OR UPDATE ON public.%I FOR EACH ROW EXECUTE FUNCTION public.reconciliation_guard_r",
-    "is_error": false,
-    "timestamp": 1790116635107
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
@@ -1488,5 +1474,19 @@
     "content": " rr=json.loads(rpc('rec_reprocess_item',q(org)+','+q(sku_z['id'])))\n assert rr['status']=='RECONCILED' and balance(ploc)==64\n r3=json.loads(rpc('rec_process',','.join(map(q,[org,rid]))));assert r3['status']=='READY_TO_CLOSE'\n close=json.loads(rpc('rec_close',q(org)+','+q(rid)));assert close['status'",
     "is_error": false,
     "timestamp": 1790117241658
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"CREATE POLICY\\|CREATE TABLE public.partner_reconciliation_items\\|GRANT\\|REVOKE\\|ENABLE ROW LEVEL\" supabase/migrations/20260926100000_partner_reconciliation.sql | head -60"
+    },
+    "timestamp": 1790117247274
+  },
+  {
+    "role": "tool_result",
+    "content": "197:CREATE TABLE public.partner_reconciliation_items (\n293:  EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY',t);\n294:  EXECUTE format('GRANT SELECT ON public.%I TO authenticated',t);\n295:  EXECUTE format('GRANT ALL ON public.%I TO service_role',t);\n296:  EXECUTE format('CREATE POLIC",
+    "is_error": false,
+    "timestamp": 1790117247305
   }
 ]
