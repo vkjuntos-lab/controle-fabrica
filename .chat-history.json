@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
-      "newString": "- Documentos normalizados (CPF/CNPJ/OTHER) com validação de formato server-side (RPC + Zod);",
-      "oldString": "- Docimentos normalizados (CPF/CNPJ/OTHER) com validação de formato server-side (RPC + Zod);"
-    },
-    "timestamp": 1790110797977
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790110797981
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
       "newString": "## NOT_IMPLEMENTED\n\n- Módulos/telas completos: Comercial, Produção (migration preparatória `20260922100000_production.sql`\n  preservada), Marketplaces, Financeiro, Relatórios, Inteligência (marcados como `coming_soon` em\n  `src/lib/rbac.ts`, fora do menu operacional).\n- MASTER 005 (MarketplaceStore, lojas vinculadas a parceiros, importação de relatórios e mapeamento\n  de SKU) não está neste checkout; o vínculo parceiro → loja será feito quando o módulo existir, sem\n  duplicar lojas nem baixar estoque por MarketplaceSale.\n- Valorização financeira do estoque (custo/valor por movimento) — o ledger registra quantidades.\n- Integração automática de venda/produção/compra com o ledger (hoje os lançamentos são feitos\n  pelas telas de estoque; os módulos de origem ainda não existem).\n- Atributos personalizados editáveis na tela (o campo `attributes` jsonb já existe nas tabelas\n  de produto/variante).\n- Importação CSV/XLSX com mapeamento configurável de colunas e `external_sku`.\n- Reconciliação de parceiros, fechamento de período, geração de cobrança, registro de pagamento,\n  limites de crédito e condições de pagamento.\n- Upload/lista de anexos de remessa em `partner-documents` (preparação de Storage pronta), QR Code\n  de remessa, editor de itens de documento consolidado e central de exceções de inventário.\n- Recebimento parcial/trânsito em duas etapas de remessa (DELIVERED é pontual).\n- Webhooks de domínio (`/api/webhooks/receiver` pronto, mas nenhum provedor externo conectado e\n  sem `WEBHOOK_SECRET` definido em ambiente), cron/automações de negócio, filas.\n- Integrações de marketplace por API, pagamentos, e-mail transacional, notificações.\n- Modo DEMO.",
       "oldString": "## NOT_IMPLEMENTED\n\n- Módulos/telas completos: Comercial, Produção (migration preparatória preexistente preservada), Marketplaces, Parceiros, Financeiro, Relatórios,\n  Inteligência (marcados como `coming_soon` em `src/lib/rbac.ts`, fora do menu operacional).\n- Valorização financeira do estoque (custo/valor por movimento) — o ledger registra quantidades.\n- Integração automática de venda/produção/compra com o ledger (hoje os lançamentos são feitos\n  pelas telas de estoque; os módulos de origem ainda não existem).\n- Atributos personalizados editáveis na tela (o campo `attributes` jsonb já existe nas tabelas\n  de produto/variante).\n- Importação CSV/XLSX com mapeamento configurável de colunas e `external_sku`.\n- Reconciliação de parceiros, fechamento de período, geração de cobrança, registro de pagamento.\n- Webhooks de domínio (`/api/webhooks/receiver` pronto, mas nenhum provedor externo conectado e\n  sem `WEBHOOK_SECRET` definido em ambiente), cron/automações de negócio, filas.\n- Integrações de marketplace por API, pagamentos, e-mail transacional, notificações.\n- Modo DEMO."
     },
@@ -1575,5 +1559,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n1087:     FROM public.partner_reconciliations r JOIN public.partner_profiles pp ON pp.id=r.partner_id JOIN public.companies c ON c.id=pp.company_id\n1088:   ",
     "is_error": false,
     "timestamp": 1790116064947
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "offset": 1166
+    },
+    "timestamp": 1790116066515
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n1166:   EXECUTE format('REVOKE ALL ON FUNCTION %s FROM PUBLIC,anon,authenticated',f.signature);\n1167:  END LOOP;\n1168: END $$;\n1169: \n1170: COMMIT;\n\n(End of",
+    "is_error": false,
+    "timestamp": 1790116066533
   }
 ]
