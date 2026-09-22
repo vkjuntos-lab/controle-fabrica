@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/partners/pages.tsx"
-    },
-    "timestamp": 1790115144364
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/partners/pages.tsx</path>\n<type>file</type>\n<content>\n1: import { useEffect, useState } from \"react\";\n2: import { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\n3: import { useServerFn } from \"@tanstack/react-start\"",
-    "is_error": false,
-    "timestamp": 1790115144394
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/partners/pages.tsx",
       "offset": 1289
     },
@@ -1615,5 +1601,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n440: REVOKE ALL ON FUNCTION public.reconciliation_require(uuid,text),public.reconciliation_audit(uuid,text,text,uuid,jsonb),public.reconciliation_guard_rela",
     "is_error": false,
     "timestamp": 1790116322360
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "newString": "CREATE FUNCTION public.price_save_item(_org uuid,_data jsonb,_item_id uuid DEFAULT NULL,_user_id uuid DEFAULT auth.uid())\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE v_item_id uuid;\n\nBEGIN\n  IF _user_id IS DISTINCT FROM auth.uid() THEN RAISE EXCEPTION 'Usuário inválido.'; END IF;\n  PERFORM public.reconciliation_require(_org,'partner_pricing.manage');",
+      "oldString": "CREATE FUNCTION public.price_save_item(_org uuid,_id_required boolean DEFAULT true,_data jsonb DEFAULT '{}'::jsonb,_item_id uuid DEFAULT NULL,_user_id uuid DEFAULT auth.uid())\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE v_item_id uuid;\nBEGIN\n  IF _user_id IS DISTINCT FROM auth.uid() THEN RAISE EXCEPTION 'Usuário inválido.'; END IF;\n  PERFORM public.reconciliation_require(_org,'partner_pricing.manage');"
+    },
+    "timestamp": 1790116341694
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790116341734
   }
 ]

@@ -615,9 +615,10 @@ BEGIN
 END;
 $$;
 
-CREATE FUNCTION public.price_save_item(_org uuid,_id_required boolean DEFAULT true,_data jsonb DEFAULT '{}'::jsonb,_item_id uuid DEFAULT NULL,_user_id uuid DEFAULT auth.uid())
+CREATE FUNCTION public.price_save_item(_org uuid,_data jsonb,_item_id uuid DEFAULT NULL,_user_id uuid DEFAULT auth.uid())
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE v_item_id uuid;
+
 BEGIN
   IF _user_id IS DISTINCT FROM auth.uid() THEN RAISE EXCEPTION 'Usuário inválido.'; END IF;
   PERFORM public.reconciliation_require(_org,'partner_pricing.manage');
