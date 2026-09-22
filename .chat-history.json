@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "rg -o 'CREATE OR REPLACE FUNCTION public\\.[a-z_]+' supabase/migrations/20260924100000_partners.sql | sort -u; echo \"===TABELAS===\"; rg -o 'CREATE TABLE public\\.[a-z_]+' supabase/migrations/20260924100000_partners.sql | sort -u"
-    },
-    "timestamp": 1790110732713
-  },
-  {
-    "role": "tool_result",
-    "content": "/bin/bash: line 1: rg: command not found\n===TABELAS===\n/bin/bash: line 1: rg: command not found\n",
-    "is_error": false,
-    "timestamp": 1790110732755
-  },
-  {
-    "role": "tool",
     "tool": "grep",
     "input": {
       "pattern": "CREATE OR REPLACE FUNCTION public\\.[a-z_]+",
@@ -1564,5 +1550,19 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790115948103
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica/supabase/migrations\" && echo \"==audit refs==\" && grep -n \"reconciliation_audit\\|rec_audit\\|marketplace_register_sale_**var\" 20260926100000_partner_reconciliation.sql | head -40"
+    },
+    "timestamp": 1790115952070
+  },
+  {
+    "role": "tool_result",
+    "content": "==audit refs==\n336:CREATE FUNCTION public.reconciliation_audit(_org uuid,_action text,_table text,_id uuid,_context jsonb DEFAULT '{}') RETURNS void LANGUAGE sql SECURITY DEFINER SET search_path=public AS $$\n430:REVOKE ALL ON FUNCTION public.reconciliation_require(uuid,text),public.reconciliation_au",
+    "is_error": false,
+    "timestamp": 1790115952136
   }
 ]
