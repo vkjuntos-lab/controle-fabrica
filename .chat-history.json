@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/config/env.server.ts</path>\n<type>file</type>\n<content>\n1: import { z } from 'zod';\n2: \n3: const serverEnvSchema = z.object({\n4:   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),\n5:   META_APP_SECRET: z.string().optional(),\n6:   GEMINI_API_KEY",
-    "is_error": false,
-    "timestamp": 1790091568133
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "git log --oneline -20",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790091570316
-  },
-  {
-    "role": "tool_result",
     "content": "d78e811 AI: alteracao automatica\n0bc65db AI: alteracao automatica\nab71109 AI: alteracao automatica\n5ae0cdd AI: alteracao automatica\n4c61837 AI: alteracao automatica\n3c2b863 AI: alteracao automatica\ne997494 AI: alteracao automatica\n5b350a0 AI: alteracao automatica\ndfdf723 AI: alteracao automatica\n356",
     "is_error": false,
     "timestamp": 1790091570334
@@ -1386,5 +1371,19 @@
     "content": "Found 100 matches (more matches available)\n/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260706142256_9e5dfe79-dd7e-4349-b634-16c39557d3d1.sql:\n  Line 32:   campaign_id UUID NOT NULL REFERENCES public.campaigns(id) ON DELETE CASCADE,\n\n  Line 33:   customer_id UUID NOT NULL REFERENCE",
     "is_error": false,
     "timestamp": 1790110736530
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -oE 'CREATE (OR REPLACE )?FUNCTION public\\.[a-z_]+' supabase/migrations/20260924100000_partners.sql | sort -u"
+    },
+    "timestamp": 1790110738419
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE FUNCTION public.inventory_reverse_movement\nCREATE FUNCTION public.partner_adjustment_guard\nCREATE FUNCTION public.partner_audit\nCREATE FUNCTION public.partner_create_operation\nCREATE FUNCTION public.partner_document_allowed\nCREATE FUNCTION public.partner_guard\nCREATE FUNCTION public.partner_l",
+    "is_error": false,
+    "timestamp": 1790110738450
   }
 ]
