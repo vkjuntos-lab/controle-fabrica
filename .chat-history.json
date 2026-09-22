@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd /tmp && printf \"SELECT (SELECT 1.0)+(SELECT 2.0);\\nSELECT round((SELECT 1.5)+(SELECT 2.1),2);\\nSELECT jsonb_build_object('net',(SELECT round((SELECT 1.5)+(SELECT 2.1),2)));\\n\" | sudo -u postgres psql -X -h /tmp/recon-test2 -p 55439 -U postgres -d postgres -Atq 2>&1",
-      "timeout": 60000
-    },
-    "timestamp": 1790116922157
-  },
-  {
-    "role": "tool_result",
-    "content": "3.0\n3.60\n{\"net\": 3.60}\n",
-    "is_error": false,
-    "timestamp": 1790116922245
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cat > /tmp/net.sql <<'EOF'\nSELECT jsonb_build_object('net',(SELECT round(\n  (SELECT coalesce(sum(billable_amount),0) FROM public.partner_reconciliation_items WHERE reconciliation_id='00000000-0000-0000-0000-000000000000' AND status='RECONCILED')\n +(SELECT coalesce(sum(CASE adjustment_type WHEN 'CREDIT' THEN amount ELSE -amount END),0) FROM public.partner_reconciliation_adjustments WHERE reconciliation_id='00000000-0000-0000-0000-000000000000')),2));\nEOF\ncd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py > /tmp/run2.log 2>&1; cat > /tmp/apply.py <<'EOF'\nimport importlib.util\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('inv',Path('/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py'))\nm=importlib.util.module_from_spec(spec);spec.loader.exec_module(m)\nm.TMP=Path('/tmp/recon-test2')\nm.sql(Path('/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql').read_text())\nEOF\necho \"applying migrations...\"\nsudo -u postgres python3 /tmp/apply.py 2>&1 | tail -2",
       "timeout": 300000
     },
@@ -1479,5 +1464,20 @@
     "content": "rev ok: {\"deduped\": false, \"warning\": null, \"movement_id\": \"ce096ffc-c90d-4d35-bc10-af27590b4ca0\", \"movement_ids\": [\"ce096ffc-c9\n",
     "is_error": false,
     "timestamp": 1790117662647
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 - <<'PYEOF'\nimport importlib.util\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('db','scripts/test-inventory-db.py')\ndb=importlib.util.module_from_spec(spec);spec.loader.exec_module(db)\ndb.setup()\nq,sql,uid=db.q,db.sql,db.uid\na=uid();org,product,variant,factory=[uid() for _ in range(4)]\nsql(f\"INSERT INTO auth.users(id,email) VALUES({q(a)},'a@t'); INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'A','a',{q(a)}); INSERT INTO products(id,organization_id,code,name) VALUES({q(product)},{q(org)},'B','B'); INSERT INTO product_variants(id,organization_id,product_id,sku) VALUES({q(variant)},{q(org)},{q(product)},'SKU-X'); INSERT INTO inventory_locations(id,organization_id,code,name,type) VALUES({q(factory)},{q(org)},'F','Fab','FACTORY');\")\ndb.call('inventory_post_movement',','.join(map(q,[org,variant,factory,'OPENING_BALANCE']))+',10',a)\nmid=sql(f\"SELECT id FROM inventory_movements WHERE organization_id={q(org)} AND direction='IN' LIMIT 1\")\ntry:\n    sql(f\"UPDATE inventory_movements SET reason='x' WHERE id={q(mid)}\")\n    print('direct UPDATE: allowed')\nexcept Exception as e:\n    print('direct UPDATE:', str(e).splitlines()[0])\ndb.cleanup()\nPYEOF",
+      "timeout": 120000
+    },
+    "timestamp": 1790117669629
+  },
+  {
+    "role": "tool_result",
+    "content": "direct UPDATE: ERROR:  Movimento consolidado não é editado nem excluído.\n",
+    "is_error": false,
+    "timestamp": 1790117670811
   }
 ]
