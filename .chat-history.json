@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "grep",
     "input": {
-      "pattern": "CREATE OR REPLACE FUNCTION public\\.[a-z_]+",
-      "path": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260924100000_partners.sql"
-    },
-    "timestamp": 1790110734379
-  },
-  {
-    "role": "tool_result",
-    "content": "Found 100 matches (more matches available)\n/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260923100000_inventory_workflows.sql:\n  Line 4: CREATE OR REPLACE FUNCTION public.inventory_post_movement_internal(\n\n  Line 161: CREATE OR REPLACE FUNCTION public.inventory_post_movement(\n\n  Lin",
-    "is_error": false,
-    "timestamp": 1790110734424
-  },
-  {
-    "role": "tool",
-    "tool": "grep",
-    "input": {
       "pattern": "CREATE TABLE public\\.[a-z_]+",
       "path": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260924100000_partners.sql"
     },
@@ -1564,5 +1549,21 @@
     "content": "==audit refs==\n336:CREATE FUNCTION public.reconciliation_audit(_org uuid,_action text,_table text,_id uuid,_context jsonb DEFAULT '{}') RETURNS void LANGUAGE sql SECURITY DEFINER SET search_path=public AS $$\n430:REVOKE ALL ON FUNCTION public.reconciliation_require(uuid,text),public.reconciliation_au",
     "is_error": false,
     "timestamp": 1790115952136
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "newString": "PERFORM public.reconciliation_audit(_org,'reconciliation.close','partner_reconciliations',v_rec.id,jsonb_build_object('snapshot_keys',(SELECT string_agg(k,',' ORDER BY k) FROM jsonb_object_keys(v_snapshot) k)));",
+      "oldString": "PERFORM public.reconciliation_audit(_org,'reconciliation.close','partner_reconciliations',v_rec.id,jsonb_build_object('snapshot_keys',(SELECT jsonb_object_keys(v_snapshot))));"
+    },
+    "timestamp": 1790115954908
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790115954929
   }
 ]

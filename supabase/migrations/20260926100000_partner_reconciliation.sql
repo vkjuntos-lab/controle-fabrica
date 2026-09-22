@@ -956,7 +956,7 @@ BEGIN
   VALUES(_org,'PARTNER_RECONCILIATION_CLOSED','RECONCILIATION','reconciliation:closed:'||v_rec.id::text,v_snapshot,'PUBLISHED',1,now(),now())
   ON CONFLICT(organization_id,event_key) DO UPDATE SET status='PUBLISHED',published_at=now(),attempts=domain_events.attempts+1
   RETURNING id INTO v_domain;
-  PERFORM public.reconciliation_audit(_org,'reconciliation.close','partner_reconciliations',v_rec.id,jsonb_build_object('snapshot_keys',(SELECT jsonb_object_keys(v_snapshot))));
+  PERFORM public.reconciliation_audit(_org,'reconciliation.close','partner_reconciliations',v_rec.id,jsonb_build_object('snapshot_keys',(SELECT string_agg(k,',' ORDER BY k) FROM jsonb_object_keys(v_snapshot) k)));
   RETURN jsonb_build_object('id',v_rec.id,'status','CLOSED','snapshot',v_snapshot,'domain_event_id',v_domain);
 END;
 $$;
