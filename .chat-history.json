@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "limit": 55,
-      "offset": 375
-    },
-    "timestamp": 1790116198431
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n375: \n376: CREATE FUNCTION public.reconciliation_guard() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n377: DECLARE j jsonb",
-    "is_error": false,
-    "timestamp": 1790116198449
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
@@ -1556,5 +1540,20 @@
     "content": "      'adjustments',(SELECT coalesce(sum(CASE adjustment_type WHEN 'CREDIT' THEN amount ELSE -amount END),0) FROM public.partner_reconciliation_adjustments WHERE reconciliation_id=v_rec.id),\n      'net_billable',(SELECT round((SELECT coalesce(sum(billable_amount),0) FROM public.partner_reconciliatio",
     "is_error": false,
     "timestamp": 1790116855911
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | grep -E 'PASS|AssertionError|ERROR:*' | tail -8",
+      "timeout": 300000
+    },
+    "timestamp": 1790116857333
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: 70-unit partner shipment, store and idempotent SKU mapping\nPASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nPASS: preview totals and DRAFT close without posting stock\nPASS: SKU_NOT_MAPPED exception, price-rule billable, no double posting on reprocess\nA",
+    "is_error": false,
+    "timestamp": 1790116859219
   }
 ]
