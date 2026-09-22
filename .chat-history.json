@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
-      "newString": "- Tipos de movimento que exigem par (transferência, remessa/retorno de parceiro, reversão) só\n  podem ser criados pelas RPCs dedicadas, nunca direto por `inventory_post_movement`.\n- Remessa não é venda e não gera receita/AR; o estoque do parceiro é derivado do ledger, sem tabela\n  de saldo. Quantidade enviada ≠ vendida; posse física não muda a titularidade.\n- Remessa/devolução recebida é imutável e o estorno genérico do par de movimentos vinculado é\n  bloqueado; correção física exige novo documento (ou ajuste autorizado com motivo), nunca\n  reinterpretação de fatos históricos.\n- Vínculo parceiro → loja só será criado quando o MASTER 005 existir, com FK composta e\n  organization_id; nada de tabela substituta de loja nesta fase.",
-      "oldString": "- Tipos de movimento que exigem par (transferência, remessa/retorno de parceiro, reversão) só\n  podem ser criados pelas RPCs dedicadas, nunca direto por `inventory_post_movement`."
-    },
-    "timestamp": 1790110833202
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790110833219
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "bunx prettier --check \"docs/handoff/PROJECT-STATE.md\" \"docs/handoff/MASTER-006-VALIDATION.md\" 2>&1 | tail -5",
@@ -1575,5 +1559,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790116101490
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "limit": 45,
+      "offset": 210
+    },
+    "timestamp": 1790116113322
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n210:   exception_status text CHECK(exception_status IN ('PARTNER_NOT_MAPPED','PARTNER_LOCATION_NOT_CONFIGURED','SKU_NOT_MAPPED',\n211:     'INSUFFICIENT_PART",
+    "is_error": false,
+    "timestamp": 1790116113362
   }
 ]
