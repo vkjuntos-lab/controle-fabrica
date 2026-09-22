@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/route.tsx"
-    },
-    "timestamp": 1790115147899
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/route.tsx</path>\n<type>file</type>\n<content>\n1: import { createFileRoute, Outlet, redirect } from \"@tanstack/react-router\";\n2: \n3: import { supabase } from \"@/integrations/supabase/client\";\n4: import { OrganizationProvider } fr",
-    "is_error": false,
-    "timestamp": 1790115147916
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/rbac.ts",
       "offset": 120
     },
@@ -1620,5 +1606,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n799:   SELECT id INTO v_dup FROM public.inventory_movements WHERE organization_id=_org\n800:     AND idempotency_key='partner-sale:'||v_item.marketplace_sale",
     "is_error": false,
     "timestamp": 1790116360798
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "newString": "DECLARE\n  v_item record; v_rec record; v_partner uuid; v_location uuid; v_variant uuid; v_price numeric; v_balance numeric;\n  v_occurred timestamptz; v_net numeric; v_billable numeric; v_price_json jsonb; v_move uuid; v_dup uuid;\n  v_exception_type text; v_severity text; v_message text; v_exc uuid; v_rule text;",
+      "oldString": "DECLARE\n  v_item record; v_rec record; v_partner uuid; v_location uuid; v_variant uuid; v_price numeric; v_balance numeric;\n  v_occurred timestamptz; v_net numeric; v_billable numeric; v_price_json jsonb; v_move uuid; v_dup uuid;\n  v_exception_type text; v_severity text; v_message text; v_exc uuid;"
+    },
+    "timestamp": 1790116365413
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790116365444
   }
 ]

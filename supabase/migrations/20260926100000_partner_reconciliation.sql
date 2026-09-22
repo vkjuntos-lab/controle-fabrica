@@ -729,7 +729,7 @@ RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE
   v_item record; v_rec record; v_partner uuid; v_location uuid; v_variant uuid; v_price numeric; v_balance numeric;
   v_occurred timestamptz; v_net numeric; v_billable numeric; v_price_json jsonb; v_move uuid; v_dup uuid;
-  v_exception_type text; v_severity text; v_message text; v_exc uuid;
+  v_exception_type text; v_severity text; v_message text; v_exc uuid; v_rule text;
 BEGIN
   IF _user_id IS DISTINCT FROM auth.uid() THEN RAISE EXCEPTION 'Usuário inválido.'; END IF;
   PERFORM public.reconciliation_require(_org,'reconciliation.process');
