@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && rm -f scripts/test-reconciliation-db.py.dbg && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | tail -12",
-      "timeout": 300000
-    },
-    "timestamp": 1790116834611
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS: 70-unit partner shipment, store and idempotent SKU mapping\nPASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nPASS: preview totals and DRAFT close without posting stock\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/s",
-    "is_error": false,
-    "timestamp": 1790116836400
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PYEOF'\nfrom pathlib import Path\ns=Path('scripts/test-reconciliation-db.py').read_text()\nn=\"r2=json.loads(rpc('rec_process',','.join(map(q,[org,rid]))));assert r2['already']==2 and balance(ploc)==65\"\ns=s.replace(n,\"r2=json.loads(rpc('rec_process',','.join(map(q,[org,rid]))));print('R2',json.dumps(r2),'BAL',balance(ploc));assert r2['already']==2 and balance(ploc)==65\")\nPath('/tmp/harness2.py').write_text(s)\nPYEOF\ncd \"/root/Zheus AI Projects/controle-fabrica\" && cp /tmp/harness2.py scripts/test-reconciliation-db.py.dbg && sudo -u postgres python3 scripts/test-reconciliation-db.py.dbg 2>&1 | grep -E 'R2|PASS|ERROR|Assert' | head",
       "timeout": 300000
     },
@@ -1482,5 +1467,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql</path>\n<type>file</type>\n<content>\n697: CREATE OR REPLACE FUNCTION public.inventory_reverse_movement(\n698:   _organization_id uuid,\n699:   _movement_id uuid,\n700:   _reason text,\n701:   _user_id uu",
     "is_error": false,
     "timestamp": 1790117588097
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260923100000_inventory_workflows.sql",
+      "limit": 10,
+      "offset": 539
+    },
+    "timestamp": 1790117593843
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260923100000_inventory_workflows.sql</path>\n<type>file</type>\n<content>\n539: CREATE OR REPLACE FUNCTION public.inventory_guard_movement() RETURNS trigger\n540: LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$\n541: DE",
+    "is_error": false,
+    "timestamp": 1790117593855
   }
 ]
