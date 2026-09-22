@@ -1,32 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "$ vitest run\n\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabrica\n\n ✓ src/lib/inventory/ledger.test.ts (12 tests) 12ms\n ✓ src/lib/webhook/signature.test.ts (5 tests) 9ms\n ✓ src/lib/rbac.test.ts (5 tests) 16ms\n ✓ src/lib/csv.test.ts (5 tests) 8ms\n ✓ src/lib/middleware/rate-limit.test.ts (3 tests) 1",
-    "is_error": false,
-    "timestamp": 1790110665787
-  },
-  {
-    "role": "tool_result",
-    "content": "$ tsc --noEmit\n",
-    "is_error": false,
-    "timestamp": 1790110680550
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "bun run test:partners:db 2>&1 | tail -30",
-      "timeout": 600000
-    },
-    "timestamp": 1790110682168
-  },
-  {
-    "role": "tool_result",
-    "content": "$ python3 scripts/test-partners-db.py\ninitdb: error: cannot be run as root\ninitdb: hint: Please log in (using, e.g., \"su\") as the (unprivileged) user that will own the server process.\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-partners-db.py\", li",
-    "is_error": false,
-    "timestamp": 1790110682318
-  },
-  {
     "role": "tool",
     "tool": "bash",
     "input": {
@@ -1556,5 +1529,33 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790115538096
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && for t in marketplace_stores marketplace_imports marketplace_import_rows marketplace_sales external_sku_mappings price_tables price_table_items partner_price_links partner_reconciliations partner_reconciliation_items reconciliation_exceptions partner_reconciliation_adjustments domain_events domain_event_outbox audit_log_snapshot; do n=$(rg -c \"\\b$t\\b\" supabase/migrations/20260926100000_partner_reconciliation.sql); echo \"$t: $n\"; done"
+    },
+    "timestamp": 1790115566053
+  },
+  {
+    "role": "tool_result",
+    "content": "marketplace_stores: \n/bin/bash: line 1: rg: command not found\n/bin/bash: line 1: rg: command not found\nmarketplace_imports: \nmarketplace_import_rows: \n/bin/bash: line 1: rg: command not found\nmarketplace_sales: \nexternal_sku_mappings: \nprice_tables: \nprice_table_items: \npartner_price_links: \npartner",
+    "is_error": false,
+    "timestamp": 1790115566119
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && rg -o \"public\\.reconciliation_require|public\\.reconciliation_audit|public\\.reconciliation_lock|public\\.inventory_lock|public\\.reconciliation_guard|public\\.rec_reconciled_item_relation|public\\.rec_audit\" supabase/migrations/20260926100000_partner_reconciliation.sql | sort | uniq -c"
+    },
+    "timestamp": 1790115570068
+  },
+  {
+    "role": "tool_result",
+    "content": "/bin/bash: line 1: rg: command not found\n",
+    "is_error": false,
+    "timestamp": 1790115570101
   }
 ]
