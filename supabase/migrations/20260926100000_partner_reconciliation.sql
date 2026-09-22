@@ -546,6 +546,15 @@ BEGIN
     coalesce(_data->>'currency','BRL'),v_status,nullif(_data->>'import_key',''),nullif((_data->>'import_id')::uuid::text,'')::uuid,
     coalesce(_data->>'source','MANUAL'),_user_id)
   RETURNING id INTO v_sale;
+  -- Venda dentro de período já CLOSED é venda tardia: registra e sinaliza exceção.
+  IF EXISTS(SELECT 1 FROM public.partner_reconciliations r JOIN public.marketplace_stores st2 ON st2.id=v_store_id
+    WHERE r.organization_id=_org AND r.partner_id=st2.partner_id AND r.status='CLOSED'
+    AND r.period_start<=(_data->>'sale_date')::date AND r.period_end>=(_data->>'sale_date')::date) THEN
+    INSERT INTO public.reconciliation_exceptions(organization_id,marketplace_sale_id,store_id,partner_id,exception_type,severity,status,message,created_by)
+    SELECT _org,v_sale,v_store_id,st2.partner_id,'LATE_SALE_AFTER_CLOSING','WARNING','OPEN',
+      'Venda com data dentro de fechamento CLOSED: reabra o período para reconciliá-la.',auth.uid()
+    FROM public.marketplace_stores st2 WHERE st2.id=v_store_id;
+  END IF;
   PERFORM public.reconciliation_audit(_org,'marketplace.sale.register','marketplace_sales',v_sale,jsonb_build_object('data',_data,'deduped',false));
   RETURN jsonb_build_object('id',v_sale,'deduped',false,
     'sale',(SELECT to_jsonb(marketplace_sales.*) FROM public.marketplace_sales WHERE id=v_sale));
