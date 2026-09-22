@@ -774,16 +774,17 @@ BEGIN
     UPDATE public.partner_reconciliation_items SET status='EXCEPTION',exception_status='SKU_NOT_MAPPED',updated_at=now() WHERE id=_item_id;
     RETURN jsonb_build_object('item_id',v_item.id,'status','EXCEPTION','exception_type','SKU_NOT_MAPPED');
   END IF;
-  -- 3) Preço: regra comercial vence; senão referência do pedido.
+  -- 3) Preço: regra comercial vence; senão referência líquida do pedido.
+  SELECT public.rec_sale_net(gross_amount,discount_amount,platform_fee,shipping_fee) INTO v_net
+  FROM public.marketplace_sales WHERE id=v_item.marketplace_sale_id;
   v_price:=public.rec_resolve_price(_org,v_variant,v_item.partner_id,(SELECT sale_date FROM public.marketplace_sales WHERE id=v_item.marketplace_sale_id));
-  IF v_price IS NULL THEN
+  IF v_price IS NULL AND v_net IS NULL THEN
     PERFORM public.reconciliation_insert_exception(_org,v_rec.id,v_item.id,v_item.marketplace_sale_id,v_item.partner_id,v_item.store_id,v_variant,
       'PRICE_NOT_FOUND','WARNING','Sem preço de referência para a SKU na data da venda.',NULL);
     UPDATE public.partner_reconciliation_items SET status='EXCEPTION',exception_status='PRICE_NOT_FOUND',updated_at=now() WHERE id=_item_id;
     RETURN jsonb_build_object('item_id',v_item.id,'status','EXCEPTION','exception_type','PRICE_NOT_FOUND');
   END IF;
-  SELECT public.rec_sale_net(gross_amount,discount_amount,platform_fee,shipping_fee) INTO v_net
-  FROM public.marketplace_sales WHERE id=v_item.marketplace_sale_id;
+  IF v_price IS NULL THEN v_price:=round(v_net/v_item.quantity,2); END IF;
   v_billable:=round(v_price*v_item.quantity,2);
   -- 4) Estoque do parceiro na data da venda (posição histórica) + baixa atômica.
   v_occurred:=(((SELECT sale_date FROM public.marketplace_sales WHERE id=v_item.marketplace_sale_id))::timestamp AT TIME ZONE 'UTC');
