@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "su - claude-runner -c 'cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 scripts/test-inventory-db.py' 2>&1 | tail -30",
-      "timeout": 600000
-    },
-    "timestamp": 1790110695845
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS: arithmetic, adjustment and business acceptance 70/10/20 = 100; no financial module\nPASS: negative balance, override rejection, reason, RLS, permissions, immutable ledger\nPASS: idempotency, duplicate SKU transfer rollback, immutable reversal and retry\nPASS: actual concurrent withdrawals and ide",
-    "is_error": false,
-    "timestamp": 1790110698813
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "bun run build 2>&1 | tail -15",
       "timeout": 600000
     },
@@ -1559,5 +1544,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql</path>\n<type>file</type>\n<content>\n571:     SELECT id INTO v_existing_id FROM public.inventory_transfers\n572:       WHERE organization_id = _organization_id AND idempotency_key = _idempotency_key\n5",
     "is_error": false,
     "timestamp": 1790115618434
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -c \"rec_process_item\\|rec_create\\|rec_query\\|rec_close\\|rec_require\\|reconcile_process\\|marketplace_register_sale\" supabase/migrations/20260926100000_partner_reconciliation.sql"
+    },
+    "timestamp": 1790115623768
+  },
+  {
+    "role": "tool_result",
+    "content": "10\n",
+    "is_error": false,
+    "timestamp": 1790115623798
   }
 ]
