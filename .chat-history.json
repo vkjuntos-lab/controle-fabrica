@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/architecture/ADR-006-PARTNER-SHIPMENTS.md"
-    },
-    "timestamp": 1790110727955
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/docs/architecture/ADR-006-PARTNER-SHIPMENTS.md</path>\n<type>file</type>\n<content>\n1: # ADR-006 — Remessa direta ao parceiro e núcleo único do ledger\n2: \n3: Status: implementado no código; validação local. Implantação pendente.\n4: \n5: ## Contexto\n6: \n7: ",
-    "is_error": false,
-    "timestamp": 1790110727986
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/PARTNER-SHIPMENTS.md"
     },
     "timestamp": 1790110728130
@@ -1560,5 +1546,19 @@
     "content": "15:CREATE TABLE public.marketplace_stores \n38:CREATE TABLE public.marketplace_imports \n54:CREATE TABLE public.marketplace_import_rows \n67:CREATE TABLE public.marketplace_sales \n99:CREATE TABLE public.external_sku_mappings \n115:CREATE TABLE public.price_tables \n130:CREATE TABLE public.price_table_ite",
     "is_error": false,
     "timestamp": 1790115844068
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica/supabase/migrations\" && echo \"== TABLES ==\" && grep -E \"^CREATE TABLE public\\.[a-z_]+ \\(\" 20260926100000_partner_reconciliation.sql | grep -oE \"public\\.[a-z_]+\" && echo \"== FUNCTIONS ==\" && grep -E \"^CREATE (OR REPLACE )?FUNCTION public\\.[a-z_]+\" 20260926100000_partner_reconciliation.sql | grep -oE \"public\\.[a-z_]+\" | sort -u"
+    },
+    "timestamp": 1790115906863
+  },
+  {
+    "role": "tool_result",
+    "content": "== TABLES ==\npublic.marketplace_stores\npublic.marketplace_imports\npublic.marketplace_import_rows\npublic.marketplace_sales\npublic.external_sku_mappings\npublic.price_tables\npublic.price_table_items\npublic.partner_price_links\npublic.partner_reconciliations\npublic.partner_reconciliation_items\npublic.rec",
+    "is_error": false,
+    "timestamp": 1790115906925
   }
 ]
