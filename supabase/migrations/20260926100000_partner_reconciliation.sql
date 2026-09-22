@@ -494,17 +494,14 @@ RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE v_id uuid;
 BEGIN
   PERFORM public.reconciliation_require(_org,'marketplace.manage');
-  INSERT INTO public.external_sku_mappings(organization_id,store_id,external_sku,variant_id,created_by,updated_at)
-  VALUES (_org,nullif((_data->>'store_id')::uuid::text,'')::uuid,trim(_data->>'external_sku'),(_data->>'variant_id')::uuid,auth.uid(),now())
-  ON CONFLICT(organization_id,store_id,external_sku) WHERE false DO NOTHING;
-  SELECT id INTO v_id FROM public.external_sku_mappings WHERE organization_id=_org
-    AND store_id IS NOT DISTINCT FROM (nullif((_data->>'store_id')::uuid::text,'')::uuid) AND external_sku=trim(_data->>'external_sku') LIMIT 1;
+  IF (_data->>'external_sku') IS NULL OR (_data->>'variant_id') IS NULL THEN RAISE EXCEPTION 'SKU externo e variante obrigatórios.'; END IF;
+  UPDATE public.external_sku_mappings SET variant_id=(_data->>'variant_id')::uuid,updated_at=now()
+  WHERE organization_id=_org AND store_id IS NOT DISTINCT FROM (nullif(_data->>'store_id','')::uuid) AND external_sku=trim(_data->>'external_sku')
+  RETURNING id INTO v_id;
   IF v_id IS NULL THEN
     INSERT INTO public.external_sku_mappings(organization_id,store_id,external_sku,variant_id,created_by)
-    VALUES (_org,nullif((_data->>'store_id')::uuid::text,'')::uuid,trim(_data->>'external_sku'),(_data->>'variant_id')::uuid,auth.uid())
+    VALUES (_org,nullif(_data->>'store_id','')::uuid,trim(_data->>'external_sku'),(_data->>'variant_id')::uuid,auth.uid())
     RETURNING id INTO v_id;
-  ELSE
-    UPDATE public.external_sku_mappings SET variant_id=(_data->>'variant_id')::uuid,updated_at=now() WHERE id=v_id;
   END IF;
   -- backfill: vendas não reconciliadas do mesmo SKU passam a VALIDATED (resolução de mapping).
   UPDATE public.marketplace_sales SET variant_id=esm.variant_id,status='VALIDATED',updated_at=now()
