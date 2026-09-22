@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test/data -m immediate stop 2>&1 | tail -1; rm -rf /tmp/recon-test && mkdir -p /tmp/recon-test && chown postgres /tmp/recon-test && sudo -u postgres /usr/lib/postgresql/18/bin/initdb -D /tmp/recon-test/data -A trust -U postgres 2>&1 | tail -1 && sudo -u postgres /usr/lib/postgresql/18/bin/pg_ctl -D /tmp/recon-test/data -l /tmp/recon-test/log -o \"-p 55439 -k /tmp/recon-test\" start 2>&1 | tail -1",
-      "timeout": 60000
-    },
-    "timestamp": 1790116214853
-  },
-  {
-    "role": "tool_result",
-    "content": "server stopped\n\nserver started\n",
-    "is_error": false,
-    "timestamp": 1790116215745
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sudo -u postgres python3 /tmp/recon-check.py 2>&1 | tail -8",
       "timeout": 120000
     },
@@ -1555,5 +1540,20 @@
     "content": "  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py\", line 73, in run\n    close=json.loads(rpc('rec_close',q(org)+','+q(rid)));assert close['status']=='CLOSED'\n                     ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scri",
     "is_error": false,
     "timestamp": 1790116873707
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"line 14\\|PL/pgSQL function rec_close\" <(cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1) | head; echo ---; cd \"/root/Zheus AI Projects/controle-fabrica\" && sed -n '948,963p' supabase/migrations/20260926100000_partner_reconciliation.sql | grep -n \"SELECT round\"",
+      "timeout": 300000
+    },
+    "timestamp": 1790116885240
+  },
+  {
+    "role": "tool_result",
+    "content": "6:  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py\", line 143, in <module>\n40:CONTEXT:  PL/pgSQL function rec_close(uuid,uuid,text,uuid) line 14 at SQL statement\n---\n8:      'net_billable',(SELECT round((SELECT coalesce(sum(billable_amount),0) FROM public.partner_re",
+    "is_error": false,
+    "timestamp": 1790116887145
   }
 ]
