@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "newString": "'reconciliation.create','reconciliation.process','reconciliation.review','reconciliation.resolve_exception',\n 'reconciliation.close','reconciliation.reopen','reconciliation.cancel','reconciliation.reverse','partner_pricing.manage','marketplace.manage']) p ON CONFLICT DO NOTHING;",
-      "oldString": "'reconciliation.create','reconciliation.process','reconciliation.review','reconciliation.resolve_exception',\n 'reconciliation.close','reconciliation.reopen','reconciliation.reverse','partner_pricing.manage','marketplace.manage']) p ON CONFLICT DO NOTHING;"
-    },
-    "timestamp": 1790116074464
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790116074493
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
@@ -1559,5 +1543,20 @@
     "content": "#!/usr/bin/env python3\n\"\"\"MASTER 007 acceptance tests in a disposable PostgreSQL cluster, no real organization data.\"\"\"\nimport importlib.util\nimport json\nimport subprocess\nfrom pathlib import Path\nimport concurrent.futures\nspec=importlib.util.spec_from_file_location('inventory_db',Path(__file__).wit",
     "is_error": false,
     "timestamp": 1790116720409
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && cp /tmp/harness.py scripts/test-reconciliation-db.py.dbg && sudo -u postgres python3 scripts/test-reconciliation-db.py.dbg 2>&1 | grep -E 'PROC|PASS|AssertionError|ERROR' | head",
+      "timeout": 300000
+    },
+    "timestamp": 1790116722322
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: 70-unit partner shipment, store and idempotent SKU mapping\nPASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nPASS: preview totals and DRAFT close without posting stock\nPROC {\"status\": \"REVIEW_REQUIRED\", \"already\": 0, \"canceled\": 0, \"exceptions\": 3, \"rec",
+    "is_error": false,
+    "timestamp": 1790116724145
   }
 ]
