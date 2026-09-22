@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | grep -A120 'AssertionError: ERROR:  subquery' | head -130 | tail -5; echo =====; sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 > /tmp/run.log; rg -A140 'subquery must' /tmp/run.log | sed -n '120,145p'",
-      "timeout": 300000
-    },
-    "timestamp": 1790116908544
-  },
-  {
-    "role": "tool_result",
-    "content": "    'adjustment_rows',coalesce((SELECT jsonb_agg(to_jsonb(a)) FROM public.partner_reconciliation_adjustments a WHERE a.reconciliation_id=v_rec.id ORDER BY a.created_at),'[]'::jsonb),\n    'exceptions_open_at_close',coalesce((SELECT jsonb_agg(jsonb_build_object('type',e.exception_type,'severity',e.sev",
-    "is_error": false,
-    "timestamp": 1790116912205
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd /tmp && printf \"SELECT (SELECT 1.0)+(SELECT 2.0);\\nSELECT round((SELECT 1.5)+(SELECT 2.1),2);\\nSELECT jsonb_build_object('net',(SELECT round((SELECT 1.5)+(SELECT 2.1),2)));\\n\" | sudo -u postgres psql -X -h /tmp/recon-test2 -p 55439 -U postgres -d postgres -Atq 2>&1",
       "timeout": 60000
     },
@@ -1479,5 +1464,20 @@
     "content": "Traceback (most recent call last):\n  File \"<stdin>\", line 10, in <module>\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 28, in call\n    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                             ",
     "is_error": false,
     "timestamp": 1790117658292
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 - <<'PYEOF'\nimport importlib.util\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('db','scripts/test-inventory-db.py')\ndb=importlib.util.module_from_spec(spec);spec.loader.exec_module(db)\ndb.setup()\nq,sql,uid=db.q,db.sql,db.uid\na=uid();org,product,variant,factory,store,partner=[uid() for _ in range(6)]\nsql(f\"INSERT INTO auth.users(id,email) VALUES({q(a)},'a@t'); INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'A','a',{q(a)}); INSERT INTO products(id,organization_id,code,name) VALUES({q(product)},{q(org)},'B','B'); INSERT INTO product_variants(id,organization_id,product_id,sku) VALUES({q(variant)},{q(org)},{q(product)},'SKU-X'); INSERT INTO inventory_locations(id,organization_id,code,name,type) VALUES({q(factory)},{q(org)},'F','Fab','FACTORY'),({q(store)},{q(org)},'S','Loja','OWN_STORE');\")\ndb.call('inventory_post_movement',','.join(map(q,[org,variant,factory,'OPENING_BALANCE']))+',10',a)\nmid=sql(f\"SELECT id FROM inventory_movements WHERE organization_id={q(org)} AND direction='IN' LIMIT 1\")\ntry:\n    rev=db.call('inventory_reverse_movement',','.join(map(q,[org,mid,'correção'])),a)\n    print('rev ok:',rev[:120])\nexcept Exception as e:\n    print('rev err:',e)\ndb.cleanup()\nPYEOF",
+      "timeout": 120000
+    },
+    "timestamp": 1790117661388
+  },
+  {
+    "role": "tool_result",
+    "content": "rev ok: {\"deduped\": false, \"warning\": null, \"movement_id\": \"ce096ffc-c90d-4d35-bc10-af27590b4ca0\", \"movement_ids\": [\"ce096ffc-c9\n",
+    "is_error": false,
+    "timestamp": 1790117662647
   }
 ]
