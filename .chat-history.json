@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "newString": "DECLARE\n  v_item record; v_rec record; v_partner uuid; v_location uuid; v_variant uuid; v_price numeric; v_balance numeric;\n  v_occurred timestamptz; v_net numeric; v_billable numeric; v_price_json jsonb; v_move uuid; v_dup uuid;\n  v_exception_type text; v_severity text; v_message text; v_exc uuid; v_rule text;",
-      "oldString": "DECLARE\n  v_item record; v_rec record; v_partner uuid; v_location uuid; v_variant uuid; v_price numeric; v_balance numeric;\n  v_occurred timestamptz; v_net numeric; v_billable numeric; v_price_json jsonb; v_move uuid; v_dup uuid;\n  v_exception_type text; v_severity text; v_message text; v_exc uuid;"
-    },
-    "timestamp": 1790116365413
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790116365444
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
       "newString": "IF v_price IS NULL AND v_net IS NULL THEN\n    PERFORM public.reconciliation_insert_exception(_org,v_rec.id,v_item.id,v_item.marketplace_sale_id,v_item.partner_id,v_item.store_id,v_variant,\n      'PRICE_NOT_FOUND','WARNING','Sem preço de referência para a SKU na data da venda.',NULL);\n    UPDATE public.partner_reconciliation_items SET status='EXCEPTION',exception_status='PRICE_NOT_FOUND',updated_at=now() WHERE id=_item_id;\n    RETURN jsonb_build_object('item_id',v_item.id,'status','EXCEPTION','exception_type','PRICE_NOT_FOUND');\n  END IF;\n  v_rule:='PRICE_TABLE';\n  IF v_price IS NULL THEN v_price:=round(v_net/v_item.quantity,2); v_rule:='SALE_REFERENCE'; END IF;\n  v_billable:=round(v_price*v_item.quantity,2);",
       "oldString": "IF v_price IS NULL AND v_net IS NULL THEN\n    PERFORM public.reconciliation_insert_exception(_org,v_rec.id,v_item.id,v_item.marketplace_sale_id,v_item.partner_id,v_item.store_id,v_variant,\n      'PRICE_NOT_FOUND','WARNING','Sem preço de referência para a SKU na data da venda.',NULL);\n    UPDATE public.partner_reconciliation_items SET status='EXCEPTION',exception_status='PRICE_NOT_FOUND',updated_at=now() WHERE id=_item_id;\n    RETURN jsonb_build_object('item_id',v_item.id,'status','EXCEPTION','exception_type','PRICE_NOT_FOUND');\n  END IF;\n  IF v_price IS NULL THEN v_price:=round(v_net/v_item.quantity,2); END IF;\n  v_billable:=round(v_price*v_item.quantity,2);"
     },
@@ -1509,5 +1493,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n952:     'totals',jsonb_build_object('sales',v_rec.sales_count,'units',v_rec.units_sold,'gross',v_rec.gross_amount,\n953:       'billable_items',(SELECT coal",
     "is_error": false,
     "timestamp": 1790116974674
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PYEOF'\nlines=open('supabase/migrations/20260926100000_partner_reconciliation.sql').read().splitlines()[947:964]\ns='\\n'.join(lines)\nprint('open',s.count('('),'close',s.count(')'))\n# find the STATEMENT range rec_close body\nsrc=open('supabase/migrations/20260926100000_partner_reconciliation.sql').read()\ni=src.index('CREATE FUNCTION public.rec_close')\nj=src.index('$$;',i)\nbody=src[i:j]\nprint('rec_close opens',body.count('('),'closes',body.count(')'))\nk=src.index('CREATE FUNCTION public.rec_query')\nb2=src[k:src.index('$$;',k)]\nprint('rec_query opens',b2.count('('),'closes',b2.count(')'))\nPYEOF"
+    },
+    "timestamp": 1790116983551
+  },
+  {
+    "role": "tool_result",
+    "content": "open 35 close 34\nrec_close opens 66 closes 65\nrec_query opens 255 closes 255\n",
+    "is_error": false,
+    "timestamp": 1790116983585
   }
 ]
