@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PYEOF'\nfrom pathlib import Path\ns=Path('scripts/test-reconciliation-db.py').read_text()\nn=\"r2=json.loads(rpc('rec_process',','.join(map(q,[org,rid]))));assert r2['already']==2 and balance(ploc)==65\"\ns=s.replace(n,\"r2=json.loads(rpc('rec_process',','.join(map(q,[org,rid]))));print('R2',json.dumps(r2),'BAL',balance(ploc));assert r2['already']==2 and balance(ploc)==65\")\nPath('/tmp/harness2.py').write_text(s)\nPYEOF\ncd \"/root/Zheus AI Projects/controle-fabrica\" && cp /tmp/harness2.py scripts/test-reconciliation-db.py.dbg && sudo -u postgres python3 scripts/test-reconciliation-db.py.dbg 2>&1 | grep -E 'R2|PASS|ERROR|Assert' | head",
-      "timeout": 300000
-    },
-    "timestamp": 1790116839559
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS: 70-unit partner shipment, store and idempotent SKU mapping\nPASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nPASS: preview totals and DRAFT close without posting stock\nR2 {\"status\": \"REVIEW_REQUIRED\", \"already\": 0, \"canceled\": 0, \"exceptions\": 1, \"recon",
-    "is_error": false,
-    "timestamp": 1790116841359
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
@@ -1483,5 +1468,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260923100000_inventory_workflows.sql</path>\n<type>file</type>\n<content>\n539: CREATE OR REPLACE FUNCTION public.inventory_guard_movement() RETURNS trigger\n540: LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$\n541: DE",
     "is_error": false,
     "timestamp": 1790117593855
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -rn \"inventory_guard_movement\\|CREATE OR REPLACE FUNCTION public.inventory_guard\\|DROP TRIGGER inventory_immutable\" supabase/migrations/"
+    },
+    "timestamp": 1790117606303
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260921100000_inventory_integrity.sql:45:CREATE FUNCTION public.inventory_guard_movement() RETURNS trigger\nsupabase/migrations/20260921100000_inventory_integrity.sql:90:FOR EACH ROW EXECUTE FUNCTION public.inventory_guard_movement();\nsupabase/migrations/20260921100000_inventory_",
+    "is_error": false,
+    "timestamp": 1790117606321
   }
 ]
