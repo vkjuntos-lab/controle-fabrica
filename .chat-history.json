@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PYEOF'\nfrom pathlib import Path\nimport datetime\ns=Path('scripts/test-reconciliation-db.py').read_text()\ntoday=datetime.date.today().isoformat()\n# build a period covering today\nfrom datetime import date,timedelta\nstart=(date.today()-timedelta(days=5)).isoformat(); end=(date.today()+timedelta(days=5)).isoformat()\nn_replacements={'2026-09-01':start,'2026-09-30':end}\nfor k,v in n_replacements.items():\n    s=s.replace(\"'\"+k+\"'\",\"'\"+v+\"'\")\n# late sale should be AFTER the period end (outside). line uses 2026-10-02 > end(today+5) ok if end<2026-10-02; today+5=2026-09-27 < 10-02, fine.\nPath('scripts/test-reconciliation-db.py').write_text(s)\nprint('today',today,'start',start,'end',end)\nPYEOF"
-    },
-    "timestamp": 1790116813729
-  },
-  {
-    "role": "tool_result",
-    "content": "today 2026-09-22 start 2026-09-17 end 2026-09-27\n",
-    "is_error": false,
-    "timestamp": 1790116813776
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"2026\" scripts/test-reconciliation-db.py"
     },
     "timestamp": 1790116816729
@@ -1484,5 +1470,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260924100000_partners.sql</path>\n<type>file</type>\n<content>\n500:   SELECT sum(quantity) INTO sent FROM public.partner_shipment_items WHERE shipment_id=r.shipment_id;\n501:   SELECT sum(return_item.quantity) INTO returned FROM publi",
     "is_error": false,
     "timestamp": 1790117565698
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"inventory_guard_movement\\|inventory_reverse_movement_core\\|reversed_by_id\\|REMOVE.*guard\\|DROP.*guard\" supabase/migrations/20260924100000_partners.sql supabase/migrations/20260926100000_partner_reconciliation.sql"
+    },
+    "timestamp": 1790117572278
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260924100000_partners.sql:509:ALTER FUNCTION public.inventory_reverse_movement(uuid,uuid,text,uuid) RENAME TO inventory_reverse_movement_core;\nsupabase/migrations/20260924100000_partners.sql:510:REVOKE ALL ON FUNCTION public.inventory_reverse_movement_core(uuid,uuid,text,uuid) ",
+    "is_error": false,
+    "timestamp": 1790117572289
   }
 ]
