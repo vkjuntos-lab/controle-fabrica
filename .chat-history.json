@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/inventory/transfer-dialog.tsx"
-    },
-    "timestamp": 1790008656565
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/inventory/transfer-dialog.tsx</path>\n<type>file</type>\n<content>\n1: import { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\n2: import { useServerFn } from \"@tanstack/react-start\";\n3: import { Plus, Trash2 } from \"lu",
-    "is_error": false,
-    "timestamp": 1790008656584
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/inventory/movement-dialog.tsx"
     },
     "timestamp": 1790008669072
@@ -1417,5 +1403,19 @@
     "content": " .chat-history.json | 44 ++++++++++++++++++++++----------------------\n 1 file changed, 22 insertions(+), 22 deletions(-)\n",
     "is_error": false,
     "timestamp": 1790110591820
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 -c \"\nimport json\nwith open('.chat-history.json') as f:\n    data = json.load(f)\nprint(type(data))\nif isinstance(data, list):\n    print(len(data))\n    for item in data:\n        print({k: v[:80] for k,v in item.items() if k in ('role','type','name','tool_name')}, '|', str(item.get('content',''))[:80].replace(chr(10),' '))\n\""
+    },
+    "timestamp": 1790110595733
+  },
+  {
+    "role": "tool_result",
+    "content": "<class 'list'>\n200\n{'role': 'tool_result'} | <path>/root/Zheus AI Projects/controle-fabrica/src/components/inventory/transfer\n{'role': 'tool'} | \n{'role': 'tool_result'} | <path>/root/Zheus AI Projects/controle-fabrica/src/components/inventory/movement\n{'role': 'tool'} | \n{'role': 'tool_result'} | <",
+    "is_error": false,
+    "timestamp": 1790110595813
   }
 ]
