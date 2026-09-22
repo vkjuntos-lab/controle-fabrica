@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"line 14\\|PL/pgSQL function rec_close\" <(cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1) | head; echo ---; cd \"/root/Zheus AI Projects/controle-fabrica\" && sed -n '948,963p' supabase/migrations/20260926100000_partner_reconciliation.sql | grep -n \"SELECT round\"",
-      "timeout": 300000
-    },
-    "timestamp": 1790116885240
-  },
-  {
-    "role": "tool_result",
-    "content": "6:  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py\", line 143, in <module>\n40:CONTEXT:  PL/pgSQL function rec_close(uuid,uuid,text,uuid) line 14 at SQL statement\n---\n8:      'net_billable',(SELECT round((SELECT coalesce(sum(billable_amount),0) FROM public.partner_re",
-    "is_error": false,
-    "timestamp": 1790116887145
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && cat > /tmp/snap.sql <<'EOF'\nCREATE FUNCTION public.__t(_org uuid,_reconciliation_id uuid) RETURNS jsonb LANGUAGE plpgsql AS $$\nDECLARE v_rec record; v_snapshot jsonb;\nBEGIN\n SELECT * INTO v_rec FROM public.partner_reconciliations WHERE id=_reconciliation_id AND organization_id=_org;\n SELECT jsonb_build_object(\n   'net_billable',(SELECT round((SELECT coalesce(sum(billable_amount),0) FROM public.partner_reconciliation_items WHERE reconciliation_id=v_rec.id AND status='RECONCILED')\n     +(SELECT coalesce(sum(CASE adjustment_type WHEN 'CREDIT' THEN amount ELSE -amount END),0) FROM public.partner_reconciliation_adjustments WHERE reconciliation_id=v_rec.id)),2))\n   INTO v_snapshot;\n RETURN v_snapshot;\nEND; $$;\nSELECT public.__t('00000000-0000-0000-0000-000000000000','00000000-0000-0000-0000-000000000000');\nEOF\nsql(){ cd /tmp; printf \"%s\" \"$(cat /tmp/snap.sql)\" | sudo -u postgres psql -X -h /tmp/recon-test2 -p 55439 -U postgres -d postgres -v ON_ERROR_STOP=1 -Atq 2>&1 | head -5; }; sql",
       "timeout": 60000
     },
@@ -1479,5 +1464,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql</path>\n<type>file</type>\n<content>\n84:     'quantity',NEW.quantity,'direction',NEW.direction,'reason',NEW.reason,'variant_id',NEW.variant_id,\n85:     'location_id',NEW.location_id,'batch_id',NEW",
     "is_error": false,
     "timestamp": 1790117635408
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -rn \"inventory_immutable\\|creat.*trigger.*inventory_movements\" supabase/migrations/ | head"
+    },
+    "timestamp": 1790117641027
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260921100000_inventory_integrity.sql:89:CREATE TRIGGER inventory_immutable BEFORE INSERT OR UPDATE OR DELETE ON public.inventory_movements\n",
+    "is_error": false,
+    "timestamp": 1790117641063
   }
 ]
