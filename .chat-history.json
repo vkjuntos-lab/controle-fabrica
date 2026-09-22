@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "newString": "INSERT INTO public.partner_reconciliation_items(organization_id,reconciliation_id,marketplace_sale_id,partner_id,store_id,variant_id,\n    quantity,gross_amount)\n  SELECT _org,v_rec,s.id,s.store_id,v_partner,s.variant_id,s.quantity,s.gross_amount\n  FROM public.rec_eligible_sales(_org,v_partner,v_start,v_end) s\n  ON CONFLICT(organization_id,marketplace_sale_id) WHERE status<>'CANCELED' DO NOTHING;",
-      "oldString": "INSERT INTO public.partner_reconciliation_items(organization_id,reconciliation_id,marketplace_sale_id,partner_id,store_id,variant_id,\n    quantity,gross_amount)\n  SELECT _org,v_rec,s.id,s.store_id,v_partner,s.variant_id,s.quantity,s.gross_amount\n  FROM public.rec_eligible_sales(_org,v_partner,v_start,v_end) s\n  ON CONFLICT(organization_id,marketplace_sale_id) DO NOTHING;"
-    },
-    "timestamp": 1790116124460
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790116124492
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py",
@@ -1554,5 +1538,21 @@
     "content": "    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                                                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n    ",
     "is_error": false,
     "timestamp": 1790116758075
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "newString": "'items',coalesce((SELECT jsonb_agg(to_jsonb(i)||jsonb_build_object('sku',v.sku,'product_name',p.name,'external_order_id',s.external_order_id,'external_sku',s.external_sku,'store_name',st.name,'marketplace',st.marketplace)\n        ORDER BY s.sale_date,i.id)\n        FROM public.partner_reconciliation_items i JOIN public.marketplace_sales s ON s.id=i.marketplace_sale_id JOIN public.marketplace_stores st ON st.id=i.store_id\n        LEFT JOIN public.product_variants v ON v.id=i.variant_id LEFT JOIN public.products p ON p.id=v.product_id WHERE i.reconciliation_id=r.id),'[]'::jsonb),",
+      "oldString": "'items',coalesce((SELECT jsonb_agg(to_jsonb(i)||jsonb_build_object('sku',v.sku,'product_name',p.name,'external_order_id',s.external_order_id,'external_sku',s.external_sku,'store_name',st.name,'marketplace',st.marketplace))\n        FROM public.partner_reconciliation_items i JOIN public.marketplace_sales s ON s.id=i.marketplace_sale_id JOIN public.marketplace_stores st ON st.id=i.store_id\n        LEFT JOIN public.product_variants v ON v.id=i.variant_id LEFT JOIN public.products p ON p.id=v.product_id WHERE i.reconciliation_id=r.id ORDER BY s.sale_date,i.id),'[]'::jsonb),"
+    },
+    "timestamp": 1790116761611
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790116761690
   }
 ]

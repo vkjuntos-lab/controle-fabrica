@@ -1080,9 +1080,10 @@ BEGIN
     SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows ORDER BY period_start DESC,id DESC LIMIT 50 OFFSET (_page-1)*50)q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO v_result;
   ELSIF _kind='reconciliation' THEN
     SELECT to_jsonb(r)||jsonb_build_object('partner_name',c.legal_name,
-      'items',coalesce((SELECT jsonb_agg(to_jsonb(i)||jsonb_build_object('sku',v.sku,'product_name',p.name,'external_order_id',s.external_order_id,'external_sku',s.external_sku,'store_name',st.name,'marketplace',st.marketplace))
+      'items',coalesce((SELECT jsonb_agg(to_jsonb(i)||jsonb_build_object('sku',v.sku,'product_name',p.name,'external_order_id',s.external_order_id,'external_sku',s.external_sku,'store_name',st.name,'marketplace',st.marketplace)
+        ORDER BY s.sale_date,i.id)
         FROM public.partner_reconciliation_items i JOIN public.marketplace_sales s ON s.id=i.marketplace_sale_id JOIN public.marketplace_stores st ON st.id=i.store_id
-        LEFT JOIN public.product_variants v ON v.id=i.variant_id LEFT JOIN public.products p ON p.id=v.product_id WHERE i.reconciliation_id=r.id ORDER BY s.sale_date,i.id),'[]'::jsonb),
+        LEFT JOIN public.product_variants v ON v.id=i.variant_id LEFT JOIN public.products p ON p.id=v.product_id WHERE i.reconciliation_id=r.id),'[]'::jsonb),
       'exceptions',coalesce((SELECT jsonb_agg(to_jsonb(e)) FROM public.reconciliation_exceptions e WHERE e.reconciliation_id=r.id ORDER BY e.created_at),'[]'::jsonb),
       'adjustments',coalesce((SELECT jsonb_agg(to_jsonb(a)) FROM public.partner_reconciliation_adjustments a WHERE a.reconciliation_id=r.id ORDER BY a.created_at),'[]'::jsonb),
       'by_sku',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT v.sku,p.name product_name,count(*) items,sum(i.quantity) units,sum(i.billable_amount) billable
