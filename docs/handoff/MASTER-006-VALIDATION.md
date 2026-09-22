@@ -95,7 +95,7 @@ organizações (isolamento por tenant e lista acessível).
 
 ## TESTES
 
-- `bun run test`: 30 testes unitários passaram (12 do ledger, 5 do RGBAC atualizados).
+- `bun run test`: 30 testes unitários passaram (12 do ledger, 5 do RBAC atualizados).
 - `bun run test:partners:db`: PostgreSQL local temporário, nove grupos de verificação passaram:
   remessa simples com retry e entrega sem segunda postagem (não é venda); devoluções parciais
   múltiplas com quantidade enviada imutável e limite por devolução; rollback por insuficiência,
