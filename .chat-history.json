@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "newString": "RETURNING id INTO v_sale;\n  -- Venda dentro de período já CLOSED é venda tardia: registra e sinaliza exceção.\n  IF EXISTS(SELECT 1 FROM public.partner_reconciliations r JOIN public.marketplace_stores st2 ON st2.id=v_store_id\n    WHERE r.organization_id=_org AND r.partner_id=st2.partner_id AND r.status='CLOSED'\n    AND r.period_start<=(_data->>'sale_date')::date AND r.period_end>=(_data->>'sale_date')::date) THEN\n    INSERT INTO public.reconciliation_exceptions(organization_id,marketplace_sale_id,store_id,partner_id,exception_type,severity,status,message,created_by)\n    SELECT _org,v_sale,v_store_id,st2.partner_id,'LATE_SALE_AFTER_CLOSING','WARNING','OPEN',\n      'Venda com data dentro de fechamento CLOSED: reabra o período para reconciliá-la.',auth.uid()\n    FROM public.marketplace_stores st2 WHERE st2.id=v_store_id;\n  END IF;\n  PERFORM public.reconciliation_audit(_org,'marketplace.sale.register','marketplace_sales',v_sale,jsonb_build_object('data',_data,'deduped',false));",
-      "oldString": "RETURNING id INTO v_sale;\n  PERFORM public.reconciliation_audit(_org,'marketplace.sale.register','marketplace_sales',v_sale,jsonb_build_object('data',_data,'deduped',false));"
-    },
-    "timestamp": 1790115538051
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790115538096
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && for t in marketplace_stores marketplace_imports marketplace_import_rows marketplace_sales external_sku_mappings price_tables price_table_items partner_price_links partner_reconciliations partner_reconciliation_items reconciliation_exceptions partner_reconciliation_adjustments domain_events domain_event_outbox audit_log_snapshot; do n=$(rg -c \"\\b$t\\b\" supabase/migrations/20260926100000_partner_reconciliation.sql); echo \"$t: $n\"; done"
@@ -1573,5 +1557,20 @@
     "content": "CONTEXT:  PL/pgSQL function reconciliation_guard_relations() line 23 at RAISE\nSQL statement \"INSERT INTO public.partner_reconciliation_items(organization_id,reconciliation_id,marketplace_sale_id,partner_id,store_id,variant_id,\n    quantity,gross_amount)\n  SELECT _org,v_rec,s.id,s.store_id,v_partner,",
     "is_error": false,
     "timestamp": 1790116517220
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | grep -B2 -A20 \"ERROR\\|AssertionError\" | head -40",
+      "timeout": 300000
+    },
+    "timestamp": 1790116521230
+  },
+  {
+    "role": "tool_result",
+    "content": "    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  Referência fora da organização.\nCONTEXT:  PL/pgSQL function reconciliation_guard_relations() line 23 at RAISE\nSQL statement \"INSERT INTO public.partner_reconciliation_items(organization_id,reconciliation_id,mar",
+    "is_error": false,
+    "timestamp": 1790116522972
   }
 ]
