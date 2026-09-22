@@ -1157,7 +1157,7 @@ DO $$ DECLARE f record; BEGIN
  FOR f IN SELECT oid::regprocedure signature,proname FROM pg_proc WHERE pronamespace='public'::regnamespace AND proname IN (
    'marketplace_save_store','marketplace_save_mapping','marketplace_register_sale','marketplace_cancel_sale',
    'price_save_table','price_save_item','price_link_partner',
-   'rec_create','rec_preview','rec_process','rec_reprocess_item','rec_exception_resolve','rec_adjustment','rec_close','rec_reopen','rec_reverse_item','rec_query') LOOP
+   'rec_create','rec_preview','rec_process','rec_reprocess_item','rec_exception_resolve','rec_adjustment','rec_close','rec_reopen','rec_cancel','rec_reverse_item','rec_query') LOOP
   EXECUTE format('REVOKE ALL ON FUNCTION %s FROM PUBLIC,anon,authenticated',f.signature);
   EXECUTE format('GRANT EXECUTE ON FUNCTION %s TO authenticated',f.signature);
  END LOOP;
