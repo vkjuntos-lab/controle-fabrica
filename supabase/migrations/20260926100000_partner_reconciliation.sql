@@ -958,7 +958,7 @@ BEGIN
       v.sku,v.size,v.color,p.name product_name,s.external_order_id,s.external_sku,s.store_id,s.sale_date
       FROM public.partner_reconciliation_items i JOIN public.product_variants v ON v.id=i.variant_id JOIN public.products p ON p.id=v.product_id
       JOIN public.marketplace_sales s ON s.id=i.marketplace_sale_id WHERE i.reconciliation_id=v_rec.id AND i.status='RECONCILED' ORDER BY s.sale_date,i.id) q),'[]'::jsonb),
-    'adjustment_rows',coalesce((SELECT jsonb_agg(to_jsonb(a)) FROM public.partner_reconciliation_adjustments a WHERE a.reconciliation_id=v_rec.id ORDER BY a.created_at),'[]'::jsonb),
+    'adjustment_rows',coalesce((SELECT jsonb_agg(to_jsonb(a) ORDER BY a.created_at) FROM public.partner_reconciliation_adjustments a WHERE a.reconciliation_id=v_rec.id),'[]'::jsonb),
     'exceptions_open_at_close',coalesce((SELECT jsonb_agg(jsonb_build_object('type',e.exception_type,'severity',e.severity,'status',e.status,'message',e.message))
       FROM public.reconciliation_exceptions e WHERE e.reconciliation_id=v_rec.id AND e.status IN ('OPEN','IN_REVIEW')),'[]'::jsonb))
     INTO v_snapshot;
