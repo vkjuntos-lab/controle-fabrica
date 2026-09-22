@@ -232,11 +232,13 @@ local; publicação não verificada.
 
 ## NEXT_STEPS
 
-1. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,
+1. Implementar/validar o MASTER 005 (MarketplaceStore e importação com mapeamento de colunas) e
+   então o vínculo da loja com ownership_type PARTNER à `partner_profiles`/Company.
+2. Reconciliação de parceiros, fechamento de período e cobrança (server-side, auditado, idempotente) —
+   só depois de validar MASTER 005.
+3. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,
    `PURCHASE_RECEIPT`, `PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`).
-2. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.
-3. Marketplaces/lojas e importação com mapeamento configurável de colunas.
-4. Reconciliação de parceiros, fechamento de período e cobrança (server-side, auditado).
+4. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.
 5. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a
    `/api/webhooks/receiver` quando houver integração externa.
 
