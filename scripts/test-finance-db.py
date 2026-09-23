@@ -72,7 +72,7 @@ def run():
  assert round(detail['received_amount'],2)==30 and len(detail['settlements'])==1
  rpc('fin_settle',','.join(map(q,[org,'receivable',rid,json.dumps({'account_id':acc1,'amount':70})])))
  assert sql(f"SELECT status FROM account_receivables WHERE id={q(rid)}")=='PAID'
- assert sql(f"SELECT open_amount FROM account_receivables WHERE id={q(rid)}")=='0'
+ assert float(sql(f"SELECT open_amount FROM account_receivables WHERE id={q(rid)}"))==0.0
  rpc('fin_settle',','.join(map(q,[org,'receivable',rid,json.dumps({'account_id':acc1,'amount':1})])),fail='acima do saldo')
  r50=json.loads(rpc('fin_create_receivable',q(org)+','+q(json.dumps({'company_id':company,'amount':50,'description':'Título 50','due_date':'2026-10-02'}))))
  rpc('fin_settle',','.join(map(q,[org,'receivable',r50['id'],json.dumps({'account_id':acc1,'amount':50,'receipt_key':'K1'})])))

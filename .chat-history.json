@@ -3,22 +3,6 @@
     "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
-    "timestamp": 1790125967162
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
-      "newString": "- Vínculo parceiro → loja só será criado quando o MASTER 005 existir, com FK composta e\n  organization_id; nada de tabela substituta de loja nesta fase.\n- Remessa não é venda e reconciliar não vende de novo: a baixa oficial nasce do item reconciliado\n  (`rec-item:<id>`, no máximo uma por venda); o gross do marketplace é referência e o cobrável\n  segue a regra comercial vigente na data da venda.\n- Período fechado é histórico imutável (snapshot + evento); correção pós-fechamento exige\n  reabertura com motivo, nunca reinterpretação de fatos.",
-      "oldString": "- Vínculo parceiro → loja só será criado quando o MASTER 005 existir, com FK composta e\n  organization_id; nada de tabela substituta de loja nesta fase."
-    },
-    "timestamp": 1790125970031
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
     "timestamp": 1790125970037
   },
   {
@@ -1674,5 +1658,21 @@
     "content": "75: assert sql(f\"SELECT open_amount FROM account_receivables WHERE id={q(rid)}\")=='0'\n116: assert sql(f\"SELECT status FROM account_receivables WHERE id={q(r60['id'])}\")=='OPEN' and sql(f\"SELECT open_amount FROM account_receivables WHERE id={q(r60['id'])}\")=='60'\n236: assert float(sql(f\"SELECT public",
     "is_error": false,
     "timestamp": 1790128049821
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-finance-db.py",
+      "newString": "assert sql(f\"SELECT status FROM account_receivables WHERE id={q(rid)}\")=='PAID'\n assert float(sql(f\"SELECT open_amount FROM account_receivables WHERE id={q(rid)}\"))==0.0",
+      "oldString": "assert sql(f\"SELECT status FROM account_receivables WHERE id={q(rid)}\")=='PAID'\n assert sql(f\"SELECT open_amount FROM account_receivables WHERE id={q(rid)}\")=='0'"
+    },
+    "timestamp": 1790128052221
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790128052242
   }
 ]
