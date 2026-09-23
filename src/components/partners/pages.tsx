@@ -505,7 +505,7 @@ function PartnerStoresTab({
       (await fetch({
         data: { organizationId, kind: "stores", filters: { partner_id: partnerId }, page: 1 },
       })) as MarketplaceStoreList,
-    enabled: Boolean(organizationId && hasPermission("partner_reconciliation.read")),
+    enabled: Boolean(organizationId && hasPermission("reconciliation.read")),
   });
   return (
     <div className="space-y-2">
@@ -550,7 +550,7 @@ function PartnerSalesTab({
       (await fetch({
         data: { organizationId, kind: "sales", filters: { partner_id: partnerId }, page: 1 },
       })) as MarketplaceSaleList,
-    enabled: Boolean(organizationId && hasPermission("partner_reconciliation.read")),
+    enabled: Boolean(organizationId && hasPermission("reconciliation.read")),
   });
   return (
     <div className="space-y-2">
@@ -599,7 +599,7 @@ function PartnerReconciliationsTab({
       (await fetch({
         data: { organizationId, kind: "reconciliations", filters, page: 1 },
       })) as ReconciliationList,
-    enabled: Boolean(organizationId && hasPermission("partner_reconciliation.read")),
+    enabled: Boolean(organizationId && hasPermission("reconciliation.read")),
   });
   return (
     <div className="space-y-2">

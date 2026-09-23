@@ -59,16 +59,16 @@ describe("rbac", () => {
   });
 
   it("reconhece as permissões de reconciliação de parceiros", () => {
-    expect(PERMISSIONS.partnerReconciliationRead).toBe("partner_reconciliation.read");
-    expect(PERMISSIONS.partnerReconciliationCreate).toBe("partner_reconciliation.create");
-    expect(PERMISSIONS.partnerReconciliationProcess).toBe("partner_reconciliation.process");
-    expect(PERMISSIONS.partnerReconciliationReview).toBe("partner_reconciliation.review");
+    expect(PERMISSIONS.partnerReconciliationRead).toBe("reconciliation.read");
+    expect(PERMISSIONS.partnerReconciliationCreate).toBe("reconciliation.create");
+    expect(PERMISSIONS.partnerReconciliationProcess).toBe("reconciliation.process");
+    expect(PERMISSIONS.partnerReconciliationReview).toBe("reconciliation.review");
     expect(PERMISSIONS.partnerReconciliationResolveException).toBe(
-      "partner_reconciliation.resolve_exception",
+      "reconciliation.resolve_exception",
     );
-    expect(PERMISSIONS.partnerReconciliationClose).toBe("partner_reconciliation.close");
-    expect(PERMISSIONS.partnerReconciliationReopen).toBe("partner_reconciliation.reopen");
-    expect(PERMISSIONS.partnerReconciliationReverse).toBe("partner_reconciliation.reverse");
+    expect(PERMISSIONS.partnerReconciliationClose).toBe("reconciliation.close");
+    expect(PERMISSIONS.partnerReconciliationReopen).toBe("reconciliation.reopen");
+    expect(PERMISSIONS.partnerReconciliationReverse).toBe("reconciliation.reverse");
   });
 
   it("reconhece as permissões de preço de parceiros", () => {
