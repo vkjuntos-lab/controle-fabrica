@@ -234,6 +234,11 @@ Validação local; publicação não verificada.
   reinterpretação de fatos históricos.
 - Vínculo parceiro → loja só será criado quando o MASTER 005 existir, com FK composta e
   organization_id; nada de tabela substituta de loja nesta fase.
+- Remessa não é venda e reconciliar não vende de novo: a baixa oficial nasce do item reconciliado
+  (`rec-item:<id>`, no máximo uma por venda); o gross do marketplace é referência e o cobrável
+  segue a regra comercial vigente na data da venda.
+- Período fechado é histórico imutável (snapshot + evento); correção pós-fechamento exige
+  reabertura com motivo, nunca reinterpretação de fatos.
 
 ## KNOWN_LIMITATIONS
 
