@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sed -n '1,40p' scripts/test-finance-db.py"
-    },
-    "timestamp": 1790127851038
-  },
-  {
-    "role": "tool_result",
-    "content": "#!/usr/bin/env python3\n\"\"\"MASTER 008 acceptance tests in a disposable PostgreSQL cluster, no real organization data.\"\"\"\nimport importlib.util\nimport json\nimport subprocess\nfrom pathlib import Path\nimport concurrent.futures\nspec=importlib.util.spec_from_file_location('inventory_db',Path(__file__).wit",
-    "is_error": false,
-    "timestamp": 1790127851067
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && python3 scripts/test-finance-db.py\" 2>&1 | tail -40",
       "timeout": 300000
     },
@@ -1566,5 +1552,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/reconciliation/reconciliation.functions.ts</path>\n<type>file</type>\n<content>\n1: import { createServerFn } from \"@tanstack/react-start\";\n2: import { z } from \"zod\";\n3: import { requireSupabaseAuth } from \"@/integrations/supabase/auth-middleware\"",
     "is_error": false,
     "timestamp": 1790128634159
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/package.json",
+      "newString": "\"test:reconciliation:db\": \"python3 scripts/test-reconciliation-db.py\",\n    \"test:finance:db\": \"python3 scripts/test-finance-db.py\",",
+      "oldString": "\"test:reconciliation:db\": \"python3 scripts/test-reconciliation-db.py\","
+    },
+    "timestamp": 1790128637478
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790128637492
   }
 ]
