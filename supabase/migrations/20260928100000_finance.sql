@@ -729,8 +729,8 @@ BEGIN
   IF v_tx.type='REVERSAL' THEN RAISE EXCEPTION 'Movimento já é um estorno.'; END IF;
   IF EXISTS(SELECT 1 FROM public.financial_transactions WHERE reversal_of_id=v_tx.id AND organization_id=_org) THEN
     RAISE EXCEPTION 'Movimento já estornado.'; END IF;
-  IF v_tx.reference_type='RECEIVABLE' THEN v_permission:='receivables.reverse'; v_ref_tab:='receivable_settlements';
-  ELSIF v_tx.reference_type='PAYABLE' THEN v_permission:='payables.reverse'; v_ref_tab:='payable_settlements';
+  IF v_tx.reference_type='receivable' THEN v_permission:='receivables.reverse'; v_ref_tab:='receivable_settlements';
+  ELSIF v_tx.reference_type='payable' THEN v_permission:='payables.reverse'; v_ref_tab:='payable_settlements';
   ELSE v_permission:='financial_accounts.manage'; END IF;
   PERFORM public.finance_require(_org,v_permission);
   INSERT INTO public.financial_transactions(organization_id,financial_account_id,type,direction,company_id,amount,occurred_at,

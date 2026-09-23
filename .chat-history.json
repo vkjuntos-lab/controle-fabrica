@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
-      "offset": 749
-    },
-    "timestamp": 1790127319852
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql</path>\n<type>file</type>\n<content>\n749:   PERFORM public.finance_require(_org,'financial_accounts.manage');\n750:   PERFORM public.inventory_lock(_org);\n751:   v_acc:=(_data->>'account_id')::uuid; v_amount:=",
-    "is_error": false,
-    "timestamp": 1790127319900
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -n \"app_role\" supabase/migrations/20260924100000_partners.sql | head -20; echo ---; grep -n \"CREATE TABLE public.companies\\|CREATE TABLE public.partner_profiles\\|CREATE TABLE public.audit_log\\|CREATE TABLE public.domain_events\\|CREATE TABLE public.partner_reconciliations\" supabase/migrations/*.sql; echo ---; grep -n \"CREATE FUNCTION public.has_permission\\|CREATE FUNCTION public.inventory_lock\" supabase/migrations/*.sql"
@@ -1519,5 +1504,21 @@
     "content": "DBG PAID|0.00|60.00|0.00|0.00|0.00\nDBG st 6f314c37-3762-4244-80b4-9bc1f2a1e195|60.00|f||4e411c77-9970-444f-aff5-860cd0f86da1\nDBG tx RECEIVABLE_PAYMENT|IN|60.00|receivable|4c3b7311-694b-4563-ab6f-e72d9b3569ad|\nREVERSAL|OUT|60.00|receivable|4c3b7311-694b-4563-ab6f-e72d9b3569ad|4e411c77-9970-444f-aff5-",
     "is_error": false,
     "timestamp": 1790128356966
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
+      "newString": "IF v_tx.reference_type='receivable' THEN v_permission:='receivables.reverse'; v_ref_tab:='receivable_settlements';\n  ELSIF v_tx.reference_type='payable' THEN v_permission:='payables.reverse'; v_ref_tab:='payable_settlements';\n  ELSE v_permission:='financial_accounts.manage'; END IF;",
+      "oldString": "IF v_tx.reference_type='RECEIVABLE' THEN v_permission:='receivables.reverse'; v_ref_tab:='receivable_settlements';\n  ELSIF v_tx.reference_type='PAYABLE' THEN v_permission:='payables.reverse'; v_ref_tab:='payable_settlements';\n  ELSE v_permission:='financial_accounts.manage'; END IF;"
+    },
+    "timestamp": 1790128390203
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790128390231
   }
 ]
