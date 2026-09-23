@@ -636,8 +636,8 @@ function PartnerReconciliationsTab({
       ))}
       {q.data && q.data.total > 50 ? (
         <p className="text-xs text-muted-foreground">
-          Exibindo as primeiras 50 de {q.data.total} — use o módulo de Reconciliação para listar
-          com filtros.
+          Exibindo as primeiras 50 de {q.data.total} — use o módulo de Reconciliação para listar com
+          filtros.
         </p>
       ) : null}
     </div>
@@ -1099,7 +1099,11 @@ export function PartnerDetailPage({ id }: { id: string }) {
             </TabsContent>
             <TabsContent value="reconciled">
               {c.profile ? (
-                <PartnerReconciliationsTab organizationId={org} partnerId={c.profile.id} closed={false} />
+                <PartnerReconciliationsTab
+                  organizationId={org}
+                  partnerId={c.profile.id}
+                  closed={false}
+                />
               ) : (
                 <EmptyState title="Empresa sem perfil de parceiro" />
               )}

@@ -111,7 +111,11 @@ export function ReconciliationDashboard() {
               ["Períodos fechados", q.data.closed_in_period, null],
             ].map(([label, value, to]) =>
               to ? (
-                <a key={String(label)} href={String(to)} className="rounded border p-3 hover:bg-muted">
+                <a
+                  key={String(label)}
+                  href={String(to)}
+                  className="rounded border p-3 hover:bg-muted"
+                >
                   <p className="text-sm text-muted-foreground">{label}</p>
                   <p className="text-xl font-semibold">{value}</p>
                 </a>
@@ -192,7 +196,12 @@ export function ReconciliationListPage() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                 />
-                <select aria-label="Status" className={cls} value={status} onChange={(e) => setStatus(e.target.value)}>
+                <select
+                  aria-label="Status"
+                  className={cls}
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                >
                   <option value="">Todos os status</option>
                   {statusOptions().map((s) => (
                     <option key={s} value={s}>
@@ -200,8 +209,20 @@ export function ReconciliationListPage() {
                     </option>
                   ))}
                 </select>
-                <Input aria-label="De" type="date" className="w-auto" value={from} onChange={(e) => setFrom(e.target.value)} />
-                <Input aria-label="Até" type="date" className="w-auto" value={to} onChange={(e) => setTo(e.target.value)} />
+                <Input
+                  aria-label="De"
+                  type="date"
+                  className="w-auto"
+                  value={from}
+                  onChange={(e) => setFrom(e.target.value)}
+                />
+                <Input
+                  aria-label="Até"
+                  type="date"
+                  className="w-auto"
+                  value={to}
+                  onChange={(e) => setTo(e.target.value)}
+                />
               </div>
               {q.isLoading ? (
                 <LoadingState />
@@ -250,7 +271,10 @@ export function ReconciliationListPage() {
                   <span>
                     Página {page} de {Math.ceil(q.data.total / 50)}
                   </span>
-                  <Button disabled={page * 50 >= q.data.total} onClick={() => setPage((p) => p + 1)}>
+                  <Button
+                    disabled={page * 50 >= q.data.total}
+                    onClick={() => setPage((p) => p + 1)}
+                  >
                     Próxima
                   </Button>
                 </div>
@@ -306,8 +330,7 @@ export function ReconciliationDetailPage({ id }: { id: string }) {
     onError: (e: Error) => toast.error(e.message),
   });
   const reprocessMutation = useMutation({
-    mutationFn: (itemId: string) =>
-      reprocess({ data: { organizationId: org!, itemId } }),
+    mutationFn: (itemId: string) => reprocess({ data: { organizationId: org!, itemId } }),
     onSuccess: () => {
       toast.success("Item reprocessado");
       invalidate();
@@ -328,7 +351,10 @@ export function ReconciliationDetailPage({ id }: { id: string }) {
         billable_amount: i.billable_amount,
         price_snapshot: JSON.stringify(i.price_snapshot ?? {}),
       }));
-      const exceptions = d.exceptions.map((x) => ({ ...x, details: JSON.stringify(x.details ?? {}) }));
+      const exceptions = d.exceptions.map((x) => ({
+        ...x,
+        details: JSON.stringify(x.details ?? {}),
+      }));
       exportReconciliationCsv(`${d.partner_name}_${d.period_start}_${d.period_end}.csv`, [
         ...(d.by_day ?? []).map((r) => ({
           secao: "por_dia",
@@ -375,14 +401,17 @@ export function ReconciliationDetailPage({ id }: { id: string }) {
             <div className="space-y-1">
               <p className="font-heading text-xl font-semibold">{d.partner_name}</p>
               <p>
-                {formatDate(d.period_start)} a {formatDate(d.period_end)} · {frequencyLabel(d.frequency)}{" "}
-                · <Badge>{reconciliationStatusLabel(d.status)}</Badge>
+                {formatDate(d.period_start)} a {formatDate(d.period_end)} ·{" "}
+                {frequencyLabel(d.frequency)} · <Badge>{reconciliationStatusLabel(d.status)}</Badge>
               </p>
             </div>
             <div className="flex flex-wrap gap-2 print:hidden">
               {hasPermission("partner_reconciliation.process") &&
               !["CLOSED", "CANCELED"].includes(d.status) ? (
-                <Button disabled={processMutation.isPending} onClick={() => processMutation.mutate()}>
+                <Button
+                  disabled={processMutation.isPending}
+                  onClick={() => processMutation.mutate()}
+                >
                   Processar
                 </Button>
               ) : null}
@@ -420,14 +449,15 @@ export function ReconciliationDetailPage({ id }: { id: string }) {
                 "Ajustes",
                 formatMoney(
                   (d.snapshot?.totals?.adjustments ?? 0) +
-                    d.adjustments.reduce((s, a) => s + (a.adjustment_type === "CREDIT" ? -a.amount : a.amount), 0),
+                    d.adjustments.reduce(
+                      (s, a) => s + (a.adjustment_type === "CREDIT" ? -a.amount : a.amount),
+                      0,
+                    ),
                 ),
               ],
               [
                 "Cobrável líquido",
-                formatMoney(
-                  d.snapshot?.totals?.net_billable ?? (d.billable_amount ?? 0),
-                ),
+                formatMoney(d.snapshot?.totals?.net_billable ?? d.billable_amount ?? 0),
               ],
               ["Itens com exceção", d.exceptions.filter((x) => x.status !== "RESOLVED").length],
               ["Fechado em", d.closed_at ? formatDateTime(d.closed_at) : "—"],
@@ -456,16 +486,20 @@ export function ReconciliationDetailPage({ id }: { id: string }) {
                         </strong>
                         <div className="flex flex-wrap items-center gap-2">
                           <Badge>{itemStatusLabel(i.status)}</Badge>
-                          <Badge variant="outline">{inventoryEffectLabel(i.inventory_effect_status)}</Badge>
+                          <Badge variant="outline">
+                            {inventoryEffectLabel(i.inventory_effect_status)}
+                          </Badge>
                           {i.exception_status ? (
-                            <Badge variant="secondary">{exceptionStatusLabel(i.exception_status)}</Badge>
+                            <Badge variant="secondary">
+                              {exceptionStatusLabel(i.exception_status)}
+                            </Badge>
                           ) : null}
                         </div>
                       </div>
                       <p className="text-sm">
                         {i.store_name} ({i.marketplace}) · pedido {i.external_order_id} ·{" "}
-                        {formatNumber(i.quantity)} un. · gross {formatMoney(i.gross_amount)} · cobrável{" "}
-                        {formatMoney(i.billable_amount)}
+                        {formatNumber(i.quantity)} un. · gross {formatMoney(i.gross_amount)} ·
+                        cobrável {formatMoney(i.billable_amount)}
                       </p>
                       {i.price_snapshot ? (
                         <p className="text-xs text-muted-foreground">
@@ -512,7 +546,15 @@ export function ReconciliationDetailPage({ id }: { id: string }) {
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <strong>{exceptionTypeLabel(x.exception_type)}</strong>
                         <div className="flex flex-wrap gap-2">
-                          <Badge variant={x.severity === "ERROR" ? "destructive" : x.severity === "WARNING" ? "secondary" : "outline"}>
+                          <Badge
+                            variant={
+                              x.severity === "ERROR"
+                                ? "destructive"
+                                : x.severity === "WARNING"
+                                  ? "secondary"
+                                  : "outline"
+                            }
+                          >
                             {severityLabel(x.severity)}
                           </Badge>
                           <Badge variant={x.status === "RESOLVED" ? "default" : "secondary"}>
@@ -525,7 +567,8 @@ export function ReconciliationDetailPage({ id }: { id: string }) {
                         Criada em {formatDateTime(x.created_at)}
                         {x.resolved_at ? ` · resolvida em ${formatDateTime(x.resolved_at)}` : ""}
                       </p>
-                      {x.status !== "RESOLVED" && hasPermission("partner_reconciliation.resolve_exception") ? (
+                      {x.status !== "RESOLVED" &&
+                      hasPermission("partner_reconciliation.resolve_exception") ? (
                         <div className="mt-2 print:hidden">
                           <Button variant="outline" size="sm" onClick={() => setException(x)}>
                             Resolver
@@ -545,8 +588,12 @@ export function ReconciliationDetailPage({ id }: { id: string }) {
                   {d.adjustments.map((a) => (
                     <div key={a.id} className="rounded-lg border p-3">
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <strong>{adjustmentTypeLabel(a.adjustment_type)} {formatMoney(a.amount)}</strong>
-                        <span className="text-xs text-muted-foreground">{formatDateTime(a.created_at)}</span>
+                        <strong>
+                          {adjustmentTypeLabel(a.adjustment_type)} {formatMoney(a.amount)}
+                        </strong>
+                        <span className="text-xs text-muted-foreground">
+                          {formatDateTime(a.created_at)}
+                        </span>
                       </div>
                       <p>{a.reason}</p>
                       <p className="text-xs text-muted-foreground">Por {a.created_by}</p>
@@ -591,7 +638,10 @@ export function ReconciliationDetailPage({ id }: { id: string }) {
                     {d.by_marketplace?.length ? (
                       <ul className="space-y-1 text-sm">
                         {d.by_marketplace.map((r) => (
-                          <li key={r.marketplace} className="flex justify-between gap-3 border-b py-1">
+                          <li
+                            key={r.marketplace}
+                            className="flex justify-between gap-3 border-b py-1"
+                          >
                             <span>{r.marketplace}</span>
                             <span>
                               {r.items} linhas · {formatNumber(r.units)} un. ·{" "}
@@ -735,12 +785,19 @@ export function ExceptionsPage() {
       ) : (
         <>
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <h2 className="font-heading text-xl font-semibold">Central de exceções e divergências</h2>
+            <h2 className="font-heading text-xl font-semibold">
+              Central de exceções e divergências
+            </h2>
           </div>
           <Card>
             <CardContent className="space-y-4 pt-6">
               <div className="flex flex-wrap gap-3">
-                <select aria-label="Severidade" className={cls} value={severity} onChange={(e) => setSeverity(e.target.value)}>
+                <select
+                  aria-label="Severidade"
+                  className={cls}
+                  value={severity}
+                  onChange={(e) => setSeverity(e.target.value)}
+                >
                   <option value="">Toda severidade</option>
                   {["INFO", "WARNING", "ERROR", "BLOCKING"].map((s) => (
                     <option key={s} value={s}>
@@ -748,7 +805,12 @@ export function ExceptionsPage() {
                     </option>
                   ))}
                 </select>
-                <select aria-label="Status" className={cls} value={status} onChange={(e) => setStatus(e.target.value)}>
+                <select
+                  aria-label="Status"
+                  className={cls}
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                >
                   <option value="">Todo status</option>
                   {["OPEN", "IN_REVIEW", "RESOLVED", "IGNORED_WITH_AUTHORIZATION"].map((s) => (
                     <option key={s} value={s}>
@@ -770,7 +832,15 @@ export function ExceptionsPage() {
                       <div className="flex flex-wrap items-center justify-between gap-2">
                         <strong>{exceptionTypeLabel(x.exception_type)}</strong>
                         <div className="flex flex-wrap gap-2">
-                          <Badge variant={x.severity === "BLOCKING" ? "destructive" : x.severity === "ERROR" ? "destructive" : "secondary"}>
+                          <Badge
+                            variant={
+                              x.severity === "BLOCKING"
+                                ? "destructive"
+                                : x.severity === "ERROR"
+                                  ? "destructive"
+                                  : "secondary"
+                            }
+                          >
                             {severityLabel(x.severity)}
                           </Badge>
                           <Badge variant={x.status === "RESOLVED" ? "default" : "secondary"}>
@@ -780,10 +850,12 @@ export function ExceptionsPage() {
                       </div>
                       <p>{x.message}</p>
                       <p className="text-xs text-muted-foreground">
-                        {x.partner_name ?? "Parceiro não identificado"} · {x.store_name ?? "Loja não identificada"} ·{" "}
-                        {x.sku ?? ""} · {formatDateTime(x.created_at)}
+                        {x.partner_name ?? "Parceiro não identificado"} ·{" "}
+                        {x.store_name ?? "Loja não identificada"} · {x.sku ?? ""} ·{" "}
+                        {formatDateTime(x.created_at)}
                       </p>
-                      {x.status !== "RESOLVED" && hasPermission("partner_reconciliation.resolve_exception") ? (
+                      {x.status !== "RESOLVED" &&
+                      hasPermission("partner_reconciliation.resolve_exception") ? (
                         <div className="mt-2 print:hidden">
                           <Button variant="outline" size="sm" onClick={() => setSelected(x)}>
                             Resolver

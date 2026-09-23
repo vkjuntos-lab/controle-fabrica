@@ -104,7 +104,13 @@ export type ReconciliationDetail = ReconciliationRow & {
   items: ReconciliationItem[];
   exceptions: ReconciliationException[];
   adjustments: ReconciliationAdjustment[];
-  by_sku: { sku: string | null; product_name: string | null; items: number; units: number; billable: number }[];
+  by_sku: {
+    sku: string | null;
+    product_name: string | null;
+    items: number;
+    units: number;
+    billable: number;
+  }[];
   by_day: { d: string; items: number; units: number; billable: number }[];
   by_marketplace: { marketplace: string; items: number; units: number; billable: number }[];
   summary: { shipped: number; reconciled: number; on_hand: number };

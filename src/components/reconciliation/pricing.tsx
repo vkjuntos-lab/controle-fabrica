@@ -75,7 +75,12 @@ export function PriceTablesPage() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                 />
-                <select aria-label="Status" className={cls} value={status} onChange={(e) => setStatus(e.target.value)}>
+                <select
+                  aria-label="Status"
+                  className={cls}
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                >
                   <option value="">Toda situação</option>
                   {["ACTIVE", "INACTIVE"].map((s) => (
                     <option key={s} value={s}>
@@ -96,7 +101,11 @@ export function PriceTablesPage() {
               ) : (
                 <div className="grid gap-3 md:grid-cols-2">
                   {(q.data.rows as PriceTableRow[]).map((t) => (
-                    <a key={t.id} href={href(t.id)} className="space-y-2 rounded-lg border p-4 hover:bg-muted">
+                    <a
+                      key={t.id}
+                      href={href(t.id)}
+                      className="space-y-2 rounded-lg border p-4 hover:bg-muted"
+                    >
                       <div className="flex justify-between gap-3">
                         <strong>
                           {t.code} · {t.name}
@@ -121,7 +130,10 @@ export function PriceTablesPage() {
                   <span>
                     Página {page} de {Math.ceil(q.data.total / 50)}
                   </span>
-                  <Button disabled={page * 50 >= q.data.total} onClick={() => setPage((p) => p + 1)}>
+                  <Button
+                    disabled={page * 50 >= q.data.total}
+                    onClick={() => setPage((p) => p + 1)}
+                  >
                     Próxima
                   </Button>
                 </div>
@@ -211,7 +223,10 @@ export function PriceTableDetailPage({ id }: { id: string }) {
           {d.items.length ? (
             <div className="space-y-2">
               {d.items.map((i) => (
-                <div key={i.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3">
+                <div
+                  key={i.id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3"
+                >
                   <div>
                     <strong>
                       {i.sku} · {i.product_name}
@@ -236,7 +251,10 @@ export function PriceTableDetailPage({ id }: { id: string }) {
           {d.partners.length ? (
             <div className="space-y-2">
               {d.partners.map((p) => (
-                <div key={p.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3">
+                <div
+                  key={p.id}
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3"
+                >
                   <strong>{p.partner_name}</strong>
                   <span className="text-xs text-muted-foreground">
                     vigência {formatDate(p.valid_from)} a {formatDate(p.valid_to)}

@@ -49,7 +49,9 @@ function PartnerSelect({
   const q = useQuery({
     queryKey: ["partners", "companies", organizationId],
     queryFn: async () =>
-      (await fetch({ data: { organizationId, kind: "companies", filters: {}, page: 1 } })) as PartnerList,
+      (await fetch({
+        data: { organizationId, kind: "companies", filters: {}, page: 1 },
+      })) as PartnerList,
   });
   return (
     <select className={cls} value={value} onChange={(e) => onChange(e.target.value)}>
@@ -189,11 +191,7 @@ export function NewReconciliationDialog({
         <div className="space-y-4">
           <div className="space-y-2">
             <Label>Parceiro</Label>
-            <PartnerSelect
-              organizationId={organizationId}
-              value={partner}
-              onChange={setPartner}
-            />
+            <PartnerSelect organizationId={organizationId} value={partner} onChange={setPartner} />
           </div>
           <div className="grid gap-3 sm:grid-cols-3">
             <label>
@@ -317,7 +315,12 @@ export function RegisterSaleDialog({
           <div className="grid gap-3 sm:grid-cols-2">
             <label>
               Data da venda
-              <Input type="date" name="sale_date" defaultValue={new Date().toISOString().slice(0, 10)} required />
+              <Input
+                type="date"
+                name="sale_date"
+                defaultValue={new Date().toISOString().slice(0, 10)}
+                required
+              />
             </label>
             <label>
               Pedido externo
@@ -395,7 +398,11 @@ export function ResolveExceptionDialog({
           <p className="text-sm text-muted-foreground">{exception.message}</p>
           <label>
             Resolução
-            <select className={inputClass} value={resolution} onChange={(e) => setResolution(e.target.value)}>
+            <select
+              className={inputClass}
+              value={resolution}
+              onChange={(e) => setResolution(e.target.value)}
+            >
               <option value="REPROCESS">Reprocessar item (após correção)</option>
               <option value="MANUAL">Correção manual</option>
               <option value="SUPPLY_MOVEMENT">Movimento de suprimento</option>
@@ -473,7 +480,10 @@ export function ReopenDialog({
             <Button variant="outline" onClick={onClose}>
               Voltar
             </Button>
-            <Button disabled={!reason.trim() || mutation.isPending} onClick={() => mutation.mutate()}>
+            <Button
+              disabled={!reason.trim() || mutation.isPending}
+              onClick={() => mutation.mutate()}
+            >
               Reabrir
             </Button>
           </div>
@@ -512,9 +522,9 @@ export function CloseReconciliationDialog({
         </DialogHeader>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Ao fechar, o sistema congela o snapshot do período (unidades, valores, itens e
-            exceções) e publica o evento PARTNER_RECONCILIATION_CLOSED para o futuro módulo
-            financeiro. Não é possível incluir vendas novas sem reabrir e revalidar.
+            Ao fechar, o sistema congela o snapshot do período (unidades, valores, itens e exceções)
+            e publica o evento PARTNER_RECONCILIATION_CLOSED para o futuro módulo financeiro. Não é
+            possível incluir vendas novas sem reabrir e revalidar.
           </p>
           <label>
             Observações
@@ -582,7 +592,11 @@ export function CancelReconciliationDialog({
             <Button variant="outline" onClick={onClose}>
               Voltar
             </Button>
-            <Button variant="destructive" disabled={mutation.isPending} onClick={() => mutation.mutate()}>
+            <Button
+              variant="destructive"
+              disabled={mutation.isPending}
+              onClick={() => mutation.mutate()}
+            >
               Cancelar fechamento
             </Button>
           </div>
@@ -632,8 +646,8 @@ export function AdjustmentDialog({
         </DialogHeader>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            Crédito reduz o valor cobrável; débito aumenta. O ajuste não altera a quantidade vendida.
-            Motivo é obrigatório.
+            Crédito reduz o valor cobrável; débito aumenta. O ajuste não altera a quantidade
+            vendida. Motivo é obrigatório.
           </p>
           <div className="grid gap-3 sm:grid-cols-2">
             <label>
@@ -708,8 +722,8 @@ export function ReverseItemDialog({
         </DialogHeader>
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            A baixa original não é apagada: um movimento compensatório (IN) é criado e o item passa a
-            REVERSED. Motivo obrigatório.
+            A baixa original não é apagada: um movimento compensatório (IN) é criado e o item passa
+            a REVERSED. Motivo obrigatório.
           </p>
           <label>
             Motivo (obrigatório)
@@ -723,7 +737,10 @@ export function ReverseItemDialog({
             <Button variant="outline" onClick={onClose}>
               Voltar
             </Button>
-            <Button disabled={!reason.trim() || mutation.isPending} onClick={() => mutation.mutate()}>
+            <Button
+              disabled={!reason.trim() || mutation.isPending}
+              onClick={() => mutation.mutate()}
+            >
               Estornar
             </Button>
           </div>
@@ -893,7 +910,11 @@ export function SaveMappingDialog({
         <div className="space-y-4">
           <label>
             SKU externo (obrigatório)
-            <Input value={sku} onChange={(e) => setSku(e.target.value)} placeholder="SKU do report" />
+            <Input
+              value={sku}
+              onChange={(e) => setSku(e.target.value)}
+              placeholder="SKU do report"
+            />
           </label>
           <label>
             Loja (opcional — global se vazio)
@@ -911,7 +932,10 @@ export function SaveMappingDialog({
             <Button variant="outline" onClick={onClose}>
               Voltar
             </Button>
-            <Button disabled={!sku.trim() || !variant || mutation.isPending} onClick={() => mutation.mutate()}>
+            <Button
+              disabled={!sku.trim() || !variant || mutation.isPending}
+              onClick={() => mutation.mutate()}
+            >
               Salvar mapeamento
             </Button>
           </div>
@@ -978,7 +1002,11 @@ export function PriceTableDialog({
             </label>
             <label>
               Vigência inicial
-              <Input name="valid_from" type="date" defaultValue={new Date().toISOString().slice(0, 10)} />
+              <Input
+                name="valid_from"
+                type="date"
+                defaultValue={new Date().toISOString().slice(0, 10)}
+              />
             </label>
             <label>
               Vigência final (opcional)
@@ -1046,13 +1074,22 @@ export function PriceItemDialog({
           <VariantPicker organizationId={organizationId} value={variant} onChange={setVariant} />
           <label>
             Preço unitário (R$)
-            <Input type="number" step="0.01" min="0.01" value={price} onChange={(e) => setPrice(e.target.value)} />
+            <Input
+              type="number"
+              step="0.01"
+              min="0.01"
+              value={price}
+              onChange={(e) => setPrice(e.target.value)}
+            />
           </label>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={onClose}>
               Voltar
             </Button>
-            <Button disabled={!variant || !Number(price) || mutation.isPending} onClick={() => mutation.mutate()}>
+            <Button
+              disabled={!variant || !Number(price) || mutation.isPending}
+              onClick={() => mutation.mutate()}
+            >
               Adicionar preço
             </Button>
           </div>
@@ -1121,7 +1158,10 @@ export function LinkPriceDialog({
             <Button variant="outline" onClick={onClose}>
               Voltar
             </Button>
-            <Button disabled={!partner || !table || mutation.isPending} onClick={() => mutation.mutate()}>
+            <Button
+              disabled={!partner || !table || mutation.isPending}
+              onClick={() => mutation.mutate()}
+            >
               Vincular
             </Button>
           </div>
@@ -1134,9 +1174,9 @@ export function LinkPriceDialog({
 export function ReconciliationContextMessage() {
   return (
     <p className="text-sm text-muted-foreground">
-      Remessa não é venda. Venda importada não é automaticamente reconciliada. Uma venda reconciliada
-      produz no máximo uma baixa oficial de estoque. O valor do marketplace é referência — o valor
-      cobrável segue a regra comercial (tabela de preço).
+      Remessa não é venda. Venda importada não é automaticamente reconciliada. Uma venda
+      reconciliada produz no máximo uma baixa oficial de estoque. O valor do marketplace é
+      referência — o valor cobrável segue a regra comercial (tabela de preço).
     </p>
   );
 }

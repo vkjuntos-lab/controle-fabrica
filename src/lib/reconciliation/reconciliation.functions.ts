@@ -150,9 +150,9 @@ export const registerMarketplaceSale = createServerFn({ method: "POST" })
 export const cancelMarketplaceSale = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
-    z.object({ organizationId: org, saleId: org, reason: z.string().max(1000).optional() }).parse(
-      input,
-    ),
+    z
+      .object({ organizationId: org, saleId: org, reason: z.string().max(1000).optional() })
+      .parse(input),
   )
   .handler(async ({ data, context }) => {
     const { data: result, error } = await context.supabase.rpc("marketplace_cancel_sale", {
@@ -312,9 +312,7 @@ export const processReconciliation = createServerFn({ method: "POST" })
 
 export const reprocessReconciliationItem = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z.object({ organizationId: org, itemId: org }).parse(input),
-  )
+  .inputValidator((input) => z.object({ organizationId: org, itemId: org }).parse(input))
   .handler(async ({ data, context }) => {
     const { data: result, error } = await context.supabase.rpc("rec_reprocess_item", {
       _org: data.organizationId,

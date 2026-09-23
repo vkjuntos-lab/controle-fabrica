@@ -66,7 +66,8 @@ export function SalesPage() {
     enabled: Boolean(org && canRead),
   });
   const cancelMutation = useMutation({
-    mutationFn: (saleId: string) => cancel({ data: { organizationId: org!, saleId, reason: "Cancelamento manual" } }),
+    mutationFn: (saleId: string) =>
+      cancel({ data: { organizationId: org!, saleId, reason: "Cancelamento manual" } }),
     onSuccess: () => {
       toast.success("Venda cancelada");
       void q.refetch();
@@ -99,7 +100,12 @@ export function SalesPage() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                 />
-                <select aria-label="Loja" className={cls} value={store} onChange={(e) => setStore(e.target.value)}>
+                <select
+                  aria-label="Loja"
+                  className={cls}
+                  value={store}
+                  onChange={(e) => setStore(e.target.value)}
+                >
                   <option value="">Todas as lojas</option>
                   {(stores.data?.rows ?? []).map((s) => (
                     <option key={s.id} value={s.id}>
@@ -107,7 +113,12 @@ export function SalesPage() {
                     </option>
                   ))}
                 </select>
-                <select aria-label="Status" className={cls} value={status} onChange={(e) => setStatus(e.target.value)}>
+                <select
+                  aria-label="Status"
+                  className={cls}
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                >
                   <option value="">Todo status</option>
                   {["IMPORTED", "VALIDATED", "RECONCILED", "CANCELED", "EXCEPTION"].map((s) => (
                     <option key={s} value={s}>
@@ -115,8 +126,20 @@ export function SalesPage() {
                     </option>
                   ))}
                 </select>
-                <Input aria-label="De" type="date" className="w-auto" value={from} onChange={(e) => setFrom(e.target.value)} />
-                <Input aria-label="Até" type="date" className="w-auto" value={to} onChange={(e) => setTo(e.target.value)} />
+                <Input
+                  aria-label="De"
+                  type="date"
+                  className="w-auto"
+                  value={from}
+                  onChange={(e) => setFrom(e.target.value)}
+                />
+                <Input
+                  aria-label="Até"
+                  type="date"
+                  className="w-auto"
+                  value={to}
+                  onChange={(e) => setTo(e.target.value)}
+                />
               </div>
               {q.isLoading ? (
                 <LoadingState />
@@ -149,8 +172,8 @@ export function SalesPage() {
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {s.quantity} un. · frete {formatMoney(s.shipping_fee)} · desconto{" "}
-                        {formatMoney(s.discount_amount)} · taxa {formatMoney(s.platform_fee)} · origem{" "}
-                        {s.source}
+                        {formatMoney(s.discount_amount)} · taxa {formatMoney(s.platform_fee)} ·
+                        origem {s.source}
                       </p>
                       {["IMPORTED", "VALIDATED", "EXCEPTION"].includes(s.status) &&
                       hasPermission("partner_reconciliation.review") ? (
@@ -177,7 +200,10 @@ export function SalesPage() {
                   <span>
                     Página {page} de {Math.ceil(q.data.total / 50)}
                   </span>
-                  <Button disabled={page * 50 >= q.data.total} onClick={() => setPage((p) => p + 1)}>
+                  <Button
+                    disabled={page * 50 >= q.data.total}
+                    onClick={() => setPage((p) => p + 1)}
+                  >
                     Próxima
                   </Button>
                 </div>
@@ -265,7 +291,9 @@ export function StoresPage() {
                         {storeOwnershipLabel(s.ownership_type)}
                       </p>
                       <p>{s.partner_name ?? "Sem parceiro vinculado"}</p>
-                      <p className="text-xs text-muted-foreground">{formatDateTime(s.created_at)}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatDateTime(s.created_at)}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -278,7 +306,10 @@ export function StoresPage() {
                   <span>
                     Página {page} de {Math.ceil(q.data.total / 50)}
                   </span>
-                  <Button disabled={page * 50 >= q.data.total} onClick={() => setPage((p) => p + 1)}>
+                  <Button
+                    disabled={page * 50 >= q.data.total}
+                    onClick={() => setPage((p) => p + 1)}
+                  >
                     Próxima
                   </Button>
                 </div>
@@ -356,14 +387,19 @@ export function SkuMappingsPage() {
               ) : (
                 <div className="space-y-2">
                   {(q.data.rows as SkuMappingRow[]).map((m) => (
-                    <div key={m.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3">
+                    <div
+                      key={m.id}
+                      className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3"
+                    >
                       <div>
                         <strong>{m.external_sku}</strong>
                         <p className="text-sm text-muted-foreground">
                           → {m.sku} · por {m.store_name ?? "todas as lojas"}
                         </p>
                       </div>
-                      <span className="text-xs text-muted-foreground">{formatDateTime(m.created_at)}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDateTime(m.created_at)}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -376,7 +412,10 @@ export function SkuMappingsPage() {
                   <span>
                     Página {page} de {Math.ceil(q.data.total / 50)}
                   </span>
-                  <Button disabled={page * 50 >= q.data.total} onClick={() => setPage((p) => p + 1)}>
+                  <Button
+                    disabled={page * 50 >= q.data.total}
+                    onClick={() => setPage((p) => p + 1)}
+                  >
                     Próxima
                   </Button>
                 </div>
