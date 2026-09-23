@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
-      "newString": "AND (coalesce(_filters->>'query','')='' OR strpos(lower(concat_ws(' ',p.document_number,p.description,c.legal_name)),lower(_filters->>'query'))>0))",
-      "oldString": "AND (coalesce(_filters->>'query','')='' OR strpos(lower(concat_ws(' ',r.document_number,r.description,c.legal_name)),lower(_filters->>'query'))>0))"
-    },
-    "timestamp": 1790127904218
-  },
-  {
-    "role": "tool_result",
-    "content": "",
-    "is_error": true,
-    "timestamp": 1790127904234
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
@@ -1630,5 +1614,20 @@
     "content": "[\n  {\n    \"content\": \"Migration M008 totalmente validada via harness DB (OK) + regressão M006/M007\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"package.json: script test:finance:db\",\n    \"status\": \"completed\",\n    \"priority\": \"medium\"\n  },\n  {\n    \"content\": \"rbac.ts ",
     "is_error": false,
     "timestamp": 1790128682320
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/finance/constants.ts",
+      "content": "export const DOCUMENT_STATUS: Record<string, string> = {\n  DRAFT: \"Rascunho\",\n  SCHEDULED: \"Agendado\",\n  OPEN: \"Em aberto\",\n  PARTIALLY_PAID: \"Parcialmente pago\",\n  PAID: \"Pago\",\n  OVERDUE: \"Em atraso\",\n  CANCELED: \"Cancelado\",\n  WRITTEN_OFF: \"Baixado\",\n};\nexport const DOCUMENT_STATUS_ORDER = [\n  \"DRAFT\",\n  \"SCHEDULED\",\n  \"OPEN\",\n  \"PARTIALLY_PAID\",\n  \"PAID\",\n  \"OVERDUE\",\n  \"CANCELED\",\n  \"WRITTEN_OFF\",\n] as const;\nexport const ACCOUNT_TYPE: Record<string, string> = {\n  BANK: \"Banco\",\n  CASH: \"Caixa\",\n  DIGITAL_WALLET: \"Carteira digital\",\n  PAYMENT_PROVIDER: \"Provedor de pagamento\",\n  OTHER: \"Outra\",\n};\nexport const ACCOUNT_STATUS: Record<string, string> = {\n  ACTIVE: \"Ativa\",\n  INACTIVE: \"Inativa\",\n  CLOSED: \"Encerrada\",\n};\nexport const CATEGORY_TYPE: Record<string, string> = {\n  REVENUE: \"Receita\",\n  EXPENSE: \"Despesa\",\n};\nexport const ACTIVE_STATUS: Record<string, string> = {\n  ACTIVE: \"Ativo\",\n  INACTIVE: \"Inativo\",\n};\nexport const TRANSACTION_TYPE: Record<string, string> = {\n  OPENING_BALANCE: \"Saldo inicial\",\n  RECEIVABLE_PAYMENT: \"Recebimento\",\n  PAYABLE_PAYMENT: \"Pagamento\",\n  FINANCIAL_TRANSFER: \"Transferência\",\n  DIRECT: \"Movimento avulso\",\n  REVERSAL: \"Estorno\",\n};\nexport const TRANSACTION_DIRECTION: Record<string, string> = {\n  IN: \"Entrada\",\n  OUT: \"Saída\",\n};\nexport const RECURRENCE_DIRECTION: Record<string, string> = {\n  IN: \"Recorrência de receita\",\n  OUT: \"Recorrência de despesa\",\n};\nexport const AGING_BUCKETS = [\n  \"avencer\",\n  \"1-7d\",\n  \"8-15d\",\n  \"16-30d\",\n  \"31-60d\",\n  \"61-90d\",\n  \"90+d\",\n] as const;\nexport const FIN_KINDS = [\n  \"dashboard\",\n  \"receivables\",\n  \"receivable\",\n  \"payables\",\n  \"payable\",\n  \"finances\",\n  \"aging\",\n  \"transactions\",\n  \"accounts\",\n  \"categories\",\n  \"cost_centers\",\n  \"payment_methods\",\n  \"settings\",\n  \"recurrences\",\n  \"cashflow\",\n  \"partner_finance\",\n  \"report_category\",\n  \"report_cost_center\",\n  \"history\",\n] as const;\nexport const FIN_FILTER_KEYS = [\n  \"id\",\n  \"query\",\n  \"status\",\n  \"late\",\n  \"side\",\n  \"company_id\",\n  \"financial_category_id\",\n  \"cost_center_id\",\n  \"account_id\",\n  \"direction\",\n  \"type\",\n  \"from\",\n  \"to\",\n] as const;\nexport const documentStatusLabel = (s: string | null | undefined) => (s ? DOCUMENT_STATUS[s] ?? s : \"—\");\nexport const accountTypeLabel = (s: string) => ACCOUNT_TYPE[s] ?? s;\nexport const accountStatusLabel = (s: string) => ACCOUNT_STATUS[s] ?? s;\nexport const categoryTypeLabel = (s: string) => CATEGORY_TYPE[s] ?? s;\nexport const activeStatusLabel = (s: string) => ACTIVE_STATUS[s] ?? s;\nexport const transactionTypeLabel = (s: string) => TRANSACTION_TYPE[s] ?? s;\nexport const transactionDirectionLabel = (s: string) => TRANSACTION_DIRECTION[s] ?? s;\nexport const recurrenceDirectionLabel = (s: string) => RECURRENCE_DIRECTION[s] ?? s;\n\nexport function formatMoney(value: number | string | null | undefined): string {\n  if (value == null) return \"R$ 0,00\";\n  return Number(value).toLocaleString(\"pt-BR\", {\n    style: \"currency\",\n    currency: \"BRL\",\n    maximumFractionDigits: 2,\n  });\n}\n\nexport function formatNumber(value: number | string | null | undefined, digits = 3): string {\n  if (value == null) return \"0\";\n  return Number(value).toLocaleString(\"pt-BR\", { maximumFractionDigits: digits });\n}\n\nexport function formatDate(value: string | null | undefined): string {\n  if (!value) return \"—\";\n  return new Date(value.length <= 10 ? `${value}T12:00:00` : value).toLocaleDateString(\"pt-BR\");\n}\n\nexport function formatDateTime(value: string | null | undefined): string {\n  if (!value) return \"—\";\n  return new Date(value).toLocaleString(\"pt-BR\");\n}"
+    },
+    "timestamp": 1790128691584
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790128691595
   }
 ]
