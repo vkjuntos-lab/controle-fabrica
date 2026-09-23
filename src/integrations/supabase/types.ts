@@ -994,6 +994,80 @@ export type Database = {
       };
       partner_receive_return: { Args: { _org: string; _id: string }; Returns: Json };
 
+      rec_query: {
+        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };
+        Returns: Json;
+      };
+      marketplace_save_store: {
+        Args: { _org: string; _data: Json; _id?: string };
+        Returns: Json;
+      };
+      marketplace_save_mapping: { Args: { _org: string; _data: Json }; Returns: Json };
+      marketplace_register_sale: { Args: { _org: string; _data: Json }; Returns: Json };
+      marketplace_cancel_sale: {
+        Args: { _org: string; _sale_id: string; _reason?: string };
+        Returns: Json;
+      };
+      price_save_table: {
+        Args: { _org: string; _data: Json; _id?: string };
+        Returns: Json;
+      };
+      price_save_item: {
+        Args: { _org: string; _data: Json; _item_id?: string };
+        Returns: Json;
+      };
+      price_link_partner: { Args: { _org: string; _data: Json }; Returns: Json };
+      rec_preview: {
+        Args: { _org: string; _partner: string; _from: string; _to: string };
+        Returns: Json;
+      };
+      rec_create: { Args: { _org: string; _data: Json }; Returns: Json };
+      rec_process: {
+        Args: {
+          _org: string;
+          _reconciliation_id: string;
+          _limit?: number;
+          _item_ids?: string[];
+        };
+        Returns: Json;
+      };
+      rec_reprocess_item: { Args: { _org: string; _item_id: string }; Returns: Json };
+      rec_exception_resolve: {
+        Args: {
+          _org: string;
+          _exception_id: string;
+          _resolution: string;
+          _notes?: string;
+        };
+        Returns: Json;
+      };
+      rec_adjustment: {
+        Args: {
+          _org: string;
+          _reconciliation_id: string;
+          _type: string;
+          _amount: number;
+          _reason: string;
+        };
+        Returns: Json;
+      };
+      rec_close: {
+        Args: { _org: string; _reconciliation_id: string; _notes?: string };
+        Returns: Json;
+      };
+      rec_reopen: {
+        Args: { _org: string; _reconciliation_id: string; _reason: string };
+        Returns: Json;
+      };
+      rec_cancel: {
+        Args: { _org: string; _reconciliation_id: string; _reason?: string };
+        Returns: Json;
+      };
+      rec_reverse_item: {
+        Args: { _org: string; _item_id: string; _reason: string };
+        Returns: Json;
+      };
+
       inventory_search_variants: {
         Args: { _organization_id: string; _query?: string; _active_only?: boolean };
         Returns: Json;
