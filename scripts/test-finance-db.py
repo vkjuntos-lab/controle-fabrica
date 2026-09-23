@@ -75,8 +75,8 @@ def run():
  assert sql(f"SELECT open_amount FROM account_receivables WHERE id={q(rid)}")=='0'
  rpc('fin_settle',','.join(map(q,[org,'receivable',rid,json.dumps({'account_id':acc1,'amount':1})])),fail='acima do saldo')
  r50=json.loads(rpc('fin_create_receivable',q(org)+','+q(json.dumps({'company_id':company,'amount':50,'description':'Título 50','due_date':'2026-10-02'}))))
- rpc('fin_settle',''+''.join([','.join(map(q,[org,'receivable',r50['id'],json.dumps({'account_id':acc1,'amount':50,'receipt_key':'K1'}))])]))
- rpc('fin_settle',''+''.join([','.join(map(q,[org,'receivable',r50['id'],json.dumps({'account_id':acc1,'amount':50,'receipt_key':'K1'}))])]),fail='já registrada')
+ rpc('fin_settle',','.join(map(q,[org,'receivable',r50['id'],json.dumps({'account_id':acc1,'amount':50,'receipt_key':'K1'})])))
+ rpc('fin_settle',','.join(map(q,[org,'receivable',r50['id'],json.dumps({'account_id':acc1,'amount':50,'receipt_key':'K1'})])),fail='já registrada')
  assert acct_bal(acc1)==150
  print('PASS: recebimento parcial/total, overpayment bloqueado e idempotência por chave')
 
