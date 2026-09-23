@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "src/components/layout/app-shell.tsx\nsrc/components/reconciliation/dialogs.tsx\nsrc/components/reconciliation/marketplace.tsx\nsrc/components/reconciliation/pages.tsx\nsrc/components/reconciliation/pricing.tsx\nsrc/lib/rbac.ts\nsrc/routes/_authenticated/reconciliacao/excecoes.tsx\nsrc/routes/_authenticated",
-    "is_error": false,
-    "timestamp": 1790125294243
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/partners/pages.tsx",
-      "limit": 12,
-      "offset": 479
-    },
-    "timestamp": 1790125301188
-  },
-  {
-    "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/partners/pages.tsx</path>\n<type>file</type>\n<content>\n479:               <OperationForm\n480:                 organizationId={org}\n481:                 kind={kind === \"shipments\" ? \"shipment\" : \"return\"}\n482:                 onClose={() =>",
     "is_error": false,
     "timestamp": 1790125301221
@@ -1720,5 +1704,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n375:   EXECUTE format('CREATE TRIGGER reconciliation_tenant_guard BEFORE INSERT OR UPDATE ON public.%I FOR EACH ROW EXECUTE FUNCTION public.reconciliation_g",
     "is_error": false,
     "timestamp": 1790127603530
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-finance-db.py",
+      "content": "#!/usr/bin/env python3\n\"\"\"MASTER 008 acceptance tests in a disposable PostgreSQL cluster, no real organization data.\"\"\"\nimport importlib.util\nimport json\nimport subprocess\nfrom pathlib import Path\nimport concurrent.futures\nimport datetime\nspec=importlib.util.spec_from_file_location('inventory_db',Path(__file__).with_name('test-inventory-db.py'))\ndb=importlib.util.module_from_spec(spec);spec.loader.exec_module(db)\nq,sql,uid=db.q,db.sql,db.uid\n\ndef run():\n db.setup()\n dir=Path(__file__).parent.parent/'supabase/migrations'\n db.sql((dir/'20260926100000_partner_reconciliation.sql').read_text())\n db.sql((dir/'20260928100000_finance.sql').read_text())\n a,b,reader,fz,org,other,company,profile=[uid() for _ in range(8)]\n sql(f\"INSERT INTO auth.users(id,email) VALUES({q(a)},'a@fin.test'),({q(b)},'b@fin.test'),({q(reader)},'r@fin.test'),({q(fz)},'f@fin.test'); INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'A','a',{q(a)}),({q(other)},'B','b',{q(b)}); INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(reader)},'comercial'),({q(org)},{q(fz)},'financeiro');\")\n # Parceiro direto (empresa + perfil operacional) para exercitar o motor financeiro.\n sql(f\"INSERT INTO companies(id,organization_id,code,legal_name) VALUES({q(company)},{q(org)},'R1','Parceiro R1'); INSERT INTO partner_profiles(id,organization_id,company_id,partner_code) VALUES({q(profile)},{q(org)},{q(company)},'P-R1');\")\n def rpc(name,args,user=a,fail=None): return db.call(name,args,user,fail)\n def recv_query(extra='{}'): return json.loads(rpc('fin_query',q(org)+\",'receivables',\"+q(extra)))\n # -- Catálogo financeiro ----------------------------------------------------\n cat_exp=rpc('fin_save_category',q(org)+','+q(json.dumps({'code':'FREV','name':'Receitas','type':'REVENUE'})))\n cat_cost=rpc('fin_save_category',q(org)+','+q(json.dumps({'code':'FCUST','name':'Custos','type':'EXPENSE'})))\n sub=rpc('fin_save_category',q(org)+','+q(json.dumps({'code':'ENRG','name':'Energia','type':'EXPENSE','parent_id':cat_cost})))\n cc=rpc('fin_save_cost_center',q(org)+','+q(json.dumps({'code':'CC-FAB','name':'Fábrica'})))\n acc1=rpc('fin_save_account',q(org)+','+q(json.dumps({'name':'Banco Beta','type':'BANK','bank_name':'Beta'})))\n acc2=rpc('fin_save_account',q(org)+','+q(json.dumps({'name':'Caixa','type':'CASH'})))\n pm=rpc('fin_save_payment_method',q(org)+','+q(json.dumps({'code':'PIX','name':'Pix'})))\n rpc('fin_save_settings',q(org)+','+q(json.dumps({'currency':'BRL','partner_receivable_due_days':7,'partner_receivable_installments':1})))\n cats=json.loads(rpc('fin_query',q(org)+\",'categories',\"+q('{}')))\n assert len(cats)==3 and any(c['code']=='ENRG' for c in cats)\n assert len(json.loads(rpc('fin_query',q(org)+\",'cost_centers',\"+q('{}'))))==1\n acc_rows=json.loads(rpc('fin_query',q(org)+\",'accounts',\"+q('{}')))['rows']\n assert len(acc_rows)==2 and all(aa['balance']==0 for aa in acc_rows)\n assert json.loads(rpc('fin_query',q(org)+\",'settings',\"+q('{}')))['partner_receivable_due_days']==7\n print('PASS: catálogo financeiro, contas, centros, formas e configurações')\n # -- Contas a receber manuais, parcelas e mutações ---------------------------\n r1=json.loads(rpc('fin_create_receivable',q(org)+','+q(json.dumps({'company_id':company,'amount':100,'installments':2,'description':'Venda a prazo','due_date':'2026-10-05','financial_category_id':cat_exp,'cost_center_id':cc}))))\n assert r1['total_installments']==2\n rows=recv_query()['rows']\n assert len(rows)==2 and rows[0]['parent_id'] is None and rows[1]['parent_id']==rows[0]['id']\n assert rows[0]['document_number'].startswith('REC-') and round(rows[0]['open_amount'],2)==50 and round(rows[1]['original_amount'],2)==50\n r1a,r1b=rows[0]['id'],rows[1]['id']\n rpc('fin_document_mutate','','')  # placeholder nunca executado (mantém indentação)\n raise SystemExit\n\ntry:run()\nfinally:db.cleanup()"
+    },
+    "timestamp": 1790127703021
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790127703041
   }
 ]
