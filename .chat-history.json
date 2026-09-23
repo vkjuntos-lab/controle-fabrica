@@ -1,34 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/partners/pages.tsx</path>\n<type>file</type>\n<content>\n815:                                   name: \"Nome\",\n816:                                   title: \"Cargo\",\n817:                                   email: \"E-mail\",\n818:                ",
-    "is_error": false,
-    "timestamp": 1790125095945
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"p_filter\\|_filters\\|filters\" \"supabase/migrations/20260926100000_partner_reconciliation.sql\" | head -60"
-    },
-    "timestamp": 1790125100691
-  },
-  {
-    "role": "tool_result",
-    "content": "1052:CREATE FUNCTION public.rec_query(_org uuid,_kind text,_filters jsonb DEFAULT '{}'::jsonb,_page int DEFAULT 1,_user_id uuid DEFAULT auth.uid())\n1072:        AND closed_at>=COALESCE(nullif(_filters->>'from','')::timestamptz,date_trunc('month',now())))) INTO v_result;\n1077:      AND (nullif(_filte",
-    "is_error": false,
-    "timestamp": 1790125100713
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"CREATE TABLE.*marketplace_stores\\|partner_id\" \"supabase/migrations/20260926100000_partner_reconciliation.sql\" | grep -i \"marketplace\\|partner_id uuid\" | head -40"
-    },
-    "timestamp": 1790125104056
-  },
-  {
-    "role": "tool_result",
     "content": "15:CREATE TABLE public.marketplace_stores (\n23:  partner_id uuid,\n36:CREATE INDEX marketplace_stores_partner ON public.marketplace_stores(organization_id,partner_id) WHERE partner_id IS NOT NULL;\n147:  partner_id uuid NOT NULL,\n168:  partner_id uuid NOT NULL,\n202:  partner_id uuid NOT NULL,\n235:  pa",
     "is_error": false,
     "timestamp": 1790125104094
@@ -1735,5 +1707,33 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/layout/app-shell.tsx</path>\n<type>file</type>\n<content>\n1: import { Link, useNavigate, useRouterState } from \"@tanstack/react-router\";\n2: import { useQueryClient } from \"@tanstack/react-query\";\n3: import {\n4:   ArrowLeftRight,\n5:   Buildi",
     "is_error": false,
     "timestamp": 1790126897949
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"CREATE TABLE public.companies\\|CREATE TABLE public.partner_profiles\\|legal_name\\|document\\|default_inventory_location_id\\|company_id\" supabase/migrations/20260924100000_partners.sql | head -30"
+    },
+    "timestamp": 1790126902685
+  },
+  {
+    "role": "tool_result",
+    "content": "3:CREATE TABLE public.companies (\n5: code text NOT NULL CHECK(length(trim(code))>0), legal_name text NOT NULL CHECK(length(trim(legal_name))>0),\n6: trade_name text, document_type text CHECK(document_type IN ('CNPJ','CPF','OTHER')), document_number text,\n11: UNIQUE(organization_id,code), UNIQUE(organ",
+    "is_error": false,
+    "timestamp": 1790126902699
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "wc -l src/components/partners/pages.tsx src/components/reconciliation/pages.tsx src/components/reconciliation/dialogs.tsx src/lib/partners/partners.functions.ts src/lib/partners/types.ts src/lib/partners/export.ts"
+    },
+    "timestamp": 1790126903255
+  },
+  {
+    "role": "tool_result",
+    "content": "  1522 src/components/partners/pages.tsx\n   887 src/components/reconciliation/pages.tsx\n  1182 src/components/reconciliation/dialogs.tsx\n   192 src/lib/partners/partners.functions.ts\n   185 src/lib/partners/types.ts\n    13 src/lib/partners/export.ts\n  3981 total\n",
+    "is_error": false,
+    "timestamp": 1790126903275
   }
 ]
