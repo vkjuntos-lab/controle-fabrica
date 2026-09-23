@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "offset": 160,
-      "limit": 130
-    },
-    "timestamp": 1790127443603
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n160: );\n161: \n162: -- =====================================================================\n163: -- 3. Reconciliação de parceiros (fechamento comercial).\n16",
-    "is_error": false,
-    "timestamp": 1790127443642
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -n \"REOPENED\\|'CLOSED'\" supabase/migrations/20260926100000_partner_reconciliation.sql | head -20; echo ---REOPEN-DETAILS---; grep -n \"rec_reopen\\|snapshot\" supabase/migrations/20260926100000_partner_reconciliation.sql | head -20"
@@ -1528,5 +1512,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790128417715
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && python3 scripts/test-finance-db.py\" 2>&1 | tail -30",
+      "timeout": 300000
+    },
+    "timestamp": 1790128419643
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: catálogo financeiro, contas, centros, formas, ajustes e configurações\nPASS: parcelamento, desconto/ajuste/juros, cancelamento e baixa\nPASS: recebimento parcial/total, overpayment bloqueado e idempotência por chave\nPASS: pagamento com desconto e status do título atualizado\nPASS: saldo inicial ú",
+    "is_error": false,
+    "timestamp": 1790128422593
   }
 ]
