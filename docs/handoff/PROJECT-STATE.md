@@ -270,9 +270,10 @@ Validação local; publicação não verificada.
 ## NEXT_STEPS
 
 1. Implementar/validar o MASTER 005 (MarketplaceStore e importação com mapeamento de colunas) e
-   então o vínculo da loja com ownership_type PARTNER à `partner_profiles`/Company.
-2. Reconciliação de parceiros, fechamento de período e cobrança (server-side, auditado, idempotente) —
-   só depois de validar MASTER 005.
+   então o vínculo da loja com ownership_type PARTNER à `partner_profiles`/Company — a reconciliação
+   M007 já compartilha o contrato de `marketplace_sales` com esse importador.
+2. Financeiro de parceiros: consumir o snapshot/evento `PARTNER_RECONCILIATION_CLOSED` para gerar
+   cobrança (AR) e registrar pagamento; limites de crédito e condições de pagamento.
 3. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,
    `PURCHASE_RECEIPT`, `PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`).
 4. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.
@@ -281,7 +282,8 @@ Validação local; publicação não verificada.
 
 ## VALIDAÇÃO DESTA CONTINUAÇÃO
 
-Relatórios: `docs/handoff/MASTER-003-VALIDATION.md` e `docs/handoff/MASTER-006-VALIDATION.md`.
-30 testes unitários, harness PostgreSQL do estoque e de parceiros (9 grupos cada), TypeScript, build
-e lint do domínio verificados. A implantação no banco publicado não faz parte da evidência local e
-permanece pendente.
+Relatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-VALIDATION.md` e
+`docs/handoff/MASTER-007-VALIDATION.md`.
+33 testes unitários, harness PostgreSQL do estoque, de parceiros e de reconciliação (12 grupos no
+MASTER 007), TypeScript, build e lint do domínio verificados. A implantação no banco publicado não
+faz parte da evidência local e permanece pendente.

@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/parceiros/remessas.tsx"
-    },
-    "timestamp": 1790125047636
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/parceiros/remessas.tsx</path>\n<type>file</type>\n<content>\n1: import { createFileRoute } from \"@tanstack/react-router\";\n2: import { PartnerListPage } from \"@/components/partners/pages\";\n3: export const Route = createFileRoute(\"/",
-    "is_error": false,
-    "timestamp": 1790125047645
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/parceiros/remessas_.$id.tsx"
     },
     "timestamp": 1790125047826
@@ -1625,5 +1611,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790125974556
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
+      "newString": "## NEXT_STEPS\n\n1. Implementar/validar o MASTER 005 (MarketplaceStore e importação com mapeamento de colunas) e\n   então o vínculo da loja com ownership_type PARTNER à `partner_profiles`/Company — a reconciliação\n   M007 já compartilha o contrato de `marketplace_sales` com esse importador.\n2. Financeiro de parceiros: consumir o snapshot/evento `PARTNER_RECONCILIATION_CLOSED` para gerar\n   cobrança (AR) e registrar pagamento; limites de crédito e condições de pagamento.\n3. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,\n   `PURCHASE_RECEIPT`, `PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`).\n4. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.\n5. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a\n   `/api/webhooks/receiver` quando houver integração externa.\n\n## VALIDAÇÃO DESTA CONTINUAÇÃO\n\nRelatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-VALIDATION.md` e\n`docs/handoff/MASTER-007-VALIDATION.md`.\n33 testes unitários, harness PostgreSQL do estoque, de parceiros e de reconciliação (12 grupos no\nMASTER 007), TypeScript, build e lint do domínio verificados. A implantação no banco publicado não\nfaz parte da evidência local e permanece pendente.",
+      "oldString": "## NEXT_STEPS\n\n1. Implementar/validar o MASTER 005 (MarketplaceStore e importação com mapeamento de colunas) e\n   então o vínculo da loja com ownership_type PARTNER à `partner_profiles`/Company.\n2. Reconciliação de parceiros, fechamento de período e cobrança (server-side, auditado, idempotente) —\n   só depois de validar MASTER 005.\n3. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,\n   `PURCHASE_RECEIPT`, `PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`).\n4. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.\n5. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a\n   `/api/webhooks/receiver` quando houver integração externa.\n\n## VALIDAÇÃO DESTA CONTINUAÇÃO\n\nRelatórios: `docs/handoff/MASTER-003-VALIDATION.md` e `docs/handoff/MASTER-006-VALIDATION.md`.\n30 testes unitários, harness PostgreSQL do estoque e de parceiros (9 grupos cada), TypeScript, build\ne lint do domínio verificados. A implantação no banco publicado não faz parte da evidência local e\npermanece pendente."
+    },
+    "timestamp": 1790125979565
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790125979600
   }
 ]
