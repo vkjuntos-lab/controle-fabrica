@@ -10,6 +10,7 @@ import {
   LogOut,
   MapPin,
   Package,
+  Scale,
   ScrollText,
   ShieldCheck,
   User,
