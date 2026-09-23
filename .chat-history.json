@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"financial_transactions\\|document_number\" supabase/migrations/20260924100000_partners.sql | head; echo ---; grep -rn \"financial_transactions\" supabase/migrations/20260923100000_inventory_workflows.sql supabase/migrations/20260922100000_production.sql supabase/migrations/20260921100000_inventory_integrity.sql | head"
-    },
-    "timestamp": 1790128299599
-  },
-  {
-    "role": "tool_result",
-    "content": "6: trade_name text, document_type text CHECK(document_type IN ('CNPJ','CPF','OTHER')), document_number text,\n11: UNIQUE(organization_id,code), UNIQUE(organization_id,id), UNIQUE(organization_id,document_type,document_number)\n160: typ:=nullif(_data->>'document_type','');doc:=nullif(regexp_replace(upp",
-    "is_error": false,
-    "timestamp": 1790128299630
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
@@ -1606,5 +1592,75 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790129153490
+  },
+  {
+    "role": "tool",
+    "tool": "todowrite",
+    "input": {
+      "todos": [
+        {
+          "content": "Migration + harness DB validados (OK finance scenarios)",
+          "status": "completed",
+          "priority": "high"
+        },
+        {
+          "content": "package.json script test:finance:db",
+          "status": "completed",
+          "priority": "medium"
+        },
+        {
+          "content": "rbac.ts finance PERMISSIONS + módulo financeiro",
+          "status": "completed",
+          "priority": "high"
+        },
+        {
+          "content": "types.ts assinaturas fin_* RPCs",
+          "status": "completed",
+          "priority": "high"
+        },
+        {
+          "content": "app-shell item de menu Financeiro",
+          "status": "completed",
+          "priority": "medium"
+        },
+        {
+          "content": "src/lib/finance: constants/types/functions/export",
+          "status": "completed",
+          "priority": "high"
+        },
+        {
+          "content": "components/finance: pages.tsx + dialogs.tsx",
+          "status": "completed",
+          "priority": "high"
+        },
+        {
+          "content": "rotas /financeiro/* (dashboard, receber, pagar, lancamentos, fluxo, contas, relatorios, recorrencias, historico, configuracoes)",
+          "status": "completed",
+          "priority": "high"
+        },
+        {
+          "content": "Aba Financeiro no PartnerDetailPage",
+          "status": "pending",
+          "priority": "medium"
+        },
+        {
+          "content": "Validações: typecheck, build, test, eslint domínio, harnesses DB",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Docs M008 + PROJECT-STATE + relatório final",
+          "status": "pending",
+          "priority": "medium"
+        }
+      ]
+    },
+    "timestamp": 1790129158479
+  },
+  {
+    "role": "tool_result",
+    "content": "[\n  {\n    \"content\": \"Migration + harness DB validados (OK finance scenarios)\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"package.json script test:finance:db\",\n    \"status\": \"completed\",\n    \"priority\": \"medium\"\n  },\n  {\n    \"content\": \"rbac.ts finance PERMISSIONS + ",
+    "is_error": false,
+    "timestamp": 1790129158483
   }
 ]
