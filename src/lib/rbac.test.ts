@@ -44,4 +44,29 @@ describe("rbac", () => {
     expect(PERMISSIONS.inventoryReverse).toBe("inventory.reverse");
     expect(PERMISSIONS.inventoryManageLocations).toBe("inventory.manage_locations");
   });
+
+  it("reconhece as permissões de reconciliação de parceiros", () => {
+    expect(PERMISSIONS.partnerReconciliationRead).toBe("partner_reconciliation.read");
+    expect(PERMISSIONS.partnerReconciliationCreate).toBe("partner_reconciliation.create");
+    expect(PERMISSIONS.partnerReconciliationProcess).toBe("partner_reconciliation.process");
+    expect(PERMISSIONS.partnerReconciliationReview).toBe("partner_reconciliation.review");
+    expect(PERMISSIONS.partnerReconciliationResolveException).toBe(
+      "partner_reconciliation.resolve_exception",
+    );
+    expect(PERMISSIONS.partnerReconciliationClose).toBe("partner_reconciliation.close");
+    expect(PERMISSIONS.partnerReconciliationReopen).toBe("partner_reconciliation.reopen");
+    expect(PERMISSIONS.partnerReconciliationReverse).toBe("partner_reconciliation.reverse");
+  });
+
+  it("reconhece as permissões de preço de parceiros", () => {
+    expect(PERMISSIONS.partnerPricingRead).toBe("partner_pricing.read");
+    expect(PERMISSIONS.partnerPricingManage).toBe("partner_pricing.manage");
+  });
+
+  it("declara rótulo para todas as chaves reconhecidas", () => {
+    for (const key of Object.values(PERMISSIONS)) {
+      expect(typeof PERMISSION_LABELS[key]).toBe("string");
+      expect(PERMISSION_LABELS[key].length).toBeGreaterThan(0);
+    }
+  });
 });
