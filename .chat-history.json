@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
-      "newString": "CREATE FUNCTION public.finance_refresh_document(_org uuid,_kind text,_id uuid)\nRETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE v_open numeric; v_paid numeric; v_total numeric; v_new text;\nBEGIN\n  IF _kind='receivable' THEN\n    SELECT original_amount+interest_amount+penalty_amount+adjustment_amount-discount_amount INTO v_total\n    FROM public.account_receivables WHERE organization_id=_org AND id=_id;\n  ELSE\n    SELECT original_amount+interest_amount+penalty_amount+adjustment_amount-discount_amount INTO v_total\n    FROM public.account_payables WHERE organization_id=_org AND id=_id;\n  END IF;\n  v_paid:=public.finance_document_paid(_org,_kind,_id);\n  v_open:=round(GREATEST(v_total-v_paid,0),2);\n  v_new:=CASE WHEN v_open<=0.005 AND v_paid>0 THEN 'PAID' WHEN v_paid>0 THEN 'PARTIALLY_PAID' ELSE 'OPEN' END;\n  IF _kind='receivable' THEN\n    UPDATE public.account_receivables SET open_amount=v_open,\n      status=CASE WHEN status IN ('CANCELED','WRITTEN_OFF','DRAFT','SCHEDULED') THEN status ELSE v_new END,\n      updated_at=now() WHERE organization_id=_org AND id=_id;\n  ELSE\n    UPDATE public.account_payables SET open_amount=v_open,\n      status=CASE WHEN status IN ('CANCELED','DRAFT','SCHEDULED') THEN status ELSE v_new END,\n      updated_at=now() WHERE organization_id=_org AND id=_id;\n  END IF;\nEND;\n$$;",
-      "oldString": "CREATE FUNCTION public.finance_refresh_document(_org uuid,_kind text,_id uuid)\nRETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE v_open numeric; v_paid numeric; v_total numeric; v_new text;\nBEGIN\n  v_total:=(SELECT original_amount+interest_amount+penalty_amount+adjustment_amount-discount_amount FROM CASE\n      WHEN _kind='receivable' THEN public.account_receivables ELSE public.account_payables END WHERE organization_id=_org AND id=_id);\n  v_paid:=public.finance_document_paid(_org,_kind,_id);\n  v_open:=round(GREATEST(v_total-v_paid,0),2);\n  v_new:=CASE WHEN v_open<=0.005 AND v_paid>0 THEN 'PAID' WHEN v_paid>0 THEN 'PARTIALLY_PAID' ELSE 'OPEN' END;\n  IF _kind='receivable' THEN\n    UPDATE public.account_receivables SET open_amount=v_open,status=v_new,updated_at=now() WHERE organization_id=_org AND id=_id;\n  ELSE\n    UPDATE public.account_payables SET open_amount=v_open,status=v_new,updated_at=now() WHERE organization_id=_org AND id=_id;\n  END IF;\nEND;\n$$;"
-    },
-    "timestamp": 1790127518265
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790127518279
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
       "newString": "DECLARE v_amount numeric; v_acc uuid; v_open numeric; v_tx uuid; v_settlement_id uuid; v_perm text;\n  v_pm uuid; v_occ timestamptz; v_net numeric; v_reason text; v_direction text; v_type text; v_tab text; v_settab text; v_company uuid; v_docnum text;",
       "oldString": "DECLARE v_amount numeric; v_acc uuid; v_open numeric; v_tx uuid; v_settlement_id uuid; v_perm text;\n  v_pm uuid; v_occ timestamptz; v_net numeric; v_reason text; v_direction text; v_type text; v_tab text; v_settab text; v_company uuid;"
     },
@@ -1529,5 +1513,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790128472688
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && python3 scripts/test-finance-db.py\" 2>&1 | tail -30",
+      "timeout": 300000
+    },
+    "timestamp": 1790128474591
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: catálogo financeiro, contas, centros, formas, ajustes e configurações\nPASS: parcelamento, desconto/ajuste/juros, cancelamento e baixa\nPASS: recebimento parcial/total, overpayment bloqueado e idempotência por chave\nPASS: pagamento com desconto e status do título atualizado\nPASS: saldo inicial ú",
+    "is_error": false,
+    "timestamp": 1790128478008
   }
 ]
