@@ -484,8 +484,8 @@ export function PartnerListPage({
               />
             )
           ) : null}
-</>
-      ) : null}
+        </>
+      )}
     </AppShell>
   );
 }
