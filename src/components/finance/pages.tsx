@@ -259,7 +259,7 @@ export function FinanceReceivablesPage() {
     void qc.invalidateQueries({ queryKey: ["finance", "receivables"] });
     void qc.invalidateQueries({ queryKey: ["finance", "dashboard"] });
   };
-  const receipt = (id: string) =>
+  const receipt = () =>
     exportFinanceCsv(
       `contas-a-receber-${new Date().toISOString().slice(0, 10)}.csv`,
       (q.data?.rows ?? []).map((r) => ({
@@ -693,7 +693,7 @@ export function FinancePayablesPage() {
     void qc.invalidateQueries({ queryKey: ["finance", "payables"] });
     void qc.invalidateQueries({ queryKey: ["finance", "dashboard"] });
   };
-  const receipt = (id: string) =>
+  const receipt = () =>
     exportFinanceCsv(
       `contas-a-pagar-${new Date().toISOString().slice(0, 10)}.csv`,
       (q.data?.rows ?? []).map((r) => ({
