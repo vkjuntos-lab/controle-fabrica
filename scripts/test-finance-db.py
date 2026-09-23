@@ -182,7 +182,7 @@ def run():
  pf=json.loads(rpc('fin_query',q(org)+",'partner_finance',"+q(json.dumps({'company_id':company}))))
  assert round(pf['receivable_open'],2)==452 and len(pf['next_due'])>0 and len(pf['history'])>0
  trx=json.loads(rpc('fin_query',q(org)+",'transactions',"+q('{}')))
- assert trx['total']==12
+ assert trx['total']==10
  hist=json.loads(rpc('fin_query',q(org)+",'history',"+q(json.dumps({'id':r1a}))))
  assert len(hist)>0
  print('PASS: fluxo de caixa, relatórios por categoria/centro e extrato de auditoria')

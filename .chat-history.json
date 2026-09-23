@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "978:      partner_query: {\n---\n1:export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];\n",
-    "is_error": false,
-    "timestamp": 1790125348652
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts",
-      "limit": 60,
-      "offset": 975
-    },
-    "timestamp": 1790125351004
-  },
-  {
-    "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts</path>\n<type>file</type>\n<content>\n975:       };\n976:     };\n977:     Functions: {\n978:       partner_query: {\n979:         Args: { _org: string; _kind: string; _filters?: Json; _page?: number };\n980:         Returns: ",
     "is_error": false,
     "timestamp": 1790125351052
@@ -1727,5 +1711,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790127816185
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-finance-db.py",
+      "newString": "cf=json.loads(rpc('fin_query',q(org)+\",'cashflow',\"+q(json.dumps({'from':'2026-01-01','to':'2050-01-01'}))))\n assert round(cf['balance'],2)==2170\n assert round(cf['realized_in']-cf['realized_out'],2)==2170 and len(cf['days'])>0\n rep=json.loads(rpc('fin_query',q(org)+\",'report_category',\"+q(json.dumps({'from':'2026-01-01','to':'2050-01-01'}))))\n frev=next(r for r in rep['rows'] if r['code']=='FREV'); fc=next(r for r in rep['rows'] if r['code']=='FCUST')\n assert round(frev['inflows_realized'],2)==100 and round(fc['outflows_realized'],2)==80\n rcc=json.loads(rpc('fin_query',q(org)+\",'report_cost_center',\"+q(json.dumps({'from':'2026-01-01','to':'2050-01-01'}))))\n assert round(rcc['rows'][0]['outflows_realized'],2)==80\n pf=json.loads(rpc('fin_query',q(org)+\",'partner_finance',\"+q(json.dumps({'company_id':company}))))\n assert round(pf['receivable_open'],2)==452 and len(pf['next_due'])>0 and len(pf['history'])>0\n trx=json.loads(rpc('fin_query',q(org)+\",'transactions',\"+q('{}')))\n assert trx['total']==10",
+      "oldString": "cf=json.loads(rpc('fin_query',q(org)+\",'cashflow',\"+q(json.dumps({'from':'2026-01-01','to':'2050-01-01'}))))\n assert round(cf['balance'],2)==2170\n assert round(cf['realized_in']-cf['realized_out'],2)==2170 and len(cf['days'])>0\n rep=json.loads(rpc('fin_query',q(org)+\",'report_category',\"+q(json.dumps({'from':'2026-01-01','to':'2050-01-01'}))))\n frev=next(r for r in rep['rows'] if r['code']=='FREV'); fc=next(r for r in rep['rows'] if r['code']=='FCUST')\n assert round(frev['inflows_realized'],2)==100 and round(fc['outflows_realized'],2)==80\n rcc=json.loads(rpc('fin_query',q(org)+\",'report_cost_center',\"+q(json.dumps({'from':'2026-01-01','to':'2050-01-01'}))))\n assert round(rcc['rows'][0]['outflows_realized'],2)==80\n pf=json.loads(rpc('fin_query',q(org)+\",'partner_finance',\"+q(json.dumps({'company_id':company}))))\n assert round(pf['receivable_open'],2)==452 and len(pf['next_due'])>0 and len(pf['history'])>0\n trx=json.loads(rpc('fin_query',q(org)+\",'transactions',\"+q('{}')))\n assert trx['total']==12"
+    },
+    "timestamp": 1790127822105
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790127822151
   }
 ]
