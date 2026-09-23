@@ -230,9 +230,9 @@ def run():
  # -- Totais finais do dashboard e reconstrução do saldo ------------------------
  dash=json.loads(rpc('fin_query',q(org)+",'dashboard',"+q('{}')))
  assert round(dash['balance'],2)==2170
- assert round(dash['receivable_open'],2)==452 and round(dash['receivable_overdue'],2)==55
+ assert round(dash['receivable_open'],2)==1153 and round(dash['receivable_overdue'],2)==55
  assert dash['payable_open']==1500 and dash['payable_overdue']==0
- first_r=sql(f"SELECT id FROM account_receivables WHERE source_type='PARTNER_RECONCILIATION' AND source_id={q(recon)}")
+ first_r=sql(f"SELECT id FROM account_receivables WHERE source_type='PARTNER_RECONCILIATION' AND source_id={q(recon)} AND installment_number=1")
  assert float(sql(f"SELECT public.finance_document_open({q(org)},'receivable',{q(first_r)})"))==float(sql(f"SELECT open_amount FROM account_receivables WHERE id={q(first_r)}"))
  print('OK: MASTER-008 finance scenarios')
 

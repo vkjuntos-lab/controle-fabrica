@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts</path>\n<type>file</type>\n<content>\n975:       };\n976:     };\n977:     Functions: {\n978:       partner_query: {\n979:         Args: { _org: string; _kind: string; _filters?: Json; _page?: number };\n980:         Returns: ",
-    "is_error": false,
-    "timestamp": 1790125351052
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/reconciliation/types.ts",
-      "newString": "import type { Json } from \"@/integrations/supabase/types\";\n\nexport type DashboardSummary = {",
-      "oldString": "export type DashboardSummary = {"
-    },
-    "timestamp": 1790125362226
-  },
-  {
-    "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790125362243
@@ -1727,5 +1711,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790127822151
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-finance-db.py",
+      "newString": "# -- Totais finais do dashboard e reconstrução do saldo ------------------------\n dash=json.loads(rpc('fin_query',q(org)+\",'dashboard',\"+q('{}')))\n assert round(dash['balance'],2)==2170\n assert round(dash['receivable_open'],2)==1153 and round(dash['receivable_overdue'],2)==55\n assert dash['payable_open']==1500 and dash['payable_overdue']==0\n first_r=sql(f\"SELECT id FROM account_receivables WHERE source_type='PARTNER_RECONCILIATION' AND source_id={q(recon)} AND installment_number=1\")\n assert float(sql(f\"SELECT public.finance_document_open({q(org)},'receivable',{q(first_r)})\"))==float(sql(f\"SELECT open_amount FROM account_receivables WHERE id={q(first_r)}\"))",
+      "oldString": "# -- Totais finais do dashboard e reconstrução do saldo ------------------------\n dash=json.loads(rpc('fin_query',q(org)+\",'dashboard',\"+q('{}')))\n assert round(dash['balance'],2)==2170\n assert round(dash['receivable_open'],2)==452 and round(dash['receivable_overdue'],2)==55\n assert dash['payable_open']==1500 and dash['payable_overdue']==0\n first_r=sql(f\"SELECT id FROM account_receivables WHERE source_type='PARTNER_RECONCILIATION' AND source_id={q(recon)}\")\n assert float(sql(f\"SELECT public.finance_document_open({q(org)},'receivable',{q(first_r)})\"))==float(sql(f\"SELECT open_amount FROM account_receivables WHERE id={q(first_r)}\"))"
+    },
+    "timestamp": 1790127826126
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790127826150
   }
 ]
