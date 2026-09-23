@@ -357,11 +357,20 @@ BEGIN
   IF TG_TABLE_NAME IN ('financial_transactions','receivable_settlements','payable_settlements','financial_transfers') THEN
     RAISE EXCEPTION 'Movimento financeiro consolidado é imutável; corrija por reversão.';
   ELSIF TG_TABLE_NAME IN ('account_receivables','account_payables') THEN
-    IF (j-'organization_id'-'company_id'-'source_type'-'source_id'-'document_number'-'original_amount'-'currency'-'issue_date'-'total_installments'-'parent_id')
-       <>(jold-'organization_id'-'company_id'-'source_type'-'source_id'-'document_number'-'original_amount'-'currency'-'issue_date'-'total_installments'-'parent_id')
+    IF (j->'organization_id' IS DISTINCT FROM jold->'organization_id')
+       OR (j->'company_id' IS DISTINCT FROM jold->'company_id')
+       OR (j->'source_type' IS DISTINCT FROM jold->'source_type')
+       OR (j->'source_id' IS DISTINCT FROM jold->'source_id')
+       OR (j->'document_number' IS DISTINCT FROM jold->'document_number')
+       OR (j->'original_amount' IS DISTINCT FROM jold->'original_amount')
+       OR (j->'currency' IS DISTINCT FROM jold->'currency')
+       OR (j->'issue_date' IS DISTINCT FROM jold->'issue_date')
+       OR (j->'total_installments' IS DISTINCT FROM jold->'total_installments')
+       OR (j->'parent_id' IS DISTINCT FROM jold->'parent_id')
        THEN RAISE EXCEPTION 'Dados de origem do título imutáveis fora do RPC.'; END IF;
   ELSIF TG_TABLE_NAME IN ('financial_categories','cost_centers') THEN
-    IF (j-'code'-'organization_id')<>(jold-'code'-'organization_id') THEN RAISE EXCEPTION 'Código/org imutável.'; END IF;
+    IF (j->'code' IS DISTINCT FROM jold->'code') OR (j->'organization_id' IS DISTINCT FROM jold->'organization_id')
+       THEN RAISE EXCEPTION 'Código/org imutável.'; END IF;
     IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Inative em vez de excluir.'; END IF;
   ELSIF TG_TABLE_NAME IN ('financial_accounts','payment_methods') THEN
     IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Inative em vez de excluir.'; END IF;
