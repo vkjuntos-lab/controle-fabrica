@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && python3 scripts/test-reconciliation-db.py\" 2>&1",
-      "timeout": 180000
-    },
-    "timestamp": 1790124676464
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS: 70-unit partner shipment, store and idempotent SKU mapping\nPASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nPASS: preview totals and DRAFT close without posting stock\nPASS: SKU_NOT_MAPPED exception, price-rule billable, no double posting on reprocess\nP",
-    "is_error": false,
-    "timestamp": 1790124679358
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && python3 scripts/test-inventory-db.py\" 2>&1 | tail -20",
       "timeout": 240000
     },
@@ -1584,5 +1569,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/partners/pages.tsx</path>\n<type>file</type>\n<content>\n220:     setExporting(true);\n221:     try {\n222:       const rows: Record<string, unknown>[] = [];\n223:       let n = 1;\n224:       while (true) {\n225:         const data = (await fetc",
     "is_error": false,
     "timestamp": 1790125192486
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n '<>' src/components/partners/pages.tsx | head; echo '---'; grep -n '</>' src/components/partners/pages.tsx | head"
+    },
+    "timestamp": 1790125200630
+  },
+  {
+    "role": "tool_result",
+    "content": "249:        <>\n315:                  <>\n343:                    <>\n740:        <>\n893:        <>\n1286:        <>\n---\n330:                  </>\n365:                    </>\n487:</>\n777:        </>\n1183:        </>\n1514:        </>\n",
+    "is_error": false,
+    "timestamp": 1790125200656
   }
 ]
