@@ -142,7 +142,35 @@ Validação local; publicação não verificada.
     estoque ganharam Outlet para habilitar o Parceiro 360.
   - Regras: remessa não gera receita/AR, quantidade enviada ≠ vendida, posse física não muda
     titularidade, limites/condições de pagamento/reconciliação ficam para extensão futura.
-- Documentação: ADR-001/ADR-006, CORE-BUSINESS, INVENTORY, PARTNERS, PARTNER-SHIPMENTS, este handoff.
+- Domínio Reconciliação de Parceiros (LOVABLE MASTER 007):
+  - Marketplace sem importador automático: `marketplace_stores` (FACTORY/OWN/PARTNER, `partner_id`
+    quando PARTNER), `marketplace_imports`/`marketplace_import_rows` (contrato de importação),
+    `marketplace_sales` (gross/discount/fee/shipping, dedup por `external_event_id`/`import_key`,
+    nunca toca estoque), `external_sku_mappings` (por loja ou global com backfill).
+  - Regra comercial: `price_tables`/`price_table_items`/`partner_price_links`; `rec_resolve_price`
+    usa o preço vigente na data da venda; sem tabela, usa o líquido do marketplace (`rec_sale_net`).
+    O gross é referência; o cobrável do parceiro segue a regra comercial.
+  - Reconciliar ≠ vender de novo: `partner_reconciliations` (período por parceiro + frequência,
+    snapshot, `closed_at`), `partner_reconciliation_items` (uma venda = um item; `posted` com baixa
+    única e idempotente `rec-item:<id>` no ledger), `reconciliation_exceptions` (severidade/
+    status/resolução), `partner_reconciliation_adjustments` (crédito/débito com motivo),
+    `domain_events` (público `PARTNER_RECONCILIATION_CLOSED`).
+  - Fluxo: preview `rec_preview`, `rec_create`, `rec_process`/`rec_process_item`/
+    `rec_reprocess_item`, `rec_exception_resolve`, `rec_adjustment`, `rec_close` (idempotente,
+    concorrente termina em um único `CLOSED`), `rec_reopen` (motivado), `rec_cancel`,
+    `rec_reverse_item` (estorno com compensação IN), `rec_query` (dashboard/posição).
+  - Closado é imutável; venda tardia vira `LATE_SALE_AFTER_CLOSING`; correção exige reabrir.
+    Exceção resolve com suprimento real, nunca fabrica saldo; stock insuficiente bloqueia fechar.
+  - Permissões: `partner_reconciliation.read/create/process/review/resolve_exception/close/reopen/
+    reverse` e `partner_pricing.read/manage`; RPCs SECURITY DEFINER validam tenant e permissão;
+    escritas diretas bloqueadas por RLS; auditoria em todo o ciclo.
+  - Telas: `/reconciliacao` (dashboard), `/reconciliacao/periodos` (+ `/$id` com abas
+    Itens/Exceções/Ajustes/Consolidado), `/reconciliacao/vendas`, `/reconciliacao/excecoes`,
+    `/reconciliacao/tabelas-preco` (+ `/$id`), `/reconciliacao/lojas`, `/reconciliacao/mapeamento`;
+    item "Reconciliação parcerias" no menu Operação. Parceiro 360 ganhou abas Marketplaces/Vendas/
+    Reconciliações/Fechamentos.
+- Documentação: ADR-001/ADR-006/ADR-007, CORE-BUSINESS, INVENTORY, PARTNERS, PARTNER-SHIPMENTS,
+  PARTNER-RECONCILIATION, PARTNER-PRICING, este handoff.
 
 - Complemento MASTER 003: posição paginada/agregada no banco, busca barcode, categorias/status,
   agrupamentos, dashboard quantitativo, CSV de todas as páginas da posição, contagem por lote
