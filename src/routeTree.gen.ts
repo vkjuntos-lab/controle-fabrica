@@ -28,6 +28,16 @@ import { Route as AuthenticatedEstoqueLocationsRouteImport } from './routes/_aut
 import { Route as AuthenticatedEstoqueMovimentacoesRouteImport } from './routes/_authenticated/estoque/movimentacoes'
 import { Route as AuthenticatedEstoqueTerceirosRouteImport } from './routes/_authenticated/estoque/terceiros'
 import { Route as AuthenticatedEstoqueTransferenciasRouteImport } from './routes/_authenticated/estoque/transferencias'
+import { Route as AuthenticatedFinanceiroIndexRouteImport } from './routes/_authenticated/financeiro/index'
+import { Route as AuthenticatedFinanceiroConfiguracoesRouteImport } from './routes/_authenticated/financeiro/configuracoes'
+import { Route as AuthenticatedFinanceiroContasRouteImport } from './routes/_authenticated/financeiro/contas'
+import { Route as AuthenticatedFinanceiroFluxoRouteImport } from './routes/_authenticated/financeiro/fluxo'
+import { Route as AuthenticatedFinanceiroHistoricoRouteImport } from './routes/_authenticated/financeiro/historico'
+import { Route as AuthenticatedFinanceiroLancamentosRouteImport } from './routes/_authenticated/financeiro/lancamentos'
+import { Route as AuthenticatedFinanceiroPagarRouteImport } from './routes/_authenticated/financeiro/pagar'
+import { Route as AuthenticatedFinanceiroReceberRouteImport } from './routes/_authenticated/financeiro/receber'
+import { Route as AuthenticatedFinanceiroRecorrenciasRouteImport } from './routes/_authenticated/financeiro/recorrencias'
+import { Route as AuthenticatedFinanceiroRelatoriosRouteImport } from './routes/_authenticated/financeiro/relatorios'
 import { Route as AuthenticatedParceirosIndexRouteImport } from './routes/_authenticated/parceiros/index'
 import { Route as AuthenticatedParceirosDevolucoesRouteImport } from './routes/_authenticated/parceiros/devolucoes'
 import { Route as AuthenticatedParceirosEstoqueRouteImport } from './routes/_authenticated/parceiros/estoque'
@@ -44,6 +54,8 @@ import { Route as ApiCronHealthRouteImport } from './routes/api/cron.health'
 import { Route as ApiWebhooksReceiverRouteImport } from './routes/api/webhooks.receiver'
 import { Route as AuthenticatedEstoqueInventariosIdRouteImport } from './routes/_authenticated/estoque/inventarios.$id'
 import { Route as AuthenticatedEstoqueMovimentacoesIdRouteImport } from './routes/_authenticated/estoque/movimentacoes.$id'
+import { Route as AuthenticatedFinanceiroPagarIdRouteImport } from './routes/_authenticated/financeiro/pagar_.$id'
+import { Route as AuthenticatedFinanceiroReceberIdRouteImport } from './routes/_authenticated/financeiro/receber_.$id'
 import { Route as AuthenticatedParceirosDevolucoesIdRouteImport } from './routes/_authenticated/parceiros/devolucoes_.$id'
 import { Route as AuthenticatedParceirosEmpresasIdRouteImport } from './routes/_authenticated/parceiros/empresas.$id'
 import { Route as AuthenticatedParceirosRemessasIdRouteImport } from './routes/_authenticated/parceiros/remessas_.$id'
@@ -154,6 +166,66 @@ const AuthenticatedEstoqueTransferenciasRoute =
     path: '/estoque/transferencias',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedFinanceiroIndexRoute =
+  AuthenticatedFinanceiroIndexRouteImport.update({
+    id: '/financeiro/',
+    path: '/financeiro/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFinanceiroConfiguracoesRoute =
+  AuthenticatedFinanceiroConfiguracoesRouteImport.update({
+    id: '/financeiro/configuracoes',
+    path: '/financeiro/configuracoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFinanceiroContasRoute =
+  AuthenticatedFinanceiroContasRouteImport.update({
+    id: '/financeiro/contas',
+    path: '/financeiro/contas',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFinanceiroFluxoRoute =
+  AuthenticatedFinanceiroFluxoRouteImport.update({
+    id: '/financeiro/fluxo',
+    path: '/financeiro/fluxo',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFinanceiroHistoricoRoute =
+  AuthenticatedFinanceiroHistoricoRouteImport.update({
+    id: '/financeiro/historico',
+    path: '/financeiro/historico',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFinanceiroLancamentosRoute =
+  AuthenticatedFinanceiroLancamentosRouteImport.update({
+    id: '/financeiro/lancamentos',
+    path: '/financeiro/lancamentos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFinanceiroPagarRoute =
+  AuthenticatedFinanceiroPagarRouteImport.update({
+    id: '/financeiro/pagar',
+    path: '/financeiro/pagar',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFinanceiroReceberRoute =
+  AuthenticatedFinanceiroReceberRouteImport.update({
+    id: '/financeiro/receber',
+    path: '/financeiro/receber',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFinanceiroRecorrenciasRoute =
+  AuthenticatedFinanceiroRecorrenciasRouteImport.update({
+    id: '/financeiro/recorrencias',
+    path: '/financeiro/recorrencias',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFinanceiroRelatoriosRoute =
+  AuthenticatedFinanceiroRelatoriosRouteImport.update({
+    id: '/financeiro/relatorios',
+    path: '/financeiro/relatorios',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedParceirosIndexRoute =
   AuthenticatedParceirosIndexRouteImport.update({
     id: '/parceiros/',
@@ -247,6 +319,18 @@ const AuthenticatedEstoqueMovimentacoesIdRoute =
     path: '/$id',
     getParentRoute: () => AuthenticatedEstoqueMovimentacoesRoute,
   } as any)
+const AuthenticatedFinanceiroPagarIdRoute =
+  AuthenticatedFinanceiroPagarIdRouteImport.update({
+    id: '/financeiro/pagar_/$id',
+    path: '/financeiro/pagar/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedFinanceiroReceberIdRoute =
+  AuthenticatedFinanceiroReceberIdRouteImport.update({
+    id: '/financeiro/receber_/$id',
+    path: '/financeiro/receber/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedParceirosDevolucoesIdRoute =
   AuthenticatedParceirosDevolucoesIdRouteImport.update({
     id: '/parceiros/devolucoes_/$id',
@@ -296,6 +380,15 @@ export interface FileRoutesByFullPath {
   '/estoque/movimentacoes': typeof AuthenticatedEstoqueMovimentacoesRouteWithChildren
   '/estoque/terceiros': typeof AuthenticatedEstoqueTerceirosRoute
   '/estoque/transferencias': typeof AuthenticatedEstoqueTransferenciasRoute
+  '/financeiro/configuracoes': typeof AuthenticatedFinanceiroConfiguracoesRoute
+  '/financeiro/contas': typeof AuthenticatedFinanceiroContasRoute
+  '/financeiro/fluxo': typeof AuthenticatedFinanceiroFluxoRoute
+  '/financeiro/historico': typeof AuthenticatedFinanceiroHistoricoRoute
+  '/financeiro/lancamentos': typeof AuthenticatedFinanceiroLancamentosRoute
+  '/financeiro/pagar': typeof AuthenticatedFinanceiroPagarRoute
+  '/financeiro/receber': typeof AuthenticatedFinanceiroReceberRoute
+  '/financeiro/recorrencias': typeof AuthenticatedFinanceiroRecorrenciasRoute
+  '/financeiro/relatorios': typeof AuthenticatedFinanceiroRelatoriosRoute
   '/parceiros/devolucoes': typeof AuthenticatedParceirosDevolucoesRoute
   '/parceiros/estoque': typeof AuthenticatedParceirosEstoqueRoute
   '/parceiros/remessas': typeof AuthenticatedParceirosRemessasRoute
@@ -309,10 +402,13 @@ export interface FileRoutesByFullPath {
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
   '/estoque/': typeof AuthenticatedEstoqueIndexRoute
+  '/financeiro/': typeof AuthenticatedFinanceiroIndexRoute
   '/parceiros/': typeof AuthenticatedParceirosIndexRoute
   '/reconciliacao/': typeof AuthenticatedReconciliacaoIndexRoute
   '/estoque/inventarios/$id': typeof AuthenticatedEstoqueInventariosIdRoute
   '/estoque/movimentacoes/$id': typeof AuthenticatedEstoqueMovimentacoesIdRoute
+  '/financeiro/pagar/$id': typeof AuthenticatedFinanceiroPagarIdRoute
+  '/financeiro/receber/$id': typeof AuthenticatedFinanceiroReceberIdRoute
   '/parceiros/devolucoes/$id': typeof AuthenticatedParceirosDevolucoesIdRoute
   '/parceiros/empresas/$id': typeof AuthenticatedParceirosEmpresasIdRoute
   '/parceiros/remessas/$id': typeof AuthenticatedParceirosRemessasIdRoute
@@ -337,6 +433,15 @@ export interface FileRoutesByTo {
   '/estoque/movimentacoes': typeof AuthenticatedEstoqueMovimentacoesRouteWithChildren
   '/estoque/terceiros': typeof AuthenticatedEstoqueTerceirosRoute
   '/estoque/transferencias': typeof AuthenticatedEstoqueTransferenciasRoute
+  '/financeiro/configuracoes': typeof AuthenticatedFinanceiroConfiguracoesRoute
+  '/financeiro/contas': typeof AuthenticatedFinanceiroContasRoute
+  '/financeiro/fluxo': typeof AuthenticatedFinanceiroFluxoRoute
+  '/financeiro/historico': typeof AuthenticatedFinanceiroHistoricoRoute
+  '/financeiro/lancamentos': typeof AuthenticatedFinanceiroLancamentosRoute
+  '/financeiro/pagar': typeof AuthenticatedFinanceiroPagarRoute
+  '/financeiro/receber': typeof AuthenticatedFinanceiroReceberRoute
+  '/financeiro/recorrencias': typeof AuthenticatedFinanceiroRecorrenciasRoute
+  '/financeiro/relatorios': typeof AuthenticatedFinanceiroRelatoriosRoute
   '/parceiros/devolucoes': typeof AuthenticatedParceirosDevolucoesRoute
   '/parceiros/estoque': typeof AuthenticatedParceirosEstoqueRoute
   '/parceiros/remessas': typeof AuthenticatedParceirosRemessasRoute
@@ -350,10 +455,13 @@ export interface FileRoutesByTo {
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
   '/estoque': typeof AuthenticatedEstoqueIndexRoute
+  '/financeiro': typeof AuthenticatedFinanceiroIndexRoute
   '/parceiros': typeof AuthenticatedParceirosIndexRoute
   '/reconciliacao': typeof AuthenticatedReconciliacaoIndexRoute
   '/estoque/inventarios/$id': typeof AuthenticatedEstoqueInventariosIdRoute
   '/estoque/movimentacoes/$id': typeof AuthenticatedEstoqueMovimentacoesIdRoute
+  '/financeiro/pagar/$id': typeof AuthenticatedFinanceiroPagarIdRoute
+  '/financeiro/receber/$id': typeof AuthenticatedFinanceiroReceberIdRoute
   '/parceiros/devolucoes/$id': typeof AuthenticatedParceirosDevolucoesIdRoute
   '/parceiros/empresas/$id': typeof AuthenticatedParceirosEmpresasIdRoute
   '/parceiros/remessas/$id': typeof AuthenticatedParceirosRemessasIdRoute
@@ -380,6 +488,15 @@ export interface FileRoutesById {
   '/_authenticated/estoque/movimentacoes': typeof AuthenticatedEstoqueMovimentacoesRouteWithChildren
   '/_authenticated/estoque/terceiros': typeof AuthenticatedEstoqueTerceirosRoute
   '/_authenticated/estoque/transferencias': typeof AuthenticatedEstoqueTransferenciasRoute
+  '/_authenticated/financeiro/configuracoes': typeof AuthenticatedFinanceiroConfiguracoesRoute
+  '/_authenticated/financeiro/contas': typeof AuthenticatedFinanceiroContasRoute
+  '/_authenticated/financeiro/fluxo': typeof AuthenticatedFinanceiroFluxoRoute
+  '/_authenticated/financeiro/historico': typeof AuthenticatedFinanceiroHistoricoRoute
+  '/_authenticated/financeiro/lancamentos': typeof AuthenticatedFinanceiroLancamentosRoute
+  '/_authenticated/financeiro/pagar': typeof AuthenticatedFinanceiroPagarRoute
+  '/_authenticated/financeiro/receber': typeof AuthenticatedFinanceiroReceberRoute
+  '/_authenticated/financeiro/recorrencias': typeof AuthenticatedFinanceiroRecorrenciasRoute
+  '/_authenticated/financeiro/relatorios': typeof AuthenticatedFinanceiroRelatoriosRoute
   '/_authenticated/parceiros/devolucoes': typeof AuthenticatedParceirosDevolucoesRoute
   '/_authenticated/parceiros/estoque': typeof AuthenticatedParceirosEstoqueRoute
   '/_authenticated/parceiros/remessas': typeof AuthenticatedParceirosRemessasRoute
@@ -393,10 +510,13 @@ export interface FileRoutesById {
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
   '/_authenticated/estoque/': typeof AuthenticatedEstoqueIndexRoute
+  '/_authenticated/financeiro/': typeof AuthenticatedFinanceiroIndexRoute
   '/_authenticated/parceiros/': typeof AuthenticatedParceirosIndexRoute
   '/_authenticated/reconciliacao/': typeof AuthenticatedReconciliacaoIndexRoute
   '/_authenticated/estoque/inventarios/$id': typeof AuthenticatedEstoqueInventariosIdRoute
   '/_authenticated/estoque/movimentacoes/$id': typeof AuthenticatedEstoqueMovimentacoesIdRoute
+  '/_authenticated/financeiro/pagar_/$id': typeof AuthenticatedFinanceiroPagarIdRoute
+  '/_authenticated/financeiro/receber_/$id': typeof AuthenticatedFinanceiroReceberIdRoute
   '/_authenticated/parceiros/devolucoes_/$id': typeof AuthenticatedParceirosDevolucoesIdRoute
   '/_authenticated/parceiros/empresas/$id': typeof AuthenticatedParceirosEmpresasIdRoute
   '/_authenticated/parceiros/remessas_/$id': typeof AuthenticatedParceirosRemessasIdRoute
@@ -423,6 +543,15 @@ export interface FileRouteTypes {
     | '/estoque/movimentacoes'
     | '/estoque/terceiros'
     | '/estoque/transferencias'
+    | '/financeiro/configuracoes'
+    | '/financeiro/contas'
+    | '/financeiro/fluxo'
+    | '/financeiro/historico'
+    | '/financeiro/lancamentos'
+    | '/financeiro/pagar'
+    | '/financeiro/receber'
+    | '/financeiro/recorrencias'
+    | '/financeiro/relatorios'
     | '/parceiros/devolucoes'
     | '/parceiros/estoque'
     | '/parceiros/remessas'
@@ -436,10 +565,13 @@ export interface FileRouteTypes {
     | '/api/cron/health'
     | '/api/webhooks/receiver'
     | '/estoque/'
+    | '/financeiro/'
     | '/parceiros/'
     | '/reconciliacao/'
     | '/estoque/inventarios/$id'
     | '/estoque/movimentacoes/$id'
+    | '/financeiro/pagar/$id'
+    | '/financeiro/receber/$id'
     | '/parceiros/devolucoes/$id'
     | '/parceiros/empresas/$id'
     | '/parceiros/remessas/$id'
@@ -464,6 +596,15 @@ export interface FileRouteTypes {
     | '/estoque/movimentacoes'
     | '/estoque/terceiros'
     | '/estoque/transferencias'
+    | '/financeiro/configuracoes'
+    | '/financeiro/contas'
+    | '/financeiro/fluxo'
+    | '/financeiro/historico'
+    | '/financeiro/lancamentos'
+    | '/financeiro/pagar'
+    | '/financeiro/receber'
+    | '/financeiro/recorrencias'
+    | '/financeiro/relatorios'
     | '/parceiros/devolucoes'
     | '/parceiros/estoque'
     | '/parceiros/remessas'
@@ -477,10 +618,13 @@ export interface FileRouteTypes {
     | '/api/cron/health'
     | '/api/webhooks/receiver'
     | '/estoque'
+    | '/financeiro'
     | '/parceiros'
     | '/reconciliacao'
     | '/estoque/inventarios/$id'
     | '/estoque/movimentacoes/$id'
+    | '/financeiro/pagar/$id'
+    | '/financeiro/receber/$id'
     | '/parceiros/devolucoes/$id'
     | '/parceiros/empresas/$id'
     | '/parceiros/remessas/$id'
@@ -506,6 +650,15 @@ export interface FileRouteTypes {
     | '/_authenticated/estoque/movimentacoes'
     | '/_authenticated/estoque/terceiros'
     | '/_authenticated/estoque/transferencias'
+    | '/_authenticated/financeiro/configuracoes'
+    | '/_authenticated/financeiro/contas'
+    | '/_authenticated/financeiro/fluxo'
+    | '/_authenticated/financeiro/historico'
+    | '/_authenticated/financeiro/lancamentos'
+    | '/_authenticated/financeiro/pagar'
+    | '/_authenticated/financeiro/receber'
+    | '/_authenticated/financeiro/recorrencias'
+    | '/_authenticated/financeiro/relatorios'
     | '/_authenticated/parceiros/devolucoes'
     | '/_authenticated/parceiros/estoque'
     | '/_authenticated/parceiros/remessas'
@@ -519,10 +672,13 @@ export interface FileRouteTypes {
     | '/api/cron/health'
     | '/api/webhooks/receiver'
     | '/_authenticated/estoque/'
+    | '/_authenticated/financeiro/'
     | '/_authenticated/parceiros/'
     | '/_authenticated/reconciliacao/'
     | '/_authenticated/estoque/inventarios/$id'
     | '/_authenticated/estoque/movimentacoes/$id'
+    | '/_authenticated/financeiro/pagar_/$id'
+    | '/_authenticated/financeiro/receber_/$id'
     | '/_authenticated/parceiros/devolucoes_/$id'
     | '/_authenticated/parceiros/empresas/$id'
     | '/_authenticated/parceiros/remessas_/$id'
@@ -675,6 +831,76 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEstoqueTransferenciasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/financeiro/': {
+      id: '/_authenticated/financeiro/'
+      path: '/financeiro'
+      fullPath: '/financeiro/'
+      preLoaderRoute: typeof AuthenticatedFinanceiroIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/financeiro/configuracoes': {
+      id: '/_authenticated/financeiro/configuracoes'
+      path: '/financeiro/configuracoes'
+      fullPath: '/financeiro/configuracoes'
+      preLoaderRoute: typeof AuthenticatedFinanceiroConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/financeiro/contas': {
+      id: '/_authenticated/financeiro/contas'
+      path: '/financeiro/contas'
+      fullPath: '/financeiro/contas'
+      preLoaderRoute: typeof AuthenticatedFinanceiroContasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/financeiro/fluxo': {
+      id: '/_authenticated/financeiro/fluxo'
+      path: '/financeiro/fluxo'
+      fullPath: '/financeiro/fluxo'
+      preLoaderRoute: typeof AuthenticatedFinanceiroFluxoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/financeiro/historico': {
+      id: '/_authenticated/financeiro/historico'
+      path: '/financeiro/historico'
+      fullPath: '/financeiro/historico'
+      preLoaderRoute: typeof AuthenticatedFinanceiroHistoricoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/financeiro/lancamentos': {
+      id: '/_authenticated/financeiro/lancamentos'
+      path: '/financeiro/lancamentos'
+      fullPath: '/financeiro/lancamentos'
+      preLoaderRoute: typeof AuthenticatedFinanceiroLancamentosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/financeiro/pagar': {
+      id: '/_authenticated/financeiro/pagar'
+      path: '/financeiro/pagar'
+      fullPath: '/financeiro/pagar'
+      preLoaderRoute: typeof AuthenticatedFinanceiroPagarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/financeiro/receber': {
+      id: '/_authenticated/financeiro/receber'
+      path: '/financeiro/receber'
+      fullPath: '/financeiro/receber'
+      preLoaderRoute: typeof AuthenticatedFinanceiroReceberRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/financeiro/recorrencias': {
+      id: '/_authenticated/financeiro/recorrencias'
+      path: '/financeiro/recorrencias'
+      fullPath: '/financeiro/recorrencias'
+      preLoaderRoute: typeof AuthenticatedFinanceiroRecorrenciasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/financeiro/relatorios': {
+      id: '/_authenticated/financeiro/relatorios'
+      path: '/financeiro/relatorios'
+      fullPath: '/financeiro/relatorios'
+      preLoaderRoute: typeof AuthenticatedFinanceiroRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/parceiros/': {
       id: '/_authenticated/parceiros/'
       path: '/parceiros'
@@ -787,6 +1013,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedEstoqueMovimentacoesIdRouteImport
       parentRoute: typeof AuthenticatedEstoqueMovimentacoesRoute
     }
+    '/_authenticated/financeiro/pagar_/$id': {
+      id: '/_authenticated/financeiro/pagar_/$id'
+      path: '/financeiro/pagar/$id'
+      fullPath: '/financeiro/pagar/$id'
+      preLoaderRoute: typeof AuthenticatedFinanceiroPagarIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/financeiro/receber_/$id': {
+      id: '/_authenticated/financeiro/receber_/$id'
+      path: '/financeiro/receber/$id'
+      fullPath: '/financeiro/receber/$id'
+      preLoaderRoute: typeof AuthenticatedFinanceiroReceberIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/parceiros/devolucoes_/$id': {
       id: '/_authenticated/parceiros/devolucoes_/$id'
       path: '/parceiros/devolucoes/$id'
@@ -882,6 +1122,15 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEstoqueMovimentacoesRoute: typeof AuthenticatedEstoqueMovimentacoesRouteWithChildren
   AuthenticatedEstoqueTerceirosRoute: typeof AuthenticatedEstoqueTerceirosRoute
   AuthenticatedEstoqueTransferenciasRoute: typeof AuthenticatedEstoqueTransferenciasRoute
+  AuthenticatedFinanceiroConfiguracoesRoute: typeof AuthenticatedFinanceiroConfiguracoesRoute
+  AuthenticatedFinanceiroContasRoute: typeof AuthenticatedFinanceiroContasRoute
+  AuthenticatedFinanceiroFluxoRoute: typeof AuthenticatedFinanceiroFluxoRoute
+  AuthenticatedFinanceiroHistoricoRoute: typeof AuthenticatedFinanceiroHistoricoRoute
+  AuthenticatedFinanceiroLancamentosRoute: typeof AuthenticatedFinanceiroLancamentosRoute
+  AuthenticatedFinanceiroPagarRoute: typeof AuthenticatedFinanceiroPagarRoute
+  AuthenticatedFinanceiroReceberRoute: typeof AuthenticatedFinanceiroReceberRoute
+  AuthenticatedFinanceiroRecorrenciasRoute: typeof AuthenticatedFinanceiroRecorrenciasRoute
+  AuthenticatedFinanceiroRelatoriosRoute: typeof AuthenticatedFinanceiroRelatoriosRoute
   AuthenticatedParceirosDevolucoesRoute: typeof AuthenticatedParceirosDevolucoesRoute
   AuthenticatedParceirosEstoqueRoute: typeof AuthenticatedParceirosEstoqueRoute
   AuthenticatedParceirosRemessasRoute: typeof AuthenticatedParceirosRemessasRoute
@@ -892,8 +1141,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedReconciliacaoTabelasPrecoRoute: typeof AuthenticatedReconciliacaoTabelasPrecoRoute
   AuthenticatedReconciliacaoVendasRoute: typeof AuthenticatedReconciliacaoVendasRoute
   AuthenticatedEstoqueIndexRoute: typeof AuthenticatedEstoqueIndexRoute
+  AuthenticatedFinanceiroIndexRoute: typeof AuthenticatedFinanceiroIndexRoute
   AuthenticatedParceirosIndexRoute: typeof AuthenticatedParceirosIndexRoute
   AuthenticatedReconciliacaoIndexRoute: typeof AuthenticatedReconciliacaoIndexRoute
+  AuthenticatedFinanceiroPagarIdRoute: typeof AuthenticatedFinanceiroPagarIdRoute
+  AuthenticatedFinanceiroReceberIdRoute: typeof AuthenticatedFinanceiroReceberIdRoute
   AuthenticatedParceirosDevolucoesIdRoute: typeof AuthenticatedParceirosDevolucoesIdRoute
   AuthenticatedParceirosEmpresasIdRoute: typeof AuthenticatedParceirosEmpresasIdRoute
   AuthenticatedParceirosRemessasIdRoute: typeof AuthenticatedParceirosRemessasIdRoute
@@ -918,6 +1170,19 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEstoqueTerceirosRoute: AuthenticatedEstoqueTerceirosRoute,
   AuthenticatedEstoqueTransferenciasRoute:
     AuthenticatedEstoqueTransferenciasRoute,
+  AuthenticatedFinanceiroConfiguracoesRoute:
+    AuthenticatedFinanceiroConfiguracoesRoute,
+  AuthenticatedFinanceiroContasRoute: AuthenticatedFinanceiroContasRoute,
+  AuthenticatedFinanceiroFluxoRoute: AuthenticatedFinanceiroFluxoRoute,
+  AuthenticatedFinanceiroHistoricoRoute: AuthenticatedFinanceiroHistoricoRoute,
+  AuthenticatedFinanceiroLancamentosRoute:
+    AuthenticatedFinanceiroLancamentosRoute,
+  AuthenticatedFinanceiroPagarRoute: AuthenticatedFinanceiroPagarRoute,
+  AuthenticatedFinanceiroReceberRoute: AuthenticatedFinanceiroReceberRoute,
+  AuthenticatedFinanceiroRecorrenciasRoute:
+    AuthenticatedFinanceiroRecorrenciasRoute,
+  AuthenticatedFinanceiroRelatoriosRoute:
+    AuthenticatedFinanceiroRelatoriosRoute,
   AuthenticatedParceirosDevolucoesRoute: AuthenticatedParceirosDevolucoesRoute,
   AuthenticatedParceirosEstoqueRoute: AuthenticatedParceirosEstoqueRoute,
   AuthenticatedParceirosRemessasRoute: AuthenticatedParceirosRemessasRoute,
@@ -932,8 +1197,11 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedReconciliacaoTabelasPrecoRoute,
   AuthenticatedReconciliacaoVendasRoute: AuthenticatedReconciliacaoVendasRoute,
   AuthenticatedEstoqueIndexRoute: AuthenticatedEstoqueIndexRoute,
+  AuthenticatedFinanceiroIndexRoute: AuthenticatedFinanceiroIndexRoute,
   AuthenticatedParceirosIndexRoute: AuthenticatedParceirosIndexRoute,
   AuthenticatedReconciliacaoIndexRoute: AuthenticatedReconciliacaoIndexRoute,
+  AuthenticatedFinanceiroPagarIdRoute: AuthenticatedFinanceiroPagarIdRoute,
+  AuthenticatedFinanceiroReceberIdRoute: AuthenticatedFinanceiroReceberIdRoute,
   AuthenticatedParceirosDevolucoesIdRoute:
     AuthenticatedParceirosDevolucoesIdRoute,
   AuthenticatedParceirosEmpresasIdRoute: AuthenticatedParceirosEmpresasIdRoute,
