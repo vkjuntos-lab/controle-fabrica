@@ -258,8 +258,8 @@ export const PLATFORM_MODULES: ModuleDefinition[] = [
   {
     key: "financeiro",
     label: "Financeiro",
-    description: "Cobrança, recebimento e resultado.",
-    status: "coming_soon",
+    description: "Contas a receber/pagar, recebimentos e fluxo de caixa.",
+    status: "available",
   },
   {
     key: "relatorios",
