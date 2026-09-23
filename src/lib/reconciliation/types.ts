@@ -230,4 +230,3 @@ export type ReconciliationHistoryRow = {
   user_id: string;
   context: Record<string, unknown>;
 };
-export const EXCHANGE = undefined;
