@@ -1,10 +1,12 @@
 # Estado do projeto — handoff contínuo
 
-Última atualização: LOVABLE MASTER 006 — Empresas parceiras, remessas, estoque em terceiros e
-devoluções, sobre o MASTER 003 (Inventory Ledger), MASTER 002 (Catálogo) e a fundação do MASTER 001.
-O checkout não contém o MASTER 005 (MarketplaceStore). Etapa atual: módulo de parceiros validado
-localmente (`20260924100000_partners.sql`, telas, RBAC e testes PostgreSQL reproduzíveis). Validação
-local; publicação não verificada.
+Última atualização: LOVABLE MASTER 007 — Marketplaces/lojas, vendas, mapeamento de SKU, regra
+comercial (tabelas de preço) e reconciliação com fechamento idempotente de parceiros, sobre o
+MASTER 006 (parceiros), MASTER 003 (Inventory Ledger), MASTER 002 (Catálogo) e a fundação do
+MASTER 001. O MASTER 005 (importador marketplace automático) não está no checkout — o registro de
+vendas é manual com o mesmo contrato. Etapa atual: reconciliação validada localmente
+(`20260926100000_partner_reconciliation.sql`, telas, RBAC e testes PostgreSQL reproduzíveis).
+Validação local; publicação não verificada.
 
 ## IMPLEMENTED
 
