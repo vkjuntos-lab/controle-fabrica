@@ -26,7 +26,7 @@ def run():
  cat_exp=rpc('fin_save_category',q(org)+','+q(json.dumps({'code':'FREV','name':'Receitas','type':'REVENUE'})))
  cat_cost=rpc('fin_save_category',q(org)+','+q(json.dumps({'code':'FCUST','name':'Custos','type':'EXPENSE'})))
  sub=rpc('fin_save_category',q(org)+','+q(json.dumps({'code':'ENRG','name':'Energia','type':'EXPENSE','parent_id':cat_cost})))
- rpc('fin_save_category',q(org)+','+q(json.dumps({'code':'ENRG','name':'Energia','type':'EXPENSE'})),fail='Categoria')
+ rpc('fin_save_category',q(org)+','+q(json.dumps({'code':'ENRG','name':'Energia','type':'EXPENSE'})),fail='duplicate')
  cc=rpc('fin_save_cost_center',q(org)+','+q(json.dumps({'code':'CC-FAB','name':'Fábrica'})))
  acc1=rpc('fin_save_account',q(org)+','+q(json.dumps({'name':'Banco Beta','type':'BANK','bank_name':'Beta'})))
  acc2=rpc('fin_save_account',q(org)+','+q(json.dumps({'name':'Caixa','type':'CASH'})))
