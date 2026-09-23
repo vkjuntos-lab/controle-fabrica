@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"CREATE TABLE public.companies\\|CREATE TABLE public.partner_profiles\\|legal_name\\|document\\|default_inventory_location_id\\|company_id\" supabase/migrations/20260924100000_partners.sql | head -30"
-    },
-    "timestamp": 1790126902685
-  },
-  {
-    "role": "tool_result",
-    "content": "3:CREATE TABLE public.companies (\n5: code text NOT NULL CHECK(length(trim(code))>0), legal_name text NOT NULL CHECK(length(trim(legal_name))>0),\n6: trade_name text, document_type text CHECK(document_type IN ('CNPJ','CPF','OTHER')), document_number text,\n11: UNIQUE(organization_id,code), UNIQUE(organ",
-    "is_error": false,
-    "timestamp": 1790126902699
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "wc -l src/components/partners/pages.tsx src/components/reconciliation/pages.tsx src/components/reconciliation/dialogs.tsx src/lib/partners/partners.functions.ts src/lib/partners/types.ts src/lib/partners/export.ts"
     },
     "timestamp": 1790126903255
@@ -1558,5 +1544,19 @@
     "content": "TMPDIR=/tmp/probe-lXWK\n",
     "is_error": false,
     "timestamp": 1790128262180
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "D=\"/tmp/probe-lXWK\"; su - claude-runner -c \"B=/usr/lib/postgresql/18/bin; \\$B/psql -X -h '$D' -p 55441 -U postgres -d postgres -v ON_ERROR_STOP=1 -Atq <<'EOF'\nDROP TABLE IF EXISTS t,r,p; CREATE TABLE t(id int, reference_id int, description text); CREATE TABLE r(id int, document_number text); CREATE TABLE p(id int, document_number text);\nINSERT INTO t VALUES(1,1,'x');\n\\echo --- lhs unqualified in select list with lateral:\nSELECT t.*, document_number FROM t LEFT JOIN LATERAL (SELECT r.document_number FROM r WHERE r.id=t.reference_id UNION ALL SELECT p.document_number FROM p WHERE p.id=t.reference_id) d ON true;\n\\echo --- qualified:\nSELECT t.*, d.document_number FROM t LEFT JOIN LATERAL (SELECT r.document_number FROM r WHERE r.id=t.reference_id UNION ALL SELECT p.document_number FROM p WHERE p.id=t.reference_id) d ON true;\nEOF\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790128270075
+  },
+  {
+    "role": "tool_result",
+    "content": "--- lhs unqualified in select list with lateral:\n1|1|x|\n--- qualified:\n1|1|x|\n",
+    "is_error": false,
+    "timestamp": 1790128270183
   }
 ]
