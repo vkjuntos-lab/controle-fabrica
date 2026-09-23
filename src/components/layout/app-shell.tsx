@@ -75,6 +75,12 @@ const OPERATION_ITEMS: NavItem[] = [
     icon: Scale,
     permission: PERMISSIONS.partnerReconciliationRead,
   },
+  {
+    label: "Financeiro",
+    to: "/financeiro",
+    icon: Wallet,
+    permission: PERMISSIONS.financeRead,
+  },
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
   { label: "Produtos", to: "/produtos", icon: Package, permission: PERMISSIONS.productsRead },
   {
