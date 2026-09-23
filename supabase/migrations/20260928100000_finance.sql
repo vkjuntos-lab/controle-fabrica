@@ -414,15 +414,24 @@ CREATE FUNCTION public.finance_refresh_document(_org uuid,_kind text,_id uuid)
 RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE v_open numeric; v_paid numeric; v_total numeric; v_new text;
 BEGIN
-  v_total:=(SELECT original_amount+interest_amount+penalty_amount+adjustment_amount-discount_amount FROM CASE
-      WHEN _kind='receivable' THEN public.account_receivables ELSE public.account_payables END WHERE organization_id=_org AND id=_id);
+  IF _kind='receivable' THEN
+    SELECT original_amount+interest_amount+penalty_amount+adjustment_amount-discount_amount INTO v_total
+    FROM public.account_receivables WHERE organization_id=_org AND id=_id;
+  ELSE
+    SELECT original_amount+interest_amount+penalty_amount+adjustment_amount-discount_amount INTO v_total
+    FROM public.account_payables WHERE organization_id=_org AND id=_id;
+  END IF;
   v_paid:=public.finance_document_paid(_org,_kind,_id);
   v_open:=round(GREATEST(v_total-v_paid,0),2);
   v_new:=CASE WHEN v_open<=0.005 AND v_paid>0 THEN 'PAID' WHEN v_paid>0 THEN 'PARTIALLY_PAID' ELSE 'OPEN' END;
   IF _kind='receivable' THEN
-    UPDATE public.account_receivables SET open_amount=v_open,status=v_new,updated_at=now() WHERE organization_id=_org AND id=_id;
+    UPDATE public.account_receivables SET open_amount=v_open,
+      status=CASE WHEN status IN ('CANCELED','WRITTEN_OFF','DRAFT','SCHEDULED') THEN status ELSE v_new END,
+      updated_at=now() WHERE organization_id=_org AND id=_id;
   ELSE
-    UPDATE public.account_payables SET open_amount=v_open,status=v_new,updated_at=now() WHERE organization_id=_org AND id=_id;
+    UPDATE public.account_payables SET open_amount=v_open,
+      status=CASE WHEN status IN ('CANCELED','DRAFT','SCHEDULED') THEN status ELSE v_new END,
+      updated_at=now() WHERE organization_id=_org AND id=_id;
   END IF;
 END;
 $$;
