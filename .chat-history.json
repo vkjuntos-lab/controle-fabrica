@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/layout/app-shell.tsx"
-    },
-    "timestamp": 1790126897933
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/layout/app-shell.tsx</path>\n<type>file</type>\n<content>\n1: import { Link, useNavigate, useRouterState } from \"@tanstack/react-router\";\n2: import { useQueryClient } from \"@tanstack/react-query\";\n3: import {\n4:   ArrowLeftRight,\n5:   Buildi",
-    "is_error": false,
-    "timestamp": 1790126897949
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -n \"CREATE TABLE public.companies\\|CREATE TABLE public.partner_profiles\\|legal_name\\|document\\|default_inventory_location_id\\|company_id\" supabase/migrations/20260924100000_partners.sql | head -30"
@@ -1557,5 +1543,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql</path>\n<type>file</type>\n<content>\n1041:     SELECT jsonb_build_object('side',COALESCE(_filters->>'side','receivable'),'rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT bucket,count(*)::int docume",
     "is_error": false,
     "timestamp": 1790128251388
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "D=$(mktemp -d /tmp/probe-XXXX); chown claude-runner \"$D\"; su - claude-runner -c \"B=/usr/lib/postgresql/18/bin; \\$B/initdb -D '$D/data' -A trust -U postgres >/dev/null 2>&1 && \\$B/pg_ctl -D '$D/data' -l '$D/log' -o '-p 55441 -k $D -c listen_addresses=' start >/dev/null 2>&1 && \\$B/psql -X -h '$D' -p 55441 -U postgres -d postgres -v ON_ERROR_STOP=1 -Atq <<'EOF'\nCREATE TABLE t(id int, reference_id int, description text);\nCREATE TABLE r(id int, document_number text);\nCREATE TABLE p(id int, document_number text);\nSELECT t.*, document_number FROM t LEFT JOIN LATERAL (SELECT r.document_number FROM r WHERE r.id=t.reference_id UNION ALL SELECT p.document_number FROM p WHERE p.id=t.reference_id) d ON true;\nEOF\" 2>&1 | tail -4; echo \"TMPDIR=$D\"",
+      "timeout": 60000
+    },
+    "timestamp": 1790128261292
+  },
+  {
+    "role": "tool_result",
+    "content": "TMPDIR=/tmp/probe-lXWK\n",
+    "is_error": false,
+    "timestamp": 1790128262180
   }
 ]
