@@ -647,7 +647,7 @@ BEGIN
     RAISE EXCEPTION 'Operação inválida: %',_op;
   END IF;
   PERFORM public.finance_refresh_document(_org,_kind,_id);
-  PERFORM public.finance_audit(_org,'finance.'||_kind||'.'||_op||'.'||(_data->>'type'),v_tab,_id,jsonb_build_object('data',_data));
+  PERFORM public.finance_audit(_org,'finance.'||_kind||'.'||_op||COALESCE('.'||(_data->>'type'),''),v_tab,_id,jsonb_build_object('data',_data));
   RETURN jsonb_build_object('id',_id,'op',_op);
 END;
 $$;
