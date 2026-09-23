@@ -33,6 +33,13 @@ import { Route as AuthenticatedParceirosDevolucoesRouteImport } from './routes/_
 import { Route as AuthenticatedParceirosEstoqueRouteImport } from './routes/_authenticated/parceiros/estoque'
 import { Route as AuthenticatedParceirosRemessasRouteImport } from './routes/_authenticated/parceiros/remessas'
 import { Route as AuthenticatedProdutosIdRouteImport } from './routes/_authenticated/produtos.$id'
+import { Route as AuthenticatedReconciliacaoIndexRouteImport } from './routes/_authenticated/reconciliacao/index'
+import { Route as AuthenticatedReconciliacaoExcecoesRouteImport } from './routes/_authenticated/reconciliacao/excecoes'
+import { Route as AuthenticatedReconciliacaoLojasRouteImport } from './routes/_authenticated/reconciliacao/lojas'
+import { Route as AuthenticatedReconciliacaoMapeamentoRouteImport } from './routes/_authenticated/reconciliacao/mapeamento'
+import { Route as AuthenticatedReconciliacaoPeriodosRouteImport } from './routes/_authenticated/reconciliacao/periodos'
+import { Route as AuthenticatedReconciliacaoTabelasPrecoRouteImport } from './routes/_authenticated/reconciliacao/tabelas-preco'
+import { Route as AuthenticatedReconciliacaoVendasRouteImport } from './routes/_authenticated/reconciliacao/vendas'
 import { Route as ApiCronHealthRouteImport } from './routes/api/cron.health'
 import { Route as ApiWebhooksReceiverRouteImport } from './routes/api/webhooks.receiver'
 import { Route as AuthenticatedEstoqueInventariosIdRouteImport } from './routes/_authenticated/estoque/inventarios.$id'
@@ -40,6 +47,8 @@ import { Route as AuthenticatedEstoqueMovimentacoesIdRouteImport } from './route
 import { Route as AuthenticatedParceirosDevolucoesIdRouteImport } from './routes/_authenticated/parceiros/devolucoes_.$id'
 import { Route as AuthenticatedParceirosEmpresasIdRouteImport } from './routes/_authenticated/parceiros/empresas.$id'
 import { Route as AuthenticatedParceirosRemessasIdRouteImport } from './routes/_authenticated/parceiros/remessas_.$id'
+import { Route as AuthenticatedReconciliacaoPeriodosIdRouteImport } from './routes/_authenticated/reconciliacao/periodos_.$id'
+import { Route as AuthenticatedReconciliacaoTabelasPrecoIdRouteImport } from './routes/_authenticated/reconciliacao/tabelas-preco_.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -174,6 +183,48 @@ const AuthenticatedProdutosIdRoute = AuthenticatedProdutosIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedProdutosRoute,
 } as any)
+const AuthenticatedReconciliacaoIndexRoute =
+  AuthenticatedReconciliacaoIndexRouteImport.update({
+    id: '/reconciliacao/',
+    path: '/reconciliacao/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedReconciliacaoExcecoesRoute =
+  AuthenticatedReconciliacaoExcecoesRouteImport.update({
+    id: '/reconciliacao/excecoes',
+    path: '/reconciliacao/excecoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedReconciliacaoLojasRoute =
+  AuthenticatedReconciliacaoLojasRouteImport.update({
+    id: '/reconciliacao/lojas',
+    path: '/reconciliacao/lojas',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedReconciliacaoMapeamentoRoute =
+  AuthenticatedReconciliacaoMapeamentoRouteImport.update({
+    id: '/reconciliacao/mapeamento',
+    path: '/reconciliacao/mapeamento',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedReconciliacaoPeriodosRoute =
+  AuthenticatedReconciliacaoPeriodosRouteImport.update({
+    id: '/reconciliacao/periodos',
+    path: '/reconciliacao/periodos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedReconciliacaoTabelasPrecoRoute =
+  AuthenticatedReconciliacaoTabelasPrecoRouteImport.update({
+    id: '/reconciliacao/tabelas-preco',
+    path: '/reconciliacao/tabelas-preco',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedReconciliacaoVendasRoute =
+  AuthenticatedReconciliacaoVendasRouteImport.update({
+    id: '/reconciliacao/vendas',
+    path: '/reconciliacao/vendas',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiCronHealthRoute = ApiCronHealthRouteImport.update({
   id: '/api/cron/health',
   path: '/api/cron/health',
@@ -214,6 +265,18 @@ const AuthenticatedParceirosRemessasIdRoute =
     path: '/parceiros/remessas/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedReconciliacaoPeriodosIdRoute =
+  AuthenticatedReconciliacaoPeriodosIdRouteImport.update({
+    id: '/reconciliacao/periodos_/$id',
+    path: '/reconciliacao/periodos/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedReconciliacaoTabelasPrecoIdRoute =
+  AuthenticatedReconciliacaoTabelasPrecoIdRouteImport.update({
+    id: '/reconciliacao/tabelas-preco_/$id',
+    path: '/reconciliacao/tabelas-preco/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -237,15 +300,24 @@ export interface FileRoutesByFullPath {
   '/parceiros/estoque': typeof AuthenticatedParceirosEstoqueRoute
   '/parceiros/remessas': typeof AuthenticatedParceirosRemessasRoute
   '/produtos/$id': typeof AuthenticatedProdutosIdRoute
+  '/reconciliacao/excecoes': typeof AuthenticatedReconciliacaoExcecoesRoute
+  '/reconciliacao/lojas': typeof AuthenticatedReconciliacaoLojasRoute
+  '/reconciliacao/mapeamento': typeof AuthenticatedReconciliacaoMapeamentoRoute
+  '/reconciliacao/periodos': typeof AuthenticatedReconciliacaoPeriodosRoute
+  '/reconciliacao/tabelas-preco': typeof AuthenticatedReconciliacaoTabelasPrecoRoute
+  '/reconciliacao/vendas': typeof AuthenticatedReconciliacaoVendasRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
   '/estoque/': typeof AuthenticatedEstoqueIndexRoute
   '/parceiros/': typeof AuthenticatedParceirosIndexRoute
+  '/reconciliacao/': typeof AuthenticatedReconciliacaoIndexRoute
   '/estoque/inventarios/$id': typeof AuthenticatedEstoqueInventariosIdRoute
   '/estoque/movimentacoes/$id': typeof AuthenticatedEstoqueMovimentacoesIdRoute
   '/parceiros/devolucoes/$id': typeof AuthenticatedParceirosDevolucoesIdRoute
   '/parceiros/empresas/$id': typeof AuthenticatedParceirosEmpresasIdRoute
   '/parceiros/remessas/$id': typeof AuthenticatedParceirosRemessasIdRoute
+  '/reconciliacao/periodos/$id': typeof AuthenticatedReconciliacaoPeriodosIdRoute
+  '/reconciliacao/tabelas-preco/$id': typeof AuthenticatedReconciliacaoTabelasPrecoIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -269,15 +341,24 @@ export interface FileRoutesByTo {
   '/parceiros/estoque': typeof AuthenticatedParceirosEstoqueRoute
   '/parceiros/remessas': typeof AuthenticatedParceirosRemessasRoute
   '/produtos/$id': typeof AuthenticatedProdutosIdRoute
+  '/reconciliacao/excecoes': typeof AuthenticatedReconciliacaoExcecoesRoute
+  '/reconciliacao/lojas': typeof AuthenticatedReconciliacaoLojasRoute
+  '/reconciliacao/mapeamento': typeof AuthenticatedReconciliacaoMapeamentoRoute
+  '/reconciliacao/periodos': typeof AuthenticatedReconciliacaoPeriodosRoute
+  '/reconciliacao/tabelas-preco': typeof AuthenticatedReconciliacaoTabelasPrecoRoute
+  '/reconciliacao/vendas': typeof AuthenticatedReconciliacaoVendasRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
   '/estoque': typeof AuthenticatedEstoqueIndexRoute
   '/parceiros': typeof AuthenticatedParceirosIndexRoute
+  '/reconciliacao': typeof AuthenticatedReconciliacaoIndexRoute
   '/estoque/inventarios/$id': typeof AuthenticatedEstoqueInventariosIdRoute
   '/estoque/movimentacoes/$id': typeof AuthenticatedEstoqueMovimentacoesIdRoute
   '/parceiros/devolucoes/$id': typeof AuthenticatedParceirosDevolucoesIdRoute
   '/parceiros/empresas/$id': typeof AuthenticatedParceirosEmpresasIdRoute
   '/parceiros/remessas/$id': typeof AuthenticatedParceirosRemessasIdRoute
+  '/reconciliacao/periodos/$id': typeof AuthenticatedReconciliacaoPeriodosIdRoute
+  '/reconciliacao/tabelas-preco/$id': typeof AuthenticatedReconciliacaoTabelasPrecoIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -303,15 +384,24 @@ export interface FileRoutesById {
   '/_authenticated/parceiros/estoque': typeof AuthenticatedParceirosEstoqueRoute
   '/_authenticated/parceiros/remessas': typeof AuthenticatedParceirosRemessasRoute
   '/_authenticated/produtos/$id': typeof AuthenticatedProdutosIdRoute
+  '/_authenticated/reconciliacao/excecoes': typeof AuthenticatedReconciliacaoExcecoesRoute
+  '/_authenticated/reconciliacao/lojas': typeof AuthenticatedReconciliacaoLojasRoute
+  '/_authenticated/reconciliacao/mapeamento': typeof AuthenticatedReconciliacaoMapeamentoRoute
+  '/_authenticated/reconciliacao/periodos': typeof AuthenticatedReconciliacaoPeriodosRoute
+  '/_authenticated/reconciliacao/tabelas-preco': typeof AuthenticatedReconciliacaoTabelasPrecoRoute
+  '/_authenticated/reconciliacao/vendas': typeof AuthenticatedReconciliacaoVendasRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
   '/_authenticated/estoque/': typeof AuthenticatedEstoqueIndexRoute
   '/_authenticated/parceiros/': typeof AuthenticatedParceirosIndexRoute
+  '/_authenticated/reconciliacao/': typeof AuthenticatedReconciliacaoIndexRoute
   '/_authenticated/estoque/inventarios/$id': typeof AuthenticatedEstoqueInventariosIdRoute
   '/_authenticated/estoque/movimentacoes/$id': typeof AuthenticatedEstoqueMovimentacoesIdRoute
   '/_authenticated/parceiros/devolucoes_/$id': typeof AuthenticatedParceirosDevolucoesIdRoute
   '/_authenticated/parceiros/empresas/$id': typeof AuthenticatedParceirosEmpresasIdRoute
   '/_authenticated/parceiros/remessas_/$id': typeof AuthenticatedParceirosRemessasIdRoute
+  '/_authenticated/reconciliacao/periodos_/$id': typeof AuthenticatedReconciliacaoPeriodosIdRoute
+  '/_authenticated/reconciliacao/tabelas-preco_/$id': typeof AuthenticatedReconciliacaoTabelasPrecoIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -337,15 +427,24 @@ export interface FileRouteTypes {
     | '/parceiros/estoque'
     | '/parceiros/remessas'
     | '/produtos/$id'
+    | '/reconciliacao/excecoes'
+    | '/reconciliacao/lojas'
+    | '/reconciliacao/mapeamento'
+    | '/reconciliacao/periodos'
+    | '/reconciliacao/tabelas-preco'
+    | '/reconciliacao/vendas'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
     | '/estoque/'
     | '/parceiros/'
+    | '/reconciliacao/'
     | '/estoque/inventarios/$id'
     | '/estoque/movimentacoes/$id'
     | '/parceiros/devolucoes/$id'
     | '/parceiros/empresas/$id'
     | '/parceiros/remessas/$id'
+    | '/reconciliacao/periodos/$id'
+    | '/reconciliacao/tabelas-preco/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -369,15 +468,24 @@ export interface FileRouteTypes {
     | '/parceiros/estoque'
     | '/parceiros/remessas'
     | '/produtos/$id'
+    | '/reconciliacao/excecoes'
+    | '/reconciliacao/lojas'
+    | '/reconciliacao/mapeamento'
+    | '/reconciliacao/periodos'
+    | '/reconciliacao/tabelas-preco'
+    | '/reconciliacao/vendas'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
     | '/estoque'
     | '/parceiros'
+    | '/reconciliacao'
     | '/estoque/inventarios/$id'
     | '/estoque/movimentacoes/$id'
     | '/parceiros/devolucoes/$id'
     | '/parceiros/empresas/$id'
     | '/parceiros/remessas/$id'
+    | '/reconciliacao/periodos/$id'
+    | '/reconciliacao/tabelas-preco/$id'
   id:
     | '__root__'
     | '/'
@@ -402,15 +510,24 @@ export interface FileRouteTypes {
     | '/_authenticated/parceiros/estoque'
     | '/_authenticated/parceiros/remessas'
     | '/_authenticated/produtos/$id'
+    | '/_authenticated/reconciliacao/excecoes'
+    | '/_authenticated/reconciliacao/lojas'
+    | '/_authenticated/reconciliacao/mapeamento'
+    | '/_authenticated/reconciliacao/periodos'
+    | '/_authenticated/reconciliacao/tabelas-preco'
+    | '/_authenticated/reconciliacao/vendas'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
     | '/_authenticated/estoque/'
     | '/_authenticated/parceiros/'
+    | '/_authenticated/reconciliacao/'
     | '/_authenticated/estoque/inventarios/$id'
     | '/_authenticated/estoque/movimentacoes/$id'
     | '/_authenticated/parceiros/devolucoes_/$id'
     | '/_authenticated/parceiros/empresas/$id'
     | '/_authenticated/parceiros/remessas_/$id'
+    | '/_authenticated/reconciliacao/periodos_/$id'
+    | '/_authenticated/reconciliacao/tabelas-preco_/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -593,6 +710,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProdutosIdRouteImport
       parentRoute: typeof AuthenticatedProdutosRoute
     }
+    '/_authenticated/reconciliacao/': {
+      id: '/_authenticated/reconciliacao/'
+      path: '/reconciliacao'
+      fullPath: '/reconciliacao/'
+      preLoaderRoute: typeof AuthenticatedReconciliacaoIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reconciliacao/excecoes': {
+      id: '/_authenticated/reconciliacao/excecoes'
+      path: '/reconciliacao/excecoes'
+      fullPath: '/reconciliacao/excecoes'
+      preLoaderRoute: typeof AuthenticatedReconciliacaoExcecoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reconciliacao/lojas': {
+      id: '/_authenticated/reconciliacao/lojas'
+      path: '/reconciliacao/lojas'
+      fullPath: '/reconciliacao/lojas'
+      preLoaderRoute: typeof AuthenticatedReconciliacaoLojasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reconciliacao/mapeamento': {
+      id: '/_authenticated/reconciliacao/mapeamento'
+      path: '/reconciliacao/mapeamento'
+      fullPath: '/reconciliacao/mapeamento'
+      preLoaderRoute: typeof AuthenticatedReconciliacaoMapeamentoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reconciliacao/periodos': {
+      id: '/_authenticated/reconciliacao/periodos'
+      path: '/reconciliacao/periodos'
+      fullPath: '/reconciliacao/periodos'
+      preLoaderRoute: typeof AuthenticatedReconciliacaoPeriodosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reconciliacao/tabelas-preco': {
+      id: '/_authenticated/reconciliacao/tabelas-preco'
+      path: '/reconciliacao/tabelas-preco'
+      fullPath: '/reconciliacao/tabelas-preco'
+      preLoaderRoute: typeof AuthenticatedReconciliacaoTabelasPrecoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reconciliacao/vendas': {
+      id: '/_authenticated/reconciliacao/vendas'
+      path: '/reconciliacao/vendas'
+      fullPath: '/reconciliacao/vendas'
+      preLoaderRoute: typeof AuthenticatedReconciliacaoVendasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/cron/health': {
       id: '/api/cron/health'
       path: '/api/cron/health'
@@ -640,6 +806,20 @@ declare module '@tanstack/react-router' {
       path: '/parceiros/remessas/$id'
       fullPath: '/parceiros/remessas/$id'
       preLoaderRoute: typeof AuthenticatedParceirosRemessasIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reconciliacao/periodos_/$id': {
+      id: '/_authenticated/reconciliacao/periodos_/$id'
+      path: '/reconciliacao/periodos/$id'
+      fullPath: '/reconciliacao/periodos/$id'
+      preLoaderRoute: typeof AuthenticatedReconciliacaoPeriodosIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reconciliacao/tabelas-preco_/$id': {
+      id: '/_authenticated/reconciliacao/tabelas-preco_/$id'
+      path: '/reconciliacao/tabelas-preco/$id'
+      fullPath: '/reconciliacao/tabelas-preco/$id'
+      preLoaderRoute: typeof AuthenticatedReconciliacaoTabelasPrecoIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }
@@ -705,11 +885,20 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedParceirosDevolucoesRoute: typeof AuthenticatedParceirosDevolucoesRoute
   AuthenticatedParceirosEstoqueRoute: typeof AuthenticatedParceirosEstoqueRoute
   AuthenticatedParceirosRemessasRoute: typeof AuthenticatedParceirosRemessasRoute
+  AuthenticatedReconciliacaoExcecoesRoute: typeof AuthenticatedReconciliacaoExcecoesRoute
+  AuthenticatedReconciliacaoLojasRoute: typeof AuthenticatedReconciliacaoLojasRoute
+  AuthenticatedReconciliacaoMapeamentoRoute: typeof AuthenticatedReconciliacaoMapeamentoRoute
+  AuthenticatedReconciliacaoPeriodosRoute: typeof AuthenticatedReconciliacaoPeriodosRoute
+  AuthenticatedReconciliacaoTabelasPrecoRoute: typeof AuthenticatedReconciliacaoTabelasPrecoRoute
+  AuthenticatedReconciliacaoVendasRoute: typeof AuthenticatedReconciliacaoVendasRoute
   AuthenticatedEstoqueIndexRoute: typeof AuthenticatedEstoqueIndexRoute
   AuthenticatedParceirosIndexRoute: typeof AuthenticatedParceirosIndexRoute
+  AuthenticatedReconciliacaoIndexRoute: typeof AuthenticatedReconciliacaoIndexRoute
   AuthenticatedParceirosDevolucoesIdRoute: typeof AuthenticatedParceirosDevolucoesIdRoute
   AuthenticatedParceirosEmpresasIdRoute: typeof AuthenticatedParceirosEmpresasIdRoute
   AuthenticatedParceirosRemessasIdRoute: typeof AuthenticatedParceirosRemessasIdRoute
+  AuthenticatedReconciliacaoPeriodosIdRoute: typeof AuthenticatedReconciliacaoPeriodosIdRoute
+  AuthenticatedReconciliacaoTabelasPrecoIdRoute: typeof AuthenticatedReconciliacaoTabelasPrecoIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -732,12 +921,27 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedParceirosDevolucoesRoute: AuthenticatedParceirosDevolucoesRoute,
   AuthenticatedParceirosEstoqueRoute: AuthenticatedParceirosEstoqueRoute,
   AuthenticatedParceirosRemessasRoute: AuthenticatedParceirosRemessasRoute,
+  AuthenticatedReconciliacaoExcecoesRoute:
+    AuthenticatedReconciliacaoExcecoesRoute,
+  AuthenticatedReconciliacaoLojasRoute: AuthenticatedReconciliacaoLojasRoute,
+  AuthenticatedReconciliacaoMapeamentoRoute:
+    AuthenticatedReconciliacaoMapeamentoRoute,
+  AuthenticatedReconciliacaoPeriodosRoute:
+    AuthenticatedReconciliacaoPeriodosRoute,
+  AuthenticatedReconciliacaoTabelasPrecoRoute:
+    AuthenticatedReconciliacaoTabelasPrecoRoute,
+  AuthenticatedReconciliacaoVendasRoute: AuthenticatedReconciliacaoVendasRoute,
   AuthenticatedEstoqueIndexRoute: AuthenticatedEstoqueIndexRoute,
   AuthenticatedParceirosIndexRoute: AuthenticatedParceirosIndexRoute,
+  AuthenticatedReconciliacaoIndexRoute: AuthenticatedReconciliacaoIndexRoute,
   AuthenticatedParceirosDevolucoesIdRoute:
     AuthenticatedParceirosDevolucoesIdRoute,
   AuthenticatedParceirosEmpresasIdRoute: AuthenticatedParceirosEmpresasIdRoute,
   AuthenticatedParceirosRemessasIdRoute: AuthenticatedParceirosRemessasIdRoute,
+  AuthenticatedReconciliacaoPeriodosIdRoute:
+    AuthenticatedReconciliacaoPeriodosIdRoute,
+  AuthenticatedReconciliacaoTabelasPrecoIdRoute:
+    AuthenticatedReconciliacaoTabelasPrecoIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
