@@ -50,7 +50,6 @@ const receivableSchema = z
     currency,
     notes: z.string().max(4000).optional(),
   })
-  .passthrough();
 export const createReceivable = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -78,7 +77,6 @@ const payableSchema = z
     currency,
     notes: z.string().max(4000).optional(),
   })
-  .passthrough();
 export const createPayable = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -105,7 +103,6 @@ const documentOpSchema = z
     financial_category_id: categoryRef,
     cost_center_id: costCenterRef,
   })
-  .passthrough();
 export const documentMutate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -154,7 +151,6 @@ const settlementSchema = z
     cost_center_id: costCenterRef,
     description: z.string().max(400).optional(),
   })
-  .passthrough();
 export const settle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -208,7 +204,6 @@ const transferSchema = z
     transfer_key: z.string().max(200).optional(),
     notes: z.string().max(400).optional(),
   })
-  .passthrough();
 export const transfer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -231,7 +226,6 @@ const openingBalanceSchema = z
     reason: z.string().trim().min(1).max(400),
     balance_key: z.string().max(200).optional(),
   })
-  .passthrough();
 export const openingBalance = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -259,7 +253,6 @@ const directMovementSchema = z
     cost_center_id: costCenterRef,
     payment_method_id: z.string().uuid().optional(),
   })
-  .passthrough();
 export const directMovement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -283,7 +276,6 @@ const catalogSchema = z
     status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
     sort_order: z.number().int().optional(),
   })
-  .passthrough();
 export const saveCategory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -306,7 +298,6 @@ const costCenterSchema = z
     parent_id: z.string().uuid().optional(),
     status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
   })
-  .passthrough();
 export const saveCostCenter = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -333,7 +324,6 @@ const accountSchema = z
     status: z.enum(["ACTIVE", "INACTIVE", "CLOSED"]).optional(),
     opening_balance_reference: money.optional(),
   })
-  .passthrough();
 export const saveAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -355,7 +345,6 @@ const paymentMethodSchema = z
     name: z.string().trim().min(1).max(180),
     status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
   })
-  .passthrough();
 export const savePaymentMethod = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -377,7 +366,6 @@ const settingsSchema = z
     partner_receivable_due_days: z.number().int().min(0).max(365).optional(),
     partner_receivable_installments: z.number().int().min(1).max(12).optional(),
   })
-  .passthrough();
 export const saveSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -407,7 +395,6 @@ const recurrenceSchema = z
     end_date: z.iso.date().optional(),
     status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
   })
-  .passthrough();
 export const saveRecurrence = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
