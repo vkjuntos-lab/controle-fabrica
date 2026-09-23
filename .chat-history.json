@@ -3,22 +3,6 @@
     "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
-    "timestamp": 1790125960746
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
-      "newString": "- MASTER 005 (MarketplaceStore, lojas vinculadas a parceiros, importação de relatórios e mapeamento\n  de SKU) não está neste checkout; o vínculo parceiro → loja será feito quando o módulo existir, sem\n  duplicar lojas nem baixar estoque por MarketplaceSale. O registro de vendas é manual com o mesmo\n  contrato; a importação automática de provedores reais é pendência.\n- Valorização financeira do estoque (custo/valor por movimento) — o ledger registra quantidades.\n- Integração automática de venda/produção/compra com o ledger (hoje os lançamentos são feitos\n  pelas telas de estoque; os módulos de origem ainda não existem).\n- Atributos personalizados editáveis na tela (o campo `attributes` jsonb já existe nas tabelas\n  de produto/variante).\n- Importação CSV/XLSX com mapeamento configurável de colunas e `external_sku`.\n- Cobrança/registro de pagamento do parceiro: o fechamento gera snapshot + `PARTNER_RECONCILIATION_\n  CLOSED`, mas financeiro (AR), limites de crédito e condições de pagamento ficam para o próximo\n  domínio.",
-      "oldString": "- MASTER 005 (MarketplaceStore, lojas vinculadas a parceiros, importação de relatórios e mapeamento\n  de SKU) não está neste checkout; o vínculo parceiro → loja será feito quando o módulo existir, sem\n  duplicar lojas nem baixar estoque por MarketplaceSale.\n- Valorização financeira do estoque (custo/valor por movimento) — o ledger registra quantidades.\n- Integração automática de venda/produção/compra com o ledger (hoje os lançamentos são feitos\n  pelas telas de estoque; os módulos de origem ainda não existem).\n- Atributos personalizados editáveis na tela (o campo `attributes` jsonb já existe nas tabelas\n  de produto/variante).\n- Importação CSV/XLSX com mapeamento configurável de colunas e `external_sku`.\n- Reconciliação de parceiros, fechamento de período, geração de cobrança, registro de pagamento,\n  limites de crédito e condições de pagamento."
-    },
-    "timestamp": 1790125967148
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
     "timestamp": 1790125967162
   },
   {
@@ -1676,5 +1660,19 @@
     "content": "PASS: catálogo financeiro, contas, centros, formas, ajustes e configurações\nPASS: parcelamento, desconto/ajuste/juros, cancelamento e baixa\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-finance-db.py\", line 239, in <module>\n    try:run()\n        ~~~",
     "is_error": false,
     "timestamp": 1790128043513
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"open_amount FROM account_receivables WHERE id=\\|open_amount FROM account_receivables WHERE id=\" scripts/test-finance-db.py"
+    },
+    "timestamp": 1790128049804
+  },
+  {
+    "role": "tool_result",
+    "content": "75: assert sql(f\"SELECT open_amount FROM account_receivables WHERE id={q(rid)}\")=='0'\n116: assert sql(f\"SELECT status FROM account_receivables WHERE id={q(r60['id'])}\")=='OPEN' and sql(f\"SELECT open_amount FROM account_receivables WHERE id={q(r60['id'])}\")=='60'\n236: assert float(sql(f\"SELECT public",
+    "is_error": false,
+    "timestamp": 1790128049821
   }
 ]
