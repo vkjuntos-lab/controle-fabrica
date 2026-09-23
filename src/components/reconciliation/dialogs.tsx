@@ -905,7 +905,11 @@ export function SaveMappingDialog({
             Loja (opcional — global se vazio)
             <select className={inputClass} value={store} onChange={(e) => setStore(e.target.value)}>
               <option value="">Todas as lojas</option>
-              {(queryReconciliation.data as never) ?? null}
+              {stores.data?.rows.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name} · {s.marketplace}
+                </option>
+              ))}
             </select>
           </label>
           <VariantPicker organizationId={organizationId} value={variant} onChange={setVariant} />
