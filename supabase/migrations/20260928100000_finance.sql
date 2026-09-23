@@ -984,7 +984,7 @@ BEGIN
     SELECT to_jsonb(r)||jsonb_build_object('company_name',c.legal_name,'status_effective',
       CASE WHEN r.status IN ('OPEN','PARTIALLY_PAID') AND r.due_date<CURRENT_DATE THEN 'OVERDUE' ELSE r.status END,
       'received_amount',public.finance_document_paid(_org,'receivable',r.id),
-      'settlements',coalesce((SELECT jsonb_agg(to_jsonb(s)||jsonb_build_object('account_name',a.name)) FROM public.receivable_settlements s JOIN public.financial_transactions t ON t.id=s.financial_transaction_id JOIN public.financial_accounts a ON a.id=t.financial_account_id WHERE s.receivable_id=r.id ORDER BY s.settled_at),'[]'::jsonb))
+      'settlements',coalesce((SELECT jsonb_agg(to_jsonb(s)||jsonb_build_object('account_name',a.name) ORDER BY s.settled_at) FROM public.receivable_settlements s JOIN public.financial_transactions t ON t.id=s.financial_transaction_id JOIN public.financial_accounts a ON a.id=t.financial_account_id WHERE s.receivable_id=r.id),'[]'::jsonb))
     INTO v_result FROM public.account_receivables r JOIN public.companies c ON c.id=r.company_id AND c.organization_id=_org
     WHERE r.organization_id=_org AND r.id=(_filters->>'id')::uuid AND trim(_filters->>'id')<>'';
   ELSIF _kind='payables' THEN
