@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"strpos(lower(concat_ws\" supabase/migrations/20260928100000_finance.sql"
-    },
-    "timestamp": 1790127898986
-  },
-  {
-    "role": "tool_result",
-    "content": "975:      AND (coalesce(_filters->>'query','')='' OR strpos(lower(concat_ws(' ',r.document_number,r.description,c.legal_name)),lower(_filters->>'query'))>0))\n995:      AND (coalesce(_filters->>'query','')='' OR strpos(lower(concat_ws(' ',r.document_number,r.description,c.legal_name)),lower(_filters-",
-    "is_error": false,
-    "timestamp": 1790127899020
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
@@ -1574,5 +1560,75 @@
     "content": "CREATE TABLE public.financial_recurrence_rules (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations,\n  name text NOT NULL CHECK(length(trim(name))>0),\n  direction text NOT NULL CHECK(direction IN ('IN','OUT')),\n  company_id uuid,\n  amount",
     "is_error": false,
     "timestamp": 1790128676282
+  },
+  {
+    "role": "tool",
+    "tool": "todowrite",
+    "input": {
+      "todos": [
+        {
+          "content": "Migration M008 totalmente validada via harness DB (OK) + regressão M006/M007",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "package.json: script test:finance:db",
+          "priority": "medium",
+          "status": "completed"
+        },
+        {
+          "content": "rbac.ts + rbac.test.ts: permissões fin_*, módulo financeiro available",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "types.ts: assinaturas Functions das RPCs fin_*",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "app-shell.tsx: menu Financeiro",
+          "priority": "medium",
+          "status": "completed"
+        },
+        {
+          "content": "src/lib/finance: constants.ts, types.ts, finance.functions.ts, export.ts",
+          "priority": "high",
+          "status": "in_progress"
+        },
+        {
+          "content": "src/components/finance: pages.tsx + dialogs.tsx",
+          "priority": "high",
+          "status": "pending"
+        },
+        {
+          "content": "Rotas src/routes/_authenticated/financeiro/*",
+          "priority": "high",
+          "status": "pending"
+        },
+        {
+          "content": "Partners: aba Financeiro no PartnerDetailPage",
+          "priority": "medium",
+          "status": "pending"
+        },
+        {
+          "content": "Validações: typecheck, build, test, eslint domínio, regressão harnesses",
+          "priority": "high",
+          "status": "pending"
+        },
+        {
+          "content": "Docs M008 + PROJECT-STATE + relatório final",
+          "priority": "low",
+          "status": "pending"
+        }
+      ]
+    },
+    "timestamp": 1790128682316
+  },
+  {
+    "role": "tool_result",
+    "content": "[\n  {\n    \"content\": \"Migration M008 totalmente validada via harness DB (OK) + regressão M006/M007\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"package.json: script test:finance:db\",\n    \"status\": \"completed\",\n    \"priority\": \"medium\"\n  },\n  {\n    \"content\": \"rbac.ts ",
+    "is_error": false,
+    "timestamp": 1790128682320
   }
 ]
