@@ -992,7 +992,7 @@ BEGIN
       AND (nullif(_filters->>'from','') IS NULL OR p.due_date>=(_filters->>'from')::date)
       AND (nullif(_filters->>'to','') IS NULL OR p.due_date<=(_filters->>'to')::date)
       AND (coalesce(_filters->>'status','')='' OR p.status=_filters->>'status')
-      AND (coalesce(_filters->>'query','')='' OR strpos(lower(concat_ws(' ',r.document_number,r.description,c.legal_name)),lower(_filters->>'query'))>0))
+      AND (coalesce(_filters->>'query','')='' OR strpos(lower(concat_ws(' ',p.document_number,p.description,c.legal_name)),lower(_filters->>'query'))>0))
     SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows ORDER BY due_date,id LIMIT 50 OFFSET (_page-1)*50)q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO v_result;
   ELSIF _kind='payable' THEN
     SELECT to_jsonb(p)||jsonb_build_object('company_name',c.legal_name,'status_effective',

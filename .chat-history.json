@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/package.json</path>\n<type>file</type>\n<content>\n1: {\n2:   \"name\": \"tanstack_start_ts\",\n3:   \"private\": true,\n4:   \"sideEffects\": false,\n5:   \"type\": \"module\",\n6:   \"scripts\": {\n7:     \"dev\": \"vite dev\",\n8:     \"build\": \"vite build\",\n9:     \"build:dev\": ",
-    "is_error": false,
-    "timestamp": 1790125793946
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/package.json",
-      "newString": "\"test:inventory:db\": \"python3 scripts/test-inventory-db.py\",\n    \"test:partners:db\": \"python3 scripts/test-partners-db.py\",\n    \"test:reconciliation:db\": \"python3 scripts/test-reconciliation-db.py\",",
-      "oldString": "\"test:inventory:db\": \"python3 scripts/test-inventory-db.py\",\n    \"test:partners:db\": \"python3 scripts/test-partners-db.py\","
-    },
-    "timestamp": 1790125797399
-  },
-  {
-    "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790125797411
@@ -1728,5 +1712,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql</path>\n<type>file</type>\n<content>\n991:       AND (nullif(_filters->>'cost_center_id','') IS NULL OR p.cost_center_id=(_filters->>'cost_center_id')::uuid)\n992:       AND (nullif(_filters->>'from','') IS NUL",
     "is_error": false,
     "timestamp": 1790127906009
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
+      "newString": "AND (coalesce(_filters->>'status','')='' OR p.status=_filters->>'status')\n      AND (coalesce(_filters->>'query','')='' OR strpos(lower(concat_ws(' ',p.document_number,p.description,c.legal_name)),lower(_filters->>'query'))>0))\n    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows ORDER BY due_date,id LIMIT 50 OFFSET (_page-1)*50)q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO v_result;",
+      "oldString": "AND (coalesce(_filters->>'status','')='' OR p.status=_filters->>'status')\n      AND (coalesce(_filters->>'query','')='' OR strpos(lower(concat_ws(' ',r.document_number,r.description,c.legal_name)),lower(_filters->>'query'))>0))\n    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows ORDER BY due_date,id LIMIT 50 OFFSET (_page-1)*50)q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO v_result;"
+    },
+    "timestamp": 1790127908869
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790127908894
   }
 ]
