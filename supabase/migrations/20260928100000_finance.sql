@@ -816,6 +816,9 @@ RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE v_id uuid;
 BEGIN
   PERFORM public.finance_require(_org,'finance.manage');
+  IF COALESCE(_data->>'direction','OUT')='IN' AND nullif((_data->>'company_id')::uuid::text,'') IS NULL THEN
+    RAISE EXCEPTION 'Receita recorrente exige empresa (origem do valor).';
+  END IF;
   IF _id IS NULL THEN
     INSERT INTO public.financial_recurrence_rules(organization_id,name,direction,company_id,amount,financial_category_id,cost_center_id,payment_method_id,day_of_month,start_date,end_date,status,created_by)
     VALUES (_org,trim(_data->>'name'),COALESCE(_data->>'direction','OUT'),nullif((_data->>'company_id')::uuid::text,'')::uuid,
