@@ -3,21 +3,6 @@
     "role": "tool_result",
     "content": "Wrote file successfully.",
     "is_error": false,
-    "timestamp": 1790125850470
-  },
-  {
-    "role": "tool",
-    "tool": "write",
-    "input": {
-      "content": "# Tabelas de preço e regra comercial de parceiros\n\nComplemento do MASTER 007 ao domínio de reconciliação (ver PARTNER-RECONCILIATION.md).\n\n## Visão\n\nO marketplace informa `gross_amount`/descontos/taxas/frete por venda — é o **gross** (referência).\nO valor que será efetivamente cobrável do parceiro no fechamento é resolvido por **regra\ncomercial** na data da venda, não pelo gross.\n\n## Estrutura\n\n- `price_tables` — cabeçalho: `name`, `currency`, `status` (ACTIVE/INACTIVE/DRAFT), vigência\n  `valid_from`/`valid_to`, prioridade de criação.\n- `price_table_items` — preço unitário por variante dentro da tabela, com status e vigência\n  próprios.\n- `partner_price_links` — vínculo parceiro → tabela com vigência; um parceiro pode ter preço em\n  várias janelas de tempo (`rec_resolve_price` escolhe a vínculo/tabela/item vigentes na data).\n\n## Resolução na data da venda (`rec_resolve_price`)\n\n1. Vínculo do parceiro ativo na data (`partner_price_links.valid_from <= data <= valid_to`).\n2. Tabela ativa na data com item ativo para a variante, ambos pela mesma janela.\n3. Se encontrou: `unit_price` da tabela prevalece (e o `rec_sale_net` vira referência, não o gross).\n4. Se não há tabela: o líquido da venda (`gross - desconto - taxa + frete`, `rec_sale_net`) é usado.\n\nSe nenhum dos dois existir, o item abre `PRICE_NOT_FOUND` ao processar.\n\n## Ciclo de vida\n\n- `price_save_table`/`price_save_item` criam/atualizam com auditoria e checagem de permissão\n  (`partner_pricing.manage` para escrita; leitura por `partner_pricing.read`).\n- `price_link_partner` vincula/desvincula parceiro → tabela; uma atualização cobre a vigência\n  antiga, nunca reescreve preço em itens já reconciliados (o snapshot do período congelou o valor).\n- Telas: `/reconciliacao/tabelas-preco` (+ `/tabelas-preco/$id` para itens/vínculos).\n\n## Regras aplicadas ao fechamento\n\n- O **snapshot** do período congela valores/unidades no momento do fechamento; alterações de tabela\n  depois disso não retroagem sobre itens já fechados.\n- Nenhum ajuste de preço pós-fechamento invisível: correção exige reabrir o período.\n\n## Regras de negócio\n\n- Percentuais (desconto/taxa) são como recebidos do marketplace ou digitados; não há composição\n  fiscal/inventada. Frete soma ao líquido.\n- A regra comercial é determinística por (variante, parceiro, data) — a mesma venda reprocessada\n  sempre resolve o mesmo preço, garantindo idempotência do fechamento.",
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/PARTNER-PRICING.md"
-    },
-    "timestamp": 1790125904061
-  },
-  {
-    "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
     "timestamp": 1790125904083
   },
   {
@@ -1675,5 +1660,21 @@
     "content": "PASS: catálogo financeiro, contas, centros, formas, ajustes e configurações\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-finance-db.py\", line 239, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test",
     "is_error": false,
     "timestamp": 1790128014729
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
+      "newString": "UPDATE public.account_receivables SET status='WRITTEN_OFF',notes=COALESCE(notes||chr(10)||v_reason,v_reason),updated_at=now() WHERE id=_id AND organization_id=_org;",
+      "oldString": "UPDATE public.account_receivables SET status='WRITTEN_OFF',notes=COALESCE(notes||chr(10)||$1,$1),updated_at=now() WHERE id=_id AND organization_id=_org;"
+    },
+    "timestamp": 1790128023582
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790128023588
   }
 ]

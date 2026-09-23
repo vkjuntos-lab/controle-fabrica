@@ -640,7 +640,7 @@ BEGIN
     IF _kind<>'receivable' THEN RAISE EXCEPTION 'Baixa se aplica a contas a receber.'; END IF;
     PERFORM public.finance_require(_org,'receivables.write_off');
     IF public.finance_document_paid(_org,_kind,_id)>0 THEN RAISE EXCEPTION 'Título com pagamentos: reverter antes da baixa.'; END IF;
-    UPDATE public.account_receivables SET status='WRITTEN_OFF',notes=COALESCE(notes||chr(10)||$1,$1),updated_at=now() WHERE id=_id AND organization_id=_org;
+    UPDATE public.account_receivables SET status='WRITTEN_OFF',notes=COALESCE(notes||chr(10)||v_reason,v_reason),updated_at=now() WHERE id=_id AND organization_id=_org;
   ELSIF _op='category' THEN
     EXECUTE format('UPDATE public.%I SET financial_category_id=$3,cost_center_id=$4,updated_at=now() WHERE id=$2 AND organization_id=$5',v_tab) USING v_reason,_id,nullif((_data->>'financial_category_id')::uuid::text,'')::uuid,nullif((_data->>'cost_center_id')::uuid::text,'')::uuid,_org;
   ELSE
