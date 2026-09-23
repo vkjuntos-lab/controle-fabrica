@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"CREATE TRIGGER\\|CREATE FUNCTION public.reconciliation_guard\\|CREATE CONSTRAINT TRIGGER\" supabase/migrations/20260926100000_partner_reconciliation.sql"
-    },
-    "timestamp": 1790127601102
-  },
-  {
-    "role": "tool_result",
-    "content": "341:CREATE FUNCTION public.reconciliation_guard_relations() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n375:  EXECUTE format('CREATE TRIGGER reconciliation_tenant_guard BEFORE INSERT OR UPDATE ON public.%I FOR EACH ROW EXECUTE FUNCTION public.reconciliation_guard_r",
-    "is_error": false,
-    "timestamp": 1790127601114
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
@@ -1522,5 +1508,75 @@
     "content": "<task id=\"ses_f3406eaf7ffedzw3W2E8pmQ7pe\" state=\"completed\">\n<task_result>\nPesquisa completa. Segue o relatório detalhado com todos os padrões encontrados.\n\n---\n\n# Relatório de padrões de código — Módulo Financeiro (M008)\n\n## 0. Descoberta importante\n\n- **Já existem** `supabase/migrations/2026092810",
     "is_error": false,
     "timestamp": 1790128599166
+  },
+  {
+    "role": "tool",
+    "tool": "todowrite",
+    "input": {
+      "todos": [
+        {
+          "content": "Migration M008 totalmente validada via harness DB (OK) + regressão M006/M007",
+          "status": "completed",
+          "priority": "high"
+        },
+        {
+          "content": "package.json: script test:finance:db",
+          "status": "in_progress",
+          "priority": "medium"
+        },
+        {
+          "content": "rbac.ts + rbac.test.ts: permissões fin_*, módulo financeiro available",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "types.ts: assinaturas Functions das RPCs fin_*",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "src/lib/finance: constants.ts, types.ts, finance.functions.ts, export.ts",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "src/components/finance: pages.tsx + dialogs.tsx",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Rotas src/routes/_authenticated/financeiro/*",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "app-shell.tsx: menu Financeiro",
+          "status": "pending",
+          "priority": "medium"
+        },
+        {
+          "content": "Partners: aba Financeiro no PartnerDetailPage",
+          "status": "pending",
+          "priority": "medium"
+        },
+        {
+          "content": "Validações: typecheck, build, test, eslint domínio, regressão harnesses",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Docs M008 + PROJECT-STATE + relatório final",
+          "status": "pending",
+          "priority": "low"
+        }
+      ]
+    },
+    "timestamp": 1790128605889
+  },
+  {
+    "role": "tool_result",
+    "content": "[\n  {\n    \"content\": \"Migration M008 totalmente validada via harness DB (OK) + regressão M006/M007\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"package.json: script test:finance:db\",\n    \"status\": \"in_progress\",\n    \"priority\": \"medium\"\n  },\n  {\n    \"content\": \"rbac.t",
+    "is_error": false,
+    "timestamp": 1790128605893
   }
 ]
