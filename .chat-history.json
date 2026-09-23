@@ -3,21 +3,6 @@
     "role": "tool_result",
     "content": "Wrote file successfully.",
     "is_error": false,
-    "timestamp": 1790125904083
-  },
-  {
-    "role": "tool",
-    "tool": "write",
-    "input": {
-      "content": "# ADR-007 — Reconciliação de parceiros, baixa única e fechamento idempotente\n\nStatus: implementado no código; validação local. Implantação pendente.\n\n## Contexto\n\nMASTER 006 define remessa como transferência (não venda) e o estoque do parceiro como derivado do\nInventory Ledger, sem tabela de saldo. O checkout não continha MarketplaceStore (MASTER 005).\nNão existe registro de venda, mapeamento de SKU, regra comercial nem fechamento de período — e nada\ndisso podia ser simulado.\n\n## Decisão\n\n1. **Marketplace, porém sem importação real ainda**: tabelas de loja, importação (bom para o futuro\n   pipeline), vendas e mapeamento de SKU são criadas nesta etapa. A importação é manual/estruturada\n   (`marketplace_register_sale`), mantendo o mesmo contrato de dados de um importador automático.\n2. **Venda ≠ receita; reconciliar ≠ vender de novo.** `marketplace_registrar` valida, deduplica e\n   marca; só `rec_process` resolve a venda em item e aplica a baixa — e sempre **no máximo uma\n   baixa oficial** (`partner_reconciliation_items.posted=True`, idempotência `rec-item:<id>`).\n3. **Gross é referência; cobrável segue regra comercial** (`rec_resolve_price`): tabela de preço\n   do parceiro vigente na data vence; sem tabela, usa-se o líquido do marketplace. Nenhuma tabela\n   substitui o retail price do catálogo.\n4. **Estoque do parceiro continua derivado do ledger.** A baixa oficial exige saldo\n   `rec_balance_asof` na localização PARTNER do parceiro; exceção resolve-se com suprimento real,\n   nunca com fabricação de saldo.\n5. **Fechamento consolida e congela.** `rec_close` grava snapshot (vendas/unidades/gross/cobrável/\n   ajustes/líquido), um único `CLOSED` histórico sob lock por organização e publica\n   `PARTNER_RECONCILIATION_CLOSED` em `domain_events`. Venda no período fechado vira\n   `LATE_SALE_AFTER_CLOSING`; correção exige `rec_reopen` com motivo.\n6. **Exceções centralizadas e auditáveis** em `reconciliation_exceptions`, com severidade\n   BLOQUEANTE/não e resolução registrada (incluindo `IGNORED_BY_ADMIN` para admin autorizado).\n7. **Segurança** espelha o padrão existente: RPCs SECURITY DEFINER + `reconciliation_require`\n   validam organização e permissão; guarda de relations protege consistência; núcleo do ledger\n   privado permanece intacto.\n\n## Consequências\n\n- Importação automática futura (MASTER 005) só precisa alimentar `marketplace_sales` com o mesmo\n  contrato; a reconciliação já existente é compatível por construção.\n- Valores comerciais são determinísticos por (variante, parceiro, data), preservando idempotência\n  mesmo quando o retry escolhe outra tabela vigente.\n- Itens fechados são imutáveis; correções pós-fechamento passam por reabertura — a não ser que o\n  domínio financeiro futuro decida outro caminho, que nunca reinterpretará fatos já consolidados.\n- A baixa única por item mantém remessa ≠ venda: enviar continua não gerando nada; reconciliar uma\n  venda é o único caminho de consumo de estoque de parceiro vinculado à receita de revenda.",
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/architecture/ADR-007-PARTNER-RECONCILIATION.md"
-    },
-    "timestamp": 1790125915574
-  },
-  {
-    "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
     "timestamp": 1790125915579
   },
   {
@@ -1676,5 +1661,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790128023588
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && python3 scripts/test-finance-db.py\" 2>&1 | tail -40",
+      "timeout": 300000
+    },
+    "timestamp": 1790128029176
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: catálogo financeiro, contas, centros, formas, ajustes e configurações\nPASS: parcelamento, desconto/ajuste/juros, cancelamento e baixa\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-finance-db.py\", line 239, in <module>\n    try:run()\n        ~~~",
+    "is_error": false,
+    "timestamp": 1790128031119
   }
 ]
