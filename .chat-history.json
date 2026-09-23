@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-finance-db.py",
-      "newString": "assert acct_bal(acc1)==670\n assert sql(f\"SELECT status FROM account_receivables WHERE id={q(r60['id'])}\")=='OPEN' and sql(f\"SELECT open_amount FROM account_receivables WHERE id={q(r60['id'])}\")=='60'\n assert sql(f\"SELECT is_reversal FROM receivable_settlements WHERE financial_transaction_id={q(rev['reversal_id'])}\")=='t'",
-      "oldString": "assert acct_bal(acc1)==670\n assert sql(f\"SELECT status FROM account_receivables WHERE id={q(r60['id'])}\")=='OPEN' and sql(f\"SELECT open_amount FROM account_receivables WHERE id={q(r60['id'])}\")=='60'\n assert sql(f\"SELECT is_reversal FROM receivable_settlements WHERE financial_transaction_id={q(rev['reversal_id'])}\")=='t' or sql(f\"SELECT is_reversal FROM receivable_settlements WHERE financial_transaction_id={q(rev['reversal_id'])}\")=='true'"
-    },
-    "timestamp": 1790127811937
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790127811957
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-finance-db.py",
       "newString": "rpc('fin_process_reconciliation',q(org)+','+q(recon),a)\n print('PASS: fechamento de parceiro gera recebível D+7 idempotente')\n recon2=uid()\n rpc('fin_save_settings',q(org)+','+q(json.dumps({'partner_receivable_installments':2})))\n feed_recon(recon2,120,'2026-09-21 10:00:00')\n pr2=json.loads(rpc('fin_process_reconciliation',q(org)+','+q(recon2)))\n assert pr2['created']==2 and pr2['installments']==2\n subs=[x for x in recv()['rows'] if x['source_id']==recon2]\n assert len(subs)==2 and {round(x['original_amount'],2) for x in subs}=={60.0}\n assert all(x['due_date']=='2026-09-28' for x in subs)\n rpc('fin_save_settings',q(org)+','+q(json.dumps({'partner_receivable_installments':1})))\n print('PASS: parcelamento configurável do fechamento (2 x 60, vencimento D+7)')",
       "oldString": "rpc('fin_process_reconciliation',q(org)+','+q(recon),a)\n print('PASS: fechamento de parceiro gera recebível D+7 idempotente')\n rpc('fin_save_settings',q(org)+','+q(json.dumps({'partner_receivable_installments':2})))\n feed_recon(recon2,120,json='2026-09-21 10:00:00')"
     },
@@ -1568,5 +1552,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/reconciliation/types.ts</path>\n<type>file</type>\n<content>\n1: import type { Json } from \"@/integrations/supabase/types\";\n2: \n3: export type DashboardSummary = {\n4:   pending_sales: number;\n5:   pending_units: number;\n6:   open_reconciliations: n",
     "is_error": false,
     "timestamp": 1790128617046
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
+      "limit": 80,
+      "offset": 955
+    },
+    "timestamp": 1790128619991
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql</path>\n<type>file</type>\n<content>\n955: $$;\n956: CREATE TRIGGER finance_source_reopened AFTER UPDATE ON public.partner_reconciliations FOR EACH ROW EXECUTE FUNCTION public.finance_mark_source_reopened();\n95",
+    "is_error": false,
+    "timestamp": 1790128620011
   }
 ]
