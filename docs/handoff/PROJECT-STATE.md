@@ -255,7 +255,8 @@ Validação local; publicação não verificada.
 - Contagem bloqueia localização até conclusão/cancelamento. Lock por organização prioriza
   integridade sobre paralelismo. Sem reservas/valorização financeira.
 - O checkout não contém o MASTER 005 (MarketplaceStore); o vínculo parceiro → loja é uma pendência
-  explícita e nenhuma funcionalidade falsa de marketplace foi declarada.
+  explícita e nenhuma funcionalidade falsa de marketplace foi declarada. Vendas são registradas
+  manualmente no mesmo contrato de um importador; provedores reais ficam para o MASTER 005.
 
 - Envio automático de e-mail de convite: não existe — o link é copiado e compartilhado
   manualmente (WhatsApp, e-mail externo, etc.). Um provedor de e-mail transacional seria
