@@ -76,6 +76,18 @@ describe("rbac", () => {
     expect(PERMISSIONS.partnerPricingManage).toBe("partner_pricing.manage");
   });
 
+  it("reconhece as permissões do domínio financeiro", () => {
+    expect(PERMISSIONS.financeRead).toBe("finance.read");
+    expect(PERMISSIONS.financeDashboard).toBe("finance.dashboard");
+    expect(PERMISSIONS.receivablesRead).toBe("receivables.read");
+    expect(PERMISSIONS.receivablesSettle).toBe("receivables.settle");
+    expect(PERMISSIONS.receivablesReverse).toBe("receivables.reverse");
+    expect(PERMISSIONS.payablesRead).toBe("payables.read");
+    expect(PERMISSIONS.payablesSettle).toBe("payables.settle");
+    expect(PERMISSIONS.financialAccountsManage).toBe("financial_accounts.manage");
+    expect(PERMISSIONS.financialTransfersCreate).toBe("financial_transfers.create");
+  });
+
   it("declara rótulo para todas as chaves reconhecidas", () => {
     for (const key of Object.values(PERMISSIONS)) {
       expect(typeof PERMISSION_LABELS[key]).toBe("string");
