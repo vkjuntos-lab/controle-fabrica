@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "            )$\n          ) : null}$\n</>$\n      ) : null}$\n    </AppShell>$\n  );$\n}$\n",
-    "is_error": false,
-    "timestamp": 1790125204909
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "git show HEAD:src/components/partners/pages.tsx | sed -n '440,460p'"
-    },
-    "timestamp": 1790125216187
-  },
-  {
-    "role": "tool_result",
     "content": "                          <p>\n                            {r.source_name} → {r.destination_name}\n                          </p>\n                          <p className=\"text-xs text-muted-foreground\">\n                            {date(r.date)} · Responsável: {r.created_by}\n                          <",
     "is_error": false,
     "timestamp": 1790125216207
@@ -1701,5 +1687,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n160: );\n161: \n162: -- =====================================================================\n163: -- 3. Reconciliação de parceiros (fechamento comercial).\n16",
     "is_error": false,
     "timestamp": 1790127443642
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"REOPENED\\|'CLOSED'\" supabase/migrations/20260926100000_partner_reconciliation.sql | head -20; echo ---REOPEN-DETAILS---; grep -n \"rec_reopen\\|snapshot\" supabase/migrations/20260926100000_partner_reconciliation.sql | head -20"
+    },
+    "timestamp": 1790127447790
+  },
+  {
+    "role": "tool_result",
+    "content": "173:    ('DRAFT','PROCESSING','REVIEW_REQUIRED','READY_TO_CLOSE','CLOSED','REOPENED','CANCELED')),\n394:    IF OLD.status='CLOSED' AND NEW.status<>'REOPENED' THEN RAISE EXCEPTION 'Fechamento CLOSED é histórico.'; END IF;\n395:    IF OLD.status='CLOSED' AND NEW.status='REOPENED' THEN\n405:    IF EXISTS(",
+    "is_error": false,
+    "timestamp": 1790127447824
   }
 ]
