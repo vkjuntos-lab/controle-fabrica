@@ -682,8 +682,8 @@ BEGIN
   INSERT INTO public.financial_transactions(organization_id,financial_account_id,type,direction,company_id,amount,occurred_at,
     reference_type,reference_id,payment_method_id,financial_category_id,cost_center_id,description,idempotency_key,created_by)
   SELECT _org,v_acc,v_type,v_direction,v_company,v_amount,v_occ,_kind,_id,v_pm,
-    COALESCE(nullif((_data->>'financial_category_id')::uuid::text,'')::uuid,NULL),
-    COALESCE(nullif((_data->>'cost_center_id')::uuid::text,'')::uuid,NULL),
+    COALESCE(nullif((_data->>'financial_category_id')::uuid::text,'')::uuid,v_cat),
+    COALESCE(nullif((_data->>'cost_center_id')::uuid::text,'')::uuid,v_cc),
     v_reason||' | '||v_docnum,
     'fin-settle:'||_kind||':'||_id||':'||COALESCE(nullif(_data->>'receipt_key',''),gen_random_uuid()::text),auth.uid()
   ON CONFLICT(organization_id,idempotency_key) DO NOTHING RETURNING id INTO v_tx;
