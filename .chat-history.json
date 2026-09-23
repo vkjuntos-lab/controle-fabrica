@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql",
-      "limit": 30,
-      "offset": 70
-    },
-    "timestamp": 1790127509308
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql</path>\n<type>file</type>\n<content>\n70: ALTER TABLE public.role_permissions ENABLE ROW LEVEL SECURITY;\n71: \n72: -- ============ AUDIT LOG ============\n73: CREATE TABLE public.aud",
-    "is_error": false,
-    "timestamp": 1790127509342
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
@@ -1529,5 +1513,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790128457219
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
+      "newString": "EXECUTE format('SELECT open_amount,company_id,financial_category_id,cost_center_id FROM public.%I WHERE id=$1 AND organization_id=$2 FOR UPDATE',v_tab) INTO v_open,v_company,v_cat,v_cc USING _id,_org;",
+      "oldString": "EXECUTE format('SELECT open_amount,company_id FROM public.%I WHERE id=$1 AND organization_id=$2 FOR UPDATE',v_tab) INTO v_open,v_company USING _id,_org;"
+    },
+    "timestamp": 1790128460046
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790128460068
   }
 ]

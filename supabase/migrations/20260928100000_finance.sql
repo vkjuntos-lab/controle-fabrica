@@ -674,7 +674,7 @@ BEGIN
   v_occ:=COALESCE(nullif(_data->>'occurred_at','')::timestamptz,now());
   v_reason:=COALESCE(nullif(trim(_data->>'description'),''),'Liquidação '||_kind);
   PERFORM public.inventory_lock(_org);
-  EXECUTE format('SELECT open_amount,company_id FROM public.%I WHERE id=$1 AND organization_id=$2 FOR UPDATE',v_tab) INTO v_open,v_company USING _id,_org;
+  EXECUTE format('SELECT open_amount,company_id,financial_category_id,cost_center_id FROM public.%I WHERE id=$1 AND organization_id=$2 FOR UPDATE',v_tab) INTO v_open,v_company,v_cat,v_cc USING _id,_org;
   IF v_open IS NULL THEN RAISE EXCEPTION 'Título não encontrado.'; END IF;
   EXECUTE format('SELECT document_number FROM public.%I WHERE id=$1 AND organization_id=$2',v_tab) INTO v_docnum USING _id,_org;
   v_net:=v_open - v_amount - COALESCE((_data->>'discount_amount')::numeric,0) + COALESCE((_data->>'interest_amount')::numeric,0) + COALESCE((_data->>'penalty_amount')::numeric,0);
