@@ -867,6 +867,13 @@ export function SaveMappingDialog({
   const [sku, setSku] = useState("");
   const [variant, setVariant] = useState("");
   const [store, setStore] = useState("");
+  const stores = useQuery({
+    queryKey: ["reconciliation", "stores", organizationId],
+    queryFn: async () =>
+      (await queryReconciliation({
+        data: { organizationId, kind: "stores", filters: { status: "ACTIVE" }, page: 1 },
+      })) as MarketplaceStoreList,
+  });
   const mutation = useMutation({
     mutationFn: () =>
       save({
