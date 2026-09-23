@@ -917,6 +917,9 @@ export function PartnerDetailPage({ id }: { id: string }) {
                 ["inventory", "Estoque"],
                 ["returns", "Devoluções"],
                 ["stores", "Marketplaces"],
+                ["sales", "Vendas"],
+                ["reconciled", "Reconciliações"],
+                ["closed", "Fechamentos"],
                 ["history", "Histórico"],
               ].map(([v, l]) => (
                 <TabsTrigger key={v} value={v}>
