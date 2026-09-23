@@ -690,6 +690,19 @@ BEGIN
   IF v_tx IS NULL THEN RAISE EXCEPTION 'Liquidação já registrada (chave de idempotência repetida).'; END IF;
   EXECUTE format('INSERT INTO public.%I(organization_id,%I_id,financial_transaction_id,amount,discount_amount,interest_amount,penalty_amount,settled_at,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id',v_settab,CASE WHEN _kind='receivable' THEN 'receivable' ELSE 'payable' END)
   USING _org,_id,v_tx,v_amount,COALESCE((_data->>'discount_amount')::numeric,0),COALESCE((_data->>'interest_amount')::numeric,0),COALESCE((_data->>'penalty_amount')::numeric,0),v_occ,auth.uid() INTO v_settlement_id;
+  IF _kind='receivable' THEN
+    UPDATE public.account_receivables SET
+      discount_amount=discount_amount+COALESCE((_data->>'discount_amount')::numeric,0),
+      interest_amount=interest_amount+COALESCE((_data->>'interest_amount')::numeric,0),
+      penalty_amount=penalty_amount+COALESCE((_data->>'penalty_amount')::numeric,0),
+      updated_at=now() WHERE id=_id AND organization_id=_org;
+  ELSE
+    UPDATE public.account_payables SET
+      discount_amount=discount_amount+COALESCE((_data->>'discount_amount')::numeric,0),
+      interest_amount=interest_amount+COALESCE((_data->>'interest_amount')::numeric,0),
+      penalty_amount=penalty_amount+COALESCE((_data->>'penalty_amount')::numeric,0),
+      updated_at=now() WHERE id=_id AND organization_id=_org;
+  END IF;
   PERFORM public.finance_refresh_document(_org,_kind,_id);
   PERFORM public.finance_audit(_org,'finance.'||_kind||'.settle','financial_transactions',v_tx,jsonb_build_object('document',_id,'amount',v_amount));
   IF _kind='receivable' THEN
