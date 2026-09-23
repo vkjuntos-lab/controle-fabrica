@@ -891,7 +891,8 @@ BEGIN
   END IF;
   v_total:=round(COALESCE((v_rec.snapshot->'totals'->>'net_billable')::numeric,0),2);
   IF v_total<=0 THEN RAISE EXCEPTION 'Fechamento sem valor cobrável (net_billable).'; END IF;
-  SELECT COALESCE(partner_receivable_due_days,7),COALESCE(partner_receivable_installments,1) INTO v_days,v_n FROM public.finance_settings WHERE organization_id=_org;
+  SELECT partner_receivable_due_days,partner_receivable_installments INTO v_days,v_n FROM public.finance_settings WHERE organization_id=_org;
+  v_days:=COALESCE(v_days,7); v_n:=COALESCE(v_n,1);
   v_part:=round(v_total/v_n,2); v_company:=v_rec.company_id;
   FOR v_i IN 1..v_n LOOP
     INSERT INTO public.account_receivables(organization_id,company_id,source_type,source_id,source_status,document_number,description,

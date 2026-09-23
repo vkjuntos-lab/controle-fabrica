@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "src/components/reconciliation/:\ndialogs.tsx\nmarketplace.tsx\npages.tsx\npricing.tsx\n\nsrc/routes/_authenticated/reconciliacao/:\nexcecoes.tsx\nindex.tsx\nlojas.tsx\nmapeamento.tsx\nperiodos.tsx\nperiodos_.$id.tsx\ntabelas-preco.tsx\ntabelas-preco_.$id.tsx\nvendas.tsx\n---\nOn branch main\nYour branch is up to date",
-    "is_error": false,
-    "timestamp": 1790125263556
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "git stash push --include-untracked -m \"wip-recon\" && bun run typecheck 2>&1 | tail -20; echo \"=== restoring ===\"; git stash pop",
-      "timeout": 300000
-    },
-    "timestamp": 1790125283613
-  },
-  {
-    "role": "tool_result",
     "content": "No local changes to save\n$ tsc --noEmit\nsrc/components/partners/pages.tsx(488,9): error TS1005: '}' expected.\nsrc/components/partners/pages.tsx(488,15): error TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?\n=== restoring ===\nNo stash entries found.\n",
     "is_error": false,
     "timestamp": 1790125286662
@@ -1715,5 +1700,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790127530349
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
+      "newString": "v_total:=round(COALESCE((v_rec.snapshot->'totals'->>'net_billable')::numeric,0),2);\n  IF v_total<=0 THEN RAISE EXCEPTION 'Fechamento sem valor cobrável (net_billable).'; END IF;\n  SELECT partner_receivable_due_days,partner_receivable_installments INTO v_days,v_n FROM public.finance_settings WHERE organization_id=_org;\n  v_days:=COALESCE(v_days,7); v_n:=COALESCE(v_n,1);",
+      "oldString": "v_total:=round(COALESCE((v_rec.snapshot->'totals'->>'net_billable')::numeric,0),2);\n  IF v_total<=0 THEN RAISE EXCEPTION 'Fechamento sem valor cobrável (net_billable).'; END IF;\n  SELECT COALESCE(partner_receivable_due_days,7),COALESCE(partner_receivable_installments,1) INTO v_days,v_n FROM public.finance_settings WHERE organization_id=_org;"
+    },
+    "timestamp": 1790127533036
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790127533063
   }
 ]
