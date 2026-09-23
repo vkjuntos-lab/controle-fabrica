@@ -667,6 +667,7 @@ BEGIN
   PERFORM public.inventory_lock(_org);
   EXECUTE format('SELECT open_amount,company_id FROM public.%I WHERE id=$1 AND organization_id=$2 FOR UPDATE',v_tab) INTO v_open,v_company USING _id,_org;
   IF v_open IS NULL THEN RAISE EXCEPTION 'Título não encontrado.'; END IF;
+  EXECUTE format('SELECT document_number FROM public.%I WHERE id=$1 AND organization_id=$2',v_tab) INTO v_docnum USING _id,_org;
   v_net:=v_open - v_amount + COALESCE((_data->>'discount_amount')::numeric,0) - COALESCE((_data->>'interest_amount')::numeric,0) - COALESCE((_data->>'penalty_amount')::numeric,0);
   IF v_net < -0.005 THEN RAISE EXCEPTION 'Pagamento acima do saldo não permitido (saldo %): revise descontos/aplicações.',v_open; END IF;
   INSERT INTO public.financial_transactions(organization_id,financial_account_id,type,direction,company_id,amount,occurred_at,
@@ -674,7 +675,7 @@ BEGIN
   SELECT _org,v_acc,v_type,v_direction,v_company,v_amount,v_occ,_kind,_id,v_pm,
     COALESCE(nullif((_data->>'financial_category_id')::uuid::text,'')::uuid,NULL),
     COALESCE(nullif((_data->>'cost_center_id')::uuid::text,'')::uuid,NULL),
-    v_reason||' | '||(SELECT document_number FROM CASE WHEN _kind='receivable' THEN public.account_receivables ELSE public.account_payables END WHERE id=_id AND organization_id=_org),
+    v_reason||' | '||v_docnum,
     'fin-settle:'||_kind||':'||_id||':'||COALESCE(nullif(_data->>'receipt_key',''),gen_random_uuid()::text),auth.uid()
   ON CONFLICT(organization_id,idempotency_key) DO NOTHING RETURNING id INTO v_tx;
   IF v_tx IS NULL THEN RAISE EXCEPTION 'Liquidação já registrada (chave de idempotência repetida).'; END IF;

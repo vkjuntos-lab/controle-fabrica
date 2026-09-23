@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "/root/Zheus AI Projects/controle-fabrica\nmain\n29ce07a AI: alteracao automatica\nfd548c6 AI: alteracao automatica\n7d89a55 AI: alteracao automatica\n",
-    "is_error": false,
-    "timestamp": 1790125257248
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "git show --stat HEAD | head -40"
-    },
-    "timestamp": 1790125260508
-  },
-  {
-    "role": "tool_result",
     "content": "commit 5cec4788ee17b7f51292aa18273c0a76d565a47d\nAuthor: LovPro AI <lovpro@lovpro.ai>\nDate:   Wed Sep 23 01:00:57 2026 +0000\n\n    AI: alteracao automatica\n\n .chat-history.json | 29 ++++++++++++++---------------\n 1 file changed, 14 insertions(+), 15 deletions(-)\n",
     "is_error": false,
     "timestamp": 1790125260546
@@ -1711,5 +1697,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790127520478
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
+      "newString": "EXECUTE format('SELECT open_amount,company_id FROM public.%I WHERE id=$1 AND organization_id=$2 FOR UPDATE',v_tab) INTO v_open,v_company USING _id,_org;\n  IF v_open IS NULL THEN RAISE EXCEPTION 'Título não encontrado.'; END IF;\n  EXECUTE format('SELECT document_number FROM public.%I WHERE id=$1 AND organization_id=$2',v_tab) INTO v_docnum USING _id,_org;\n  v_net:=v_open - v_amount + COALESCE((_data->>'discount_amount')::numeric,0) - COALESCE((_data->>'interest_amount')::numeric,0) - COALESCE((_data->>'penalty_amount')::numeric,0);\n  IF v_net < -0.005 THEN RAISE EXCEPTION 'Pagamento acima do saldo não permitido (saldo %): revise descontos/aplicações.',v_open; END IF;\n  INSERT INTO public.financial_transactions(organization_id,financial_account_id,type,direction,company_id,amount,occurred_at,\n    reference_type,reference_id,payment_method_id,financial_category_id,cost_center_id,description,idempotency_key,created_by)\n  SELECT _org,v_acc,v_type,v_direction,v_company,v_amount,v_occ,_kind,_id,v_pm,\n    COALESCE(nullif((_data->>'financial_category_id')::uuid::text,'')::uuid,NULL),\n    COALESCE(nullif((_data->>'cost_center_id')::uuid::text,'')::uuid,NULL),\n    v_reason||' | '||v_docnum,\n    'fin-settle:'||_kind||':'||_id||':'||COALESCE(nullif(_data->>'receipt_key',''),gen_random_uuid()::text),auth.uid()",
+      "oldString": "EXECUTE format('SELECT open_amount,company_id FROM public.%I WHERE id=$1 AND organization_id=$2 FOR UPDATE',v_tab) INTO v_open,v_company USING _id,_org;\n  IF v_open IS NULL THEN RAISE EXCEPTION 'Título não encontrado.'; END IF;\n  v_net:=v_open - v_amount + COALESCE((_data->>'discount_amount')::numeric,0) - COALESCE((_data->>'interest_amount')::numeric,0) - COALESCE((_data->>'penalty_amount')::numeric,0);\n  IF v_net < -0.005 THEN RAISE EXCEPTION 'Pagamento acima do saldo não permitido (saldo %): revise descontos/aplicações.',v_open; END IF;\n  INSERT INTO public.financial_transactions(organization_id,financial_account_id,type,direction,company_id,amount,occurred_at,\n    reference_type,reference_id,payment_method_id,financial_category_id,cost_center_id,description,idempotency_key,created_by)\n  SELECT _org,v_acc,v_type,v_direction,v_company,v_amount,v_occ,_kind,_id,v_pm,\n    COALESCE(nullif((_data->>'financial_category_id')::uuid::text,'')::uuid,NULL),\n    COALESCE(nullif((_data->>'cost_center_id')::uuid::text,'')::uuid,NULL),\n    v_reason||' | '||(SELECT document_number FROM CASE WHEN _kind='receivable' THEN public.account_receivables ELSE public.account_payables END WHERE id=_id AND organization_id=_org),\n    'fin-settle:'||_kind||':'||_id||':'||COALESCE(nullif(_data->>'receipt_key',''),gen_random_uuid()::text),auth.uid()"
+    },
+    "timestamp": 1790127526858
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790127526889
   }
 ]
