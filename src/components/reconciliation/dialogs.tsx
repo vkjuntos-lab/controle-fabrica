@@ -382,25 +382,14 @@ export function ResolveExceptionDialog({
   const [resolution, setResolution] = useState("REPROCESS");
   const [notes, setNotes] = useState("");
   const busy = useMutation({
-    mutationFn: async () => {
-      if (resolution === "REPROCESS" && exception?.item_id) {
-        const r = await reprocess({
-          data: { organizationId, itemId: exception.item_id },
-        });
-        if ((r as { status?: string }).status === "EXCEPTION") {
-          return resolve({ data: { organizationId, exceptionId: exception.id, resolution, notes } });
-        }
-        return r;
-      }
-      return resolve({ data: { organizationId, exceptionId: exception!.id, resolution, notes } });
-    },
+    mutationFn: () =>
+      resolve({ data: { organizationId, exceptionId: exception!.id, resolution, notes } }),
     onSuccess: () => {
       toast.success("Exceção resolvida");
       onSaved();
     },
     onError: (e: Error) => toast.error(e.message),
   });
-  void reprocess;
   if (!exception) return null;
   return (
     <Dialog open onOpenChange={(v) => !v && onClose()}>

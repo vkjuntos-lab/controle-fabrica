@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py</path>\n<type>file</type>\n<content>\n1: #!/usr/bin/env python3\n2: \"\"\"MASTER 007 acceptance tests in a disposable PostgreSQL cluster, no real organization data.\"\"\"\n3: import importlib.util\n4: import json\n5: import subproce",
-    "is_error": false,
-    "timestamp": 1790117511345
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-inventory-db.py 2>&1 | grep -E 'PASS|AssertionError|ERROR' | tail",
-      "timeout": 300000
-    },
-    "timestamp": 1790117515429
-  },
-  {
-    "role": "tool_result",
     "content": "PASS: arithmetic, adjustment and business acceptance 70/10/20 = 100; no financial module\nPASS: negative balance, override rejection, reason, RLS, permissions, immutable ledger\nPASS: idempotency, duplicate SKU transfer rollback, immutable reversal and retry\nPASS: actual concurrent withdrawals and ide",
     "is_error": false,
     "timestamp": 1790117518212
@@ -1509,5 +1494,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790124897979
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/reconciliation/dialogs.tsx",
+      "newString": "const [resolution, setResolution] = useState(\"REPROCESS\");\n  const [notes, setNotes] = useState(\"\");\n  const busy = useMutation({\n    mutationFn: () =>\n      resolve({ data: { organizationId, exceptionId: exception!.id, resolution, notes } }),\n    onSuccess: () => {\n      toast.success(\"Exceção resolvida\");\n      onSaved();\n    },\n    onError: (e: Error) => toast.error(e.message),\n  });\n  if (!exception) return null;",
+      "oldString": "const [resolution, setResolution] = useState(\"REPROCESS\");\n  const [notes, setNotes] = useState(\"\");\n  const busy = useMutation({\n    mutationFn: async () => {\n      if (resolution === \"REPROCESS\" && exception?.item_id) {\n        const r = await reprocess({\n          data: { organizationId, itemId: exception.item_id },\n        });\n        if ((r as { status?: string }).status === \"EXCEPTION\") {\n          return resolve({ data: { organizationId, exceptionId: exception.id, resolution, notes } });\n        }\n        return r;\n      }\n      return resolve({ data: { organizationId, exceptionId: exception!.id, resolution, notes } });\n    },\n    onSuccess: () => {\n      toast.success(\"Exceção resolvida\");\n      onSaved();\n    },\n    onError: (e: Error) => toast.error(e.message),\n  });\n  void reprocess;\n  if (!exception) return null;"
+    },
+    "timestamp": 1790124905785
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790124905800
   }
 ]
