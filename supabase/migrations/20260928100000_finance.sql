@@ -399,11 +399,15 @@ $$;
 
 CREATE FUNCTION public.finance_document_open(_org uuid,_kind text,_id uuid)
 RETURNS numeric LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
-  SELECT round(GREATEST(original_amount + interest_amount + penalty_amount + adjustment_amount
-    - discount_amount - public.finance_document_paid(_org,_kind,id),0),2)
-  FROM CASE _kind
-    WHEN 'receivable' THEN public.account_receivables ELSE public.account_payables END
-  WHERE organization_id=_org AND id=_id;
+  SELECT CASE _kind WHEN 'receivable' THEN
+      (SELECT round(GREATEST(original_amount + interest_amount + penalty_amount + adjustment_amount
+        - discount_amount - public.finance_document_paid(_org,'receivable',id),0),2)
+       FROM public.account_receivables WHERE organization_id=_org AND id=_id)
+    ELSE
+      (SELECT round(GREATEST(original_amount + interest_amount + penalty_amount + adjustment_amount
+        - discount_amount - public.finance_document_paid(_org,'payable',id),0),2)
+       FROM public.account_payables WHERE organization_id=_org AND id=_id)
+    END;
 $$;
 
 CREATE FUNCTION public.finance_refresh_document(_org uuid,_kind text,_id uuid)
