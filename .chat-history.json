@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260923100000_inventory_workflows.sql</path>\n<type>file</type>\n<content>\n539: CREATE OR REPLACE FUNCTION public.inventory_guard_movement() RETURNS trigger\n540: LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$\n541: DE",
-    "is_error": false,
-    "timestamp": 1790117460729
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"reversed_by_id\\|inventory_guard_movement\\|REVERSED\" supabase/migrations/20260918100000_inventory_ledger.sql | head"
-    },
-    "timestamp": 1790117463770
-  },
-  {
-    "role": "tool_result",
     "content": "44:CREATE TYPE public.inventory_movement_status AS ENUM ('PENDING', 'POSTED', 'REVERSED', 'CANCELED');\n104:-- REVERSED e cria um movimento compensatório (movement_type = REVERSAL).\n125:  -- movimento é uma REVERSAL; reversed_by_id marca o original revertido.\n127:  reversed_by_id uuid REFERENCES publ",
     "is_error": false,
     "timestamp": 1790117463784
@@ -1499,5 +1485,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790124776073
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "import { exportPartnerCsv } from \"@/lib/partners/export\";\n/** Reutiliza a infraestrutura CSV existente (neutralizando fórmulas de planilha). */\nexport function exportReconciliationCsv(filename: string, rows: Record<string, unknown>[]) {\n  exportPartnerCsv(filename, rows);\n}",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/reconciliation/export.ts"
+    },
+    "timestamp": 1790124778172
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790124778190
   }
 ]
