@@ -102,7 +102,7 @@ def run():
  print('PASS: saldo inicial único, transferência atômica e idempotência/saldos')
 
  # -- Movimento avulso (ledger oficial) ---------------------------------------
- d=json.loads(rpc('fin_direct_movement',q(org)+','+q(json.dumps({'account_id':acc1,'direction':'IN','amount':100,'description':'Receita avulsa','company_id':company,'financial_category_id':cat_exp}))))
+ d=json.loads(rpc('fin_direct_movement',q(org)+','+q(json.dumps({'account_id':acc1,'direction':'IN','amount':100,'description':'Receita avulsa','company_id':company,'financial_category_id':cat_exp,'receipt_key':'D-1'}))))
  rpc('fin_direct_movement',q(org)+','+q(json.dumps({'account_id':acc1,'direction':'IN','amount':100,'description':'Receita avulsa','receipt_key':'D-1'})),fail='já registrada')
  assert acct_bal(acc1)==670
  print('PASS: movimento avulso no ledger com deduplicação')
