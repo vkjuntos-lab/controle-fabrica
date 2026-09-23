@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"audit_log\" supabase/migrations/*.sql | grep -i \"create table\\|resource_id\\|action\\|context\\|user\" | head -20; echo \"---inventory_audit---\"; grep -n \"CREATE FUNCTION public.inventory_audit\\|CREATE FUNCTION public.partner_audit\" -A 3 supabase/migrations/*.sql | head -20"
-    },
-    "timestamp": 1790127031490
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20260704211752_574d9eff-1e40-4974-b15b-e9ff971d42eb.sql:7:CREATE TABLE IF NOT EXISTS public.audit_log (\nsupabase/migrations/20260704211752_574d9eff-1e40-4974-b15b-e9ff971d42eb.sql:23:CREATE INDEX IF NOT EXISTS audit_log_actor_idx ON public.audit_log (actor_user_id);\nsupabase/migr",
-    "is_error": false,
-    "timestamp": 1790127031538
-  },
-  {
-    "role": "tool",
     "tool": "todowrite",
     "input": {
       "todos": [
@@ -1558,5 +1544,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790128316023
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && python3 scripts/test-finance-db.py\" 2>&1 | tail -30",
+      "timeout": 300000
+    },
+    "timestamp": 1790128318034
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: catálogo financeiro, contas, centros, formas, ajustes e configurações\nPASS: parcelamento, desconto/ajuste/juros, cancelamento e baixa\nPASS: recebimento parcial/total, overpayment bloqueado e idempotência por chave\nPASS: pagamento com desconto e status do título atualizado\nPASS: saldo inicial ú",
+    "is_error": false,
+    "timestamp": 1790128320223
   }
 ]
