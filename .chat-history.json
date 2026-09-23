@@ -4,38 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
-      "newString": "DECLARE v_amount numeric; v_acc uuid; v_open numeric; v_tx uuid; v_settlement_id uuid; v_perm text;\n  v_pm uuid; v_occ timestamptz; v_net numeric; v_reason text; v_direction text; v_type text; v_tab text; v_settab text; v_company uuid; v_docnum text;",
-      "oldString": "DECLARE v_amount numeric; v_acc uuid; v_open numeric; v_tx uuid; v_settlement_id uuid; v_perm text;\n  v_pm uuid; v_occ timestamptz; v_net numeric; v_reason text; v_direction text; v_type text; v_tab text; v_settab text; v_company uuid;"
-    },
-    "timestamp": 1790127520466
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790127520478
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
-      "newString": "EXECUTE format('SELECT open_amount,company_id FROM public.%I WHERE id=$1 AND organization_id=$2 FOR UPDATE',v_tab) INTO v_open,v_company USING _id,_org;\n  IF v_open IS NULL THEN RAISE EXCEPTION 'Título não encontrado.'; END IF;\n  EXECUTE format('SELECT document_number FROM public.%I WHERE id=$1 AND organization_id=$2',v_tab) INTO v_docnum USING _id,_org;\n  v_net:=v_open - v_amount + COALESCE((_data->>'discount_amount')::numeric,0) - COALESCE((_data->>'interest_amount')::numeric,0) - COALESCE((_data->>'penalty_amount')::numeric,0);\n  IF v_net < -0.005 THEN RAISE EXCEPTION 'Pagamento acima do saldo não permitido (saldo %): revise descontos/aplicações.',v_open; END IF;\n  INSERT INTO public.financial_transactions(organization_id,financial_account_id,type,direction,company_id,amount,occurred_at,\n    reference_type,reference_id,payment_method_id,financial_category_id,cost_center_id,description,idempotency_key,created_by)\n  SELECT _org,v_acc,v_type,v_direction,v_company,v_amount,v_occ,_kind,_id,v_pm,\n    COALESCE(nullif((_data->>'financial_category_id')::uuid::text,'')::uuid,NULL),\n    COALESCE(nullif((_data->>'cost_center_id')::uuid::text,'')::uuid,NULL),\n    v_reason||' | '||v_docnum,\n    'fin-settle:'||_kind||':'||_id||':'||COALESCE(nullif(_data->>'receipt_key',''),gen_random_uuid()::text),auth.uid()",
-      "oldString": "EXECUTE format('SELECT open_amount,company_id FROM public.%I WHERE id=$1 AND organization_id=$2 FOR UPDATE',v_tab) INTO v_open,v_company USING _id,_org;\n  IF v_open IS NULL THEN RAISE EXCEPTION 'Título não encontrado.'; END IF;\n  v_net:=v_open - v_amount + COALESCE((_data->>'discount_amount')::numeric,0) - COALESCE((_data->>'interest_amount')::numeric,0) - COALESCE((_data->>'penalty_amount')::numeric,0);\n  IF v_net < -0.005 THEN RAISE EXCEPTION 'Pagamento acima do saldo não permitido (saldo %): revise descontos/aplicações.',v_open; END IF;\n  INSERT INTO public.financial_transactions(organization_id,financial_account_id,type,direction,company_id,amount,occurred_at,\n    reference_type,reference_id,payment_method_id,financial_category_id,cost_center_id,description,idempotency_key,created_by)\n  SELECT _org,v_acc,v_type,v_direction,v_company,v_amount,v_occ,_kind,_id,v_pm,\n    COALESCE(nullif((_data->>'financial_category_id')::uuid::text,'')::uuid,NULL),\n    COALESCE(nullif((_data->>'cost_center_id')::uuid::text,'')::uuid,NULL),\n    v_reason||' | '||(SELECT document_number FROM CASE WHEN _kind='receivable' THEN public.account_receivables ELSE public.account_payables END WHERE id=_id AND organization_id=_org),\n    'fin-settle:'||_kind||':'||_id||':'||COALESCE(nullif(_data->>'receipt_key',''),gen_random_uuid()::text),auth.uid()"
-    },
-    "timestamp": 1790127526858
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790127526889
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
       "newString": "PERFORM public.finance_refresh_document(_org,_kind,_id);\n  PERFORM public.finance_audit(_org,'finance.'||_kind||'.settle','financial_transactions',v_tx,jsonb_build_object('document',_id,'amount',v_amount));\n  IF _kind='receivable' THEN\n    SELECT open_amount INTO v_open FROM public.account_receivables WHERE id=_id AND organization_id=_org;\n  ELSE\n    SELECT open_amount INTO v_open FROM public.account_payables WHERE id=_id AND organization_id=_org;\n  END IF;\n  RETURN jsonb_build_object('transaction_id',v_tx,'settlement_id',v_settlement_id,'open_amount',v_open);",
       "oldString": "PERFORM public.finance_refresh_document(_org,_kind,_id);\n  PERFORM public.finance_audit(_org,'finance.'||_kind||'.settle','financial_transactions',v_tx,jsonb_build_object('document',_id,'amount',v_amount));\n  RETURN jsonb_build_object('transaction_id',v_tx,'settlement_id',v_settlement_id,'open_amount',(SELECT open_amount FROM CASE WHEN _kind='receivable' THEN public.account_receivables ELSE public.account_payables END WHERE id=_id AND organization_id=_org));"
     },
@@ -1528,5 +1496,35 @@
     "content": "PASS: catálogo financeiro, contas, centros, formas, ajustes e configurações\nPASS: parcelamento, desconto/ajuste/juros, cancelamento e baixa\nPASS: recebimento parcial/total, overpayment bloqueado e idempotência por chave\nPASS: pagamento com desconto e status do título atualizado\nPASS: saldo inicial ú",
     "is_error": false,
     "timestamp": 1790128478008
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && python3 scripts/test-inventory-db.py\" 2>&1 | tail -6",
+      "timeout": 300000
+    },
+    "timestamp": 1790128481335
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && python3 scripts/test-reconciliation-db.py\" 2>&1 | tail -6",
+      "timeout": 300000
+    },
+    "timestamp": 1790128481613
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: actual concurrent withdrawals and idempotency in separate PostgreSQL sessions\nPASS: count snapshot, location freeze, confirmation, no repeated completion/edit\nPASS: barcode positions, tenant isolation, before/after audit\nPASS: reserved references, private writer, negative reversal blocked, aut",
+    "is_error": false,
+    "timestamp": 1790128483946
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: late sale warning inside closed period and overlapping guard\nPASS: insufficient partner stock blocks close, resolution does not override real shortfall, cancel releases\nPASS: RBAC, tenant isolation and read-only roles\nPASS: immutable sales guard and dashboard readable\nPASS: concurrent close re",
+    "is_error": false,
+    "timestamp": 1790128484460
   }
 ]
