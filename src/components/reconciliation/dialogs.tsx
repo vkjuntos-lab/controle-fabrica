@@ -317,7 +317,7 @@ export function RegisterSaleDialog({
         >
           <div className="space-y-2">
             <Label>Loja</Label>
-            <StoreSelect organizationId={organizationId} value={storeId ?? ""} onChange={() => {}} />
+            <StoreSelect organizationId={organizationId} value={store} onChange={setStore} />
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <label>
