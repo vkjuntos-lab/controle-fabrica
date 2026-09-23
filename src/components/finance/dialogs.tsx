@@ -28,7 +28,7 @@ import type {
   FinancialCategoryRow,
   PaymentMethodRow,
 } from "@/lib/finance/types";
-import type { PartnerRow } from "@/lib/partners/types";
+import type { CompanyRow } from "@/lib/partners/types";
 
 const inputClass = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";
 const labelClass = "text-sm font-medium text-foreground";
@@ -40,7 +40,7 @@ function CompanySelect({
   onChange,
   required = true,
 }: {
-  companies: PartnerRow[];
+  companies: CompanyRow[];
   value: string;
   onChange: (v: string) => void;
   required?: boolean;
@@ -97,7 +97,7 @@ export function CreateReceivableDialog({
   onSaved,
 }: {
   organizationId: string;
-  companies: PartnerRow[];
+  companies: CompanyRow[];
   categories: FinancialCategoryRow[];
   costCenters: CostCenterRow[];
   onClose: () => void;
@@ -207,7 +207,7 @@ export function CreatePayableDialog({
   onSaved,
 }: {
   organizationId: string;
-  companies: PartnerRow[];
+  companies: CompanyRow[];
   categories: FinancialCategoryRow[];
   costCenters: CostCenterRow[];
   onClose: () => void;
@@ -736,7 +736,7 @@ export function DirectMovementDialog({
 }: {
   organizationId: string;
   accounts: FinancialAccountRow[];
-  companies: PartnerRow[];
+  companies: CompanyRow[];
   categories: FinancialCategoryRow[];
   costCenters: CostCenterRow[];
   paymentMethods: PaymentMethodRow[];
@@ -1203,7 +1203,7 @@ export function SaveRecurrenceDialog({
   onSaved,
 }: {
   organizationId: string;
-  companies: PartnerRow[];
+  companies: CompanyRow[];
   categories: FinancialCategoryRow[];
   costCenters: CostCenterRow[];
   paymentMethods: PaymentMethodRow[];
