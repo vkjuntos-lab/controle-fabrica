@@ -652,7 +652,7 @@ $$;
 CREATE FUNCTION public.fin_settle(_org uuid,_kind text,_id uuid,_data jsonb,_user_id uuid DEFAULT auth.uid())
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE v_amount numeric; v_acc uuid; v_open numeric; v_tx uuid; v_settlement_id uuid; v_perm text;
-  v_pm uuid; v_occ timestamptz; v_net numeric; v_reason text; v_direction text; v_type text; v_tab text; v_settab text; v_company uuid;
+  v_pm uuid; v_occ timestamptz; v_net numeric; v_reason text; v_direction text; v_type text; v_tab text; v_settab text; v_company uuid; v_docnum text;
 BEGIN
   IF _user_id IS DISTINCT FROM auth.uid() THEN RAISE EXCEPTION 'Usuário inválido.'; END IF;
   IF _kind='receivable' THEN v_perm:='receivables.settle'; v_direction:='IN'; v_type:='RECEIVABLE_PAYMENT'; v_tab:='account_receivables'; v_settab:='receivable_settlements';
