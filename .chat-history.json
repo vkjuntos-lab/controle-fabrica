@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"domain_events\\|rec_close\\|rec_create\\|rec_query\\|reconciliation_require\\|reconciliation_audit\\|billable\\|snapshot\" supabase/migrations/20260926100000_partner_reconciliation.sql | head -60"
-    },
-    "timestamp": 1790126881345
-  },
-  {
-    "role": "tool_result",
-    "content": "177:  billable_amount numeric(14,2) NOT NULL DEFAULT 0 CHECK(billable_amount>=0),\n181:  snapshot jsonb,\n208:  billable_amount numeric(14,2),\n215:  price_snapshot jsonb,\n271:CREATE TABLE public.domain_events (\n298: FOREACH t IN ARRAY ARRAY['partner_reconciliations','partner_reconciliation_items','rec",
-    "is_error": false,
-    "timestamp": 1790126881367
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/reconciliation/types.ts"
@@ -1561,5 +1547,19 @@
     "content": "80:CREATE TABLE public.financial_transactions (\n81-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n82-  organization_id uuid NOT NULL REFERENCES public.organizations,\n83-  financial_account_id uuid NOT NULL,\n84-  type text NOT NULL CHECK(type IN\n85-    ('OPENING_BALANCE','RECEIVABLE_PAYMENT','PAYAB",
     "is_error": false,
     "timestamp": 1790128189665
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "P='cXVlcnk='; su - postgres -c \"psql -qc \\\"SELECT to_regclass('public.financial_transactions'), to_regclass('public.account_receivables'), to_regclass('public.account_payables');\\\" controle_fabrica\" 2>/dev/null || su - postgres -c \"psql -lqt\" 2>/dev/null | head"
+    },
+    "timestamp": 1790128201916
+  },
+  {
+    "role": "tool_result",
+    "content": " postgres        | postgres | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | \n template0       | postgres | UTF8     | libc            | en_US.UTF-8 | en_US.UTF-8 |        |           | =c/postgres          +\n                 |          |          |                 |  ",
+    "is_error": false,
+    "timestamp": 1790128202172
   }
 ]
