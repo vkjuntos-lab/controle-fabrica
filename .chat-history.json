@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"rec_query\\|rec_close\\|type Functions\" src/integrations/supabase/types.ts | head; echo \"---\"; sed -n '1,20p' src/lib/partners/export.ts; echo \"---constants---\"; grep -n \"queryPartners\\|export const\" src/lib/partners/partners.functions.ts | head -30"
-    },
-    "timestamp": 1790126982107
-  },
-  {
-    "role": "tool_result",
-    "content": "997:      rec_query: {\n1054:      rec_close: {\n---\nimport { toCsv, downloadCsv } from \"@/lib/csv\";\n/** Reuses the CSV infrastructure and neutralizes spreadsheet formulas in user text. */\nexport function exportPartnerCsv(filename: string, rows: Record<string, unknown>[]) {\n  const safe = rows.map((ro",
-    "is_error": false,
-    "timestamp": 1790126982148
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts",
@@ -1555,5 +1541,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790128304548
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
+      "newString": "AND (coalesce(_filters->>'query','')='' OR strpos(lower(coalesce(t.description,'')||' '||coalesce(d.document_number,'')||' '||coalesce(c.legal_name,'')),lower(_filters->>'query'))>0))",
+      "oldString": "AND (coalesce(_filters->>'query','')='' OR strpos(lower(coalesce(t.description,'')||' '||coalesce(document_number,'')||' '||coalesce(c.legal_name,'')),lower(_filters->>'query'))>0))"
+    },
+    "timestamp": 1790128306751
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790128306796
   }
 ]

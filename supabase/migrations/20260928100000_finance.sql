@@ -1052,7 +1052,7 @@ BEGIN
       AND (nullif(_filters->>'from','') IS NULL OR t.occurred_at::date>=(_filters->>'from')::date)
       AND (nullif(_filters->>'to','') IS NULL OR t.occurred_at::date<=(_filters->>'to')::date)
       AND (nullif(_filters->>'company_id','') IS NULL OR t.company_id=(_filters->>'company_id')::uuid)
-      AND (coalesce(_filters->>'query','')='' OR strpos(lower(coalesce(t.description,'')||' '||coalesce(document_number,'')||' '||coalesce(c.legal_name,'')),lower(_filters->>'query'))>0))
+      AND (coalesce(_filters->>'query','')='' OR strpos(lower(coalesce(t.description,'')||' '||coalesce(d.document_number,'')||' '||coalesce(c.legal_name,'')),lower(_filters->>'query'))>0))
     SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows ORDER BY occurred_at DESC,id LIMIT 100 OFFSET (_page-1)*100)q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO v_result;
   ELSIF _kind='accounts' THEN
     WITH rows AS MATERIALIZED(SELECT a.*,round(public.finance_balance(_org,a.id),2) balance FROM public.financial_accounts a WHERE a.organization_id=_org
