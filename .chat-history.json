@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n1016: CREATE FUNCTION public.rec_reverse_item(_org uuid,_item_id uuid,_reason text,_user_id uuid DEFAULT auth.uid())\n1017: RETURNS jsonb LANGUAGE plpgsql SE",
-    "is_error": false,
-    "timestamp": 1790117448737
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -rn \"reversed_by_id\" supabase/migrations/ | grep -v \"^Binary\""
-    },
-    "timestamp": 1790117452407
-  },
-  {
-    "role": "tool_result",
     "content": "supabase/migrations/20260918100000_inventory_ledger.sql:125:  -- movimento é uma REVERSAL; reversed_by_id marca o original revertido.\nsupabase/migrations/20260918100000_inventory_ledger.sql:127:  reversed_by_id uuid REFERENCES public.inventory_movements(id) ON DELETE SET NULL,\nsupabase/migrations/20",
     "is_error": false,
     "timestamp": 1790117452437
@@ -1500,5 +1486,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/partners/reports.tsx</path>\n<type>file</type>\n<content>\n1: import { useState, useEffect } from \"react\";\n2: import { useQuery } from \"@tanstack/react-query\";\n3: import { useServerFn } from \"@tanstack/react-start\";\n4: import { toast } from ",
     "is_error": false,
     "timestamp": 1790124719172
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/reconciliation/constants.ts",
+      "content": "export const RECONCILIATION_STATUS: Record<string, string> = {\n  DRAFT: \"Rascunho\",\n  PROCESSING: \"Processando\",\n  REVIEW_REQUIRED: \"Revisão necessária\",\n  READY_TO_CLOSE: \"Pronto para fechar\",\n  CLOSED: \"Fechado\",\n  REOPENED: \"Reaberto\",\n  CANCELED: \"Cancelado\",\n};\nexport const RECONCILIATION_STATUS_ORDER = [\n  \"DRAFT\",\n  \"PROCESSING\",\n  \"REVIEW_REQUIRED\",\n  \"READY_TO_CLOSE\",\n  \"CLOSED\",\n  \"REOPENED\",\n  \"CANCELED\",\n] as const;\nexport const ITEM_STATUS: Record<string, string> = {\n  PENDING: \"Pendente\",\n  VALIDATED: \"Validado\",\n  RECONCILED: \"Reconciliado\",\n  EXCEPTION: \"Exceção\",\n  REVERSED: \"Estornado\",\n  CANCELED: \"Cancelado\",\n};\nexport const INVENTORY_EFFECT_STATUS: Record<string, string> = {\n  NONE: \"Sem efeito\",\n  APPLIED: \"Baixa aplicada\",\n  FAILED: \"Falhou\",\n  REVERSED: \"Baixa estornada\",\n};\nexport const EXCEPTION_TYPES: Record<string, string> = {\n  PARTNER_NOT_MAPPED: \"Parceiro sem mapeamento\",\n  PARTNER_LOCATION_NOT_CONFIGURED: \"Parceiro sem localização\",\n  SKU_NOT_MAPPED: \"SKU sem mapeamento\",\n  INSUFFICIENT_PARTNER_STOCK: \"Estoque insuficiente do parceiro\",\n  PRICE_NOT_FOUND: \"Preço não encontrado\",\n  DUPLICATE_SALE: \"Venda duplicada\",\n  ALREADY_RECONCILED: \"Já reconciliada\",\n  INVALID_QUANTITY: \"Quantidade inválida\",\n  INVALID_DATE: \"Data inválida\",\n  STORE_PARTNER_MISMATCH: \"Loja fora do parceiro\",\n  INVENTORY_EFFECT_FAILED: \"Falha no efeito de estoque\",\n  COMMERCIAL_RULE_ERROR: \"Erro de regra comercial\",\n  LATE_SALE_AFTER_CLOSING: \"Venda tardia após fechamento\",\n  OTHER: \"Outro\",\n};\nexport const EXCEPTION_SEVERITY: Record<string, string> = {\n  INFO: \"Informativo\",\n  WARNING: \"Atenção\",\n  ERROR: \"Erro\",\n  BLOCKING: \"Bloqueante\",\n};\nexport const EXCEPTION_STATUS: Record<string, string> = {\n  OPEN: \"Aberta\",\n  IN_REVIEW: \"Em revisão\",\n  RESOLVED: \"Resolvida\",\n  IGNORED_WITH_AUTHORIZATION: \"Ignorada com autorização\",\n};\nexport const EXCEPTION_RESOLUTION_TYPES: { value: string; label: string }[] = [\n  { value: \"MANUAL\", label: \"Correção manual\" },\n  { value: \"SUPPLY_MOVEMENT\", label: \"Movimento de suprimento\" },\n  { value: \"REPROCESS\", label: \"Reprocessar item\" },\n  { value: \"IGNORED_BY_ADMIN\", label: \"Ignorada com autorização de admin\" },\n];\nexport const MARKETPLACE_SALE_STATUS: Record<string, string> = {\n  IMPORTED: \"Importada\",\n  VALIDATED: \"Validada\",\n  RECONCILED: \"Reconciliada\",\n  CANCELED: \"Cancelada\",\n  EXCEPTION: \"Exceção\",\n};\nexport const STORE_OWNERSHIP: Record<string, string> = {\n  FACTORY: \"Fábrica\",\n  OWN: \"Própria\",\n  PARTNER: \"Parceiro\",\n};\nexport const STORE_STATUS: Record<string, string> = {\n  ACTIVE: \"Ativa\",\n  INACTIVE: \"Inativa\",\n  BLOCKED: \"Bloqueada\",\n};\nexport const PRICE_TABLE_STATUS: Record<string, string> = {\n  ACTIVE: \"Ativa\",\n  INACTIVE: \"Inativa\",\n};\nexport const PRICE_ITEM_STATUS: Record<string, string> = {\n  ACTIVE: \"Ativo\",\n  INACTIVE: \"Inativo\",\n};\nexport const ADJUSTMENT_TYPE: Record<string, string> = {\n  CREDIT: \"Crédito\",\n  DEBIT: \"Débito\",\n};\nexport const RECONCILIATION_FREQUENCY: Record<string, string> = {\n  WEEKLY: \"Semanal\",\n  BIWEEKLY: \"Quinzenal\",\n  MONTHLY: \"Mensal\",\n  CUSTOM: \"Personalizado\",\n};\nexport const PARTNER_RULES: Record<string, string> = {\n  PRICE_TABLE: \"Tabela de preço\",\n  SALE_REFERENCE: \"Referência da venda\",\n};\nexport const statusLabel = (s: string | null | undefined): string => s ?? \"—\";\nexport const reconciliationStatusLabel = (s: string) => RECONCILIATION_STATUS[s] ?? s;\nexport const itemStatusLabel = (s: string) => ITEM_STATUS[s] ?? s;\nexport const exceptionTypeLabel = (s: string) => EXCEPTION_TYPES[s] ?? s;\nexport const severityLabel = (s: string) => EXCEPTION_SEVERITY[s] ?? s;\nexport const exceptionStatusLabel = (s: string) => EXCEPTION_STATUS[s] ?? s;\nexport const saleStatusLabel = (s: string) => MARKETPLACE_SALE_STATUS[s] ?? s;\nexport const storeOwnershipLabel = (s: string) => STORE_OWNERSHIP[s] ?? s;\nexport const storeStatusLabel = (s: string) => STORE_STATUS[s] ?? s;\nexport const priceTableStatusLabel = (s: string) => PRICE_TABLE_STATUS[s] ?? s;\nexport const priceItemStatusLabel = (s: string) => PRICE_ITEM_STATUS[s] ?? s;\nexport const adjustmentTypeLabel = (s: string) => ADJUSTMENT_TYPE[s] ?? s;\nexport const frequencyLabel = (s: string) => RECONCILIATION_FREQUENCY[s] ?? s;\nexport const inventoryEffectLabel = (s: string) => INVENTORY_EFFECT_STATUS[s] ?? s;\nexport const priceRuleLabel = (s: string) => PARTNER_RULES[s] ?? s;\n\nexport function formatMoney(value: number | string | null | undefined): string {\n  if (value == null) return \"R$ 0,00\";\n  return Number(value).toLocaleString(\"pt-BR\", {\n    style: \"currency\",\n    currency: \"BRL\",\n    maximumFractionDigits: 2,\n  });\n}\n\nexport function formatNumber(value: number | string | null | undefined, digits = 3): string {\n  if (value == null) return \"0\";\n  return Number(value).toLocaleString(\"pt-BR\", { maximumFractionDigits: digits });\n}\n\nexport function formatDate(value: string | null | undefined): string {\n  if (!value) return \"—\";\n  return new Date(value.length <= 10 ? `${value}T12:00:00` : value).toLocaleDateString(\"pt-BR\");\n}\n\nexport function formatDateTime(value: string | null | undefined): string {\n  if (!value) return \"—\";\n  const d = new Date(value);\n  return d.toLocaleString(\"pt-BR\");\n}"
+    },
+    "timestamp": 1790124739475
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790124739496
   }
 ]
