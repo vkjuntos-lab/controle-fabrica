@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && python3 scripts/test-finance-db.py\" 2>&1 | tail -40",
-      "timeout": 300000
-    },
-    "timestamp": 1790127863305
-  },
-  {
-    "role": "tool_result",
-    "content": "Traceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-finance-db.py\", line 239, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-finance-db.py\", line 28, in run\n    sub=rpc('fin_save_category',q(org)+','+",
-    "is_error": false,
-    "timestamp": 1790127864683
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-finance-db.py",
@@ -1569,5 +1554,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790128648676
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/rbac.test.ts",
+      "newString": "it(\"não declara módulo operacional como disponível antes de existir\", () => {\n    const disponiveis = [\n      \"dashboard\",\n      \"administracao\",\n      \"produtos\",\n      \"estoque\",\n      \"parceiros\",\n      \"financeiro\",\n    ];\n    const opcionais = PLATFORM_MODULES.filter((m) => !disponiveis.includes(m.key));\n    for (const mod of opcionais) {\n      expect(mod.status).toBe(\"coming_soon\");\n    }\n  });",
+      "oldString": "it(\"não declara módulo operacional como disponível antes de existir\", () => {\n    const disponiveis = [\"dashboard\", \"administracao\", \"produtos\", \"estoque\", \"parceiros\"];\n    const opcionais = PLATFORM_MODULES.filter((m) => !disponiveis.includes(m.key));\n    for (const mod of opcionais) {\n      expect(mod.status).toBe(\"coming_soon\");\n    }\n  });"
+    },
+    "timestamp": 1790128657055
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790128657070
   }
 ]
