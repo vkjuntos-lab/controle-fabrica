@@ -274,7 +274,7 @@ export function RegisterSaleDialog({
   onSaved: () => void;
 }) {
   const mutation = useServerFn(registerMarketplaceSale);
-  const cancel = useServerFn(cancelMarketplaceSale);
+  const [store, setStore] = useState(storeId ?? "");
   const created = useMutation({
     mutationFn: async (form: HTMLFormElement) => {
       const f = Object.fromEntries(new FormData(form));
@@ -282,7 +282,7 @@ export function RegisterSaleDialog({
         data: {
           organizationId,
           sale: {
-            store_id: String(f.store_id),
+            store_id: store,
             sale_date: String(f.sale_date),
             external_order_id: String(f.external_order_id),
             external_sku: String(f.external_sku),
@@ -296,13 +296,12 @@ export function RegisterSaleDialog({
         },
       });
     },
-    onSuccess: (r) => {
+    onSuccess: () => {
       toast.success("Venda registrada");
       onSaved();
     },
     onError: (e: Error) => toast.error(e.message),
   });
-  void cancel;
   return (
     <Dialog open onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">

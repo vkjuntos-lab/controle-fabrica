@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py</path>\n<type>file</type>\n<content>\n42:       CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$ SELECT nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;\n43:       GRANT USAGE ON SCHEMA auth TO",
-    "is_error": false,
-    "timestamp": 1790117504540
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"migrations\\s*=\\|migrations +=\\|read_text\\|test-reconciliation\" scripts/test-reconciliation-db.py | head; echo ---; sed -n '18,29p' scripts/test-reconciliation-db.py"
-    },
-    "timestamp": 1790117509476
-  },
-  {
-    "role": "tool_result",
     "content": "16: db.sql((Path(__file__).parent.parent/'supabase/migrations'/'20260926100000_partner_reconciliation.sql').read_text())\n---\n sql(f\"INSERT INTO auth.users(id,email) VALUES({q(a)},'a@recon.test'),({q(b)},'b@recon.test'),({q(reader)},'r@recon.test'); INSERT INTO organizations(id,name,slug,created_by) ",
     "is_error": false,
     "timestamp": 1790117509511
@@ -1507,5 +1493,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/reconciliation/dialogs.tsx</path>\n<type>file</type>\n<content>\n265: export function RegisterSaleDialog({\n266:   organizationId,\n267:   storeId,\n268:   onClose,\n269:   onSaved,\n270: }: {\n271:   organizationId: string;\n272:   storeId?: strin",
     "is_error": false,
     "timestamp": 1790124888567
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/reconciliation/dialogs.tsx",
+      "oldString": "const mutation = useServerFn(registerMarketplaceSale);\n  const cancel = useServerFn(cancelMarketplaceSale);\n  const created = useMutation({\n    mutationFn: async (form: HTMLFormElement) => {\n      const f = Object.fromEntries(new FormData(form));\n      return mutation({\n        data: {\n          organizationId,\n          sale: {\n            store_id: String(f.store_id),\n            sale_date: String(f.sale_date),\n            external_order_id: String(f.external_order_id),\n            external_sku: String(f.external_sku),\n            external_event_id: String(f.external_event_id) || undefined,\n            quantity: Number(f.quantity),\n            gross_amount: Number(f.gross_amount) || 0,\n            shipping_fee: Number(f.shipping_fee) || 0,\n            discount_amount: Number(f.discount_amount) || 0,\n            platform_fee: Number(f.platform_fee) || 0,\n          },\n        },\n      });\n    },\n    onSuccess: (r) => {\n      toast.success(\"Venda registrada\");\n      onSaved();\n    },\n    onError: (e: Error) => toast.error(e.message),\n  });\n  void cancel;\n  return (",
+      "newString": "const mutation = useServerFn(registerMarketplaceSale);\n  const [store, setStore] = useState(storeId ?? \"\");\n  const created = useMutation({\n    mutationFn: async (form: HTMLFormElement) => {\n      const f = Object.fromEntries(new FormData(form));\n      return mutation({\n        data: {\n          organizationId,\n          sale: {\n            store_id: store,\n            sale_date: String(f.sale_date),\n            external_order_id: String(f.external_order_id),\n            external_sku: String(f.external_sku),\n            external_event_id: String(f.external_event_id) || undefined,\n            quantity: Number(f.quantity),\n            gross_amount: Number(f.gross_amount) || 0,\n            shipping_fee: Number(f.shipping_fee) || 0,\n            discount_amount: Number(f.discount_amount) || 0,\n            platform_fee: Number(f.platform_fee) || 0,\n          },\n        },\n      });\n    },\n    onSuccess: () => {\n      toast.success(\"Venda registrada\");\n      onSaved();\n    },\n    onError: (e: Error) => toast.error(e.message),\n  });\n  return ("
+    },
+    "timestamp": 1790124895210
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790124895235
   }
 ]
