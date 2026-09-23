@@ -738,13 +738,13 @@ BEGIN
   VALUES (_org,v_tx.financial_account_id,'REVERSAL',CASE v_tx.direction WHEN 'IN' THEN 'OUT' ELSE 'IN' END,
     v_tx.company_id,v_tx.amount,now(),v_tx.reference_type,v_tx.reference_id,v_tx.payment_method_id,v_tx.financial_category_id,v_tx.cost_center_id,
     'Estorno: '||trim(_reason),v_tx.id,'fin-reverse:'||v_tx.id::text,auth.uid()) RETURNING id INTO v_rev;
-  IF v_tx.reference_type IN ('RECEIVABLE','PAYABLE') THEN
+  IF v_tx.reference_type IN ('receivable','payable') THEN
     EXECUTE format('INSERT INTO public.%I(organization_id,%I_id,financial_transaction_id,amount,settled_at,is_reversal,reversal_of_id,created_by)
       SELECT $1,$2,$4,amount,now(),true,id,$3 FROM public.%I WHERE organization_id=$1 AND financial_transaction_id=$5 LIMIT 1 RETURNING id',
-      v_ref_tab,CASE v_tx.reference_type WHEN 'RECEIVABLE' THEN 'receivable' ELSE 'payable' END,v_ref_tab)
+      v_ref_tab,v_tx.reference_type,v_ref_tab)
     USING _org,v_tx.reference_id,auth.uid(),v_rev,v_tx.id INTO v_rev_set;
     IF v_rev_set IS NOT NULL THEN
-      PERFORM public.finance_refresh_document(_org,CASE v_tx.reference_type WHEN 'RECEIVABLE' THEN 'receivable' ELSE 'payable' END,v_tx.reference_id);
+      PERFORM public.finance_refresh_document(_org,v_tx.reference_type,v_tx.reference_id);
     END IF;
   END IF;
   PERFORM public.finance_audit(_org,'finance.reverse','financial_transactions',v_rev,jsonb_build_object('original',v_tx.id,'settlement_reversal',v_rev_set,'reason',_reason));
