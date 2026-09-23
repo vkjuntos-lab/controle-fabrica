@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts",
-      "limit": 130,
-      "offset": 985
-    },
-    "timestamp": 1790126987884
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts</path>\n<type>file</type>\n<content>\n985:         Returns: string;\n986:       };\n987:       partner_create_operation: {\n988:         Args: { _org: string; _kind: string; _data: Json };\n989:         Returns: string;\n990: ",
-    "is_error": false,
-    "timestamp": 1790126987921
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "sed -n '120,144p' scripts/test-reconciliation-db.py; echo \"---partner_query kinds---\"; grep -n \"_kind='\\|_kind IN\\|FOREACH\\|'companies'\\|'company'\" supabase/migrations/20260924100000_partners.sql | head -30"
@@ -1557,5 +1541,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790128306796
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && python3 scripts/test-finance-db.py\" 2>&1 | tail -30",
+      "timeout": 300000
+    },
+    "timestamp": 1790128308818
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: catálogo financeiro, contas, centros, formas, ajustes e configurações\nPASS: parcelamento, desconto/ajuste/juros, cancelamento e baixa\nPASS: recebimento parcial/total, overpayment bloqueado e idempotência por chave\nPASS: pagamento com desconto e status do título atualizado\nPASS: saldo inicial ú",
+    "is_error": false,
+    "timestamp": 1790128310902
   }
 ]
