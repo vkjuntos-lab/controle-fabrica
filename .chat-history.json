@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
-      "newString": "ELSIF TG_TABLE_NAME IN ('account_receivables','account_payables') THEN\n    IF (j->'organization_id' IS DISTINCT FROM jold->'organization_id')\n       OR (j->'company_id' IS DISTINCT FROM jold->'company_id')\n       OR (j->'source_type' IS DISTINCT FROM jold->'source_type')\n       OR (j->'source_id' IS DISTINCT FROM jold->'source_id')\n       OR (j->'document_number' IS DISTINCT FROM jold->'document_number')\n       OR (j->'original_amount' IS DISTINCT FROM jold->'original_amount')\n       OR (j->'currency' IS DISTINCT FROM jold->'currency')\n       OR (j->'issue_date' IS DISTINCT FROM jold->'issue_date')\n       OR (j->'total_installments' IS DISTINCT FROM jold->'total_installments')\n       OR (j->'parent_id' IS DISTINCT FROM jold->'parent_id')\n       THEN RAISE EXCEPTION 'Dados de origem do título imutáveis fora do RPC.'; END IF;\n  ELSIF TG_TABLE_NAME IN ('financial_categories','cost_centers') THEN\n    IF (j->'code' IS DISTINCT FROM jold->'code') OR (j->'organization_id' IS DISTINCT FROM jold->'organization_id')\n       THEN RAISE EXCEPTION 'Código/org imutável.'; END IF;\n    IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Inative em vez de excluir.'; END IF;\n  ELSIF TG_TABLE_NAME IN ('financial_accounts','payment_methods') THEN\n    IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Inative em vez de excluir.'; END IF;\n  END IF;",
-      "oldString": "ELSIF TG_TABLE_NAME IN ('account_receivables','account_payables') THEN\n    IF (j-'organization_id'-'company_id'-'source_type'-'source_id'-'document_number'-'original_amount'-'currency'-'issue_date'-'total_installments'-'parent_id')\n       <>(jold-'organization_id'-'company_id'-'source_type'-'source_id'-'document_number'-'original_amount'-'currency'-'issue_date'-'total_installments'-'parent_id')\n       THEN RAISE EXCEPTION 'Dados de origem do título imutáveis fora do RPC.'; END IF;\n  ELSIF TG_TABLE_NAME IN ('financial_categories','cost_centers') THEN\n    IF (j-'code'-'organization_id')<>(jold-'code'-'organization_id') THEN RAISE EXCEPTION 'Código/org imutável.'; END IF;\n    IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Inative em vez de excluir.'; END IF;\n  ELSIF TG_TABLE_NAME IN ('financial_accounts','payment_methods') THEN\n    IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Inative em vez de excluir.'; END IF;\n  END IF;"
-    },
-    "timestamp": 1790127957862
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790127957868
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && python3 scripts/test-finance-db.py\" 2>&1 | tail -40",
@@ -1626,5 +1610,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790128736218
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "import { downloadCsv, toCsv } from \"@/lib/csv\";\n\nexport function exportFinanceCsv(filename: string, rows: Record<string, unknown>[]): void {\n  const safe = rows.map((row) =>\n    Object.fromEntries(\n      Object.entries(row).map(([key, value]) => [\n        key,\n        typeof value === \"string\" && /^[=+@\\-\\t\\r]/.test(value) ? `'${value}` : value,\n      ]),\n    ),\n  );\n  downloadCsv(filename, toCsv(safe));\n}",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/finance/export.ts"
+    },
+    "timestamp": 1790128739580
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790128739583
   }
 ]
