@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "supabase/migrations/20260918100000_inventory_ledger.sql:125:  -- movimento é uma REVERSAL; reversed_by_id marca o original revertido.\nsupabase/migrations/20260918100000_inventory_ledger.sql:127:  reversed_by_id uuid REFERENCES public.inventory_movements(id) ON DELETE SET NULL,\nsupabase/migrations/20",
-    "is_error": false,
-    "timestamp": 1790117452437
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql",
-      "limit": 45,
-      "offset": 730
-    },
-    "timestamp": 1790117454157
-  },
-  {
-    "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql</path>\n<type>file</type>\n<content>\n730:   -- Idempotente por construção: uma mesma reversão para o mesmo movimento não\n731:   -- duplica (double-click, chamada repetida).\n732:   SELECT id INTO v_re",
     "is_error": false,
     "timestamp": 1790117454177
@@ -1501,5 +1485,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790124739496
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "export type DashboardSummary = {\n  pending_sales: number;\n  pending_units: number;\n  open_reconciliations: number;\n  ready_to_close: number;\n  open_exceptions: number;\n  blocking_exceptions: number;\n  unsigned_sku: number;\n  active_partner_stores: number;\n  closed_in_period: number;\n};\nexport type ReconciliationRow = {\n  id: string;\n  partner_id: string;\n  period_start: string;\n  period_end: string;\n  status: string;\n  frequency: string;\n  sales_count: number;\n  units_sold: number;\n  gross_amount: number;\n  billable_amount: number;\n  exceptions_count: number;\n  created_at: string;\n  closed_at: string | null;\n  partner_name: string;\n};\nexport type ReconciliationList = { rows: ReconciliationRow[]; total: number };\nexport type ReconciliationItem = {\n  id: string;\n  reconciliation_id: string;\n  marketplace_sale_id: string;\n  partner_id: string;\n  store_id: string;\n  variant_id: string | null;\n  quantity: number;\n  gross_amount: number;\n  unit_reference_value: number | null;\n  billable_amount: number | null;\n  status: string;\n  exception_status: string | null;\n  inventory_effect_status: string;\n  inventory_movement_id: string | null;\n  reversed_movement_id: string | null;\n  price_snapshot: { unit_price?: number; rule?: string; net_reference?: number } | null;\n  error_message: string | null;\n  created_at: string;\n  sku: string | null;\n  product_name: string | null;\n  external_order_id: string;\n  external_sku: string;\n  store_name: string;\n  marketplace: string;\n  sale_date: string;\n  status_label?: string;\n};\nexport type ReconciliationException = {\n  id: string;\n  reconciliation_id: string | null;\n  item_id: string | null;\n  marketplace_sale_id: string | null;\n  partner_id: string | null;\n  store_id: string | null;\n  variant_id: string | null;\n  exception_type: string;\n  severity: string;\n  status: string;\n  message: string;\n  details: Record<string, unknown>;\n  resolution_type: string | null;\n  resolution_notes: string | null;\n  resolved_by: string | null;\n  resolved_at: string | null;\n  created_at: string;\n  partner_name?: string;\n  store_name?: string;\n  sku?: string;\n};\nexport type ReconciliationAdjustment = {\n  id: string;\n  organization_id: string;\n  reconciliation_id: string;\n  adjustment_type: string;\n  amount: number;\n  reason: string;\n  created_by: string;\n  created_at: string;\n};\nexport type ReconciliationDetail = ReconciliationRow & {\n  partner_name?: string;\n  cutoff_at: string | null;\n  snapshot: {\n    totals?: {\n      sales?: number;\n      units?: number;\n      gross?: number;\n      billable_items?: number;\n      adjustments?: number;\n      net_billable?: number;\n    };\n  } | null;\n  items: ReconciliationItem[];\n  exceptions: ReconciliationException[];\n  adjustments: ReconciliationAdjustment[];\n  by_sku: { sku: string | null; product_name: string | null; items: number; units: number; billable: number }[];\n  by_day: { d: string; items: number; units: number; billable: number }[];\n  by_marketplace: { marketplace: string; items: number; units: number; billable: number }[];\n  summary: { shipped: number; reconciled: number; on_hand: number };\n};\nexport type MarketplaceSaleRow = {\n  id: string;\n  store_id: string;\n  sale_date: string;\n  external_order_id: string;\n  external_sku: string;\n  external_event_id: string | null;\n  variant_id: string | null;\n  quantity: number;\n  gross_amount: number;\n  shipping_fee: number;\n  discount_amount: number;\n  platform_fee: number;\n  currency: string;\n  status: string;\n  source: string;\n  reconciliation_item_id: string | null;\n  created_at: string;\n  global_warehouse?: string;\n  store_name: string;\n  marketplace: string;\n  ownership_type: string;\n  partner_id: string | null;\n  partner_name: string;\n  sku?: string;\n  product_name?: string;\n};\nexport type MarketplaceSaleList = { rows: MarketplaceSaleRow[]; total: number };\nexport type MarketplaceStoreRow = {\n  id: string;\n  code: string;\n  name: string;\n  marketplace: string;\n  marketplace_store_id: string | null;\n  ownership_type: string;\n  partner_id: string | null;\n  status: string;\n  notes: string | null;\n  created_at: string;\n  partner_name: string;\n};\nexport type MarketplaceStoreList = { rows: MarketplaceStoreRow[]; total: number };\nexport type SkuMappingRow = {\n  id: string;\n  store_id: string | null;\n  external_sku: string;\n  variant_id: string;\n  created_at: string;\n  store_name: string | null;\n  sku: string;\n};\nexport type SkuMappingList = { rows: SkuMappingRow[]; total: number };\nexport type PriceTableRow = {\n  id: string;\n  code: string;\n  name: string;\n  status: string;\n  valid_from: string;\n  valid_to: string | null;\n  notes: string | null;\n  created_at: string;\n  items_count: number;\n  partners_count: number;\n};\nexport type PriceTableList = { rows: PriceTableRow[]; total: number };\nexport type PriceTableItemRow = {\n  id: string;\n  price_table_id: string;\n  variant_id: string;\n  unit_price: number;\n  valid_from: string;\n  valid_to: string | null;\n  status: string;\n  sku: string;\n  product_name: string;\n};\nexport type PartnerPriceLink = {\n  id: string;\n  partner_id: string;\n  price_table_id: string;\n  valid_from: string;\n  valid_to: string | null;\n  notes: string | null;\n  partner_name: string;\n};\nexport type PriceTableDetail = PriceTableRow & {\n  items: PriceTableItemRow[];\n  partners: PartnerPriceLink[];\n};\nexport type PriceRuleRow = {\n  valid_from: string;\n  valid_to: string | null;\n  notes: string | null;\n  table_code: string;\n  table_name: string;\n  table_from: string;\n  table_to: string | null;\n};\nexport type PreviewResult = {\n  rows: {\n    id: string;\n    store_id: string;\n    sale_date: string;\n    external_order_id: string;\n    external_sku: string;\n    variant_id: string | null;\n    quantity: number;\n    gross_amount: number;\n    shipping_fee: number;\n    discount_amount: number;\n    platform_fee: number;\n    status: string;\n  }[];\n  sales: number;\n  units: number;\n  gross: number;\n};\nexport type ReconciliationHistoryRow = {\n  action: string;\n  created_at: string;\n  user_id: string;\n  context: Record<string, unknown>;\n};\nexport const EXCHANGE = undefined;",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/reconciliation/types.ts"
+    },
+    "timestamp": 1790124751367
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790124751372
   }
 ]
