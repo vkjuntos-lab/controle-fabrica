@@ -107,7 +107,11 @@ function BadgeStatus({ status }: { status: string | null }) {
     SCHEDULED: "bg-sky-50 text-sky-700 border-sky-200",
     DRAFT: "bg-gray-100 text-gray-600 border-gray-200",
   };
-  return <Badge className={`border ${css[status] ?? "bg-gray-50 text-gray-700 border-gray-200"}`}>{documentStatusLabel(status)}</Badge>;
+  return (
+    <Badge className={`border ${css[status] ?? "bg-gray-50 text-gray-700 border-gray-200"}`}>
+      {documentStatusLabel(status)}
+    </Badge>
+  );
 }
 
 function useFinanceOptions(org: string | undefined, can: boolean) {
@@ -116,19 +120,25 @@ function useFinanceOptions(org: string | undefined, can: boolean) {
   const categories = useQuery({
     queryKey: ["finance", "categories", "options", org],
     queryFn: async () =>
-      (await fetch({ data: { organizationId: org!, kind: "categories", filters: {}, page: 1 } })) as FinancialCategoryRow[],
+      (await fetch({
+        data: { organizationId: org!, kind: "categories", filters: {}, page: 1 },
+      })) as FinancialCategoryRow[],
     enabled: Boolean(org && can),
   });
   const costCenters = useQuery({
     queryKey: ["finance", "cost_centers", "options", org],
     queryFn: async () =>
-      (await fetch({ data: { organizationId: org!, kind: "cost_centers", filters: {}, page: 1 } })) as CostCenterRow[],
+      (await fetch({
+        data: { organizationId: org!, kind: "cost_centers", filters: {}, page: 1 },
+      })) as CostCenterRow[],
     enabled: Boolean(org && can),
   });
   const paymentMethods = useQuery({
     queryKey: ["finance", "payment_methods", "options", org],
     queryFn: async () =>
-      (await fetch({ data: { organizationId: org!, kind: "payment_methods", filters: {}, page: 1 } })) as PaymentMethodRow[],
+      (await fetch({
+        data: { organizationId: org!, kind: "payment_methods", filters: {}, page: 1 },
+      })) as PaymentMethodRow[],
     enabled: Boolean(org && can),
   });
   const accounts = useQuery({
@@ -168,7 +178,9 @@ export function FinanceDashboardPage() {
   const q = useQuery({
     queryKey: ["finance", "dashboard", org],
     queryFn: async () =>
-      (await fetch({ data: { organizationId: org!, kind: "dashboard", filters: {}, page: 1 } })) as DashboardSummary,
+      (await fetch({
+        data: { organizationId: org!, kind: "dashboard", filters: {}, page: 1 },
+      })) as DashboardSummary,
     enabled: Boolean(org && can && canDashboard),
   });
   return (
@@ -193,11 +205,15 @@ export function FinanceDashboardPage() {
             </div>
             <div className="rounded border p-3">
               <p className="text-sm text-muted-foreground">Entradas no período</p>
-              <p className="text-xl font-semibold text-emerald-600">{formatMoney(q.data.inflows_period)}</p>
+              <p className="text-xl font-semibold text-emerald-600">
+                {formatMoney(q.data.inflows_period)}
+              </p>
             </div>
             <div className="rounded border p-3">
               <p className="text-sm text-muted-foreground">Saídas no período</p>
-              <p className="text-xl font-semibold text-red-600">{formatMoney(q.data.outflows_period)}</p>
+              <p className="text-xl font-semibold text-red-600">
+                {formatMoney(q.data.outflows_period)}
+              </p>
             </div>
             <a href="/financeiro/fluxo" className="rounded border bg-blue-50 p-3 hover:bg-blue-100">
               <p className="text-sm text-blue-700">Previsão em 30 dias</p>
@@ -207,7 +223,10 @@ export function FinanceDashboardPage() {
               <p className="text-sm text-muted-foreground">A receber (aberto)</p>
               <p className="text-xl font-semibold">{formatMoney(q.data.receivable_open)}</p>
             </a>
-            <a href="/financeiro/receber" className="rounded border border-red-200 bg-red-50 p-3 hover:bg-red-100">
+            <a
+              href="/financeiro/receber"
+              className="rounded border border-red-200 bg-red-50 p-3 hover:bg-red-100"
+            >
               <p className="text-sm text-red-700">A receber (vencido)</p>
               <p className="text-xl font-semibold">{formatMoney(q.data.receivable_overdue)}</p>
             </a>
@@ -215,14 +234,17 @@ export function FinanceDashboardPage() {
               <p className="text-sm text-muted-foreground">A pagar (aberto)</p>
               <p className="text-xl font-semibold">{formatMoney(q.data.payable_open)}</p>
             </a>
-            <a href="/financeiro/pagar" className="rounded border border-red-200 bg-red-50 p-3 hover:bg-red-100">
+            <a
+              href="/financeiro/pagar"
+              className="rounded border border-red-200 bg-red-50 p-3 hover:bg-red-100"
+            >
               <p className="text-sm text-red-700">A pagar (vencido)</p>
               <p className="text-xl font-semibold">{formatMoney(q.data.payable_overdue)}</p>
             </a>
           </div>
           <p className="text-sm text-muted-foreground">
-            Período corrente: {formatDate(q.data.period.from)} a {formatDate(q.data.period.to)}. Vencidos são
-            calculados sobre o saldo em aberto após descontos, juros e multa.
+            Período corrente: {formatDate(q.data.period.from)} a {formatDate(q.data.period.to)}.
+            Vencidos são calculados sobre o saldo em aberto após descontos, juros e multa.
           </p>
         </>
       ) : null}
@@ -252,7 +274,9 @@ export function FinanceReceivablesPage() {
   const q = useQuery({
     queryKey: ["finance", "receivables", org, filters, page],
     queryFn: async () =>
-      (await fetch({ data: { organizationId: org!, kind: "receivables", filters, page } })) as ReceivableList,
+      (await fetch({
+        data: { organizationId: org!, kind: "receivables", filters, page },
+      })) as ReceivableList,
     enabled: Boolean(org && can),
   });
   const refresh = () => {
@@ -319,7 +343,12 @@ export function FinanceReceivablesPage() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                 />
-                <select aria-label="Status" className={cls} value={status} onChange={(e) => setStatus(e.target.value)}>
+                <select
+                  aria-label="Status"
+                  className={cls}
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                >
                   <option value="">Todos os status</option>
                   {statusOptions().map((s) => (
                     <option key={s} value={s}>
@@ -327,14 +356,22 @@ export function FinanceReceivablesPage() {
                     </option>
                   ))}
                 </select>
-                <select aria-label="Vencimento" className={cls} value={late} onChange={(e) => setLate(e.target.value)}>
+                <select
+                  aria-label="Vencimento"
+                  className={cls}
+                  value={late}
+                  onChange={(e) => setLate(e.target.value)}
+                >
                   <option value="">Todos os vencimentos</option>
                   <option value="overdue">Somente vencidos</option>
                   <option value="not_overdue">Fora de vencimento</option>
                 </select>
               </div>
               {(q.data?.rows ?? []).length === 0 ? (
-                <EmptyState title="Nenhuma conta a receber" description="Crie um novo título ou ajuste os filtros." />
+                <EmptyState
+                  title="Nenhuma conta a receber"
+                  description="Crie um novo título ou ajuste os filtros."
+                />
               ) : (
                 <Card>
                   <CardContent className="pt-6">
@@ -354,7 +391,10 @@ export function FinanceReceivablesPage() {
                           {(q.data?.rows ?? []).map((r) => (
                             <tr key={r.id} className="border-b hover:bg-muted/40">
                               <td className="py-2 pr-4">
-                                <a href={href("receivable", r.id)} className="font-mono text-xs underline">
+                                <a
+                                  href={href("receivable", r.id)}
+                                  className="font-mono text-xs underline"
+                                >
                                   {r.document_number}
                                 </a>
                                 <p className="text-muted-foreground">{r.description}</p>
@@ -362,7 +402,9 @@ export function FinanceReceivablesPage() {
                               <td className="py-2 pr-4">{r.company_name}</td>
                               <td className="py-2 pr-4">{formatDate(r.due_date)}</td>
                               <td className="py-2 pr-4 text-right">{formatMoney(r.open_amount)}</td>
-                              <td className="py-2 pr-4 text-right">{formatMoney(r.received_amount)}</td>
+                              <td className="py-2 pr-4 text-right">
+                                {formatMoney(r.received_amount)}
+                              </td>
                               <td className="py-2 pr-4">
                                 <BadgeStatus status={r.status_effective} />
                               </td>
@@ -375,7 +417,11 @@ export function FinanceReceivablesPage() {
                 </Card>
               )}
               <div className="flex items-center gap-2">
-                <Button variant="outline" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
+                <Button
+                  variant="outline"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
                   Anterior
                 </Button>
                 <span className="text-sm text-muted-foreground">
@@ -502,7 +548,11 @@ export function FinanceReceivableDetailPage({ id }: { id: string }) {
                 </>
               ) : null}
               {canWriteOff ? (
-                <Button variant="outline" className="text-purple-700" onClick={() => setOp("write_off")}>
+                <Button
+                  variant="outline"
+                  className="text-purple-700"
+                  onClick={() => setOp("write_off")}
+                >
                   Baixar
                 </Button>
               ) : null}
@@ -572,7 +622,9 @@ export function FinanceReceivableDetailPage({ id }: { id: string }) {
           </Card>
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Recebimentos ({q.data.settlements.length})</CardTitle>
+              <CardTitle className="text-base">
+                Recebimentos ({q.data.settlements.length})
+              </CardTitle>
             </CardHeader>
             <CardContent>
               {q.data.settlements.length === 0 ? (
@@ -601,7 +653,11 @@ export function FinanceReceivableDetailPage({ id }: { id: string }) {
                           {hasPermission("receivables.reverse") ? (
                             <td className="py-2 text-right">
                               {!s.is_reversal ? (
-                                <Button variant="outline" size="sm" onClick={() => setReverseSettlement(s.id)}>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setReverseSettlement(s.id)}
+                                >
                                   Estornar
                                 </Button>
                               ) : null}
@@ -637,8 +693,7 @@ function ReverseDialog({
   const fn = useServerFn(reverseTransaction);
   const [reason, setReason] = useState("");
   const mutation = useMutation({
-    mutationFn: () =>
-      fn({ data: { organizationId, kind, settlementId, reason: reason.trim() } }),
+    mutationFn: () => fn({ data: { organizationId, kind, settlementId, reason: reason.trim() } }),
     onSuccess: () => {
       toast.success("Lançamento estornado");
       onSaved();
@@ -652,13 +707,20 @@ function ReverseDialog({
         <div className="mt-4 space-y-3">
           <label className="block space-y-1">
             <span className="text-sm font-medium">Motivo *</span>
-            <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Obrigatório" />
+            <Input
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Obrigatório"
+            />
           </label>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={onClose}>
               Voltar
             </Button>
-            <Button disabled={!reason.trim() || mutation.isPending} onClick={() => mutation.mutate()}>
+            <Button
+              disabled={!reason.trim() || mutation.isPending}
+              onClick={() => mutation.mutate()}
+            >
               Estornar
             </Button>
           </div>
@@ -686,7 +748,9 @@ export function FinancePayablesPage() {
   const q = useQuery({
     queryKey: ["finance", "payables", org, filters, page],
     queryFn: async () =>
-      (await fetch({ data: { organizationId: org!, kind: "payables", filters, page } })) as PayableList,
+      (await fetch({
+        data: { organizationId: org!, kind: "payables", filters, page },
+      })) as PayableList,
     enabled: Boolean(org && can),
   });
   const refresh = () => {
@@ -753,7 +817,12 @@ export function FinancePayablesPage() {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                 />
-                <select aria-label="Status" className={cls} value={status} onChange={(e) => setStatus(e.target.value)}>
+                <select
+                  aria-label="Status"
+                  className={cls}
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                >
                   <option value="">Todos os status</option>
                   {statusOptions().map((s) => (
                     <option key={s} value={s}>
@@ -761,14 +830,22 @@ export function FinancePayablesPage() {
                     </option>
                   ))}
                 </select>
-                <select aria-label="Vencimento" className={cls} value={late} onChange={(e) => setLate(e.target.value)}>
+                <select
+                  aria-label="Vencimento"
+                  className={cls}
+                  value={late}
+                  onChange={(e) => setLate(e.target.value)}
+                >
                   <option value="">Todos os vencimentos</option>
                   <option value="overdue">Somente vencidos</option>
                   <option value="not_overdue">Fora de vencimento</option>
                 </select>
               </div>
               {(q.data?.rows ?? []).length === 0 ? (
-                <EmptyState title="Nenhuma conta a pagar" description="Crie um novo título ou ajuste os filtros." />
+                <EmptyState
+                  title="Nenhuma conta a pagar"
+                  description="Crie um novo título ou ajuste os filtros."
+                />
               ) : (
                 <Card>
                   <CardContent className="pt-6">
@@ -788,7 +865,10 @@ export function FinancePayablesPage() {
                           {(q.data?.rows ?? []).map((r) => (
                             <tr key={r.id} className="border-b hover:bg-muted/40">
                               <td className="py-2 pr-4">
-                                <a href={href("payable", r.id)} className="font-mono text-xs underline">
+                                <a
+                                  href={href("payable", r.id)}
+                                  className="font-mono text-xs underline"
+                                >
                                   {r.document_number}
                                 </a>
                                 <p className="text-muted-foreground">{r.description}</p>
@@ -809,7 +889,11 @@ export function FinancePayablesPage() {
                 </Card>
               )}
               <div className="flex items-center gap-2">
-                <Button variant="outline" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
+                <Button
+                  variant="outline"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
                   Anterior
                 </Button>
                 <span className="text-sm text-muted-foreground">
@@ -841,7 +925,9 @@ export function FinancePayableDetailPage({ id }: { id: string }) {
   const q = useQuery({
     queryKey: ["finance", "payable", org, id],
     queryFn: async () =>
-      (await fetch({ data: { organizationId: org!, kind: "payable", filters: { id }, page: 1 } })) as PayableDetail,
+      (await fetch({
+        data: { organizationId: org!, kind: "payable", filters: { id }, page: 1 },
+      })) as PayableDetail,
     enabled: Boolean(org && can && id),
   });
   const [settleOpen, setSettleOpen] = useState(false);
@@ -1015,7 +1101,11 @@ export function FinancePayableDetailPage({ id }: { id: string }) {
                           {hasPermission("payables.reverse") ? (
                             <td className="py-2 text-right">
                               {!s.is_reversal ? (
-                                <Button variant="outline" size="sm" onClick={() => setReverseSettlement(s.id)}>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => setReverseSettlement(s.id)}
+                                >
                                   Estornar
                                 </Button>
                               ) : null}
@@ -1054,7 +1144,9 @@ export function FinanceTransactionsPage() {
   const q = useQuery({
     queryKey: ["finance", "transactions", org, filters, page],
     queryFn: async () =>
-      (await fetch({ data: { organizationId: org!, kind: "transactions", filters, page } })) as TransactionList,
+      (await fetch({
+        data: { organizationId: org!, kind: "transactions", filters, page },
+      })) as TransactionList,
     enabled: Boolean(org && can),
   });
   const refresh = () => {
@@ -1139,13 +1231,30 @@ export function FinanceTransactionsPage() {
                     </option>
                   ))}
                 </select>
-                <select aria-label="Direção" className={cls} value={direction} onChange={(e) => setDirection(e.target.value)}>
+                <select
+                  aria-label="Direção"
+                  className={cls}
+                  value={direction}
+                  onChange={(e) => setDirection(e.target.value)}
+                >
                   <option value="">Entradas e saídas</option>
                   <option value="IN">Entradas</option>
                   <option value="OUT">Saídas</option>
                 </select>
-                <Input type="date" className="w-40" value={from} onChange={(e) => setFrom(e.target.value)} aria-label="De" />
-                <Input type="date" className="w-40" value={to} onChange={(e) => setTo(e.target.value)} aria-label="Até" />
+                <Input
+                  type="date"
+                  className="w-40"
+                  value={from}
+                  onChange={(e) => setFrom(e.target.value)}
+                  aria-label="De"
+                />
+                <Input
+                  type="date"
+                  className="w-40"
+                  value={to}
+                  onChange={(e) => setTo(e.target.value)}
+                  aria-label="Até"
+                />
               </div>
               {(q.data?.rows ?? []).length === 0 ? (
                 <EmptyState title="Nenhum lançamento" />
@@ -1174,7 +1283,9 @@ export function FinanceTransactionsPage() {
                                   {transactionTypeLabel(t.type)}
                                 </Badge>
                               </td>
-                              <td className="py-2 pr-4 font-mono text-xs">{t.document_number ?? "—"}</td>
+                              <td className="py-2 pr-4 font-mono text-xs">
+                                {t.document_number ?? "—"}
+                              </td>
                               <td className="py-2 pr-4">{t.description ?? "—"}</td>
                               <td
                                 className={`py-2 pr-4 text-right font-medium ${
@@ -1193,7 +1304,11 @@ export function FinanceTransactionsPage() {
                 </Card>
               )}
               <div className="flex items-center gap-2">
-                <Button variant="outline" disabled={page <= 1} onClick={() => setPage((p) => Math.max(1, p - 1))}>
+                <Button
+                  variant="outline"
+                  disabled={page <= 1}
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                >
                   Anterior
                 </Button>
                 <span className="text-sm text-muted-foreground">
@@ -1248,7 +1363,12 @@ export function FinanceCashflowPage() {
             <h2 className="font-heading text-xl font-semibold">
               Fluxo de caixa · {formatDate(q.data.from)} a {formatDate(q.data.to)}
             </h2>
-            <select aria-label="Horizonte" className={cls} value={days} onChange={(e) => setDays(e.target.value)}>
+            <select
+              aria-label="Horizonte"
+              className={cls}
+              value={days}
+              onChange={(e) => setDays(e.target.value)}
+            >
               <option value="7">Próximos 7 dias</option>
               <option value="15">Próximos 15 dias</option>
               <option value="30">Próximos 30 dias</option>
@@ -1267,11 +1387,15 @@ export function FinanceCashflowPage() {
             </div>
             <div className="rounded border p-3">
               <p className="text-sm text-muted-foreground">Entradas (realizadas)</p>
-              <p className="text-xl font-semibold text-emerald-600">{formatMoney(q.data.realized_in)}</p>
+              <p className="text-xl font-semibold text-emerald-600">
+                {formatMoney(q.data.realized_in)}
+              </p>
             </div>
             <div className="rounded border p-3">
               <p className="text-sm text-muted-foreground">Saídas (realizadas)</p>
-              <p className="text-xl font-semibold text-red-600">{formatMoney(q.data.realized_out)}</p>
+              <p className="text-xl font-semibold text-red-600">
+                {formatMoney(q.data.realized_out)}
+              </p>
             </div>
           </div>
           <Card>
@@ -1307,10 +1431,14 @@ export function FinanceCashflowPage() {
                             <span className="text-red-600">−{formatMoney(d.realized_out)}</span>
                           </td>
                           <td className="py-2 pr-4 text-right">
-                            <span className="text-emerald-600/80">+{formatMoney(d.projected_in)}</span>{" "}
+                            <span className="text-emerald-600/80">
+                              +{formatMoney(d.projected_in)}
+                            </span>{" "}
                             <span className="text-red-600/80">−{formatMoney(d.projected_out)}</span>
                           </td>
-                          <td className={`py-2 pr-4 text-right font-medium ${final < 0 ? "text-red-600" : ""}`}>
+                          <td
+                            className={`py-2 pr-4 text-right font-medium ${final < 0 ? "text-red-600" : ""}`}
+                          >
                             {formatMoney(final)}
                           </td>
                         </tr>
@@ -1322,8 +1450,8 @@ export function FinanceCashflowPage() {
             </CardContent>
           </Card>
           <p className="text-sm text-muted-foreground">
-            Projeções usam títulos em aberto e recorrências ativas por vencimento. Dívida de fornecedores e contas
-            incobráveis não são projetadas.
+            Projeções usam títulos em aberto e recorrências ativas por vencimento. Dívida de
+            fornecedores e contas incobráveis não são projetadas.
           </p>
         </>
       ) : null}
@@ -1415,7 +1543,10 @@ export function FinanceAccountsPage() {
           ) : q.error ? (
             <ErrorState description={q.error.message} onRetry={() => void q.refetch()} />
           ) : (q.data?.rows ?? []).length === 0 ? (
-            <EmptyState title="Nenhuma conta financeira" description="Crie uma conta para registrar o caixa." />
+            <EmptyState
+              title="Nenhuma conta financeira"
+              description="Crie uma conta para registrar o caixa."
+            />
           ) : (
             <Card>
               <CardContent className="pt-6">
@@ -1438,7 +1569,9 @@ export function FinanceAccountsPage() {
                             {a.name}
                             {a.bank_name || a.agency ? (
                               <p className="text-xs text-muted-foreground">
-                                {[a.bank_name, a.agency, a.account_reference].filter(Boolean).join(" · ")}
+                                {[a.bank_name, a.agency, a.account_reference]
+                                  .filter(Boolean)
+                                  .join(" · ")}
                               </p>
                             ) : null}
                           </td>
@@ -1448,10 +1581,14 @@ export function FinanceAccountsPage() {
                               {accountStatusLabel(a.status)}
                             </Badge>
                           </td>
-                          <td className={`py-2 pr-4 text-right font-medium ${a.balance < 0 ? "text-red-600" : ""}`}>
+                          <td
+                            className={`py-2 pr-4 text-right font-medium ${a.balance < 0 ? "text-red-600" : ""}`}
+                          >
                             {formatMoney(a.balance)}
                           </td>
-                          <td className="py-2 pr-4 text-right">{formatMoney(a.opening_balance_reference)}</td>
+                          <td className="py-2 pr-4 text-right">
+                            {formatMoney(a.opening_balance_reference)}
+                          </td>
                           <td className="py-2 text-right">
                             {canManage ? (
                               <Button variant="outline" size="sm" onClick={() => setEditing(a)}>
@@ -1495,7 +1632,19 @@ export function FinanceReportsPage() {
     queryFn: async () =>
       (await fetch({
         data: { organizationId: org!, kind: "report_category", filters: { from, to }, page: 1 },
-      })) as { from: string; to: string; rows: { code: string; name: string; type: string; inflows_realized: number; outflows_realized: number; inflows_projected: number; outflows_projected: number }[] },
+      })) as {
+        from: string;
+        to: string;
+        rows: {
+          code: string;
+          name: string;
+          type: string;
+          inflows_realized: number;
+          outflows_realized: number;
+          inflows_projected: number;
+          outflows_projected: number;
+        }[];
+      },
     enabled: Boolean(org && can),
   });
   const ccQ = useQuery({
@@ -1503,7 +1652,11 @@ export function FinanceReportsPage() {
     queryFn: async () =>
       (await fetch({
         data: { organizationId: org!, kind: "report_cost_center", filters: { from, to }, page: 1 },
-      })) as { from: string; to: string; rows: { code: string; name: string; inflows_realized: number; outflows_realized: number }[] },
+      })) as {
+        from: string;
+        to: string;
+        rows: { code: string; name: string; inflows_realized: number; outflows_realized: number }[];
+      },
     enabled: Boolean(org && can),
   });
   const agingQ = useQuery({
@@ -1527,7 +1680,12 @@ export function FinanceReportsPage() {
         <>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="font-heading text-xl font-semibold">Relatórios de resultados</h2>
-            <select aria-label="Período" className={cls} value={months} onChange={(e) => setMonths(e.target.value)}>
+            <select
+              aria-label="Período"
+              className={cls}
+              value={months}
+              onChange={(e) => setMonths(e.target.value)}
+            >
               <option value="1">Mês corrente</option>
               <option value="3">Últimos 3 meses</option>
               <option value="6">Últimos 6 meses</option>
@@ -1562,13 +1720,21 @@ export function FinanceReportsPage() {
                         <tr key={r.code} className="border-b">
                           <td className="py-2 pr-4">
                             {r.name}
-                            <span className="ml-2 font-mono text-xs text-muted-foreground">{r.code}</span>
+                            <span className="ml-2 font-mono text-xs text-muted-foreground">
+                              {r.code}
+                            </span>
                           </td>
                           <td className="py-2 pr-4">
-                            <Badge variant={r.type === "REVENUE" ? "default" : "secondary"}>{categoryTypeLabel(r.type)}</Badge>
+                            <Badge variant={r.type === "REVENUE" ? "default" : "secondary"}>
+                              {categoryTypeLabel(r.type)}
+                            </Badge>
                           </td>
-                          <td className="py-2 pr-4 text-right text-emerald-600">{formatMoney(r.inflows_realized)}</td>
-                          <td className="py-2 pr-4 text-right text-red-600">{formatMoney(r.outflows_realized)}</td>
+                          <td className="py-2 pr-4 text-right text-emerald-600">
+                            {formatMoney(r.inflows_realized)}
+                          </td>
+                          <td className="py-2 pr-4 text-right text-red-600">
+                            {formatMoney(r.outflows_realized)}
+                          </td>
                           <td className="py-2 pr-4 text-right font-medium">
                             {formatMoney(r.inflows_realized - r.outflows_realized)}
                           </td>
@@ -1607,10 +1773,16 @@ export function FinanceReportsPage() {
                         <tr key={r.code} className="border-b">
                           <td className="py-2 pr-4">
                             {r.name}
-                            <span className="ml-2 font-mono text-xs text-muted-foreground">{r.code}</span>
+                            <span className="ml-2 font-mono text-xs text-muted-foreground">
+                              {r.code}
+                            </span>
                           </td>
-                          <td className="py-2 pr-4 text-right text-emerald-600">{formatMoney(r.inflows_realized)}</td>
-                          <td className="py-2 pr-4 text-right text-red-600">{formatMoney(r.outflows_realized)}</td>
+                          <td className="py-2 pr-4 text-right text-emerald-600">
+                            {formatMoney(r.inflows_realized)}
+                          </td>
+                          <td className="py-2 pr-4 text-right text-red-600">
+                            {formatMoney(r.outflows_realized)}
+                          </td>
                           <td className="py-2 pr-4 text-right font-medium">
                             {formatMoney(r.inflows_realized - r.outflows_realized)}
                           </td>
@@ -1630,14 +1802,25 @@ export function FinanceReportsPage() {
               {agingQ.isLoading ? (
                 <LoadingState />
               ) : agingQ.error ? (
-                <ErrorState description={agingQ.error.message} onRetry={() => void agingQ.refetch()} />
+                <ErrorState
+                  description={agingQ.error.message}
+                  onRetry={() => void agingQ.refetch()}
+                />
               ) : (
                 <>
                   <div className="flex flex-wrap gap-2">
-                    <Button variant={side === "receivable" ? "default" : "outline"} size="sm" onClick={() => setSide("receivable")}>
+                    <Button
+                      variant={side === "receivable" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSide("receivable")}
+                    >
                       A receber
                     </Button>
-                    <Button variant={side === "payable" ? "default" : "outline"} size="sm" onClick={() => setSide("payable")}>
+                    <Button
+                      variant={side === "payable" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setSide("payable")}
+                    >
                       A pagar
                     </Button>
                   </div>
@@ -1655,7 +1838,9 @@ export function FinanceReportsPage() {
                           <tr key={r.bucket} className="border-b">
                             <td className="py-2 pr-4">{r.bucket}</td>
                             <td className="py-2 pr-4 text-right">{formatNumber(r.documents, 0)}</td>
-                            <td className="py-2 pr-4 text-right font-medium">{formatMoney(r.total)}</td>
+                            <td className="py-2 pr-4 text-right font-medium">
+                              {formatMoney(r.total)}
+                            </td>
                           </tr>
                         ))}
                       </tbody>
@@ -1685,7 +1870,9 @@ export function FinanceRecurrencesPage() {
   const q = useQuery({
     queryKey: ["finance", "recurrences", org],
     queryFn: async () =>
-      (await fetch({ data: { organizationId: org!, kind: "recurrences", filters: {}, page: 1 } })) as RecurrenceRow[],
+      (await fetch({
+        data: { organizationId: org!, kind: "recurrences", filters: {}, page: 1 },
+      })) as RecurrenceRow[],
     enabled: Boolean(org && can),
   });
   const genMutation = useMutation({
@@ -1735,7 +1922,11 @@ export function FinanceRecurrencesPage() {
               />
               {canManage ? (
                 <>
-                  <Button variant="outline" disabled={genMutation.isPending} onClick={() => genMutation.mutate()}>
+                  <Button
+                    variant="outline"
+                    disabled={genMutation.isPending}
+                    onClick={() => genMutation.mutate()}
+                  >
                     Gerar competência
                   </Button>
                   <Button onClick={() => setOpen(true)}>Nova recorrência</Button>
@@ -1748,7 +1939,10 @@ export function FinanceRecurrencesPage() {
           ) : q.error ? (
             <ErrorState description={q.error.message} onRetry={() => void q.refetch()} />
           ) : (q.data ?? []).length === 0 ? (
-            <EmptyState title="Nenhuma recorrência" description="Ex.: aluguel, salários, mensalidades." />
+            <EmptyState
+              title="Nenhuma recorrência"
+              description="Ex.: aluguel, salários, mensalidades."
+            />
           ) : (
             <Card>
               <CardContent className="pt-6">
@@ -1822,25 +2016,33 @@ export function FinanceSettingsPage() {
   const settingsQ = useQuery({
     queryKey: ["finance", "settings", org],
     queryFn: async () =>
-      (await fetch({ data: { organizationId: org!, kind: "settings", filters: {}, page: 1 } })) as FinanceSettings,
+      (await fetch({
+        data: { organizationId: org!, kind: "settings", filters: {}, page: 1 },
+      })) as FinanceSettings,
     enabled: Boolean(org && can && canSettings),
   });
   const cats = useQuery({
     queryKey: ["finance", "categories", org],
     queryFn: async () =>
-      (await fetch({ data: { organizationId: org!, kind: "categories", filters: {}, page: 1 } })) as FinancialCategoryRow[],
+      (await fetch({
+        data: { organizationId: org!, kind: "categories", filters: {}, page: 1 },
+      })) as FinancialCategoryRow[],
     enabled: Boolean(org && can),
   });
   const ccs = useQuery({
     queryKey: ["finance", "cost_centers", org],
     queryFn: async () =>
-      (await fetch({ data: { organizationId: org!, kind: "cost_centers", filters: {}, page: 1 } })) as CostCenterRow[],
+      (await fetch({
+        data: { organizationId: org!, kind: "cost_centers", filters: {}, page: 1 },
+      })) as CostCenterRow[],
     enabled: Boolean(org && can),
   });
   const pms = useQuery({
     queryKey: ["finance", "payment_methods", org],
     queryFn: async () =>
-      (await fetch({ data: { organizationId: org!, kind: "payment_methods", filters: {}, page: 1 } })) as PaymentMethodRow[],
+      (await fetch({
+        data: { organizationId: org!, kind: "payment_methods", filters: {}, page: 1 },
+      })) as PaymentMethodRow[],
     enabled: Boolean(org && can),
   });
   const refresh = () => {
@@ -2038,7 +2240,9 @@ export function FinanceHistoryPage() {
   const q = useQuery({
     queryKey: ["finance", "history", org],
     queryFn: async () =>
-      (await fetch({ data: { organizationId: org!, kind: "history", filters: {}, page: 1 } })) as FinanceHistoryRow[],
+      (await fetch({
+        data: { organizationId: org!, kind: "history", filters: {}, page: 1 },
+      })) as FinanceHistoryRow[],
     enabled: Boolean(org && can),
   });
   return (

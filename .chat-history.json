@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && python3 scripts/test-finance-db.py\" 2>&1 | tail -30",
-      "timeout": 300000
-    },
-    "timestamp": 1790128419643
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS: catálogo financeiro, contas, centros, formas, ajustes e configurações\nPASS: parcelamento, desconto/ajuste/juros, cancelamento e baixa\nPASS: recebimento parcial/total, overpayment bloqueado e idempotência por chave\nPASS: pagamento com desconto e status do título atualizado\nPASS: saldo inicial ú",
-    "is_error": false,
-    "timestamp": 1790128422593
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-finance-db.py",
@@ -1644,5 +1629,20 @@
     "content": "$ vitest run\n\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabrica\n\n ✓ src/lib/inventory/ledger.test.ts (12 tests) 8ms\n ✓ src/lib/rbac.test.ts (9 tests) 11ms\n ✓ src/lib/middleware/rate-limit.test.ts (3 tests) 6ms\n ✓ src/lib/webhook/signature.test.ts (5 tests) 5ms\n ✓ src/lib/csv.test.ts (5 tests) 6m",
     "is_error": false,
     "timestamp": 1790129278986
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "bunx eslint --fix src/lib/finance src/components/finance src/routes/_authenticated/financeiro src/lib/rbac.ts src/lib/rbac.test.ts src/components/layout/app-shell.tsx 2>&1 | tail -30",
+      "timeout": 180000
+    },
+    "timestamp": 1790129280626
+  },
+  {
+    "role": "tool_result",
+    "content": "(no output)",
+    "is_error": false,
+    "timestamp": 1790129286254
   }
 ]

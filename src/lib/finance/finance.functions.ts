@@ -36,25 +36,22 @@ const categoryRef = z.string().uuid().optional();
 const costCenterRef = z.string().uuid().optional();
 const currency = z.literal("BRL").default("BRL");
 
-const receivableSchema = z
-  .object({
-    company_id: z.string().uuid(),
-    amount: money,
-    description: z.string().trim().min(1).max(400),
-    issue_date: z.iso.date().optional(),
-    due_date: z.iso.date(),
-    competence_date: z.iso.date().optional(),
-    installments: z.number().int().min(1).max(12).default(1),
-    financial_category_id: categoryRef,
-    cost_center_id: costCenterRef,
-    currency,
-    notes: z.string().max(4000).optional(),
-  })
+const receivableSchema = z.object({
+  company_id: z.string().uuid(),
+  amount: money,
+  description: z.string().trim().min(1).max(400),
+  issue_date: z.iso.date().optional(),
+  due_date: z.iso.date(),
+  competence_date: z.iso.date().optional(),
+  installments: z.number().int().min(1).max(12).default(1),
+  financial_category_id: categoryRef,
+  cost_center_id: costCenterRef,
+  currency,
+  notes: z.string().max(4000).optional(),
+});
 export const createReceivable = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z.object({ organizationId: org, data: receivableSchema }).parse(input),
-  )
+  .inputValidator((input) => z.object({ organizationId: org, data: receivableSchema }).parse(input))
   .handler(async ({ data, context }) => {
     const { data: result, error } = await context.supabase.rpc("fin_create_receivable", {
       _org: data.organizationId,
@@ -64,24 +61,21 @@ export const createReceivable = createServerFn({ method: "POST" })
     return result as Json;
   });
 
-const payableSchema = z
-  .object({
-    amount: money,
-    description: z.string().trim().min(1).max(400),
-    company_id: companyRef,
-    issue_date: z.iso.date().optional(),
-    due_date: z.iso.date(),
-    competence_date: z.iso.date().optional(),
-    financial_category_id: categoryRef,
-    cost_center_id: costCenterRef,
-    currency,
-    notes: z.string().max(4000).optional(),
-  })
+const payableSchema = z.object({
+  amount: money,
+  description: z.string().trim().min(1).max(400),
+  company_id: companyRef,
+  issue_date: z.iso.date().optional(),
+  due_date: z.iso.date(),
+  competence_date: z.iso.date().optional(),
+  financial_category_id: categoryRef,
+  cost_center_id: costCenterRef,
+  currency,
+  notes: z.string().max(4000).optional(),
+});
 export const createPayable = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z.object({ organizationId: org, data: payableSchema }).parse(input),
-  )
+  .inputValidator((input) => z.object({ organizationId: org, data: payableSchema }).parse(input))
   .handler(async ({ data, context }) => {
     const { data: result, error } = await context.supabase.rpc("fin_create_payable", {
       _org: data.organizationId,
@@ -91,18 +85,17 @@ export const createPayable = createServerFn({ method: "POST" })
     return result as Json;
   });
 
-const documentOpSchema = z
-  .object({
-    reason: z.string().trim().min(1).max(600),
-    amount: money.optional(),
-    type: z.enum(["CREDIT", "DEBIT"]).optional(),
-    interest_amount: money.optional(),
-    penalty_amount: money.optional(),
-    due_date: z.iso.date().optional(),
-    competence_date: z.iso.date().optional(),
-    financial_category_id: categoryRef,
-    cost_center_id: costCenterRef,
-  })
+const documentOpSchema = z.object({
+  reason: z.string().trim().min(1).max(600),
+  amount: money.optional(),
+  type: z.enum(["CREDIT", "DEBIT"]).optional(),
+  interest_amount: money.optional(),
+  penalty_amount: money.optional(),
+  due_date: z.iso.date().optional(),
+  competence_date: z.iso.date().optional(),
+  financial_category_id: categoryRef,
+  cost_center_id: costCenterRef,
+});
 export const documentMutate = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -137,20 +130,19 @@ export const documentMutate = createServerFn({ method: "POST" })
     return result as Json;
   });
 
-const settlementSchema = z
-  .object({
-    account_id: z.string().uuid(),
-    amount: money,
-    receipt_key: z.string().max(200).optional(),
-    occurred_at: z.iso.datetime().optional(),
-    discount_amount: money.optional(),
-    interest_amount: money.optional(),
-    penalty_amount: money.optional(),
-    payment_method_id: z.string().uuid().optional(),
-    financial_category_id: categoryRef,
-    cost_center_id: costCenterRef,
-    description: z.string().max(400).optional(),
-  })
+const settlementSchema = z.object({
+  account_id: z.string().uuid(),
+  amount: money,
+  receipt_key: z.string().max(200).optional(),
+  occurred_at: z.iso.datetime().optional(),
+  discount_amount: money.optional(),
+  interest_amount: money.optional(),
+  penalty_amount: money.optional(),
+  payment_method_id: z.string().uuid().optional(),
+  financial_category_id: categoryRef,
+  cost_center_id: costCenterRef,
+  description: z.string().max(400).optional(),
+});
 export const settle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -195,20 +187,17 @@ export const reverseTransaction = createServerFn({ method: "POST" })
     return result as Json;
   });
 
-const transferSchema = z
-  .object({
-    from_account_id: z.string().uuid(),
-    to_account_id: z.string().uuid(),
-    amount: money,
-    occurred_at: z.iso.datetime().optional(),
-    transfer_key: z.string().max(200).optional(),
-    notes: z.string().max(400).optional(),
-  })
+const transferSchema = z.object({
+  from_account_id: z.string().uuid(),
+  to_account_id: z.string().uuid(),
+  amount: money,
+  occurred_at: z.iso.datetime().optional(),
+  transfer_key: z.string().max(200).optional(),
+  notes: z.string().max(400).optional(),
+});
 export const transfer = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z.object({ organizationId: org, data: transferSchema }).parse(input),
-  )
+  .inputValidator((input) => z.object({ organizationId: org, data: transferSchema }).parse(input))
   .handler(async ({ data, context }) => {
     const { data: result, error } = await context.supabase.rpc("fin_transfer", {
       _org: data.organizationId,
@@ -218,14 +207,13 @@ export const transfer = createServerFn({ method: "POST" })
     return result as Json;
   });
 
-const openingBalanceSchema = z
-  .object({
-    account_id: z.string().uuid(),
-    amount: money,
-    date: z.iso.date().optional(),
-    reason: z.string().trim().min(1).max(400),
-    balance_key: z.string().max(200).optional(),
-  })
+const openingBalanceSchema = z.object({
+  account_id: z.string().uuid(),
+  amount: money,
+  date: z.iso.date().optional(),
+  reason: z.string().trim().min(1).max(400),
+  balance_key: z.string().max(200).optional(),
+});
 export const openingBalance = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -240,19 +228,18 @@ export const openingBalance = createServerFn({ method: "POST" })
     return result as Json;
   });
 
-const directMovementSchema = z
-  .object({
-    account_id: z.string().uuid(),
-    direction: z.enum(["IN", "OUT"]),
-    amount: money,
-    date: z.iso.date().optional(),
-    description: z.string().trim().min(1).max(400),
-    receipt_key: z.string().max(200).optional(),
-    company_id: companyRef,
-    financial_category_id: categoryRef,
-    cost_center_id: costCenterRef,
-    payment_method_id: z.string().uuid().optional(),
-  })
+const directMovementSchema = z.object({
+  account_id: z.string().uuid(),
+  direction: z.enum(["IN", "OUT"]),
+  amount: money,
+  date: z.iso.date().optional(),
+  description: z.string().trim().min(1).max(400),
+  receipt_key: z.string().max(200).optional(),
+  company_id: companyRef,
+  financial_category_id: categoryRef,
+  cost_center_id: costCenterRef,
+  payment_method_id: z.string().uuid().optional(),
+});
 export const directMovement = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -267,15 +254,14 @@ export const directMovement = createServerFn({ method: "POST" })
     return result as Json;
   });
 
-const catalogSchema = z
-  .object({
-    code: z.string().trim().min(1).max(40),
-    name: z.string().trim().min(1).max(180),
-    type: z.enum(["REVENUE", "EXPENSE"]).optional(),
-    parent_id: z.string().uuid().optional(),
-    status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
-    sort_order: z.number().int().optional(),
-  })
+const catalogSchema = z.object({
+  code: z.string().trim().min(1).max(40),
+  name: z.string().trim().min(1).max(180),
+  type: z.enum(["REVENUE", "EXPENSE"]).optional(),
+  parent_id: z.string().uuid().optional(),
+  status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
+  sort_order: z.number().int().optional(),
+});
 export const saveCategory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -291,13 +277,12 @@ export const saveCategory = createServerFn({ method: "POST" })
     return result as Json;
   });
 
-const costCenterSchema = z
-  .object({
-    code: z.string().trim().min(1).max(40),
-    name: z.string().trim().min(1).max(180),
-    parent_id: z.string().uuid().optional(),
-    status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
-  })
+const costCenterSchema = z.object({
+  code: z.string().trim().min(1).max(40),
+  name: z.string().trim().min(1).max(180),
+  parent_id: z.string().uuid().optional(),
+  status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
+});
 export const saveCostCenter = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -313,17 +298,16 @@ export const saveCostCenter = createServerFn({ method: "POST" })
     return result as Json;
   });
 
-const accountSchema = z
-  .object({
-    name: z.string().trim().min(1).max(180),
-    type: z.enum(["BANK", "CASH", "DIGITAL_WALLET", "PAYMENT_PROVIDER", "OTHER"]).optional(),
-    bank_name: z.string().max(120).optional(),
-    agency: z.string().max(40).optional(),
-    account_reference: z.string().max(80).optional(),
-    currency: currency.optional(),
-    status: z.enum(["ACTIVE", "INACTIVE", "CLOSED"]).optional(),
-    opening_balance_reference: money.optional(),
-  })
+const accountSchema = z.object({
+  name: z.string().trim().min(1).max(180),
+  type: z.enum(["BANK", "CASH", "DIGITAL_WALLET", "PAYMENT_PROVIDER", "OTHER"]).optional(),
+  bank_name: z.string().max(120).optional(),
+  agency: z.string().max(40).optional(),
+  account_reference: z.string().max(80).optional(),
+  currency: currency.optional(),
+  status: z.enum(["ACTIVE", "INACTIVE", "CLOSED"]).optional(),
+  opening_balance_reference: money.optional(),
+});
 export const saveAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -339,12 +323,11 @@ export const saveAccount = createServerFn({ method: "POST" })
     return result as Json;
   });
 
-const paymentMethodSchema = z
-  .object({
-    code: z.string().trim().min(1).max(40),
-    name: z.string().trim().min(1).max(180),
-    status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
-  })
+const paymentMethodSchema = z.object({
+  code: z.string().trim().min(1).max(40),
+  name: z.string().trim().min(1).max(180),
+  status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
+});
 export const savePaymentMethod = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -360,17 +343,14 @@ export const savePaymentMethod = createServerFn({ method: "POST" })
     return result as Json;
   });
 
-const settingsSchema = z
-  .object({
-    currency: currency.optional(),
-    partner_receivable_due_days: z.number().int().min(0).max(365).optional(),
-    partner_receivable_installments: z.number().int().min(1).max(12).optional(),
-  })
+const settingsSchema = z.object({
+  currency: currency.optional(),
+  partner_receivable_due_days: z.number().int().min(0).max(365).optional(),
+  partner_receivable_installments: z.number().int().min(1).max(12).optional(),
+});
 export const saveSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z.object({ organizationId: org, data: settingsSchema }).parse(input),
-  )
+  .inputValidator((input) => z.object({ organizationId: org, data: settingsSchema }).parse(input))
   .handler(async ({ data, context }) => {
     const { data: result, error } = await context.supabase.rpc("fin_save_settings", {
       _org: data.organizationId,
@@ -380,21 +360,20 @@ export const saveSettings = createServerFn({ method: "POST" })
     return result as Json;
   });
 
-const recurrenceSchema = z
-  .object({
-    name: z.string().trim().min(1).max(200),
-    direction: z.enum(["IN", "OUT"]),
-    amount: money,
-    company_id: companyRef,
-    financial_category_id: categoryRef,
-    cost_center_id: costCenterRef,
-    payment_method_id: z.string().uuid().optional(),
-    frequency: z.literal("MONTHLY").default("MONTHLY"),
-    day_of_month: z.number().int().min(1).max(31).default(1),
-    start_date: z.iso.date(),
-    end_date: z.iso.date().optional(),
-    status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
-  })
+const recurrenceSchema = z.object({
+  name: z.string().trim().min(1).max(200),
+  direction: z.enum(["IN", "OUT"]),
+  amount: money,
+  company_id: companyRef,
+  financial_category_id: categoryRef,
+  cost_center_id: costCenterRef,
+  payment_method_id: z.string().uuid().optional(),
+  frequency: z.literal("MONTHLY").default("MONTHLY"),
+  day_of_month: z.number().int().min(1).max(31).default(1),
+  start_date: z.iso.date(),
+  end_date: z.iso.date().optional(),
+  status: z.enum(["ACTIVE", "INACTIVE"]).optional(),
+});
 export const saveRecurrence = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input) =>
@@ -431,9 +410,7 @@ export const generateRecurrences = createServerFn({ method: "POST" })
 
 export const processReconciliation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) =>
-    z.object({ organizationId: org, reconciliationId: org }).parse(input),
-  )
+  .inputValidator((input) => z.object({ organizationId: org, reconciliationId: org }).parse(input))
   .handler(async ({ data, context }) => {
     const { data: result, error } = await context.supabase.rpc("fin_process_reconciliation", {
       _org: data.organizationId,

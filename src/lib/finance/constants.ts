@@ -99,7 +99,8 @@ export const FIN_FILTER_KEYS = [
   "from",
   "to",
 ] as const;
-export const documentStatusLabel = (s: string | null | undefined) => (s ? DOCUMENT_STATUS[s] ?? s : "—");
+export const documentStatusLabel = (s: string | null | undefined) =>
+  s ? (DOCUMENT_STATUS[s] ?? s) : "—";
 export const accountTypeLabel = (s: string) => ACCOUNT_TYPE[s] ?? s;
 export const accountStatusLabel = (s: string) => ACCOUNT_STATUS[s] ?? s;
 export const categoryTypeLabel = (s: string) => CATEGORY_TYPE[s] ?? s;

@@ -149,7 +149,14 @@ export function CreateReceivableDialog({
             <CompanySelect companies={companies} value="" onChange={() => undefined} />
             <label className="block space-y-1">
               <span className={labelClass}>Valor (R$) *</span>
-              <Input name="amount" type="number" step="0.01" min="0" required placeholder="100,00" />
+              <Input
+                name="amount"
+                type="number"
+                step="0.01"
+                min="0"
+                required
+                placeholder="100,00"
+              />
             </label>
             <label className="block space-y-1">
               <span className={labelClass}>Vencimento *</span>
@@ -255,10 +262,22 @@ export function CreatePayableDialog({
           }}
         >
           <div className={gridClass}>
-            <CompanySelect companies={companies} value="" onChange={() => undefined} required={false} />
+            <CompanySelect
+              companies={companies}
+              value=""
+              onChange={() => undefined}
+              required={false}
+            />
             <label className="block space-y-1">
               <span className={labelClass}>Valor (R$) *</span>
-              <Input name="amount" type="number" step="0.01" min="0" required placeholder="100,00" />
+              <Input
+                name="amount"
+                type="number"
+                step="0.01"
+                min="0"
+                required
+                placeholder="100,00"
+              />
             </label>
             <label className="block space-y-1">
               <span className={labelClass}>Vencimento *</span>
@@ -393,7 +412,11 @@ export function SettleDialog({
           </div>
           <label className="block space-y-1">
             <span className={labelClass}>Chave de idempotência (opcional)</span>
-            <Input value={receiptKey} onChange={(e) => setReceiptKey(e.target.value)} placeholder="Ex.: TED-1234" />
+            <Input
+              value={receiptKey}
+              onChange={(e) => setReceiptKey(e.target.value)}
+              placeholder="Ex.: TED-1234"
+            />
           </label>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={onClose}>
@@ -410,13 +433,7 @@ export function SettleDialog({
 }
 
 export type DocumentOp =
-  | "cancel"
-  | "write_off"
-  | "discount"
-  | "adjust"
-  | "charges"
-  | "due_date"
-  | "category";
+  "cancel" | "write_off" | "discount" | "adjust" | "charges" | "due_date" | "category";
 
 const OP_TITLES: Record<DocumentOp, string> = {
   cancel: "Cancelar título",
@@ -493,27 +510,47 @@ export function DocumentActionDialog({
           {needsReason ? (
             <label className="block space-y-1">
               <span className={labelClass}>Motivo *</span>
-              <Input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Obrigatório" />
+              <Input
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder="Obrigatório"
+              />
             </label>
           ) : null}
           {op === "discount" ? (
             <label className="block space-y-1">
               <span className={labelClass}>Valor do desconto (R$) *</span>
-              <Input type="number" step="0.01" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} />
+              <Input
+                type="number"
+                step="0.01"
+                min="0"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+              />
             </label>
           ) : null}
           {op === "adjust" ? (
             <div className={gridClass}>
               <label className="block space-y-1">
                 <span className={labelClass}>Tipo</span>
-                <select className={inputClass} value={type} onChange={(e) => setType(e.target.value)}>
+                <select
+                  className={inputClass}
+                  value={type}
+                  onChange={(e) => setType(e.target.value)}
+                >
                   <option value="CREDIT">Crédito (aumenta)</option>
                   <option value="DEBIT">Débito (reduz)</option>
                 </select>
               </label>
               <label className="block space-y-1">
                 <span className={labelClass}>Valor (R$) *</span>
-                <Input type="number" step="0.01" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} />
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                />
               </label>
             </div>
           ) : null}
@@ -521,18 +558,35 @@ export function DocumentActionDialog({
             <div className={gridClass}>
               <label className="block space-y-1">
                 <span className={labelClass}>Juros (R$)</span>
-                <Input type="number" step="0.01" min="0" value={interest} onChange={(e) => setInterest(e.target.value)} />
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={interest}
+                  onChange={(e) => setInterest(e.target.value)}
+                />
               </label>
               <label className="block space-y-1">
                 <span className={labelClass}>Multa (R$)</span>
-                <Input type="number" step="0.01" min="0" value={penalty} onChange={(e) => setPenalty(e.target.value)} />
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={penalty}
+                  onChange={(e) => setPenalty(e.target.value)}
+                />
               </label>
             </div>
           ) : null}
           {op === "due_date" ? (
             <label className="block space-y-1">
               <span className={labelClass}>Nova data de vencimento *</span>
-              <input type="date" className={inputClass} value={dueDate} onChange={(e) => setDueDate(e.target.value)} />
+              <input
+                type="date"
+                className={inputClass}
+                value={dueDate}
+                onChange={(e) => setDueDate(e.target.value)}
+              />
             </label>
           ) : null}
           {op === "category" ? (
@@ -634,7 +688,11 @@ export function TransferDialog({
           </label>
           <label className="block space-y-1">
             <span className={labelClass}>Observações</span>
-            <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Opcional" />
+            <Input
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Opcional"
+            />
           </label>
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={onClose}>
@@ -697,7 +755,12 @@ export function OpeningBalanceDialog({
             mutation.mutate(e.currentTarget);
           }}
         >
-          <GenericSelect label="Conta *" value={accountId} onChange={setAccountId} options={accounts} />
+          <GenericSelect
+            label="Conta *"
+            value={accountId}
+            onChange={setAccountId}
+            options={accounts}
+          />
           <div className={gridClass}>
             <label className="block space-y-1">
               <span className={labelClass}>Valor (R$) *</span>
@@ -705,7 +768,12 @@ export function OpeningBalanceDialog({
             </label>
             <label className="block space-y-1">
               <span className={labelClass}>Data</span>
-              <Input name="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+              <Input
+                name="date"
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+              />
             </label>
           </div>
           <label className="block space-y-1">
@@ -788,10 +856,19 @@ export function DirectMovementDialog({
           }}
         >
           <div className={gridClass}>
-            <GenericSelect label="Conta *" value={accountId} onChange={setAccountId} options={accounts} />
+            <GenericSelect
+              label="Conta *"
+              value={accountId}
+              onChange={setAccountId}
+              options={accounts}
+            />
             <label className="block space-y-1">
               <span className={labelClass}>Direção *</span>
-              <select className={inputClass} value={direction} onChange={(e) => setDirection(e.target.value)}>
+              <select
+                className={inputClass}
+                value={direction}
+                onChange={(e) => setDirection(e.target.value)}
+              >
                 <option value="IN">Entrada</option>
                 <option value="OUT">Saída</option>
               </select>
@@ -800,7 +877,12 @@ export function DirectMovementDialog({
               <span className={labelClass}>Valor (R$) *</span>
               <Input name="amount" type="number" step="0.01" min="0" required placeholder="0,00" />
             </label>
-            <CompanySelect companies={companies} value="" onChange={() => undefined} required={false} />
+            <CompanySelect
+              companies={companies}
+              value=""
+              onChange={() => undefined}
+              required={false}
+            />
           </div>
           <div className={gridClass}>
             <GenericSelect
@@ -889,7 +971,11 @@ export function SaveAccountDialog({
         <div className="space-y-4">
           <label className="block space-y-1">
             <span className={labelClass}>Nome *</span>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Nubank PJ" />
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Ex.: Nubank PJ"
+            />
           </label>
           <div className={gridClass}>
             <label className="block space-y-1">
@@ -914,12 +1000,21 @@ export function SaveAccountDialog({
             </label>
             <label className="block space-y-1">
               <span className={labelClass}>Conta</span>
-              <Input value={accountReference} onChange={(e) => setAccountReference(e.target.value)} />
+              <Input
+                value={accountReference}
+                onChange={(e) => setAccountReference(e.target.value)}
+              />
             </label>
           </div>
           <label className="block space-y-1">
             <span className={labelClass}>Saldo inicial de referência (opcional)</span>
-            <Input type="number" step="0.01" value={opening} onChange={(e) => setOpening(e.target.value)} placeholder="0,00" />
+            <Input
+              type="number"
+              step="0.01"
+              value={opening}
+              onChange={(e) => setOpening(e.target.value)}
+              placeholder="0,00"
+            />
           </label>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={onClose}>
@@ -978,7 +1073,11 @@ export function SaveCategoryDialog({
           <div className={gridClass}>
             <label className="block space-y-1">
               <span className={labelClass}>Código *</span>
-              <Input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Ex.: FRETE" />
+              <Input
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                placeholder="Ex.: FRETE"
+              />
             </label>
             <label className="block space-y-1">
               <span className={labelClass}>Tipo</span>
@@ -990,7 +1089,11 @@ export function SaveCategoryDialog({
           </div>
           <label className="block space-y-1">
             <span className={labelClass}>Nome *</span>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Fretes" />
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Ex.: Fretes"
+            />
           </label>
           <label className="block space-y-1">
             <span className={labelClass}>Ordem</span>
@@ -1024,8 +1127,8 @@ export function SaveCostCenterDialog({
   onSaved: () => void;
 }) {
   const fn = useServerFn(saveCostCenter);
-  const [code, setCode] = useState(isEdit ? initial?.code ?? "" : "");
-  const [name, setName] = useState(isEdit ? initial?.name ?? "" : "");
+  const [code, setCode] = useState(isEdit ? (initial?.code ?? "") : "");
+  const [name, setName] = useState(isEdit ? (initial?.name ?? "") : "");
   const mutation = useMutation({
     mutationFn: () =>
       fn({
@@ -1050,11 +1153,19 @@ export function SaveCostCenterDialog({
         <div className="space-y-4">
           <label className="block space-y-1">
             <span className={labelClass}>Código *</span>
-            <Input value={code} onChange={(e) => setCode(e.target.value)} placeholder="Ex.: LOJAS" />
+            <Input
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              placeholder="Ex.: LOJAS"
+            />
           </label>
           <label className="block space-y-1">
             <span className={labelClass}>Nome *</span>
-            <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex.: Lojas" />
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Ex.: Lojas"
+            />
           </label>
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={onClose}>
@@ -1105,7 +1216,9 @@ export function SavePaymentMethodDialog({
     <Dialog open onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{isEdit ? "Editar forma de pagamento" : "Nova forma de pagamento"}</DialogTitle>
+          <DialogTitle>
+            {isEdit ? "Editar forma de pagamento" : "Nova forma de pagamento"}
+          </DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <label className="block space-y-1">
@@ -1174,11 +1287,22 @@ export function SettingsDialog({
           <div className={gridClass}>
             <label className="block space-y-1">
               <span className={labelClass}>Vencimento (dias)</span>
-              <Input type="number" min="0" value={dueDays} onChange={(e) => setDueDays(e.target.value)} />
+              <Input
+                type="number"
+                min="0"
+                value={dueDays}
+                onChange={(e) => setDueDays(e.target.value)}
+              />
             </label>
             <label className="block space-y-1">
               <span className={labelClass}>Parcelas</span>
-              <Input type="number" min="1" max="12" value={installments} onChange={(e) => setInstallments(e.target.value)} />
+              <Input
+                type="number"
+                min="1"
+                max="12"
+                value={installments}
+                onChange={(e) => setInstallments(e.target.value)}
+              />
             </label>
           </div>
           <div className="flex justify-end gap-2">
@@ -1227,7 +1351,8 @@ export function SaveRecurrenceDialog({
             name: String(f.name || ""),
             direction,
             amount: Number(amount),
-            company_id: direction === "IN" ? companyId : (String(f.company_id_option || "") || undefined),
+            company_id:
+              direction === "IN" ? companyId : String(f.company_id_option || "") || undefined,
             financial_category_id: String(f.financial_category_id || "") || undefined,
             cost_center_id: String(f.cost_center_id || "") || undefined,
             payment_method_id: String(f.payment_method_id || "") || undefined,
@@ -1264,7 +1389,11 @@ export function SaveRecurrenceDialog({
           <div className={gridClass}>
             <label className="block space-y-1">
               <span className={labelClass}>Direção *</span>
-              <select className={inputClass} value={direction} onChange={(e) => setDirection(e.target.value)}>
+              <select
+                className={inputClass}
+                value={direction}
+                onChange={(e) => setDirection(e.target.value)}
+              >
                 <option value="IN">Receita</option>
                 <option value="OUT">Despesa</option>
               </select>
@@ -1278,11 +1407,24 @@ export function SaveRecurrenceDialog({
             />
             <label className="block space-y-1">
               <span className={labelClass}>Valor (R$) *</span>
-              <Input type="number" step="0.01" min="0" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0,00" />
+              <Input
+                type="number"
+                step="0.01"
+                min="0"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                placeholder="0,00"
+              />
             </label>
             <label className="block space-y-1">
               <span className={labelClass}>Dia do mês</span>
-              <Input type="number" min="1" max="31" value={dayOfMonth} onChange={(e) => setDayOfMonth(e.target.value)} />
+              <Input
+                type="number"
+                min="1"
+                max="31"
+                value={dayOfMonth}
+                onChange={(e) => setDayOfMonth(e.target.value)}
+              />
             </label>
             <label className="block space-y-1">
               <span className={labelClass}>Início *</span>
