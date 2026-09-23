@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "$ tsc --noEmit\n",
-    "is_error": false,
-    "timestamp": 1790126003962
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "bun run build 2>&1 | tail -6",
-      "timeout": 300000
-    },
-    "timestamp": 1790126007354
-  },
-  {
-    "role": "tool_result",
     "content": "ℹ Generated .wrangler/deploy/config.json\nℹ Generated .output/public/_headers\nℹ Generated .output/nitro.json\n\n[nitro] ✔ You can preview this build using npx vite preview\n[nitro] ✔ You can deploy this build using npx nitro deploy --prebuilt\n",
     "is_error": false,
     "timestamp": 1790126024613
@@ -1615,5 +1600,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql</path>\n<type>file</type>\n<content>\n658: CREATE FUNCTION public.fin_settle(_org uuid,_kind text,_id uuid,_data jsonb,_user_id uuid DEFAULT auth.uid())\n659: RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET",
     "is_error": false,
     "timestamp": 1790128138432
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '/CREATE FUNCTION public.finance_refresh_document/,/^$$;/p' supabase/migrations/20260928100000_finance.sql"
+    },
+    "timestamp": 1790128156042
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE FUNCTION public.finance_refresh_document(_org uuid,_kind text,_id uuid)\nRETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE v_open numeric; v_paid numeric; v_total numeric; v_new text;\nBEGIN\n  IF _kind='receivable' THEN\n    SELECT original_amount+interest_amoun",
+    "is_error": false,
+    "timestamp": 1790128156069
   }
 ]
