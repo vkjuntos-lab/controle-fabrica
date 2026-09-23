@@ -43,14 +43,16 @@ def run():
  r1=json.loads(rpc('fin_create_receivable',q(org)+','+q(json.dumps({'company_id':company,'amount':100,'installments':2,'description':'Venda a prazo','due_date':'2026-10-05','financial_category_id':cat_exp,'cost_center_id':cc}))))
  assert r1['total_installments']==2
  rows=recv()['rows']
- assert len(rows)==2 and rows[0]['parent_id'] is None and rows[1]['parent_id']==rows[0]['id']
- assert rows[0]['document_number'].startswith('REC-') and round(rows[0]['open_amount'],2)==50 and round(rows[1]['original_amount'],2)==50
- r1a,r1b=rows[0]['id'],rows[1]['id']
+ assert len(rows)==2
+ par1=next(x for x in rows if x['installment_number']==1); par2=next(x for x in rows if x['installment_number']==2)
+ assert par1['parent_id'] is None and par2['parent_id']==par1['id']
+ assert par1['document_number'].startswith('REC-') and round(par1['open_amount'],2)==50 and round(par2['original_amount'],2)==50
+ r1a,r1b=par1['id'],par2['id']
  rpc('fin_document_mutate',','.join(map(q,[org,'receivable',r1a,'discount',json.dumps({'amount':20,'reason':'Desconto comercial'})])))
  rpc('fin_document_mutate',','.join(map(q,[org,'receivable',r1a,'adjust',json.dumps({'type':'CREDIT','amount':10,'reason':'Crédito'})])))
  rpc('fin_document_mutate',','.join(map(q,[org,'receivable',r1a,'charges',json.dumps({'interest_amount':5,'penalty_amount':2,'reason':'Juros'})])))
  rpc('fin_document_mutate',','.join(map(q,[org,'receivable',r1a,'due_date',json.dumps({'due_date':'2026-10-08','reason':'Reprogramado'})])))
- assert round(recv()['rows'][0]['open_amount'],2)==47
+ assert round(next(x for x in recv()['rows'] if x['id']==r1a)['open_amount'],2)==47
  rpc('fin_document_mutate',','.join(map(q,[org,'receivable',r1a,'adjust',json.dumps({'type':'X','amount':1,'reason':'Tipo'})])),fail='Tipo de ajuste')
  # Data de vencimento já se aplicou; validar valor de origem imutável ainda nesta fase.
  rc=json.loads(rpc('fin_create_receivable',q(org)+','+q(json.dumps({'company_id':company,'amount':200,'description':'Cancelável','due_date':'2026-10-10'}))))
