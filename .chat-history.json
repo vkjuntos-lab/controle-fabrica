@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "$ vitest run\n\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabrica\n\n ✓ src/lib/inventory/ledger.test.ts (12 tests) 11ms\n ✓ src/lib/webhook/signature.test.ts (5 tests) 5ms\n ✓ src/lib/middleware/rate-limit.test.ts (3 tests) 5ms\n ✓ src/lib/rbac.test.ts (8 tests) 8ms\n ✓ src/lib/csv.test.ts (5 tests) 7m",
-    "is_error": false,
-    "timestamp": 1790125449134
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "bun run lint 2>&1 | tail -40",
-      "timeout": 300000
-    },
-    "timestamp": 1790125450555
-  },
-  {
-    "role": "tool_result",
     "content": "(no output)\n\n<shell_metadata>\nshell tool terminated command after exceeding timeout 300000 ms. If this command is expected to take longer and is not waiting for interactive input, retry with a larger timeout value in milliseconds.\n</shell_metadata>",
     "is_error": false,
     "timestamp": 1790125750673
@@ -1729,5 +1714,19 @@
     "content": "PASS: catálogo financeiro, contas, centros, formas, ajustes e configurações\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-finance-db.py\", line 239, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test",
     "is_error": false,
     "timestamp": 1790127889579
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"haystack\" supabase/migrations/20260928100000_finance.sql"
+    },
+    "timestamp": 1790127894122
+  },
+  {
+    "role": "tool_result",
+    "content": "964:    WITH rows AS MATERIALIZED(SELECT r.*,c.legal_name company_name,concat_ws(' ',r.document_number,r.description,c.legal_name) haystack,\n975:      AND (coalesce(_filters->>'query','')='' OR strpos(lower(haystack),lower(_filters->>'query'))>0))\n985:    WITH rows AS MATERIALIZED(SELECT p.*,c.legal",
+    "is_error": false,
+    "timestamp": 1790127894134
   }
 ]
