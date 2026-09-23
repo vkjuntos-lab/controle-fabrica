@@ -133,8 +133,16 @@ def run():
  assert sql(f"SELECT due_date FROM account_receivables WHERE source_type='PARTNER_RECONCILIATION' AND source_id={q(recon)}")=='2026-09-27'
  rpc('fin_process_reconciliation',q(org)+','+q(recon),a)
  print('PASS: fechamento de parceiro gera recebível D+7 idempotente')
+ recon2=uid()
  rpc('fin_save_settings',q(org)+','+q(json.dumps({'partner_receivable_installments':2})))
- feed_recon(recon2,120,json='2026-09-21 10:00:00')
+ feed_recon(recon2,120,'2026-09-21 10:00:00')
+ pr2=json.loads(rpc('fin_process_reconciliation',q(org)+','+q(recon2)))
+ assert pr2['created']==2 and pr2['installments']==2
+ subs=[x for x in recv()['rows'] if x['source_id']==recon2]
+ assert len(subs)==2 and {round(x['original_amount'],2) for x in subs}=={60.0}
+ assert all(x['due_date']=='2026-09-28' for x in subs)
+ rpc('fin_save_settings',q(org)+','+q(json.dumps({'partner_receivable_installments':1})))
+ print('PASS: parcelamento configurável do fechamento (2 x 60, vencimento D+7)')
  # -- Reabertura da reconciliação sinaliza SOURCE_REOPENED ---------------------
  rpc('rec_reopen',q(org)+','+q(recon)+','+q('Ajuste pós-fechamento'))
  assert sql(f"SELECT source_status FROM account_receivables WHERE source_type='PARTNER_RECONCILIATION' AND source_id={q(recon)}")=='SOURCE_REOPENED'

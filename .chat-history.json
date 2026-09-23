@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "  Type 'Promise<DashboardSummary | ReconciliationList | ReconciliationException[] | ReconciliationDetail | ... 5 more ... | ReconciliationHistoryRow[]>' is not assignable to type 'Promise<ValidateSerializableMapped<DashboardSummary, RegisteredSerializableInput<Register>> | ... 8 more ... | ValidateS",
-    "is_error": false,
-    "timestamp": 1790125341322
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n 'partner_query' src/integrations/supabase/types.ts | head; echo ---; grep -n \"export type Json\" src/integrations/supabase/types.ts"
-    },
-    "timestamp": 1790125348609
-  },
-  {
-    "role": "tool_result",
     "content": "978:      partner_query: {\n---\n1:export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];\n",
     "is_error": false,
     "timestamp": 1790125348652
@@ -1725,5 +1711,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790127811957
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-finance-db.py",
+      "newString": "rpc('fin_process_reconciliation',q(org)+','+q(recon),a)\n print('PASS: fechamento de parceiro gera recebível D+7 idempotente')\n recon2=uid()\n rpc('fin_save_settings',q(org)+','+q(json.dumps({'partner_receivable_installments':2})))\n feed_recon(recon2,120,'2026-09-21 10:00:00')\n pr2=json.loads(rpc('fin_process_reconciliation',q(org)+','+q(recon2)))\n assert pr2['created']==2 and pr2['installments']==2\n subs=[x for x in recv()['rows'] if x['source_id']==recon2]\n assert len(subs)==2 and {round(x['original_amount'],2) for x in subs}=={60.0}\n assert all(x['due_date']=='2026-09-28' for x in subs)\n rpc('fin_save_settings',q(org)+','+q(json.dumps({'partner_receivable_installments':1})))\n print('PASS: parcelamento configurável do fechamento (2 x 60, vencimento D+7)')",
+      "oldString": "rpc('fin_process_reconciliation',q(org)+','+q(recon),a)\n print('PASS: fechamento de parceiro gera recebível D+7 idempotente')\n rpc('fin_save_settings',q(org)+','+q(json.dumps({'partner_receivable_installments':2})))\n feed_recon(recon2,120,json='2026-09-21 10:00:00')"
+    },
+    "timestamp": 1790127816177
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790127816185
   }
 ]
