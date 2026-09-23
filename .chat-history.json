@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/partners/types.ts"
-    },
-    "timestamp": 1790124643064
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/partners/types.ts</path>\n<type>file</type>\n<content>\n1: import type { Json } from \"@/integrations/supabase/types\";\n2: export type CompanyRow = {\n3:   id: string;\n4:   code: string;\n5:   legal_name: string;\n6:   trade_name: string | null;\n7:   do",
-    "is_error": false,
-    "timestamp": 1790124643087
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/inventory/constants.ts"
     },
     "timestamp": 1790124643216
@@ -1504,5 +1490,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/partners/pages.tsx</path>\n<type>file</type>\n<content>\n688:           </Button>\n689:         </div>\n690:       ) : null}\n691:     </div>\n692:   );\n693: }\n694: export function PartnerDetailPage({ id }: { id: string }) {\n695:   const [edit, ",
     "is_error": false,
     "timestamp": 1790125116704
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/partners/pages.tsx",
+      "newString": "export function PartnerDetailPage({ id }: { id: string }) {\n  const { currentOrganization, hasPermission, isLoading } = useOrganization();\n  const org = currentOrganization?.organization_id;\n  const fetch = useServerFn(queryPartners);\n  const cache = useQueryClient();\n  const [edit, setEdit] = useState(false);",
+      "oldString": "export function PartnerDetailPage({ id }: { id: string }) {\n  const [edit, setEdit] = useState(false);"
+    },
+    "timestamp": 1790125119091
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790125119122
   }
 ]
