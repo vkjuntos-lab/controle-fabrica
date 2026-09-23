@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"export function\\|function Partner\\|TabsList\\|TabsTrigger\\|TabsContent\\|permission\\|PERMISSIONS\\|useOrganization\\|hasPermission\" src/components/partners/pages.tsx | head -80"
-    },
-    "timestamp": 1790126907380
-  },
-  {
-    "role": "tool_result",
-    "content": "12:import { Tabs, TabsList, TabsTrigger, TabsContent } from \"@/components/ui/tabs\";\n25:import { useOrganization } from \"@/lib/org/org-context\";\n162:export function PartnerListPage({\n167:  const { currentOrganization, hasPermission, isLoading } = useOrganization();\n177:  const permission =\n183:  cons",
-    "is_error": false,
-    "timestamp": 1790126907403
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/partners/pages.tsx",
@@ -1558,5 +1544,19 @@
     "content": "ERROR:  cannot cast type integer to uuid\nLINE 2: ...a.organization_id=00000000-0000-0000-0000-000000000001::uuid\n                                                                 ^\n",
     "is_error": false,
     "timestamp": 1790128283952
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "D=\"/tmp/probe-lXWK\"; su - claude-runner -c \"B=/usr/lib/postgresql/18/bin; \\$B/psql -X -h '$D' -p 55441 -U postgres -d postgres -v ON_ERROR_STOP=1 -Atq <<'EOF' 2>&1 | tail -12\nWITH rows AS MATERIALIZED(SELECT t.*,a.name account_name,COALESCE(c.legal_name,'-') company_name,document_number FROM public.financial_transactions t\n  JOIN public.financial_accounts a ON a.id=t.financial_account_id AND a.organization_id='00000000-0000-0000-0000-000000000001'\n  LEFT JOIN public.companies c ON c.id=t.company_id AND c.organization_id='00000000-0000-0000-0000-000000000001'\n  LEFT JOIN LATERAL (SELECT r.document_number FROM public.account_receivables r WHERE r.id=t.reference_id AND r.organization_id='00000000-0000-0000-0000-000000000001'\n    UNION ALL SELECT p.document_number FROM public.account_payables p WHERE p.id=t.reference_id AND p.organization_id='00000000-0000-0000-0000-000000000001') d ON true\n  WHERE t.organization_id='00000000-0000-0000-0000-000000000001'\n  AND (coalesce(t.description,'')||' '||coalesce(document_number,'')||' '||coalesce(c.legal_name,'')) LIKE '' OR true)\nSELECT 1;\nEOF\""
+    },
+    "timestamp": 1790128288886
+  },
+  {
+    "role": "tool_result",
+    "content": "1\n",
+    "is_error": false,
+    "timestamp": 1790128288933
   }
 ]
