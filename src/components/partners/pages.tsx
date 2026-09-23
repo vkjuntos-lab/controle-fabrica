@@ -1084,10 +1084,32 @@ export function PartnerDetailPage({ id }: { id: string }) {
               )}
             </TabsContent>
             <TabsContent value="stores">
-              <EmptyState
-                title="Integração com lojas pendente"
-                description="O MASTER 005 e MarketplaceStore não estão presentes neste checkout. Nenhum cadastro duplicado de loja foi criado."
-              />
+              {c.profile ? (
+                <PartnerStoresTab organizationId={org} partnerId={c.profile.id} />
+              ) : (
+                <EmptyState title="Empresa sem perfil de parceiro" />
+              )}
+            </TabsContent>
+            <TabsContent value="sales">
+              {c.profile ? (
+                <PartnerSalesTab organizationId={org} partnerId={c.profile.id} />
+              ) : (
+                <EmptyState title="Empresa sem perfil de parceiro" />
+              )}
+            </TabsContent>
+            <TabsContent value="reconciled">
+              {c.profile ? (
+                <PartnerReconciliationsTab organizationId={org} partnerId={c.profile.id} closed={false} />
+              ) : (
+                <EmptyState title="Empresa sem perfil de parceiro" />
+              )}
+            </TabsContent>
+            <TabsContent value="closed">
+              {c.profile ? (
+                <PartnerReconciliationsTab organizationId={org} partnerId={c.profile.id} closed />
+              ) : (
+                <EmptyState title="Empresa sem perfil de parceiro" />
+              )}
             </TabsContent>
             <TabsContent value="history">
               <div className="space-y-6">
