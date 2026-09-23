@@ -692,10 +692,6 @@ function PartnerOperations({
   );
 }
 export function PartnerDetailPage({ id }: { id: string }) {
-  const { currentOrganization, hasPermission, isLoading } = useOrganization();
-  const org = currentOrganization?.organization_id;
-  const fetch = useServerFn(queryPartners);
-  const cache = useQueryClient();
   const [edit, setEdit] = useState(false);
   const [detail, setDetail] = useState<{
     kind: "contact" | "address";
