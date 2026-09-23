@@ -1040,7 +1040,7 @@ BEGIN
       p.open_amount FROM public.account_payables p WHERE p.organization_id=_org AND p.status NOT IN ('PAID','CANCELED') AND COALESCE(_filters->>'side','receivable')='payable')
     SELECT jsonb_build_object('side',COALESCE(_filters->>'side','receivable'),'rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT bucket,count(*)::int documents,round(coalesce(sum(open_amount),0),2) total FROM base GROUP BY bucket ORDER BY array_position(ARRAY['avencer','1-7d','8-15d','16-30d','31-60d','61-90d','90+d'],bucket))q),'[]'::jsonb)) INTO v_result;
   ELSIF _kind='transactions' THEN
-    WITH rows AS MATERIALIZED(SELECT t.*,a.name account_name,COALESCE(c.legal_name,'-') company_name,document_number FROM public.financial_transactions t
+    WITH rows AS MATERIALIZED(SELECT t.*,a.name account_name,COALESCE(c.legal_name,'-') company_name,d.document_number FROM public.financial_transactions t
       JOIN public.financial_accounts a ON a.id=t.financial_account_id AND a.organization_id=_org
       LEFT JOIN public.companies c ON c.id=t.company_id AND c.organization_id=_org
       LEFT JOIN LATERAL (SELECT r.document_number FROM public.account_receivables r WHERE r.id=t.reference_id AND r.organization_id=_org
