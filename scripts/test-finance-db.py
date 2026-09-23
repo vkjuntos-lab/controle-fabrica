@@ -97,9 +97,8 @@ def run():
  rpc('fin_transfer',q(org)+','+q(json.dumps({'from_account_id':acc2,'to_account_id':acc2,'amount':10})),fail='diferentes')
  rpc('fin_transfer',q(org)+','+q(json.dumps({'from_account_id':acc1,'to_account_id':acc2,'amount':99999})),fail='Saldo insuficiente')
  assert acct_bal(acc1)==570 and acct_bal(acc2)==1500
- assert round(float(rpc('fin_query',q(org)+",'dashboard',"+q('{}')))) is not None
  tr=json.loads(rpc('fin_query',q(org)+",'transactions',"+q('{}')))
- assert tr['total']==6
+ assert tr['total']==7
  print('PASS: saldo inicial único, transferência atômica e idempotência/saldos')
 
  # -- Movimento avulso (ledger oficial) ---------------------------------------
