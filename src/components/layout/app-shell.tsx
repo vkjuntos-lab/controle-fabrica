@@ -68,6 +68,12 @@ const OPERATION_ITEMS: NavItem[] = [
     icon: ArrowLeftRight,
     permission: PERMISSIONS.partnerReturnsRead,
   },
+  {
+    label: "Reconciliação parcerias",
+    to: "/reconciliacao",
+    icon: Scale,
+    permission: PERMISSIONS.partnerReconciliationRead,
+  },
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
   { label: "Produtos", to: "/produtos", icon: Package, permission: PERMISSIONS.productsRead },
   {
