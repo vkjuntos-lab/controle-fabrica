@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
-      "newString": "v_net:=v_open - v_amount - COALESCE((_data->>'discount_amount')::numeric,0) + COALESCE((_data->>'interest_amount')::numeric,0) + COALESCE((_data->>'penalty_amount')::numeric,0);\n  IF v_net < -0.005 THEN RAISE EXCEPTION 'Pagamento acima do saldo não permitido (saldo %): revise descontos/aplicações.',v_open; END IF;",
-      "oldString": "v_net:=v_open - v_amount + COALESCE((_data->>'discount_amount')::numeric,0) - COALESCE((_data->>'interest_amount')::numeric,0) - COALESCE((_data->>'penalty_amount')::numeric,0);\n  IF v_net < -0.005 THEN RAISE EXCEPTION 'Pagamento acima do saldo não permitido (saldo %): revise descontos/aplicações.',v_open; END IF;"
-    },
-    "timestamp": 1790128175535
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790128175561
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
       "newString": "EXECUTE format('INSERT INTO public.%I(organization_id,%I_id,financial_transaction_id,amount,discount_amount,interest_amount,penalty_amount,settled_at,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id',v_settab,CASE WHEN _kind='receivable' THEN 'receivable' ELSE 'payable' END)\n  USING _org,_id,v_tx,v_amount,COALESCE((_data->>'discount_amount')::numeric,0),COALESCE((_data->>'interest_amount')::numeric,0),COALESCE((_data->>'penalty_amount')::numeric,0),v_occ,auth.uid() INTO v_settlement_id;\n  IF _kind='receivable' THEN\n    UPDATE public.account_receivables SET\n      discount_amount=discount_amount+COALESCE((_data->>'discount_amount')::numeric,0),\n      interest_amount=interest_amount+COALESCE((_data->>'interest_amount')::numeric,0),\n      penalty_amount=penalty_amount+COALESCE((_data->>'penalty_amount')::numeric,0),\n      updated_at=now() WHERE id=_id AND organization_id=_org;\n  ELSE\n    UPDATE public.account_payables SET\n      discount_amount=discount_amount+COALESCE((_data->>'discount_amount')::numeric,0),\n      interest_amount=interest_amount+COALESCE((_data->>'interest_amount')::numeric,0),\n      penalty_amount=penalty_amount+COALESCE((_data->>'penalty_amount')::numeric,0),\n      updated_at=now() WHERE id=_id AND organization_id=_org;\n  END IF;\n  PERFORM public.finance_refresh_document(_org,_kind,_id);",
       "oldString": "EXECUTE format('INSERT INTO public.%I(organization_id,%I_id,financial_transaction_id,amount,discount_amount,interest_amount,penalty_amount,settled_at,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id',v_settab,CASE WHEN _kind='receivable' THEN 'receivable' ELSE 'payable' END)\n  USING _org,_id,v_tx,v_amount,COALESCE((_data->>'discount_amount')::numeric,0),COALESCE((_data->>'interest_amount')::numeric,0),COALESCE((_data->>'penalty_amount')::numeric,0),v_occ,auth.uid() INTO v_settlement_id;\n  PERFORM public.finance_refresh_document(_org,_kind,_id);"
     },
@@ -1602,5 +1586,19 @@
     "content": "  financialCategoriesManage: \"financial_categories.manage\",\n  costCentersRead: \"cost_centers.read\",\n  costCentersManage: \"cost_centers.manage\",\n  paymentMethodsRead: \"payment_methods.read\",\n  paymentMethodsManage: \"payment_methods.manage\",\n104:  payablesRead: \"payables.read\",\n105:  payablesCreate: \"",
     "is_error": false,
     "timestamp": 1790128952157
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"export function\" src/lib/finance/export.ts; sed -n '1,40p' src/lib/finance/export.ts"
+    },
+    "timestamp": 1790128960261
+  },
+  {
+    "role": "tool_result",
+    "content": "3:export function exportFinanceCsv(filename: string, rows: Record<string, unknown>[]): void {\nimport { downloadCsv, toCsv } from \"@/lib/csv\";\n\nexport function exportFinanceCsv(filename: string, rows: Record<string, unknown>[]): void {\n  const safe = rows.map((row) =>\n    Object.fromEntries(\n      Ob",
+    "is_error": false,
+    "timestamp": 1790128960295
   }
 ]
