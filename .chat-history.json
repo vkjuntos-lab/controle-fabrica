@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"CREATE FUNCTION public.fin_settle\" supabase/migrations/20260928100000_finance.sql"
-    },
-    "timestamp": 1790128136053
-  },
-  {
-    "role": "tool_result",
-    "content": "658:CREATE FUNCTION public.fin_settle(_org uuid,_kind text,_id uuid,_data jsonb,_user_id uuid DEFAULT auth.uid())\n",
-    "is_error": false,
-    "timestamp": 1790128136071
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
@@ -1604,5 +1590,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/finance/constants.ts</path>\n<type>file</type>\n<content>\n1: export const DOCUMENT_STATUS: Record<string, string> = {\n2:   DRAFT: \"Rascunho\",\n3:   SCHEDULED: \"Agendado\",\n4:   OPEN: \"Em aberto\",\n5:   PARTIALLY_PAID: \"Parcialmente pago\",\n6:   PAID: ",
     "is_error": false,
     "timestamp": 1790128944515
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"finance\\.\" src/lib/rbac.ts | head -40"
+    },
+    "timestamp": 1790128947687
+  },
+  {
+    "role": "tool_result",
+    "content": "93:  financeRead: \"finance.read\",\n94:  financeDashboard: \"finance.dashboard\",\n95:  financeExport: \"finance.export\",\n96:  financeManage: \"finance.manage\",\n173:  \"finance.read\": \"Ver financeiro\",\n174:  \"finance.dashboard\": \"Ver painel financeiro\",\n175:  \"finance.export\": \"Exportar dados financeiros\",\n",
+    "is_error": false,
+    "timestamp": 1790128947707
   }
 ]
