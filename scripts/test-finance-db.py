@@ -23,14 +23,14 @@ def run():
   return float(next(x['balance'] for x in json.loads(rpc('fin_query',q(org)+",'accounts',"+q('{}')))['rows'] if x['id']==acc))
 
  # -- Catálogo financeiro -----------------------------------------------------
- cat_exp=rpc('fin_save_category',q(org)+','+q(json.dumps({'code':'FREV','name':'Receitas','type':'REVENUE'})))
- cat_cost=rpc('fin_save_category',q(org)+','+q(json.dumps({'code':'FCUST','name':'Custos','type':'EXPENSE'})))
- sub=rpc('fin_save_category',q(org)+','+q(json.dumps({'code':'ENRG','name':'Energia','type':'EXPENSE','parent_id':cat_cost})))
+ cat_exp=json.loads(rpc('fin_save_category',q(org)+','+q(json.dumps({'code':'FREV','name':'Receitas','type':'REVENUE'}))))['id']
+ cat_cost=json.loads(rpc('fin_save_category',q(org)+','+q(json.dumps({'code':'FCUST','name':'Custos','type':'EXPENSE'}))))['id']
+ json.loads(rpc('fin_save_category',q(org)+','+q(json.dumps({'code':'ENRG','name':'Energia','type':'EXPENSE','parent_id':cat_cost}))))
  rpc('fin_save_category',q(org)+','+q(json.dumps({'code':'ENRG','name':'Energia','type':'EXPENSE'})),fail='duplicate')
- cc=rpc('fin_save_cost_center',q(org)+','+q(json.dumps({'code':'CC-FAB','name':'Fábrica'})))
- acc1=rpc('fin_save_account',q(org)+','+q(json.dumps({'name':'Banco Beta','type':'BANK','bank_name':'Beta'})))
- acc2=rpc('fin_save_account',q(org)+','+q(json.dumps({'name':'Caixa','type':'CASH'})))
- pm=rpc('fin_save_payment_method',q(org)+','+q(json.dumps({'code':'PIX','name':'Pix'})))
+ cc=json.loads(rpc('fin_save_cost_center',q(org)+','+q(json.dumps({'code':'CC-FAB','name':'Fábrica'}))))['id']
+ acc1=json.loads(rpc('fin_save_account',q(org)+','+q(json.dumps({'name':'Banco Beta','type':'BANK','bank_name':'Beta'}))))['id']
+ acc2=json.loads(rpc('fin_save_account',q(org)+','+q(json.dumps({'name':'Caixa','type':'CASH'}))))['id']
+ pm=json.loads(rpc('fin_save_payment_method',q(org)+','+q(json.dumps({'code':'PIX','name':'Pix'}))))['id']
  rpc('fin_save_settings',q(org)+','+q(json.dumps({'currency':'BRL','partner_receivable_due_days':7,'partner_receivable_installments':1})))
  cats=json.loads(rpc('fin_query',q(org)+",'categories',"+q('{}')))
  assert len(cats)==3 and any(c['code']=='ENRG' for c in cats)
