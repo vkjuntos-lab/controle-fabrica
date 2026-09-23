@@ -749,6 +749,7 @@ export function SaveStoreDialog({
   onSaved: () => void;
 }) {
   const save = useServerFn(saveMarketplaceStore);
+  const [partner, setPartner] = useState("");
   const mutation = useMutation({
     mutationFn: async (form: HTMLFormElement) => {
       const f = Object.fromEntries(new FormData(form));
@@ -761,7 +762,7 @@ export function SaveStoreDialog({
             marketplace: String(f.marketplace),
             marketplace_store_id: String(f.marketplace_store_id) || undefined,
             ownership_type: String(f.ownership_type) as "FACTORY" | "OWN" | "PARTNER",
-            partner_id: String(f.partner_id) || undefined,
+            partner_id: partner || undefined,
             status: String(f.status) as "ACTIVE" | "INACTIVE" | "BLOCKED",
             notes: String(f.notes) || undefined,
           },
