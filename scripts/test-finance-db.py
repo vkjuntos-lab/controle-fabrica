@@ -220,9 +220,9 @@ def run():
  json.loads(rpc('fin_create_receivable',q(org)+','+q(json.dumps({'company_id':company,'amount':1,'description':'FZ','due_date':'2026-10-30'})),fz))
  db.call('fin_query',q(org)+",'dashboard',"+q('{}'),b,fail='permissão')
  assert sql(f'SELECT count(*) FROM account_receivables WHERE organization_id={q(org)}',b)=='0'
- sql(f'UPDATE financial_transactions SET amount=1 WHERE organization_id={q(org)}',a,fail='imutável')
+ sql(f'UPDATE financial_transactions SET amount=1 WHERE organization_id={q(org)}',fail='imutável')
  sql(f'DELETE FROM financial_transactions WHERE organization_id={q(org)}',fail='excluído')
- sql(f'UPDATE account_receivables SET original_amount=1 WHERE id={q(r1a)}',a,fail='Dados de origem')
+ sql(f'UPDATE account_receivables SET original_amount=1 WHERE id={q(r1a)}',fail='Dados de origem')
  sql(f'DELETE FROM financial_categories WHERE id={q(cat_cost)}',fail='excluído')
  sql(f'INSERT INTO financial_transactions(organization_id,financial_account_id,type,direction,amount) VALUES({q(org)},{q(acc1)},\'DIRECT\',\'IN\',5)',a,fail='permission')
  print('PASS: RBAC por papel, isolamento por organização e imutabilidade do ledger')
