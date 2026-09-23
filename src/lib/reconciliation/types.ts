@@ -68,7 +68,7 @@ export type ReconciliationException = {
   severity: string;
   status: string;
   message: string;
-  details: Record<string, unknown>;
+  details: Json;
   resolution_type: string | null;
   resolution_notes: string | null;
   resolved_by: string | null;
