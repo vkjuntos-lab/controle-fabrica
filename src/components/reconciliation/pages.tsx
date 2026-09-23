@@ -382,7 +382,7 @@ export function ReconciliationDetailPage({ id }: { id: string }) {
             <div className="flex flex-wrap gap-2 print:hidden">
               {hasPermission("partner_reconciliation.process") &&
               !["CLOSED", "CANCELED"].includes(d.status) ? (
-                <Button loading={processMutation.isPending} onClick={() => processMutation.mutate()}>
+                <Button disabled={processMutation.isPending} onClick={() => processMutation.mutate()}>
                   Processar
                 </Button>
               ) : null}
