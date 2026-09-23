@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "[\n  {\n    \"content\": \"Inspect checkout state / existing M007 artifacts\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Create src/lib/reconciliation (constants, types, functions, export)\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Build U",
-    "is_error": false,
-    "timestamp": 1790125814274
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "ls docs/business docs/architecture docs/handoff 2>/dev/null"
-    },
-    "timestamp": 1790125816417
-  },
-  {
-    "role": "tool_result",
     "content": "docs/architecture:\nADR-001-initial-architecture.md\nADR-006-PARTNER-SHIPMENTS.md\n\ndocs/business:\nCORE-BUSINESS.md\nINVENTORY.md\nPARTNER-SHIPMENTS.md\nPARTNERS.md\n\ndocs/handoff:\nMASTER-003-VALIDATION.md\nMASTER-006-VALIDATION.md\nPROJECT-STATE.md\n",
     "is_error": false,
     "timestamp": 1790125816428
@@ -1669,5 +1655,21 @@
     "content": "Traceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-finance-db.py\", line 239, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-finance-db.py\", line 26, in run\n    cat_exp=json.loads(rpc('fin_save_catego",
     "is_error": false,
     "timestamp": 1790127961860
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
+      "newString": "CREATE FUNCTION public.finance_guard() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE j jsonb:=to_jsonb(NEW); jold jsonb:=to_jsonb(OLD); v_kind text;\nBEGIN\n  IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Histórico financeiro não pode ser excluído.'; END IF;\n  IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAISE EXCEPTION 'Organização imutável.'; END IF;\n  IF TG_TABLE_NAME IN ('financial_transactions','receivable_settlements','payable_settlements','financial_transfers') THEN\n    IF TG_OP='UPDATE' THEN RAISE EXCEPTION 'Movimento financeiro consolidado é imutável; corrija por reversão.'; END IF;\n  ELSIF TG_TABLE_NAME IN ('account_receivables','account_payables') AND TG_OP='UPDATE' THEN\n    IF (j->'organization_id' IS DISTINCT FROM jold->'organization_id')\n       OR (j->'company_id' IS DISTINCT FROM jold->'company_id')\n       OR (j->'source_type' IS DISTINCT FROM jold->'source_type')\n       OR (j->'source_id' IS DISTINCT FROM jold->'source_id')\n       OR (j->'document_number' IS DISTINCT FROM jold->'document_number')\n       OR (j->'original_amount' IS DISTINCT FROM jold->'original_amount')\n       OR (j->'currency' IS DISTINCT FROM jold->'currency')\n       OR (j->'issue_date' IS DISTINCT FROM jold->'issue_date')\n       OR (j->'total_installments' IS DISTINCT FROM jold->'total_installments')\n       OR (j->'parent_id' IS DISTINCT FROM jold->'parent_id')\n       THEN RAISE EXCEPTION 'Dados de origem do título imutáveis fora do RPC.'; END IF;\n  ELSIF TG_TABLE_NAME IN ('financial_categories','cost_centers') AND TG_OP='UPDATE' THEN\n    IF (j->'code' IS DISTINCT FROM jold->'code') OR (j->'organization_id' IS DISTINCT FROM jold->'organization_id')\n       THEN RAISE EXCEPTION 'Código/org imutável.'; END IF;\n  END IF;\n  RETURN NEW;\nEND;\n$$;",
+      "oldString": "CREATE FUNCTION public.finance_guard() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE j jsonb:=to_jsonb(NEW); jold jsonb:=to_jsonb(OLD); v_kind text;\nBEGIN\n  IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Histórico financeiro não pode ser excluído.'; END IF;\n  IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAISE EXCEPTION 'Organização imutável.'; END IF;\n  IF TG_TABLE_NAME IN ('financial_transactions','receivable_settlements','payable_settlements','financial_transfers') THEN\n    RAISE EXCEPTION 'Movimento financeiro consolidado é imutável; corrija por reversão.';\n  ELSIF TG_TABLE_NAME IN ('account_receivables','account_payables') THEN\n    IF (j->'organization_id' IS DISTINCT FROM jold->'organization_id')\n       OR (j->'company_id' IS DISTINCT FROM jold->'company_id')\n       OR (j->'source_type' IS DISTINCT FROM jold->'source_type')\n       OR (j->'source_id' IS DISTINCT FROM jold->'source_id')\n       OR (j->'document_number' IS DISTINCT FROM jold->'document_number')\n       OR (j->'original_amount' IS DISTINCT FROM jold->'original_amount')\n       OR (j->'currency' IS DISTINCT FROM jold->'currency')\n       OR (j->'issue_date' IS DISTINCT FROM jold->'issue_date')\n       OR (j->'total_installments' IS DISTINCT FROM jold->'total_installments')\n       OR (j->'parent_id' IS DISTINCT FROM jold->'parent_id')\n       THEN RAISE EXCEPTION 'Dados de origem do título imutáveis fora do RPC.'; END IF;\n  ELSIF TG_TABLE_NAME IN ('financial_categories','cost_centers') THEN\n    IF (j->'code' IS DISTINCT FROM jold->'code') OR (j->'organization_id' IS DISTINCT FROM jold->'organization_id')\n       THEN RAISE EXCEPTION 'Código/org imutável.'; END IF;\n    IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Inative em vez de excluir.'; END IF;\n  ELSIF TG_TABLE_NAME IN ('financial_accounts','payment_methods') THEN\n    IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Inative em vez de excluir.'; END IF;\n  END IF;\n  RETURN NEW;\nEND;\n$$;"
+    },
+    "timestamp": 1790127973450
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790127973479
   }
 ]

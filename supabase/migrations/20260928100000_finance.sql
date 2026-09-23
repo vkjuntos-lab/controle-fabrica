@@ -355,8 +355,8 @@ BEGIN
   IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Histórico financeiro não pode ser excluído.'; END IF;
   IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAISE EXCEPTION 'Organização imutável.'; END IF;
   IF TG_TABLE_NAME IN ('financial_transactions','receivable_settlements','payable_settlements','financial_transfers') THEN
-    RAISE EXCEPTION 'Movimento financeiro consolidado é imutável; corrija por reversão.';
-  ELSIF TG_TABLE_NAME IN ('account_receivables','account_payables') THEN
+    IF TG_OP='UPDATE' THEN RAISE EXCEPTION 'Movimento financeiro consolidado é imutável; corrija por reversão.'; END IF;
+  ELSIF TG_TABLE_NAME IN ('account_receivables','account_payables') AND TG_OP='UPDATE' THEN
     IF (j->'organization_id' IS DISTINCT FROM jold->'organization_id')
        OR (j->'company_id' IS DISTINCT FROM jold->'company_id')
        OR (j->'source_type' IS DISTINCT FROM jold->'source_type')
@@ -368,12 +368,9 @@ BEGIN
        OR (j->'total_installments' IS DISTINCT FROM jold->'total_installments')
        OR (j->'parent_id' IS DISTINCT FROM jold->'parent_id')
        THEN RAISE EXCEPTION 'Dados de origem do título imutáveis fora do RPC.'; END IF;
-  ELSIF TG_TABLE_NAME IN ('financial_categories','cost_centers') THEN
+  ELSIF TG_TABLE_NAME IN ('financial_categories','cost_centers') AND TG_OP='UPDATE' THEN
     IF (j->'code' IS DISTINCT FROM jold->'code') OR (j->'organization_id' IS DISTINCT FROM jold->'organization_id')
        THEN RAISE EXCEPTION 'Código/org imutável.'; END IF;
-    IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Inative em vez de excluir.'; END IF;
-  ELSIF TG_TABLE_NAME IN ('financial_accounts','payment_methods') THEN
-    IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Inative em vez de excluir.'; END IF;
   END IF;
   RETURN NEW;
 END;
