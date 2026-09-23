@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   User,
   Users,
+  Wallet,
   Warehouse,
 } from "lucide-react";
 import type { ReactNode } from "react";
