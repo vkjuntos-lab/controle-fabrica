@@ -677,7 +677,7 @@ BEGIN
   EXECUTE format('SELECT open_amount,company_id FROM public.%I WHERE id=$1 AND organization_id=$2 FOR UPDATE',v_tab) INTO v_open,v_company USING _id,_org;
   IF v_open IS NULL THEN RAISE EXCEPTION 'Título não encontrado.'; END IF;
   EXECUTE format('SELECT document_number FROM public.%I WHERE id=$1 AND organization_id=$2',v_tab) INTO v_docnum USING _id,_org;
-  v_net:=v_open - v_amount + COALESCE((_data->>'discount_amount')::numeric,0) - COALESCE((_data->>'interest_amount')::numeric,0) - COALESCE((_data->>'penalty_amount')::numeric,0);
+  v_net:=v_open - v_amount - COALESCE((_data->>'discount_amount')::numeric,0) + COALESCE((_data->>'interest_amount')::numeric,0) + COALESCE((_data->>'penalty_amount')::numeric,0);
   IF v_net < -0.005 THEN RAISE EXCEPTION 'Pagamento acima do saldo não permitido (saldo %): revise descontos/aplicações.',v_open; END IF;
   INSERT INTO public.financial_transactions(organization_id,financial_account_id,type,direction,company_id,amount,occurred_at,
     reference_type,reference_id,payment_method_id,financial_category_id,cost_center_id,description,idempotency_key,created_by)

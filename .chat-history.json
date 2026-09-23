@@ -1,81 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "ℹ Generated .wrangler/deploy/config.json\nℹ Generated .output/public/_headers\nℹ Generated .output/nitro.json\n\n[nitro] ✔ You can preview this build using npx vite preview\n[nitro] ✔ You can deploy this build using npx nitro deploy --prebuilt\n",
-    "is_error": false,
-    "timestamp": 1790126024613
-  },
-  {
-    "role": "tool",
-    "tool": "todowrite",
-    "input": {
-      "todos": [
-        {
-          "content": "Inspect checkout state / existing M007 artifacts",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Create src/lib/reconciliation (constants, types, functions, export)",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Build UI: dialogs.tsx, pages.tsx, marketplace.tsx, pricing.tsx",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Create routes under src/routes/_authenticated/reconciliacao",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Update src/lib/rbac.ts (+ rbac.test.ts) with M007 permissions",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Update AppShell sidebar with Reconciliação item",
-          "priority": "medium",
-          "status": "completed"
-        },
-        {
-          "content": "Partner 360: replace stores EmptyState, add Vendas/Reconciliações/Fechamentos tabs",
-          "priority": "medium",
-          "status": "completed"
-        },
-        {
-          "content": "Add test:reconciliation:db script to package.json",
-          "priority": "medium",
-          "status": "completed"
-        },
-        {
-          "content": "Write docs: PARTNER-RECONCILIATION.md, PARTNER-PRICING.md, ADR, update PROJECT-STATE.md, MASTER-007-VALIDATION.md",
-          "priority": "medium",
-          "status": "completed"
-        },
-        {
-          "content": "Write vitest tests for rbac additions (rbac.test.ts)",
-          "priority": "medium",
-          "status": "completed"
-        },
-        {
-          "content": "Validate: typecheck, build, test, lint; rerun DB harnesses",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Final report + PROJECT-STATE update",
-          "priority": "medium",
-          "status": "completed"
-        }
-      ]
-    },
-    "timestamp": 1790126031452
-  },
-  {
-    "role": "tool_result",
     "content": "[\n  {\n    \"content\": \"Inspect checkout state / existing M007 artifacts\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Create src/lib/reconciliation (constants, types, functions, export)\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Build U",
     "is_error": false,
     "timestamp": 1790126031457
@@ -1614,5 +1539,21 @@
     "content": "CREATE FUNCTION public.finance_refresh_document(_org uuid,_kind text,_id uuid)\nRETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE v_open numeric; v_paid numeric; v_total numeric; v_new text;\nBEGIN\n  IF _kind='receivable' THEN\n    SELECT original_amount+interest_amoun",
     "is_error": false,
     "timestamp": 1790128156069
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
+      "newString": "v_net:=v_open - v_amount - COALESCE((_data->>'discount_amount')::numeric,0) + COALESCE((_data->>'interest_amount')::numeric,0) + COALESCE((_data->>'penalty_amount')::numeric,0);\n  IF v_net < -0.005 THEN RAISE EXCEPTION 'Pagamento acima do saldo não permitido (saldo %): revise descontos/aplicações.',v_open; END IF;",
+      "oldString": "v_net:=v_open - v_amount + COALESCE((_data->>'discount_amount')::numeric,0) - COALESCE((_data->>'interest_amount')::numeric,0) - COALESCE((_data->>'penalty_amount')::numeric,0);\n  IF v_net < -0.005 THEN RAISE EXCEPTION 'Pagamento acima do saldo não permitido (saldo %): revise descontos/aplicações.',v_open; END IF;"
+    },
+    "timestamp": 1790128175535
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790128175561
   }
 ]
