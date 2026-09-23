@@ -82,7 +82,7 @@ def run():
 
  # -- Contas a pagar com desconto e juros -------------------------------------
  p1=json.loads(rpc('fin_create_payable',q(org)+','+q(json.dumps({'company_id':company,'amount':100,'description':'Energia ago','due_date':'2026-09-25','competence_date':'2026-09-01','financial_category_id':cat_cost,'cost_center_id':cc}))))
- rpc('fin_settle',''+''.join([','.join(map(q,[org,'payable',p1['id'],json.dumps({'account_id':acc1,'amount':80,'discount_amount':20})]))]))
+ rpc('fin_settle',','.join(map(q,[org,'payable',p1['id'],json.dumps({'account_id':acc1,'amount':80,'discount_amount':20})])))
  assert sql(f"SELECT status FROM account_payables WHERE id={q(p1['id'])}")=='PAID'
  paid=round(json.loads(rpc('fin_query',q(org)+",'payable',"+q(json.dumps({'id':p1['id']}))))['paid_amount'],2)
  assert paid==80
