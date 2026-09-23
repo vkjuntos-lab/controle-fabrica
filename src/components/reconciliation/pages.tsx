@@ -483,7 +483,7 @@ export function ReconciliationDetailPage({ id }: { id: string }) {
                           <Button
                             variant="outline"
                             size="sm"
-                            loading={reprocessMutation.isPending}
+                            disabled={reprocessMutation.isPending}
                             onClick={() => reprocessMutation.mutate(i.id)}
                           >
                             Reprocessar
