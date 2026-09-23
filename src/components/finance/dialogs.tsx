@@ -1273,7 +1273,7 @@ export function SaveRecurrenceDialog({
               label={direction === "IN" ? "Empresa *" : "Empresa"}
               value={companyId}
               onChange={setCompanyId}
-              options={companies}
+              options={companies.map((c) => ({ id: c.id, name: c.legal_name }))}
               placeholder={direction === "IN" ? "Selecione..." : "Opcional"}
             />
             <label className="block space-y-1">
