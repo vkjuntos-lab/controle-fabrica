@@ -683,7 +683,12 @@ BEGIN
   USING _org,_id,v_tx,v_amount,COALESCE((_data->>'discount_amount')::numeric,0),COALESCE((_data->>'interest_amount')::numeric,0),COALESCE((_data->>'penalty_amount')::numeric,0),v_occ,auth.uid() INTO v_settlement_id;
   PERFORM public.finance_refresh_document(_org,_kind,_id);
   PERFORM public.finance_audit(_org,'finance.'||_kind||'.settle','financial_transactions',v_tx,jsonb_build_object('document',_id,'amount',v_amount));
-  RETURN jsonb_build_object('transaction_id',v_tx,'settlement_id',v_settlement_id,'open_amount',(SELECT open_amount FROM CASE WHEN _kind='receivable' THEN public.account_receivables ELSE public.account_payables END WHERE id=_id AND organization_id=_org));
+  IF _kind='receivable' THEN
+    SELECT open_amount INTO v_open FROM public.account_receivables WHERE id=_id AND organization_id=_org;
+  ELSE
+    SELECT open_amount INTO v_open FROM public.account_payables WHERE id=_id AND organization_id=_org;
+  END IF;
+  RETURN jsonb_build_object('transaction_id',v_tx,'settlement_id',v_settlement_id,'open_amount',v_open);
 END;
 $$;
 
