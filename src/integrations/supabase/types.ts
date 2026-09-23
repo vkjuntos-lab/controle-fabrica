@@ -994,6 +994,39 @@ export type Database = {
       };
       partner_receive_return: { Args: { _org: string; _id: string }; Returns: Json };
 
+      fin_query: {
+        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };
+        Returns: Json;
+      };
+      fin_save_category: { Args: { _org: string; _data: Json; _id?: string }; Returns: Json };
+      fin_save_cost_center: { Args: { _org: string; _data: Json; _id?: string }; Returns: Json };
+      fin_save_account: { Args: { _org: string; _data: Json; _id?: string }; Returns: Json };
+      fin_save_payment_method: { Args: { _org: string; _data: Json; _id?: string }; Returns: Json };
+      fin_save_settings: { Args: { _org: string; _data: Json }; Returns: Json };
+      fin_create_receivable: { Args: { _org: string; _data: Json }; Returns: Json };
+      fin_create_payable: { Args: { _org: string; _data: Json }; Returns: Json };
+      fin_document_mutate: {
+        Args: { _org: string; _kind: string; _id: string; _op: string; _data: Json };
+        Returns: Json;
+      };
+      fin_settle: {
+        Args: { _org: string; _kind: string; _id: string; _data: Json };
+        Returns: Json;
+      };
+      fin_reverse_transaction: {
+        Args: { _org: string; _transaction_id: string; _reason: string };
+        Returns: Json;
+      };
+      fin_transfer: { Args: { _org: string; _data: Json }; Returns: Json };
+      fin_opening_balance: { Args: { _org: string; _data: Json }; Returns: Json };
+      fin_direct_movement: { Args: { _org: string; _data: Json }; Returns: Json };
+      fin_save_recurrence: { Args: { _org: string; _data: Json; _id?: string }; Returns: Json };
+      fin_generate_recurrences: { Args: { _org: string; _period: string }; Returns: Json };
+      fin_process_reconciliation: {
+        Args: { _org: string; _reconciliation_id: string };
+        Returns: Json;
+      };
+
       rec_query: {
         Args: { _org: string; _kind: string; _filters?: Json; _page?: number };
         Returns: Json;

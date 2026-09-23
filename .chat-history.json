@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"haystack\" supabase/migrations/20260928100000_finance.sql"
-    },
-    "timestamp": 1790127894122
-  },
-  {
-    "role": "tool_result",
-    "content": "964:    WITH rows AS MATERIALIZED(SELECT r.*,c.legal_name company_name,concat_ws(' ',r.document_number,r.description,c.legal_name) haystack,\n975:      AND (coalesce(_filters->>'query','')='' OR strpos(lower(haystack),lower(_filters->>'query'))>0))\n985:    WITH rows AS MATERIALIZED(SELECT p.*,c.legal",
-    "is_error": false,
-    "timestamp": 1790127894134
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sed -i 's/strpos(lower(haystack),lower(_filters->>'\"'\"'query'\"'\"'))>0/strpos(lower(concat_ws('\"'\"' '\"'\"',r.document_number,r.description,c.legal_name)),lower(_filters->>'\"'\"'query'\"'\"'))>0/g; s/strpos(lower(haystack),lower(_filters->>'\"'\"'query'\"'\"'))>0/strpos(lower(concat_ws('\"'\"' '\"'\"',p.document_number,p.description,c.legal_name)),lower(_filters->>'\"'\"'query'\"'\"'))>0/g' supabase/migrations/20260928100000_finance.sql && grep -n \"haystack\" supabase/migrations/20260928100000_finance.sql"
     },
     "timestamp": 1790127896676
@@ -1572,5 +1558,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts</path>\n<type>file</type>\n<content>\n985:         Returns: string;\n986:       };\n987:       partner_create_operation: {\n988:         Args: { _org: string; _kind: string; _data: Json };\n989:         Returns: string;\n990: ",
     "is_error": false,
     "timestamp": 1790128667680
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts",
+      "newString": "partner_receive_return: { Args: { _org: string; _id: string }; Returns: Json };\n\n      fin_query: {\n        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };\n        Returns: Json;\n      };\n      fin_save_category: { Args: { _org: string; _data: Json; _id?: string }; Returns: Json };\n      fin_save_cost_center: { Args: { _org: string; _data: Json; _id?: string }; Returns: Json };\n      fin_save_account: { Args: { _org: string; _data: Json; _id?: string }; Returns: Json };\n      fin_save_payment_method: { Args: { _org: string; _data: Json; _id?: string }; Returns: Json };\n      fin_save_settings: { Args: { _org: string; _data: Json }; Returns: Json };\n      fin_create_receivable: { Args: { _org: string; _data: Json }; Returns: Json };\n      fin_create_payable: { Args: { _org: string; _data: Json }; Returns: Json };\n      fin_document_mutate: {\n        Args: { _org: string; _kind: string; _id: string; _op: string; _data: Json };\n        Returns: Json;\n      };\n      fin_settle: {\n        Args: { _org: string; _kind: string; _id: string; _data: Json };\n        Returns: Json;\n      };\n      fin_reverse_transaction: {\n        Args: { _org: string; _transaction_id: string; _reason: string };\n        Returns: Json;\n      };\n      fin_transfer: { Args: { _org: string; _data: Json }; Returns: Json };\n      fin_opening_balance: { Args: { _org: string; _data: Json }; Returns: Json };\n      fin_direct_movement: { Args: { _org: string; _data: Json }; Returns: Json };\n      fin_save_recurrence: { Args: { _org: string; _data: Json; _id?: string }; Returns: Json };\n      fin_generate_recurrences: { Args: { _org: string; _period: string }; Returns: Json };\n      fin_process_reconciliation: {\n        Args: { _org: string; _reconciliation_id: string };\n        Returns: Json;\n      };\n\n      rec_query: {",
+      "oldString": "partner_receive_return: { Args: { _org: string; _id: string }; Returns: Json };\n\n      rec_query: {"
+    },
+    "timestamp": 1790128671855
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790128671876
   }
 ]
