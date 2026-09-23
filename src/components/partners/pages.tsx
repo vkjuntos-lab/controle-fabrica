@@ -416,7 +416,7 @@ export function PartnerListPage({
                           </p>
                           <p>Estoque em poder: {c.on_hand ?? "—"}</p>
                           <p className="text-xs text-muted-foreground">
-                            Lojas marketplace: integração pendente
+                            Lojas marketplace e reconciliação: aba Marketplaces no Partner 360º
                           </p>
                           <p className="text-xs text-muted-foreground">
                             Última movimentação: {date(c.last_movement_at)}
