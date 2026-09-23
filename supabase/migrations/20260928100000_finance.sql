@@ -667,6 +667,9 @@ BEGIN
   IF (_data->>'account_id') IS NULL THEN RAISE EXCEPTION 'Conta financeira obrigatória.'; END IF;
   v_amount:=round((_data->>'amount')::numeric,2); v_acc:=(_data->>'account_id')::uuid;
   IF v_amount<=0 THEN RAISE EXCEPTION 'Valor inválido.'; END IF;
+  IF EXISTS(SELECT 1 FROM public.financial_transactions WHERE organization_id=_org
+      AND idempotency_key='fin-settle:'||_kind||':'||_id::text||':'||COALESCE(nullif(_data->>'receipt_key',''),'')) THEN
+    RAISE EXCEPTION 'Liquidação já registrada (chave de idempotência repetida).'; END IF;
   v_pm:=nullif((_data->>'payment_method_id')::uuid::text,'')::uuid;
   v_occ:=COALESCE(nullif(_data->>'occurred_at','')::timestamptz,now());
   v_reason:=COALESCE(nullif(trim(_data->>'description'),''),'Liquidação '||_kind);

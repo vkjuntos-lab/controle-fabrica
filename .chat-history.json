@@ -3,22 +3,6 @@
     "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
-    "timestamp": 1790125974556
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
-      "newString": "## NEXT_STEPS\n\n1. Implementar/validar o MASTER 005 (MarketplaceStore e importação com mapeamento de colunas) e\n   então o vínculo da loja com ownership_type PARTNER à `partner_profiles`/Company — a reconciliação\n   M007 já compartilha o contrato de `marketplace_sales` com esse importador.\n2. Financeiro de parceiros: consumir o snapshot/evento `PARTNER_RECONCILIATION_CLOSED` para gerar\n   cobrança (AR) e registrar pagamento; limites de crédito e condições de pagamento.\n3. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,\n   `PURCHASE_RECEIPT`, `PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`).\n4. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.\n5. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a\n   `/api/webhooks/receiver` quando houver integração externa.\n\n## VALIDAÇÃO DESTA CONTINUAÇÃO\n\nRelatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-VALIDATION.md` e\n`docs/handoff/MASTER-007-VALIDATION.md`.\n33 testes unitários, harness PostgreSQL do estoque, de parceiros e de reconciliação (12 grupos no\nMASTER 007), TypeScript, build e lint do domínio verificados. A implantação no banco publicado não\nfaz parte da evidência local e permanece pendente.",
-      "oldString": "## NEXT_STEPS\n\n1. Implementar/validar o MASTER 005 (MarketplaceStore e importação com mapeamento de colunas) e\n   então o vínculo da loja com ownership_type PARTNER à `partner_profiles`/Company.\n2. Reconciliação de parceiros, fechamento de período e cobrança (server-side, auditado, idempotente) —\n   só depois de validar MASTER 005.\n3. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,\n   `PURCHASE_RECEIPT`, `PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`).\n4. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.\n5. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a\n   `/api/webhooks/receiver` quando houver integração externa.\n\n## VALIDAÇÃO DESTA CONTINUAÇÃO\n\nRelatórios: `docs/handoff/MASTER-003-VALIDATION.md` e `docs/handoff/MASTER-006-VALIDATION.md`.\n30 testes unitários, harness PostgreSQL do estoque e de parceiros (9 grupos cada), TypeScript, build\ne lint do domínio verificados. A implantação no banco publicado não faz parte da evidência local e\npermanece pendente."
-    },
-    "timestamp": 1790125979565
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
     "timestamp": 1790125979600
   },
   {
@@ -1673,5 +1657,21 @@
     "content": "PASS: catálogo financeiro, contas, centros, formas, ajustes e configurações\nPASS: parcelamento, desconto/ajuste/juros, cancelamento e baixa\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-finance-db.py\", line 239, in <module>\n    try:run()\n        ~~~",
     "is_error": false,
     "timestamp": 1790128058694
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
+      "newString": "v_amount:=round((_data->>'amount')::numeric,2); v_acc:=(_data->>'account_id')::uuid;\n  IF v_amount<=0 THEN RAISE EXCEPTION 'Valor inválido.'; END IF;\n  IF EXISTS(SELECT 1 FROM public.financial_transactions WHERE organization_id=_org\n      AND idempotency_key='fin-settle:'||_kind||':'||_id::text||':'||COALESCE(nullif(_data->>'receipt_key',''),'')) THEN\n    RAISE EXCEPTION 'Liquidação já registrada (chave de idempotência repetida).'; END IF;\n  v_pm:=nullif((_data->>'payment_method_id')::uuid::text,'')::uuid;",
+      "oldString": "v_amount:=round((_data->>'amount')::numeric,2); v_acc:=(_data->>'account_id')::uuid;\n  IF v_amount<=0 THEN RAISE EXCEPTION 'Valor inválido.'; END IF;\n  v_pm:=nullif((_data->>'payment_method_id')::uuid::text,'')::uuid;"
+    },
+    "timestamp": 1790128066178
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790128066201
   }
 ]
