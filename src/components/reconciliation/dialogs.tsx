@@ -373,7 +373,6 @@ export function ResolveExceptionDialog({
   onSaved: () => void;
 }) {
   const resolve = useServerFn(resolveReconciliationException);
-  const reprocess = useServerFn(reprocessReconciliationItem);
   const [resolution, setResolution] = useState("REPROCESS");
   const [notes, setNotes] = useState("");
   const busy = useMutation({
