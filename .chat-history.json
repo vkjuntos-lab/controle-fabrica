@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sed -n '/CREATE FUNCTION public.finance_refresh_document/,/^$$;/p' supabase/migrations/20260928100000_finance.sql"
-    },
-    "timestamp": 1790128156042
-  },
-  {
-    "role": "tool_result",
-    "content": "CREATE FUNCTION public.finance_refresh_document(_org uuid,_kind text,_id uuid)\nRETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE v_open numeric; v_paid numeric; v_total numeric; v_new text;\nBEGIN\n  IF _kind='receivable' THEN\n    SELECT original_amount+interest_amoun",
-    "is_error": false,
-    "timestamp": 1790128156069
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
@@ -1602,5 +1588,19 @@
     "content": "13:  \"financeiro\",\n25:  financeiro: \"Financeiro\",\n35:  financeiro: \"Cobrança, recebimento e resultados financeiros.\",\n93:  financeRead: \"finance.read\",\n94:  financeDashboard: \"finance.dashboard\",\n95:  financeExport: \"finance.export\",\n96:  financeManage: \"finance.manage\",\n97:  receivablesRead: \"recei",
     "is_error": false,
     "timestamp": 1790128949643
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '114,118p' src/lib/rbac.ts; grep -n \"financial_settings\\|payables\\.\\|finance_settings\\|settings\" src/lib/rbac.ts | head"
+    },
+    "timestamp": 1790128952120
+  },
+  {
+    "role": "tool_result",
+    "content": "  financialCategoriesManage: \"financial_categories.manage\",\n  costCentersRead: \"cost_centers.read\",\n  costCentersManage: \"cost_centers.manage\",\n  paymentMethodsRead: \"payment_methods.read\",\n  paymentMethodsManage: \"payment_methods.manage\",\n104:  payablesRead: \"payables.read\",\n105:  payablesCreate: \"",
+    "is_error": false,
+    "timestamp": 1790128952157
   }
 ]
