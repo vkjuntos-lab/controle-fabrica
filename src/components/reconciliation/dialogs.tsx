@@ -835,7 +835,11 @@ export function SaveStoreDialog({
             </label>
             <label className="sm:col-span-2">
               Parceiro (se titularidade PARTNER)
-              <PartnerSelect organizationId={organizationId} value="" onChange={() => {}} />
+              <PartnerSelect
+                organizationId={organizationId}
+                value={partner}
+                onChange={setPartner}
+              />
             </label>
           </div>
           <div className="flex justify-end gap-2">

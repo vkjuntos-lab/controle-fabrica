@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "supabase/migrations/20260924100000_partners.sql:509:ALTER FUNCTION public.inventory_reverse_movement(uuid,uuid,text,uuid) RENAME TO inventory_reverse_movement_core;\nsupabase/migrations/20260924100000_partners.sql:510:REVOKE ALL ON FUNCTION public.inventory_reverse_movement_core(uuid,uuid,text,uuid) ",
-    "is_error": false,
-    "timestamp": 1790117572289
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"CREATE FUNCTION public.inventory_guard_movement\\|CREATE OR REPLACE FUNCTION public.inventory_guard_movement\\|CREATE TRIGGER\" supabase/migrations/20260918100000_inventory_ledger.sql | head"
-    },
-    "timestamp": 1790117577320
-  },
-  {
-    "role": "tool_result",
     "content": "262:CREATE TRIGGER inventory_locations_updated_at BEFORE UPDATE ON public.inventory_locations\n264:CREATE TRIGGER inventory_batches_updated_at BEFORE UPDATE ON public.inventory_batches\n266:CREATE TRIGGER inventory_transfers_updated_at BEFORE UPDATE ON public.inventory_transfers\n268:CREATE TRIGGER inv",
     "is_error": false,
     "timestamp": 1790117577343
@@ -1514,5 +1500,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790124912962
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/reconciliation/dialogs.tsx",
+      "newString": "<label className=\"sm:col-span-2\">\n              Parceiro (se titularidade PARTNER)\n              <PartnerSelect\n                organizationId={organizationId}\n                value={partner}\n                onChange={setPartner}\n              />\n            </label>",
+      "oldString": "<label className=\"sm:col-span-2\">\n              Parceiro (se titularidade PARTNER)\n              <PartnerSelect organizationId={organizationId} value=\"\" onChange={() => {}} />\n            </label>"
+    },
+    "timestamp": 1790124914695
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790124914715
   }
 ]
