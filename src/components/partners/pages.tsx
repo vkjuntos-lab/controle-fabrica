@@ -484,9 +484,163 @@ export function PartnerListPage({
               />
             )
           ) : null}
-        </>
-      )}
+</>
+      ) : null}
     </AppShell>
+  );
+}
+
+function PartnerStoresTab({
+  organizationId,
+  partnerId,
+}: {
+  organizationId: string;
+  partnerId: string;
+}) {
+  const { hasPermission } = useOrganization();
+  const fetch = useServerFn(queryReconciliation);
+  const q = useQuery({
+    queryKey: ["reconciliation", "stores", organizationId, "partner", partnerId],
+    queryFn: async () =>
+      (await fetch({
+        data: { organizationId, kind: "stores", filters: { partner_id: partnerId }, page: 1 },
+      })) as MarketplaceStoreList,
+    enabled: Boolean(organizationId && hasPermission("partner_reconciliation.read")),
+  });
+  return (
+    <div className="space-y-2">
+      {q.isLoading ? <LoadingState rows={2} /> : null}
+      {q.error ? <ErrorState description={q.error.message} /> : null}
+      {q.data && !q.data.rows.length ? (
+        <EmptyState
+          title="Nenhuma loja vinculada"
+          description="Vincule lojas a este parceiro no módulo de Reconciliação."
+        />
+      ) : null}
+      {(q.data?.rows as MarketplaceStoreRow[] | undefined)?.map((s) => (
+        <div key={s.id} className="space-y-1 rounded-lg border p-3">
+          <div className="flex justify-between gap-3">
+            <strong>
+              {s.code} · {s.name}
+            </strong>
+            <Badge>{storeStatusLabel(s.status)}</Badge>
+          </div>
+          <p>
+            {s.marketplace} · {storeOwnershipLabel(s.ownership_type)}
+          </p>
+          <p className="text-xs text-muted-foreground">{formatDate(s.created_at)}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function PartnerSalesTab({
+  organizationId,
+  partnerId,
+}: {
+  organizationId: string;
+  partnerId: string;
+}) {
+  const { hasPermission } = useOrganization();
+  const fetch = useServerFn(queryReconciliation);
+  const q = useQuery({
+    queryKey: ["reconciliation", "sales", organizationId, "partner", partnerId],
+    queryFn: async () =>
+      (await fetch({
+        data: { organizationId, kind: "sales", filters: { partner_id: partnerId }, page: 1 },
+      })) as MarketplaceSaleList,
+    enabled: Boolean(organizationId && hasPermission("partner_reconciliation.read")),
+  });
+  return (
+    <div className="space-y-2">
+      {q.isLoading ? <LoadingState rows={2} /> : null}
+      {q.error ? <ErrorState description={q.error.message} /> : null}
+      {q.data && !q.data.rows.length ? (
+        <EmptyState
+          title="Nenhuma venda no marketplace"
+          description="Vendas importadas dos marketplaces deste parceiro aparecem aqui."
+        />
+      ) : null}
+      {(q.data?.rows as MarketplaceSaleRow[] | undefined)?.map((s) => (
+        <div key={s.id} className="space-y-1 rounded-lg border p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <strong>
+              {s.external_order_id} · {s.external_sku}
+            </strong>
+            <Badge>{saleStatusLabel(s.status)}</Badge>
+          </div>
+          <p className="text-sm">
+            {s.store_name} ({s.marketplace}) · {formatDate(s.sale_date)} ·{" "}
+            {formatMoney(s.gross_amount)}
+          </p>
+          <p className="text-xs text-muted-foreground">{formatNumber(s.quantity)} unidades</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function PartnerReconciliationsTab({
+  organizationId,
+  partnerId,
+  closed,
+}: {
+  organizationId: string;
+  partnerId: string;
+  closed: boolean;
+}) {
+  const { hasPermission } = useOrganization();
+  const fetch = useServerFn(queryReconciliation);
+  const filters = closed ? { partner_id: partnerId, status: "CLOSED" } : { partner_id: partnerId };
+  const q = useQuery({
+    queryKey: ["reconciliation", "reconciliations", organizationId, "partner", partnerId, closed],
+    queryFn: async () =>
+      (await fetch({
+        data: { organizationId, kind: "reconciliations", filters, page: 1 },
+      })) as ReconciliationList,
+    enabled: Boolean(organizationId && hasPermission("partner_reconciliation.read")),
+  });
+  return (
+    <div className="space-y-2">
+      {q.isLoading ? <LoadingState rows={2} /> : null}
+      {q.error ? <ErrorState description={q.error.message} /> : null}
+      {q.data && !q.data.rows.length ? (
+        <EmptyState
+          title={closed ? "Nenhum fechamento concluído" : "Nenhuma reconciliação"}
+          description={
+            closed
+              ? "Os períodos fechados com este parceiro aparecem aqui."
+              : "Crie um período de reconciliação para este parceiro."
+          }
+        />
+      ) : null}
+      {(q.data?.rows as ReconciliationRow[] | undefined)?.map((r) => (
+        <div key={r.id} className="space-y-1 rounded-lg border p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <strong>
+              {formatDate(r.period_start)} a {formatDate(r.period_end)}
+            </strong>
+            <Badge>{reconciliationStatusLabel(r.status)}</Badge>
+          </div>
+          <p className="text-sm">
+            {r.sales_count} vendas · {formatNumber(r.units_sold)} un. · cobrável{" "}
+            {formatMoney(r.billable_amount)}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {r.status === "CLOSED" && r.closed_at
+              ? `Fechado em ${formatDateTime(r.closed_at)}`
+              : `Criado em ${formatDateTime(r.created_at)}`}
+          </p>
+        </div>
+      ))}
+      {q.data && q.data.total > 50 ? (
+        <p className="text-xs text-muted-foreground">
+          Exibindo as primeiras 50 de {q.data.total} — use o módulo de Reconciliação para listar
+          com filtros.
+        </p>
+      ) : null}
+    </div>
   );
 }
 export function PartnerPositions({

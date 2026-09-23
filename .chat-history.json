@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "glob",
-    "input": {
-      "pattern": "src/components/**/*"
-    },
-    "timestamp": 1790124646707
-  },
-  {
-    "role": "tool_result",
-    "content": "/root/Zheus AI Projects/controle-fabrica/src/components/layout/app-shell.tsx\n/root/Zheus AI Projects/controle-fabrica/src/components/inventory/operational-summary.tsx\n/root/Zheus AI Projects/controle-fabrica/src/components/inventory/transfer-dialog.tsx\n/root/Zheus AI Projects/controle-fabrica/src/co",
-    "is_error": false,
-    "timestamp": 1790124646738
-  },
-  {
-    "role": "tool",
     "tool": "grep",
     "input": {
       "pattern": "parceiros|Parceiros|estoque|Estoque",
@@ -1511,5 +1497,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/partners/pages.tsx</path>\n<type>file</type>\n<content>\n1335:         </>\n1336:       ) : null}\n1337:     </AppShell>\n1338:   );\n1339: }\n\n(End of file - total 1339 lines)\n</content>",
     "is_error": false,
     "timestamp": 1790125128808
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/partners/pages.tsx",
+      "newString": "</>\n      ) : null}\n    </AppShell>\n  );\n}\n\nfunction PartnerStoresTab({\n  organizationId,\n  partnerId,\n}: {\n  organizationId: string;\n  partnerId: string;\n}) {\n  const { hasPermission } = useOrganization();\n  const fetch = useServerFn(queryReconciliation);\n  const q = useQuery({\n    queryKey: [\"reconciliation\", \"stores\", organizationId, \"partner\", partnerId],\n    queryFn: async () =>\n      (await fetch({\n        data: { organizationId, kind: \"stores\", filters: { partner_id: partnerId }, page: 1 },\n      })) as MarketplaceStoreList,\n    enabled: Boolean(organizationId && hasPermission(\"partner_reconciliation.read\")),\n  });\n  return (\n    <div className=\"space-y-2\">\n      {q.isLoading ? <LoadingState rows={2} /> : null}\n      {q.error ? <ErrorState description={q.error.message} /> : null}\n      {q.data && !q.data.rows.length ? (\n        <EmptyState\n          title=\"Nenhuma loja vinculada\"\n          description=\"Vincule lojas a este parceiro no módulo de Reconciliação.\"\n        />\n      ) : null}\n      {(q.data?.rows as MarketplaceStoreRow[] | undefined)?.map((s) => (\n        <div key={s.id} className=\"space-y-1 rounded-lg border p-3\">\n          <div className=\"flex justify-between gap-3\">\n            <strong>\n              {s.code} · {s.name}\n            </strong>\n            <Badge>{storeStatusLabel(s.status)}</Badge>\n          </div>\n          <p>\n            {s.marketplace} · {storeOwnershipLabel(s.ownership_type)}\n          </p>\n          <p className=\"text-xs text-muted-foreground\">{formatDate(s.created_at)}</p>\n        </div>\n      ))}\n    </div>\n  );\n}\n\nfunction PartnerSalesTab({\n  organizationId,\n  partnerId,\n}: {\n  organizationId: string;\n  partnerId: string;\n}) {\n  const { hasPermission } = useOrganization();\n  const fetch = useServerFn(queryReconciliation);\n  const q = useQuery({\n    queryKey: [\"reconciliation\", \"sales\", organizationId, \"partner\", partnerId],\n    queryFn: async () =>\n      (await fetch({\n        data: { organizationId, kind: \"sales\", filters: { partner_id: partnerId }, page: 1 },\n      })) as MarketplaceSaleList,\n    enabled: Boolean(organizationId && hasPermission(\"partner_reconciliation.read\")),\n  });\n  return (\n    <div className=\"space-y-2\">\n      {q.isLoading ? <LoadingState rows={2} /> : null}\n      {q.error ? <ErrorState description={q.error.message} /> : null}\n      {q.data && !q.data.rows.length ? (\n        <EmptyState\n          title=\"Nenhuma venda no marketplace\"\n          description=\"Vendas importadas dos marketplaces deste parceiro aparecem aqui.\"\n        />\n      ) : null}\n      {(q.data?.rows as MarketplaceSaleRow[] | undefined)?.map((s) => (\n        <div key={s.id} className=\"space-y-1 rounded-lg border p-3\">\n          <div className=\"flex flex-wrap items-center justify-between gap-2\">\n            <strong>\n              {s.external_order_id} · {s.external_sku}\n            </strong>\n            <Badge>{saleStatusLabel(s.status)}</Badge>\n          </div>\n          <p className=\"text-sm\">\n            {s.store_name} ({s.marketplace}) · {formatDate(s.sale_date)} ·{\" \"}\n            {formatMoney(s.gross_amount)}\n          </p>\n          <p className=\"text-xs text-muted-foreground\">{formatNumber(s.quantity)} unidades</p>\n        </div>\n      ))}\n    </div>\n  );\n}\n\nfunction PartnerReconciliationsTab({\n  organizationId,\n  partnerId,\n  closed,\n}: {\n  organizationId: string;\n  partnerId: string;\n  closed: boolean;\n}) {\n  const { hasPermission } = useOrganization();\n  const fetch = useServerFn(queryReconciliation);\n  const filters = closed ? { partner_id: partnerId, status: \"CLOSED\" } : { partner_id: partnerId };\n  const q = useQuery({\n    queryKey: [\"reconciliation\", \"reconciliations\", organizationId, \"partner\", partnerId, closed],\n    queryFn: async () =>\n      (await fetch({\n        data: { organizationId, kind: \"reconciliations\", filters, page: 1 },\n      })) as ReconciliationList,\n    enabled: Boolean(organizationId && hasPermission(\"partner_reconciliation.read\")),\n  });\n  return (\n    <div className=\"space-y-2\">\n      {q.isLoading ? <LoadingState rows={2} /> : null}\n      {q.error ? <ErrorState description={q.error.message} /> : null}\n      {q.data && !q.data.rows.length ? (\n        <EmptyState\n          title={closed ? \"Nenhum fechamento concluído\" : \"Nenhuma reconciliação\"}\n          description={\n            closed\n              ? \"Os períodos fechados com este parceiro aparecem aqui.\"\n              : \"Crie um período de reconciliação para este parceiro.\"\n          }\n        />\n      ) : null}\n      {(q.data?.rows as ReconciliationRow[] | undefined)?.map((r) => (\n        <div key={r.id} className=\"space-y-1 rounded-lg border p-3\">\n          <div className=\"flex flex-wrap items-center justify-between gap-2\">\n            <strong>\n              {formatDate(r.period_start)} a {formatDate(r.period_end)}\n            </strong>\n            <Badge>{reconciliationStatusLabel(r.status)}</Badge>\n          </div>\n          <p className=\"text-sm\">\n            {r.sales_count} vendas · {formatNumber(r.units_sold)} un. · cobrável{\" \"}\n            {formatMoney(r.billable_amount)}\n          </p>\n          <p className=\"text-xs text-muted-foreground\">\n            {r.status === \"CLOSED\" && r.closed_at\n              ? `Fechado em ${formatDateTime(r.closed_at)}`\n              : `Criado em ${formatDateTime(r.created_at)}`}\n          </p>\n        </div>\n      ))}\n      {q.data && q.data.total > 50 ? (\n        <p className=\"text-xs text-muted-foreground\">\n          Exibindo as primeiras 50 de {q.data.total} — use o módulo de Reconciliação para listar\n          com filtros.\n        </p>\n      ) : null}\n    </div>\n  );\n}",
+      "oldString": "</>\n      ) : null}\n    </AppShell>\n  );\n}"
+    },
+    "timestamp": 1790125141885
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790125141934
   }
 ]
