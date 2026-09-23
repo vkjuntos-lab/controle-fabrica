@@ -230,5 +230,5 @@ export type ReconciliationHistoryRow = {
   action: string;
   created_at: string;
   user_id: string;
-  context: Record<string, unknown>;
+  context: Json;
 };
