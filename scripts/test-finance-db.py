@@ -114,7 +114,7 @@ def run():
  rev=json.loads(rpc('fin_reverse_transaction',q(org)+','+q(st['transaction_id'])+','+q('Cliente devolveu')))
  assert acct_bal(acc1)==670
  assert sql(f"SELECT status FROM account_receivables WHERE id={q(r60['id'])}")=='OPEN' and sql(f"SELECT open_amount FROM account_receivables WHERE id={q(r60['id'])}")=='60'
- assert sql(f"SELECT is_reversal FROM receivable_settlements WHERE financial_transaction_id={q(rev['reversal_id'])}")=='t' or sql(f"SELECT is_reversal FROM receivable_settlements WHERE financial_transaction_id={q(rev['reversal_id'])}")=='true'
+ assert sql(f"SELECT is_reversal FROM receivable_settlements WHERE financial_transaction_id={q(rev['reversal_id'])}")=='t'
  rpc('fin_reverse_transaction',q(org)+','+q(st['transaction_id'])+','+q('Repetido'),fail='já estornado')
  rpc('fin_reverse_transaction',q(org)+','+q(rev['reversal_id'])+','+q('Vira estorno'),fail='já é um estorno')
  assert round(float(sql(f"SELECT public.finance_document_open({q(org)},'receivable',{q(r60['id'])})")),2)==60
