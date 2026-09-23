@@ -29,10 +29,10 @@ CREATE TABLE public.marketplace_stores (
   updated_by uuid REFERENCES public.profiles,
   UNIQUE(organization_id,code),
   UNIQUE(organization_id,id),
-  UNIQUE NULLS NOT DISTINCT(organization_id,marketplace_store_id),
   CHECK(ownership_type<>'PARTNER' OR partner_id IS NOT NULL),
   FOREIGN KEY(organization_id,partner_id) REFERENCES public.partner_profiles(organization_id,id)
 );
+CREATE UNIQUE INDEX marketplace_stores_marketplace_id_key ON public.marketplace_stores(organization_id,marketplace_store_id) WHERE marketplace_store_id IS NOT NULL;
 CREATE INDEX marketplace_stores_partner ON public.marketplace_stores(organization_id,partner_id) WHERE partner_id IS NOT NULL;
 
 CREATE TABLE public.marketplace_imports (
@@ -945,6 +945,9 @@ BEGIN
   SELECT count(*) INTO v_blocking FROM public.reconciliation_exceptions
     WHERE organization_id=_org AND reconciliation_id=_reconciliation_id AND severity='BLOCKING' AND status IN ('OPEN','IN_REVIEW');
   IF v_blocking>0 THEN RAISE EXCEPTION 'Exceções bloqueantes em aberto (%): resolva antes de fechar.',v_blocking; END IF;
+  SELECT count(*) INTO v_blocking FROM public.partner_reconciliation_items
+    WHERE organization_id=_org AND reconciliation_id=_reconciliation_id AND status IN ('EXCEPTION','PENDING');
+  IF v_blocking>0 THEN RAISE EXCEPTION 'Itens pendentes bloqueantes (%): resolva ou cancele antes de fechar.',v_blocking; END IF;
   SELECT jsonb_build_object(
     'reconciliation_id',v_rec.id,'partner_id',v_rec.partner_id,
     'period',jsonb_build_object('start',v_rec.period_start,'end',v_rec.period_end),
@@ -1023,11 +1026,11 @@ BEGIN
   SELECT i.*,r.status rec_status INTO v_item FROM public.partner_reconciliation_items i
     JOIN public.partner_reconciliations r ON r.id=i.reconciliation_id WHERE i.id=_item_id AND i.organization_id=_org FOR UPDATE;
   IF v_item.id IS NULL THEN RAISE EXCEPTION 'Item não encontrado.'; END IF;
+  IF nullif(trim(_reason),'') IS NULL THEN RAISE EXCEPTION 'Motivo do estorno obrigatório.'; END IF;
+  IF v_item.inventory_movement_id IS NOT NULL AND EXISTS(SELECT 1 FROM public.inventory_movements WHERE reversal_of_id=v_item.inventory_movement_id) THEN
+    RAISE EXCEPTION 'Baixa já estornada.'; END IF;
   IF v_item.rec_status='CLOSED' OR v_item.status<>'RECONCILED' OR v_item.inventory_effect_status<>'APPLIED' OR v_item.inventory_movement_id IS NULL THEN
     RAISE EXCEPTION 'Estorno exige item reconciliado (reabra o fechamento antes).'; END IF;
-  IF nullif(trim(_reason),'') IS NULL THEN RAISE EXCEPTION 'Motivo do estorno obrigatório.'; END IF;
-  IF EXISTS(SELECT 1 FROM public.inventory_movements WHERE reversal_of_id=v_item.inventory_movement_id) THEN
-    RAISE EXCEPTION 'Baixa já estornada.'; END IF;
   INSERT INTO public.inventory_movements(organization_id,variant_id,location_id,movement_type,direction,quantity,unit,
     reference_type,reference_id,reason,occurred_at,created_by,status,reversal_of_id,idempotency_key,source)
   VALUES (_org,v_item.variant_id,(SELECT location_id FROM public.inventory_movements WHERE id=v_item.inventory_movement_id),
@@ -1035,7 +1038,6 @@ BEGIN
     'Estorno da baixa da venda: '||COALESCE(nullif(trim(_reason),''),'--'),now(),_user_id,'POSTED',v_item.inventory_movement_id,
     'partner-sale-reversal:'||v_item.marketplace_sale_id||':inventory','RECONCILIATION')
   RETURNING id,reversal_of_id INTO v_rev,v_move;
-  UPDATE public.inventory_movements SET reversed_by_id=v_rev WHERE id=v_move;
   UPDATE public.partner_reconciliation_items SET status='REVERSED',inventory_effect_status='REVERSED',reversed_movement_id=v_rev,updated_at=now() WHERE id=v_item.id;
   UPDATE public.marketplace_sales SET status='EXCEPTION',updated_at=now() WHERE id=v_item.marketplace_sale_id;
   PERFORM public.reconciliation_audit(_org,'reconciliation.item.reverse','partner_reconciliation_items',_item_id,

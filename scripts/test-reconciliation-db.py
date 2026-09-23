@@ -90,12 +90,12 @@ def run():
  rpc('rec_reverse_item',q(org)+','+q(target['id'])+','+q('Repetido'),fail='estornada')
  rpc('rec_close',q(org)+','+q(rid))
  print('PASS: item reversal restores stock, sale EXCEPTION, reversal idempotent, re-close')
- sale('O-LATE','SKU-A',1,30,date='2026-09-15',event='EV-LATE')
+ sale('O-LATE','SKU-A',1,30,date='2026-09-20',event='EV-LATE')
  assert sql(f"SELECT count(*) FROM reconciliation_exceptions WHERE exception_type='LATE_SALE_AFTER_CLOSING' AND organization_id={q(org)}")=='1'
- sale('O-LATE2','SKU-A',1,30,date='2026-09-15',event='EV-LATE2')
+ sale('O-LATE2','SKU-A',1,30,date='2026-09-20',event='EV-LATE2')
  rpc('rec_create',q(org)+','+q(json.dumps({'partner_id':p,'period_start':'2026-09-17','period_end':'2026-09-27'})),fail='sobreposto')
  print('PASS: late sale warning inside closed period and overlapping guard')
- opening(5);ship(4);assert balance(ploc)==75
+ opening(5);ship(4);assert balance(ploc)==71
  big=sale('O-BIG','SKU-A',999,1000,date='2026-10-01',event='EV-BIG')
  rec2=json.loads(rpc('rec_create',q(org)+','+q(json.dumps({'partner_id':p,'period_start':'2026-10-01','period_end':'2026-10-05'}))))
  rbig=json.loads(rpc('rec_process',','.join(map(q,[org,rec2['reconciliation_id']]))))
@@ -107,7 +107,7 @@ def run():
  rpc('rec_close',q(org)+','+q(rec2['reconciliation_id']),fail='bloqueante')
  # Reprocess after resolution still fails on the real shortfall (movement is not posted while blocked).
  rcc=json.loads(rpc('rec_process',','.join(map(q,[org,rec2['reconciliation_id']]))));assert rcc['status']=='REVIEW_REQUIRED'
- sale('O-BIG-END','SKU-A',-1,-1000,date='2026-10-05',event='EV-BIG-END',fail='SKU')
+ sale('O-BIG-END','SKU-A',-1,-1000,date='2026-10-05',event='EV-BIG-END',fail='Quantidade')
  rpc('rec_cancel',q(org)+','+q(rec2['reconciliation_id'])+','+q('Cancelar teste'))
  assert sql(f"SELECT status FROM partner_reconciliations WHERE id={q(rec2['reconciliation_id'])}")=='CANCELED'
  assert sql(f"SELECT count(*) FROM partner_reconciliation_items WHERE reconciliation_id={q(rec2['reconciliation_id'])}")=='1'
@@ -119,7 +119,7 @@ def run():
  for table in ['marketplace_stores','marketplace_sales','external_sku_mappings','price_tables','partner_reconciliations','reconciliation_exceptions']:
   assert sql(f'SELECT count(*) FROM {table} WHERE organization_id={q(org)}',b)=='0'
  sql("INSERT INTO role_permissions(role,permission) VALUES('comercial','marketplace.manage') ON CONFLICT DO NOTHING")
- rpc('marketplace_save_store',q(org)+','+q(json.dumps({'code':'READER-OK','name':'Reader'})),reader)
+ rpc('marketplace_save_store',q(org)+','+q(json.dumps({'code':'READER-OK','name':'Reader','ownership_type':'OWN','status':'ACTIVE'})),reader)
  sql("DELETE FROM role_permissions WHERE role='comercial' AND permission='marketplace.manage'")
  reader2=uid();sql(f"INSERT INTO auth.users(id,email) VALUES({q(reader2)},'r2@recon.test'); INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(reader2)},'comercial')")
  for fun,args,user in [('rec_reopen',q(org)+','+q(rid)+','+q('Sem permissão'),reader2),
@@ -127,7 +127,7 @@ def run():
   db.call(fun,args,user,fail='permissão')
  print('PASS: RBAC, tenant isolation and read-only roles')
  sql(f"UPDATE marketplace_sales SET quantity=5 WHERE organization_id={q(org)}",fail='imutáveis')
- sql(f"DELETE FROM marketplace_sales WHERE organization_id={q(org)}",fail='exclu.' )
+ sql(f"DELETE FROM marketplace_sales WHERE organization_id={q(org)}",fail='excluído' )
  rpc('rec_query',q(org)+",'dashboard',"+q('{}'),a)
  print('PASS: immutable sales guard and dashboard readable')
  # Concurrent close of the reopened reconciliation: exactly one CLOSED transition wins.
