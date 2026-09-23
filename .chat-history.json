@@ -1,37 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n977: CREATE FUNCTION public.rec_reopen(_org uuid,_reconciliation_id uuid,_reason text,_user_id uuid DEFAULT auth.uid())\n978: RETURNS jsonb LANGUAGE plpgsql ",
-    "is_error": false,
-    "timestamp": 1790117410763
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "newString": "IF OLD.status='CLOSED' AND NEW.status='REOPENED' THEN\n      IF (j-'status'-'notes'-'reopened_by'-'reopened_at'-'updated_at')<>(jold-'status'-'notes'-'reopened_by'-'reopened_at'-'updated_at') THEN RAISE EXCEPTION 'Reabertura só muda status e dados de reabertura.'; END IF;",
-      "oldString": "IF OLD.status='CLOSED' AND NEW.status='REOPENED' THEN\n      IF (j-'status'-'reopened_by'-'reopened_at'-'updated_at')<>(jold-'status'-'reopened_by'-'reopened_at'-'updated_at') THEN RAISE EXCEPTION 'Reabertura só muda status e dados de reabertura.'; END IF;"
-    },
-    "timestamp": 1790117416654
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790117416679
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sudo -u postgres python3 scripts/test-reconciliation-db.py 2>&1 | grep -E 'PASS|AssertionError|ERROR' | tail -12",
-      "timeout": 300000
-    },
-    "timestamp": 1790117418539
-  },
-  {
-    "role": "tool_result",
     "content": "PASS: 70-unit partner shipment, store and idempotent SKU mapping\nPASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nPASS: preview totals and DRAFT close without posting stock\nPASS: SKU_NOT_MAPPED exception, price-rule billable, no double posting on reprocess\nP",
     "is_error": false,
     "timestamp": 1790117420631
@@ -1506,5 +1475,35 @@
     "content": "PASS: 70-unit partner shipment, store and idempotent SKU mapping\nPASS: sale registration, validation, dedup by event and no stock effect (remessa != venda)\nPASS: preview totals and DRAFT close without posting stock\nPASS: SKU_NOT_MAPPED exception, price-rule billable, no double posting on reprocess\nP",
     "is_error": false,
     "timestamp": 1790124679358
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && python3 scripts/test-inventory-db.py\" 2>&1 | tail -20",
+      "timeout": 240000
+    },
+    "timestamp": 1790124683958
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && python3 scripts/test-partners-db.py\" 2>&1 | tail -20",
+      "timeout": 240000
+    },
+    "timestamp": 1790124684212
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: arithmetic, adjustment and business acceptance 70/10/20 = 100; no financial module\nPASS: negative balance, override rejection, reason, RLS, permissions, immutable ledger\nPASS: idempotency, duplicate SKU transfer rollback, immutable reversal and retry\nPASS: actual concurrent withdrawals and ide",
+    "is_error": false,
+    "timestamp": 1790124687028
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: simple shipment 100→80/20, dispatch retry, delivery without second posting, no sale/finance\nPASS: multiple partial returns, immutable sent quantity, return retry and quantity cap\nPASS: insufficient stock rollback, state machine, no generic reversal of dispatched shipment\nPASS: real concurrent ",
+    "is_error": false,
+    "timestamp": 1790124687801
   }
 ]
