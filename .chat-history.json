@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
-      "newString": "AND (coalesce(_filters->>'status','')='' OR p.status=_filters->>'status')\n      AND (coalesce(_filters->>'query','')='' OR strpos(lower(concat_ws(' ',p.document_number,p.description,c.legal_name)),lower(_filters->>'query'))>0))\n    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows ORDER BY due_date,id LIMIT 50 OFFSET (_page-1)*50)q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO v_result;",
-      "oldString": "AND (coalesce(_filters->>'status','')='' OR p.status=_filters->>'status')\n      AND (coalesce(_filters->>'query','')='' OR strpos(lower(concat_ws(' ',r.document_number,r.description,c.legal_name)),lower(_filters->>'query'))>0))\n    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows ORDER BY due_date,id LIMIT 50 OFFSET (_page-1)*50)q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO v_result;"
-    },
-    "timestamp": 1790127908869
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790127908894
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && python3 scripts/test-finance-db.py\" 2>&1 | tail -40",
@@ -1628,5 +1612,19 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790128706840
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '/CREATE FUNCTION public.fin_document_mutate/,/^$$;/p' supabase/migrations/20260928100000_finance.sql; echo ====; sed -n '/CREATE FUNCTION public.fin_create_payable/,/^$$;/p' supabase/migrations/20260928100000_finance.sql | head -40"
+    },
+    "timestamp": 1790128710146
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE FUNCTION public.fin_document_mutate(_org uuid,_kind text,_id uuid,_op text,_data jsonb,_user_id uuid DEFAULT auth.uid())\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE v_acc text; v_req text; v_reason text; v_tab text;\nBEGIN\n  IF _user_id IS DISTINCT FROM",
+    "is_error": false,
+    "timestamp": 1790128710182
   }
 ]
