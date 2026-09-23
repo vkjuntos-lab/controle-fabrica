@@ -188,15 +188,17 @@ Validação local; publicação não verificada.
   `src/lib/rbac.ts`, fora do menu operacional).
 - MASTER 005 (MarketplaceStore, lojas vinculadas a parceiros, importação de relatórios e mapeamento
   de SKU) não está neste checkout; o vínculo parceiro → loja será feito quando o módulo existir, sem
-  duplicar lojas nem baixar estoque por MarketplaceSale.
+  duplicar lojas nem baixar estoque por MarketplaceSale. O registro de vendas é manual com o mesmo
+  contrato; a importação automática de provedores reais é pendência.
 - Valorização financeira do estoque (custo/valor por movimento) — o ledger registra quantidades.
 - Integração automática de venda/produção/compra com o ledger (hoje os lançamentos são feitos
   pelas telas de estoque; os módulos de origem ainda não existem).
 - Atributos personalizados editáveis na tela (o campo `attributes` jsonb já existe nas tabelas
   de produto/variante).
 - Importação CSV/XLSX com mapeamento configurável de colunas e `external_sku`.
-- Reconciliação de parceiros, fechamento de período, geração de cobrança, registro de pagamento,
-  limites de crédito e condições de pagamento.
+- Cobrança/registro de pagamento do parceiro: o fechamento gera snapshot + `PARTNER_RECONCILIATION_
+  CLOSED`, mas financeiro (AR), limites de crédito e condições de pagamento ficam para o próximo
+  domínio.
 - Upload/lista de anexos de remessa em `partner-documents` (preparação de Storage pronta), QR Code
   de remessa, editor de itens de documento consolidado e central de exceções de inventário.
 - Recebimento parcial/trânsito em duas etapas de remessa (DELIVERED é pontual).
