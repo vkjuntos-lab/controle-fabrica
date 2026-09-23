@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -rn \"CREATE TABLE public.profiles\\|profiles\" supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql | head; echo ---TRIGGER---; grep -rn \"ON auth.users\\|profiles\" supabase/migrations/*.sql | grep -i \"trigger\\|insert.*profiles\\|profiles.*insert\" | head"
-    },
-    "timestamp": 1790127443096
-  },
-  {
-    "role": "tool_result",
-    "content": "32:CREATE TABLE public.profiles (\n40:GRANT SELECT, INSERT, UPDATE ON public.profiles TO authenticated;\n41:GRANT ALL ON public.profiles TO service_role;\n42:ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;\n138:CREATE POLICY \"read own profile\" ON public.profiles\n144:      WHERE me.user_id = auth.",
-    "is_error": false,
-    "timestamp": 1790127443145
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
@@ -1526,5 +1512,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql</path>\n<type>file</type>\n<content>\n1068:     END IF;\n1069:   ELSIF _kind='settings' THEN\n1070:     SELECT coalesce(to_jsonb(s),jsonb_build_object('currency','BRL','partner_receivable_due_days',7,'partner_re",
     "is_error": false,
     "timestamp": 1790128410429
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
+      "newString": "SELECT jsonb_build_object('from',COALESCE(nullif(_filters->>'from','')::date,date_trunc('month',now())::date),'to',COALESCE(nullif(_filters->>'to','')::date,CURRENT_DATE),\n      'balance',round(public.finance_balance(_org),2),\n      'realized_from',(SELECT round(coalesce(sum(CASE direction WHEN 'IN' THEN amount ELSE -amount END),0),2) FROM public.financial_transactions WHERE organization_id=_org AND occurred_at<COALESCE(nullif(_filters->>'from','')::date,date_trunc('month',now())::date)::timestamptz),\n      'realized_in',(SELECT round(coalesce(sum(amount),0),2) FROM public.financial_transactions WHERE organization_id=_org AND direction='IN' AND occurred_at::date>=COALESCE(nullif(_filters->>'from','')::date,date_trunc('month',now())::date) AND occurred_at::date<=COALESCE(nullif(_filters->>'to','')::date,CURRENT_DATE)),\n      'realized_out',(SELECT round(coalesce(sum(amount),0),2) FROM public.financial_transactions WHERE organization_id=_org AND direction='OUT' AND occurred_at::date>=COALESCE(nullif(_filters->>'from','')::date,date_trunc('month',now())::date) AND occurred_at::date<=COALESCE(nullif(_filters->>'to','')::date,CURRENT_DATE)),",
+      "oldString": "SELECT jsonb_build_object('from',COALESCE(nullif(_filters->>'from','')::date,date_trunc('month',now())::date),'to',COALESCE(nullif(_filters->>'to','')::date,CURRENT_DATE),\n      'balance',round(public.finance_balance(_org),2),\n      'realized_from',(SELECT round(coalesce(sum(CASE direction WHEN 'IN' THEN amount ELSE -amount END),0),2) FROM public.financial_transactions WHERE organization_id=_org AND occurred_at<COALESCE(nullif(_filters->>'from','')::date,date_trunc('month',now())::date)::timestamptz),"
+    },
+    "timestamp": 1790128417679
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790128417715
   }
 ]

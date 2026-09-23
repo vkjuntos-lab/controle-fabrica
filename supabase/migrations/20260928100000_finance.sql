@@ -1075,6 +1075,8 @@ BEGIN
     SELECT jsonb_build_object('from',COALESCE(nullif(_filters->>'from','')::date,date_trunc('month',now())::date),'to',COALESCE(nullif(_filters->>'to','')::date,CURRENT_DATE),
       'balance',round(public.finance_balance(_org),2),
       'realized_from',(SELECT round(coalesce(sum(CASE direction WHEN 'IN' THEN amount ELSE -amount END),0),2) FROM public.financial_transactions WHERE organization_id=_org AND occurred_at<COALESCE(nullif(_filters->>'from','')::date,date_trunc('month',now())::date)::timestamptz),
+      'realized_in',(SELECT round(coalesce(sum(amount),0),2) FROM public.financial_transactions WHERE organization_id=_org AND direction='IN' AND occurred_at::date>=COALESCE(nullif(_filters->>'from','')::date,date_trunc('month',now())::date) AND occurred_at::date<=COALESCE(nullif(_filters->>'to','')::date,CURRENT_DATE)),
+      'realized_out',(SELECT round(coalesce(sum(amount),0),2) FROM public.financial_transactions WHERE organization_id=_org AND direction='OUT' AND occurred_at::date>=COALESCE(nullif(_filters->>'from','')::date,date_trunc('month',now())::date) AND occurred_at::date<=COALESCE(nullif(_filters->>'to','')::date,CURRENT_DATE)),
       'days',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT d::date dt,
         (SELECT round(coalesce(sum(CASE direction WHEN 'IN' THEN amount ELSE -amount END),0),2) FROM public.financial_transactions WHERE organization_id=_org AND occurred_at<d::timestamp) opening,
         (SELECT round(coalesce(sum(amount),0),2) FROM public.financial_transactions WHERE organization_id=_org AND direction='IN' AND occurred_at::date=d) realized_in,
