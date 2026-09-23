@@ -1038,11 +1038,11 @@ BEGIN
     SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows ORDER BY name)q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO v_result;
   ELSIF _kind IN ('categories','cost_centers','payment_methods') THEN
     IF _kind='categories' THEN
-      SELECT coalesce((SELECT jsonb_agg(to_jsonb(c)||jsonb_build_object('children',(SELECT count(*) FROM public.financial_categories x WHERE x.parent_id=c.id))) FROM public.financial_categories c WHERE c.organization_id=_org ORDER BY c.sort_order,c.code),'[]'::jsonb) INTO v_result;
+      SELECT coalesce((SELECT jsonb_agg(to_jsonb(c)||jsonb_build_object('children',(SELECT count(*) FROM public.financial_categories x WHERE x.parent_id=c.id)) ORDER BY c.sort_order,c.code) FROM public.financial_categories c WHERE c.organization_id=_org),'[]'::jsonb) INTO v_result;
     ELSIF _kind='cost_centers' THEN
-      SELECT coalesce((SELECT jsonb_agg(to_jsonb(c)) FROM public.cost_centers c WHERE c.organization_id=_org ORDER BY c.code),'[]'::jsonb) INTO v_result;
+      SELECT coalesce((SELECT jsonb_agg(to_jsonb(c) ORDER BY c.code) FROM public.cost_centers c WHERE c.organization_id=_org),'[]'::jsonb) INTO v_result;
     ELSE
-      SELECT coalesce((SELECT jsonb_agg(to_jsonb(p)) FROM public.payment_methods p WHERE p.organization_id=_org ORDER BY p.code),'[]'::jsonb) INTO v_result;
+      SELECT coalesce((SELECT jsonb_agg(to_jsonb(p) ORDER BY p.code) FROM public.payment_methods p WHERE p.organization_id=_org),'[]'::jsonb) INTO v_result;
     END IF;
   ELSIF _kind='settings' THEN
     SELECT coalesce(to_jsonb(s),jsonb_build_object('currency','BRL','partner_receivable_due_days',7,'partner_receivable_installments',1)) INTO v_result FROM public.finance_settings s WHERE s.organization_id=_org;
