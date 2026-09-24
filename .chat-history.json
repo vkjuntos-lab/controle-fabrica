@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
-      "oldString": "SELECT r.id,r.request_number,r.request_date,r.status,r.priority,r.needed_by_date,cc.name cost_center,\n        (SELECT count(*) FROM public.purchase_request_items i WHERE i.purchase_request_id=r.id) items,\n        (SELECT count(*) FROM public.purchase_request_items i WHERE i.purchase_request_id=r.id AND i.status='PENDING') pending_items\n      FROM public.purchase_requests r LEFT JOIN public.cost_centers cc ON cc.id=r.cost_center_id\n      WHERE r.organization_id=_org)\n    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(request_number),query)>0) AND (status='' OR status=rows_status) ORDER BY request_date DESC,request_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;",
-      "newString": "SELECT r.id,r.request_number,r.request_date,r.status AS st,r.priority,r.needed_by_date,cc.name cost_center,\n        (SELECT count(*) FROM public.purchase_request_items i WHERE i.purchase_request_id=r.id) items,\n        (SELECT count(*) FROM public.purchase_request_items i WHERE i.purchase_request_id=r.id AND i.status='PENDING') pending_items\n      FROM public.purchase_requests r LEFT JOIN public.cost_centers cc ON cc.id=r.cost_center_id\n      WHERE r.organization_id=_org)\n    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(request_number),query)>0) AND (status='' OR st=status) ORDER BY request_date DESC,request_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;"
-    },
-    "timestamp": 1790284830271
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790284830301
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
       "newString": "SELECT q.id,q.quotation_number,q.status AS st,q.deadline,q.created_at,q.purchase_request_id,pr.request_number,\n        (SELECT count(DISTINCT supplier_id) FROM public.quotation_supplier_items i WHERE i.quotation_id=q.id) suppliers,\n        (SELECT count(DISTINCT variant_id) FROM public.quotation_supplier_items i WHERE i.quotation_id=q.id) variants\n      FROM public.quotations q LEFT JOIN public.purchase_requests pr ON pr.id=q.purchase_request_id WHERE q.organization_id=_org)\n    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q2)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(quotation_number),query)>0) AND (status='' OR st=status) ORDER BY created_at DESC LIMIT 50 OFFSET (_page-1)*50) q2),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;",
       "oldString": "SELECT q.id,q.quotation_number,q.status,q.deadline,q.created_at,q.purchase_request_id,pr.request_number,\n        (SELECT count(DISTINCT supplier_id) FROM public.quotation_supplier_items i WHERE i.quotation_id=q.id) suppliers,\n        (SELECT count(DISTINCT variant_id) FROM public.quotation_supplier_items i WHERE i.quotation_id=q.id) variants\n      FROM public.quotations q LEFT JOIN public.purchase_requests pr ON pr.id=q.purchase_request_id WHERE q.organization_id=_org)\n    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q2)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(quotation_number),query)>0) AND (status='' OR status=status) ORDER BY created_at DESC LIMIT 50 OFFSET (_page-1)*50) q2),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;"
     },
@@ -1562,5 +1546,21 @@
     "content": "PASS: fornecedores + catálogo (perfil, prazos, rolo->m)\nPASS: requisição DRAFT->SUBMITTED->APPROVED\nPASS: cotação multi-fornecedor + premiação\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-purchasing-db.py\", line 236, in <module>\n    run()\n    ~~~^^",
     "is_error": false,
     "timestamp": 1790285725303
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-purchasing-db.py",
+      "newString": "rpc('po_action', org, po_self, 'cancel', {'reason': 'Ação cancelada'})",
+      "oldString": "rpc('po_action', org, po_self, 'cancel', 'Ação cancelada')"
+    },
+    "timestamp": 1790285728059
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790285728072
   }
 ]

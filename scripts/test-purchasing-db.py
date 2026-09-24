@@ -88,7 +88,7 @@ def run():
                                    'items': [{'variant_id': V2, 'ordered_quantity': 1, 'unit_price': 1}]})
     rpc('po_action', org, po_self, 'submit')
     rpc('po_action', org, po_self, 'approve', fail='Segregação')
-    rpc('po_action', org, po_self, 'cancel', 'Ação cancelada')
+    rpc('po_action', org, po_self, 'cancel', {'reason': 'Ação cancelada'})
     print('PASS: pedido aprovado NÃO gera movimento; segregação de aprovação; cancelamento restaura requisição aprovada?')
 
     # --- Recebimento parcial: inspeção + postagem -------------------------
