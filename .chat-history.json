@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"rg -n 'partner_reconciliation.read|reconciliation.read' src/components/partners/pages.tsx src/lib/reconciliation/reconciliation.functions.ts src/lib/rbac.ts; sed -n '1090,1120p' supabase/migrations/20260926100000_partner_reconciliation.sql\""
-    },
-    "timestamp": 1790171264305
-  },
-  {
-    "role": "tool_result",
-    "content": "src/components/partners/pages.tsx:508:    enabled: Boolean(organizationId && hasPermission(\"partner_reconciliation.read\")),\nsrc/components/partners/pages.tsx:553:    enabled: Boolean(organizationId && hasPermission(\"partner_reconciliation.read\")),\nsrc/components/partners/pages.tsx:602:    enabled: B",
-    "is_error": false,
-    "timestamp": 1790171264312
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"rg -n 'CREATE FUNCTION public.reconciliation_require|partner_reconciliation.read|reconciliation.read' supabase/migrations/20260926100000_partner_reconciliation.sql | head -25; sed -n '300,335p' supabase/migrations/20260926100000_partner_reconciliation.sql; head -70 src/lib/reconciliation/reconciliation.functions.ts; rg -n \\\"ELSIF _kind='stores'\\\" -A10 supabase/migrations/20260926100000_partner_reconciliation.sql\""
     },
     "timestamp": 1790171271439
@@ -1398,5 +1384,20 @@
     "content": "PASS: BOM 10+5+2+8+5=30, calculation deduplication, approval and publication\nPASS: query contracts\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/.diag-costs.py\", line 134, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-f",
     "is_error": false,
     "timestamp": 1790282028286
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'PY'\nfrom pathlib import Path\np=Path('scripts/test-costs-db.py').read_text()\np=p.replace(\"fail='incompleto'\",\"fail='completo'\")\np=p.replace(\n \"rec=json.loads(rpc('rec_create',org,{'partner_id':pid,'period_start':'2026-03-01','period_end':'2026-03-31'}))['reconciliation_id'];rpc('rec_process',org,rec);rpc('rec_close',org,rec)\",\n \"rec=json.loads(rpc('rec_create',org,{'partner_id':pid,'period_start':'2026-03-01','period_end':'2026-03-31'}))['reconciliation_id'];rpc('rec_process',org,rec);import sys;o=sql(\\\"SELECT to_jsonb(e) FROM reconciliation_exceptions e WHERE organization_id=\\\"+q(org));sys.stderr.write('DEBUGEXC='+o+'\\\\n');rpc('rec_close',org,rec)\")\nPath('scripts/.diag-costs.py').write_text(p)\nPY\nrunuser -u claude-runner -- python3 /root/Zheus\\ AI\\ Projects/controle-fabrica/scripts/.diag-costs.py 2>&1 | tail -45; rm -f scripts/.diag-costs.py",
+      "timeout": 900000
+    },
+    "timestamp": 1790282031534
+  },
+  {
+    "role": "tool_result",
+    "content": "DEBUGEXC={\"id\": \"f3c1d239-ef91-48e3-8bbe-d18775235728\", \"status\": \"OPEN\", \"details\": {\"balance\": 0, \"required\": 1.000}, \"item_id\": \"5c068c0b-5805-473a-9262-ee3eda631109\", \"message\": \"Saldo insuficiente do parceiro na data: 0.000 < 1.000.\", \"severity\": \"BLOCKING\", \"store_id\": \"5daf52b6-3837-4d2e-89aa",
+    "is_error": false,
+    "timestamp": 1790282034551
   }
 ]
