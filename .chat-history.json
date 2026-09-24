@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"CREATE TRIGGER.*account_payables\\|CREATE TRIGGER.*account_receivables\\|finance_guard\\|finance_source\" supabase/migrations/20260928100000_finance.sql | head; echo ===; grep -n \"CREATE FUNCTION public.finance_require\\|finance_audit\\|finance_refresh_document\\|finance_document_paid\" supabase/migrations/20260928100000_finance.sql | head"
-    },
-    "timestamp": 1790284271811
-  },
-  {
-    "role": "tool_result",
-    "content": "321:CREATE FUNCTION public.finance_guard_relations() RETURNS trigger LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n348:  EXECUTE format('CREATE TRIGGER finance_tenant_guard BEFORE INSERT OR UPDATE ON public.%I FOR EACH ROW EXECUTE FUNCTION public.finance_guard_relations()',t);\n352:C",
-    "is_error": false,
-    "timestamp": 1790284271855
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
@@ -1586,5 +1572,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790285598062
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
+      "limit": 45,
+      "offset": 540
+    },
+    "timestamp": 1790285600264
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql</path>\n<type>file</type>\n<content>\n540: -- 15. RLS + grants (escrita somente via RPC).\n541: -- =====================================================================\n542: DO $$ DECLARE t text; perm text; ",
+    "is_error": false,
+    "timestamp": 1790285600299
   }
 ]
