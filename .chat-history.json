@@ -3,22 +3,6 @@
     "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
-    "timestamp": 1790282234871
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
-      "newString": "- Domínio Custos, Precificação e Rentabilidade (LOVABLE MASTER 009):\n  - Cost Engine central: `cost_compute`/`cost_calculate` com deduplicação por fingerprint,\n    simulação isolada (never grava), `cost_version_action` (approve/publish/archive invariante),\n    `cost_save_input` (material, mão de obra, roteiro, overhead, apontamento real, regra variável,\n    economics, conversão oficial de unidade) e `cost_query` (dashboard/opções/materiais/mão de obra/\n    overhead/roteiro/apontamentos/runs/versões/regras/economics/tabelas/vendas/snapshots/\n    rentabilidade agrupada/impacto/comparativo).\n  - Versão histórica: `product_cost_versions` STANDARD e ACTUAL_PRODUCTION, `material_cost_versions`,\n    `labor_rates`, `overhead_rules`, `cost_routing_steps`, `production_labor_entries` — tudo imutável\n    fora do fluxo, com vigências não sobrepostas e aprovação/publicação exigindo COMPLETE.\n  - Formação de preço: `pricing_math` (MARKUP / margem sobre preço / margem-alvo com deduções),\n    `pricing_simulate`, `pricing_publish` (versão por vigência fechando a anterior), reutilizando\n    `price_tables`/`price_table_items`/`partner_price_links` do MASTER 007 (evolui: `channel`,\n    `approved_by/at`, `minimum_price`, índice `price_item_effective`).\n  - Rentabilidade: `sale_cost_snapshots` imutável por venda (COGS + deduções + margem + contribuição)\n    capturado no fechamento do parceiro (billable da regra comercial, nunca o gross) ou manualmente\n    para venda própria; `sale_economics` com proveniência explícita; relatório agrupado no banco por\n    produto/variante/loja/parceiro/canal.\n  - Segurança: `cost_require` + RLS por permissão em tabelas novas, helpers `cost_*` privados,\n    `cost_price` legado de `product_variants` revogado (sem API de custo paralela), RPCs públicas\n    selecionadas, auditoria `cost_engine` e permssões `costs.*/pricing.*/profitability.*` para\n    admin/gestor.\n  - Telas: `/custos` (+ insumos, produção, versões, calcular, simulador, impacto),\n    `/precificacao`, `/relatorios/rentabilidade`; RBAC central em `src/lib/rbac.ts` e menu do\n    `AppShell`.\n- Documentação: ADR-001/ADR-006/ADR-007, CORE-BUSINESS, INVENTORY, PARTNERS, PARTNER-SHIPMENTS,",
-      "oldString": "- Documentação: ADR-001/ADR-006/ADR-007, CORE-BUSINESS, INVENTORY, PARTNERS, PARTNER-SHIPMENTS,"
-    },
-    "timestamp": 1790282242236
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
     "timestamp": 1790282242263
   },
   {
@@ -1579,5 +1563,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790285273409
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "ls scripts/ && echo ---- && ls docs/handoff/ 2>/dev/null && echo ---- && cat scripts/test-costs-db.py | head -80",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790285282137
+  },
+  {
+    "role": "tool_result",
+    "content": "__pycache__\ntest-costs-db.py\ntest-finance-db.py\ntest-inventory-db.py\ntest-partner-store-integration-db.py\ntest-partners-db.py\ntest-reconciliation-db.py\n----\nMASTER-003-VALIDATION.md\nMASTER-006-VALIDATION.md\nMASTER-007-VALIDATION.md\nMASTER-009-VALIDATION.md\nPROJECT-STATE.md\n----\n#!/usr/bin/env python",
+    "is_error": false,
+    "timestamp": 1790285282188
   }
 ]
