@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
-      "newString": "IF v_pol IN ('LAST_PURCHASE','AVERAGE') AND _inv_unit IS NOT NULL THEN",
-      "oldString": "IF v_pol IN ('LAST_PURCHASE','AVERAGE') THEN"
-    },
-    "timestamp": 1790285226280
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790285226315
-  },
-  {
-    "role": "tool",
     "tool": "grep",
     "input": {
       "path": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations",
@@ -1566,5 +1550,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790285889415
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "runuser -u claude-runner -- python3 /root/Zheus\\ AI\\ Projects/controle-fabrica/scripts/test-purchasing-db.py 2>&1 | tail -30",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica",
+      "timeout": 300000
+    },
+    "timestamp": 1790285891475
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: pedido COMPLETED; 1 obrigação por pedido (2 parcelas = 310)\nPASS: histórico de custo R$30 -> R$36 (versão 2, PURCHASE)\nPASS: política AVERAGE = (10*30+10*36+10*45)/30 = 37; custo igual não gera nova versão\nPASS: conversão rolo 5m -> movimento de 10 (un) e custo R$12/m\nPASS: estoque com AUTH_OV",
+    "is_error": false,
+    "timestamp": 1790285894815
   }
 ]
