@@ -78,6 +78,18 @@ describe("rbac", () => {
     expect(PERMISSIONS.partnerPricingManage).toBe("partner_pricing.manage");
   });
 
+  it("reconhece as permissões do domínio de compras", () => {
+    expect(PERMISSIONS.purchasingRead).toBe("purchasing.read");
+    expect(PERMISSIONS.suppliersManage).toBe("suppliers.manage");
+    expect(PERMISSIONS.purchaseRequestsApprove).toBe("purchase_requests.approve");
+    expect(PERMISSIONS.quotationsAward).toBe("quotations.award");
+    expect(PERMISSIONS.purchaseOrdersSend).toBe("purchase_orders.send");
+    expect(PERMISSIONS.goodsReceiptsPost).toBe("goods_receipts.post");
+    expect(PERMISSIONS.supplierReturnsCreate).toBe("supplier_returns.create");
+    expect(PERMISSIONS.supplierDocumentsProcess).toBe("supplier_documents.process");
+    expect(PERMISSIONS.purchaseExceptionsResolve).toBe("purchase_exceptions.resolve");
+  });
+
   it("reconhece as permissões do domínio financeiro", () => {
     expect(PERMISSIONS.financeRead).toBe("finance.read");
     expect(PERMISSIONS.financeDashboard).toBe("finance.dashboard");

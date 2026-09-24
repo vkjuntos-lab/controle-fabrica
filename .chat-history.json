@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
-      "newString": "RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\nDECLARE result jsonb; query text:=lower(coalesce(_filters->>'query','')); st text:=coalesce(_filters->>'status',''); v_id uuid;\nBEGIN\n  PERFORM public.purchasing_require(_org,'goods_receipts.read');\n  IF _kind='receipts' THEN\n    WITH rows AS MATERIALIZED(\n      SELECT gr.id,gr.receipt_number,gr.purchase_order_id,gr.supplier_id,gr.status,gr.received_at,gr.total_received,gr.total_accepted,gr.total_rejected,gr.supplier_document_number,\n        po.order_number,c.legal_name supplier_name,\n        (SELECT count(*) FROM public.goods_receipt_items i WHERE i.goods_receipt_id=gr.id) items\n      FROM public.goods_receipts gr JOIN public.purchase_orders po ON po.id=gr.purchase_order_id JOIN public.supplier_profiles sp ON sp.id=gr.supplier_id JOIN public.companies c ON c.id=sp.company_id\n      WHERE gr.organization_id=_org)\n    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(concat_ws(' ',receipt_number,order_number,supplier_name)),query)>0) AND (st='' OR \"status\"=st) ORDER BY received_at DESC,receipt_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;",
-      "oldString": "RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\nDECLARE result jsonb; query text:=lower(coalesce(_filters->>'query','')); status text:=coalesce(_filters->>'status',''); v_id uuid;\nBEGIN\n  PERFORM public.purchasing_require(_org,'goods_receipts.read');\n  IF _kind='receipts' THEN\n    WITH rows AS MATERIALIZED(\n      SELECT gr.id,gr.receipt_number,gr.purchase_order_id,gr.supplier_id,gr.status,gr.received_at,gr.total_received,gr.total_accepted,gr.total_rejected,gr.supplier_document_number,\n        po.order_number,c.legal_name supplier_name,\n        (SELECT count(*) FROM public.goods_receipt_items i WHERE i.goods_receipt_id=gr.id) items\n      FROM public.goods_receipts gr JOIN public.purchase_orders po ON po.id=gr.purchase_order_id JOIN public.supplier_profiles sp ON sp.id=gr.supplier_id JOIN public.companies c ON c.id=sp.company_id\n      WHERE gr.organization_id=_org)\n    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(concat_ws(' ',receipt_number,order_number,supplier_name)),query)>0) AND (status='' OR \"status\"=status) ORDER BY received_at DESC,receipt_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;"
-    },
-    "timestamp": 1790285382302
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790285382327
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
       "newString": "RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\nDECLARE result jsonb; query text:=lower(coalesce(_filters->>'query','')); st text:=coalesce(_filters->>'status',''); v_id uuid;\nBEGIN\n  PERFORM public.purchasing_require(_org,'supplier_returns.read');\n  IF _kind='returns' THEN\n    WITH rows AS MATERIALIZED(\n      SELECT sr.id,sr.return_number,sr.supplier_id,sr.status,sr.return_date,sr.goods_receipt_id,sr.source_location_id,sr.reason,\n        c.legal_name supplier_name,gr.receipt_number,\n        (SELECT count(*) FROM public.supplier_return_items i WHERE i.supplier_return_id=sr.id) items,\n        (SELECT coalesce(sum(i.quantity),0) FROM public.supplier_return_items i WHERE i.supplier_return_id=sr.id) total_qty\n      FROM public.supplier_returns sr JOIN public.supplier_profiles sp ON sp.id=sr.supplier_id JOIN public.companies c ON c.id=sp.company_id LEFT JOIN public.goods_receipts gr ON gr.id=sr.goods_receipt_id\n      WHERE sr.organization_id=_org)\n    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(concat_ws(' ',return_number,supplier_name)),query)>0) AND (st='' OR \"status\"=st) ORDER BY return_date DESC,return_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;",
       "oldString": "RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\nDECLARE result jsonb; query text:=lower(coalesce(_filters->>'query','')); status text:=coalesce(_filters->>'status',''); v_id uuid;\nBEGIN\n  PERFORM public.purchasing_require(_org,'supplier_returns.read');\n  IF _kind='returns' THEN\n    WITH rows AS MATERIALIZED(\n      SELECT sr.id,sr.return_number,sr.supplier_id,sr.status,sr.return_date,sr.goods_receipt_id,sr.source_location_id,sr.reason,\n        c.legal_name supplier_name,gr.receipt_number,\n        (SELECT count(*) FROM public.supplier_return_items i WHERE i.supplier_return_id=sr.id) items,\n        (SELECT coalesce(sum(i.quantity),0) FROM public.supplier_return_items i WHERE i.supplier_return_id=sr.id) total_qty\n      FROM public.supplier_returns sr JOIN public.supplier_profiles sp ON sp.id=sr.supplier_id JOIN public.companies c ON c.id=sp.company_id LEFT JOIN public.goods_receipts gr ON gr.id=sr.goods_receipt_id\n      WHERE sr.organization_id=_org)\n    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(concat_ws(' ',return_number,supplier_name)),query)>0) AND (status='' OR \"status\"=status) ORDER BY return_date DESC,return_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;"
     },
@@ -1601,5 +1585,21 @@
     "content": "",
     "is_error": true,
     "timestamp": 1790286062583
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/rbac.test.ts",
+      "newString": "it(\"reconhece as permissões do domínio de compras\", () => {\n    expect(PERMISSIONS.purchasingRead).toBe(\"purchasing.read\");\n    expect(PERMISSIONS.suppliersManage).toBe(\"suppliers.manage\");\n    expect(PERMISSIONS.purchaseRequestsApprove).toBe(\"purchase_requests.approve\");\n    expect(PERMISSIONS.quotationsAward).toBe(\"quotations.award\");\n    expect(PERMISSIONS.purchaseOrdersSend).toBe(\"purchase_orders.send\");\n    expect(PERMISSIONS.goodsReceiptsPost).toBe(\"goods_receipts.post\");\n    expect(PERMISSIONS.supplierReturnsCreate).toBe(\"supplier_returns.create\");\n    expect(PERMISSIONS.supplierDocumentsProcess).toBe(\"supplier_documents.process\");\n    expect(PERMISSIONS.purchaseExceptionsResolve).toBe(\"purchase_exceptions.resolve\");\n  });\n\n  it(\"reconhece as permissões do domínio financeiro\", () => {",
+      "oldString": "it(\"reconhece as permissões do domínio financeiro\", () => {"
+    },
+    "timestamp": 1790286065526
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790286065540
   }
 ]
