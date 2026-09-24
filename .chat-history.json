@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "1276:              options={companies}\n",
-    "is_error": false,
-    "timestamp": 1790129220150
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/finance/dialogs.tsx",
-      "limit": 30,
-      "offset": 1255
-    },
-    "timestamp": 1790129221923
-  },
-  {
-    "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/finance/dialogs.tsx</path>\n<type>file</type>\n<content>\n1255:           onSubmit={(e) => {\n1256:             e.preventDefault();\n1257:             if (!amount || Number(amount) <= 0) {\n1258:               toast.error(\"Valor obrigatório.\");",
     "is_error": false,
     "timestamp": 1790129221957
@@ -1372,5 +1356,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py</path>\n<type>file</type>\n<content>\n1: #!/usr/bin/env python3\n2: \"\"\"Isolated PostgreSQL integration tests. Never connects to a deployed database.\"\"\"\n3: import concurrent.futures\n4: import json\n5: import os\n6: from pathlib imp",
     "is_error": false,
     "timestamp": 1790281896783
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cp scripts/test-costs-db.py scripts/.test-costs-db.tmp.py && sed -i \"s/fail='incompleto'/fail='completo'/\" scripts/.test-costs-db.tmp.py && runuser -u claude-runner -- python3 /root/Zheus\\ AI\\ Projects/controle-fabrica/scripts/.test-costs-db.tmp.py 2>&1 | tail -30; rm -f scripts/.test-costs-db.tmp.py",
+      "timeout": 900000
+    },
+    "timestamp": 1790281907219
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: BOM 10+5+2+8+5=30, calculation deduplication, approval and publication\nPASS: query contracts\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/.test-costs-db.tmp.py\", line 134, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/con",
+    "is_error": false,
+    "timestamp": 1790281909344
   }
 ]
