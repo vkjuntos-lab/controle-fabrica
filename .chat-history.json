@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
-      "newString": "DECLARE result jsonb; st text:=coalesce(_filters->>'status',''); etype text:=coalesce(_filters->>'exception_type','');",
-      "oldString": "DECLARE result jsonb; status text:=coalesce(_filters->>'status',''); etype text:=coalesce(_filters->>'exception_type','');"
-    },
-    "timestamp": 1790285462797
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790285462831
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
       "newString": "SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (st='' OR \"status\"=st) AND (etype='' OR exception_type=etype) ORDER BY created_at DESC LIMIT 100 OFFSET (_page-1)*100) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;",
       "oldString": "SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (status='' OR \"status\"=status) AND (etype='' OR exception_type=etype) ORDER BY created_at DESC LIMIT 100 OFFSET (_page-1)*100) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;"
     },
@@ -1600,5 +1584,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/rbac.test.ts</path>\n<type>file</type>\n<content>\n124:     ([key]) => key.startsWith(\"partnerReconciliation\") || key.startsWith(\"marketplace\"),\n125:   );\n126:   expect(keys.length).toBeGreaterThan(0);\n127:   for (const [, value] of keys) expect(da",
     "is_error": false,
     "timestamp": 1790286089653
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "node -e '\nconst fs=require(\"fs\");\nconst m=fs.readFileSync(\"supabase/migrations/20261001100000_purchasing.sql\",\"utf8\");\nconst idx=m.indexOf(\"suppliers.read\");\nconsole.log(JSON.stringify(m.slice(idx-10,idx+30)));\nconst re=/'\\''(suppliers|purchase_requests|quotations|purchase_orders|goods_receipts|supplier_returns|supplier_documents|purchase_exceptions)\\.[a-z_]+'\\''/g;\nconsole.log(\"matches:\", JSON.stringify(m.match(re)));\n'",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790286093366
+  },
+  {
+    "role": "tool_result",
+    "content": "\"oard',\\n  'suppliers.read','suppliers.man\"\nmatches: [\"'suppliers.read'\",\"'suppliers.manage'\",\"'purchase_requests.read'\",\"'purchase_requests.create'\",\"'purchase_requests.approve'\",\"'purchase_requests.cancel'\",\"'quotations.read'\",\"'quotations.create'\",\"'quotations.manage'\",\"'quotations.award'\",\"'purc",
+    "is_error": false,
+    "timestamp": 1790286093423
   }
 ]
