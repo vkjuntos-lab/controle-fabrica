@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
-      "limit": 45,
-      "offset": 157
-    },
-    "timestamp": 1790285487756
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql</path>\n<type>file</type>\n<content>\n157:   IF TG_TABLE_NAME='goods_receipts' AND OLD.status IN ('POSTED','CANCELED') THEN RAISE EXCEPTION 'Recebimento postado/cancelado é imutável.'; END IF;\n158:   IF TG_",
-    "is_error": false,
-    "timestamp": 1790285487768
-  },
-  {
-    "role": "tool",
     "tool": "grep",
     "input": {
       "path": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
@@ -1601,5 +1585,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/finance/finance.functions.ts</path>\n<type>file</type>\n<content>\n1: import { createServerFn } from \"@tanstack/react-start\";\n2: import { z } from \"zod\";\n3: import { requireSupabaseAuth } from \"@/integrations/supabase/auth-middleware\";\n4: import ty",
     "is_error": false,
     "timestamp": 1790286118176
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"CREATE FUNCTION\" supabase/migrations/20261001100000_purchasing.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790286121605
+  },
+  {
+    "role": "tool_result",
+    "content": "102:CREATE FUNCTION public.purchasing_require(_org uuid,_permission text) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n105:CREATE FUNCTION public.purchasing_audit(_org uuid,_action text,_table text,_id uuid,_context jsonb DEFAULT '{}') RETURNS void LANGUAGE sql SECURIT",
+    "is_error": false,
+    "timestamp": 1790286121633
   }
 ]
