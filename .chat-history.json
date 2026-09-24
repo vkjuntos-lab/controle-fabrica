@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"sed -n '1052,1076p' supabase/migrations/20260926100000_partner_reconciliation.sql; sed -n '477,513p' supabase/migrations/20260926100000_partner_reconciliation.sql; sed -n '80,115p' supabase/migrations/20260928100000_finance.sql\""
-    },
-    "timestamp": 1790171256154
-  },
-  {
-    "role": "tool_result",
-    "content": "CREATE FUNCTION public.rec_query(_org uuid,_kind text,_filters jsonb DEFAULT '{}'::jsonb,_page int DEFAULT 1,_user_id uuid DEFAULT auth.uid())\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE v_result jsonb; v_uri text;\nBEGIN\n  IF _user_id IS DISTINCT FROM auth.ui",
-    "is_error": false,
-    "timestamp": 1790171256162
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"rg -n 'partner_reconciliation.read|reconciliation.read' src/components/partners/pages.tsx src/lib/reconciliation/reconciliation.functions.ts src/lib/rbac.ts; sed -n '1090,1120p' supabase/migrations/20260926100000_partner_reconciliation.sql\""
     },
     "timestamp": 1790171264305
@@ -1397,5 +1383,20 @@
     "content": "(no output)",
     "is_error": false,
     "timestamp": 1790282022499
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'PY'\nfrom pathlib import Path\np=Path('scripts/test-costs-db.py').read_text()\np=p.replace(\n \"rec=json.loads(rpc('rec_create',org,{'partner_id':pid,'period_start':'2026-03-01','period_end':'2026-03-31'}))['reconciliation_id'];rpc('rec_process',org,rec);rpc('rec_close',org,rec)\",\n \"rec=json.loads(rpc('rec_create',org,{'partner_id':pid,'period_start':'2026-03-01','period_end':'2026-03-31'}))['reconciliation_id'];rpc('rec_process',org,rec);import sys,io;o=sql(\\\"SELECT to_jsonb(e) FROM reconciliation_exceptions e WHERE organization_id=\\\"+q(org));sys.stderr.write('DEBUGEXC='+o+'\\\\n');rpc('rec_close',org,rec)\")\nPath('scripts/.diag-costs.py').write_text(p)\nPY\nrunuser -u claude-runner -- python3 /root/Zheus\\ AI\\ Projects/controle-fabrica/scripts/.diag-costs.py 2>&1 | tail -40; rm -f scripts/.diag-costs.py",
+      "timeout": 900000
+    },
+    "timestamp": 1790282026302
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: BOM 10+5+2+8+5=30, calculation deduplication, approval and publication\nPASS: query contracts\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/.diag-costs.py\", line 134, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-f",
+    "is_error": false,
+    "timestamp": 1790282028286
   }
 ]
