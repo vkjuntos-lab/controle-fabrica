@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
-      "newString": "-- =====================================================================\n-- 19. RPCs: Pedidos de compra.\n-- =====================================================================\nALTER TABLE public.purchase_orders ADD COLUMN IF NOT EXISTS cancel_reason text;\nCREATE FUNCTION public.po_save(_org uuid,_data jsonb,_id uuid DEFAULT NULL) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$",
-      "oldString": "-- =====================================================================\n-- 19. RPCs: Pedidos de compra.\n-- =====================================================================\nCREATE FUNCTION public.po_save(_org uuid,_data jsonb,_id uuid DEFAULT NULL) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$"
-    },
-    "timestamp": 1790285186919
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790285186944
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
       "newString": "INSERT INTO public.quotation_supplier_items(organization_id,quotation_id,supplier_id,purchase_request_item_id,variant_id,quantity,unit_of_measure_id,unit_price,discount_amount,freight_amount,tax_amount,other_amount,total_amount,delivery_days,payment_terms,valid_until,notes)\n      VALUES(_org,v,(supp->>'supplier_id')::uuid,nullif(it->>'purchase_request_item_id','')::uuid,(it->>'variant_id')::uuid,v_qty,nullif(it->>'unit_of_measure_id','')::uuid,v_price,coalesce((it->>'discount_amount')::numeric,0),coalesce((it->>'freight_amount')::numeric,0),coalesce((it->>'tax_amount')::numeric,0),coalesce((it->>'other_amount')::numeric,0),\n        round(v_qty*v_price - coalesce((it->>'discount_amount')::numeric,0) + coalesce((it->>'freight_amount')::numeric,0) + coalesce((it->>'tax_amount')::numeric,0) + coalesce((it->>'other_amount')::numeric,0),6),\n        nullif(regexp_replace(coalesce(it->>'delivery_days',''),'[^0-9]','','g'),'')::int,it->>'payment_terms',nullif(it->>'valid_until','')::date,it->>'notes');",
       "oldString": "INSERT INTO public.quotation_supplier_items(organization_id,quotation_id,supplier_id,purchase_request_item_id,variant_id,quantity,unit_of_measure_id,unit_price,discount_amount,freight_amount,tax_amount,other_amount,total_amount,delivery_days,payment_terms,valid_until,notes)\n      VALUES(_org,v,(supp->>'supplier_id')::uuid,nullif(it->>'purchase_request_item_id','')::uuid,(it->>'variant_id')::uuid,v_qty,nullif(it->>'unit_of_measure_id','')::uuid,v_price,coalesce((it->>'discount_amount')::numeric,0),coalesce((it->>'freight_amount')::numeric,0),coalesce((it->>'tax_amount')::numeric,0),coalesce((it->>'other_amount')::numeric,0),\n        round(v_qty*v_price - coalesce((it->>'discount_amount')::numeric,0) + coalesce((it->>'freight_amount')::numeric,0) + coalesce((it->>'tax_amount')::numeric,0) + coalesce((it->>'other_amount')::numeric,0),6),\n        nullif(regexp_replace(_data->>'delivery_days'||'', '[^0-9]','','g'),'')::int,nullif(it->>'delivery_days',''),it->>'payment_terms',nullif(it->>'valid_until','')::date,it->>'notes');"
     },
@@ -1568,5 +1552,21 @@
     "content": "18:    a, b, r, c, org, other = [uid() for _ in range(6)]\n19:    sql(f\"INSERT INTO auth.users(id,email) VALUES({q(a)},'buy@test'),({q(b)},'boss@test'),({q(r)},'prod@test'),({q(c)},'other@test');\"\n98:    assert r['receipt']['status'] == 'DRAFT'\n99:    item_id = r['items'][0]['id']\n104:    assert num(",
     "is_error": false,
     "timestamp": 1790285874255
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-purchasing-db.py",
+      "newString": "a, b, prod, c, org, other = [uid() for _ in range(6)]\n    sql(f\"INSERT INTO auth.users(id,email) VALUES({q(a)},'buy@test'),({q(b)},'boss@test'),({q(prod)},'prod@test'),({q(c)},'other@test');\"\n        f\" INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'Fabrica',{q(org)},{q(a)}),({q(other)},'Outra','outra',{q(c)});\"\n        f\" INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(b)},'gestor'),({q(org)},{q(prod)},'producao')\")",
+      "oldString": "a, b, r, c, org, other = [uid() for _ in range(6)]\n    sql(f\"INSERT INTO auth.users(id,email) VALUES({q(a)},'buy@test'),({q(b)},'boss@test'),({q(r)},'prod@test'),({q(c)},'other@test');\"\n        f\" INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'Fabrica',{q(org)},{q(a)}),({q(other)},'Outra','outra',{q(c)});\"\n        f\" INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(b)},'gestor'),({q(org)},{q(r)},'producao')\")"
+    },
+    "timestamp": 1790285879057
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790285879078
   }
 ]

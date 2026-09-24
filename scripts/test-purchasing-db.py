@@ -15,10 +15,10 @@ def run():
                  '20260930100000_cost_engine.sql', '20261001100000_purchasing.sql']:
         sql((db.ROOT / 'supabase/migrations' / name).read_text())
 
-    a, b, r, c, org, other = [uid() for _ in range(6)]
-    sql(f"INSERT INTO auth.users(id,email) VALUES({q(a)},'buy@test'),({q(b)},'boss@test'),({q(r)},'prod@test'),({q(c)},'other@test');"
+    a, b, prod, c, org, other = [uid() for _ in range(6)]
+    sql(f"INSERT INTO auth.users(id,email) VALUES({q(a)},'buy@test'),({q(b)},'boss@test'),({q(prod)},'prod@test'),({q(c)},'other@test');"
         f" INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'Fabrica',{q(org)},{q(a)}),({q(other)},'Outra','outra',{q(c)});"
-        f" INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(b)},'gestor'),({q(org)},{q(r)},'producao')")
+        f" INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(b)},'gestor'),({q(org)},{q(prod)},'producao')")
 
     def rpc(name, *args, user=a, fail=None):
         return db.call(name, ','.join(q(json.dumps(x) if isinstance(x, (dict, list)) else x) for x in args), user, fail)
