@@ -102,7 +102,7 @@ def run():
  # Real partner close uses billable 80, not marketplace gross 150.
  company=rpc('partner_save_company',org,{'code':'PARTNER','legal_name':'Parceiro','roles':['PARTNER']});partner=json.loads(rpc('partner_query',org,'company',{'id':company}))['profile'];pid=partner['id'];ploc=partner['default_inventory_location_id']
  pst=json.loads(rpc('marketplace_save_store',org,{'code':'P','name':'Parceiro','marketplace':'TEST','ownership_type':'PARTNER','partner_id':pid}))['id']
- rpc('inventory_post_movement',org,hist,ploc,'OPENING_BALANCE',10)
+ rpc('inventory_post_movement',org,hist,ploc,'OPENING_BALANCE',10,'Saldo inicial','2026-03-01')
  pt=json.loads(rpc('price_save_table',org,{'code':'PARTNER','name':'Preço parceiro','valid_from':'2026-01-01'}))['id']
  rpc('pricing_publish',org,{'price_table_id':pt,'variant_id':hist,'unit_price':80,'valid_from':'2026-01-01'})
  rpc('price_link_partner',org,{'partner_id':pid,'price_table_id':pt})
