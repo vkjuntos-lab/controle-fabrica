@@ -326,17 +326,25 @@ Validação local; publicação não verificada.
 
 ## NEXT_STEPS
 
-1. Implementar/validar o importador MASTER 005 com o contrato de `marketplace_stores`, vínculo
+1. Aplicar a migration do MASTER 009 no Lovable Cloud e executar smoke test autenticado
+   (custos, precificação, rentabilidade) no ambiente publicado.
+2. Implementar/validar o importador MASTER 005 com o contrato de `marketplace_stores`, vínculo
    PARTNER → `partner_profiles` e `marketplace_sales` já existentes. Não duplicar o cadastro de lojas.
-2. Financeiro de parceiros: consumir o snapshot/evento `PARTNER_RECONCILIATION_CLOSED` para gerar
+3. Financeiro de parceiros: consumir o snapshot/evento `PARTNER_RECONCILIATION_CLOSED` para gerar
    cobrança (AR) e registrar pagamento; limites de crédito e condições de pagamento.
-3. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,
+4. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,
    `PURCHASE_RECEIPT`, `PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`).
-4. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.
-5. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a
+5. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.
+6. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a
    `/api/webhooks/receiver` quando houver integração externa.
 
 ## VALIDAÇÃO DESTA CONTINUAÇÃO
+
+Relatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-VALIDATION.md`,
+`docs/handoff/MASTER-007-VALIDATION.md` e `docs/handoff/MASTER-009-VALIDATION.md`.
+35 testes unitários, harness PostgreSQL do estoque, de parceiros, de reconciliação e de custos
+(MASTER 009: `npm run test:costs:db`), TypeScript, build e lint do domínio verificados. A implantação
+no banco publicado não faz parte da evidência local e permanece pendente.
 
 Relatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-VALIDATION.md` e
 `docs/handoff/MASTER-007-VALIDATION.md`.

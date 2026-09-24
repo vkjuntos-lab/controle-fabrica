@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"cat > scripts/test-costs-db.py <<'EOF'\n#\"'!/usr/bin/env python3\n\"\"\"Cost engine acceptance, actual PostgreSQL/RLS, isolated disposable database.\"\"\"\nimport importlib.util\nimport json\nfrom pathlib import Path\nspec = importlib.util.spec_from_file_location('\"'inventory_db',Path(__file__).with_name('test-inventory-db.py'))\ndb = importlib.util.module_from_spec(spec); spec.loader.exec_module(db)\nq,sql,uid = db.q,db.sql,db.uid\n\ndef run():\n db.setup()\n for name in ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql']:\n  sql((db.ROOT/'supabase/migrations'/name).read_text())\n a,b,reader,org,other=[uid() for _ in range(5)]\n sql(f\\\"INSERT INTO auth.users(id,email) VALUES({q(a)},'cost@test'),({q(b)},'other@test'),({q(reader)},'reader@test'); INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'Cost','cost',{q(a)}),({q(other)},'Other','other',{q(b)}); INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(reader)},'comercial')\\\")\n def rpc(name,*args,user=a,fail=None):return db.call(name,','.join(q(json.dumps(x) if isinstance(x,(dict,list)) else x) for x in args),user,fail)\n unit=sql(\\\"SELECT id FROM units_of_measure WHERE code='un'\\\")\n def variant(code,typ='FINISHED_GOOD'):\n  p,v=uid(),uid();sql(f\\\"INSERT INTO products(id,organization_id,code,name,item_type) VALUES({q(p)},{q(org)},{q(code)},{q(code)},{q(typ)}); INSERT INTO product_variants(id,organization_id,product_id,sku,unit_of_measure_id) VALUES({q(v)},{q(org)},{q(p)},{q(code)},{q(unit)})\\\");return v\n finished=variant('Produto X');m1=variant('Material A','RAW_MATERIAL');m2=variant('Material B','COMPONENT');pack=variant('Caixa','PACKAGING')\n bom=uid();sql(f\\\"INSERT INTO bill_of_materials(id,organization_id,product_variant_id,code,status,effective_from) VALUES({q(bom)},{q(org)},{q(finished)},'BOM-X','ACTIVE','2026-01-01')\\\")\n for v,cost in [(m1,10),(m2,5),(pack,2)]:\n  rpc('cost_save_input',org,'material',{'variant_id':v,'unit_of_measure_id':unit,'unit_cost':cost,'effective_from':'2026-01-01','reason':'Custo inicial'})\n  sql(f\\\"INSERT INTO bill_of_materials_items(organization_id,bom_id,component_variant_id,quantity,unit_of_measure_id) VALUES({q(org)},{q(bom)},{q(v)},1,{q(unit)})\\\")\n rpc('cost_save_input',org,'labor',{'activity':'Montagem','hourly_cost':40,'effective_from':'2026-01-01','reason':'Custo-hora'})\n rpc('cost_save_input',org,'routing',{'bom_id':bom,'activity':'Montagem','standard_minutes':12,'effective_from':'2026-01-01','reason':'Tempo padrão'})\n rpc('cost_save_input',org,'overhead',{'name':'Fábrica','method':'PER_UNIT','rate':5,'effective_from':'2026-01-01','reason':'Rateio aprovado'})\n data={'variants':[finished],'effective_from':'2026-01-01'}\n result=json.loads(rpc('cost_calculate',org,data))['results'][0]\n assert result.get('total_unit_cost')==30,result\n version=result['id'];assert json.loads(rpc('cost_calculate',org,data))['results'][0]['id']==version\n rpc('cost_version_action',org,version,'publish',fail='aprovado')\n rpc('cost_version_action',org,version,'approve');rpc('cost_version_action',org,version,'publish')\n assert sql(f\\\"SELECT status FROM product_cost_versions WHERE id={q(version)}\\\")=='ACTIVE'\n print('PASS: BOM 10+5+2+8+5=30, calculation deduplication, approval and publication')\n for kind in ['dashboard','options','materials','labor','overhead','routing','runs','versions','price_tables','settings','sales','profitability']:\n  json.loads(rpc('cost_query',org,kind))\n print('PASS: query contracts')\ntry:run()\nfinally:db.cleanup()\nEOF\npython3 scripts/test-costs-db.py\""
-    },
-    "timestamp": 1790272724390
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS: BOM 10+5+2+8+5=30, calculation deduplication, approval and publication\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-costs-db.py\", line 39, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-c",
-    "is_error": true,
-    "timestamp": 1790272726059
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"rg -n 'cost_price|select\\\\(' src/lib/products/products.functions.ts | head -25; sed -n '125,172p' src/lib/products/products.functions.ts; rg -n 'unit_conversions' src/integrations/supabase/types.ts; rg -n 'POSTED|PRODUCTION_ORDER' supabase/migrations/20260923100000_inventory_workflows.sql | head -20\""
     },
     "timestamp": 1790272750260
@@ -1498,5 +1484,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md</path>\n<type>file</type>\n<content>\n296:   parceiro com o billable da regra comercial (nunca o gross); conversão de unidade só usa registro\n297:   oficial — nunca fator implícito. Nenhuma RPC de custo lança AR/despesa ou mov",
     "is_error": false,
     "timestamp": 1790282254133
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
+      "newString": "## NEXT_STEPS\n\n1. Aplicar a migration do MASTER 009 no Lovable Cloud e executar smoke test autenticado\n   (custos, precificação, rentabilidade) no ambiente publicado.\n2. Implementar/validar o importador MASTER 005 com o contrato de `marketplace_stores`, vínculo\n   PARTNER → `partner_profiles` e `marketplace_sales` já existentes. Não duplicar o cadastro de lojas.\n3. Financeiro de parceiros: consumir o snapshot/evento `PARTNER_RECONCILIATION_CLOSED` para gerar\n   cobrança (AR) e registrar pagamento; limites de crédito e condições de pagamento.\n4. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,\n   `PURCHASE_RECEIPT`, `PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`).\n5. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.\n6. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a\n   `/api/webhooks/receiver` quando houver integração externa.\n\n## VALIDAÇÃO DESTA CONTINUAÇÃO\n\nRelatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-VALIDATION.md`,\n`docs/handoff/MASTER-007-VALIDATION.md` e `docs/handoff/MASTER-009-VALIDATION.md`.\n35 testes unitários, harness PostgreSQL do estoque, de parceiros, de reconciliação e de custos\n(MASTER 009: `npm run test:costs:db`), TypeScript, build e lint do domínio verificados. A implantação\nno banco publicado não faz parte da evidência local e permanece pendente.",
+      "oldString": "## NEXT_STEPS\n\n1. Implementar/validar o importador MASTER 005 com o contrato de `marketplace_stores`, vínculo\n   PARTNER → `partner_profiles` e `marketplace_sales` já existentes. Não duplicar o cadastro de lojas.\n2. Financeiro de parceiros: consumir o snapshot/evento `PARTNER_RECONCILIATION_CLOSED` para gerar\n   cobrança (AR) e registrar pagamento; limites de crédito e condições de pagamento.\n3. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,\n   `PURCHASE_RECEIPT`, `PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`).\n4. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.\n5. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a\n   `/api/webhooks/receiver` quando houver integração externa.\n\n## VALIDAÇÃO DESTA CONTINUAÇÃO"
+    },
+    "timestamp": 1790282260067
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790282260090
   }
 ]
