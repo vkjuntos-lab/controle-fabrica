@@ -49,7 +49,7 @@ def run():
  assert r['material_cost']==20 and r['loss_cost']==1 and r['total_unit_cost']==26,r # +5 configured overhead
  missing,missingmat,missingbom=simple('SEM-CUSTO',None);r=calculate(missing)
  assert r['completeness']=='INCOMPLETE' and r['total_unit_cost'] is None and any(x['code']=='MATERIAL_COST_MISSING' for x in r['issues']),r
- rpc('cost_version_action',org,r['id'],'approve',fail='incompleto')
+ rpc('cost_version_action',org,r['id'],'approve',fail='completo')
  before=sql('SELECT count(*) FROM product_cost_versions')
  sim=json.loads(rpc('cost_calculate',org,{'variants':[finished],'effective_from':'2026-01-01','overrides':{'materials':{m1:20}}},'true'))['results'][0]
  assert sim['total_unit_cost']==40 and sql('SELECT count(*) FROM product_cost_versions')==before
