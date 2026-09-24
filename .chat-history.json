@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql</path>\n<type>file</type>\n<content>\n321: CREATE FUNCTION public.cost_version_action(_org uuid,_id uuid,_action text) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n322: DECL",
-    "is_error": false,
-    "timestamp": 1790281886746
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py"
-    },
-    "timestamp": 1790281896767
-  },
-  {
-    "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py</path>\n<type>file</type>\n<content>\n1: #!/usr/bin/env python3\n2: \"\"\"Isolated PostgreSQL integration tests. Never connects to a deployed database.\"\"\"\n3: import concurrent.futures\n4: import json\n5: import os\n6: from pathlib imp",
     "is_error": false,
     "timestamp": 1790281896783
@@ -1562,5 +1548,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql</path>\n<type>file</type>\n<content>\n295: \n296: -- ============ SALDO OFICIAL (função centralizada) ============\n297: -- Parâmetros organizacionais obrigatórios; local/lote opcionais. Retorna NULL\n29",
     "is_error": false,
     "timestamp": 1790284317744
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"CREATE FUNCTION public.cost_save_input\\|_kind='material'\\|\\('material'\\)\\|material_cost_versions\" supabase/migrations/20260930100000_cost_engine.sql | head -20"
+    },
+    "timestamp": 1790284338021
+  },
+  {
+    "role": "tool_result",
+    "content": "3:CREATE TABLE public.material_cost_versions (\n124:  IF TG_TABLE_NAME IN ('product_cost_versions','material_cost_versions','labor_rates','overhead_rules') THEN\n137: FOREACH t IN ARRAY ARRAY['material_cost_versions','labor_rates','overhead_rules','cost_routing_steps','production_labor_entries','cost_",
+    "is_error": false,
+    "timestamp": 1790284338057
   }
 ]
