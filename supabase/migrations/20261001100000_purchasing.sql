@@ -1220,4 +1220,377 @@ BEGIN
 END;
 $$;
 
---@@@PART_D
+-- =====================================================================
+-- 22. RPCs: Devolução a fornecedor.
+-- =====================================================================
+CREATE FUNCTION public.return_save(_org uuid,_data jsonb,_id uuid DEFAULT NULL) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE v uuid:=coalesce(_id,gen_random_uuid()); it jsonb; v_qty numeric;
+BEGIN
+  PERFORM public.purchasing_require(_org,'supplier_returns.create');
+  IF _data->'items' IS NULL OR jsonb_array_length(_data->'items')=0 THEN RAISE EXCEPTION 'Informe ao menos um item.'; END IF;
+  IF NOT EXISTS(SELECT 1 FROM public.supplier_profiles WHERE id=(_data->>'supplier_id')::uuid AND organization_id=_org) THEN RAISE EXCEPTION 'Fornecedor não encontrado.'; END IF;
+  IF _id IS NULL THEN
+    INSERT INTO public.supplier_returns(organization_id,return_number,supplier_id,goods_receipt_id,source_location_id,status,return_date,reason,created_by)
+    VALUES(_org,'RET-'||to_char(now(),'YYYY')||'-'||lpad(nextval('public.supplier_return_seq')::text,6,'0'),(_data->>'supplier_id')::uuid,nullif(_data->>'goods_receipt_id','')::uuid,nullif(_data->>'source_location_id','')::uuid,'DRAFT',coalesce(nullif(_data->>'return_date','')::date,CURRENT_DATE),_data->>'reason',auth.uid()) RETURNING id INTO v;
+  ELSE
+    UPDATE public.supplier_returns SET return_date=coalesce(nullif(_data->>'return_date','')::date,return_date),reason=coalesce(_data->>'reason',reason),updated_at=now() WHERE id=v AND organization_id=_org AND status='DRAFT';
+    IF NOT FOUND THEN RAISE EXCEPTION 'Devolução não encontrada ou já encerrada.'; END IF;
+    DELETE FROM public.supplier_return_items WHERE supplier_return_id=v;
+  END IF;
+  FOR it IN SELECT * FROM jsonb_array_elements(_data->'items')
+  LOOP
+    IF NOT EXISTS(SELECT 1 FROM public.product_variants WHERE id=(it->>'variant_id')::uuid AND organization_id=_org) THEN RAISE EXCEPTION 'Item inválido.'; END IF;
+    v_qty:=(it->>'quantity')::numeric;
+    IF v_qty IS NULL OR v_qty<=0 THEN RAISE EXCEPTION 'Quantidade de devolução inválida.'; END IF;
+    INSERT INTO public.supplier_return_items(organization_id,supplier_return_id,variant_id,quantity,batch_id,reason)
+    VALUES(_org,v,(it->>'variant_id')::uuid,v_qty,nullif(it->>'batch_id','')::uuid,it->>'reason');
+  END LOOP;
+  PERFORM public.purchasing_audit(_org,CASE WHEN _id IS NULL THEN 'purchasing.supplier_return.create' ELSE 'purchasing.supplier_return.update' END,'supplier_returns',v,_data);
+  RETURN v;
+END;
+$$;
+
+CREATE FUNCTION public.return_action(_org uuid,_id uuid,_action text,_data jsonb DEFAULT '{}') RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE r public.supplier_returns; it record; v_bal numeric; v_unit text:='un';
+BEGIN
+  IF _action NOT IN ('post','cancel') THEN RAISE EXCEPTION 'Ação inválida.'; END IF;
+  PERFORM public.purchasing_require(_org,CASE WHEN _action='post' THEN 'supplier_returns.post' ELSE 'supplier_returns.cancel' END);
+  PERFORM public.inventory_lock(_org);
+  SELECT * INTO r FROM public.supplier_returns WHERE id=_id AND organization_id=_org FOR UPDATE;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Devolução não encontrada.'; END IF;
+  IF _action='post' THEN
+    IF r.status<>'DRAFT' THEN RAISE EXCEPTION 'Somente devoluções em rascunho podem ser postadas.'; END IF;
+    IF r.source_location_id IS NULL THEN RAISE EXCEPTION 'Informe a localização de origem.'; END IF;
+    FOR it IN SELECT * FROM public.supplier_return_items sri WHERE sri.supplier_return_id=_id
+    LOOP
+      v_bal:=public.inventory_get_balance(_org,it.variant_id,r.source_location_id,it.batch_id,auth.uid());
+      IF v_bal IS NULL THEN RAISE EXCEPTION 'Sem acesso ao saldo de estoque.'; END IF;
+      IF v_bal < it.quantity THEN RAISE EXCEPTION 'Saldo insuficiente para devolução da variante.'; END IF;
+      SELECT code INTO v_unit FROM public.units_of_measure u WHERE u.id=(SELECT pu.inventory_unit_id FROM public.supplier_products pu WHERE pu.variant_id=it.variant_id AND pu.supplier_id=r.supplier_id AND pu.organization_id=_org LIMIT 1);
+      v_unit:=coalesce(v_unit,'un');
+      INSERT INTO public.inventory_movements(organization_id,variant_id,location_id,batch_id,movement_type,direction,quantity,unit,reference_type,reference_id,reason,occurred_at,created_by,status,idempotency_key,source)
+      VALUES(_org,it.variant_id,r.source_location_id,it.batch_id,'PURCHASE_RETURN','OUT',it.quantity,v_unit,'SUPPLIER_RETURN',_id,coalesce(nullif(it.reason,''),'Devolução a fornecedor'),now(),auth.uid(),'POSTED','PURCHASING:SR:'||_id||':'||it.id::text,'PURCHASING');
+    END LOOP;
+    UPDATE public.supplier_returns SET status='POSTED',posted_by=auth.uid(),posted_at=now(),updated_at=now() WHERE id=_id;
+    IF r.goods_receipt_id IS NOT NULL AND public.has_permission(_org,'purchasing.read') THEN
+      INSERT INTO public.domain_events(organization_id,event_type,event_source,event_key,payload)
+      VALUES(_org,'purchasing.return.posted','PURCHASING','purchasing:return:'||_id::text,jsonb_build_object('return_id',_id,'goods_receipt_id',r.goods_receipt_id))
+      ON CONFLICT DO NOTHING;
+    END IF;
+    PERFORM public.purchasing_audit(_org,'purchasing.supplier_return.post','supplier_returns',_id,_data);
+    RETURN jsonb_build_object('id',_id,'status','POSTED');
+  ELSE
+    IF r.status='POSTED' THEN RAISE EXCEPTION 'Devolução postada não pode ser cancelada.'; END IF;
+    UPDATE public.supplier_returns SET status='CANCELED',updated_at=now() WHERE id=_id;
+    PERFORM public.purchasing_audit(_org,'purchasing.supplier_return.cancel','supplier_returns',_id,_data);
+    RETURN jsonb_build_object('id',_id,'status','CANCELED');
+  END IF;
+END;
+$$;
+
+CREATE FUNCTION public.return_query(_org uuid,_kind text,_filters jsonb DEFAULT '{}',_page integer DEFAULT 1)
+RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$
+DECLARE result jsonb; query text:=lower(coalesce(_filters->>'query','')); status text:=coalesce(_filters->>'status',''); v_id uuid;
+BEGIN
+  PERFORM public.purchasing_require(_org,'supplier_returns.read');
+  IF _kind='returns' THEN
+    WITH rows AS MATERIALIZED(
+      SELECT sr.id,sr.return_number,sr.supplier_id,sr.status,sr.return_date,sr.goods_receipt_id,sr.source_location_id,sr.reason,
+        c.legal_name supplier_name,gr.receipt_number,
+        (SELECT count(*) FROM public.supplier_return_items i WHERE i.supplier_return_id=sr.id) items,
+        (SELECT coalesce(sum(i.quantity),0) FROM public.supplier_return_items i WHERE i.supplier_return_id=sr.id) total_qty
+      FROM public.supplier_returns sr JOIN public.supplier_profiles sp ON sp.id=sr.supplier_id JOIN public.companies c ON c.id=sp.company_id LEFT JOIN public.goods_receipts gr ON gr.id=sr.goods_receipt_id
+      WHERE sr.organization_id=_org)
+    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(concat_ws(' ',return_number,supplier_name)),query)>0) AND (status='' OR "status"=status) ORDER BY return_date DESC,return_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;
+  ELSIF _kind='return' THEN
+    v_id:=(_filters->>'id')::uuid;
+    result:=jsonb_build_object('return',(SELECT to_jsonb(sr) FROM public.supplier_returns sr WHERE sr.id=v_id AND sr.organization_id=_org),
+      'items',(SELECT coalesce(jsonb_agg(i),'[]'::jsonb) FROM (SELECT sri.*,v.sku,pr.name product_name FROM public.supplier_return_items sri JOIN public.product_variants v ON v.id=sri.variant_id JOIN public.products pr ON pr.id=v.product_id WHERE sri.supplier_return_id=v_id ORDER BY v.sku) i));
+    IF result->'return'='null' THEN RAISE EXCEPTION 'Devolução não encontrada.'; END IF;
+  ELSE RAISE EXCEPTION 'Consulta inválida.'; END IF;
+  RETURN result;
+END;
+$$;
+
+-- =====================================================================
+-- 23. RPCs: Documentos de fornecedor e o 3-way match.
+-- =====================================================================
+CREATE FUNCTION public.document_save(_org uuid,_data jsonb,_id uuid DEFAULT NULL) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE v uuid:=coalesce(_id,gen_random_uuid());
+BEGIN
+  PERFORM public.purchasing_require(_org,'supplier_documents.create');
+  IF NOT EXISTS(SELECT 1 FROM public.supplier_profiles WHERE id=(_data->>'supplier_id')::uuid AND organization_id=_org) THEN RAISE EXCEPTION 'Fornecedor não encontrado.'; END IF;
+  IF nullif(trim(_data->>'document_number'),'') IS NULL THEN RAISE EXCEPTION 'Número do documento obrigatório.'; END IF;
+  IF _id IS NULL THEN
+    INSERT INTO public.supplier_documents(organization_id,supplier_id,document_type,document_number,issue_date,total_amount,quantity,purchase_order_id,goods_receipt_id,status,storage_path,notes,created_by)
+    VALUES(_org,(_data->>'supplier_id')::uuid,coalesce(_data->>'document_type','INVOICE'),trim(_data->>'document_number'),coalesce(nullif(_data->>'issue_date','')::date,CURRENT_DATE),coalesce((_data->>'total_amount')::numeric,0),nullif((_data->>'quantity')::numeric,NULL),nullif(_data->>'purchase_order_id','')::uuid,nullif(_data->>'goods_receipt_id','')::uuid,'DRAFT',_data->>'storage_path',_data->>'notes',auth.uid()) RETURNING id INTO v;
+  ELSE
+    UPDATE public.supplier_documents SET issue_date=coalesce(nullif(_data->>'issue_date','')::date,issue_date),total_amount=coalesce((_data->>'total_amount')::numeric,total_amount),quantity=coalesce(nullif((_data->>'quantity')::numeric,NULL),quantity),purchase_order_id=coalesce(nullif(_data->>'purchase_order_id','')::uuid,purchase_order_id),goods_receipt_id=coalesce(nullif(_data->>'goods_receipt_id','')::uuid,goods_receipt_id),storage_path=coalesce(_data->>'storage_path',storage_path),notes=coalesce(_data->>'notes',notes),updated_at=now() WHERE id=v AND organization_id=_org AND status IN ('DRAFT','EXCEPTION');
+    IF NOT FOUND THEN RAISE EXCEPTION 'Documento não encontrado ou já conciliado.'; END IF;
+  END IF;
+  PERFORM public.purchasing_audit(_org,CASE WHEN _id IS NULL THEN 'purchasing.supplier_document.create' ELSE 'purchasing.supplier_document.update' END,'supplier_documents',v,_data);
+  RETURN v;
+END;
+$$;
+
+CREATE FUNCTION public.document_action(_org uuid,_id uuid,_action text,_data jsonb DEFAULT '{}') RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE r public.supplier_documents; v_po uuid; v_base numeric; v_qty_rec numeric; v_qty_doc numeric;
+  v_ratio numeric; v_blocking boolean:=false; v_pay_on text; v_exist numeric;
+BEGIN
+  IF _action NOT IN ('match','process','cancel') THEN RAISE EXCEPTION 'Ação inválida.'; END IF;
+  PERFORM public.purchasing_require(_org,CASE _action WHEN 'process' THEN 'supplier_documents.process' WHEN 'cancel' THEN 'supplier_documents.cancel' ELSE 'supplier_documents.create' END);
+  PERFORM public.inventory_lock(_org);
+  SELECT * INTO r FROM public.supplier_documents WHERE id=_id AND organization_id=_org FOR UPDATE;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Documento não encontrado.'; END IF;
+
+  IF _action='match' THEN
+    IF r.status NOT IN ('DRAFT','EXCEPTION') THEN RAISE EXCEPTION 'Documento precisa estar como rascunho para conciliação.'; END IF;
+    v_po:=r.purchase_order_id;
+    IF v_po IS NULL AND r.goods_receipt_id IS NOT NULL THEN
+      SELECT purchase_order_id INTO v_po FROM public.goods_receipts WHERE id=r.goods_receipt_id AND organization_id=_org;
+    END IF;
+    IF v_po IS NULL THEN RAISE EXCEPTION 'Documento sem pedido de compra não pode ser conciliado.'; END IF;
+    SELECT total_amount INTO v_base FROM public.purchase_orders WHERE id=v_po AND organization_id=_org;
+    v_base:=coalesce(v_base,0);
+    SELECT coalesce(sum(accepted_quantity),0) INTO v_qty_rec
+      FROM public.goods_receipt_items gi JOIN public.goods_receipts gr ON gr.id=gi.goods_receipt_id
+      WHERE gr.purchase_order_id=v_po AND gi.organization_id=_org AND gr.status='POSTED';
+    v_qty_doc:=coalesce(r.quantity, v_qty_rec);
+    IF v_qty_doc IS NOT NULL AND abs(v_qty_doc-v_qty_rec)>greatest(1e-9, v_qty_rec*0.0001) THEN
+      INSERT INTO public.purchase_exceptions(organization_id,exception_type,severity,status,purchase_order_id,purchase_order_item_id,goods_receipt_id,supplier_document_id,variant_id,message,details)
+      VALUES(_org,'QUANTITY_VARIANCE','WARNING','OPEN',v_po,NULL,r.goods_receipt_id,_id,NULL,'Divergência de quantidade entre documento e recebimento.',jsonb_build_object('document',v_qty_doc,'received',v_qty_rec));
+    END IF;
+    IF v_base>0 THEN
+      v_ratio:=abs(r.total_amount-v_base)/v_base;
+      IF v_ratio>0.005 THEN
+        v_blocking:=true;
+        INSERT INTO public.purchase_exceptions(organization_id,exception_type,severity,status,purchase_order_id,purchase_order_item_id,goods_receipt_id,supplier_document_id,variant_id,message,details)
+        VALUES(_org,'PRICE_VARIANCE','BLOCKING','OPEN',v_po,NULL,r.goods_receipt_id,_id,NULL,'Diferença significativa entre fatura e pedido.',jsonb_build_object('document_amount',r.total_amount,'po_amount',v_base,'delta',round(r.total_amount-v_base,2)));
+      ELSIF v_ratio>0 THEN
+        INSERT INTO public.purchase_exceptions(organization_id,exception_type,severity,status,purchase_order_id,purchase_order_item_id,goods_receipt_id,supplier_document_id,variant_id,message,details)
+        VALUES(_org,'PRICE_VARIANCE','WARNING','OPEN',v_po,NULL,r.goods_receipt_id,_id,NULL,'Pequena diferença entre fatura e pedido.',jsonb_build_object('document_amount',r.total_amount,'po_amount',v_base,'delta',round(r.total_amount-v_base,2)));
+      END IF;
+    END IF;
+    UPDATE public.supplier_documents SET purchase_order_id=v_po,status=CASE WHEN EXISTS(SELECT 1 FROM public.purchase_exceptions WHERE supplier_document_id=_id AND severity='BLOCKING' AND status IN ('OPEN','IN_REVIEW')) THEN 'EXCEPTION' ELSE 'MATCHED' END,updated_at=now() WHERE id=_id;
+    PERFORM public.purchasing_audit(_org,'purchasing.supplier_document.match','supplier_documents',_id,_data);
+    RETURN jsonb_build_object('id',_id,'status',CASE WHEN EXISTS(SELECT 1 FROM public.purchase_exceptions WHERE supplier_document_id=_id AND severity='BLOCKING' AND status IN ('OPEN','IN_REVIEW')) THEN 'EXCEPTION' ELSE 'MATCHED' END);
+
+  ELSIF _action='process' THEN
+    IF r.status<>'MATCHED' THEN RAISE EXCEPTION 'Documento precisa estar conciliado para processamento (resolva exceções bloqueantes).'; END IF;
+    IF r.purchase_order_id IS NOT NULL THEN
+      v_exist:=public.purchasing_po_payable_total(_org,r.purchase_order_id);
+      IF v_exist=0 THEN
+        PERFORM public.purchasing_create_payables(_org,r.purchase_order_id,r.total_amount);
+      ELSIF abs(v_exist-r.total_amount)>greatest(1e-2,v_exist*0.005) THEN
+        INSERT INTO public.purchase_exceptions(organization_id,exception_type,severity,status,purchase_order_id,goods_receipt_id,supplier_document_id,message,details)
+        VALUES(_org,'PRICE_VARIANCE','WARNING','OPEN',r.purchase_order_id,r.goods_receipt_id,_id,'Fatura diverge do valor já contabilizado.',jsonb_build_object('payable',v_exist,'document',r.total_amount));
+      END IF;
+    ELSE
+      PERFORM public.purchasing_create_payable_doc(_org,_id);
+    END IF;
+    UPDATE public.supplier_documents SET status='PROCESSED',processed_at=now(),updated_at=now() WHERE id=_id;
+    IF public.has_permission(_org,'purchasing.read') THEN
+      INSERT INTO public.domain_events(organization_id,event_type,event_source,event_key,payload)
+      VALUES(_org,'purchasing.document.processed','PURCHASING','purchasing:document:'||_id::text,jsonb_build_object('document_id',_id,'total_amount',r.total_amount))
+      ON CONFLICT DO NOTHING;
+    END IF;
+    PERFORM public.purchasing_audit(_org,'purchasing.supplier_document.process','supplier_documents',_id,_data);
+    RETURN jsonb_build_object('id',_id,'status','PROCESSED');
+
+  ELSE
+    IF r.status IN ('PROCESSED','CANCELED') THEN RAISE EXCEPTION 'Documento já processado/cancelado.'; END IF;
+    UPDATE public.supplier_documents SET status='CANCELED',updated_at=now() WHERE id=_id;
+    PERFORM public.purchasing_audit(_org,'purchasing.supplier_document.cancel','supplier_documents',_id,_data);
+    RETURN jsonb_build_object('id',_id,'status','CANCELED');
+  END IF;
+END;
+$$;
+
+CREATE FUNCTION public.document_query(_org uuid,_kind text,_filters jsonb DEFAULT '{}',_page integer DEFAULT 1)
+RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$
+DECLARE result jsonb; query text:=lower(coalesce(_filters->>'query','')); status text:=coalesce(_filters->>'status',''); v_id uuid;
+BEGIN
+  PERFORM public.purchasing_require(_org,'supplier_documents.read');
+  IF _kind='documents' THEN
+    WITH rows AS MATERIALIZED(
+      SELECT sd.id,sd.supplier_id,sd.document_type,sd.document_number,sd.issue_date,sd.total_amount,sd.quantity,sd.purchase_order_id,sd.goods_receipt_id,sd.status,
+        c.legal_name supplier_name,po.order_number,
+        (SELECT count(*) FROM public.purchase_exceptions ex WHERE ex.supplier_document_id=sd.id AND ex.status IN ('OPEN','IN_REVIEW')) open_exceptions
+      FROM public.supplier_documents sd JOIN public.supplier_profiles sp ON sp.id=sd.supplier_id JOIN public.companies c ON c.id=sp.company_id LEFT JOIN public.purchase_orders po ON po.id=sd.purchase_order_id
+      WHERE sd.organization_id=_org)
+    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(concat_ws(' ',document_number,supplier_name,order_number)),query)>0) AND (status='' OR "status"=status) ORDER BY issue_date DESC,document_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;
+  ELSIF _kind='document' THEN
+    v_id:=(_filters->>'id')::uuid;
+    result:=jsonb_build_object('document',(SELECT to_jsonb(sd) FROM public.supplier_documents sd WHERE sd.id=v_id AND sd.organization_id=_org),
+      'exceptions',(SELECT coalesce(jsonb_agg(ex),'[]'::jsonb) FROM (SELECT ex.* FROM public.purchase_exceptions ex WHERE ex.supplier_document_id=v_id ORDER BY ex.created_at) ex));
+    IF result->'document'='null' THEN RAISE EXCEPTION 'Documento não encontrado.'; END IF;
+  ELSE RAISE EXCEPTION 'Consulta inválida.'; END IF;
+  RETURN result;
+END;
+$$;
+
+-- =====================================================================
+-- 24. RPCs: Central de exceções.
+-- =====================================================================
+CREATE FUNCTION public.exception_action(_org uuid,_id uuid,_action text,_data jsonb DEFAULT '{}') RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE r public.purchase_exceptions;
+BEGIN
+  IF _action NOT IN ('resolve','ignore','reopen') THEN RAISE EXCEPTION 'Ação inválida.'; END IF;
+  PERFORM public.purchasing_require(_org,'purchase_exceptions.resolve');
+  SELECT * INTO r FROM public.purchase_exceptions WHERE id=_id AND organization_id=_org FOR UPDATE;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Exceção não encontrada.'; END IF;
+  IF _action='reopen' THEN
+    IF r.status NOT IN ('RESOLVED','IGNORED_WITH_AUTHORIZATION') THEN RAISE EXCEPTION 'Somente exceções resolvidas podem ser reabertas.'; END IF;
+    UPDATE public.purchase_exceptions SET status='OPEN',resolved_by=NULL,resolved_at=NULL,resolution_notes=NULL,updated_at=now() WHERE id=_id;
+    PERFORM public.purchasing_audit(_org,'purchasing.exception.reopen','purchase_exceptions',_id,_data);
+    RETURN jsonb_build_object('id',_id,'status','OPEN');
+  ELSE
+    IF r.status NOT IN ('OPEN','IN_REVIEW') THEN RAISE EXCEPTION 'Exceção já resolvida/fechada.'; END IF;
+    IF _action='resolve' THEN
+      IF nullif(trim(_data->>'resolution_notes'),'') IS NULL THEN RAISE EXCEPTION 'Notas de resolução obrigatórias.'; END IF;
+      UPDATE public.purchase_exceptions SET status='RESOLVED',resolved_by=auth.uid(),resolved_at=now(),resolution_notes=_data->>'resolution_notes',updated_at=now() WHERE id=_id;
+      IF r.supplier_document_id IS NOT NULL AND r.blocking AND NOT EXISTS(SELECT 1 FROM public.purchase_exceptions WHERE supplier_document_id=r.supplier_document_id AND severity='BLOCKING' AND status IN ('OPEN','IN_REVIEW')) THEN
+        UPDATE public.supplier_documents SET status='MATCHED',updated_at=now() WHERE id=r.supplier_document_id;
+      END IF;
+      PERFORM public.purchasing_audit(_org,'purchasing.exception.resolve','purchase_exceptions',_id,_data);
+      RETURN jsonb_build_object('id',_id,'status','RESOLVED');
+    ELSE
+      UPDATE public.purchase_exceptions SET status='IGNORED_WITH_AUTHORIZATION',resolved_by=auth.uid(),resolved_at=now(),resolution_notes=coalesce(_data->>'resolution_notes','Ignorado com autorização.'),updated_at=now() WHERE id=_id;
+      PERFORM public.purchasing_audit(_org,'purchasing.exception.ignore','purchase_exceptions',_id,_data);
+      RETURN jsonb_build_object('id',_id,'status','IGNORED_WITH_AUTHORIZATION');
+    END IF;
+  END IF;
+END;
+$$;
+
+CREATE FUNCTION public.exception_query(_org uuid,_kind text,_filters jsonb DEFAULT '{}',_page integer DEFAULT 1)
+RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$
+DECLARE result jsonb; status text:=coalesce(_filters->>'status',''); etype text:=coalesce(_filters->>'exception_type','');
+BEGIN
+  PERFORM public.purchasing_require(_org,'purchase_exceptions.read');
+  IF _kind='exceptions' THEN
+    WITH rows AS MATERIALIZED(
+      SELECT ex.id,ex.exception_type,ex.severity,ex.status,ex.purchase_order_id,ex.purchase_order_item_id,ex.goods_receipt_id,ex.supplier_document_id,ex.variant_id,ex.message,ex.created_at,
+        po.order_number,gr.receipt_number,sd.document_number,v.sku
+      FROM public.purchase_exceptions ex
+      LEFT JOIN public.purchase_orders po ON po.id=ex.purchase_order_id LEFT JOIN public.goods_receipts gr ON gr.id=ex.goods_receipt_id
+      LEFT JOIN public.supplier_documents sd ON sd.id=ex.supplier_document_id LEFT JOIN public.product_variants v ON v.id=ex.variant_id
+      WHERE ex.organization_id=_org)
+    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (status='' OR "status"=status) AND (etype='' OR exception_type=etype) ORDER BY created_at DESC LIMIT 100 OFFSET (_page-1)*100) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;
+  ELSIF _kind='open' THEN
+    SELECT jsonb_build_object('count',(SELECT count(*) FROM public.purchase_exceptions WHERE organization_id=_org AND status IN ('OPEN','IN_REVIEW')),
+      'blocking',(SELECT count(*) FROM public.purchase_exceptions WHERE organization_id=_org AND status IN ('OPEN','IN_REVIEW') AND severity='BLOCKING')) INTO result;
+  ELSE RAISE EXCEPTION 'Consulta inválida.'; END IF;
+  RETURN result;
+END;
+$$;
+
+-- =====================================================================
+-- 25. RPC: Reposição (sugestões de compra).
+-- =====================================================================
+CREATE FUNCTION public.replenishment_query(_org uuid,_filters jsonb DEFAULT '{}',_page integer DEFAULT 1)
+RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$
+DECLARE result jsonb; v_months int:=greatest(1,coalesce((nullif(_filters->>'months',''))::int,3));
+BEGIN
+  PERFORM public.purchasing_require(_org,'purchase_requests.read');
+  WITH cfg AS MATERIALIZED(
+    SELECT v.id variant_id,v.sku,pr.name product_name,v.minimum_stock,v.reorder_point,v.target_stock,v.replenishment_policy,
+      coalesce(public.inventory_get_balance(v.organization_id,v.id,NULL,NULL,auth.uid()),0) available,
+      coalesce((SELECT sum(poi.ordered_quantity-poi.received_quantity) FROM public.purchase_order_items poi WHERE poi.variant_id=v.id AND poi.organization_id=_org AND poi.status IN ('OPEN','PARTIALLY_RECEIVED')),0) open_qty,
+      coalesce((SELECT sum(pri.quantity) FROM public.purchase_request_items pri WHERE pri.variant_id=v.id AND pri.organization_id=_org AND pri.status='PENDING'),0) pending_req,
+      coalesce((SELECT sum(m.quantity) FROM public.inventory_movements m WHERE m.variant_id=v.id AND m.organization_id=_org AND m.status='POSTED' AND m.direction='OUT' AND m.movement_type IN ('SALE','PRODUCTION_CONSUMPTION','PARTNER_SHIPMENT','LOSS') AND m.occurred_at>=now()-make_interval(months=>v_months)),0) consumption,
+      coalesce((SELECT min(sp.lead_time_days) FROM public.supplier_products sp WHERE sp.variant_id=v.id AND sp.organization_id=_org AND sp.lead_time_days IS NOT NULL),0) lead_days,
+      coalesce((SELECT sp.last_price FROM public.supplier_products sp WHERE sp.variant_id=v.id AND sp.organization_id=_org AND sp.status='ACTIVE' ORDER BY sp.last_price_date DESC NULLS LAST LIMIT 1),0) last_price
+    FROM public.product_variants v JOIN public.products pr ON pr.id=v.product_id
+    WHERE v.organization_id=_org AND v.status='ACTIVE' AND v.replenishment_policy<>'MANUAL')
+  SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(x)) FROM (
+    SELECT variant_id,sku,product_name,replenishment_policy,minimum_stock,reorder_point,target_stock,available,
+      open_qty,pending_req,round(consumption/v_months,3) monthly_pace,lead_days,last_price,
+      suggested_quantity,CASE WHEN lead_days>0 AND consumption>0 THEN ceil((consumption/v_months)*lead_days/30.0) ELSE 0 END lead_buffer,
+      round((suggested_quantity+(CASE WHEN lead_days>0 AND consumption>0 THEN ceil((consumption/v_months)*lead_days/30.0) ELSE 0 END))*last_price,2) estimated_cost,
+      (suggested_quantity + CASE WHEN lead_days>0 AND consumption>0 THEN ceil((consumption/v_months)*lead_days/30.0) ELSE 0 END)>0 recommend_order
+    FROM (
+      SELECT cfg.*,
+        CASE cfg.replenishment_policy
+          WHEN 'TARGET_STOCK' THEN greatest(0,coalesce(cfg.target_stock,0)-(cfg.available+cfg.open_qty+cfg.pending_req))
+          WHEN 'REORDER_POINT' THEN CASE WHEN (cfg.available+cfg.open_qty+cfg.pending_req)<=coalesce(cfg.reorder_point,cfg.minimum_stock,0)
+              THEN greatest(0,coalesce(cfg.minimum_stock,cfg.reorder_point,0)-(cfg.available+cfg.open_qty+cfg.pending_req)) ELSE 0 END
+          ELSE 0 END suggested_quantity
+      FROM cfg
+    ) x ORDER BY recommend_order DESC,product_name LIMIT 200 OFFSET (_page-1)*200) x),'[]'::jsonb),
+    'total',(SELECT count(*) FROM cfg)) INTO result;
+  RETURN result;
+END;
+$$;
+
+-- =====================================================================
+-- 26. RPCs: visão geral e configurações.
+-- =====================================================================
+CREATE FUNCTION public.purchasing_query(_org uuid,_kind text) RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$
+DECLARE result jsonb;
+BEGIN
+  PERFORM public.purchasing_require(_org,'purchasing.dashboard');
+  IF _kind='dashboard' THEN
+    SELECT jsonb_build_object(
+      'active_suppliers',(SELECT count(*) FROM public.supplier_profiles WHERE organization_id=_org AND status='ACTIVE'),
+      'open_requests',(SELECT count(*) FROM public.purchase_requests WHERE organization_id=_org AND status='SUBMITTED'),
+      'pending_approval',(SELECT count(*) FROM public.purchase_orders WHERE organization_id=_org AND status='PENDING_APPROVAL'),
+      'open_orders',(SELECT count(*) FROM public.purchase_orders WHERE organization_id=_org AND status IN ('APPROVED','SENT','RECEIVING')),
+      'orders_amount',(SELECT coalesce(sum(total_amount),0) FROM public.purchase_orders WHERE organization_id=_org AND status IN ('APPROVED','SENT','RECEIVING')),
+      'receipts_today',(SELECT count(*) FROM public.goods_receipts WHERE organization_id=_org AND received_at=CURRENT_DATE AND status<>'CANCELED'),
+      'open_exceptions',(SELECT count(*) FROM public.purchase_exceptions WHERE organization_id=_org AND status IN ('OPEN','IN_REVIEW')),
+      'replenishment_candidates',(SELECT count(*) FROM public.product_variants v WHERE v.organization_id=_org AND v.status='ACTIVE' AND v.replenishment_policy<>'MANUAL' AND v.minimum_stock>0 AND inventory_get_balance(v.organization_id,v.id,NULL,NULL)<v.minimum_stock)) INTO result;
+  ELSIF _kind='settings' THEN
+    PERFORM public.purchasing_ensure_settings(_org);
+    SELECT jsonb_build_object('settings',to_jsonb(s)) INTO result FROM public.purchasing_settings s WHERE s.organization_id=_org;
+  ELSE RAISE EXCEPTION 'Consulta inválida.'; END IF;
+  RETURN result;
+END;
+$$;
+
+CREATE FUNCTION public.purchasing_settings_save(_org uuid,_data jsonb) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+BEGIN
+  PERFORM public.purchasing_require(_org,'suppliers.manage');
+  PERFORM public.purchasing_ensure_settings(_org);
+  UPDATE public.purchasing_settings SET
+    acquisition_cost_policy=coalesce(_data->>'acquisition_cost_policy',acquisition_cost_policy),
+    freight_policy=coalesce(_data->>'freight_policy',freight_policy),
+    over_receipt_policy=coalesce(_data->>'over_receipt_policy',over_receipt_policy),
+    payable_on=coalesce(_data->>'payable_on',payable_on),
+    approval_segregation=coalesce((_data->>'approval_segregation')::boolean,approval_segregation),
+    updated_by=auth.uid(),updated_at=now()
+    WHERE organization_id=_org;
+  PERFORM public.purchasing_audit(_org,'purchasing.settings.update','purchasing_settings',_org,jsonb_build_object('data',_data));
+  RETURN jsonb_build_object('updated',true);
+END;
+$$;
+
+-- =====================================================================
+-- 27. Triggers de integridade dos dados de compra.
+-- =====================================================================
+DO $$ DECLARE t text; BEGIN
+ FOREACH t IN ARRAY ARRAY['supplier_profiles','supplier_products','purchase_requests','purchase_request_items','quotations','quotation_suppliers','quotation_supplier_items','purchase_orders','purchase_order_items','goods_receipts','goods_receipt_items','supplier_returns','supplier_return_items','supplier_documents','purchase_exceptions'] LOOP
+  EXECUTE format('DROP TRIGGER IF EXISTS purchasing_guard_relations ON public.%I',t);
+  EXECUTE format('CREATE TRIGGER purchasing_guard_relations BEFORE INSERT OR UPDATE ON public.%I FOR EACH ROW EXECUTE FUNCTION public.purchasing_guard_relations()',t);
+ END LOOP;
+ FOREACH t IN ARRAY ARRAY['purchase_orders','goods_receipts','goods_receipt_items','supplier_returns','supplier_return_items','supplier_documents'] LOOP
+  EXECUTE format('DROP TRIGGER IF EXISTS purchasing_immutable ON public.%I',t);
+  EXECUTE format('CREATE TRIGGER purchasing_immutable BEFORE UPDATE OR DELETE ON public.%I FOR EACH ROW EXECUTE FUNCTION public.purchasing_immutable()',t);
+ END LOOP;
+END $$;
+
+-- =====================================================================
+-- 28. Libera as RPCs para o cliente autenticado.
+-- =====================================================================
+DO $$ DECLARE f text; BEGIN
+ FOREACH f IN ARRAY ARRAY['supplier_save_company','supplier_product_save','supplier_query','request_save','request_action','request_query',
+  'quotation_save','quotation_award','quotation_query','po_save','po_action','po_query','purchasing_create_payables','purchasing_create_payable_doc',
+  'purchasing_apply_cost_policy','purchasing_po_payable_total','po_receive','receipt_action','receipt_query',
+  'return_save','return_action','return_query','document_save','document_action','document_query',
+  'exception_action','exception_query','replenishment_query','purchasing_query','purchasing_settings_save','purchasing_ensure_settings'] LOOP
+  EXECUTE format('REVOKE ALL ON FUNCTION public.%I FROM PUBLIC,anon',f);
+  EXECUTE format('GRANT EXECUTE ON FUNCTION public.%I TO authenticated,service_role',f);
+ END LOOP;
+END $$;
+
+COMMIT;
