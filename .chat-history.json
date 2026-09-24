@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sed -n 80,220p scripts/test-costs-db.py && echo ==== && rg -n \"def setup|ROOT=|def sql|def q|def uid|def call|psql|createuser|databases|CREATE DATABASE\" scripts/test-inventory-db.py | head -60",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790285284443
-  },
-  {
-    "role": "tool_result",
-    "content": " r=calculate(actual,'2026-09-24',production_order_id=order)\n assert r['total_unit_cost']==50 and r['material_cost']==45 and r['overhead_cost']==5,r\n print('PASS: actual production/ledger 4000 / good 80 = 50, planned 100 ignored')\n # Historical standard cost and own-store sale economics.\n hist,histma",
-    "is_error": false,
-    "timestamp": 1790285284472
-  },
-  {
-    "role": "tool",
     "tool": "grep",
     "input": {
       "path": "/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py",
@@ -1599,5 +1584,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/rbac.test.ts</path>\n<type>file</type>\n<content>\n1: import { readFileSync } from \"node:fs\";\n2: import { describe, expect, it } from \"vitest\";\n3: \n4: import {\n5:   APP_ROLES,\n6:   PERMISSIONS,\n7:   PERMISSION_LABELS,\n8:   PLATFORM_MODULES,\n9:   RO",
     "is_error": false,
     "timestamp": 1790285942267
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -o \"'purchas[a-z_.]*'\\|'suppliers\\.[a-z_.]*'\\|'purchase_[a-z_.]*'\\|'goods_receipts\\.[a-z_.]*'\\|'quotations\\.[a-z_.]*'\\|'supplier_[a-z_.]*'\" supabase/migrations/20261001100000_purchasing.sql | sort -u",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790286035912
+  },
+  {
+    "role": "tool_result",
+    "content": "'goods_receipts.cancel'\n'goods_receipts.create'\n'goods_receipts.inspect'\n'goods_receipts.post'\n'goods_receipts.read'\n'purchase_exceptions'\n'purchase_exceptions.read'\n'purchase_exceptions.resolve'\n'purchase_order_id'\n'purchase_order_item_id'\n'purchase_order_items'\n'purchase_orders'\n'purchase_orders.a",
+    "is_error": false,
+    "timestamp": 1790286035934
   }
 ]
