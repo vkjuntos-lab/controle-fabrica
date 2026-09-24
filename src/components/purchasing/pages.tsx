@@ -491,7 +491,7 @@ export function FornecedoresPage() {
                       {rows.map((s) => (
                         <tr key={s.supplier_id} className="border-b hover:bg-muted/40">
                           <td className="py-2 pr-4">
-                            <a href={`/fornecedores/${s.supplier_id}`} className="font-medium underline">
+                            <a href={`/fornecedores/${s.company_id}`} className="font-medium underline">
                               {s.legal_name}
                             </a>
                             {s.trade_name ? <p className="text-muted-foreground">{s.trade_name}</p> : null}
