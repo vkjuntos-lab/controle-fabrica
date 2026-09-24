@@ -37,6 +37,7 @@ describe("rbac", () => {
       "estoque",
       "parceiros",
       "financeiro",
+      "compras",
     ];
     const opcionais = PLATFORM_MODULES.filter((m) => !disponiveis.includes(m.key));
     for (const mod of opcionais) {
