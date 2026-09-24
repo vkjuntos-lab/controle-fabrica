@@ -68,7 +68,11 @@ import type {
   SupplierProductsList,
   SupplierReturnRow,
 } from "@/lib/purchasing/types";
-import { listInventoryLocations, listVariantOptions, type VariantOption } from "@/lib/inventory/inventory.functions";
+import {
+  listInventoryLocations,
+  listVariantOptions,
+  type VariantOption,
+} from "@/lib/inventory/inventory.functions";
 import { formatDate, formatDateTime, formatMoney } from "@/lib/finance/constants";
 
 const cls = "h-10 rounded-md border border-input bg-background px-3 text-sm";
@@ -138,7 +142,8 @@ function useVariants(org: string | undefined, enabled: boolean) {
   const fetch = useServerFn(listVariantOptions);
   return useQuery({
     queryKey: ["purchasing", "variants", org],
-    queryFn: async () => (await fetch({ data: { organizationId: org!, activeOnly: true } })) as VariantOption[],
+    queryFn: async () =>
+      (await fetch({ data: { organizationId: org!, activeOnly: true } })) as VariantOption[],
     enabled: Boolean(org && enabled),
   });
 }
@@ -147,14 +152,15 @@ function useLocations(org: string | undefined, enabled: boolean) {
   const fetch = useServerFn(listInventoryLocations);
   return useQuery({
     queryKey: ["purchasing", "locations", org],
-    queryFn: async () => (await fetch({ data: { organizationId: org!, active: true } as never })) as {
-      id: string;
-      code: string;
-      name: string;
-      type: string;
-      status: string;
-      on_hand_total: number;
-    }[],
+    queryFn: async () =>
+      (await fetch({ data: { organizationId: org!, active: true } as never })) as {
+        id: string;
+        code: string;
+        name: string;
+        type: string;
+        status: string;
+        on_hand_total: number;
+      }[],
     enabled: Boolean(org && enabled),
   });
 }
@@ -232,7 +238,11 @@ function ItemEditor({
   return (
     <div className="space-y-3">
       {withSupplier ? (
-        <select className={cls} value={values.supplier_id ?? ""} onChange={(e) => onChange("supplier_id", e.target.value)}>
+        <select
+          className={cls}
+          value={values.supplier_id ?? ""}
+          onChange={(e) => onChange("supplier_id", e.target.value)}
+        >
           <option value="">Fornecedor</option>
           {suppliers.map((s) => (
             <option key={s.id} value={s.id}>
@@ -249,7 +259,11 @@ function ItemEditor({
         />
       ) : null}
       <div className="flex flex-wrap gap-2">
-        <select className={cls} value={values.variant_id ?? ""} onChange={(e) => onChange("variant_id", e.target.value)}>
+        <select
+          className={cls}
+          value={values.variant_id ?? ""}
+          onChange={(e) => onChange("variant_id", e.target.value)}
+        >
           <option value="">Variante</option>
           {variants.map((v) => (
             <option key={v.id} value={v.id}>
@@ -288,7 +302,14 @@ function ItemEditor({
           variant="outline"
           onClick={() => {
             const line: Record<string, string> = {};
-            for (const key of ["supplier_id", "supplier_sku", "variant_id", "quantity", "unit_price", "reason"]) {
+            for (const key of [
+              "supplier_id",
+              "supplier_sku",
+              "variant_id",
+              "quantity",
+              "unit_price",
+              "reason",
+            ]) {
               const v = values[key];
               if (key !== "supplier_sku" && v && String(v).trim()) line[key] = String(v);
               if (key === "supplier_sku" && v) line[key] = String(v);
@@ -299,7 +320,8 @@ function ItemEditor({
             }
             setLines([...lines, line]);
             const next: Record<string, string> = {};
-            for (const key of Object.keys(values)) next[key] = key === "supplier_id" ? values.supplier_id : "";
+            for (const key of Object.keys(values))
+              next[key] = key === "supplier_id" ? values.supplier_id : "";
             onChange("supplier_id", values.supplier_id ?? "");
             Object.entries(next).forEach(([k, val]) => {
               if (k !== "supplier_id") onChange(k, val);
@@ -317,7 +339,10 @@ function ItemEditor({
                 const v = variants.find((x) => x.id === line.variant_id);
                 const label = v ? `${v.sku} — ${v.product_name}` : line.variant_id;
                 return (
-                  <li key={i} className="flex items-center justify-between gap-2 border-b pb-1 last:border-0">
+                  <li
+                    key={i}
+                    className="flex items-center justify-between gap-2 border-b pb-1 last:border-0"
+                  >
                     <span>
                       {label} · {line.quantity}
                       {line.unit_price ? ` × R$ ${line.unit_price}` : ""}
@@ -394,7 +419,10 @@ export function PurchasingDashboardPage() {
             <p className="text-sm text-muted-foreground">Recebimentos hoje</p>
             <p className="text-xl font-semibold">{d.receipts_today}</p>
           </a>
-          <a href="/compras/excecoes" className="rounded border border-red-200 bg-red-50 p-3 hover:bg-red-100">
+          <a
+            href="/compras/excecoes"
+            className="rounded border border-red-200 bg-red-50 p-3 hover:bg-red-100"
+          >
             <p className="text-sm text-red-700">Exceções em aberto</p>
             <p className="text-xl font-semibold">{d.open_exceptions}</p>
           </a>
@@ -448,9 +476,7 @@ export function FornecedoresPage() {
         <>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="font-heading text-xl font-semibold">Fornecedores</h2>
-            {canManage ? (
-              <Button onClick={() => setOpen(true)}>Novo fornecedor</Button>
-            ) : null}
+            {canManage ? <Button onClick={() => setOpen(true)}>Novo fornecedor</Button> : null}
           </div>
           <div className="flex flex-wrap gap-3">
             <Input
@@ -459,7 +485,12 @@ export function FornecedoresPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
-            <select aria-label="Status" className={cls} value={status} onChange={(e) => setStatus(e.target.value)}>
+            <select
+              aria-label="Status"
+              className={cls}
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
               <option value="">Todos os status</option>
               <option value="ACTIVE">Ativo</option>
               <option value="INACTIVE">Inativo</option>
@@ -470,7 +501,9 @@ export function FornecedoresPage() {
             <ErrorState description={q.error.message} onRetry={() => void q.refetch()} />
           ) : rows.length === 0 ? (
             <EmptyState
-              title={q.data?.total === 0 ? "Nenhum fornecedor cadastrado" : "Nada com esses filtros"}
+              title={
+                q.data?.total === 0 ? "Nenhum fornecedor cadastrado" : "Nada com esses filtros"
+              }
               description="Cadastre empresas fornecedoras e seus catálogos."
             />
           ) : (
@@ -491,10 +524,15 @@ export function FornecedoresPage() {
                       {rows.map((s) => (
                         <tr key={s.supplier_id} className="border-b hover:bg-muted/40">
                           <td className="py-2 pr-4">
-                            <a href={`/fornecedores/${s.company_id}`} className="font-medium underline">
+                            <a
+                              href={`/fornecedores/${s.company_id}`}
+                              className="font-medium underline"
+                            >
                               {s.legal_name}
                             </a>
-                            {s.trade_name ? <p className="text-muted-foreground">{s.trade_name}</p> : null}
+                            {s.trade_name ? (
+                              <p className="text-muted-foreground">{s.trade_name}</p>
+                            ) : null}
                           </td>
                           <td className="py-2 pr-4 font-mono text-xs">{s.supplier_code}</td>
                           <td className="py-2 pr-4 text-right">{s.product_count}</td>
@@ -564,14 +602,48 @@ function SupplierDialog({
   return (
     <FormDialog open onOpenChange={(o) => !o && onClose()} title="Novo fornecedor">
       <div className="grid gap-3 md:grid-cols-2">
-        <Input placeholder="Código *" value={company.code ?? ""} onChange={(e) => set("code", e.target.value)} />
-        <Input placeholder="Razão social *" value={company.legal_name ?? ""} onChange={(e) => set("legal_name", e.target.value)} />
-        <Input placeholder="Nome fantasia" value={company.trade_name ?? ""} onChange={(e) => set("trade_name", e.target.value)} />
-        <Input placeholder="CNPJ" value={company.document_number ?? ""} onChange={(e) => set("document_number", e.target.value)} />
-        <Input placeholder="E-mail" value={company.email ?? ""} onChange={(e) => set("email", e.target.value)} />
-        <Input placeholder="Telefone" value={company.phone ?? ""} onChange={(e) => set("phone", e.target.value)} />
-        <Input placeholder="Condições (ex.: 30/60)" value={company.default_payment_terms ?? ""} onChange={(e) => set("default_payment_terms", e.target.value)} />
-        <Input placeholder="Prazo de entrega (dias)" type="number" min={0} value={company.lead_time_days ?? ""} onChange={(e) => set("lead_time_days", e.target.value)} />
+        <Input
+          placeholder="Código *"
+          value={company.code ?? ""}
+          onChange={(e) => set("code", e.target.value)}
+        />
+        <Input
+          placeholder="Razão social *"
+          value={company.legal_name ?? ""}
+          onChange={(e) => set("legal_name", e.target.value)}
+        />
+        <Input
+          placeholder="Nome fantasia"
+          value={company.trade_name ?? ""}
+          onChange={(e) => set("trade_name", e.target.value)}
+        />
+        <Input
+          placeholder="CNPJ"
+          value={company.document_number ?? ""}
+          onChange={(e) => set("document_number", e.target.value)}
+        />
+        <Input
+          placeholder="E-mail"
+          value={company.email ?? ""}
+          onChange={(e) => set("email", e.target.value)}
+        />
+        <Input
+          placeholder="Telefone"
+          value={company.phone ?? ""}
+          onChange={(e) => set("phone", e.target.value)}
+        />
+        <Input
+          placeholder="Condições (ex.: 30/60)"
+          value={company.default_payment_terms ?? ""}
+          onChange={(e) => set("default_payment_terms", e.target.value)}
+        />
+        <Input
+          placeholder="Prazo de entrega (dias)"
+          type="number"
+          min={0}
+          value={company.lead_time_days ?? ""}
+          onChange={(e) => set("lead_time_days", e.target.value)}
+        />
       </div>
       <h3 className="pt-2 font-medium">Catálogo de produtos</h3>
       <ItemEditor
@@ -650,7 +722,9 @@ export function FornecedorDetailPage({ id }: { id: string }) {
                     data: {
                       organizationId: org,
                       data: {
-                        code: (q.data.profile as { supplier_code?: string } | null)?.supplier_code ?? q.data.code,
+                        code:
+                          (q.data.profile as { supplier_code?: string } | null)?.supplier_code ??
+                          q.data.code,
                         legal_name: q.data.legal_name,
                         trade_name: q.data.trade_name ?? "",
                         email: (q.data.email as string | null) ?? "",
@@ -709,7 +783,8 @@ export function FornecedorDetailPage({ id }: { id: string }) {
                         <tr key={p.id} className="border-b hover:bg-muted/40">
                           <td className="py-2 pr-4 font-mono text-xs">{p.supplier_sku}</td>
                           <td className="py-2 pr-4">
-                            {p.product_name} <span className="text-muted-foreground">({p.sku})</span>
+                            {p.product_name}{" "}
+                            <span className="text-muted-foreground">({p.sku})</span>
                           </td>
                           <td className="py-2 pr-4 text-xs">
                             {p.purchase_unit ?? "?"} → {p.inventory_unit ?? "?"}
@@ -814,7 +889,9 @@ export function FornecedorDetailPage({ id }: { id: string }) {
               supplierId={id}
               onClose={() => setOpenProduct(false)}
               onSaved={() => {
-                void qc.invalidateQueries({ queryKey: ["purchasing", "supplier-products", org, id] });
+                void qc.invalidateQueries({
+                  queryKey: ["purchasing", "supplier-products", org, id],
+                });
                 void qc.invalidateQueries({ queryKey: ["purchasing", "suppliers", org] });
                 setOpenProduct(false);
               }}
@@ -854,7 +931,11 @@ function SupplierProductDialog({
   return (
     <FormDialog open onOpenChange={(o) => !o && onClose()} title="Produto do fornecedor">
       <div className="grid gap-3 md:grid-cols-2">
-        <select className={cls} value={form.variant_id ?? ""} onChange={(e) => set("variant_id", e.target.value)}>
+        <select
+          className={cls}
+          value={form.variant_id ?? ""}
+          onChange={(e) => set("variant_id", e.target.value)}
+        >
           <option value="">Variante</option>
           {(variants.data ?? []).map((v) => (
             <option key={v.id} value={v.id}>
@@ -862,8 +943,16 @@ function SupplierProductDialog({
             </option>
           ))}
         </select>
-        <Input placeholder="SKU do fornecedor *" value={form.supplier_sku ?? ""} onChange={(e) => set("supplier_sku", e.target.value)} />
-        <Input placeholder="Descrição do fornecedor" value={form.supplier_description ?? ""} onChange={(e) => set("supplier_description", e.target.value)} />
+        <Input
+          placeholder="SKU do fornecedor *"
+          value={form.supplier_sku ?? ""}
+          onChange={(e) => set("supplier_sku", e.target.value)}
+        />
+        <Input
+          placeholder="Descrição do fornecedor"
+          value={form.supplier_description ?? ""}
+          onChange={(e) => set("supplier_description", e.target.value)}
+        />
         <Input
           placeholder="Fator de conversão"
           type="number"
@@ -872,13 +961,33 @@ function SupplierProductDialog({
           value={form.conversion_factor ?? ""}
           onChange={(e) => set("conversion_factor", e.target.value)}
         />
-        <Input placeholder="Preço de referência" type="number" min={0} step="0.01" value={form.last_price ?? ""} onChange={(e) => set("last_price", e.target.value)} />
-        <Input placeholder="Qtd. mínima do pedido" type="number" min={0} step="0.01" value={form.minimum_order_quantity ?? ""} onChange={(e) => set("minimum_order_quantity", e.target.value)} />
-        <Input placeholder="Prazo de entrega (dias)" type="number" min={0} value={form.lead_time_days ?? ""} onChange={(e) => set("lead_time_days", e.target.value)} />
+        <Input
+          placeholder="Preço de referência"
+          type="number"
+          min={0}
+          step="0.01"
+          value={form.last_price ?? ""}
+          onChange={(e) => set("last_price", e.target.value)}
+        />
+        <Input
+          placeholder="Qtd. mínima do pedido"
+          type="number"
+          min={0}
+          step="0.01"
+          value={form.minimum_order_quantity ?? ""}
+          onChange={(e) => set("minimum_order_quantity", e.target.value)}
+        />
+        <Input
+          placeholder="Prazo de entrega (dias)"
+          type="number"
+          min={0}
+          value={form.lead_time_days ?? ""}
+          onChange={(e) => set("lead_time_days", e.target.value)}
+        />
       </div>
       <p className="text-sm text-muted-foreground">
-        Deixe as unidades e o fator em branco para herdar os padrões (1 para fator). A conversão é usada no
-        recebimento: por exemplo, rolo → m com fator 5.
+        Deixe as unidades e o fator em branco para herdar os padrões (1 para fator). A conversão é
+        usada no recebimento: por exemplo, rolo → m com fator 5.
       </p>
       <DialogFooter>
         <Button variant="outline" onClick={onClose}>
@@ -940,8 +1049,18 @@ export function RequisicoesPage() {
             {canCreate ? <Button onClick={() => setOpen(true)}>Nova requisição</Button> : null}
           </div>
           <div className="flex flex-wrap gap-3">
-            <Input className="min-w-48 flex-1" placeholder="Buscar número" value={query} onChange={(e) => setQuery(e.target.value)} />
-            <select aria-label="Status" className={cls} value={status} onChange={(e) => setStatus(e.target.value)}>
+            <Input
+              className="min-w-48 flex-1"
+              placeholder="Buscar número"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <select
+              aria-label="Status"
+              className={cls}
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
               <option value="">Todos os status</option>
               {["DRAFT", "SUBMITTED", "APPROVED", "ORDERED", "CANCELED"].map((s) => (
                 <option key={s} value={s}>
@@ -953,7 +1072,10 @@ export function RequisicoesPage() {
           {q.error ? (
             <ErrorState description={q.error.message} onRetry={() => void q.refetch()} />
           ) : (q.data?.rows ?? []).length === 0 ? (
-            <EmptyState title="Nenhuma requisição" description="Crie uma requisição de compra para iniciar o fluxo." />
+            <EmptyState
+              title="Nenhuma requisição"
+              description="Crie uma requisição de compra para iniciar o fluxo."
+            />
           ) : (
             <Card>
               <CardContent className="pt-6">
@@ -982,17 +1104,32 @@ export function RequisicoesPage() {
                           <td className="py-2">
                             <div className="flex flex-wrap gap-1">
                               {r.status === "DRAFT" && canCreate ? (
-                                <Button size="sm" variant="outline" className="h-7" onClick={() => void run(r.id, "submit")}>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7"
+                                  onClick={() => void run(r.id, "submit")}
+                                >
                                   Enviar
                                 </Button>
                               ) : null}
                               {r.status === "SUBMITTED" && canApprove ? (
-                                <Button size="sm" variant="outline" className="h-7" onClick={() => void run(r.id, "approve")}>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  className="h-7"
+                                  onClick={() => void run(r.id, "approve")}
+                                >
                                   Aprovar
                                 </Button>
                               ) : null}
                               {r.status !== "ORDERED" && r.status !== "CANCELED" && canCreate ? (
-                                <Button size="sm" variant="ghost" className="h-7 text-destructive" onClick={() => void run(r.id, "cancel")}>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-7 text-destructive"
+                                  onClick={() => void run(r.id, "cancel")}
+                                >
                                   Cancelar
                                 </Button>
                               ) : null}
@@ -1061,13 +1198,21 @@ function RequestDialog({
   return (
     <FormDialog open onOpenChange={(o) => !o && onClose()} title="Nova requisição de compra">
       <div className="grid gap-3 md:grid-cols-2">
-        <select className={cls} value={form.priority ?? "NORMAL"} onChange={(e) => set("priority", e.target.value)}>
+        <select
+          className={cls}
+          value={form.priority ?? "NORMAL"}
+          onChange={(e) => set("priority", e.target.value)}
+        >
           <option value="LOW">Baixa</option>
           <option value="NORMAL">Normal</option>
           <option value="HIGH">Alta</option>
           <option value="URGENT">Urgente</option>
         </select>
-        <Input placeholder="Observações" value={form.notes ?? ""} onChange={(e) => set("notes", e.target.value)} />
+        <Input
+          placeholder="Observações"
+          value={form.notes ?? ""}
+          onChange={(e) => set("notes", e.target.value)}
+        />
       </div>
       <ItemEditor
         values={form}
@@ -1128,8 +1273,18 @@ export function CotacoesPage() {
             {canCreate ? <Button onClick={() => setOpen(true)}>Nova cotação</Button> : null}
           </div>
           <div className="flex flex-wrap gap-3">
-            <Input className="min-w-48 flex-1" placeholder="Buscar número" value={query} onChange={(e) => setQuery(e.target.value)} />
-            <select aria-label="Status" className={cls} value={status} onChange={(e) => setStatus(e.target.value)}>
+            <Input
+              className="min-w-48 flex-1"
+              placeholder="Buscar número"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <select
+              aria-label="Status"
+              className={cls}
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
               <option value="">Todos os status</option>
               {["DRAFT", "AWAITING", "AWARDED"].map((s) => (
                 <option key={s} value={s}>
@@ -1141,7 +1296,10 @@ export function CotacoesPage() {
           {q.error ? (
             <ErrorState description={q.error.message} onRetry={() => void q.refetch()} />
           ) : (q.data?.rows ?? []).length === 0 ? (
-            <EmptyState title="Nenhuma cotação" description="Crie uma cotação para comparar fornecedores." />
+            <EmptyState
+              title="Nenhuma cotação"
+              description="Crie uma cotação para comparar fornecedores."
+            />
           ) : (
             <Card>
               <CardContent className="pt-6">
@@ -1204,11 +1362,15 @@ function TableQuotationRow({ quotationId }: { quotationId: string }) {
         rows: [
           {
             id: quotationId,
-            quotation_number: String((detail.quotation as { quotation_number?: string }).quotation_number ?? quotationId),
+            quotation_number: String(
+              (detail.quotation as { quotation_number?: string }).quotation_number ?? quotationId,
+            ),
             status: String((detail.quotation as { status?: string }).status ?? "DRAFT"),
             deadline: (detail.quotation as { deadline?: string | null }).deadline ?? null,
             created_at: "",
-            purchase_request_id: (detail.quotation as { purchase_request_id?: string | null }).purchase_request_id ?? null,
+            purchase_request_id:
+              (detail.quotation as { purchase_request_id?: string | null }).purchase_request_id ??
+              null,
             request_number: "",
             suppliers,
             variants,
@@ -1219,7 +1381,12 @@ function TableQuotationRow({ quotationId }: { quotationId: string }) {
     enabled: Boolean(org),
   });
   const row = q.data?.rows[0];
-  if (!row) return <tr><td className="py-2">…</td></tr>;
+  if (!row)
+    return (
+      <tr>
+        <td className="py-2">…</td>
+      </tr>
+    );
   return (
     <tr className="border-b hover:bg-muted/40">
       <td className="py-2 pr-4 font-mono text-xs">{row.quotation_number}</td>
@@ -1227,7 +1394,9 @@ function TableQuotationRow({ quotationId }: { quotationId: string }) {
       <td className="py-2 pr-4 text-right">{row.suppliers}</td>
       <td className="py-2 pr-4 text-right">{row.variants}</td>
       <td className="py-2 pr-4">{row.deadline ? formatDate(row.deadline) : "—"}</td>
-      <td className="py-2 pr-4"><PStatus status={row.status} /></td>
+      <td className="py-2 pr-4">
+        <PStatus status={row.status} />
+      </td>
       <td className="py-2">
         <a href={`/compras/cotacoes/${quotationId}`} className="text-sm underline">
           Abrir
@@ -1281,7 +1450,11 @@ function QuotationDialog({
   return (
     <FormDialog open onOpenChange={(o) => !o && onClose()} title="Nova cotação">
       <div className="grid gap-3 md:grid-cols-1">
-        <Input placeholder="Prazo (AAAA-MM-DD)" value={form.deadline ?? ""} onChange={(e) => set("deadline", e.target.value)} />
+        <Input
+          placeholder="Prazo (AAAA-MM-DD)"
+          value={form.deadline ?? ""}
+          onChange={(e) => set("deadline", e.target.value)}
+        />
       </div>
       <ItemEditor
         values={form}
@@ -1325,7 +1498,11 @@ export function CotacaoDetailPage({ id }: { id: string }) {
     mutationFn: async () => {
       const items = Object.entries(award)
         .filter(([, supplier]) => supplier)
-        .map(([variant, supplier]) => ({ variant_id: variant, supplier_id: supplier, award: true }));
+        .map(([variant, supplier]) => ({
+          variant_id: variant,
+          supplier_id: supplier,
+          award: true,
+        }));
       if (!items.length) throw new Error("Selecione pelo menos um fornecedor premiado.");
       await awardFn({ data: { organizationId: org!, quotationId: id as never, data: { items } } });
     },
@@ -1337,7 +1514,11 @@ export function CotacaoDetailPage({ id }: { id: string }) {
     onError: (e: Error) => toast.error(e.message),
   });
   const data = q.data;
-  const detail = data?.quotation as { quotation_number?: string; status?: string; deadline?: string | null };
+  const detail = data?.quotation as {
+    quotation_number?: string;
+    status?: string;
+    deadline?: string | null;
+  };
   const variants = [...new Map((data?.items ?? []).map((i) => [i.variant_id, i])).values()];
   return (
     <AppShell title="Compras · Cotação">
@@ -1381,12 +1562,18 @@ export function CotacaoDetailPage({ id }: { id: string }) {
                         <td className="py-2 pr-4 text-right">{formatMoney(i.total_amount)}</td>
                         <td className="py-2 pr-4">
                           {i.awarded ? (
-                            <Badge className="border border-emerald-200 bg-emerald-50 text-emerald-700">Premiado</Badge>
+                            <Badge className="border border-emerald-200 bg-emerald-50 text-emerald-700">
+                              Premiado
+                            </Badge>
                           ) : canAward ? (
                             <select
                               className={cls}
-                              value={award[i.variant_id] === i.supplier_id ? award[i.variant_id] : ""}
-                              onChange={(e) => setAward((prev) => ({ ...prev, [i.variant_id]: e.target.value }))}
+                              value={
+                                award[i.variant_id] === i.supplier_id ? award[i.variant_id] : ""
+                              }
+                              onChange={(e) =>
+                                setAward((prev) => ({ ...prev, [i.variant_id]: e.target.value }))
+                              }
                             >
                               <option value="">Selecionar</option>
                               {(data.suppliers ?? []).map((s) => (
@@ -1441,7 +1628,10 @@ export function PedidosPage() {
   });
   const rows = (q.data?.rows ?? []).filter(
     (o) =>
-      (!query || `${o.order_number} ${o.supplier_name} ${o.supplier_code}`.toLowerCase().includes(query.toLowerCase())) &&
+      (!query ||
+        `${o.order_number} ${o.supplier_name} ${o.supplier_code}`
+          .toLowerCase()
+          .includes(query.toLowerCase())) &&
       (!status || o.status === status),
   );
   return (
@@ -1460,10 +1650,28 @@ export function PedidosPage() {
             {canCreate ? <Button onClick={() => setOpen(true)}>Novo pedido</Button> : null}
           </div>
           <div className="flex flex-wrap gap-3">
-            <Input className="min-w-48 flex-1" placeholder="Buscar número ou fornecedor" value={query} onChange={(e) => setQuery(e.target.value)} />
-            <select aria-label="Status" className={cls} value={status} onChange={(e) => setStatus(e.target.value)}>
+            <Input
+              className="min-w-48 flex-1"
+              placeholder="Buscar número ou fornecedor"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <select
+              aria-label="Status"
+              className={cls}
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
               <option value="">Todos os status</option>
-              {["DRAFT", "PENDING_APPROVAL", "APPROVED", "SENT", "RECEIVING", "COMPLETED", "CANCELED"].map((s) => (
+              {[
+                "DRAFT",
+                "PENDING_APPROVAL",
+                "APPROVED",
+                "SENT",
+                "RECEIVING",
+                "COMPLETED",
+                "CANCELED",
+              ].map((s) => (
                 <option key={s} value={s}>
                   {s.replace(/_/g, " ")}
                 </option>
@@ -1473,7 +1681,10 @@ export function PedidosPage() {
           {q.error ? (
             <ErrorState description={q.error.message} onRetry={() => void q.refetch()} />
           ) : rows.length === 0 ? (
-            <EmptyState title="Nenhum pedido" description="Emita um pedido de compra para um fornecedor." />
+            <EmptyState
+              title="Nenhum pedido"
+              description="Emita um pedido de compra para um fornecedor."
+            />
           ) : (
             <Card>
               <CardContent className="pt-6">
@@ -1493,7 +1704,10 @@ export function PedidosPage() {
                       {rows.map((po) => (
                         <tr key={po.id} className="border-b hover:bg-muted/40">
                           <td className="py-2 pr-4">
-                            <a href={`/compras/pedidos/${po.id}`} className="font-mono text-xs underline">
+                            <a
+                              href={`/compras/pedidos/${po.id}`}
+                              className="font-mono text-xs underline"
+                            >
                               {po.order_number}
                             </a>
                           </td>
@@ -1501,7 +1715,18 @@ export function PedidosPage() {
                           <td className="py-2 pr-4">{formatDate(po.issue_date)}</td>
                           <td className="py-2 pr-4 text-right">{formatMoney(po.total_amount)}</td>
                           <td className="py-2 pr-4 text-right">
-                            {po.status === "DRAFT" ? po.items : <>{po.open_items > 0 ? <span className="text-amber-600">{po.open_items}</span> : "0"} / {po.items}</>}
+                            {po.status === "DRAFT" ? (
+                              po.items
+                            ) : (
+                              <>
+                                {po.open_items > 0 ? (
+                                  <span className="text-amber-600">{po.open_items}</span>
+                                ) : (
+                                  "0"
+                                )}{" "}
+                                / {po.items}
+                              </>
+                            )}
                           </td>
                           <td className="py-2 pr-4">
                             <PStatus status={po.status} />
@@ -1587,7 +1812,11 @@ function OrderDialog({
   return (
     <FormDialog open onOpenChange={(o) => !o && onClose()} title="Novo pedido de compra">
       <div className="grid gap-3 md:grid-cols-2">
-        <select className={cls} value={form.supplier_id ?? ""} onChange={(e) => set("supplier_id", e.target.value)}>
+        <select
+          className={cls}
+          value={form.supplier_id ?? ""}
+          onChange={(e) => set("supplier_id", e.target.value)}
+        >
           <option value="">Fornecedor *</option>
           {suppliers.map((s) => (
             <option key={s.id} value={s.id}>
@@ -1595,7 +1824,11 @@ function OrderDialog({
             </option>
           ))}
         </select>
-        <select className={cls} value={form.destination_location_id ?? ""} onChange={(e) => set("destination_location_id", e.target.value)}>
+        <select
+          className={cls}
+          value={form.destination_location_id ?? ""}
+          onChange={(e) => set("destination_location_id", e.target.value)}
+        >
           <option value="">Local de destino</option>
           {(locations.data ?? []).map((l) => (
             <option key={l.id} value={l.id}>
@@ -1603,9 +1836,24 @@ function OrderDialog({
             </option>
           ))}
         </select>
-        <Input placeholder="Condições (30/60)" value={form.payment_terms ?? ""} onChange={(e) => set("payment_terms", e.target.value)} />
-        <Input placeholder="Entrega esperada (AAAA-MM-DD)" value={form.expected_delivery_date ?? ""} onChange={(e) => set("expected_delivery_date", e.target.value)} />
-        <Input placeholder="Frete (R$)" type="number" min={0} step="0.01" value={form.freight_amount ?? ""} onChange={(e) => set("freight_amount", e.target.value)} />
+        <Input
+          placeholder="Condições (30/60)"
+          value={form.payment_terms ?? ""}
+          onChange={(e) => set("payment_terms", e.target.value)}
+        />
+        <Input
+          placeholder="Entrega esperada (AAAA-MM-DD)"
+          value={form.expected_delivery_date ?? ""}
+          onChange={(e) => set("expected_delivery_date", e.target.value)}
+        />
+        <Input
+          placeholder="Frete (R$)"
+          type="number"
+          min={0}
+          step="0.01"
+          value={form.freight_amount ?? ""}
+          onChange={(e) => set("freight_amount", e.target.value)}
+        />
       </div>
       <ItemEditor
         values={form}
@@ -1620,7 +1868,10 @@ function OrderDialog({
         <Button variant="outline" onClick={onClose}>
           Cancelar
         </Button>
-        <Button onClick={() => save.mutate()} disabled={save.isPending || !form.supplier_id || lines.length === 0}>
+        <Button
+          onClick={() => save.mutate()}
+          disabled={save.isPending || !form.supplier_id || lines.length === 0}
+        >
           Salvar rascunho
         </Button>
       </DialogFooter>
@@ -1659,7 +1910,14 @@ export function PedidoDetailPage({ id }: { id: string }) {
     void q.refetch();
   };
   const run = (action: "submit" | "approve" | "send" | "cancel") =>
-    purchaseOrderAction({ data: { organizationId: org!, purchaseOrderId: id as never, action, data: { reason: "Usuário" } } })
+    purchaseOrderAction({
+      data: {
+        organizationId: org!,
+        purchaseOrderId: id as never,
+        action,
+        data: { reason: "Usuário" },
+      },
+    })
       .then(() => {
         toast.success("Pedido atualizado.");
         refresh();
@@ -1708,11 +1966,17 @@ export function PedidoDetailPage({ id }: { id: string }) {
               {order?.status === "APPROVED" && canSend ? (
                 <Button onClick={() => void run("send")}>Marcar enviado</Button>
               ) : null}
-              {["PENDING_APPROVAL", "APPROVED", "SENT", "RECEIVING"].includes(order?.status ?? "") && canReceive ? (
+              {["PENDING_APPROVAL", "APPROVED", "SENT", "RECEIVING"].includes(
+                order?.status ?? "",
+              ) && canReceive ? (
                 <Button onClick={() => setOpenReceive(true)}>Registrar recebimento</Button>
               ) : null}
               {!["COMPLETED", "CANCELED"].includes(order?.status ?? "") && canCancel ? (
-                <Button variant="outline" className="text-destructive" onClick={() => void run("cancel")}>
+                <Button
+                  variant="outline"
+                  className="text-destructive"
+                  onClick={() => void run("cancel")}
+                >
                   Cancelar
                 </Button>
               ) : null}
@@ -1721,7 +1985,9 @@ export function PedidoDetailPage({ id }: { id: string }) {
           <div className="grid gap-3 md:grid-cols-3">
             <div className="rounded border p-3">
               <p className="text-sm text-muted-foreground">Fornecedor</p>
-              <p className="font-medium">{(order as { supplier_name?: string }).supplier_name ?? "—"}</p>
+              <p className="font-medium">
+                {(order as { supplier_name?: string }).supplier_name ?? "—"}
+              </p>
             </div>
             <div className="rounded border p-3">
               <p className="text-sm text-muted-foreground">Total</p>
@@ -1731,7 +1997,9 @@ export function PedidoDetailPage({ id }: { id: string }) {
               <p className="text-sm text-muted-foreground">Condições</p>
               <p>{order?.payment_terms ?? "—"}</p>
               {order?.expected_delivery_date ? (
-                <p className="text-sm text-muted-foreground">Entrega {formatDate(order.expected_delivery_date)}</p>
+                <p className="text-sm text-muted-foreground">
+                  Entrega {formatDate(order.expected_delivery_date)}
+                </p>
               ) : null}
             </div>
           </div>
@@ -1756,7 +2024,9 @@ export function PedidoDetailPage({ id }: { id: string }) {
                           {i.product_name} <span className="text-muted-foreground">({i.sku})</span>
                         </td>
                         <td className="py-2 pr-4 text-right">{formatNumber(i.ordered_quantity)}</td>
-                        <td className="py-2 pr-4 text-right">{formatNumber(i.received_quantity)}</td>
+                        <td className="py-2 pr-4 text-right">
+                          {formatNumber(i.received_quantity)}
+                        </td>
                         <td className="py-2 pr-4 text-right">{formatMoney(i.unit_price)}</td>
                         <td className="py-2 pr-4 text-right">{formatMoney(i.line_total)}</td>
                         <td className="py-2 pr-4">
@@ -1775,7 +2045,14 @@ export function PedidoDetailPage({ id }: { id: string }) {
               <Card>
                 <CardContent className="pt-4">
                   <ul className="space-y-1 text-sm">
-                    {(data.receipts as { id: string; receipt_number: string; status: string; received_at: string }[]).map((gr) => (
+                    {(
+                      data.receipts as {
+                        id: string;
+                        receipt_number: string;
+                        status: string;
+                        received_at: string;
+                      }[]
+                    ).map((gr) => (
                       <li key={gr.id}>
                         <a href={`/compras/recebimentos/${gr.id}`} className="underline">
                           {gr.receipt_number}
@@ -1834,7 +2111,9 @@ function ReceiveDialog({
           },
         },
       });
-      toast.success(`Recebimento ${String(receiptId).slice(0, 8)} criado. Inspecione antes de postar.`);
+      toast.success(
+        `Recebimento ${String(receiptId).slice(0, 8)} criado. Inspecione antes de postar.`,
+      );
       void onSaved();
     },
     onError: (e: Error) => toast.error(e.message),
@@ -1843,8 +2122,16 @@ function ReceiveDialog({
   return (
     <FormDialog open onOpenChange={(o) => !o && onClose()} title="Registrar recebimento">
       <div className="grid gap-3 md:grid-cols-2">
-        <Input placeholder="Data (AAAA-MM-DD)" value={form.received_at ?? ""} onChange={(e) => set("received_at", e.target.value)} />
-        <select className={cls} value={form.destination_location_id ?? ""} onChange={(e) => set("destination_location_id", e.target.value)}>
+        <Input
+          placeholder="Data (AAAA-MM-DD)"
+          value={form.received_at ?? ""}
+          onChange={(e) => set("received_at", e.target.value)}
+        />
+        <select
+          className={cls}
+          value={form.destination_location_id ?? ""}
+          onChange={(e) => set("destination_location_id", e.target.value)}
+        >
           <option value="">Local de entrada</option>
           {(locations.data ?? []).map((l) => (
             <option key={l.id} value={l.id}>
@@ -1896,7 +2183,9 @@ export function RecebimentosPage() {
   const rows = (q.data?.rows ?? []).filter(
     (r) =>
       (!query ||
-        `${r.receipt_number} ${r.supplier_name} ${r.order_number}`.toLowerCase().includes(query.toLowerCase())) &&
+        `${r.receipt_number} ${r.supplier_name} ${r.order_number}`
+          .toLowerCase()
+          .includes(query.toLowerCase())) &&
       (!status || r.status === status),
   );
   return (
@@ -1912,20 +2201,35 @@ export function RecebimentosPage() {
         <>
           <h2 className="font-heading text-xl font-semibold">Recebimentos</h2>
           <div className="flex flex-wrap gap-3">
-            <Input className="min-w-48 flex-1" placeholder="Buscar número, fornecedor ou pedido" value={query} onChange={(e) => setQuery(e.target.value)} />
-            <select aria-label="Status" className={cls} value={status} onChange={(e) => setStatus(e.target.value)}>
+            <Input
+              className="min-w-48 flex-1"
+              placeholder="Buscar número, fornecedor ou pedido"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <select
+              aria-label="Status"
+              className={cls}
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
               <option value="">Todos os status</option>
-              {["DRAFT", "UNDER_INSPECTION", "ACCEPTED", "REJECTED", "POSTED", "CANCELED"].map((s) => (
-                <option key={s} value={s}>
-                  {s.replace(/_/g, " ")}
-                </option>
-              ))}
+              {["DRAFT", "UNDER_INSPECTION", "ACCEPTED", "REJECTED", "POSTED", "CANCELED"].map(
+                (s) => (
+                  <option key={s} value={s}>
+                    {s.replace(/_/g, " ")}
+                  </option>
+                ),
+              )}
             </select>
           </div>
           {q.error ? (
             <ErrorState description={q.error.message} onRetry={() => void q.refetch()} />
           ) : rows.length === 0 ? (
-            <EmptyState title="Nenhum recebimento" description="Recebimentos aparecem após registrar entrada de um pedido." />
+            <EmptyState
+              title="Nenhum recebimento"
+              description="Recebimentos aparecem após registrar entrada de um pedido."
+            />
           ) : (
             <Card>
               <CardContent className="pt-6">
@@ -1946,7 +2250,10 @@ export function RecebimentosPage() {
                       {rows.map((r) => (
                         <tr key={r.id} className="border-b hover:bg-muted/40">
                           <td className="py-2 pr-4">
-                            <a href={`/compras/recebimentos/${r.id}`} className="font-mono text-xs underline">
+                            <a
+                              href={`/compras/recebimentos/${r.id}`}
+                              className="font-mono text-xs underline"
+                            >
                               {r.receipt_number}
                             </a>
                           </td>
@@ -2041,7 +2348,11 @@ export function RecebimentoDetailPage({ id }: { id: string }) {
                 <Button onClick={() => void run("post")}>Postar (gera custo e estoque)</Button>
               ) : null}
               {!["POSTED", "CANCELED"].includes(status ?? "") && canCancel ? (
-                <Button variant="outline" className="text-destructive" onClick={() => void run("cancel")}>
+                <Button
+                  variant="outline"
+                  className="text-destructive"
+                  onClick={() => void run("cancel")}
+                >
                   Cancelar
                 </Button>
               ) : null}
@@ -2059,7 +2370,8 @@ export function RecebimentoDetailPage({ id }: { id: string }) {
             <div className="rounded border p-3">
               <p className="text-sm text-muted-foreground">Aceito / Rejeitado</p>
               <p>
-                {formatNumber(receipt?.total_accepted ?? 0)} / {formatNumber(receipt?.total_rejected ?? 0)}
+                {formatNumber(receipt?.total_accepted ?? 0)} /{" "}
+                {formatNumber(receipt?.total_rejected ?? 0)}
               </p>
             </div>
           </div>
@@ -2083,9 +2395,15 @@ export function RecebimentoDetailPage({ id }: { id: string }) {
                         <td className="py-2 pr-4">
                           {i.product_name} <span className="text-muted-foreground">({i.sku})</span>
                         </td>
-                        <td className="py-2 pr-4 text-right">{formatNumber(i.received_quantity)}</td>
-                        <td className="py-2 pr-4 text-right">{formatNumber(i.accepted_quantity)}</td>
-                        <td className="py-2 pr-4 text-right">{formatNumber(i.rejected_quantity)}</td>
+                        <td className="py-2 pr-4 text-right">
+                          {formatNumber(i.received_quantity)}
+                        </td>
+                        <td className="py-2 pr-4 text-right">
+                          {formatNumber(i.accepted_quantity)}
+                        </td>
+                        <td className="py-2 pr-4 text-right">
+                          {formatNumber(i.rejected_quantity)}
+                        </td>
                         <td className="py-2 pr-4 text-right">{formatMoney(i.unit_cost)}</td>
                         <td className="py-2 pr-4">
                           <PStatus status={i.status} />
@@ -2098,8 +2416,8 @@ export function RecebimentoDetailPage({ id }: { id: string }) {
             </CardContent>
           </Card>
           <p className="text-sm text-muted-foreground">
-            A postagem gera entrada de estoque, aplica a política de custo definida em configurações e, se
-            configurado, cria as obrigações financeiras do pedido.
+            A postagem gera entrada de estoque, aplica a política de custo definida em configurações
+            e, se configurado, cria as obrigações financeiras do pedido.
           </p>
           {openInspect ? (
             <InspectDialog
@@ -2142,7 +2460,12 @@ function InspectDialog({
         reason: reasons[i.id],
       }));
       await receiptAction({
-        data: { organizationId, goodsReceiptId: receiptId as never, action: "inspect", data: { items: payload } as never },
+        data: {
+          organizationId,
+          goodsReceiptId: receiptId as never,
+          action: "inspect",
+          data: { items: payload } as never,
+        },
       });
       toast.success("Inspeção registrada. Poste para gerar estoque e custo.");
       onSaved();
@@ -2155,7 +2478,8 @@ function InspectDialog({
         {items.map((i) => (
           <div key={i.id} className="grid gap-2 md:grid-cols-2">
             <p className="text-sm">
-              {i.product_name} <span className="text-muted-foreground">({i.sku})</span> — recebido {formatNumber(i.received_quantity)}
+              {i.product_name} <span className="text-muted-foreground">({i.sku})</span> — recebido{" "}
+              {formatNumber(i.received_quantity)}
             </p>
             <div className="flex gap-2">
               <Input
@@ -2167,7 +2491,11 @@ function InspectDialog({
                 value={accepted[i.id] ?? String(i.received_quantity)}
                 onChange={(e) => setAccepted((prev) => ({ ...prev, [i.id]: e.target.value }))}
               />
-              <Input placeholder="Motivo de recusa (opcional)" value={reasons[i.id] ?? ""} onChange={(e) => setReasons((prev) => ({ ...prev, [i.id]: e.target.value }))} />
+              <Input
+                placeholder="Motivo de recusa (opcional)"
+                value={reasons[i.id] ?? ""}
+                onChange={(e) => setReasons((prev) => ({ ...prev, [i.id]: e.target.value }))}
+              />
             </div>
           </div>
         ))}
@@ -2198,12 +2526,16 @@ export function DevolucoesPage() {
   const q = useQuery({
     queryKey: ["purchasing", "returns", org],
     queryFn: async () =>
-      (await fetch({ data: { organizationId: org!, kind: "returns", filters: {}, page: 1 } })) as ReturnList,
+      (await fetch({
+        data: { organizationId: org!, kind: "returns", filters: {}, page: 1 },
+      })) as ReturnList,
     enabled: Boolean(org && canRead),
   });
   const post = useMutation({
     mutationFn: async (id: string) =>
-      await returnAction({ data: { organizationId: org!, returnId: id as never, action: "post", data: {} } }),
+      await returnAction({
+        data: { organizationId: org!, returnId: id as never, action: "post", data: {} },
+      }),
     onSuccess: () => {
       toast.success("Devolução postada (saída de estoque).");
       void qc.invalidateQueries({ queryKey: ["purchasing", "returns", org] });
@@ -2230,7 +2562,10 @@ export function DevolucoesPage() {
           {q.error ? (
             <ErrorState description={q.error.message} onRetry={() => void q.refetch()} />
           ) : rows.length === 0 ? (
-            <EmptyState title="Nenhuma devolução" description="Devoluções saem do estoque com tipo PURCHASE_RETURN." />
+            <EmptyState
+              title="Nenhuma devolução"
+              description="Devoluções saem do estoque com tipo PURCHASE_RETURN."
+            />
           ) : (
             <Card>
               <CardContent className="pt-6">
@@ -2248,7 +2583,12 @@ export function DevolucoesPage() {
                     </thead>
                     <tbody>
                       {rows.map((r) => (
-                        <DevRow key={r.id} row={r} onPost={() => post.mutate(r.id)} canPost={hasPermission("supplier_returns.post")} />
+                        <DevRow
+                          key={r.id}
+                          row={r}
+                          onPost={() => post.mutate(r.id)}
+                          canPost={hasPermission("supplier_returns.post")}
+                        />
                       ))}
                     </tbody>
                   </table>
@@ -2325,7 +2665,11 @@ function ReturnDialog({
             supplier_id: form.supplier_id!,
             source_location_id: form.source_location_id,
             reason: form.reason,
-            items: lines.map((l) => ({ variant_id: l.variant_id, quantity: Number(l.quantity), reason: l.reason })),
+            items: lines.map((l) => ({
+              variant_id: l.variant_id,
+              quantity: Number(l.quantity),
+              reason: l.reason,
+            })),
           } as never,
         },
       });
@@ -2338,7 +2682,11 @@ function ReturnDialog({
   return (
     <FormDialog open onOpenChange={(o) => !o && onClose()} title="Nova devolução a fornecedor">
       <div className="grid gap-3 md:grid-cols-2">
-        <select className={cls} value={form.supplier_id ?? ""} onChange={(e) => set("supplier_id", e.target.value)}>
+        <select
+          className={cls}
+          value={form.supplier_id ?? ""}
+          onChange={(e) => set("supplier_id", e.target.value)}
+        >
           <option value="">Fornecedor *</option>
           {suppliers.map((s) => (
             <option key={s.id} value={s.id}>
@@ -2346,7 +2694,11 @@ function ReturnDialog({
             </option>
           ))}
         </select>
-        <select className={cls} value={form.source_location_id ?? ""} onChange={(e) => set("source_location_id", e.target.value)}>
+        <select
+          className={cls}
+          value={form.source_location_id ?? ""}
+          onChange={(e) => set("source_location_id", e.target.value)}
+        >
           <option value="">Local de origem *</option>
           {(locations.data ?? []).map((l) => (
             <option key={l.id} value={l.id}>
@@ -2354,7 +2706,11 @@ function ReturnDialog({
             </option>
           ))}
         </select>
-        <Input placeholder="Motivo geral" value={form.reason ?? ""} onChange={(e) => set("reason", e.target.value)} />
+        <Input
+          placeholder="Motivo geral"
+          value={form.reason ?? ""}
+          onChange={(e) => set("reason", e.target.value)}
+        />
       </div>
       <ItemEditor
         values={form}
@@ -2369,7 +2725,10 @@ function ReturnDialog({
         <Button variant="outline" onClick={onClose}>
           Cancelar
         </Button>
-        <Button onClick={() => save.mutate()} disabled={save.isPending || !form.supplier_id || lines.length === 0}>
+        <Button
+          onClick={() => save.mutate()}
+          disabled={save.isPending || !form.supplier_id || lines.length === 0}
+        >
           Salvar rascunho
         </Button>
       </DialogFooter>
@@ -2416,7 +2775,9 @@ export function DocumentosPage() {
   const rows = (q.data?.rows ?? []).filter(
     (d) =>
       (!query ||
-        `${d.document_number} ${d.supplier_name} ${d.order_number ?? ""}`.toLowerCase().includes(query.toLowerCase())) &&
+        `${d.document_number} ${d.supplier_name} ${d.order_number ?? ""}`
+          .toLowerCase()
+          .includes(query.toLowerCase())) &&
       (!status || d.status === status),
   );
   const canMatch = hasPermission("supplier_documents.create");
@@ -2437,8 +2798,18 @@ export function DocumentosPage() {
             {canCreate ? <Button onClick={() => setOpen(true)}>Novo documento</Button> : null}
           </div>
           <div className="flex flex-wrap gap-3">
-            <Input className="min-w-48 flex-1" placeholder="Buscar número" value={query} onChange={(e) => setQuery(e.target.value)} />
-            <select aria-label="Status" className={cls} value={status} onChange={(e) => setStatus(e.target.value)}>
+            <Input
+              className="min-w-48 flex-1"
+              placeholder="Buscar número"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+            <select
+              aria-label="Status"
+              className={cls}
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
               <option value="">Todos os status</option>
               {["DRAFT", "MATCHED", "EXCEPTION", "PROCESSED", "CANCELED"].map((s) => (
                 <option key={s} value={s}>
@@ -2450,7 +2821,10 @@ export function DocumentosPage() {
           {q.error ? (
             <ErrorState description={q.error.message} onRetry={() => void q.refetch()} />
           ) : rows.length === 0 ? (
-            <EmptyState title="Nenhum documento" description="Faturas e notas são conciliadas contra o pedido de compra." />
+            <EmptyState
+              title="Nenhum documento"
+              description="Faturas e notas são conciliadas contra o pedido de compra."
+            />
           ) : (
             <Card>
               <CardContent className="pt-6">
@@ -2493,8 +2867,9 @@ export function DocumentosPage() {
             />
           ) : null}
           <p className="text-sm text-muted-foreground">
-            Conciliar compara fatura × pedido × recebimento e levanta exceções de preço (PRICE_VARIANCE) e
-            quantidade (QUANTITY_VARIANCE). Exceções bloqueiam o processamento até resolução.
+            Conciliar compara fatura × pedido × recebimento e levanta exceções de preço
+            (PRICE_VARIANCE) e quantidade (QUANTITY_VARIANCE). Exceções bloqueiam o processamento
+            até resolução.
           </p>
         </>
       )}
@@ -2594,7 +2969,11 @@ function DocumentDialog({
   return (
     <FormDialog open onOpenChange={(o) => !o && onClose()} title="Novo documento de fornecedor">
       <div className="grid gap-3 md:grid-cols-2">
-        <select className={cls} value={form.supplier_id ?? ""} onChange={(e) => set("supplier_id", e.target.value)}>
+        <select
+          className={cls}
+          value={form.supplier_id ?? ""}
+          onChange={(e) => set("supplier_id", e.target.value)}
+        >
           <option value="">Fornecedor *</option>
           {suppliers.map((s) => (
             <option key={s.id} value={s.id}>
@@ -2602,16 +2981,46 @@ function DocumentDialog({
             </option>
           ))}
         </select>
-        <Input placeholder="Número do documento *" value={form.document_number ?? ""} onChange={(e) => set("document_number", e.target.value)} />
-        <select className={cls} value={form.document_type ?? "INVOICE"} onChange={(e) => set("document_type", e.target.value)}>
+        <Input
+          placeholder="Número do documento *"
+          value={form.document_number ?? ""}
+          onChange={(e) => set("document_number", e.target.value)}
+        />
+        <select
+          className={cls}
+          value={form.document_type ?? "INVOICE"}
+          onChange={(e) => set("document_type", e.target.value)}
+        >
           <option value="INVOICE">Fatura</option>
           <option value="CREDIT_NOTE">Nota de crédito</option>
           <option value="OTHER">Outro</option>
         </select>
-        <Input placeholder="Data (AAAA-MM-DD)" value={form.issue_date ?? ""} onChange={(e) => set("issue_date", e.target.value)} />
-        <Input placeholder="Valor total" type="number" min={0} step="0.01" value={form.total_amount ?? ""} onChange={(e) => set("total_amount", e.target.value)} />
-        <Input placeholder="Quantidade" type="number" min={0} step="0.01" value={form.quantity ?? ""} onChange={(e) => set("quantity", e.target.value)} />
-        <select className={cls} value={form.purchase_order_id ?? ""} onChange={(e) => set("purchase_order_id", e.target.value)}>
+        <Input
+          placeholder="Data (AAAA-MM-DD)"
+          value={form.issue_date ?? ""}
+          onChange={(e) => set("issue_date", e.target.value)}
+        />
+        <Input
+          placeholder="Valor total"
+          type="number"
+          min={0}
+          step="0.01"
+          value={form.total_amount ?? ""}
+          onChange={(e) => set("total_amount", e.target.value)}
+        />
+        <Input
+          placeholder="Quantidade"
+          type="number"
+          min={0}
+          step="0.01"
+          value={form.quantity ?? ""}
+          onChange={(e) => set("quantity", e.target.value)}
+        />
+        <select
+          className={cls}
+          value={form.purchase_order_id ?? ""}
+          onChange={(e) => set("purchase_order_id", e.target.value)}
+        >
           <option value="">Pedido de compra</option>
           {(candidates.data?.rows ?? []).map((po) => (
             <option key={po.id} value={po.id}>
@@ -2624,7 +3033,10 @@ function DocumentDialog({
         <Button variant="outline" onClick={onClose}>
           Cancelar
         </Button>
-        <Button onClick={() => save.mutate()} disabled={save.isPending || !form.supplier_id || !form.document_number}>
+        <Button
+          onClick={() => save.mutate()}
+          disabled={save.isPending || !form.supplier_id || !form.document_number}
+        >
           Salvar
         </Button>
       </DialogFooter>
@@ -2646,13 +3058,28 @@ export function ExcecoesPage() {
   const q = useQuery({
     queryKey: ["purchasing", "exceptions", org],
     queryFn: async () =>
-      (await fetch({ data: { organizationId: org!, kind: "exceptions", filters: {}, page: 1 } })) as ExceptionList,
+      (await fetch({
+        data: { organizationId: org!, kind: "exceptions", filters: {}, page: 1 },
+      })) as ExceptionList,
     enabled: Boolean(org && canRead),
   });
   const act = useMutation({
-    mutationFn: async ({ id, action, notes }: { id: string; action: "resolve" | "ignore" | "reopen"; notes?: string }) =>
+    mutationFn: async ({
+      id,
+      action,
+      notes,
+    }: {
+      id: string;
+      action: "resolve" | "ignore" | "reopen";
+      notes?: string;
+    }) =>
       await exceptionAction({
-        data: { organizationId: org!, exceptionId: id as never, action, data: { resolution_notes: notes } as never },
+        data: {
+          organizationId: org!,
+          exceptionId: id as never,
+          action,
+          data: { resolution_notes: notes } as never,
+        },
       }),
     onSuccess: () => {
       toast.success("Exceção atualizada.");
@@ -2678,13 +3105,16 @@ export function ExcecoesPage() {
         <>
           <h2 className="font-heading text-xl font-semibold">Central de exceções</h2>
           <p className="text-sm text-muted-foreground">
-            {openRows.length} exceção(ões) em aberto. Exceções BLOCKING impedem o processamento do documento
-            enquanto pendentes.
+            {openRows.length} exceção(ões) em aberto. Exceções BLOCKING impedem o processamento do
+            documento enquanto pendentes.
           </p>
           {q.error ? (
             <ErrorState description={q.error.message} onRetry={() => void q.refetch()} />
           ) : rows.length === 0 ? (
-            <EmptyState title="Nenhuma exceção" description="Exceções surgem de excesso de recebimento ou divergência de fatura." />
+            <EmptyState
+              title="Nenhuma exceção"
+              description="Exceções surgem de excesso de recebimento ou divergência de fatura."
+            />
           ) : (
             <Card>
               <CardContent className="pt-6">
@@ -2716,16 +3146,32 @@ export function ExcecoesPage() {
                             <div className="flex flex-wrap gap-1">
                               {["OPEN", "IN_REVIEW"].includes(ex.status) && canResolve ? (
                                 <>
-                                  <Button size="sm" variant="outline" className="h-7" onClick={() => setOpen((p) => ({ ...p, [ex.id]: "resolve" }))}>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="h-7"
+                                    onClick={() => setOpen((p) => ({ ...p, [ex.id]: "resolve" }))}
+                                  >
                                     Resolver
                                   </Button>
-                                  <Button size="sm" variant="ghost" className="h-7" onClick={() => act.mutate({ id: ex.id, action: "ignore" })}>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    className="h-7"
+                                    onClick={() => act.mutate({ id: ex.id, action: "ignore" })}
+                                  >
                                     Ignorar
                                   </Button>
                                 </>
                               ) : null}
-                              {["RESOLVED", "IGNORED_WITH_AUTHORIZATION"].includes(ex.status) && canResolve ? (
-                                <Button size="sm" variant="ghost" className="h-7" onClick={() => act.mutate({ id: ex.id, action: "reopen" })}>
+                              {["RESOLVED", "IGNORED_WITH_AUTHORIZATION"].includes(ex.status) &&
+                              canResolve ? (
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  className="h-7"
+                                  onClick={() => act.mutate({ id: ex.id, action: "reopen" })}
+                                >
                                   Reabrir
                                 </Button>
                               ) : null}
@@ -2822,7 +3268,12 @@ export function ReposicaoPage() {
         <>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="font-heading text-xl font-semibold">Sugestões de reposição</h2>
-            <select aria-label="Meses de consumo" className={cls} value={months} onChange={(e) => setMonths(e.target.value)}>
+            <select
+              aria-label="Meses de consumo"
+              className={cls}
+              value={months}
+              onChange={(e) => setMonths(e.target.value)}
+            >
               <option value="1">1 mês</option>
               <option value="3">3 meses</option>
               <option value="6">6 meses</option>
@@ -2846,7 +3297,10 @@ export function ReposicaoPage() {
           {q.error ? (
             <ErrorState description={q.error.message} onRetry={() => void q.refetch()} />
           ) : rows.length === 0 ? (
-            <EmptyState title="Nada para repor" description="Configure minimum_stock / reorder_point em variantes ativas com política diferente de MANUAL." />
+            <EmptyState
+              title="Nada para repor"
+              description="Configure minimum_stock / reorder_point em variantes ativas com política diferente de MANUAL."
+            />
           ) : (
             <Card>
               <CardContent className="pt-6">
@@ -2868,13 +3322,16 @@ export function ReposicaoPage() {
                       {rows.map((r) => (
                         <tr key={r.variant_id} className="border-b hover:bg-muted/40">
                           <td className="py-2 pr-4">
-                            {r.product_name} <span className="text-muted-foreground">({r.sku})</span>
+                            {r.product_name}{" "}
+                            <span className="text-muted-foreground">({r.sku})</span>
                           </td>
                           <td className="py-2 pr-4 font-mono text-xs">{r.replenishment_policy}</td>
                           <td className="py-2 pr-4 text-right">{formatNumber(r.available)}</td>
                           <td className="py-2 pr-4 text-right">{formatNumber(r.open_qty)}</td>
                           <td className="py-2 pr-4 text-right">{formatNumber(r.monthly_pace)}</td>
-                          <td className={`py-2 pr-4 text-right font-semibold ${r.recommend_order ? "text-emerald-600" : ""}`}>
+                          <td
+                            className={`py-2 pr-4 text-right font-semibold ${r.recommend_order ? "text-emerald-600" : ""}`}
+                          >
                             {formatNumber(r.suggested_quantity)}
                           </td>
                           <td className="py-2 pr-4 text-right">{formatNumber(r.lead_buffer)}</td>
@@ -2906,7 +3363,9 @@ export function PurchasingSettingsPage() {
   const q = useQuery({
     queryKey: ["purchasing", "settings", org],
     queryFn: async () =>
-      (await fetch({ data: { organizationId: org!, kind: "settings" } })) as { settings: PurchasingSettings },
+      (await fetch({ data: { organizationId: org!, kind: "settings" } })) as {
+        settings: PurchasingSettings;
+      },
     enabled: Boolean(org),
   });
   useEffect(() => {
@@ -2928,7 +3387,8 @@ export function PurchasingSettingsPage() {
           organizationId: org!,
           data: {
             acquisition_cost_policy: form.acquisition_cost_policy as "LAST_PURCHASE" | "AVERAGE",
-            freight_policy: form.freight_policy as "EXPENSE_SEPARATELY" | "INCLUDE_IN_INVENTORY_COST",
+            freight_policy: form.freight_policy as
+              "EXPENSE_SEPARATELY" | "INCLUDE_IN_INVENTORY_COST",
             over_receipt_policy: form.over_receipt_policy as "BLOCK" | "WARN" | "AUTH_OVERRIDE",
             payable_on: form.payable_on as "GOODS_RECEIPT" | "INVOICE",
             approval_segregation: form.approval_segregation === "true",
@@ -2958,21 +3418,33 @@ export function PurchasingSettingsPage() {
           <h2 className="font-heading text-xl font-semibold">Configurações de compras</h2>
           <label className="block text-sm">
             Política de custo de aquisição
-            <select className={cls} value={form.acquisition_cost_policy ?? ""} onChange={(e) => set("acquisition_cost_policy", e.target.value)}>
+            <select
+              className={cls}
+              value={form.acquisition_cost_policy ?? ""}
+              onChange={(e) => set("acquisition_cost_policy", e.target.value)}
+            >
               <option value="LAST_PURCHASE">Última compra</option>
               <option value="AVERAGE">Média ponderada</option>
             </select>
           </label>
           <label className="block text-sm">
             Tratamento do frete
-            <select className={cls} value={form.freight_policy ?? ""} onChange={(e) => set("freight_policy", e.target.value)}>
+            <select
+              className={cls}
+              value={form.freight_policy ?? ""}
+              onChange={(e) => set("freight_policy", e.target.value)}
+            >
               <option value="EXPENSE_SEPARATELY">Despesa separada</option>
               <option value="INCLUDE_IN_INVENTORY_COST">Incluir no custo do estoque</option>
             </select>
           </label>
           <label className="block text-sm">
             Excesso de recebimento
-            <select className={cls} value={form.over_receipt_policy ?? ""} onChange={(e) => set("over_receipt_policy", e.target.value)}>
+            <select
+              className={cls}
+              value={form.over_receipt_policy ?? ""}
+              onChange={(e) => set("over_receipt_policy", e.target.value)}
+            >
               <option value="BLOCK">Bloquear (sem resolver exceções)</option>
               <option value="WARN">Avisar</option>
               <option value="AUTH_OVERRIDE">Permitir com autorização (gera exceção)</option>
@@ -2980,7 +3452,11 @@ export function PurchasingSettingsPage() {
           </label>
           <label className="block text-sm">
             Criação de obrigações financeiras
-            <select className={cls} value={form.payable_on ?? ""} onChange={(e) => set("payable_on", e.target.value)}>
+            <select
+              className={cls}
+              value={form.payable_on ?? ""}
+              onChange={(e) => set("payable_on", e.target.value)}
+            >
               <option value="GOODS_RECEIPT">No recebimento</option>
               <option value="INVOICE">Na fatura processada</option>
             </select>
