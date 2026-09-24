@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "src/components/partners/pages.tsx 639ms\nsrc/components/reconciliation/pages.tsx 192ms (unchanged)\nsrc/components/reconciliation/marketplace.tsx 120ms (unchanged)\nsrc/lib/rbac.test.ts 20ms\nnpm notice\nnpm notice New major version of npm available! 10.8.2 -> 12.1.0\nnpm notice Changelog: https://github.",
-    "is_error": false,
-    "timestamp": 1790271665979
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('src/components/reconciliation/marketplace.tsx');s=p.read_text().replace('hasPermission(\\\"reconciliation.review\\\")','hasPermission(\\\"marketplace.manage\\\")').replace('hasPermission(\\\"reconciliation.create\\\")','hasPermission(\\\"marketplace.manage\\\")');p.write_text(s)\np=Path('src/lib/rbac.ts');s=p.read_text().replace('  partnerReconciliationRead:', '  marketplaceRead: \\\"marketplace.read\\\",\\\\n  marketplaceManage: \\\"marketplace.manage\\\",\\\\n  partnerReconciliationRead:',1).replace('  \\\"reconciliation.read\\\":','  \\\"marketplace.read\\\": \\\"Ver lojas e vendas externas\\\",\\\\n  \\\"marketplace.manage\\\": \\\"Gerenciar lojas, SKUs e vendas externas\\\",\\\\n  \\\"reconciliation.read\\\":',1);p.write_text(s)\np=Path('src/lib/rbac.test.ts');s=p.read_text().replace(\\\"/'(reconciliation\\\\\\\\.[a-z_]+)'/g\\\", \\\"/'((?:reconciliation|marketplace)\\\\\\\\.[a-z_]+)'/g\\\").replace('key.startsWith(\\\"partnerReconciliation\\\")','key.startsWith(\\\"partnerReconciliation\\\") || key.startsWith(\\\"marketplace\\\")');p.write_text(s)\nPY\nnpm run test:partners:integration && npm run test:partners:db\""
-    },
-    "timestamp": 1790271677069
-  },
-  {
-    "role": "tool_result",
     "content": "\n> test:partners:integration\n> python3 scripts/test-partner-store-integration-db.py\n\nPASS: existing MarketplaceStore links to PartnerProfile, tenant RLS and cross-tenant FK guard\nPASS: stock 100→80/20→85/15; retries deduplicated; no sale, receivable, financial transaction or reconciliation created\n\n",
     "is_error": false,
     "timestamp": 1790271682532
@@ -1420,5 +1406,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n593: \n594: -- =====================================================================\n595: -- 9. RPC: tabelas de preço.\n596: -- ==============================",
     "is_error": false,
     "timestamp": 1790282103692
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-costs-db.py",
+      "newString": "rpc('price_link_partner',org,{'partner_id':pid,'price_table_id':pt,'valid_from':'2026-01-01'})",
+      "oldString": "rpc('price_link_partner',org,{'partner_id':pid,'price_table_id':pt})"
+    },
+    "timestamp": 1790282108601
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790282108613
   }
 ]

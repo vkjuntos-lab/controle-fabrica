@@ -105,7 +105,7 @@ def run():
  rpc('inventory_post_movement',org,hist,ploc,'OPENING_BALANCE',10,'Saldo inicial','2026-03-01')
  pt=json.loads(rpc('price_save_table',org,{'code':'PARTNER','name':'Preço parceiro','valid_from':'2026-01-01'}))['id']
  rpc('pricing_publish',org,{'price_table_id':pt,'variant_id':hist,'unit_price':80,'valid_from':'2026-01-01'})
- rpc('price_link_partner',org,{'partner_id':pid,'price_table_id':pt})
+ rpc('price_link_partner',org,{'partner_id':pid,'price_table_id':pt,'valid_from':'2026-01-01'})
  psale=json.loads(rpc('marketplace_register_sale',org,{'store_id':pst,'sale_date':'2026-03-15','external_order_id':'PARTNER','external_sku':'HIST','quantity':1,'gross_amount':150}))['id']
  rpc('cost_save_input',org,'variable_rule',{'channel':'PARTNER','effective_from':'2026-01-01','commission_percent':0,'tax_percent':0,'fee_percent':0,'freight_per_unit':0,'other_per_unit':0,'reason':'Nenhuma despesa variável assumida neste contrato'})
  rec=json.loads(rpc('rec_create',org,{'partner_id':pid,'period_start':'2026-03-01','period_end':'2026-03-31'}))['reconciliation_id'];rpc('rec_process',org,rec);rpc('rec_close',org,rec)
