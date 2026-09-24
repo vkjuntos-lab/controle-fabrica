@@ -835,11 +835,11 @@ BEGIN
   PERFORM public.purchasing_require(_org,'quotations.read');
   IF _kind='quotations' THEN
     WITH rows AS MATERIALIZED(
-      SELECT q.id,q.quotation_number,q.status,q.deadline,q.created_at,q.purchase_request_id,pr.request_number,
+      SELECT q.id,q.quotation_number,q.status AS st,q.deadline,q.created_at,q.purchase_request_id,pr.request_number,
         (SELECT count(DISTINCT supplier_id) FROM public.quotation_supplier_items i WHERE i.quotation_id=q.id) suppliers,
         (SELECT count(DISTINCT variant_id) FROM public.quotation_supplier_items i WHERE i.quotation_id=q.id) variants
       FROM public.quotations q LEFT JOIN public.purchase_requests pr ON pr.id=q.purchase_request_id WHERE q.organization_id=_org)
-    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q2)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(quotation_number),query)>0) AND (status='' OR status=status) ORDER BY created_at DESC LIMIT 50 OFFSET (_page-1)*50) q2),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;
+    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q2)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(quotation_number),query)>0) AND (status='' OR st=status) ORDER BY created_at DESC LIMIT 50 OFFSET (_page-1)*50) q2),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;
   ELSIF _kind='quotation' THEN
     SELECT jsonb_build_object('quotation',(SELECT to_jsonb(q) FROM public.quotations q WHERE q.id=(_filters->>'id')::uuid AND q.organization_id=_org),
       'suppliers',(SELECT coalesce(jsonb_agg(s),'[]'::jsonb) FROM (SELECT qs.id,qs.supplier_id,qs.notes,c.legal_name supplier_name FROM public.quotation_suppliers qs JOIN public.supplier_profiles sp ON sp.id=qs.supplier_id JOIN public.companies c ON c.id=sp.company_id WHERE qs.quotation_id=(_filters->>'id')::uuid ORDER BY c.legal_name) s),
