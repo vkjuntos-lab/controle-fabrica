@@ -291,12 +291,17 @@ Validação local; publicação não verificada.
   segue a regra comercial vigente na data da venda.
 - Período fechado é histórico imutável (snapshot + evento); correção pós-fechamento exige
   reabertura com motivo, nunca reinterpretação de fatos.
+- Custo ≠ preço ≠ receita ≠ recebimento. Custo é versionado/imutável; preço versiona vigência nas
+  tabelas do MASTER 007; rentabilidade usa snapshot imutável por venda, calculado no fechamento do
+  parceiro com o billable da regra comercial (nunca o gross); conversão de unidade só usa registro
+  oficial — nunca fator implícito. Nenhuma RPC de custo lança AR/despesa ou move estoque.
 
 ## KNOWN_LIMITATIONS
 
 - Nova migration validada localmente, não aplicada ao Lovable Cloud nesta execução. Falta smoke
   test autenticado publicado. Ver relatórios `docs/handoff/MASTER-003-VALIDATION.md`,
-  `docs/handoff/MASTER-006-VALIDATION.md` e `docs/handoff/MASTER-007-VALIDATION.md`.
+  `docs/handoff/MASTER-006-VALIDATION.md`, `docs/handoff/MASTER-007-VALIDATION.md` e
+  `docs/handoff/MASTER-009-VALIDATION.md`.
 - O harness PostgreSQL roda como usuário não root (`initdb` recusa root); reproduzir via
   `su - claude-runner` conforme documentado no relatório do MASTER 006.
 - Replay limpo da migration histórica `20260918100000_inventory_ledger.sql` precisa carregar esse
