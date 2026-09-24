@@ -975,6 +975,17 @@ export type Database = {
       };
     };
     Functions: {
+      cost_query: {
+        Args: { _org: string; _kind: string; _filters?: Json; _page?: number; _export?: boolean };
+        Returns: Json;
+      };
+      cost_save_input: { Args: { _org: string; _kind: string; _data: Json }; Returns: string };
+      cost_calculate: { Args: { _org: string; _data: Json; _simulate?: boolean }; Returns: Json };
+      cost_version_action: { Args: { _org: string; _id: string; _action: string }; Returns: Json };
+      pricing_simulate: { Args: { _org: string; _data: Json }; Returns: Json };
+      pricing_publish: { Args: { _org: string; _data: Json }; Returns: string };
+      profitability_capture: { Args: { _org: string; _data: Json }; Returns: Json };
+
       partner_query: {
         Args: { _org: string; _kind: string; _filters?: Json; _page?: number };
         Returns: Json;

@@ -22,6 +22,13 @@ import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminOrganizacaoRouteImport } from './routes/_authenticated/admin.organizacao'
 import { Route as AuthenticatedAdminPermissoesRouteImport } from './routes/_authenticated/admin.permissoes'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
+import { Route as AuthenticatedCustosIndexRouteImport } from './routes/_authenticated/custos/index'
+import { Route as AuthenticatedCustosCalcularRouteImport } from './routes/_authenticated/custos/calcular'
+import { Route as AuthenticatedCustosImpactoRouteImport } from './routes/_authenticated/custos/impacto'
+import { Route as AuthenticatedCustosInsumosRouteImport } from './routes/_authenticated/custos/insumos'
+import { Route as AuthenticatedCustosProducaoRouteImport } from './routes/_authenticated/custos/producao'
+import { Route as AuthenticatedCustosSimuladorRouteImport } from './routes/_authenticated/custos/simulador'
+import { Route as AuthenticatedCustosVersoesRouteImport } from './routes/_authenticated/custos/versoes'
 import { Route as AuthenticatedEstoqueIndexRouteImport } from './routes/_authenticated/estoque/index'
 import { Route as AuthenticatedEstoqueInventariosRouteImport } from './routes/_authenticated/estoque/inventarios'
 import { Route as AuthenticatedEstoqueLocationsRouteImport } from './routes/_authenticated/estoque/locations'
@@ -42,6 +49,7 @@ import { Route as AuthenticatedParceirosIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedParceirosDevolucoesRouteImport } from './routes/_authenticated/parceiros/devolucoes'
 import { Route as AuthenticatedParceirosEstoqueRouteImport } from './routes/_authenticated/parceiros/estoque'
 import { Route as AuthenticatedParceirosRemessasRouteImport } from './routes/_authenticated/parceiros/remessas'
+import { Route as AuthenticatedPrecificacaoIndexRouteImport } from './routes/_authenticated/precificacao/index'
 import { Route as AuthenticatedProdutosIdRouteImport } from './routes/_authenticated/produtos.$id'
 import { Route as AuthenticatedReconciliacaoIndexRouteImport } from './routes/_authenticated/reconciliacao/index'
 import { Route as AuthenticatedReconciliacaoExcecoesRouteImport } from './routes/_authenticated/reconciliacao/excecoes'
@@ -50,6 +58,7 @@ import { Route as AuthenticatedReconciliacaoMapeamentoRouteImport } from './rout
 import { Route as AuthenticatedReconciliacaoPeriodosRouteImport } from './routes/_authenticated/reconciliacao/periodos'
 import { Route as AuthenticatedReconciliacaoTabelasPrecoRouteImport } from './routes/_authenticated/reconciliacao/tabelas-preco'
 import { Route as AuthenticatedReconciliacaoVendasRouteImport } from './routes/_authenticated/reconciliacao/vendas'
+import { Route as AuthenticatedRelatoriosRentabilidadeRouteImport } from './routes/_authenticated/relatorios/rentabilidade'
 import { Route as ApiCronHealthRouteImport } from './routes/api/cron.health'
 import { Route as ApiWebhooksReceiverRouteImport } from './routes/api/webhooks.receiver'
 import { Route as AuthenticatedEstoqueInventariosIdRouteImport } from './routes/_authenticated/estoque/inventarios.$id'
@@ -128,6 +137,48 @@ const AuthenticatedAdminUsuariosRoute =
   AuthenticatedAdminUsuariosRouteImport.update({
     id: '/admin/usuarios',
     path: '/admin/usuarios',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCustosIndexRoute =
+  AuthenticatedCustosIndexRouteImport.update({
+    id: '/custos/',
+    path: '/custos/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCustosCalcularRoute =
+  AuthenticatedCustosCalcularRouteImport.update({
+    id: '/custos/calcular',
+    path: '/custos/calcular',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCustosImpactoRoute =
+  AuthenticatedCustosImpactoRouteImport.update({
+    id: '/custos/impacto',
+    path: '/custos/impacto',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCustosInsumosRoute =
+  AuthenticatedCustosInsumosRouteImport.update({
+    id: '/custos/insumos',
+    path: '/custos/insumos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCustosProducaoRoute =
+  AuthenticatedCustosProducaoRouteImport.update({
+    id: '/custos/producao',
+    path: '/custos/producao',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCustosSimuladorRoute =
+  AuthenticatedCustosSimuladorRouteImport.update({
+    id: '/custos/simulador',
+    path: '/custos/simulador',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedCustosVersoesRoute =
+  AuthenticatedCustosVersoesRouteImport.update({
+    id: '/custos/versoes',
+    path: '/custos/versoes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedEstoqueIndexRoute =
@@ -250,6 +301,12 @@ const AuthenticatedParceirosRemessasRoute =
     path: '/parceiros/remessas',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPrecificacaoIndexRoute =
+  AuthenticatedPrecificacaoIndexRouteImport.update({
+    id: '/precificacao/',
+    path: '/precificacao/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProdutosIdRoute = AuthenticatedProdutosIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -295,6 +352,12 @@ const AuthenticatedReconciliacaoVendasRoute =
   AuthenticatedReconciliacaoVendasRouteImport.update({
     id: '/reconciliacao/vendas',
     path: '/reconciliacao/vendas',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedRelatoriosRentabilidadeRoute =
+  AuthenticatedRelatoriosRentabilidadeRouteImport.update({
+    id: '/relatorios/rentabilidade',
+    path: '/relatorios/rentabilidade',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const ApiCronHealthRoute = ApiCronHealthRouteImport.update({
@@ -375,6 +438,12 @@ export interface FileRoutesByFullPath {
   '/admin/organizacao': typeof AuthenticatedAdminOrganizacaoRoute
   '/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/custos/calcular': typeof AuthenticatedCustosCalcularRoute
+  '/custos/impacto': typeof AuthenticatedCustosImpactoRoute
+  '/custos/insumos': typeof AuthenticatedCustosInsumosRoute
+  '/custos/producao': typeof AuthenticatedCustosProducaoRoute
+  '/custos/simulador': typeof AuthenticatedCustosSimuladorRoute
+  '/custos/versoes': typeof AuthenticatedCustosVersoesRoute
   '/estoque/inventarios': typeof AuthenticatedEstoqueInventariosRouteWithChildren
   '/estoque/locations': typeof AuthenticatedEstoqueLocationsRoute
   '/estoque/movimentacoes': typeof AuthenticatedEstoqueMovimentacoesRouteWithChildren
@@ -399,11 +468,14 @@ export interface FileRoutesByFullPath {
   '/reconciliacao/periodos': typeof AuthenticatedReconciliacaoPeriodosRoute
   '/reconciliacao/tabelas-preco': typeof AuthenticatedReconciliacaoTabelasPrecoRoute
   '/reconciliacao/vendas': typeof AuthenticatedReconciliacaoVendasRoute
+  '/relatorios/rentabilidade': typeof AuthenticatedRelatoriosRentabilidadeRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
+  '/custos/': typeof AuthenticatedCustosIndexRoute
   '/estoque/': typeof AuthenticatedEstoqueIndexRoute
   '/financeiro/': typeof AuthenticatedFinanceiroIndexRoute
   '/parceiros/': typeof AuthenticatedParceirosIndexRoute
+  '/precificacao/': typeof AuthenticatedPrecificacaoIndexRoute
   '/reconciliacao/': typeof AuthenticatedReconciliacaoIndexRoute
   '/estoque/inventarios/$id': typeof AuthenticatedEstoqueInventariosIdRoute
   '/estoque/movimentacoes/$id': typeof AuthenticatedEstoqueMovimentacoesIdRoute
@@ -428,6 +500,12 @@ export interface FileRoutesByTo {
   '/admin/organizacao': typeof AuthenticatedAdminOrganizacaoRoute
   '/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/custos/calcular': typeof AuthenticatedCustosCalcularRoute
+  '/custos/impacto': typeof AuthenticatedCustosImpactoRoute
+  '/custos/insumos': typeof AuthenticatedCustosInsumosRoute
+  '/custos/producao': typeof AuthenticatedCustosProducaoRoute
+  '/custos/simulador': typeof AuthenticatedCustosSimuladorRoute
+  '/custos/versoes': typeof AuthenticatedCustosVersoesRoute
   '/estoque/inventarios': typeof AuthenticatedEstoqueInventariosRouteWithChildren
   '/estoque/locations': typeof AuthenticatedEstoqueLocationsRoute
   '/estoque/movimentacoes': typeof AuthenticatedEstoqueMovimentacoesRouteWithChildren
@@ -452,11 +530,14 @@ export interface FileRoutesByTo {
   '/reconciliacao/periodos': typeof AuthenticatedReconciliacaoPeriodosRoute
   '/reconciliacao/tabelas-preco': typeof AuthenticatedReconciliacaoTabelasPrecoRoute
   '/reconciliacao/vendas': typeof AuthenticatedReconciliacaoVendasRoute
+  '/relatorios/rentabilidade': typeof AuthenticatedRelatoriosRentabilidadeRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
+  '/custos': typeof AuthenticatedCustosIndexRoute
   '/estoque': typeof AuthenticatedEstoqueIndexRoute
   '/financeiro': typeof AuthenticatedFinanceiroIndexRoute
   '/parceiros': typeof AuthenticatedParceirosIndexRoute
+  '/precificacao': typeof AuthenticatedPrecificacaoIndexRoute
   '/reconciliacao': typeof AuthenticatedReconciliacaoIndexRoute
   '/estoque/inventarios/$id': typeof AuthenticatedEstoqueInventariosIdRoute
   '/estoque/movimentacoes/$id': typeof AuthenticatedEstoqueMovimentacoesIdRoute
@@ -483,6 +564,12 @@ export interface FileRoutesById {
   '/_authenticated/admin/organizacao': typeof AuthenticatedAdminOrganizacaoRoute
   '/_authenticated/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/_authenticated/custos/calcular': typeof AuthenticatedCustosCalcularRoute
+  '/_authenticated/custos/impacto': typeof AuthenticatedCustosImpactoRoute
+  '/_authenticated/custos/insumos': typeof AuthenticatedCustosInsumosRoute
+  '/_authenticated/custos/producao': typeof AuthenticatedCustosProducaoRoute
+  '/_authenticated/custos/simulador': typeof AuthenticatedCustosSimuladorRoute
+  '/_authenticated/custos/versoes': typeof AuthenticatedCustosVersoesRoute
   '/_authenticated/estoque/inventarios': typeof AuthenticatedEstoqueInventariosRouteWithChildren
   '/_authenticated/estoque/locations': typeof AuthenticatedEstoqueLocationsRoute
   '/_authenticated/estoque/movimentacoes': typeof AuthenticatedEstoqueMovimentacoesRouteWithChildren
@@ -507,11 +594,14 @@ export interface FileRoutesById {
   '/_authenticated/reconciliacao/periodos': typeof AuthenticatedReconciliacaoPeriodosRoute
   '/_authenticated/reconciliacao/tabelas-preco': typeof AuthenticatedReconciliacaoTabelasPrecoRoute
   '/_authenticated/reconciliacao/vendas': typeof AuthenticatedReconciliacaoVendasRoute
+  '/_authenticated/relatorios/rentabilidade': typeof AuthenticatedRelatoriosRentabilidadeRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
+  '/_authenticated/custos/': typeof AuthenticatedCustosIndexRoute
   '/_authenticated/estoque/': typeof AuthenticatedEstoqueIndexRoute
   '/_authenticated/financeiro/': typeof AuthenticatedFinanceiroIndexRoute
   '/_authenticated/parceiros/': typeof AuthenticatedParceirosIndexRoute
+  '/_authenticated/precificacao/': typeof AuthenticatedPrecificacaoIndexRoute
   '/_authenticated/reconciliacao/': typeof AuthenticatedReconciliacaoIndexRoute
   '/_authenticated/estoque/inventarios/$id': typeof AuthenticatedEstoqueInventariosIdRoute
   '/_authenticated/estoque/movimentacoes/$id': typeof AuthenticatedEstoqueMovimentacoesIdRoute
@@ -538,6 +628,12 @@ export interface FileRouteTypes {
     | '/admin/organizacao'
     | '/admin/permissoes'
     | '/admin/usuarios'
+    | '/custos/calcular'
+    | '/custos/impacto'
+    | '/custos/insumos'
+    | '/custos/producao'
+    | '/custos/simulador'
+    | '/custos/versoes'
     | '/estoque/inventarios'
     | '/estoque/locations'
     | '/estoque/movimentacoes'
@@ -562,11 +658,14 @@ export interface FileRouteTypes {
     | '/reconciliacao/periodos'
     | '/reconciliacao/tabelas-preco'
     | '/reconciliacao/vendas'
+    | '/relatorios/rentabilidade'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
+    | '/custos/'
     | '/estoque/'
     | '/financeiro/'
     | '/parceiros/'
+    | '/precificacao/'
     | '/reconciliacao/'
     | '/estoque/inventarios/$id'
     | '/estoque/movimentacoes/$id'
@@ -591,6 +690,12 @@ export interface FileRouteTypes {
     | '/admin/organizacao'
     | '/admin/permissoes'
     | '/admin/usuarios'
+    | '/custos/calcular'
+    | '/custos/impacto'
+    | '/custos/insumos'
+    | '/custos/producao'
+    | '/custos/simulador'
+    | '/custos/versoes'
     | '/estoque/inventarios'
     | '/estoque/locations'
     | '/estoque/movimentacoes'
@@ -615,11 +720,14 @@ export interface FileRouteTypes {
     | '/reconciliacao/periodos'
     | '/reconciliacao/tabelas-preco'
     | '/reconciliacao/vendas'
+    | '/relatorios/rentabilidade'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
+    | '/custos'
     | '/estoque'
     | '/financeiro'
     | '/parceiros'
+    | '/precificacao'
     | '/reconciliacao'
     | '/estoque/inventarios/$id'
     | '/estoque/movimentacoes/$id'
@@ -645,6 +753,12 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/organizacao'
     | '/_authenticated/admin/permissoes'
     | '/_authenticated/admin/usuarios'
+    | '/_authenticated/custos/calcular'
+    | '/_authenticated/custos/impacto'
+    | '/_authenticated/custos/insumos'
+    | '/_authenticated/custos/producao'
+    | '/_authenticated/custos/simulador'
+    | '/_authenticated/custos/versoes'
     | '/_authenticated/estoque/inventarios'
     | '/_authenticated/estoque/locations'
     | '/_authenticated/estoque/movimentacoes'
@@ -669,11 +783,14 @@ export interface FileRouteTypes {
     | '/_authenticated/reconciliacao/periodos'
     | '/_authenticated/reconciliacao/tabelas-preco'
     | '/_authenticated/reconciliacao/vendas'
+    | '/_authenticated/relatorios/rentabilidade'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
+    | '/_authenticated/custos/'
     | '/_authenticated/estoque/'
     | '/_authenticated/financeiro/'
     | '/_authenticated/parceiros/'
+    | '/_authenticated/precificacao/'
     | '/_authenticated/reconciliacao/'
     | '/_authenticated/estoque/inventarios/$id'
     | '/_authenticated/estoque/movimentacoes/$id'
@@ -787,6 +904,55 @@ declare module '@tanstack/react-router' {
       path: '/admin/usuarios'
       fullPath: '/admin/usuarios'
       preLoaderRoute: typeof AuthenticatedAdminUsuariosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/custos/': {
+      id: '/_authenticated/custos/'
+      path: '/custos'
+      fullPath: '/custos/'
+      preLoaderRoute: typeof AuthenticatedCustosIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/custos/calcular': {
+      id: '/_authenticated/custos/calcular'
+      path: '/custos/calcular'
+      fullPath: '/custos/calcular'
+      preLoaderRoute: typeof AuthenticatedCustosCalcularRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/custos/impacto': {
+      id: '/_authenticated/custos/impacto'
+      path: '/custos/impacto'
+      fullPath: '/custos/impacto'
+      preLoaderRoute: typeof AuthenticatedCustosImpactoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/custos/insumos': {
+      id: '/_authenticated/custos/insumos'
+      path: '/custos/insumos'
+      fullPath: '/custos/insumos'
+      preLoaderRoute: typeof AuthenticatedCustosInsumosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/custos/producao': {
+      id: '/_authenticated/custos/producao'
+      path: '/custos/producao'
+      fullPath: '/custos/producao'
+      preLoaderRoute: typeof AuthenticatedCustosProducaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/custos/simulador': {
+      id: '/_authenticated/custos/simulador'
+      path: '/custos/simulador'
+      fullPath: '/custos/simulador'
+      preLoaderRoute: typeof AuthenticatedCustosSimuladorRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/custos/versoes': {
+      id: '/_authenticated/custos/versoes'
+      path: '/custos/versoes'
+      fullPath: '/custos/versoes'
+      preLoaderRoute: typeof AuthenticatedCustosVersoesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/estoque/': {
@@ -929,6 +1095,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedParceirosRemessasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/precificacao/': {
+      id: '/_authenticated/precificacao/'
+      path: '/precificacao'
+      fullPath: '/precificacao/'
+      preLoaderRoute: typeof AuthenticatedPrecificacaoIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/produtos/$id': {
       id: '/_authenticated/produtos/$id'
       path: '/$id'
@@ -983,6 +1156,13 @@ declare module '@tanstack/react-router' {
       path: '/reconciliacao/vendas'
       fullPath: '/reconciliacao/vendas'
       preLoaderRoute: typeof AuthenticatedReconciliacaoVendasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/relatorios/rentabilidade': {
+      id: '/_authenticated/relatorios/rentabilidade'
+      path: '/relatorios/rentabilidade'
+      fullPath: '/relatorios/rentabilidade'
+      preLoaderRoute: typeof AuthenticatedRelatoriosRentabilidadeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/api/cron/health': {
@@ -1117,6 +1297,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminOrganizacaoRoute: typeof AuthenticatedAdminOrganizacaoRoute
   AuthenticatedAdminPermissoesRoute: typeof AuthenticatedAdminPermissoesRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
+  AuthenticatedCustosCalcularRoute: typeof AuthenticatedCustosCalcularRoute
+  AuthenticatedCustosImpactoRoute: typeof AuthenticatedCustosImpactoRoute
+  AuthenticatedCustosInsumosRoute: typeof AuthenticatedCustosInsumosRoute
+  AuthenticatedCustosProducaoRoute: typeof AuthenticatedCustosProducaoRoute
+  AuthenticatedCustosSimuladorRoute: typeof AuthenticatedCustosSimuladorRoute
+  AuthenticatedCustosVersoesRoute: typeof AuthenticatedCustosVersoesRoute
   AuthenticatedEstoqueInventariosRoute: typeof AuthenticatedEstoqueInventariosRouteWithChildren
   AuthenticatedEstoqueLocationsRoute: typeof AuthenticatedEstoqueLocationsRoute
   AuthenticatedEstoqueMovimentacoesRoute: typeof AuthenticatedEstoqueMovimentacoesRouteWithChildren
@@ -1140,9 +1326,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedReconciliacaoPeriodosRoute: typeof AuthenticatedReconciliacaoPeriodosRoute
   AuthenticatedReconciliacaoTabelasPrecoRoute: typeof AuthenticatedReconciliacaoTabelasPrecoRoute
   AuthenticatedReconciliacaoVendasRoute: typeof AuthenticatedReconciliacaoVendasRoute
+  AuthenticatedRelatoriosRentabilidadeRoute: typeof AuthenticatedRelatoriosRentabilidadeRoute
+  AuthenticatedCustosIndexRoute: typeof AuthenticatedCustosIndexRoute
   AuthenticatedEstoqueIndexRoute: typeof AuthenticatedEstoqueIndexRoute
   AuthenticatedFinanceiroIndexRoute: typeof AuthenticatedFinanceiroIndexRoute
   AuthenticatedParceirosIndexRoute: typeof AuthenticatedParceirosIndexRoute
+  AuthenticatedPrecificacaoIndexRoute: typeof AuthenticatedPrecificacaoIndexRoute
   AuthenticatedReconciliacaoIndexRoute: typeof AuthenticatedReconciliacaoIndexRoute
   AuthenticatedFinanceiroPagarIdRoute: typeof AuthenticatedFinanceiroPagarIdRoute
   AuthenticatedFinanceiroReceberIdRoute: typeof AuthenticatedFinanceiroReceberIdRoute
@@ -1162,6 +1351,12 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminOrganizacaoRoute: AuthenticatedAdminOrganizacaoRoute,
   AuthenticatedAdminPermissoesRoute: AuthenticatedAdminPermissoesRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
+  AuthenticatedCustosCalcularRoute: AuthenticatedCustosCalcularRoute,
+  AuthenticatedCustosImpactoRoute: AuthenticatedCustosImpactoRoute,
+  AuthenticatedCustosInsumosRoute: AuthenticatedCustosInsumosRoute,
+  AuthenticatedCustosProducaoRoute: AuthenticatedCustosProducaoRoute,
+  AuthenticatedCustosSimuladorRoute: AuthenticatedCustosSimuladorRoute,
+  AuthenticatedCustosVersoesRoute: AuthenticatedCustosVersoesRoute,
   AuthenticatedEstoqueInventariosRoute:
     AuthenticatedEstoqueInventariosRouteWithChildren,
   AuthenticatedEstoqueLocationsRoute: AuthenticatedEstoqueLocationsRoute,
@@ -1196,9 +1391,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedReconciliacaoTabelasPrecoRoute:
     AuthenticatedReconciliacaoTabelasPrecoRoute,
   AuthenticatedReconciliacaoVendasRoute: AuthenticatedReconciliacaoVendasRoute,
+  AuthenticatedRelatoriosRentabilidadeRoute:
+    AuthenticatedRelatoriosRentabilidadeRoute,
+  AuthenticatedCustosIndexRoute: AuthenticatedCustosIndexRoute,
   AuthenticatedEstoqueIndexRoute: AuthenticatedEstoqueIndexRoute,
   AuthenticatedFinanceiroIndexRoute: AuthenticatedFinanceiroIndexRoute,
   AuthenticatedParceirosIndexRoute: AuthenticatedParceirosIndexRoute,
+  AuthenticatedPrecificacaoIndexRoute: AuthenticatedPrecificacaoIndexRoute,
   AuthenticatedReconciliacaoIndexRoute: AuthenticatedReconciliacaoIndexRoute,
   AuthenticatedFinanceiroPagarIdRoute: AuthenticatedFinanceiroPagarIdRoute,
   AuthenticatedFinanceiroReceberIdRoute: AuthenticatedFinanceiroReceberIdRoute,

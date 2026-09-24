@@ -196,7 +196,9 @@ export const getProduct = createServerFn({ method: "GET" })
 
     const { data: row, error } = await context.supabase
       .from("products")
-      .select("*, product_categories(id, name), product_variants(*)")
+      .select(
+        "*, product_categories(id, name), product_variants(id, sku, barcode, size, color, sell_price, weight_grams, status, attributes, created_at, updated_at)",
+      )
       .eq("id", data.productId)
       .eq("organization_id", data.organizationId)
       .maybeSingle();
@@ -209,7 +211,7 @@ export const getProduct = createServerFn({ method: "GET" })
       barcode: v.barcode,
       size: v.size,
       color: v.color,
-      cost_price: v.cost_price == null ? null : Number(v.cost_price),
+      cost_price: null,
       sell_price: v.sell_price == null ? null : Number(v.sell_price),
       weight_grams: v.weight_grams == null ? null : Number(v.weight_grams),
       status: v.status,
@@ -600,7 +602,6 @@ export const createVariant = createServerFn({ method: "POST" })
         barcode: z.string().trim().max(64).nullable().optional(),
         size: z.string().trim().max(40).nullable().optional(),
         color: z.string().trim().max(60).nullable().optional(),
-        costPrice: priceSchema,
         sellPrice: priceSchema,
         weightGrams: weightSchema,
         status: variantStatusSchema.default("ACTIVE"),
@@ -624,7 +625,6 @@ export const createVariant = createServerFn({ method: "POST" })
         barcode: emptyToNull(data.barcode),
         size: emptyToNull(data.size),
         color: emptyToNull(data.color),
-        cost_price: data.costPrice ?? null,
         sell_price: data.sellPrice ?? null,
         weight_grams: data.weightGrams ?? null,
         status: data.status,
@@ -659,7 +659,6 @@ export const updateVariant = createServerFn({ method: "POST" })
         barcode: z.string().trim().max(64).nullable().optional(),
         size: z.string().trim().max(40).nullable().optional(),
         color: z.string().trim().max(60).nullable().optional(),
-        costPrice: priceSchema,
         sellPrice: priceSchema,
         weightGrams: weightSchema,
       })
@@ -680,7 +679,6 @@ export const updateVariant = createServerFn({ method: "POST" })
         barcode: emptyToNull(data.barcode),
         size: emptyToNull(data.size),
         color: emptyToNull(data.color),
-        cost_price: data.costPrice ?? null,
         sell_price: data.sellPrice ?? null,
         weight_grams: data.weightGrams ?? null,
         updated_by: context.userId,

@@ -56,6 +56,14 @@ type NavItem = {
 };
 
 const OPERATION_ITEMS: NavItem[] = [
+  { label: "Custos", to: "/custos", icon: Scale, permission: "costs.read" },
+  { label: "Precificação", to: "/precificacao", icon: Wallet, permission: "pricing.read" },
+  {
+    label: "Rentabilidade",
+    to: "/relatorios/rentabilidade",
+    icon: LayoutDashboard,
+    permission: "profitability.read",
+  },
   { label: "Parceiros", to: "/parceiros", icon: Handshake, permission: PERMISSIONS.partnersRead },
   {
     label: "Remessas de parceiros",

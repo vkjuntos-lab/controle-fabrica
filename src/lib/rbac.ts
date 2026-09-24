@@ -41,6 +41,21 @@ export const ROLE_DESCRIPTIONS: Record<AppRole, string> = {
 
 /** Permissões atualmente reconhecidas pela aplicação. */
 export const PERMISSIONS = {
+  costsRead: "costs.read",
+  costsCalculate: "costs.calculate",
+  costsSimulate: "costs.simulate",
+  costsApprove: "costs.approve",
+  costsPublish: "costs.publish",
+  costsManageMaterial: "costs.manage_material_cost",
+  costsManageLabor: "costs.manage_labor_rate",
+  costsManageOverhead: "costs.manage_overhead",
+  pricingRead: "pricing.read",
+  pricingManage: "pricing.manage",
+  pricingSimulate: "pricing.simulate",
+  pricingApprove: "pricing.approve",
+  profitabilityRead: "profitability.read",
+  profitabilityExport: "profitability.export",
+
   partnersRead: "partners.read",
   partnersCreate: "partners.create",
   partnersUpdate: "partners.update",
@@ -124,6 +139,20 @@ export const PERMISSIONS = {
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 
 export const PERMISSION_LABELS: Record<string, string> = {
+  "costs.read": "Ver custos",
+  "costs.calculate": "Calcular custos",
+  "costs.simulate": "Simular custos",
+  "costs.approve": "Aprovar custos",
+  "costs.publish": "Publicar custos",
+  "costs.manage_material_cost": "Gerenciar custo de materiais",
+  "costs.manage_labor_rate": "Gerenciar mão de obra",
+  "costs.manage_overhead": "Gerenciar custos indiretos",
+  "pricing.read": "Ver precificação",
+  "pricing.manage": "Gerenciar preços",
+  "pricing.simulate": "Simular preços",
+  "pricing.approve": "Aprovar preços",
+  "profitability.read": "Ver rentabilidade",
+  "profitability.export": "Exportar rentabilidade",
   "partners.read": "Ver empresas parceiras",
   "partners.create": "Cadastrar empresas",
   "partners.update": "Editar empresas",

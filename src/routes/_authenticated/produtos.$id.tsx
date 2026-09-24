@@ -107,7 +107,6 @@ function VariantDialog({
   const [barcode, setBarcode] = useState("");
   const [size, setSize] = useState("");
   const [color, setColor] = useState("");
-  const [costPrice, setCostPrice] = useState("");
   const [sellPrice, setSellPrice] = useState("");
   const [weightGrams, setWeightGrams] = useState("");
   const [status, setStatus] = useState<ProductVariantStatus>("ACTIVE");
@@ -118,7 +117,6 @@ function VariantDialog({
     setBarcode(variant?.barcode ?? "");
     setSize(variant?.size ?? "");
     setColor(variant?.color ?? "");
-    setCostPrice(variant?.cost_price == null ? "" : String(variant.cost_price));
     setSellPrice(variant?.sell_price == null ? "" : String(variant.sell_price));
     setWeightGrams(variant?.weight_grams == null ? "" : String(variant.weight_grams));
     setStatus(variant?.status ?? "ACTIVE");
@@ -132,7 +130,6 @@ function VariantDialog({
         barcode,
         size,
         color,
-        costPrice: toPrice(costPrice),
         sellPrice: toPrice(sellPrice),
         weightGrams: toPrice(weightGrams),
       };
@@ -217,18 +214,6 @@ function VariantDialog({
           </div>
 
           <div className="grid gap-4 sm:grid-cols-3">
-            <div className="space-y-2">
-              <Label htmlFor="variant-cost">Custo (R$)</Label>
-              <Input
-                id="variant-cost"
-                type="number"
-                min={0}
-                step="0.01"
-                value={costPrice}
-                onChange={(e) => setCostPrice(e.target.value)}
-                placeholder="0,00"
-              />
-            </div>
             <div className="space-y-2">
               <Label htmlFor="variant-sell">Preço de venda (R$)</Label>
               <Input
@@ -457,7 +442,6 @@ function ProductDetailPage() {
                         <TableHead>Código de barras</TableHead>
                         <TableHead>Tamanho</TableHead>
                         <TableHead>Cor</TableHead>
-                        <TableHead className="text-right">Custo</TableHead>
                         <TableHead className="text-right">Venda</TableHead>
                         <TableHead className="text-right">Peso</TableHead>
                         <TableHead>Status</TableHead>
@@ -476,9 +460,6 @@ function ProductDetailPage() {
                           <TableCell>{variant.barcode ?? "—"}</TableCell>
                           <TableCell>{variant.size ?? "—"}</TableCell>
                           <TableCell>{variant.color ?? "—"}</TableCell>
-                          <TableCell className="text-right">
-                            {formatBRL(variant.cost_price)}
-                          </TableCell>
                           <TableCell className="text-right">
                             {formatBRL(variant.sell_price)}
                           </TableCell>
