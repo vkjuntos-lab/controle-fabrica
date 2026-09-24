@@ -1018,7 +1018,7 @@ BEGIN
   SELECT id INTO dc FROM public.cost_centers WHERE organization_id=_org ORDER BY name LIMIT 1;
   seq:=nextval('public.purchase_payable_seq');
   INSERT INTO public.account_payables(organization_id,company_id,source_type,source_id,source_status,document_number,description,issue_date,due_date,original_amount,open_amount,currency,financial_category_id,cost_center_id,notes,created_by,installment_number,total_installments)
-  VALUES(_org,company,'SUPPLIER_DOCUMENT',_doc_id::text,'ACTIVE','CMP-'||to_char(doc.issue_date,'YYYY')||'-'||lpad(seq::text,6,'0')||'/1','Documento de fornecedor '||doc.document_type||' '||doc.document_number,doc.issue_date,doc.issue_date,doc.total_amount,doc.total_amount,doc.total_amount,coalesce((SELECT currency FROM public.companies c WHERE c.id=company),'BRL'),fin,dc,doc.notes,auth.uid(),1,1)
+  VALUES(_org,company,'SUPPLIER_DOCUMENT',_doc_id::text,'ACTIVE','CMP-'||to_char(doc.issue_date,'YYYY')||'-'||lpad(seq::text,6,'0')||'/1','Documento de fornecedor '||doc.document_type||' '||doc.document_number,doc.issue_date,doc.issue_date,doc.total_amount,doc.total_amount,coalesce((SELECT currency FROM public.companies c WHERE c.id=company),'BRL'),fin,dc,doc.notes,auth.uid(),1,1)
   RETURNING id INTO pay;
   PERFORM public.purchasing_audit(_org,'purchasing.payables.create_doc','supplier_documents',_doc_id,jsonb_build_object('payable',pay,'total',doc.total_amount));
   RETURN pay;
