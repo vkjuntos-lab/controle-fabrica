@@ -1160,7 +1160,7 @@ BEGIN
       SELECT code INTO v_unit FROM public.units_of_measure WHERE id=v_item.inventory_unit_id;
       v_unit:=coalesce(v_unit,'un');
       INSERT INTO public.inventory_movements(organization_id,variant_id,location_id,batch_id,movement_type,direction,quantity,unit,reference_type,reference_id,reason,occurred_at,created_by,status,idempotency_key,source)
-      VALUES(_org,v_item.vid,po.destination_location_id,v_item.batch_id,'PURCHASE_RECEIPT','IN',v_qty_inv,v_unit,'GOODS_RECEIPT',_id,CASE WHEN v_item.status='REJECTED' THEN 'Item recebido e rejeitado na inspeção' ELSE 'Recebimento de compra' END,now(),auth.uid(),'POSTED','PURCHASING:GR:'||_id||':'||v_item.id::text,'PURCHASING');
+      VALUES(_org,v_item.vid,coalesce(r.destination_location_id,po.destination_location_id),v_item.batch_id,'PURCHASE_RECEIPT','IN',v_qty_inv,v_unit,'GOODS_RECEIPT',_id,CASE WHEN v_item.status='REJECTED' THEN 'Item recebido e rejeitado na inspeção' ELSE 'Recebimento de compra' END,now(),auth.uid(),'POSTED','PURCHASING:GR:'||_id||':'||v_item.id::text,'PURCHASING');
       PERFORM public.purchasing_apply_cost_policy(_org,v_item.vid,v_item.inventory_unit_id,r.received_at,v_qty_inv,v_cost_inv,r.receipt_number);
       UPDATE public.purchase_order_items SET received_quantity=received_quantity+v_item.accepted_quantity,
         status=CASE WHEN received_quantity+v_item.accepted_quantity>=ordered_quantity THEN 'RECEIVED' ELSE 'PARTIALLY_RECEIVED' END
