@@ -1,16 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "\n> test:partners:integration\n> python3 scripts/test-partner-store-integration-db.py\n\nPASS: existing MarketplaceStore links to PartnerProfile, tenant RLS and cross-tenant FK guard\nPASS: stock 100→80/20→85/15; retries deduplicated; no sale, receivable, financial transaction or reconciliation created\n\n",
-    "is_error": false,
-    "timestamp": 1790271682532
-  },
-  {
-    "role": "assistant",
-    "content": "A validação com o esquema atual passou: a loja fica vinculada ao parceiro, o acesso entre organizações é bloqueado e o estoque percorre 100 → 80/20 → 85/15 sem duplicar movimentos nem gerar venda ou cobrança. Estou atualizando o handoff e executando o build final.\n",
-    "timestamp": 1790271691519
-  },
-  {
     "role": "tool",
     "tool": "Bash",
     "input": {
@@ -1422,5 +1411,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790282108613
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "runuser -u claude-runner -- python3 /root/Zheus\\ AI\\ Projects/controle-fabrica/scripts/test-costs-db.py 2>&1 | tail -30",
+      "timeout": 900000
+    },
+    "timestamp": 1790282110351
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: BOM 10+5+2+8+5=30, calculation deduplication, approval and publication\nPASS: query contracts\nPASS: scrap 20+1, missing cost/conversion blocks publication, official roll conversion, isolated simulation\nPASS: markup, gross margin, marketplace contribution and target price use distinct formulas\nP",
+    "is_error": false,
+    "timestamp": 1790282114215
   }
 ]
