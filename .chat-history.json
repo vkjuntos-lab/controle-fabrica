@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -rn \"minimum_stock\\|reorder_point\\|target_stock\\|safety_stock\" supabase/migrations/ | head -20; echo \"===CHECK NAMES===\"; grep -n \"CREATE TABLE public.inventory_movements\" supabase/migrations/*.sql"
-    },
-    "timestamp": 1790284135651
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20260921100000_inventory_integrity.sql:653: coalesce(b.on_hand,0) AS on_hand,b.last_movement_at,v.minimum_stock,v.reorder_point,\nsupabase/migrations/20260921100000_inventory_integrity.sql:654: coalesce(b.on_hand,0)<v.minimum_stock AS below_minimum\nsupabase/migrations/202609181000",
-    "is_error": false,
-    "timestamp": 1790284135690
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"inventory_movements.*CHECK\\|CHECK (.*movement_type\\|movement_type IN\\|material_cost_versions_source_type\\|DROP CONSTRAINT\\|ADD CONSTRAINT\" supabase/migrations/20260918100000_inventory_ledger.sql supabase/migrations/20260930100000_cost_engine.sql supabase/migrations/20260928100000_finance.sql | head -40"
     },
     "timestamp": 1790284136175
@@ -1565,5 +1551,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/scripts/test-costs-db.py</path>\n<type>file</type>\n<content>\n1: #!/usr/bin/env python3\n2: \"\"\"Cost engine acceptance, actual PostgreSQL/RLS, isolated disposable database.\"\"\"\n3: import importlib.util\n4: import json\n5: from pathlib import Path\n6: spec = imp",
     "is_error": false,
     "timestamp": 1790285475612
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"POLICY\\|enable row level security\\|ENABLE ROW LEVEL\" supabase/migrations/20261001100000_purchasing.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790285481485
+  },
+  {
+    "role": "tool_result",
+    "content": "545:  EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY',t);\n548:  EXECUTE format('CREATE POLICY tenant_read ON public.%I FOR SELECT TO authenticated USING(public.has_permission(organization_id,%L))',t,perm);\n552:  EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY',t);\n55",
+    "is_error": false,
+    "timestamp": 1790285481509
   }
 ]
