@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"rg -n 'CREATE FUNCTION public.reconciliation_require|partner_reconciliation.read|reconciliation.read' supabase/migrations/20260926100000_partner_reconciliation.sql | head -25; sed -n '300,335p' supabase/migrations/20260926100000_partner_reconciliation.sql; head -70 src/lib/reconciliation/reconciliation.functions.ts; rg -n \\\"ELSIF _kind='stores'\\\" -A10 supabase/migrations/20260926100000_partner_reconciliation.sql\""
-    },
-    "timestamp": 1790171271439
-  },
-  {
-    "role": "tool_result",
-    "content": "299:  perm:='reconciliation.read';\n319: CROSS JOIN unnest(ARRAY['reconciliation.read','marketplace.read','partner_pricing.read']) p ON CONFLICT DO NOTHING;\n334:CREATE FUNCTION public.reconciliation_require(_org uuid,_permission text) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=pub",
-    "is_error": false,
-    "timestamp": 1790171271445
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"rg -n 'partner_reconciliation\\\\.' src/lib/rbac.ts src/lib/rbac.test.ts; rg -l 'partner_reconciliation\\\\.' src\""
     },
     "timestamp": 1790171285856
@@ -1399,5 +1385,19 @@
     "content": "DEBUGEXC={\"id\": \"f3c1d239-ef91-48e3-8bbe-d18775235728\", \"status\": \"OPEN\", \"details\": {\"balance\": 0, \"required\": 1.000}, \"item_id\": \"5c068c0b-5805-473a-9262-ee3eda631109\", \"message\": \"Saldo insuficiente do parceiro na data: 0.000 < 1.000.\", \"severity\": \"BLOCKING\", \"store_id\": \"5daf52b6-3837-4d2e-89aa",
     "is_error": false,
     "timestamp": 1790282034551
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"CREATE FUNCTION public.inventory_post_movement\" supabase/migrations/*.sql"
+    },
+    "timestamp": 1790282048615
+  },
+  {
+    "role": "tool_result",
+    "content": "(no output)",
+    "is_error": false,
+    "timestamp": 1790282048633
   }
 ]
