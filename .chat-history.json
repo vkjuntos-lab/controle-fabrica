@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "PASS: BOM 10+5+2+8+5=30, calculation deduplication, approval and publication\nPASS: query contracts\nPASS: scrap 20+1, missing cost/conversion blocks publication, official roll conversion, isolated simulation\nPASS: markup, gross margin, marketplace contribution and target price use distinct formulas\nP",
-    "is_error": false,
-    "timestamp": 1790281941994
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql",
-      "limit": 55,
-      "offset": 175
-    },
-    "timestamp": 1790281945317
-  },
-  {
-    "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql</path>\n<type>file</type>\n<content>\n175:   INSERT INTO public.cost_routing_steps(organization_id,bom_id,activity,standard_minutes,effective_from,reason,created_by)\n176:   VALUES(_org,(_data->>'bom_id')::",
     "is_error": false,
     "timestamp": 1790281945358
@@ -1560,5 +1544,55 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260922100000_production.sql</path>\n<type>file</type>\n<content>\n43: CREATE UNIQUE INDEX units_of_measure_global_code_idx ON public.units_of_measure (lower(code)) WHERE organization_id IS NULL;\n44: CREATE UNIQUE INDEX units_of_measur",
     "is_error": false,
     "timestamp": 1790284389945
+  },
+  {
+    "role": "tool",
+    "tool": "todowrite",
+    "input": {
+      "todos": [
+        {
+          "content": "Escrever migration 20261001100000_purchasing.sql (tabelas, enum PURCHASE_RETURN, RPCs, RLS, permissões, eventos)",
+          "status": "in_progress",
+          "priority": "high"
+        },
+        {
+          "content": "Adicionar permissões purchasing.* + rótulos + módulo 'compras' em src/lib/rbac.ts",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Criar scripts/test-purchasing-db.py cobrindo itens 97-110 e validar no PostgreSQL",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Criar src/lib/purchasing/types.ts e purchasing.functions.ts (server functions)",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Criar rotas e telas Compras/Fornecedores em src/routes/_authenticated + atualizar app-shell",
+          "status": "pending",
+          "priority": "medium"
+        },
+        {
+          "content": "Criar/adicionar teste de contrato purchasing.* em src/lib/rbac.test.ts e rodar vitest/lint/typecheck/build",
+          "status": "pending",
+          "priority": "medium"
+        },
+        {
+          "content": "Documentos: docs/business/PURCHASING.md, SUPPLIERS.md, GOODS-RECEIPT.md, REPLENISHMENT.md e atualizar PROJECT-STATE.md",
+          "status": "pending",
+          "priority": "medium"
+        }
+      ]
+    },
+    "timestamp": 1790284394419
+  },
+  {
+    "role": "tool_result",
+    "content": "[\n  {\n    \"content\": \"Escrever migration 20261001100000_purchasing.sql (tabelas, enum PURCHASE_RETURN, RPCs, RLS, permissões, eventos)\",\n    \"status\": \"in_progress\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Adicionar permissões purchasing.* + rótulos + módulo 'compras' em src/lib/rbac.ts\",\n  ",
+    "is_error": false,
+    "timestamp": 1790284394424
   }
 ]
