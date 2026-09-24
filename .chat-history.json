@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"rg -n 'MarketplaceStoreList|rec_query|marketplace_save_store' src/lib/reconciliation/types.ts supabase/migrations/20260926100000_partner_reconciliation.sql | head -15; head -25 src/components/partners/pages.tsx; rg -n 'private|storage|objects|setup' scripts/test-inventory-db.py | head -20; ls -ld scripts docs/business/PARTNERS.md src/components/partners/pages.tsx\""
-    },
-    "timestamp": 1790171248196
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20260926100000_partner_reconciliation.sql:477:CREATE FUNCTION public.marketplace_save_store(_org uuid,_data jsonb,_id uuid DEFAULT NULL)\nsupabase/migrations/20260926100000_partner_reconciliation.sql:1052:CREATE FUNCTION public.rec_query(_org uuid,_kind text,_filters jsonb DEFAULT",
-    "is_error": false,
-    "timestamp": 1790171248201
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"sed -n '1052,1076p' supabase/migrations/20260926100000_partner_reconciliation.sql; sed -n '477,513p' supabase/migrations/20260926100000_partner_reconciliation.sql; sed -n '80,115p' supabase/migrations/20260928100000_finance.sql\""
     },
     "timestamp": 1790171256154
@@ -1396,5 +1382,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/scripts/test-reconciliation-db.py</path>\n<type>file</type>\n<content>\n1: #!/usr/bin/env python3\n2: \"\"\"MASTER 007 acceptance tests in a disposable PostgreSQL cluster, no real organization data.\"\"\"\n3: import importlib.util\n4: import json\n5: import subproce",
     "is_error": false,
     "timestamp": 1790282009908
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'PY'\nfrom pathlib import Path\np=Path('scripts/test-costs-db.py').read_text()\np=p.replace(\n \"rec=json.loads(rpc('rec_create',org,{'partner_id':pid,'period_start':'2026-03-01','period_end':'2026-03-31'}))['reconciliation_id'];rpc('rec_process',org,rec);rpc('rec_close',org,rec)\",\n \"rec=json.loads(rpc('rec_create',org,{'partner_id':pid,'period_start':'2026-03-01','period_end':'2026-03-31'}))['reconciliation_id'];rpc('rec_process',org,rec);import sys;exc=json.loads(rpc('rec_query',org,'exceptions',{'severity':'BLOCKING'}));print('DEBUG EXC:',json.dumps(exc)[:3000],file=sys.stderr);rpc('rec_close',org,rec)\")\nPath('scripts/.diag-costs.py').write_text(p)\nPY\nrunuser -u claude-runner -- python3 /root/Zheus\\ AI\\ Projects/controle-fabrica/scripts/.diag-costs.py 2>&1 | grep -A30 \"DEBUG EXC\" | head -50; rm -f scripts/.diag-costs.py",
+      "timeout": 900000
+    },
+    "timestamp": 1790282020456
+  },
+  {
+    "role": "tool_result",
+    "content": "(no output)",
+    "is_error": false,
+    "timestamp": 1790282022499
   }
 ]
