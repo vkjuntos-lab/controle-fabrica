@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/scripts/test-costs-db.py</path>\n<type>file</type>\n<content>\n1: #!/usr/bin/env python3\n2: \"\"\"Cost engine acceptance, actual PostgreSQL/RLS, isolated disposable database.\"\"\"\n3: import importlib.util\n4: import json\n5: from pathlib import Path\n6: spec = imp",
-    "is_error": false,
-    "timestamp": 1790281879740
-  },
-  {
-    "role": "tool",
-    "tool": "grep",
-    "input": {
-      "pattern": "cost_version_action",
-      "path": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql"
-    },
-    "timestamp": 1790281885373
-  },
-  {
-    "role": "tool_result",
     "content": "Found 2 matches\n/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql:\n  Line 321: CREATE FUNCTION public.cost_version_action(_org uuid,_id uuid,_action text) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n\n  Line 549:   IF f.pronam",
     "is_error": false,
     "timestamp": 1790281885413
@@ -1563,5 +1548,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql</path>\n<type>file</type>\n<content>\n500:    'materials_without_cost',(SELECT count(*) FROM public.product_variants v JOIN public.products p ON p.id=v.product_id WHERE v.organization_id=_org AND p.item_ty",
     "is_error": false,
     "timestamp": 1790284281914
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"CREATE TRIGGER\\|inventory_balances\\|BEFORE INSERT ON public.inventory_movements\\|AFTER INSERT ON public.inventory_movements\\|apply_movement\\|balance\" supabase/migrations/20260918100000_inventory_ledger.sql | head -40"
+    },
+    "timestamp": 1790284314381
+  },
+  {
+    "role": "tool_result",
+    "content": "262:CREATE TRIGGER inventory_locations_updated_at BEFORE UPDATE ON public.inventory_locations\n264:CREATE TRIGGER inventory_batches_updated_at BEFORE UPDATE ON public.inventory_batches\n266:CREATE TRIGGER inventory_transfers_updated_at BEFORE UPDATE ON public.inventory_transfers\n268:CREATE TRIGGER inv",
+    "is_error": false,
+    "timestamp": 1790284314418
   }
 ]
