@@ -1,18 +1,5 @@
 [
   {
-    "role": "assistant",
-    "content": "O primeiro teste integrado passou: a BOM resulta em R$ 30, o recálculo não duplica a versão e a publicação exige aprovação. Agora estou completando as telas e ampliando os testes de histórico, rentabilidade e isolamento entre organizações.\n",
-    "timestamp": 1790273318746
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc 'cat src/lib/costs/costs.functions.ts src/components/costs/shared.tsx; cat package.json; cat scripts/test-costs-db.py'"
-    },
-    "timestamp": 1790273320285
-  },
-  {
     "role": "tool_result",
     "content": "import {createServerFn} from \"@tanstack/react-start\";\nimport {z} from \"zod\";\nimport {requireSupabaseAuth} from \"@/integrations/supabase/auth-middleware\";\nimport type {Json} from \"@/integrations/supabase/types\";\nimport type {CostQueryResult,CostCalculation} from \"./types\";\nconst uuid=z.string().uuid(",
     "is_error": false,
@@ -1506,5 +1493,19 @@
     "content": "154:  IF (SELECT count(*) FROM public.units_of_measure WHERE public.units_of_measure.id IN ((_data->>'from_unit_id')::uuid,(_data->>'to_unit_id')::uuid) AND (organization_id=_org OR organization_id IS NULL))<>2 THEN RAISE EXCEPTION 'Unidades inválidas.';END IF;\n18:    \"test:costs:db\": \"python3 scrip",
     "is_error": false,
     "timestamp": 1790282312747
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "git log --oneline -3; echo \"===\"; git rev-parse HEAD; echo \"===\"; head_blob=$(git rev-parse HEAD:supabase/migrations/20260930100000_cost_engine.sql 2>/dev/null); work_blob=$(git hash-object supabase/migrations/20260930100000_cost_engine.sql); echo \"HEAD blob: $head_blob\"; echo \"WORK blob: $work_blob\"; echo \"===\"; git rev-parse HEAD:package.json | xargs -I{} echo {}; git hash-object package.json"
+    },
+    "timestamp": 1790282315580
+  },
+  {
+    "role": "tool_result",
+    "content": "93d59dd AI: alteracao automatica\ndd5f635 AI: alteracao automatica\n1b9d6d7 AI: alteracao automatica\n===\n93d59dd3b3f03e06d10bea83be52293ae9259e18\n===\nHEAD blob: 1ac94cea743146849fa8d49c769e791db27b1382\nWORK blob: 1ac94cea743146849fa8d49c769e791db27b1382\n===\n164e58f9980489cd27395c3e8b31586e4410ce36\n164",
+    "is_error": false,
+    "timestamp": 1790282315615
   }
 ]
