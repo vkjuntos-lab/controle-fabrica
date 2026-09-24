@@ -22,6 +22,16 @@ import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminOrganizacaoRouteImport } from './routes/_authenticated/admin.organizacao'
 import { Route as AuthenticatedAdminPermissoesRouteImport } from './routes/_authenticated/admin.permissoes'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
+import { Route as AuthenticatedComprasIndexRouteImport } from './routes/_authenticated/compras/index'
+import { Route as AuthenticatedComprasConfiguracoesRouteImport } from './routes/_authenticated/compras/configuracoes'
+import { Route as AuthenticatedComprasCotacoesRouteImport } from './routes/_authenticated/compras/cotacoes'
+import { Route as AuthenticatedComprasDevolucoesRouteImport } from './routes/_authenticated/compras/devolucoes'
+import { Route as AuthenticatedComprasDocumentosRouteImport } from './routes/_authenticated/compras/documentos'
+import { Route as AuthenticatedComprasExcecoesRouteImport } from './routes/_authenticated/compras/excecoes'
+import { Route as AuthenticatedComprasPedidosRouteImport } from './routes/_authenticated/compras/pedidos'
+import { Route as AuthenticatedComprasRecebimentosRouteImport } from './routes/_authenticated/compras/recebimentos'
+import { Route as AuthenticatedComprasReposicaoRouteImport } from './routes/_authenticated/compras/reposicao'
+import { Route as AuthenticatedComprasRequisicoesRouteImport } from './routes/_authenticated/compras/requisicoes'
 import { Route as AuthenticatedCustosIndexRouteImport } from './routes/_authenticated/custos/index'
 import { Route as AuthenticatedCustosCalcularRouteImport } from './routes/_authenticated/custos/calcular'
 import { Route as AuthenticatedCustosImpactoRouteImport } from './routes/_authenticated/custos/impacto'
@@ -61,6 +71,9 @@ import { Route as AuthenticatedReconciliacaoVendasRouteImport } from './routes/_
 import { Route as AuthenticatedRelatoriosRentabilidadeRouteImport } from './routes/_authenticated/relatorios/rentabilidade'
 import { Route as ApiCronHealthRouteImport } from './routes/api/cron.health'
 import { Route as ApiWebhooksReceiverRouteImport } from './routes/api/webhooks.receiver'
+import { Route as AuthenticatedComprasCotacoesIdRouteImport } from './routes/_authenticated/compras/cotacoes.$id'
+import { Route as AuthenticatedComprasPedidosIdRouteImport } from './routes/_authenticated/compras/pedidos.$id'
+import { Route as AuthenticatedComprasRecebimentosIdRouteImport } from './routes/_authenticated/compras/recebimentos.$id'
 import { Route as AuthenticatedEstoqueInventariosIdRouteImport } from './routes/_authenticated/estoque/inventarios.$id'
 import { Route as AuthenticatedEstoqueMovimentacoesIdRouteImport } from './routes/_authenticated/estoque/movimentacoes.$id'
 import { Route as AuthenticatedFinanceiroPagarIdRouteImport } from './routes/_authenticated/financeiro/pagar_.$id'
@@ -137,6 +150,66 @@ const AuthenticatedAdminUsuariosRoute =
   AuthenticatedAdminUsuariosRouteImport.update({
     id: '/admin/usuarios',
     path: '/admin/usuarios',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComprasIndexRoute =
+  AuthenticatedComprasIndexRouteImport.update({
+    id: '/compras/',
+    path: '/compras/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComprasConfiguracoesRoute =
+  AuthenticatedComprasConfiguracoesRouteImport.update({
+    id: '/compras/configuracoes',
+    path: '/compras/configuracoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComprasCotacoesRoute =
+  AuthenticatedComprasCotacoesRouteImport.update({
+    id: '/compras/cotacoes',
+    path: '/compras/cotacoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComprasDevolucoesRoute =
+  AuthenticatedComprasDevolucoesRouteImport.update({
+    id: '/compras/devolucoes',
+    path: '/compras/devolucoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComprasDocumentosRoute =
+  AuthenticatedComprasDocumentosRouteImport.update({
+    id: '/compras/documentos',
+    path: '/compras/documentos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComprasExcecoesRoute =
+  AuthenticatedComprasExcecoesRouteImport.update({
+    id: '/compras/excecoes',
+    path: '/compras/excecoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComprasPedidosRoute =
+  AuthenticatedComprasPedidosRouteImport.update({
+    id: '/compras/pedidos',
+    path: '/compras/pedidos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComprasRecebimentosRoute =
+  AuthenticatedComprasRecebimentosRouteImport.update({
+    id: '/compras/recebimentos',
+    path: '/compras/recebimentos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComprasReposicaoRoute =
+  AuthenticatedComprasReposicaoRouteImport.update({
+    id: '/compras/reposicao',
+    path: '/compras/reposicao',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComprasRequisicoesRoute =
+  AuthenticatedComprasRequisicoesRouteImport.update({
+    id: '/compras/requisicoes',
+    path: '/compras/requisicoes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedCustosIndexRoute =
@@ -370,6 +443,24 @@ const ApiWebhooksReceiverRoute = ApiWebhooksReceiverRouteImport.update({
   path: '/api/webhooks/receiver',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedComprasCotacoesIdRoute =
+  AuthenticatedComprasCotacoesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedComprasCotacoesRoute,
+  } as any)
+const AuthenticatedComprasPedidosIdRoute =
+  AuthenticatedComprasPedidosIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedComprasPedidosRoute,
+  } as any)
+const AuthenticatedComprasRecebimentosIdRoute =
+  AuthenticatedComprasRecebimentosIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedComprasRecebimentosRoute,
+  } as any)
 const AuthenticatedEstoqueInventariosIdRoute =
   AuthenticatedEstoqueInventariosIdRouteImport.update({
     id: '/$id',
@@ -438,6 +529,15 @@ export interface FileRoutesByFullPath {
   '/admin/organizacao': typeof AuthenticatedAdminOrganizacaoRoute
   '/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/compras/configuracoes': typeof AuthenticatedComprasConfiguracoesRoute
+  '/compras/cotacoes': typeof AuthenticatedComprasCotacoesRouteWithChildren
+  '/compras/devolucoes': typeof AuthenticatedComprasDevolucoesRoute
+  '/compras/documentos': typeof AuthenticatedComprasDocumentosRoute
+  '/compras/excecoes': typeof AuthenticatedComprasExcecoesRoute
+  '/compras/pedidos': typeof AuthenticatedComprasPedidosRouteWithChildren
+  '/compras/recebimentos': typeof AuthenticatedComprasRecebimentosRouteWithChildren
+  '/compras/reposicao': typeof AuthenticatedComprasReposicaoRoute
+  '/compras/requisicoes': typeof AuthenticatedComprasRequisicoesRoute
   '/custos/calcular': typeof AuthenticatedCustosCalcularRoute
   '/custos/impacto': typeof AuthenticatedCustosImpactoRoute
   '/custos/insumos': typeof AuthenticatedCustosInsumosRoute
@@ -471,12 +571,16 @@ export interface FileRoutesByFullPath {
   '/relatorios/rentabilidade': typeof AuthenticatedRelatoriosRentabilidadeRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
+  '/compras/': typeof AuthenticatedComprasIndexRoute
   '/custos/': typeof AuthenticatedCustosIndexRoute
   '/estoque/': typeof AuthenticatedEstoqueIndexRoute
   '/financeiro/': typeof AuthenticatedFinanceiroIndexRoute
   '/parceiros/': typeof AuthenticatedParceirosIndexRoute
   '/precificacao/': typeof AuthenticatedPrecificacaoIndexRoute
   '/reconciliacao/': typeof AuthenticatedReconciliacaoIndexRoute
+  '/compras/cotacoes/$id': typeof AuthenticatedComprasCotacoesIdRoute
+  '/compras/pedidos/$id': typeof AuthenticatedComprasPedidosIdRoute
+  '/compras/recebimentos/$id': typeof AuthenticatedComprasRecebimentosIdRoute
   '/estoque/inventarios/$id': typeof AuthenticatedEstoqueInventariosIdRoute
   '/estoque/movimentacoes/$id': typeof AuthenticatedEstoqueMovimentacoesIdRoute
   '/financeiro/pagar/$id': typeof AuthenticatedFinanceiroPagarIdRoute
@@ -500,6 +604,15 @@ export interface FileRoutesByTo {
   '/admin/organizacao': typeof AuthenticatedAdminOrganizacaoRoute
   '/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/compras/configuracoes': typeof AuthenticatedComprasConfiguracoesRoute
+  '/compras/cotacoes': typeof AuthenticatedComprasCotacoesRouteWithChildren
+  '/compras/devolucoes': typeof AuthenticatedComprasDevolucoesRoute
+  '/compras/documentos': typeof AuthenticatedComprasDocumentosRoute
+  '/compras/excecoes': typeof AuthenticatedComprasExcecoesRoute
+  '/compras/pedidos': typeof AuthenticatedComprasPedidosRouteWithChildren
+  '/compras/recebimentos': typeof AuthenticatedComprasRecebimentosRouteWithChildren
+  '/compras/reposicao': typeof AuthenticatedComprasReposicaoRoute
+  '/compras/requisicoes': typeof AuthenticatedComprasRequisicoesRoute
   '/custos/calcular': typeof AuthenticatedCustosCalcularRoute
   '/custos/impacto': typeof AuthenticatedCustosImpactoRoute
   '/custos/insumos': typeof AuthenticatedCustosInsumosRoute
@@ -533,12 +646,16 @@ export interface FileRoutesByTo {
   '/relatorios/rentabilidade': typeof AuthenticatedRelatoriosRentabilidadeRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
+  '/compras': typeof AuthenticatedComprasIndexRoute
   '/custos': typeof AuthenticatedCustosIndexRoute
   '/estoque': typeof AuthenticatedEstoqueIndexRoute
   '/financeiro': typeof AuthenticatedFinanceiroIndexRoute
   '/parceiros': typeof AuthenticatedParceirosIndexRoute
   '/precificacao': typeof AuthenticatedPrecificacaoIndexRoute
   '/reconciliacao': typeof AuthenticatedReconciliacaoIndexRoute
+  '/compras/cotacoes/$id': typeof AuthenticatedComprasCotacoesIdRoute
+  '/compras/pedidos/$id': typeof AuthenticatedComprasPedidosIdRoute
+  '/compras/recebimentos/$id': typeof AuthenticatedComprasRecebimentosIdRoute
   '/estoque/inventarios/$id': typeof AuthenticatedEstoqueInventariosIdRoute
   '/estoque/movimentacoes/$id': typeof AuthenticatedEstoqueMovimentacoesIdRoute
   '/financeiro/pagar/$id': typeof AuthenticatedFinanceiroPagarIdRoute
@@ -564,6 +681,15 @@ export interface FileRoutesById {
   '/_authenticated/admin/organizacao': typeof AuthenticatedAdminOrganizacaoRoute
   '/_authenticated/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/_authenticated/compras/configuracoes': typeof AuthenticatedComprasConfiguracoesRoute
+  '/_authenticated/compras/cotacoes': typeof AuthenticatedComprasCotacoesRouteWithChildren
+  '/_authenticated/compras/devolucoes': typeof AuthenticatedComprasDevolucoesRoute
+  '/_authenticated/compras/documentos': typeof AuthenticatedComprasDocumentosRoute
+  '/_authenticated/compras/excecoes': typeof AuthenticatedComprasExcecoesRoute
+  '/_authenticated/compras/pedidos': typeof AuthenticatedComprasPedidosRouteWithChildren
+  '/_authenticated/compras/recebimentos': typeof AuthenticatedComprasRecebimentosRouteWithChildren
+  '/_authenticated/compras/reposicao': typeof AuthenticatedComprasReposicaoRoute
+  '/_authenticated/compras/requisicoes': typeof AuthenticatedComprasRequisicoesRoute
   '/_authenticated/custos/calcular': typeof AuthenticatedCustosCalcularRoute
   '/_authenticated/custos/impacto': typeof AuthenticatedCustosImpactoRoute
   '/_authenticated/custos/insumos': typeof AuthenticatedCustosInsumosRoute
@@ -597,12 +723,16 @@ export interface FileRoutesById {
   '/_authenticated/relatorios/rentabilidade': typeof AuthenticatedRelatoriosRentabilidadeRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
+  '/_authenticated/compras/': typeof AuthenticatedComprasIndexRoute
   '/_authenticated/custos/': typeof AuthenticatedCustosIndexRoute
   '/_authenticated/estoque/': typeof AuthenticatedEstoqueIndexRoute
   '/_authenticated/financeiro/': typeof AuthenticatedFinanceiroIndexRoute
   '/_authenticated/parceiros/': typeof AuthenticatedParceirosIndexRoute
   '/_authenticated/precificacao/': typeof AuthenticatedPrecificacaoIndexRoute
   '/_authenticated/reconciliacao/': typeof AuthenticatedReconciliacaoIndexRoute
+  '/_authenticated/compras/cotacoes/$id': typeof AuthenticatedComprasCotacoesIdRoute
+  '/_authenticated/compras/pedidos/$id': typeof AuthenticatedComprasPedidosIdRoute
+  '/_authenticated/compras/recebimentos/$id': typeof AuthenticatedComprasRecebimentosIdRoute
   '/_authenticated/estoque/inventarios/$id': typeof AuthenticatedEstoqueInventariosIdRoute
   '/_authenticated/estoque/movimentacoes/$id': typeof AuthenticatedEstoqueMovimentacoesIdRoute
   '/_authenticated/financeiro/pagar_/$id': typeof AuthenticatedFinanceiroPagarIdRoute
@@ -628,6 +758,15 @@ export interface FileRouteTypes {
     | '/admin/organizacao'
     | '/admin/permissoes'
     | '/admin/usuarios'
+    | '/compras/configuracoes'
+    | '/compras/cotacoes'
+    | '/compras/devolucoes'
+    | '/compras/documentos'
+    | '/compras/excecoes'
+    | '/compras/pedidos'
+    | '/compras/recebimentos'
+    | '/compras/reposicao'
+    | '/compras/requisicoes'
     | '/custos/calcular'
     | '/custos/impacto'
     | '/custos/insumos'
@@ -661,12 +800,16 @@ export interface FileRouteTypes {
     | '/relatorios/rentabilidade'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
+    | '/compras/'
     | '/custos/'
     | '/estoque/'
     | '/financeiro/'
     | '/parceiros/'
     | '/precificacao/'
     | '/reconciliacao/'
+    | '/compras/cotacoes/$id'
+    | '/compras/pedidos/$id'
+    | '/compras/recebimentos/$id'
     | '/estoque/inventarios/$id'
     | '/estoque/movimentacoes/$id'
     | '/financeiro/pagar/$id'
@@ -690,6 +833,15 @@ export interface FileRouteTypes {
     | '/admin/organizacao'
     | '/admin/permissoes'
     | '/admin/usuarios'
+    | '/compras/configuracoes'
+    | '/compras/cotacoes'
+    | '/compras/devolucoes'
+    | '/compras/documentos'
+    | '/compras/excecoes'
+    | '/compras/pedidos'
+    | '/compras/recebimentos'
+    | '/compras/reposicao'
+    | '/compras/requisicoes'
     | '/custos/calcular'
     | '/custos/impacto'
     | '/custos/insumos'
@@ -723,12 +875,16 @@ export interface FileRouteTypes {
     | '/relatorios/rentabilidade'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
+    | '/compras'
     | '/custos'
     | '/estoque'
     | '/financeiro'
     | '/parceiros'
     | '/precificacao'
     | '/reconciliacao'
+    | '/compras/cotacoes/$id'
+    | '/compras/pedidos/$id'
+    | '/compras/recebimentos/$id'
     | '/estoque/inventarios/$id'
     | '/estoque/movimentacoes/$id'
     | '/financeiro/pagar/$id'
@@ -753,6 +909,15 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/organizacao'
     | '/_authenticated/admin/permissoes'
     | '/_authenticated/admin/usuarios'
+    | '/_authenticated/compras/configuracoes'
+    | '/_authenticated/compras/cotacoes'
+    | '/_authenticated/compras/devolucoes'
+    | '/_authenticated/compras/documentos'
+    | '/_authenticated/compras/excecoes'
+    | '/_authenticated/compras/pedidos'
+    | '/_authenticated/compras/recebimentos'
+    | '/_authenticated/compras/reposicao'
+    | '/_authenticated/compras/requisicoes'
     | '/_authenticated/custos/calcular'
     | '/_authenticated/custos/impacto'
     | '/_authenticated/custos/insumos'
@@ -786,12 +951,16 @@ export interface FileRouteTypes {
     | '/_authenticated/relatorios/rentabilidade'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
+    | '/_authenticated/compras/'
     | '/_authenticated/custos/'
     | '/_authenticated/estoque/'
     | '/_authenticated/financeiro/'
     | '/_authenticated/parceiros/'
     | '/_authenticated/precificacao/'
     | '/_authenticated/reconciliacao/'
+    | '/_authenticated/compras/cotacoes/$id'
+    | '/_authenticated/compras/pedidos/$id'
+    | '/_authenticated/compras/recebimentos/$id'
     | '/_authenticated/estoque/inventarios/$id'
     | '/_authenticated/estoque/movimentacoes/$id'
     | '/_authenticated/financeiro/pagar_/$id'
@@ -904,6 +1073,76 @@ declare module '@tanstack/react-router' {
       path: '/admin/usuarios'
       fullPath: '/admin/usuarios'
       preLoaderRoute: typeof AuthenticatedAdminUsuariosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/compras/': {
+      id: '/_authenticated/compras/'
+      path: '/compras'
+      fullPath: '/compras/'
+      preLoaderRoute: typeof AuthenticatedComprasIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/compras/configuracoes': {
+      id: '/_authenticated/compras/configuracoes'
+      path: '/compras/configuracoes'
+      fullPath: '/compras/configuracoes'
+      preLoaderRoute: typeof AuthenticatedComprasConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/compras/cotacoes': {
+      id: '/_authenticated/compras/cotacoes'
+      path: '/compras/cotacoes'
+      fullPath: '/compras/cotacoes'
+      preLoaderRoute: typeof AuthenticatedComprasCotacoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/compras/devolucoes': {
+      id: '/_authenticated/compras/devolucoes'
+      path: '/compras/devolucoes'
+      fullPath: '/compras/devolucoes'
+      preLoaderRoute: typeof AuthenticatedComprasDevolucoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/compras/documentos': {
+      id: '/_authenticated/compras/documentos'
+      path: '/compras/documentos'
+      fullPath: '/compras/documentos'
+      preLoaderRoute: typeof AuthenticatedComprasDocumentosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/compras/excecoes': {
+      id: '/_authenticated/compras/excecoes'
+      path: '/compras/excecoes'
+      fullPath: '/compras/excecoes'
+      preLoaderRoute: typeof AuthenticatedComprasExcecoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/compras/pedidos': {
+      id: '/_authenticated/compras/pedidos'
+      path: '/compras/pedidos'
+      fullPath: '/compras/pedidos'
+      preLoaderRoute: typeof AuthenticatedComprasPedidosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/compras/recebimentos': {
+      id: '/_authenticated/compras/recebimentos'
+      path: '/compras/recebimentos'
+      fullPath: '/compras/recebimentos'
+      preLoaderRoute: typeof AuthenticatedComprasRecebimentosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/compras/reposicao': {
+      id: '/_authenticated/compras/reposicao'
+      path: '/compras/reposicao'
+      fullPath: '/compras/reposicao'
+      preLoaderRoute: typeof AuthenticatedComprasReposicaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/compras/requisicoes': {
+      id: '/_authenticated/compras/requisicoes'
+      path: '/compras/requisicoes'
+      fullPath: '/compras/requisicoes'
+      preLoaderRoute: typeof AuthenticatedComprasRequisicoesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/custos/': {
@@ -1179,6 +1418,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWebhooksReceiverRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/compras/cotacoes/$id': {
+      id: '/_authenticated/compras/cotacoes/$id'
+      path: '/$id'
+      fullPath: '/compras/cotacoes/$id'
+      preLoaderRoute: typeof AuthenticatedComprasCotacoesIdRouteImport
+      parentRoute: typeof AuthenticatedComprasCotacoesRoute
+    }
+    '/_authenticated/compras/pedidos/$id': {
+      id: '/_authenticated/compras/pedidos/$id'
+      path: '/$id'
+      fullPath: '/compras/pedidos/$id'
+      preLoaderRoute: typeof AuthenticatedComprasPedidosIdRouteImport
+      parentRoute: typeof AuthenticatedComprasPedidosRoute
+    }
+    '/_authenticated/compras/recebimentos/$id': {
+      id: '/_authenticated/compras/recebimentos/$id'
+      path: '/$id'
+      fullPath: '/compras/recebimentos/$id'
+      preLoaderRoute: typeof AuthenticatedComprasRecebimentosIdRouteImport
+      parentRoute: typeof AuthenticatedComprasRecebimentosRoute
+    }
     '/_authenticated/estoque/inventarios/$id': {
       id: '/_authenticated/estoque/inventarios/$id'
       path: '/$id'
@@ -1258,6 +1518,49 @@ const AuthenticatedProdutosRouteWithChildren =
     AuthenticatedProdutosRouteChildren,
   )
 
+interface AuthenticatedComprasCotacoesRouteChildren {
+  AuthenticatedComprasCotacoesIdRoute: typeof AuthenticatedComprasCotacoesIdRoute
+}
+
+const AuthenticatedComprasCotacoesRouteChildren: AuthenticatedComprasCotacoesRouteChildren =
+  {
+    AuthenticatedComprasCotacoesIdRoute: AuthenticatedComprasCotacoesIdRoute,
+  }
+
+const AuthenticatedComprasCotacoesRouteWithChildren =
+  AuthenticatedComprasCotacoesRoute._addFileChildren(
+    AuthenticatedComprasCotacoesRouteChildren,
+  )
+
+interface AuthenticatedComprasPedidosRouteChildren {
+  AuthenticatedComprasPedidosIdRoute: typeof AuthenticatedComprasPedidosIdRoute
+}
+
+const AuthenticatedComprasPedidosRouteChildren: AuthenticatedComprasPedidosRouteChildren =
+  {
+    AuthenticatedComprasPedidosIdRoute: AuthenticatedComprasPedidosIdRoute,
+  }
+
+const AuthenticatedComprasPedidosRouteWithChildren =
+  AuthenticatedComprasPedidosRoute._addFileChildren(
+    AuthenticatedComprasPedidosRouteChildren,
+  )
+
+interface AuthenticatedComprasRecebimentosRouteChildren {
+  AuthenticatedComprasRecebimentosIdRoute: typeof AuthenticatedComprasRecebimentosIdRoute
+}
+
+const AuthenticatedComprasRecebimentosRouteChildren: AuthenticatedComprasRecebimentosRouteChildren =
+  {
+    AuthenticatedComprasRecebimentosIdRoute:
+      AuthenticatedComprasRecebimentosIdRoute,
+  }
+
+const AuthenticatedComprasRecebimentosRouteWithChildren =
+  AuthenticatedComprasRecebimentosRoute._addFileChildren(
+    AuthenticatedComprasRecebimentosRouteChildren,
+  )
+
 interface AuthenticatedEstoqueInventariosRouteChildren {
   AuthenticatedEstoqueInventariosIdRoute: typeof AuthenticatedEstoqueInventariosIdRoute
 }
@@ -1297,6 +1600,15 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminOrganizacaoRoute: typeof AuthenticatedAdminOrganizacaoRoute
   AuthenticatedAdminPermissoesRoute: typeof AuthenticatedAdminPermissoesRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
+  AuthenticatedComprasConfiguracoesRoute: typeof AuthenticatedComprasConfiguracoesRoute
+  AuthenticatedComprasCotacoesRoute: typeof AuthenticatedComprasCotacoesRouteWithChildren
+  AuthenticatedComprasDevolucoesRoute: typeof AuthenticatedComprasDevolucoesRoute
+  AuthenticatedComprasDocumentosRoute: typeof AuthenticatedComprasDocumentosRoute
+  AuthenticatedComprasExcecoesRoute: typeof AuthenticatedComprasExcecoesRoute
+  AuthenticatedComprasPedidosRoute: typeof AuthenticatedComprasPedidosRouteWithChildren
+  AuthenticatedComprasRecebimentosRoute: typeof AuthenticatedComprasRecebimentosRouteWithChildren
+  AuthenticatedComprasReposicaoRoute: typeof AuthenticatedComprasReposicaoRoute
+  AuthenticatedComprasRequisicoesRoute: typeof AuthenticatedComprasRequisicoesRoute
   AuthenticatedCustosCalcularRoute: typeof AuthenticatedCustosCalcularRoute
   AuthenticatedCustosImpactoRoute: typeof AuthenticatedCustosImpactoRoute
   AuthenticatedCustosInsumosRoute: typeof AuthenticatedCustosInsumosRoute
@@ -1327,6 +1639,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedReconciliacaoTabelasPrecoRoute: typeof AuthenticatedReconciliacaoTabelasPrecoRoute
   AuthenticatedReconciliacaoVendasRoute: typeof AuthenticatedReconciliacaoVendasRoute
   AuthenticatedRelatoriosRentabilidadeRoute: typeof AuthenticatedRelatoriosRentabilidadeRoute
+  AuthenticatedComprasIndexRoute: typeof AuthenticatedComprasIndexRoute
   AuthenticatedCustosIndexRoute: typeof AuthenticatedCustosIndexRoute
   AuthenticatedEstoqueIndexRoute: typeof AuthenticatedEstoqueIndexRoute
   AuthenticatedFinanceiroIndexRoute: typeof AuthenticatedFinanceiroIndexRoute
@@ -1351,6 +1664,19 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminOrganizacaoRoute: AuthenticatedAdminOrganizacaoRoute,
   AuthenticatedAdminPermissoesRoute: AuthenticatedAdminPermissoesRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
+  AuthenticatedComprasConfiguracoesRoute:
+    AuthenticatedComprasConfiguracoesRoute,
+  AuthenticatedComprasCotacoesRoute:
+    AuthenticatedComprasCotacoesRouteWithChildren,
+  AuthenticatedComprasDevolucoesRoute: AuthenticatedComprasDevolucoesRoute,
+  AuthenticatedComprasDocumentosRoute: AuthenticatedComprasDocumentosRoute,
+  AuthenticatedComprasExcecoesRoute: AuthenticatedComprasExcecoesRoute,
+  AuthenticatedComprasPedidosRoute:
+    AuthenticatedComprasPedidosRouteWithChildren,
+  AuthenticatedComprasRecebimentosRoute:
+    AuthenticatedComprasRecebimentosRouteWithChildren,
+  AuthenticatedComprasReposicaoRoute: AuthenticatedComprasReposicaoRoute,
+  AuthenticatedComprasRequisicoesRoute: AuthenticatedComprasRequisicoesRoute,
   AuthenticatedCustosCalcularRoute: AuthenticatedCustosCalcularRoute,
   AuthenticatedCustosImpactoRoute: AuthenticatedCustosImpactoRoute,
   AuthenticatedCustosInsumosRoute: AuthenticatedCustosInsumosRoute,
@@ -1393,6 +1719,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedReconciliacaoVendasRoute: AuthenticatedReconciliacaoVendasRoute,
   AuthenticatedRelatoriosRentabilidadeRoute:
     AuthenticatedRelatoriosRentabilidadeRoute,
+  AuthenticatedComprasIndexRoute: AuthenticatedComprasIndexRoute,
   AuthenticatedCustosIndexRoute: AuthenticatedCustosIndexRoute,
   AuthenticatedEstoqueIndexRoute: AuthenticatedEstoqueIndexRoute,
   AuthenticatedFinanceiroIndexRoute: AuthenticatedFinanceiroIndexRoute,

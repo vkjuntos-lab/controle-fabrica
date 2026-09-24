@@ -1,208 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
-      "limit": 22,
-      "offset": 1316
-    },
-    "timestamp": 1790286153575
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql</path>\n<type>file</type>\n<content>\n1316: \n1317: -- =====================================================================\n1318: -- 23. RPCs: Documentos de fornecedor e o 3-way match.\n1319: -- ============",
-    "is_error": false,
-    "timestamp": 1790286153595
-  },
-  {
-    "role": "tool",
-    "tool": "write",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/purchasing/types.ts",
-      "content": "import type { Json } from \"@/integrations/supabase/types\";\n\nexport type PurchasingDashboard = {\n  active_suppliers: number;\n  open_requests: number;\n  pending_approval: number;\n  open_orders: number;\n  orders_amount: number;\n  receipts_today: number;\n  open_exceptions: number;\n  replenishment_candidates: number;\n};\n\nexport type PurchasingSettings = {\n  organization_id: string;\n  acquisition_cost_policy: \"LAST_PURCHASE\" | \"AVERAGE\";\n  freight_policy: \"EXPENSE_SEPARATELY\" | \"INCLUDE_IN_INVENTORY_COST\";\n  over_receipt_policy: \"BLOCK\" | \"WARN\" | \"AUTH_OVERRIDE\";\n  payable_on: \"GOODS_RECEIPT\" | \"INVOICE\";\n  approval_segregation: boolean;\n  updated_by: string | null;\n  updated_at: string;\n};\n\nexport type SupplierRow = {\n  company_id: string;\n  code: string;\n  legal_name: string;\n  trade_name: string | null;\n  document_type: string | null;\n  document_number: string | null;\n  company_status: string;\n  supplier_id: string;\n  supplier_code: string;\n  supplier_status: string;\n  default_payment_terms: string | null;\n  preferred: boolean;\n  currency: string;\n  product_count: number;\n  open_orders: number;\n};\n\nexport type SupplierProductRow = {\n  id: string;\n  supplier_id: string;\n  supplier_name: string;\n  variant_id: string;\n  sku: string;\n  product_name: string;\n  supplier_sku: string;\n  supplier_description: string | null;\n  purchase_unit: string | null;\n  inventory_unit: string | null;\n  conversion_factor: number;\n  last_price: number | null;\n  last_price_date: string | null;\n  minimum_order_quantity: number;\n  lead_time_days: number | null;\n  status: string;\n};\nexport type SupplierList = { rows: SupplierRow[]; total: number };\nexport type SupplierProductsList = { rows: SupplierProductRow[]; total: number };\nexport type SupplierDashboard = {\n  active_suppliers: number;\n  products_catalogued: number;\n  open_orders: number;\n  unmatched_documents: number;\n  open_exceptions: number;\n};\n\nexport type SupplierOrderSummary = {\n  id: string;\n  order_number: string;\n  status: string;\n  issue_date: string;\n  expected_delivery_date: string | null;\n  total_amount: number;\n  currency: string;\n};\nexport type SupplierReceiptSummary = {\n  id: string;\n  receipt_number: string;\n  status: string;\n  received_at: string;\n  total_accepted: number;\n};\nexport type SupplierDocumentSummary = {\n  id: string;\n  document_type: string;\n  document_number: string;\n  issue_date: string;\n  total_amount: number;\n  status: string;\n};\nexport type SupplierReturnSummary = {\n  id: string;\n  return_number: string;\n  status: string;\n  return_date: string;\n};\nexport type SupplierDetail = Json & {\n  id: string;\n  code: string;\n  legal_name: string;\n  trade_name: string | null;\n  email: string | null;\n  phone: string | null;\n  status: string;\n  profile: Json | null;\n  products: SupplierProductRow[];\n  orders: SupplierOrderSummary[];\n  receipts: SupplierReceiptSummary[];\n  documents: SupplierDocumentSummary[];\n  returns: SupplierReturnSummary[];\n  payables: Json[];\n};\n\nexport type PurchaseRequestItem = {\n  id: string;\n  variant_id: string;\n  quantity: number;\n  unit_of_measure_id: string | null;\n  needed_by_date: string | null;\n  reason: string | null;\n  status: string;\n  sku: string;\n  product_name: string;\n};\nexport type PurchaseRequestRow = {\n  id: string;\n  request_number: string;\n  request_date: string;\n  status: string;\n  priority: string;\n  needed_by_date: string | null;\n  cost_center_id: string | null;\n  requested_by: string;\n  requested_by_name: string | null;\n  items: number;\n  notes: string | null;\n};\nexport type PurchaseRequestDetail = {\n  request: Json & { id: string; request_number: string; status: string };\n  items: PurchaseRequestItem[];\n};\nexport type RequestList = { rows: PurchaseRequestRow[]; total: number };\n\nexport type QuotationSupplier = {\n  id: string;\n  supplier_id: string;\n  notes: string | null;\n  supplier_name: string;\n};\nexport type QuotationItem = {\n  id: string;\n  supplier_id: string;\n  variant_id: string;\n  quantity: number;\n  unit_price: number;\n  discount_amount: number;\n  freight_amount: number;\n  tax_amount: number;\n  other_amount: number;\n  total_amount: number;\n  delivery_days: number | null;\n  payment_terms: string | null;\n  valid_until: string | null;\n  awarded: boolean;\n  award_reason: string | null;\n  supplier_name: string;\n  sku: string;\n  product_name: string;\n};\nexport type QuotationRow = {\n  id: string;\n  quotation_number: string;\n  status: string;\n  deadline: string | null;\n  created_at: string;\n  purchase_request_id: string | null;\n  request_number: string | null;\n  suppliers: number;\n  variants: number;\n};\nexport type QuotationDetail = {\n  quotation: Json & { id: string; quotation_number: string; status: string };\n  suppliers: QuotationSupplier[];\n  items: QuotationItem[];\n};\nexport type QuotationList = { rows: QuotationRow[]; total: number };\n\nexport type PurchaseOrderItemRow = {\n  id: string;\n  variant_id: string;\n  ordered_quantity: number;\n  received_quantity: number;\n  purchase_unit_id: string | null;\n  purchase_unit_code: string | null;\n  inventory_unit_id: string | null;\n  conversion_factor: number;\n  unit_price: number;\n  discount_amount: number;\n  tax_amount: number;\n  line_total: number;\n  expected_delivery_date: string | null;\n  status: string;\n  sku: string;\n  product_name: string;\n};\nexport type PurchaseOrderRow = {\n  id: string;\n  order_number: string;\n  supplier_id: string;\n  status: string;\n  issue_date: string;\n  expected_delivery_date: string | null;\n  total_amount: number;\n  currency: string;\n  payment_terms: string | null;\n  supplier_name: string;\n  supplier_code: string;\n  items: number;\n  open_items: number;\n};\nexport type PurchaseOrderDetail = {\n  order: Json & { id: string; order_number: string; status: string };\n  items: PurchaseOrderItemRow[];\n  receipts: Json[];\n};\nexport type OrderList = { rows: PurchaseOrderRow[]; total: number };\nexport type OrderCandidate = {\n  id: string;\n  order_number: string;\n  status: string;\n  issue_date: string;\n  total_amount: number;\n  supplier_name: string;\n};\nexport type OrderCandidates = { rows: OrderCandidate[] };\n\nexport type GoodsReceiptItemRow = {\n  id: string;\n  variant_id: string;\n  received_quantity: number;\n  accepted_quantity: number;\n  rejected_quantity: number;\n  unit_cost: number;\n  line_total: number;\n  status: string;\n  sku: string;\n  product_name: string;\n};\nexport type GoodsReceiptRow = {\n  id: string;\n  receipt_number: string;\n  purchase_order_id: string;\n  supplier_id: string;\n  status: string;\n  received_at: string;\n  destination_location_id: string | null;\n  supplier_name: string;\n  order_number: string;\n  total_received: number;\n  total_accepted: number;\n  total_rejected: number;\n  posted_by: string | null;\n  posted_at: string | null;\n};\nexport type GoodsReceiptDetail = {\n  receipt: Json & { id: string; receipt_number: string; status: string };\n  items: GoodsReceiptItemRow[];\n};\nexport type ReceiptList = { rows: GoodsReceiptRow[]; total: number };\n\nexport type SupplierReturnRow = {\n  id: string;\n  return_number: string;\n  supplier_id: string;\n  source_location_id: string | null;\n  status: string;\n  return_date: string;\n  reason: string | null;\n  supplier_name: string;\n  items: number;\n};\nexport type SupplierReturnDetail = {\n  return_: Json & { id: string; return_number: string; status: string };\n  items: Json[];\n};\nexport type ReturnList = { rows: SupplierReturnRow[]; total: number };\n\nexport type SupplierDocumentRow = {\n  id: string;\n  supplier_id: string;\n  document_type: string;\n  document_number: string;\n  issue_date: string;\n  total_amount: number;\n  quantity: number | null;\n  purchase_order_id: string | null;\n  goods_receipt_id: string | null;\n  status: string;\n  supplier_name: string;\n  order_number: string | null;\n  open_exceptions: number;\n};\nexport type SupplierDocumentDetail = {\n  document: Json & { id: string; document_number: string; status: string };\n  exceptions: Json[];\n};\nexport type DocumentList = { rows: SupplierDocumentRow[]; total: number };\n\nexport type PurchaseExceptionRow = {\n  id: string;\n  exception_type: \"OVER_RECEIPT\" | \"QUANTITY_VARIANCE\" | \"PRICE_VARIANCE\" | string;\n  severity: \"WARNING\" | \"BLOCKING\";\n  status: \"OPEN\" | \"IN_REVIEW\" | \"RESOLVED\" | \"IGNORED_WITH_AUTHORIZATION\";\n  purchase_order_id: string | null;\n  supplier_document_id: string | null;\n  variant_id: string | null;\n  message: string;\n  details: Json;\n  created_at: string;\n  resolution_notes: string | null;\n};\nexport type ExceptionList = { rows: PurchaseExceptionRow[]; total: number };\nexport type ExceptionSummary = {\n  count: number;\n  blocking: number;\n};\n\nexport type ReplenishmentRow = {\n  variant_id: string;\n  sku: string;\n  product_name: string;\n  replenishment_policy: string;\n  minimum_stock: number;\n  reorder_point: number | null;\n  target_stock: number | null;\n  available: number;\n  open_qty: number;\n  pending_req: number;\n  monthly_pace: number;\n  lead_days: number;\n  last_price: number;\n  suggested_quantity: number;\n  lead_buffer: number;\n  estimated_cost: number;\n  recommend_order: boolean;\n};\nexport type ReplenishmentResult = { rows: ReplenishmentRow[]; total: number };\n\nexport type PurchasingQueryResult =\n  | PurchasingDashboard\n  | { settings: PurchasingSettings }\n  | SupplierList\n  | SupplierProductsList\n  | SupplierDashboard\n  | SupplierDetail\n  | RequestList\n  | PurchaseRequestDetail\n  | QuotationList\n  | QuotationDetail\n  | OrderList\n  | PurchaseOrderDetail\n  | OrderCandidates\n  | ReceiptList\n  | GoodsReceiptDetail\n  | ReturnList\n  | SupplierReturnDetail\n  | DocumentList\n  | SupplierDocumentDetail\n  | ExceptionList\n  | ExceptionSummary\n  | ReplenishmentResult\n  | { updated: boolean }\n  | { id: string; status: string }\n  | { id: string; status: string; paid_amount?: number };"
-    },
-    "timestamp": 1790286168542
-  },
-  {
-    "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1790286168560
-  },
-  {
-    "role": "tool",
-    "tool": "write",
-    "input": {
-      "content": "import { createServerFn } from \"@tanstack/react-start\";\nimport { z } from \"zod\";\nimport { requireSupabaseAuth } from \"@/integrations/supabase/auth-middleware\";\nimport type { Json } from \"@/integrations/supabase/types\";\nimport type { PurchasingQueryResult } from \"./types\";\n\nconst org = z.string().uuid();\nconst id = z.string().uuid().optional();\nconst money = z.number().nonnegative().max(1e14);\nconst filters = z.record(z.string(), z.string().max(200)).default({});\nconst dateStr = z.iso.date().optional();\n\nconst companySchema = z.object({\n  code: z.string().trim().min(1).max(40),\n  legal_name: z.string().trim().min(1).max(180),\n  trade_name: z.string().trim().max(180).optional(),\n  document_type: z.string().max(20).optional(),\n  document_number: z.string().max(40).optional(),\n  state_registration: z.string().max(40).optional(),\n  email: z.string().email().max(120).optional(),\n  phone: z.string().max(40).optional(),\n  website: z.string().max(200).optional(),\n  status: z.enum([\"ACTIVE\", \"INACTIVE\", \"BLOCKED\"]).optional(),\n  notes: z.string().max(2000).optional(),\n  blocked_reason: z.string().max(600).optional(),\n  default_payment_terms: z.string().max(80).optional(),\n  lead_time_days: z.number().int().min(0).max(3650).optional(),\n  minimum_order_value: money.optional(),\n  preferred: z.boolean().optional(),\n  currency: z.literal(\"BRL\").default(\"BRL\"),\n});\nexport const saveCompany = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({ organizationId: org, data: companySchema, companyId: id })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"supplier_save_company\", {\n      _org: data.organizationId,\n      _data: data.data,\n      _id: data.companyId,\n    });\n    if (error) throw new Error(error.message);\n    return result as string;\n  });\n\nconst supplierProductSchema = z.object({\n  supplier_id: z.string().uuid(),\n  variant_id: z.string().uuid(),\n  supplier_sku: z.string().trim().min(1).max(80),\n  supplier_description: z.string().max(400).optional(),\n  purchase_unit_id: z.string().uuid().optional(),\n  inventory_unit_id: z.string().uuid().optional(),\n  conversion_factor: money.optional(),\n  last_price: money.optional(),\n  last_price_date: dateStr,\n  minimum_order_quantity: z.number().positive().optional(),\n  lead_time_days: z.number().int().min(0).max(3650).optional(),\n  status: z.enum([\"ACTIVE\", \"INACTIVE\"]).optional(),\n});\nexport const saveSupplierProduct = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: org,\n        data: supplierProductSchema,\n        supplierProductId: id,\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"supplier_product_save\", {\n      _org: data.organizationId,\n      _data: data.data,\n      _id: data.supplierProductId,\n    });\n    if (error) throw new Error(error.message);\n    return result as string;\n  });\n\nexport const querySuppliers = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: org,\n        kind: z.enum([\"suppliers\", \"supplier\", \"products\", \"dashboard\"]),\n        filters,\n        page: z.number().int().min(1).default(1),\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"supplier_query\", {\n      _org: data.organizationId,\n      _kind: data.kind,\n      _filters: data.filters,\n      _page: data.page,\n    });\n    if (error) throw new Error(error.message);\n    return result as unknown as PurchasingQueryResult;\n  });\n\nconst requestItemSchema = z.object({\n  variant_id: z.string().uuid(),\n  quantity: z.number().positive(),\n  unit_of_measure_id: z.string().uuid().optional(),\n  needed_by_date: dateStr,\n  reason: z.string().max(600).optional(),\n  source_type: z.string().max(40).optional(),\n  source_id: z.string().max(120).optional(),\n});\nconst requestSchema = z.object({\n  cost_center_id: z.string().uuid().optional(),\n  priority: z.enum([\"LOW\", \"NORMAL\", \"HIGH\", \"URGENT\"]).optional(),\n  needed_by_date: dateStr,\n  notes: z.string().max(2000).optional(),\n  items: z.array(requestItemSchema).min(1),\n});\nexport const saveRequest = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({ organizationId: org, data: requestSchema, requestId: id })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"request_save\", {\n      _org: data.organizationId,\n      _data: data.data,\n      _id: data.requestId,\n    });\n    if (error) throw new Error(error.message);\n    return result as string;\n  });\n\nconst actionData = z\n  .object({\n    reason: z.string().trim().min(1).max(600).optional(),\n  })\n  .default({});\n\nexport const requestAction = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: org,\n        requestId: org,\n        action: z.enum([\"submit\", \"approve\", \"cancel\"]),\n        data: actionData,\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"request_action\", {\n      _org: data.organizationId,\n      _id: data.requestId,\n      _action: data.action,\n      _data: data.data,\n    });\n    if (error) throw new Error(error.message);\n    return result as Json;\n  });\n\nexport const queryRequests = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: org,\n        kind: z.enum([\"requests\", \"request\"]),\n        filters,\n        page: z.number().int().min(1).default(1),\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"request_query\", {\n      _org: data.organizationId,\n      _kind: data.kind,\n      _filters: data.filters,\n      _page: data.page,\n    });\n    if (error) throw new Error(error.message);\n    return result as unknown as PurchasingQueryResult;\n  });\n\nconst quotationItemSchema = z.object({\n  variant_id: z.string().uuid(),\n  quantity: z.number().positive(),\n  unit_of_measure_id: z.string().uuid().optional(),\n  unit_price: money,\n  discount_amount: money.optional(),\n  freight_amount: money.optional(),\n  tax_amount: money.optional(),\n  other_amount: money.optional(),\n  delivery_days: z.number().int().min(0).max(3650).optional(),\n  payment_terms: z.string().max(80).optional(),\n  valid_until: dateStr,\n  notes: z.string().max(600).optional(),\n});\nconst quotationSupplierSchema = z.object({\n  supplier_id: z.string().uuid(),\n  notes: z.string().max(600).optional(),\n  items: z.array(quotationItemSchema).min(1),\n});\nconst quotationSchema = z.object({\n  purchase_request_id: z.string().uuid().optional(),\n  deadline: dateStr,\n  notes: z.string().max(2000).optional(),\n  suppliers: z.array(quotationSupplierSchema).min(1),\n});\nexport const saveQuotation = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({ organizationId: org, data: quotationSchema, quotationId: id })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"quotation_save\", {\n      _org: data.organizationId,\n      _data: data.data,\n      _id: data.quotationId,\n    });\n    if (error) throw new Error(error.message);\n    return result as string;\n  });\n\nconst awardItemSchema = z.object({\n  item_id: z.string().uuid().optional(),\n  variant_id: z.string().uuid().optional(),\n  supplier_id: z.string().uuid().optional(),\n  award: z.boolean().default(true),\n  reason: z.string().max(600).optional(),\n});\nexport const awardQuotation = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: org,\n        quotationId: org,\n        data: z.object({ items: z.array(awardItemSchema).min(1) }),\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"quotation_award\", {\n      _org: data.organizationId,\n      _quotation_id: data.quotationId,\n      _data: data.data,\n    });\n    if (error) throw new Error(error.message);\n    return result as Json;\n  });\n\nexport const queryQuotations = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: org,\n        kind: z.enum([\"quotations\", \"quotation\"]),\n        filters,\n        page: z.number().int().min(1).default(1),\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"quotation_query\", {\n      _org: data.organizationId,\n      _kind: data.kind,\n      _filters: data.filters,\n      _page: data.page,\n    });\n    if (error) throw new Error(error.message);\n    return result as unknown as PurchasingQueryResult;\n  });\n\nconst purchaseOrderItemSchema = z.object({\n  variant_id: z.string().uuid(),\n  ordered_quantity: z.number().positive(),\n  unit_price: money,\n  purchase_unit_id: z.string().uuid().optional(),\n  inventory_unit_id: z.string().uuid().optional(),\n  conversion_factor: z.number().positive().optional(),\n  discount_amount: money.optional(),\n  tax_amount: money.optional(),\n  expected_delivery_date: dateStr,\n});\nconst purchaseOrderSchema = z.object({\n  supplier_id: z.string().uuid(),\n  quotation_id: z.string().uuid().optional(),\n  purchase_request_id: z.string().uuid().optional(),\n  issue_date: dateStr,\n  expected_delivery_date: dateStr,\n  currency: z.literal(\"BRL\").default(\"BRL\"),\n  payment_terms: z.string().max(80).optional(),\n  destination_location_id: z.string().uuid().optional(),\n  financial_category_id: z.string().uuid().optional(),\n  cost_center_id: z.string().uuid().optional(),\n  notes: z.string().max(2000).optional(),\n  freight_amount: money.optional(),\n  other_amount: money.optional(),\n  items: z.array(purchaseOrderItemSchema).min(1),\n});\nexport const savePurchaseOrder = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({ organizationId: org, data: purchaseOrderSchema, purchaseOrderId: id })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"po_save\", {\n      _org: data.organizationId,\n      _data: data.data,\n      _id: data.purchaseOrderId,\n    });\n    if (error) throw new Error(error.message);\n    return result as string;\n  });\n\nexport const purchaseOrderAction = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: org,\n        purchaseOrderId: org,\n        action: z.enum([\"submit\", \"approve\", \"send\", \"cancel\"]),\n        data: actionData,\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"po_action\", {\n      _org: data.organizationId,\n      _id: data.purchaseOrderId,\n      _action: data.action,\n      _data: data.data,\n    });\n    if (error) throw new Error(error.message);\n    return result as Json;\n  });\n\nexport const queryPurchaseOrders = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: org,\n        kind: z.enum([\"orders\", \"order\", \"candidates\"]),\n        filters,\n        page: z.number().int().min(1).default(1),\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"po_query\", {\n      _org: data.organizationId,\n      _kind: data.kind,\n      _filters: data.filters,\n      _page: data.page,\n    });\n    if (error) throw new Error(error.message);\n    return result as unknown as PurchasingQueryResult;\n  });\n\nconst receiveItemSchema = z.object({\n  variant_id: z.string().uuid(),\n  quantity: z.number().positive(),\n});\nconst poReceiveSchema = z.object({\n  received_at: dateStr,\n  destination_location_id: z.string().uuid().optional(),\n  supplier_document_number: z.string().max(60).optional(),\n  notes: z.string().max(2000).optional(),\n  items: z.array(receiveItemSchema).min(1),\n});\nexport const receivePurchaseOrder = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: org,\n        purchaseOrderId: org,\n        data: poReceiveSchema,\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"po_receive\", {\n      _org: data.organizationId,\n      _po_id: data.purchaseOrderId,\n      _data: data.data,\n    });\n    if (error) throw new Error(error.message);\n    return result as string;\n  });\n\nconst inspectItemSchema = z.object({\n  item_id: z.string().uuid(),\n  accepted_quantity: z.number().nonnegative().optional(),\n  reason: z.string().max(600).optional(),\n});\nexport const receiptAction = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: org,\n        goodsReceiptId: org,\n        action: z.enum([\"inspect\", \"post\", \"cancel\"]),\n        data: z\n          .object({ items: z.array(inspectItemSchema).min(1).optional(), reason: z.string().max(600).optional() })\n          .default({}),\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"receipt_action\", {\n      _org: data.organizationId,\n      _id: data.goodsReceiptId,\n      _action: data.action,\n      _data: data.data,\n    });\n    if (error) throw new Error(error.message);\n    return result as Json;\n  });\n\nexport const queryReceipts = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: org,\n        kind: z.enum([\"receipts\", \"receipt\"]),\n        filters,\n        page: z.number().int().min(1).default(1),\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"receipt_query\", {\n      _org: data.organizationId,\n      _kind: data.kind,\n      _filters: data.filters,\n      _page: data.page,\n    });\n    if (error) throw new Error(error.message);\n    return result as unknown as PurchasingQueryResult;\n  });\n\nconst returnItemSchema = z.object({\n  variant_id: z.string().uuid(),\n  quantity: z.number().positive(),\n  batch_id: z.string().uuid().optional(),\n  reason: z.string().max(600).optional(),\n});\nconst returnSchema = z.object({\n  supplier_id: z.string().uuid(),\n  goods_receipt_id: z.string().uuid().optional(),\n  source_location_id: z.string().uuid().optional(),\n  return_date: dateStr,\n  reason: z.string().max(2000).optional(),\n  items: z.array(returnItemSchema).min(1),\n});\nexport const saveReturn = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z.object({ organizationId: org, data: returnSchema, returnId: id }).parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"return_save\", {\n      _org: data.organizationId,\n      _data: data.data,\n      _id: data.returnId,\n    });\n    if (error) throw new Error(error.message);\n    return result as string;\n  });\n\nexport const returnAction = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: org,\n        returnId: org,\n        action: z.enum([\"post\", \"cancel\"]),\n        data: actionData,\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"return_action\", {\n      _org: data.organizationId,\n      _id: data.returnId,\n      _action: data.action,\n      _data: data.data,\n    });\n    if (error) throw new Error(error.message);\n    return result as Json;\n  });\n\nexport const queryReturns = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: org,\n        kind: z.enum([\"returns\", \"return\"]),\n        filters,\n        page: z.number().int().min(1).default(1),\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"return_query\", {\n      _org: data.organizationId,\n      _kind: data.kind,\n      _filters: data.filters,\n      _page: data.page,\n    });\n    if (error) throw new Error(error.message);\n    return result as unknown as PurchasingQueryResult;\n  });\n\nconst documentSchema = z.object({\n  supplier_id: z.string().uuid(),\n  document_type: z.enum([\"INVOICE\", \"CREDIT_NOTE\", \"FRETUR\", \"OTHER\"]).default(\"INVOICE\"),\n  document_number: z.string().trim().min(1).max(60),\n  issue_date: dateStr,\n  total_amount: money.optional(),\n  quantity: z.number().positive().optional(),\n  purchase_order_id: z.string().uuid().optional(),\n  goods_receipt_id: z.string().uuid().optional(),\n  storage_path: z.string().max(500).optional(),\n  notes: z.string().max(2000).optional(),\n});\nexport const saveDocument = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z.object({ organizationId: org, data: documentSchema, documentId: id }).parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"document_save\", {\n      _org: data.organizationId,\n      _data: data.data,\n      _id: data.documentId,\n    });\n    if (error) throw new Error(error.message);\n    return result as string;\n  });\n\nexport const documentAction = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: org,\n        documentId: org,\n        action: z.enum([\"match\", \"process\", \"cancel\"]),\n        data: actionData,\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"document_action\", {\n      _org: data.organizationId,\n      _id: data.documentId,\n      _action: data.action,\n      _data: data.data,\n    });\n    if (error) throw new Error(error.message);\n    return result as Json;\n  });\n\nexport const queryDocuments = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: org,\n        kind: z.enum([\"documents\", \"document\"]),\n        filters,\n        page: z.number().int().min(1).default(1),\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"document_query\", {\n      _org: data.organizationId,\n      _kind: data.kind,\n      _filters: data.filters,\n      _page: data.page,\n    });\n    if (error) throw new Error(error.message);\n    return result as unknown as PurchasingQueryResult;\n  });\n\nexport const exceptionAction = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: org,\n        exceptionId: org,\n        action: z.enum([\"resolve\", \"ignore\", \"reopen\"]),\n        data: z\n          .object({ resolution_notes: z.string().trim().min(1).max(600).optional() })\n          .default({}),\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"exception_action\", {\n      _org: data.organizationId,\n      _id: data.exceptionId,\n      _action: data.action,\n      _data: data.data,\n    });\n    if (error) throw new Error(error.message);\n    return result as Json;\n  });\n\nexport const queryExceptions = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: org,\n        kind: z.enum([\"exceptions\", \"open\"]),\n        filters,\n        page: z.number().int().min(1).default(1),\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"exception_query\", {\n      _org: data.organizationId,\n      _kind: data.kind,\n      _filters: data.filters,\n      _page: data.page,\n    });\n    if (error) throw new Error(error.message);\n    return result as unknown as PurchasingQueryResult;\n  });\n\nexport const queryReplenishment = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: org,\n        filters,\n        page: z.number().int().min(1).default(1),\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"replenishment_query\", {\n      _org: data.organizationId,\n      _filters: data.filters,\n      _page: data.page,\n    });\n    if (error) throw new Error(error.message);\n    return result as unknown as PurchasingQueryResult;\n  });\n\nexport const queryPurchasing = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: org,\n        kind: z.enum([\"dashboard\", \"settings\"]),\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"purchasing_query\", {\n      _org: data.organizationId,\n      _kind: data.kind,\n    });\n    if (error) throw new Error(error.message);\n    return result as unknown as PurchasingQueryResult;\n  });\n\nconst settingsSchema = z.object({\n  acquisition_cost_policy: z.enum([\"LAST_PURCHASE\", \"AVERAGE\"]).optional(),\n  freight_policy: z.enum([\"EXPENSE_SEPARATELY\", \"INCLUDE_IN_INVENTORY_COST\"]).optional(),\n  over_receipt_policy: z.enum([\"BLOCK\", \"WARN\", \"AUTH_OVERRIDE\"]).optional(),\n  payable_on: z.enum([\"GOODS_RECEIPT\", \"INVOICE\"]).optional(),\n  approval_segregation: z.boolean().optional(),\n});\nexport const savePurchasingSettings = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z.object({ organizationId: org, data: settingsSchema }).parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const { data: result, error } = await context.supabase.rpc(\"purchasing_settings_save\", {\n      _org: data.organizationId,\n      _data: data.data,\n    });\n    if (error) throw new Error(error.message);\n    return result as Json;\n  });",
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/purchasing/purchasing.functions.ts"
-    },
-    "timestamp": 1790286200758
-  },
-  {
-    "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1790286200771
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"priority\" supabase/migrations/20261001100000_purchasing.sql | head; echo ---; grep -rn \"URGENT\\|priority\" src/lib/products/*.ts 2>/dev/null | head -5",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790286204159
-  },
-  {
-    "role": "tool_result",
-    "content": "232:  priority text NOT NULL DEFAULT 'NORMAL' CHECK(priority IN ('LOW','NORMAL','HIGH','URGENT')),\n706:    INSERT INTO public.purchase_requests(organization_id,request_number,request_date,requested_by,cost_center_id,status,priority,needed_by_date,notes)\n707:    VALUES(_org,'REQ-'||to_char(now(),'YYY",
-    "is_error": false,
-    "timestamp": 1790286204201
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "npx tsc --noEmit -p tsconfig.json 2>&1 | grep -E \"purchasing|rbac\" | head -30; echo \"EXIT_GREP:$?\"",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica",
-      "timeout": 300000
-    },
-    "timestamp": 1790286207224
-  },
-  {
-    "role": "tool_result",
-    "content": "src/lib/purchasing/purchasing.functions.ts(40,64): error TS2345: Argument of type '\"supplier_save_company\"' is not assignable to parameter of type '\"cost_query\" | \"cost_save_input\" | \"cost_calculate\" | \"cost_version_action\" | \"pricing_simulate\" | \"pricing_publish\" | \"profitability_capture\" | \"partne",
-    "is_error": false,
-    "timestamp": 1790286229393
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"cost_query\\|partner_query\\|supplier_query\" src/integrations/supabase/types.ts | head; echo ---; ls supabase; echo ---; cat supabase/config.toml 2>/dev/null | head -20; echo ---; grep -rn \"gen:types\\|generate.*types\\|supabase gen\" package.json Makefile scripts/*.sh 2>/dev/null | head",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790286233407
-  },
-  {
-    "role": "tool_result",
-    "content": "978:      cost_query: {\n989:      partner_query: {\n---\nconfig.toml\nmigrations\ntests\n---\nproject_id = \"imxtzwwyolutyjoqjyvh\"---\n",
-    "is_error": false,
-    "timestamp": 1790286233512
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts",
-      "limit": 55,
-      "offset": 970
-    },
-    "timestamp": 1790286236792
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts</path>\n<type>file</type>\n<content>\n970:           on_hand: number | null;\n971:           organization_id: string;\n972:           variant_id: string;\n973:         };\n974:         Relationships: [];\n975:       };\n976:   ",
-    "is_error": false,
-    "timestamp": 1790286236808
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts",
-      "limit": 40,
-      "offset": 1310
-    },
-    "timestamp": 1790286239752
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts</path>\n<type>file</type>\n<content>\n1310:   TableName extends (DefaultSchemaTableNameOrOptions extends {\n1311:     schema: keyof DatabaseWithoutInternals;\n1312:   }\n1313:     ? keyof DatabaseWithoutInternals[DefaultSche",
-    "is_error": false,
-    "timestamp": 1790286239787
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"Functions\\|Enums\\|Views\\|CompositeTypes\\|Migrations\\|Tables:\" src/integrations/supabase/types.ts | head",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790286242043
-  },
-  {
-    "role": "tool_result",
-    "content": "10:    Tables: {\n61:          role: Database[\"public\"][\"Enums\"][\"app_role\"];\n70:          role?: Database[\"public\"][\"Enums\"][\"app_role\"];\n79:          role?: Database[\"public\"][\"Enums\"][\"app_role\"];\n155:          role: Database[\"public\"][\"Enums\"][\"app_role\"];\n161:          role: Database[\"public\"][\"",
-    "is_error": false,
-    "timestamp": 1790286242064
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts",
-      "limit": 20,
-      "offset": 1075
-    },
-    "timestamp": 1790286245270
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts</path>\n<type>file</type>\n<content>\n1075:         };\n1076:         Returns: Json;\n1077:       };\n1078:       rec_reprocess_item: { Args: { _org: string; _item_id: string }; Returns: Json };\n1079:       rec_exception_res",
-    "is_error": false,
-    "timestamp": 1790286245280
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"    Enums\\|    Views\\|    CompositeTypes\\|    _pgstat\\|    };$\" src/integrations/supabase/types.ts | awk -F: '$1>1050 && $1<1130' ; echo ---; grep -n \"    Enums: {\" src/integrations/supabase/types.ts",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790286247348
-  },
-  {
-    "role": "tool_result",
-    "content": "1054:      };\n1058:      };\n1062:      };\n1067:      };\n1075:        };\n1077:      };\n1085:        };\n1087:      };\n1095:        };\n1097:      };\n1101:      };\n1105:      };\n1109:      };\n1113:      };\n1118:      };\n1124:      };\n1128:      };\n---\n1237:    Enums: {\n1389:    Enums: {\n",
-    "is_error": false,
-    "timestamp": 1790286247370
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts",
-      "limit": 22,
-      "offset": 1105
-    },
-    "timestamp": 1790286249285
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts</path>\n<type>file</type>\n<content>\n1105:       };\n1106:       rec_cancel: {\n1107:         Args: { _org: string; _reconciliation_id: string; _reason?: string };\n1108:         Returns: Json;\n1109:       };\n1110:       re",
-    "is_error": false,
-    "timestamp": 1790286249318
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts",
-      "limit": 26,
-      "offset": 1126
-    },
-    "timestamp": 1790286251803
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts</path>\n<type>file</type>\n<content>\n1126:         Args: { _organization_id: string; _location_id: string };\n1127:         Returns: Json;\n1128:       };\n1129:       inventory_save_count_item: {\n1130:         Args: {\n1131",
-    "is_error": false,
-    "timestamp": 1790286251815
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts",
@@ -1529,5 +1327,200 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql</path>\n<type>file</type>\n<content>\n655:   IF _kind='suppliers' THEN\n656:     WITH s AS (\n657:       SELECT c.id company_id,c.code,c.legal_name,c.trade_name,c.document_type,c.document_number,c.status comp",
     "is_error": false,
     "timestamp": 1790286913383
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/compras/index.tsx",
+      "content": "import { createFileRoute } from \"@tanstack/react-router\";\nimport { PurchasingDashboardPage } from \"@/components/purchasing/pages\";\nexport const Route = createFileRoute(\"/_authenticated/compras/\")({\n  head: () => ({\n    meta: [{ title: \"Compras — Estratégia\" }, { name: \"robots\", content: \"noindex\" }],\n  }),\n  component: PurchasingDashboardPage,\n});"
+    },
+    "timestamp": 1790286920405
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790286920426
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/compras/requisicoes.tsx",
+      "content": "import { createFileRoute } from \"@tanstack/react-router\";\nimport { RequisicoesPage } from \"@/components/purchasing/pages\";\nexport const Route = createFileRoute(\"/_authenticated/compras/requisicoes\")({\n  head: () => ({\n    meta: [{ title: \"Compras — Requisições\" }, { name: \"robots\", content: \"noindex\" }],\n  }),\n  component: RequisicoesPage,\n});"
+    },
+    "timestamp": 1790286920883
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790286920901
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/compras/cotacoes.tsx",
+      "content": "import { createFileRoute, Outlet, useRouterState } from \"@tanstack/react-router\";\nimport { CotacoesPage } from \"@/components/purchasing/pages\";\nexport const Route = createFileRoute(\"/_authenticated/compras/cotacoes\")({\n  head: () => ({\n    meta: [{ title: \"Compras — Cotações\" }, { name: \"robots\", content: \"noindex\" }],\n  }),\n  component: Page,\n});\nconst DETAIL = \"/_authenticated/compras/cotacoes/$id\";\nfunction Page() {\n  const detail = useRouterState({ select: (s) => s.matches.some((m) => m.routeId === DETAIL) });\n  return detail ? <Outlet /> : <CotacoesPage />;\n}"
+    },
+    "timestamp": 1790286921801
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790286921808
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/compras/cotacoes.$id.tsx",
+      "content": "import { createFileRoute } from \"@tanstack/react-router\";\nimport { CotacaoDetailPage } from \"@/components/purchasing/pages\";\nexport const Route = createFileRoute(\"/_authenticated/compras/cotacoes/$id\")({\n  head: () => ({\n    meta: [{ title: \"Compras — Cotação\" }, { name: \"robots\", content: \"noindex\" }],\n  }),\n  component: Page,\n});\nfunction Page() {\n  return <CotacaoDetailPage id={Route.useParams().id} />;\n}"
+    },
+    "timestamp": 1790286922525
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790286922538
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/compras/pedidos.tsx",
+      "content": "import { createFileRoute, Outlet, useRouterState } from \"@tanstack/react-router\";\nimport { PedidosPage } from \"@/components/purchasing/pages\";\nexport const Route = createFileRoute(\"/_authenticated/compras/pedidos\")({\n  head: () => ({\n    meta: [{ title: \"Compras — Pedidos\" }, { name: \"robots\", content: \"noindex\" }],\n  }),\n  component: Page,\n});\nconst DETAIL = \"/_authenticated/compras/pedidos/$id\";\nfunction Page() {\n  const detail = useRouterState({ select: (s) => s.matches.some((m) => m.routeId === DETAIL) });\n  return detail ? <Outlet /> : <PedidosPage />;\n}"
+    },
+    "timestamp": 1790286923595
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790286923613
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/compras/pedidos.$id.tsx",
+      "content": "import { createFileRoute } from \"@tanstack/react-router\";\nimport { PedidoDetailPage } from \"@/components/purchasing/pages\";\nexport const Route = createFileRoute(\"/_authenticated/compras/pedidos/$id\")({\n  head: () => ({\n    meta: [{ title: \"Compras — Pedido\" }, { name: \"robots\", content: \"noindex\" }],\n  }),\n  component: Page,\n});\nfunction Page() {\n  return <PedidoDetailPage id={Route.useParams().id} />;\n}"
+    },
+    "timestamp": 1790286924344
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790286924349
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/compras/recebimentos.tsx",
+      "content": "import { createFileRoute, Outlet, useRouterState } from \"@tanstack/react-router\";\nimport { RecebimentosPage } from \"@/components/purchasing/pages\";\nexport const Route = createFileRoute(\"/_authenticated/compras/recebimentos\")({\n  head: () => ({\n    meta: [{ title: \"Compras — Recebimentos\" }, { name: \"robots\", content: \"noindex\" }],\n  }),\n  component: Page,\n});\nconst DETAIL = \"/_authenticated/compras/recebimentos/$id\";\nfunction Page() {\n  const detail = useRouterState({ select: (s) => s.matches.some((m) => m.routeId === DETAIL) });\n  return detail ? <Outlet /> : <RecebimentosPage />;\n}"
+    },
+    "timestamp": 1790286925303
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790286925321
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/compras/recebimentos.$id.tsx",
+      "content": "import { createFileRoute } from \"@tanstack/react-router\";\nimport { RecebimentoDetailPage } from \"@/components/purchasing/pages\";\nexport const Route = createFileRoute(\"/_authenticated/compras/recebimentos/$id\")({\n  head: () => ({\n    meta: [{ title: \"Compras — Recebimento\" }, { name: \"robots\", content: \"noindex\" }],\n  }),\n  component: Page,\n});\nfunction Page() {\n  return <RecebimentoDetailPage id={Route.useParams().id} />;\n}"
+    },
+    "timestamp": 1790286926282
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790286926288
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/compras/devolucoes.tsx",
+      "content": "import { createFileRoute } from \"@tanstack/react-router\";\nimport { DevolucoesPage } from \"@/components/purchasing/pages\";\nexport const Route = createFileRoute(\"/_authenticated/compras/devolucoes\")({\n  head: () => ({\n    meta: [{ title: \"Compras — Devoluções\" }, { name: \"robots\", content: \"noindex\" }],\n  }),\n  component: DevolucoesPage,\n});"
+    },
+    "timestamp": 1790286927627
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790286927642
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/compras/documentos.tsx",
+      "content": "import { createFileRoute } from \"@tanstack/react-router\";\nimport { DocumentosPage } from \"@/components/purchasing/pages\";\nexport const Route = createFileRoute(\"/_authenticated/compras/documentos\")({\n  head: () => ({\n    meta: [{ title: \"Compras — Documentos\" }, { name: \"robots\", content: \"noindex\" }],\n  }),\n  component: DocumentosPage,\n});"
+    },
+    "timestamp": 1790286928301
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790286928310
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/compras/excecoes.tsx",
+      "content": "import { createFileRoute } from \"@tanstack/react-router\";\nimport { ExcecoesPage } from \"@/components/purchasing/pages\";\nexport const Route = createFileRoute(\"/_authenticated/compras/excecoes\")({\n  head: () => ({\n    meta: [{ title: \"Compras — Exceções\" }, { name: \"robots\", content: \"noindex\" }],\n  }),\n  component: ExcecoesPage,\n});"
+    },
+    "timestamp": 1790286929055
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790286929075
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/compras/reposicao.tsx",
+      "content": "import { createFileRoute } from \"@tanstack/react-router\";\nimport { ReposicaoPage } from \"@/components/purchasing/pages\";\nexport const Route = createFileRoute(\"/_authenticated/compras/reposicao\")({\n  head: () => ({\n    meta: [{ title: \"Compras — Reposição\" }, { name: \"robots\", content: \"noindex\" }],\n  }),\n  component: ReposicaoPage,\n});"
+    },
+    "timestamp": 1790286929564
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790286929570
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/compras/configuracoes.tsx",
+      "content": "import { createFileRoute } from \"@tanstack/react-router\";\nimport { PurchasingSettingsPage } from \"@/components/purchasing/pages\";\nexport const Route = createFileRoute(\"/_authenticated/compras/configuracoes\")({\n  head: () => ({\n    meta: [{ title: \"Compras — Configurações\" }, { name: \"robots\", content: \"noindex\" }],\n  }),\n  component: PurchasingSettingsPage,\n});"
+    },
+    "timestamp": 1790286930107
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790286930112
   }
 ]
