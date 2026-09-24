@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md</path>\n<type>file</type>\n<content>\n296:   parceiro com o billable da regra comercial (nunca o gross); conversão de unidade só usa registro\n297:   oficial — nunca fator implícito. Nenhuma RPC de custo lança AR/despesa ou mov",
-    "is_error": false,
-    "timestamp": 1790282254133
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
-      "newString": "## NEXT_STEPS\n\n1. Aplicar a migration do MASTER 009 no Lovable Cloud e executar smoke test autenticado\n   (custos, precificação, rentabilidade) no ambiente publicado.\n2. Implementar/validar o importador MASTER 005 com o contrato de `marketplace_stores`, vínculo\n   PARTNER → `partner_profiles` e `marketplace_sales` já existentes. Não duplicar o cadastro de lojas.\n3. Financeiro de parceiros: consumir o snapshot/evento `PARTNER_RECONCILIATION_CLOSED` para gerar\n   cobrança (AR) e registrar pagamento; limites de crédito e condições de pagamento.\n4. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,\n   `PURCHASE_RECEIPT`, `PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`).\n5. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.\n6. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a\n   `/api/webhooks/receiver` quando houver integração externa.\n\n## VALIDAÇÃO DESTA CONTINUAÇÃO\n\nRelatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-VALIDATION.md`,\n`docs/handoff/MASTER-007-VALIDATION.md` e `docs/handoff/MASTER-009-VALIDATION.md`.\n35 testes unitários, harness PostgreSQL do estoque, de parceiros, de reconciliação e de custos\n(MASTER 009: `npm run test:costs:db`), TypeScript, build e lint do domínio verificados. A implantação\nno banco publicado não faz parte da evidência local e permanece pendente.",
-      "oldString": "## NEXT_STEPS\n\n1. Implementar/validar o importador MASTER 005 com o contrato de `marketplace_stores`, vínculo\n   PARTNER → `partner_profiles` e `marketplace_sales` já existentes. Não duplicar o cadastro de lojas.\n2. Financeiro de parceiros: consumir o snapshot/evento `PARTNER_RECONCILIATION_CLOSED` para gerar\n   cobrança (AR) e registrar pagamento; limites de crédito e condições de pagamento.\n3. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,\n   `PURCHASE_RECEIPT`, `PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`).\n4. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.\n5. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a\n   `/api/webhooks/receiver` quando houver integração externa.\n\n## VALIDAÇÃO DESTA CONTINUAÇÃO"
-    },
-    "timestamp": 1790282260067
-  },
-  {
-    "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790282260090
@@ -1575,5 +1559,20 @@
     "content": "supabase/migrations/20260922100000_production.sql:76:  (NULL, 'rolo', 'Rolo', 'COUNT', 0),\n----\nsupabase/migrations/20260922100000_production.sql\nsupabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql\n",
     "is_error": false,
     "timestamp": 1790285302023
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"CREATE TABLE public.units_of_measure\" -A 16 supabase/migrations/20260922100000_production.sql; echo ----; grep -n \"role_permissions\\|has_permission\" supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql | head",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790285304346
+  },
+  {
+    "role": "tool_result",
+    "content": "30:CREATE TABLE public.units_of_measure (\n31-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n32-  organization_id uuid REFERENCES public.organizations(id) ON DELETE CASCADE,\n33-  code text NOT NULL,\n34-  name text NOT NULL,\n35-  category public.unit_category NOT NULL DEFAULT 'COUNT',\n36-  decimal_p",
+    "is_error": false,
+    "timestamp": 1790285304368
   }
 ]
