@@ -1029,7 +1029,7 @@ $$;
 -- versão corrente; AVERAGE grava a média ponderada do histórico de recebimentos;
 -- STANDARD/NONE não sobrescrevem o custo padrão).
 CREATE FUNCTION public.purchasing_apply_cost_policy(_org uuid,_variant uuid,_inv_unit uuid,_date date,_qty_inv numeric,_cost_inv numeric,_receipt_number text) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
-DECLARE v_pol text; v_ver integer; v_last date; v_avg numeric;
+DECLARE v_pol text; v_ver integer; v_last date; v_avg numeric; v_cur numeric;
 BEGIN
   INSERT INTO public.purchase_receipt_costs(organization_id,variant_id,goods_receipt_id,effective_date,quantity,unit_cost,total_value)
   VALUES(_org,_variant,(SELECT id FROM public.goods_receipts WHERE organization_id=_org AND receipt_number=_receipt_number),_date,_qty_inv,_cost_inv,round(_qty_inv*_cost_inv,6)) ON CONFLICT(organization_id,goods_receipt_id,variant_id) DO NOTHING;
@@ -1042,7 +1042,8 @@ BEGIN
   END IF;
   IF v_pol IN ('LAST_PURCHASE','AVERAGE') AND _inv_unit IS NOT NULL THEN
     SELECT max(version)+1,max(effective_from) INTO v_ver,v_last FROM public.material_cost_versions WHERE organization_id=_org AND variant_id=_variant;
-    IF v_last IS NULL OR _date>v_last THEN
+    SELECT unit_cost INTO v_cur FROM public.material_cost_versions WHERE organization_id=_org AND variant_id=_variant AND status='ACTIVE' LIMIT 1;
+    IF v_cur IS DISTINCT FROM _cost_inv AND (v_last IS NULL OR _date>v_last) THEN
       UPDATE public.material_cost_versions SET status='SUPERSEDED',effective_to=_date WHERE organization_id=_org AND variant_id=_variant AND status='ACTIVE';
       INSERT INTO public.material_cost_versions(organization_id,variant_id,version,unit_of_measure_id,unit_cost,effective_from,source_type,source_reference,created_by,status)
       VALUES(_org,_variant,coalesce(v_ver,1),_inv_unit,_cost_inv,_date,'PURCHASE',_receipt_number,auth.uid(),'ACTIVE');

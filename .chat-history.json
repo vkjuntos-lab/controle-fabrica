@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
-      "offset": 156,
-      "limit": 35
-    },
-    "timestamp": 1790284838564
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql</path>\n<type>file</type>\n<content>\n156: CREATE TABLE public.account_payables (\n157:   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n158:   organization_id uuid NOT NULL REFERENCES public.organizations,\n159",
-    "is_error": false,
-    "timestamp": 1790284838583
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
       "offset": 271,
       "limit": 20
@@ -1565,5 +1549,21 @@
     "content": "PASS: fornecedores + catálogo (perfil, prazos, rolo->m)\nPASS: requisição DRAFT->SUBMITTED->APPROVED\nPASS: cotação multi-fornecedor + premiação\nPASS: pedido aprovado NÃO gera movimento; segregação de aprovação; cancelamento restaura requisição aprovada?\nPASS: recebimento parcial 5/10, inspeção, posta",
     "is_error": false,
     "timestamp": 1790285752478
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
+      "newString": "DECLARE v_pol text; v_ver integer; v_last date; v_avg numeric; v_cur numeric;\nBEGIN\n  INSERT INTO public.purchase_receipt_costs(organization_id,variant_id,goods_receipt_id,effective_date,quantity,unit_cost,total_value)\n  VALUES(_org,_variant,(SELECT id FROM public.goods_receipts WHERE organization_id=_org AND receipt_number=_receipt_number),_date,_qty_inv,_cost_inv,round(_qty_inv*_cost_inv,6)) ON CONFLICT(organization_id,goods_receipt_id,variant_id) DO NOTHING;\n  SELECT acquisition_cost_policy INTO v_pol FROM public.purchasing_settings WHERE organization_id=_org;\n  IF v_pol IS NULL THEN v_pol:='LAST_PURCHASE'; END IF;\n  IF _variant IS NULL THEN RETURN; END IF;\n  IF v_pol='AVERAGE' THEN\n    SELECT sum(quantity*unit_cost)/nullif(sum(quantity),0) INTO v_avg FROM public.purchase_receipt_costs WHERE organization_id=_org AND variant_id=_variant;\n    _cost_inv:=coalesce(v_avg,_cost_inv);\n  END IF;\n  IF v_pol IN ('LAST_PURCHASE','AVERAGE') AND _inv_unit IS NOT NULL THEN\n    SELECT max(version)+1,max(effective_from) INTO v_ver,v_last FROM public.material_cost_versions WHERE organization_id=_org AND variant_id=_variant;\n    SELECT unit_cost INTO v_cur FROM public.material_cost_versions WHERE organization_id=_org AND variant_id=_variant AND status='ACTIVE' LIMIT 1;\n    IF v_cur IS DISTINCT FROM _cost_inv AND (v_last IS NULL OR _date>v_last) THEN\n      UPDATE public.material_cost_versions SET status='SUPERSEDED',effective_to=_date WHERE organization_id=_org AND variant_id=_variant AND status='ACTIVE';\n      INSERT INTO public.material_cost_versions(organization_id,variant_id,version,unit_of_measure_id,unit_cost,effective_from,source_type,source_reference,created_by,status)\n      VALUES(_org,_variant,coalesce(v_ver,1),_inv_unit,_cost_inv,_date,'PURCHASE',_receipt_number,auth.uid(),'ACTIVE');\n      UPDATE public.supplier_products sp SET last_price=(SELECT pu.unit_price FROM public.purchase_order_items pu WHERE pu.variant_id=_variant AND pu.purchase_order_id=(SELECT purchase_order_id FROM public.goods_receipts WHERE organization_id=_org AND receipt_number=_receipt_number) ORDER BY pu.created_at DESC LIMIT 1),last_price_date=_date\n      WHERE sp.organization_id=_org AND sp.variant_id=_variant;\n    END IF;\n  END IF;\nEND;",
+      "oldString": "DECLARE v_pol text; v_ver integer; v_last date; v_avg numeric;\nBEGIN\n  INSERT INTO public.purchase_receipt_costs(organization_id,variant_id,goods_receipt_id,effective_date,quantity,unit_cost,total_value)\n  VALUES(_org,_variant,(SELECT id FROM public.goods_receipts WHERE organization_id=_org AND receipt_number=_receipt_number),_date,_qty_inv,_cost_inv,round(_qty_inv*_cost_inv,6)) ON CONFLICT(organization_id,goods_receipt_id,variant_id) DO NOTHING;\n  SELECT acquisition_cost_policy INTO v_pol FROM public.purchasing_settings WHERE organization_id=_org;\n  IF v_pol IS NULL THEN v_pol:='LAST_PURCHASE'; END IF;\n  IF _variant IS NULL THEN RETURN; END IF;\n  IF v_pol='AVERAGE' THEN\n    SELECT sum(quantity*unit_cost)/nullif(sum(quantity),0) INTO v_avg FROM public.purchase_receipt_costs WHERE organization_id=_org AND variant_id=_variant;\n    _cost_inv:=coalesce(v_avg,_cost_inv);\n  END IF;\n  IF v_pol IN ('LAST_PURCHASE','AVERAGE') AND _inv_unit IS NOT NULL THEN\n    SELECT max(version)+1,max(effective_from) INTO v_ver,v_last FROM public.material_cost_versions WHERE organization_id=_org AND variant_id=_variant;\n    IF v_last IS NULL OR _date>v_last THEN\n      UPDATE public.material_cost_versions SET status='SUPERSEDED',effective_to=_date WHERE organization_id=_org AND variant_id=_variant AND status='ACTIVE';\n      INSERT INTO public.material_cost_versions(organization_id,variant_id,version,unit_of_measure_id,unit_cost,effective_from,source_type,source_reference,created_by,status)\n      VALUES(_org,_variant,coalesce(v_ver,1),_inv_unit,_cost_inv,_date,'PURCHASE',_receipt_number,auth.uid(),'ACTIVE');\n      UPDATE public.supplier_products sp SET last_price=(SELECT pu.unit_price FROM public.purchase_order_items pu WHERE pu.variant_id=_variant AND pu.purchase_order_id=(SELECT purchase_order_id FROM public.goods_receipts WHERE organization_id=_org AND receipt_number=_receipt_number) ORDER BY pu.created_at DESC LIMIT 1),last_price_date=_date\n      WHERE sp.organization_id=_org AND sp.variant_id=_variant;\n    END IF;\n  END IF;\nEND;"
+    },
+    "timestamp": 1790285766962
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790285766992
   }
 ]
