@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql",
-      "limit": 85,
-      "offset": 54
-    },
-    "timestamp": 1790285239953
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql</path>\n<type>file</type>\n<content>\n54:   IF NEW.unit <> 'un' THEN RAISE EXCEPTION 'Unidade operacional desta etapa: un.'; END IF;\n55:   IF NOT EXISTS (SELECT 1 FROM public.product_variants WHERE",
-    "is_error": false,
-    "timestamp": 1790285239984
-  },
-  {
-    "role": "tool",
     "tool": "grep",
     "input": {
       "path": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations",
@@ -1567,5 +1551,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790285910233
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "runuser -u claude-runner -- python3 /root/Zheus\\ AI\\ Projects/controle-fabrica/scripts/test-purchasing-db.py 2>&1 | tail -30",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica",
+      "timeout": 300000
+    },
+    "timestamp": 1790285912087
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: fornecedores + catálogo (perfil, prazos, rolo->m)\nPASS: requisição DRAFT->SUBMITTED->APPROVED\nPASS: cotação multi-fornecedor + premiação\nPASS: pedido aprovado NÃO gera movimento; segregação de aprovação; cancelamento restaura requisição aprovada?\nPASS: recebimento parcial 5/10, inspeção, posta",
+    "is_error": false,
+    "timestamp": 1790285915452
   }
 ]
