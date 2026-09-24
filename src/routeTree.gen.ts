@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ConvidarRouteImport } from './routes/convidar'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedFornecedoresRouteImport } from './routes/_authenticated/fornecedores'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedProdutosRouteImport } from './routes/_authenticated/produtos'
@@ -55,6 +56,7 @@ import { Route as AuthenticatedFinanceiroPagarRouteImport } from './routes/_auth
 import { Route as AuthenticatedFinanceiroReceberRouteImport } from './routes/_authenticated/financeiro/receber'
 import { Route as AuthenticatedFinanceiroRecorrenciasRouteImport } from './routes/_authenticated/financeiro/recorrencias'
 import { Route as AuthenticatedFinanceiroRelatoriosRouteImport } from './routes/_authenticated/financeiro/relatorios'
+import { Route as AuthenticatedFornecedoresIdRouteImport } from './routes/_authenticated/fornecedores.$id'
 import { Route as AuthenticatedParceirosIndexRouteImport } from './routes/_authenticated/parceiros/index'
 import { Route as AuthenticatedParceirosDevolucoesRouteImport } from './routes/_authenticated/parceiros/devolucoes'
 import { Route as AuthenticatedParceirosEstoqueRouteImport } from './routes/_authenticated/parceiros/estoque'
@@ -113,6 +115,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedFornecedoresRoute =
+  AuthenticatedFornecedoresRouteImport.update({
+    id: '/fornecedores',
+    path: '/fornecedores',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -350,6 +358,12 @@ const AuthenticatedFinanceiroRelatoriosRoute =
     path: '/financeiro/relatorios',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedFornecedoresIdRoute =
+  AuthenticatedFornecedoresIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedFornecedoresRoute,
+  } as any)
 const AuthenticatedParceirosIndexRoute =
   AuthenticatedParceirosIndexRouteImport.update({
     id: '/parceiros/',
@@ -522,6 +536,7 @@ export interface FileRoutesByFullPath {
   '/convidar': typeof ConvidarRoute
   '/reset-password': typeof ResetPasswordRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/fornecedores': typeof AuthenticatedFornecedoresRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/produtos': typeof AuthenticatedProdutosRouteWithChildren
@@ -558,6 +573,7 @@ export interface FileRoutesByFullPath {
   '/financeiro/receber': typeof AuthenticatedFinanceiroReceberRoute
   '/financeiro/recorrencias': typeof AuthenticatedFinanceiroRecorrenciasRoute
   '/financeiro/relatorios': typeof AuthenticatedFinanceiroRelatoriosRoute
+  '/fornecedores/$id': typeof AuthenticatedFornecedoresIdRoute
   '/parceiros/devolucoes': typeof AuthenticatedParceirosDevolucoesRoute
   '/parceiros/estoque': typeof AuthenticatedParceirosEstoqueRoute
   '/parceiros/remessas': typeof AuthenticatedParceirosRemessasRoute
@@ -597,6 +613,7 @@ export interface FileRoutesByTo {
   '/convidar': typeof ConvidarRoute
   '/reset-password': typeof ResetPasswordRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/fornecedores': typeof AuthenticatedFornecedoresRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/produtos': typeof AuthenticatedProdutosRouteWithChildren
@@ -633,6 +650,7 @@ export interface FileRoutesByTo {
   '/financeiro/receber': typeof AuthenticatedFinanceiroReceberRoute
   '/financeiro/recorrencias': typeof AuthenticatedFinanceiroRecorrenciasRoute
   '/financeiro/relatorios': typeof AuthenticatedFinanceiroRelatoriosRoute
+  '/fornecedores/$id': typeof AuthenticatedFornecedoresIdRoute
   '/parceiros/devolucoes': typeof AuthenticatedParceirosDevolucoesRoute
   '/parceiros/estoque': typeof AuthenticatedParceirosEstoqueRoute
   '/parceiros/remessas': typeof AuthenticatedParceirosRemessasRoute
@@ -674,6 +692,7 @@ export interface FileRoutesById {
   '/convidar': typeof ConvidarRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/fornecedores': typeof AuthenticatedFornecedoresRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/produtos': typeof AuthenticatedProdutosRouteWithChildren
@@ -710,6 +729,7 @@ export interface FileRoutesById {
   '/_authenticated/financeiro/receber': typeof AuthenticatedFinanceiroReceberRoute
   '/_authenticated/financeiro/recorrencias': typeof AuthenticatedFinanceiroRecorrenciasRoute
   '/_authenticated/financeiro/relatorios': typeof AuthenticatedFinanceiroRelatoriosRoute
+  '/_authenticated/fornecedores/$id': typeof AuthenticatedFornecedoresIdRoute
   '/_authenticated/parceiros/devolucoes': typeof AuthenticatedParceirosDevolucoesRoute
   '/_authenticated/parceiros/estoque': typeof AuthenticatedParceirosEstoqueRoute
   '/_authenticated/parceiros/remessas': typeof AuthenticatedParceirosRemessasRoute
@@ -751,6 +771,7 @@ export interface FileRouteTypes {
     | '/convidar'
     | '/reset-password'
     | '/dashboard'
+    | '/fornecedores'
     | '/onboarding'
     | '/perfil'
     | '/produtos'
@@ -787,6 +808,7 @@ export interface FileRouteTypes {
     | '/financeiro/receber'
     | '/financeiro/recorrencias'
     | '/financeiro/relatorios'
+    | '/fornecedores/$id'
     | '/parceiros/devolucoes'
     | '/parceiros/estoque'
     | '/parceiros/remessas'
@@ -826,6 +848,7 @@ export interface FileRouteTypes {
     | '/convidar'
     | '/reset-password'
     | '/dashboard'
+    | '/fornecedores'
     | '/onboarding'
     | '/perfil'
     | '/produtos'
@@ -862,6 +885,7 @@ export interface FileRouteTypes {
     | '/financeiro/receber'
     | '/financeiro/recorrencias'
     | '/financeiro/relatorios'
+    | '/fornecedores/$id'
     | '/parceiros/devolucoes'
     | '/parceiros/estoque'
     | '/parceiros/remessas'
@@ -902,6 +926,7 @@ export interface FileRouteTypes {
     | '/convidar'
     | '/reset-password'
     | '/_authenticated/dashboard'
+    | '/_authenticated/fornecedores'
     | '/_authenticated/onboarding'
     | '/_authenticated/perfil'
     | '/_authenticated/produtos'
@@ -938,6 +963,7 @@ export interface FileRouteTypes {
     | '/_authenticated/financeiro/receber'
     | '/_authenticated/financeiro/recorrencias'
     | '/_authenticated/financeiro/relatorios'
+    | '/_authenticated/fornecedores/$id'
     | '/_authenticated/parceiros/devolucoes'
     | '/_authenticated/parceiros/estoque'
     | '/_authenticated/parceiros/remessas'
@@ -1024,6 +1050,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fornecedores': {
+      id: '/_authenticated/fornecedores'
+      path: '/fornecedores'
+      fullPath: '/fornecedores'
+      preLoaderRoute: typeof AuthenticatedFornecedoresRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/onboarding': {
@@ -1306,6 +1339,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFinanceiroRelatoriosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/fornecedores/$id': {
+      id: '/_authenticated/fornecedores/$id'
+      path: '/$id'
+      fullPath: '/fornecedores/$id'
+      preLoaderRoute: typeof AuthenticatedFornecedoresIdRouteImport
+      parentRoute: typeof AuthenticatedFornecedoresRoute
+    }
     '/_authenticated/parceiros/': {
       id: '/_authenticated/parceiros/'
       path: '/parceiros'
@@ -1505,6 +1545,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedFornecedoresRouteChildren {
+  AuthenticatedFornecedoresIdRoute: typeof AuthenticatedFornecedoresIdRoute
+}
+
+const AuthenticatedFornecedoresRouteChildren: AuthenticatedFornecedoresRouteChildren =
+  {
+    AuthenticatedFornecedoresIdRoute: AuthenticatedFornecedoresIdRoute,
+  }
+
+const AuthenticatedFornecedoresRouteWithChildren =
+  AuthenticatedFornecedoresRoute._addFileChildren(
+    AuthenticatedFornecedoresRouteChildren,
+  )
+
 interface AuthenticatedProdutosRouteChildren {
   AuthenticatedProdutosIdRoute: typeof AuthenticatedProdutosIdRoute
 }
@@ -1593,6 +1647,7 @@ const AuthenticatedEstoqueMovimentacoesRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedFornecedoresRoute: typeof AuthenticatedFornecedoresRouteWithChildren
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedProdutosRoute: typeof AuthenticatedProdutosRouteWithChildren
@@ -1657,6 +1712,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedFornecedoresRoute: AuthenticatedFornecedoresRouteWithChildren,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedProdutosRoute: AuthenticatedProdutosRouteWithChildren,
