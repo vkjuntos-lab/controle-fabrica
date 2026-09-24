@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
-      "newString": "function qcInvalidateOrders(qc: QueryClient, org: string | undefined) {\n  void qc.invalidateQueries({ queryKey: [\"purchasing\", \"orders\", org] });\n  void qc.invalidateQueries({ queryKey: [\"purchasing\", \"dashboard\", org] });\n}",
-      "oldString": "import { useQueryClient as useQCI } from \"@tanstack/react-query\";\nfunction qcInvalidateOrders(org: string | undefined) {\n  void useQCI().invalidateQueries({ queryKey: [\"purchasing\", \"orders\", org] });\n  void useQCI().invalidateQueries({ queryKey: [\"purchasing\", \"dashboard\", org] });\n}"
-    },
-    "timestamp": 1790286632303
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790286632333
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
       "newString": "function formatNumber(value: number | string | null | undefined, digits = 3): string {\n  if (value == null) return \"0\";\n  const n = typeof value === \"string\" ? Number(value) : value;\n  return new Intl.NumberFormat(\"pt-BR\", { maximumFractionDigits: digits }).format(n);\n}",
       "oldString": "function formatNumber(value: number | string | null | undefined, digits = 3): string {\n  if (value == null) return \"0\";\n  const n = typeof value === \"string\" ? Number(value) : value;\n  return new Intl.NumberFormat(\"pt-BR\", { maximumFractionDigits: digits }).format(n);\n}\n\n// Reexporta PLEASE apenas para manter a importação de rbac em uso quando o\n// preenchimento automático a remover.\nvoid PLEASE;"
     },
@@ -1535,5 +1519,19 @@
     "content": "53:    print('PASS: fornecedores + catálogo (perfil, prazos, rolo->m)')\n62:    print('PASS: requisição DRAFT->SUBMITTED->APPROVED')\n72:    print('PASS: cotação multi-fornecedor + premiação')\n92:    print('PASS: pedido aprovado NÃO gera movimento; segregação de aprovação; cancelamento restaura requis",
     "is_error": false,
     "timestamp": 1790287530553
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "head -20 scripts/test-purchasing-db.py"
+    },
+    "timestamp": 1790287532236
+  },
+  {
+    "role": "tool_result",
+    "content": "#!/usr/bin/env python3\n\"\"\"MASTER 010 acceptance: purchasing/suppliers/receiving/returns/replenishment\nagainst a real isolated PostgreSQL. Pedido aprovado NÃO move estoque; somente\nrecebimento POSTED gera entradas e devolução POSTED gera saídas.\"\"\"\nimport importlib.util\nimport json\nfrom pathlib impor",
+    "is_error": false,
+    "timestamp": 1790287532293
   }
 ]
