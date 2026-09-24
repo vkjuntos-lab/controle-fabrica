@@ -852,6 +852,7 @@ $$;
 -- =====================================================================
 -- 19. RPCs: Pedidos de compra.
 -- =====================================================================
+ALTER TABLE public.purchase_orders ADD COLUMN IF NOT EXISTS cancel_reason text;
 CREATE FUNCTION public.po_save(_org uuid,_data jsonb,_id uuid DEFAULT NULL) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE
   v uuid:=coalesce(_id,gen_random_uuid());
