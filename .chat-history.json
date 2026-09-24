@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
-      "newString": "onSaved={() => {\n                void qcInvalidateOrders(qc, org);\n                setOpen(false);\n              }}",
-      "oldString": "onSaved={() => {\n                void qcInvalidateOrders(org);\n                setOpen(false);\n              }}"
-    },
-    "timestamp": 1790286631425
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790286631460
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
       "newString": "function qcInvalidateOrders(qc: QueryClient, org: string | undefined) {\n  void qc.invalidateQueries({ queryKey: [\"purchasing\", \"orders\", org] });\n  void qc.invalidateQueries({ queryKey: [\"purchasing\", \"dashboard\", org] });\n}",
       "oldString": "import { useQueryClient as useQCI } from \"@tanstack/react-query\";\nfunction qcInvalidateOrders(org: string | undefined) {\n  void useQCI().invalidateQueries({ queryKey: [\"purchasing\", \"orders\", org] });\n  void useQCI().invalidateQueries({ queryKey: [\"purchasing\", \"dashboard\", org] });\n}"
     },
@@ -1537,5 +1521,19 @@
     "content": "12:def run():\n---TAIL---\n                                   'items': [{'variant_id': V1, 'quantity': 5, 'reason': 'Defeito de tecido'}]})\n    rpc('return_action', org, ret, 'post')\n    assert num(f\"SELECT quantity FROM inventory_movements WHERE reference_type='SUPPLIER_RETURN' AND direction='OUT'\") ",
     "is_error": false,
     "timestamp": 1790287529192
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"PASS:\" scripts/test-purchasing-db.py"
+    },
+    "timestamp": 1790287530516
+  },
+  {
+    "role": "tool_result",
+    "content": "53:    print('PASS: fornecedores + catálogo (perfil, prazos, rolo->m)')\n62:    print('PASS: requisição DRAFT->SUBMITTED->APPROVED')\n72:    print('PASS: cotação multi-fornecedor + premiação')\n92:    print('PASS: pedido aprovado NÃO gera movimento; segregação de aprovação; cancelamento restaura requis",
+    "is_error": false,
+    "timestamp": 1790287530553
   }
 ]
