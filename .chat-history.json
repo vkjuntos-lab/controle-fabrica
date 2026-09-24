@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "offset": 271,
-      "limit": 20
-    },
-    "timestamp": 1790284838833
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n271: CREATE TABLE public.domain_events (\n272:   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n273:   organization_id uuid NOT NULL REFERENCES public.organi",
-    "is_error": false,
-    "timestamp": 1790284838865
-  },
-  {
-    "role": "tool",
     "tool": "grep",
     "input": {
       "path": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql",
@@ -1565,5 +1549,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790285766992
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "runuser -u claude-runner -- python3 /root/Zheus\\ AI\\ Projects/controle-fabrica/scripts/test-purchasing-db.py 2>&1 | tail -40",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica",
+      "timeout": 300000
+    },
+    "timestamp": 1790285769046
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: fornecedores + catálogo (perfil, prazos, rolo->m)\nPASS: requisição DRAFT->SUBMITTED->APPROVED\nPASS: cotação multi-fornecedor + premiação\nPASS: pedido aprovado NÃO gera movimento; segregação de aprovação; cancelamento restaura requisição aprovada?\nPASS: recebimento parcial 5/10, inspeção, posta",
+    "is_error": false,
+    "timestamp": 1790285771728
   }
 ]
