@@ -1143,8 +1143,8 @@ BEGIN
     RETURN jsonb_build_object('id',_id,'status',CASE WHEN EXISTS(SELECT 1 FROM public.goods_receipt_items WHERE goods_receipt_id=_id AND accepted_quantity>0) THEN 'ACCEPTED' ELSE 'REJECTED' END);
 
   ELSIF _action='post' THEN
-    IF r.status NOT IN ('ACCEPTED','REJECTED') THEN RAISE EXCEPTION 'Recebimento precisa ser inspecionado antes da postagem.'; END IF;
     IF EXISTS(SELECT 1 FROM public.inventory_movements WHERE organization_id=_org AND reference_type='GOODS_RECEIPT' AND reference_id=_id) THEN RAISE EXCEPTION 'Recebimento já postado.'; END IF;
+    IF r.status NOT IN ('ACCEPTED','REJECTED') THEN RAISE EXCEPTION 'Recebimento precisa ser inspecionado antes da postagem.'; END IF;
     SELECT * INTO po FROM public.purchase_orders WHERE id=r.purchase_order_id AND organization_id=_org;
     SELECT sum(accepted_quantity*unit_cost) INTO v_pool FROM public.goods_receipt_items WHERE goods_receipt_id=_id;
     SELECT freight_policy,payable_on INTO v_pol,v_polpay FROM public.purchasing_settings WHERE organization_id=_org;
