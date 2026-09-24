@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "===\n",
-    "is_error": false,
-    "timestamp": 1790282304554
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"public.units_of_measure.id IN\" supabase/migrations/20260930100000_cost_engine.sql; grep -n \"test:costs:db\" package.json; grep -n \"valid_from':'2026-01-01'}}\\))'{\\\"partner_id'\" scripts/test-costs-db.py; grep -n \"source_reference',auth.uid()\" supabase/migrations/20260930100000_cost_engine.sql | head -1; ls docs/handoff/MASTER-009-VALIDATION.md 2>&1"
-    },
-    "timestamp": 1790282312695
-  },
-  {
-    "role": "tool_result",
     "content": "154:  IF (SELECT count(*) FROM public.units_of_measure WHERE public.units_of_measure.id IN ((_data->>'from_unit_id')::uuid,(_data->>'to_unit_id')::uuid) AND (organization_id=_org OR organization_id IS NULL))<>2 THEN RAISE EXCEPTION 'Unidades inválidas.';END IF;\n18:    \"test:costs:db\": \"python3 scrip",
     "is_error": false,
     "timestamp": 1790282312747
@@ -1579,5 +1565,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790285388628
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
+      "newString": "RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\nDECLARE result jsonb; query text:=lower(coalesce(_filters->>'query','')); st text:=coalesce(_filters->>'status',''); v_id uuid;\nBEGIN\n  PERFORM public.purchasing_require(_org,'supplier_documents.read');\n  IF _kind='documents' THEN\n    WITH rows AS MATERIALIZED(\n      SELECT sd.id,sd.supplier_id,sd.document_type,sd.document_number,sd.issue_date,sd.total_amount,sd.quantity,sd.purchase_order_id,sd.goods_receipt_id,sd.status,\n        c.legal_name supplier_name,po.order_number,\n        (SELECT count(*) FROM public.purchase_exceptions ex WHERE ex.supplier_document_id=sd.id AND ex.status IN ('OPEN','IN_REVIEW')) open_exceptions\n      FROM public.supplier_documents sd JOIN public.supplier_profiles sp ON sp.id=sd.supplier_id JOIN public.companies c ON c.id=sp.company_id LEFT JOIN public.purchase_orders po ON po.id=sd.purchase_order_id\n      WHERE sd.organization_id=_org)\n    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(concat_ws(' ',document_number,supplier_name,order_number)),query)>0) AND (st='' OR \"status\"=st) ORDER BY issue_date DESC,document_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;",
+      "oldString": "RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\nDECLARE result jsonb; query text:=lower(coalesce(_filters->>'query','')); status text:=coalesce(_filters->>'status',''); v_id uuid;\nBEGIN\n  PERFORM public.purchasing_require(_org,'supplier_documents.read');\n  IF _kind='documents' THEN\n    WITH rows AS MATERIALIZED(\n      SELECT sd.id,sd.supplier_id,sd.document_type,sd.document_number,sd.issue_date,sd.total_amount,sd.quantity,sd.purchase_order_id,sd.goods_receipt_id,sd.status,\n        c.legal_name supplier_name,po.order_number,\n        (SELECT count(*) FROM public.purchase_exceptions ex WHERE ex.supplier_document_id=sd.id AND ex.status IN ('OPEN','IN_REVIEW')) open_exceptions\n      FROM public.supplier_documents sd JOIN public.supplier_profiles sp ON sp.id=sd.supplier_id JOIN public.companies c ON c.id=sp.company_id LEFT JOIN public.purchase_orders po ON po.id=sd.purchase_order_id\n      WHERE sd.organization_id=_org)\n    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(concat_ws(' ',document_number,supplier_name,order_number)),query)>0) AND (status='' OR \"status\"=status) ORDER BY issue_date DESC,document_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;"
+    },
+    "timestamp": 1790285396430
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790285396468
   }
 ]

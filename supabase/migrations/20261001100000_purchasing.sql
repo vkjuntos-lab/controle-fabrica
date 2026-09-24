@@ -1409,7 +1409,7 @@ $$;
 
 CREATE FUNCTION public.document_query(_org uuid,_kind text,_filters jsonb DEFAULT '{}',_page integer DEFAULT 1)
 RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$
-DECLARE result jsonb; query text:=lower(coalesce(_filters->>'query','')); status text:=coalesce(_filters->>'status',''); v_id uuid;
+DECLARE result jsonb; query text:=lower(coalesce(_filters->>'query','')); st text:=coalesce(_filters->>'status',''); v_id uuid;
 BEGIN
   PERFORM public.purchasing_require(_org,'supplier_documents.read');
   IF _kind='documents' THEN
@@ -1419,7 +1419,7 @@ BEGIN
         (SELECT count(*) FROM public.purchase_exceptions ex WHERE ex.supplier_document_id=sd.id AND ex.status IN ('OPEN','IN_REVIEW')) open_exceptions
       FROM public.supplier_documents sd JOIN public.supplier_profiles sp ON sp.id=sd.supplier_id JOIN public.companies c ON c.id=sp.company_id LEFT JOIN public.purchase_orders po ON po.id=sd.purchase_order_id
       WHERE sd.organization_id=_org)
-    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(concat_ws(' ',document_number,supplier_name,order_number)),query)>0) AND (status='' OR "status"=status) ORDER BY issue_date DESC,document_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;
+    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(concat_ws(' ',document_number,supplier_name,order_number)),query)>0) AND (st='' OR "status"=st) ORDER BY issue_date DESC,document_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;
   ELSIF _kind='document' THEN
     v_id:=(_filters->>'id')::uuid;
     result:=jsonb_build_object('document',(SELECT to_jsonb(sd) FROM public.supplier_documents sd WHERE sd.id=v_id AND sd.organization_id=_org),
