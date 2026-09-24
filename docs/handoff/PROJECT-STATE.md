@@ -342,8 +342,8 @@ Validação local; publicação não verificada.
 
 - Nova migration validada localmente, não aplicada ao Lovable Cloud nesta execução. Falta smoke
   test autenticado publicado. Ver relatórios `docs/handoff/MASTER-003-VALIDATION.md`,
-  `docs/handoff/MASTER-006-VALIDATION.md`, `docs/handoff/MASTER-007-VALIDATION.md` e
-  `docs/handoff/MASTER-009-VALIDATION.md`.
+  `docs/handoff/MASTER-006-VALIDATION.md`, `docs/handoff/MASTER-007-VALIDATION.md`,
+  `docs/handoff/MASTER-009-VALIDATION.md` e `docs/handoff/MASTER-010-VALIDATION.md`.
 - O harness PostgreSQL roda como usuário não root (`initdb` recusa root); reproduzir via
   `su - claude-runner` conforme documentado no relatório do MASTER 006.
 - Replay limpo da migration histórica `20260918100000_inventory_ledger.sql` precisa carregar esse
@@ -368,7 +368,10 @@ Validação local; publicação não verificada.
 
 ## NEXT_STEPS
 
-1. Aplicar a migration do MASTER 009 no Lovable Cloud e executar smoke test autenticado
+1. Aplicar a migration do MASTER 010 no Lovable Cloud e executar smoke test autenticado
+   (fornecedores, requisição → cotação → pedido → recebimento → postagem, documento/exceções,
+   reposição) no ambiente publicado.
+2. Aplicar a migration do MASTER 009 no Lovable Cloud e executar smoke test autenticado
    (custos, precificação, rentabilidade) no ambiente publicado.
 2. Implementar/validar o importador MASTER 005 com o contrato de `marketplace_stores`, vínculo
    PARTNER → `partner_profiles` e `marketplace_sales` já existentes. Não duplicar o cadastro de lojas.
