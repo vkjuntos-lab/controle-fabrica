@@ -202,7 +202,7 @@ def run():
                                    'items': [{'variant_id': V1, 'quantity': 5, 'reason': 'Defeito de tecido'}]})
     rpc('return_action', org, ret, 'post')
     assert num(f"SELECT quantity FROM inventory_movements WHERE reference_type='SUPPLIER_RETURN' AND direction='OUT'") == 5
-    assert float(sql(f"SELECT sum(quantity) FROM inventory_balances WHERE variant_id='{V1}' AND location_id='{factory}'")) == 25  # 30 - 5
+    assert float(sql(f"SELECT sum(quantity) FROM inventory_balances WHERE variant_id='{V1}' AND location_id='{factory}'")) == 37  # 30 + 12(excesso) - 5
     ret2 = rpc('return_save', org, {'supplier_id': sup, 'source_location_id': factory,
                                     'items': [{'variant_id': V1, 'quantity': 999}]})
     rpc('return_action', org, ret2, 'post', fail='Saldo insuficiente')
