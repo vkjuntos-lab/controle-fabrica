@@ -386,7 +386,8 @@ Validação local; publicação não verificada.
 ## VALIDAÇÃO DESTA CONTINUAÇÃO
 
 Relatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-VALIDATION.md`,
-`docs/handoff/MASTER-007-VALIDATION.md` e `docs/handoff/MASTER-009-VALIDATION.md`.
-35 testes unitários, harness PostgreSQL do estoque, de parceiros, de reconciliação e de custos
-(MASTER 009: `npm run test:costs:db`), TypeScript, build e lint do domínio verificados. A implantação
-no banco publicado não faz parte da evidência local e permanece pendente.
+`docs/handoff/MASTER-007-VALIDATION.md`, `docs/handoff/MASTER-009-VALIDATION.md` e
+`docs/handoff/MASTER-010-VALIDATION.md`.
+37 testes unitários, harness PostgreSQL de estoque, de parceiros, de reconciliação, de custos e de
+compras (MASTER 010: `npm run test:purchasing:db`), TypeScript, build e lint do domínio verificados.
+A implantação no banco publicado não faz parte da evidência local e permanece pendente.
