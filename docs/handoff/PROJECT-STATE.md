@@ -1,6 +1,19 @@
 # Estado do projeto — handoff contínuo
 
-## Continuação validada — 24/09/2026
+## Continuação validada — 24/09/2026 (MASTER 009)
+
+Cost Engine, formação de preço, margens e rentabilidade implementados e validados localmente
+(`20260930100000_cost_engine.sql` + telas `/custos`, `/precificacao`, `/relatorios/rentabilidade`).
+Custo ≠ preço ≠ receita ≠ recebimento; custo usa dados oficiais dos módulos anteriores, preço
+reutiliza as tabelas do MASTER 007, rentabilidade usa `sale_cost_snapshots` imutáveis (parceiro
+consome o billable do fechamento, nunca o gross). Harness `npm run test:costs:db`, 35 testes
+unitários, TypeScript, build e lint verificados. Para concluir foram corrigidos bugs na migration
+(`cost_save_input`: `id` ambíguo em conversão e `source_reference` em economics) e cenários do teste
+(mensagem de bloqueio de custo incompleto, data do saldo do parceiro e `valid_from` do vínculo de
+preço). Detalhes em `MASTER-009-VALIDATION.md`.
+
+
+## Continuação validada — 24/09/2026 (MASTER 006)
 
 Parceiros/lojas: interface alinhada às permissões reais `reconciliation.*` e `marketplace.manage`.
 Aba de lojas do Parceiro 360 com paginação e acesso negado explícito. Teste integrado aplica os schemas
@@ -13,7 +26,7 @@ foram preservados. MarketplaceStore já existe; a pendência MASTER 005 é o imp
 Publicação e smoke test autenticado continuam sem verificação.
 
 
-Última atualização: LOVABLE MASTER 007 — Marketplaces/lojas, vendas, mapeamento de SKU, regra
+Última atualização: LOVABLE MASTER 009 — Cost Engine, formação de preço, margens e rentabilidade,
 comercial (tabelas de preço) e reconciliação com fechamento idempotente de parceiros, sobre o
 MASTER 006 (parceiros), MASTER 003 (Inventory Ledger), MASTER 002 (Catálogo) e a fundação do
 MASTER 001. O MASTER 005 (importador marketplace automático) não está no checkout — o registro de
