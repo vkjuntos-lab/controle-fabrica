@@ -978,9 +978,9 @@ CREATE FUNCTION public.purchasing_po_payable_total(_org uuid,_po_id uuid) RETURN
  SELECT coalesce(sum(original_amount),0) FROM public.account_payables WHERE organization_id=_org AND source_type='PURCHASE' AND source_id=_po_id::text AND status<>'CANCELED';
 $$;
 
-CREATE FUNCTION public.purchasing_create_payables(_org uuid,_po_id uuid) RETURNS int LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+CREATE FUNCTION public.purchasing_create_payables(_org uuid,_po_id uuid,_amount numeric DEFAULT NULL) RETURNS int LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE po public.purchase_orders; terms int[]; n int; base numeric; due date; doc text; seq bigint;
-  fin uuid; dc uuid; company uuid; amt numeric; i int; cnt int:=0;
+  fin uuid; dc uuid; company uuid; amt numeric; i int; cnt int:=0; v_total numeric;
 BEGIN
   SELECT * INTO po FROM public.purchase_orders WHERE id=_po_id AND organization_id=_org;
   IF NOT FOUND THEN RAISE EXCEPTION 'Pedido não encontrado.'; END IF;
@@ -988,19 +988,20 @@ BEGIN
   SELECT company_id INTO company FROM public.supplier_profiles WHERE id=po.supplier_id;
   SELECT id INTO fin FROM public.financial_categories WHERE organization_id=_org ORDER BY name LIMIT 1;
   dc:=po.cost_center_id; IF dc IS NULL THEN SELECT id INTO dc FROM public.cost_centers WHERE organization_id=_org ORDER BY name LIMIT 1; END IF;
+  v_total:=coalesce(_amount,po.total_amount);
   terms:=public.purchasing_split_terms(coalesce(po.payment_terms,'0'));
   n:=array_length(terms,1); IF n IS NULL OR n<=0 THEN n:=1; END IF;
-  base:=round(po.total_amount/n,2);
+  base:=round(v_total/n,2);
   FOR i IN 1..n LOOP
     seq:=nextval('public.purchase_payable_seq');
     doc:='CMP-'||to_char(po.issue_date,'YYYY')||'-'||lpad(seq::text,6,'0')||'/'||i;
-    amt:=CASE WHEN i<n THEN base ELSE round(po.total_amount-base*(n-1),2) END;
+    amt:=CASE WHEN i<n THEN base ELSE round(v_total-base*(n-1),2) END;
     due:=po.issue_date + (CASE WHEN i<=n THEN terms[i] ELSE 0 END);
     INSERT INTO public.account_payables(organization_id,company_id,source_type,source_id,source_status,document_number,description,issue_date,due_date,original_amount,open_amount,currency,financial_category_id,cost_center_id,notes,created_by,installment_number,total_installments)
     VALUES(_org,company,'PURCHASE',_po_id::text,'ACTIVE',doc,'Pedido de compra '||po.order_number||' - parcela '||i||'/'||n,po.issue_date,due,amt,amt,po.currency,fin,dc,po.notes,auth.uid(),i,n);
     cnt:=cnt+1;
   END LOOP;
-  PERFORM public.purchasing_audit(_org,'purchasing.payables.create','purchase_orders',_po_id,jsonb_build_object('installments',cnt,'total',po.total_amount));
+  PERFORM public.purchasing_audit(_org,'purchasing.payables.create','purchase_orders',_po_id,jsonb_build_object('installments',cnt,'total',v_total));
   RETURN cnt;
 END;
 $$;

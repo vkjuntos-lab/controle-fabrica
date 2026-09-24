@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n593: \n594: -- =====================================================================\n595: -- 9. RPC: tabelas de preço.\n596: -- ==============================",
-    "is_error": false,
-    "timestamp": 1790282103692
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-costs-db.py",
-      "newString": "rpc('price_link_partner',org,{'partner_id':pid,'price_table_id':pt,'valid_from':'2026-01-01'})",
-      "oldString": "rpc('price_link_partner',org,{'partner_id':pid,'price_table_id':pt})"
-    },
-    "timestamp": 1790282108601
-  },
-  {
-    "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790282108613
@@ -1598,5 +1582,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790285017167
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
+      "newString": "CREATE FUNCTION public.purchasing_create_payables(_org uuid,_po_id uuid,_amount numeric DEFAULT NULL) RETURNS int LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE po public.purchase_orders; terms int[]; n int; base numeric; due date; doc text; seq bigint;\n  fin uuid; dc uuid; company uuid; amt numeric; i int; cnt int:=0; v_total numeric;\nBEGIN\n  SELECT * INTO po FROM public.purchase_orders WHERE id=_po_id AND organization_id=_org;\n  IF NOT FOUND THEN RAISE EXCEPTION 'Pedido não encontrado.'; END IF;\n  IF public.purchasing_po_payable_total(_org,_po_id)>0 THEN RAISE EXCEPTION 'Obrigação financeira já criada para este pedido.'; END IF;\n  SELECT company_id INTO company FROM public.supplier_profiles WHERE id=po.supplier_id;\n  SELECT id INTO fin FROM public.financial_categories WHERE organization_id=_org ORDER BY name LIMIT 1;\n  dc:=po.cost_center_id; IF dc IS NULL THEN SELECT id INTO dc FROM public.cost_centers WHERE organization_id=_org ORDER BY name LIMIT 1; END IF;\n  v_total:=coalesce(_amount,po.total_amount);\n  terms:=public.purchasing_split_terms(coalesce(po.payment_terms,'0'));\n  n:=array_length(terms,1); IF n IS NULL OR n<=0 THEN n:=1; END IF;\n  base:=round(v_total/n,2);\n  FOR i IN 1..n LOOP\n    seq:=nextval('public.purchase_payable_seq');\n    doc:='CMP-'||to_char(po.issue_date,'YYYY')||'-'||lpad(seq::text,6,'0')||'/'||i;\n    amt:=CASE WHEN i<n THEN base ELSE round(v_total-base*(n-1),2) END;\n    due:=po.issue_date + (CASE WHEN i<=n THEN terms[i] ELSE 0 END);\n    INSERT INTO public.account_payables(organization_id,company_id,source_type,source_id,source_status,document_number,description,issue_date,due_date,original_amount,open_amount,currency,financial_category_id,cost_center_id,notes,created_by,installment_number,total_installments)\n    VALUES(_org,company,'PURCHASE',_po_id::text,'ACTIVE',doc,'Pedido de compra '||po.order_number||' - parcela '||i||'/'||n,po.issue_date,due,amt,amt,po.currency,fin,dc,po.notes,auth.uid(),i,n);\n    cnt:=cnt+1;\n  END LOOP;\n  PERFORM public.purchasing_audit(_org,'purchasing.payables.create','purchase_orders',_po_id,jsonb_build_object('installments',cnt,'total',v_total));\n  RETURN cnt;\nEND;\n$$;",
+      "oldString": "CREATE FUNCTION public.purchasing_create_payables(_org uuid,_po_id uuid) RETURNS int LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE po public.purchase_orders; terms int[]; n int; base numeric; due date; doc text; seq bigint;\n  fin uuid; dc uuid; company uuid; amt numeric; i int; cnt int:=0;\nBEGIN\n  SELECT * INTO po FROM public.purchase_orders WHERE id=_po_id AND organization_id=_org;\n  IF NOT FOUND THEN RAISE EXCEPTION 'Pedido não encontrado.'; END IF;\n  IF public.purchasing_po_payable_total(_org,_po_id)>0 THEN RAISE EXCEPTION 'Obrigação financeira já criada para este pedido.'; END IF;\n  SELECT company_id INTO company FROM public.supplier_profiles WHERE id=po.supplier_id;\n  SELECT id INTO fin FROM public.financial_categories WHERE organization_id=_org ORDER BY name LIMIT 1;\n  dc:=po.cost_center_id; IF dc IS NULL THEN SELECT id INTO dc FROM public.cost_centers WHERE organization_id=_org ORDER BY name LIMIT 1; END IF;\n  terms:=public.purchasing_split_terms(coalesce(po.payment_terms,'0'));\n  n:=array_length(terms,1); IF n IS NULL OR n<=0 THEN n:=1; END IF;\n  base:=round(po.total_amount/n,2);\n  FOR i IN 1..n LOOP\n    seq:=nextval('public.purchase_payable_seq');\n    doc:='CMP-'||to_char(po.issue_date,'YYYY')||'-'||lpad(seq::text,6,'0')||'/'||i;\n    amt:=CASE WHEN i<n THEN base ELSE round(po.total_amount-base*(n-1),2) END;\n    due:=po.issue_date + (CASE WHEN i<=n THEN terms[i] ELSE 0 END);\n    INSERT INTO public.account_payables(organization_id,company_id,source_type,source_id,source_status,document_number,description,issue_date,due_date,original_amount,open_amount,currency,financial_category_id,cost_center_id,notes,created_by,installment_number,total_installments)\n    VALUES(_org,company,'PURCHASE',_po_id::text,'ACTIVE',doc,'Pedido de compra '||po.order_number||' - parcela '||i||'/'||n,po.issue_date,due,amt,amt,po.currency,fin,dc,po.notes,auth.uid(),i,n);\n    cnt:=cnt+1;\n  END LOOP;\n  PERFORM public.purchasing_audit(_org,'purchasing.payables.create','purchase_orders',_po_id,jsonb_build_object('installments',cnt,'total',po.total_amount));\n  RETURN cnt;\nEND;\n$$;"
+    },
+    "timestamp": 1790285025671
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790285025705
   }
 ]
