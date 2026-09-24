@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"'po'\\]\" scripts/test-purchasing-db.py; grep -n \"total_amount == 310\\|last_price\\b\" scripts/test-purchasing-db.py | head",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790285675377
-  },
-  {
-    "role": "tool_result",
-    "content": "117:    assert j(rpc('po_query', org, 'order', {'id': po1}))['po']['status'] == 'COMPLETED'\n106:    assert num(f\"SELECT last_price FROM supplier_products WHERE supplier_id='{sup}' AND variant_id='{V1}'\") == 30\n",
-    "is_error": false,
-    "timestamp": 1790285675425
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-purchasing-db.py",
@@ -1596,5 +1581,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790286296345
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/layout/app-shell.tsx",
+      "newString": "{\n    label: \"Reconciliação parcerias\",\n    to: \"/reconciliacao\",\n    icon: Scale,\n    permission: PERMISSIONS.partnerReconciliationRead,\n  },\n  {\n    label: \"Compras\",\n    to: \"/compras\",\n    icon: ShoppingCart,\n    permission: PERMISSIONS.purchasingRead,\n  },\n  {\n    label: \"Fornecedores\",\n    to: \"/fornecedores\",\n    icon: Handshake,\n    permission: PERMISSIONS.suppliersRead,\n  },\n  {\n    label: \"Requisições\",\n    to: \"/compras/requisicoes\",\n    icon: ClipboardList,\n    permission: PERMISSIONS.purchaseRequestsRead,\n  },\n  {\n    label: \"Cotações\",\n    to: \"/compras/cotacoes\",\n    icon: Scale,\n    permission: PERMISSIONS.quotationsRead,\n  },\n  {\n    label: \"Pedidos de compra\",\n    to: \"/compras/pedidos\",\n    icon: ShoppingCart,\n    permission: PERMISSIONS.purchaseOrdersRead,\n  },\n  {\n    label: \"Recebimentos\",\n    to: \"/compras/recebimentos\",\n    icon: Package,\n    permission: PERMISSIONS.goodsReceiptsRead,\n  },\n  {\n    label: \"Devoluções a fornecedores\",\n    to: \"/compras/devolucoes\",\n    icon: ArrowLeftRight,\n    permission: PERMISSIONS.supplierReturnsRead,\n  },\n  {\n    label: \"Documentos de fornecedor\",\n    to: \"/compras/documentos\",\n    icon: ScrollText,\n    permission: PERMISSIONS.supplierDocumentsRead,\n  },\n  {\n    label: \"Exceções de compra\",\n    to: \"/compras/excecoes\",\n    icon: ShieldCheck,\n    permission: PERMISSIONS.purchaseExceptionsRead,\n  },\n  {\n    label: \"Reposição\",\n    to: \"/compras/reposicao\",\n    icon: Warehouse,\n    permission: PERMISSIONS.purchasingRead,\n  },",
+      "oldString": "{\n    label: \"Reconciliação parcerias\",\n    to: \"/reconciliacao\",\n    icon: Scale,\n    permission: PERMISSIONS.partnerReconciliationRead,\n  },"
+    },
+    "timestamp": 1790286301222
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790286301241
   }
 ]
