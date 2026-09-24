@@ -1,19 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc 'git status --short'"
-    },
-    "timestamp": 1790273315256
-  },
-  {
-    "role": "tool_result",
-    "content": " M .chat-history.json\n M src/integrations/supabase/types.ts\n M src/lib/products/products.functions.ts\n M src/routes/_authenticated/produtos.$id.tsx\n?? scripts/test-costs-db.py\n?? src/components/costs/\n?? src/lib/costs/\n?? supabase/migrations/20260930100000_cost_engine.sql\n",
-    "is_error": false,
-    "timestamp": 1790273315263
-  },
-  {
     "role": "assistant",
     "content": "O primeiro teste integrado passou: a BOM resulta em R$ 30, o recálculo não duplica a versão e a publicação exige aprovação. Agora estou completando as telas e ampliando os testes de histórico, rentabilidade e isolamento entre organizações.\n",
     "timestamp": 1790273318746
@@ -1506,5 +1492,19 @@
     "content": "===\n",
     "is_error": false,
     "timestamp": 1790282304554
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"public.units_of_measure.id IN\" supabase/migrations/20260930100000_cost_engine.sql; grep -n \"test:costs:db\" package.json; grep -n \"valid_from':'2026-01-01'}}\\))'{\\\"partner_id'\" scripts/test-costs-db.py; grep -n \"source_reference',auth.uid()\" supabase/migrations/20260930100000_cost_engine.sql | head -1; ls docs/handoff/MASTER-009-VALIDATION.md 2>&1"
+    },
+    "timestamp": 1790282312695
+  },
+  {
+    "role": "tool_result",
+    "content": "154:  IF (SELECT count(*) FROM public.units_of_measure WHERE public.units_of_measure.id IN ((_data->>'from_unit_id')::uuid,(_data->>'to_unit_id')::uuid) AND (organization_id=_org OR organization_id IS NULL))<>2 THEN RAISE EXCEPTION 'Unidades inválidas.';END IF;\n18:    \"test:costs:db\": \"python3 scrip",
+    "is_error": false,
+    "timestamp": 1790282312747
   }
 ]
