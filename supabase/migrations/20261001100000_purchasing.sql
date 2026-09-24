@@ -1588,7 +1588,8 @@ DO $$ DECLARE f text; BEGIN
   'quotation_save','quotation_award','quotation_query','po_save','po_action','po_query','purchasing_create_payables','purchasing_create_payable_doc',
   'purchasing_apply_cost_policy','purchasing_po_payable_total','po_receive','receipt_action','receipt_query',
   'return_save','return_action','return_query','document_save','document_action','document_query',
-  'exception_action','exception_query','replenishment_query','purchasing_query','purchasing_settings_save','purchasing_ensure_settings'] LOOP
+  'exception_action','exception_query','replenishment_query','purchasing_query','purchasing_settings_save','purchasing_ensure_settings',
+  'purchasing_split_terms','purchasing_audit','purchasing_require','purchasing_guard_relations','purchasing_immutable','purchasing_find_factor'] LOOP
   EXECUTE format('REVOKE ALL ON FUNCTION public.%I FROM PUBLIC,anon',f);
   EXECUTE format('GRANT EXECUTE ON FUNCTION public.%I TO authenticated,service_role',f);
  END LOOP;
