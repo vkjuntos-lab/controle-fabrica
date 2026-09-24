@@ -4,21 +4,6 @@
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
-      "limit": 60
-    },
-    "timestamp": 1790286606698
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx</path>\n<type>file</type>\n<content>\n1: import { useEffect, useState } from \"react\";\n2: import { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\n3: import { useServerFn } from \"@tanstack/react-star",
-    "is_error": false,
-    "timestamp": 1790286606736
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
       "offset": 1490,
       "limit": 140
     },
@@ -1546,5 +1531,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790287428174
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "# Fornecedores — Suppliers\n\nDocumento de negócio e modelo técnico do cadastro de fornecedores (MASTER 010). Complementa\n`PURCHASING.md` e `GOODS-RECEIPT.md`.\n\n## Princípio central\n\nFornecedor **não é uma tabela própria, é uma empresa com papel `SUPPLIER`**. A pessoa jurídica\nvive em `companies` (já usada por parceiros no MASTER 006); o `supplier_profiles` é o \"cartão de\nfornecedor\" da organização (código, condições, preferência), e `supplier_products` é o catálogo de\ncompras daquele fornecedor para cada variante.\n\n## Modelo de dados\n\n| Objeto | Papel |\n| --- | --- |\n| `companies` | PJ/PF com documento normalizado (CPF/CNPJ/OTHER), endereços e contatos (base do MASTER 006). |\n| `company_roles` | `company_id` com `role='SUPPLIER'` (a empresa pode ser simultaneamente PARTNER/CUSTOMER/RESELLER). |\n| `supplier_profiles` | Perfil de compra: `supplier_code` único por organização, `status`, `default_payment_terms`, `lead_time_days`, `minimum_order_value`, `preferred`, `currency`, `notes`. `UNIQUE(organization_id, company_id)` e `UNIQUE(organization_id, supplier_code)`. |\n| `supplier_products` | Relação fornecedor×variante: `supplier_sku`, `supplier_description`, `purchase_unit_id`/`inventory_unit_id`, `conversion_factor`, `last_price`, `minimum_order_quantity`, `lead_time_days`, `status`. |\n| `company_roles` (FK via `company_roles`) | Garante que o papel SUPPLIER compartilha a mesma `company_id` (helper `supplier_profiles`). |\n\n## Cadastro (`supplier_save_company`)\n\nUma única chamada cria, na mesma transação:\n\n1. `companies` (se inexistente; upsert por documento/nome);\n2. `company_roles` `SUPPLIER` (`ON CONFLICT DO NOTHING`);\n3. `supplier_profiles` com `supplier_code` (único por organização);\n4. o(s) produto(s) do catálogo informado(s) pelo payload.\n\nO **RS retorna o `company_id`** (e o perfil criado); **todos os RPCs de compras usam o\n`supplier_profiles.id`** (`supplier_id`) — atenção ao mapear payloads e links (o detalhe do\nfornecedor consulta por `company_id`).\n\n## Catálogo (`supplier_product_save`)\n\nCadastra/atualiza a variante no catálogo do fornecedor. Deixando unidades em branco o sistema\nherda os padrões e `conversion_factor` default `1`; o fator alimenta o cálculo de estoque no\nrecebimento (ex.: rolo → m com fator 5 ⇒ receber 2 rolos entra 10 m). `minimum_order_quantity`,\n`lead_time_days` e preço de referência opcionais.\n\n## Consulta (`supplier_query`)\n\n| kind | Retorna |\n| --- | --- |\n| `suppliers` | Lista (50/página) com `company_id`, `supplier_id`, código, razão/nome fantasia, status, `product_count`, `open_orders`; filtro por texto e status. |\n| `supplier` | Detalhe completo (`company_id`+documentos+perfil) com `products`, `orders`, `receipts`, `documents`, `returns` (20 cada) e `payables` (somente com `payables.read`). |\n| `products` | Catálogo do fornecedor (filtrável por `supplier_id`), com unidades e fator. |\n| `dashboard` | KPIs: fornecedores ativos, produtos catalogados, pedidos em aberto, documentos sem casamento, exceções em aberto. |\n\n## Regras\n\n- Código de fornecedor único por organização; documento (CPF/CNPJ) com validação de formato\n  server-side (mesma função de `companies`).\n- Desativação por `status` (INACTIVE/BLOCKED) — sem exclusão física quando há histórico.\n- `supplier_product_save` grava `last_price`/`last_price_date` como referência; o preço **oficial**\n  do item de compra é o do pedido. A postagem do recebimento atualiza `last_price` do catálogo.\n- Permissões: `suppliers.read` (ler) e `suppliers.manage` (cadastrar/editar catálogo).\n\n## Telas\n\n- `/fornecedores` — lista, busca, criação de fornecedor + catálogo inicial e dashboard.\n- `/fornecedores/$id` — Fornecedor 360: detalhe, produtos do catálogo (adicionar/editar),\n  pedidos, recebimentos, documentos, devoluções e histórico financeiro.\n\nDetalhes de integração nos fluxos de compra: `PURCHASING.md`.",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/SUPPLIERS.md"
+    },
+    "timestamp": 1790287439709
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790287439731
   }
 ]
