@@ -151,7 +151,7 @@ BEGIN
  IF permission IS NULL THEN RAISE EXCEPTION 'Configuração inválida.';END IF;
  PERFORM public.cost_require(_org,permission);PERFORM public.inventory_lock(_org);
  IF _kind='conversion' THEN
-  IF (SELECT count(*) FROM public.units_of_measure WHERE id IN ((_data->>'from_unit_id')::uuid,(_data->>'to_unit_id')::uuid) AND (organization_id=_org OR organization_id IS NULL))<>2 THEN RAISE EXCEPTION 'Unidades inválidas.';END IF;
+  IF (SELECT count(*) FROM public.units_of_measure WHERE public.units_of_measure.id IN ((_data->>'from_unit_id')::uuid,(_data->>'to_unit_id')::uuid) AND (organization_id=_org OR organization_id IS NULL))<>2 THEN RAISE EXCEPTION 'Unidades inválidas.';END IF;
   IF nullif(trim(_data->>'reason'),'') IS NULL THEN RAISE EXCEPTION 'Conversão exige referência.';END IF;
   INSERT INTO public.unit_conversions(organization_id,from_unit_id,to_unit_id,factor,created_by) VALUES(_org,(_data->>'from_unit_id')::uuid,(_data->>'to_unit_id')::uuid,(_data->>'factor')::numeric,auth.uid()) RETURNING unit_conversions.id INTO id;
  ELSIF _kind='material' THEN

@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790129224494
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "timeout 280 bun run build:dev 2>&1 | tail -30",
-      "timeout": 300000
-    },
-    "timestamp": 1790129230881
-  },
-  {
-    "role": "tool_result",
     "content": " \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\n✓ built in 994ms\n\nPWA v1.3.0\nmode      generateSW\nprecache  5 entries (0.00 KiB)\nfiles generated\n  dist/sw.js\n  dist/workbox-bdb63dfa.js\nwarnings\n  One of ",
     "is_error": false,
     "timestamp": 1790129250493
@@ -1371,5 +1356,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql</path>\n<type>file</type>\n<content>\n120: DECLARE j jsonb:=to_jsonb(NEW);pair text[];o uuid;n bigint;\n121: BEGIN\n122:  IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Histórico de custo imutável.';END IF;\n123:  I",
     "is_error": false,
     "timestamp": 1790281926102
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql",
+      "oldString": "IF (SELECT count(*) FROM public.units_of_measure WHERE id IN ((_data->>'from_unit_id')::uuid,(_data->>'to_unit_id')::uuid) AND (organization_id=_org OR organization_id IS NULL))<>2 THEN RAISE EXCEPTION 'Unidades inválidas.';END IF;",
+      "newString": "IF (SELECT count(*) FROM public.units_of_measure WHERE public.units_of_measure.id IN ((_data->>'from_unit_id')::uuid,(_data->>'to_unit_id')::uuid) AND (organization_id=_org OR organization_id IS NULL))<>2 THEN RAISE EXCEPTION 'Unidades inválidas.';END IF;"
+    },
+    "timestamp": 1790281937226
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790281937268
   }
 ]
