@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"CREATE FUNCTION public.cost_save_input\\|_kind='material'\\|\\('material'\\)\\|material_cost_versions\" supabase/migrations/20260930100000_cost_engine.sql | head -20"
-    },
-    "timestamp": 1790284338021
-  },
-  {
-    "role": "tool_result",
-    "content": "3:CREATE TABLE public.material_cost_versions (\n124:  IF TG_TABLE_NAME IN ('product_cost_versions','material_cost_versions','labor_rates','overhead_rules') THEN\n137: FOREACH t IN ARRAY ARRAY['material_cost_versions','labor_rates','overhead_rules','cost_routing_steps','production_labor_entries','cost_",
-    "is_error": false,
-    "timestamp": 1790284338057
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql",
@@ -1587,5 +1573,21 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790285667629
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
+      "limit": 30,
+      "offset": 957
+    },
+    "timestamp": 1790285670366
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql</path>\n<type>file</type>\n<content>\n957:   ELSIF _kind='order' THEN\n958:     v_id:=(_filters->>'id')::uuid;\n959:     result:=jsonb_build_object(\n960:       'order',(SELECT to_jsonb(po) FROM public.purchas",
+    "is_error": false,
+    "timestamp": 1790285670403
   }
 ]
