@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
-      "newString": "<div className=\"grid gap-3 md:grid-cols-2\">\n        <Input placeholder=\"Data (AAAA-MM-DD)\" value={form.received_at ?? \"\"} onChange={(e) => set(\"received_at\", e.target.value)} />\n        <select className={cls} value={form.destination_location_id ?? \"\"} onChange={(e) => set(\"destination_location_id\", e.target.value)}>\n          <option value=\"\">Local de entrada</option>\n          {(locations.data ?? []).map((l) => (\n            <option key={l.id} value={l.id}>\n              {l.code} — {l.name}\n            </option>\n          ))}\n        </select>\n      </div>",
-      "oldString": "<div className=\"grid gap-3 md:grid-cols-2\">\n        <Input placeholder=\"Data (AAAA-MM-DD)\" value={form.received_at ?? \"\"} onChange={(e) => set(\"received_at\", e.target.value)} />\n        {locations.type === \"ready\" ? null : null}\n      </div>"
-    },
-    "timestamp": 1790286638795
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790286638817
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
       "newString": "/* ============================================================\n * Recebimentos\n * ============================================================ */",
       "oldString": "function useSupports(org: string | undefined) {\n  const locations = useLocations(org, true);\n  return { type: \"ready\" as const, locations };\n}\n\n/* ============================================================\n * Recebimentos\n * ============================================================ */"
     },
@@ -1530,5 +1514,20 @@
     "content": "uid=100(postgres) gid=108(postgres) groups=108(postgres),107(ssl-cert)\npostgres:x:100:108:PostgreSQL administrator:/var/lib/postgresql:/bin/bash\ndrwxr-xr-x 93 claude-runner claude-runner 4096 Sep 22 01:59 /root/Zheus AI Projects\n",
     "is_error": false,
     "timestamp": 1790287536601
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "chmod o+x \"/root/Zheus AI Projects/controle-fabrica\" && su postgres -s /bin/bash -c 'cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 scripts/test-purchasing-db.py' 2>&1 | tail -20",
+      "timeout": 240000
+    },
+    "timestamp": 1790287538186
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: fornecedores + catálogo (perfil, prazos, rolo->m)\nPASS: requisição DRAFT->SUBMITTED->APPROVED\nPASS: cotação multi-fornecedor + premiação\nPASS: pedido aprovado NÃO gera movimento; segregação de aprovação; cancelamento restaura requisição aprovada?\nPASS: recebimento parcial 5/10, inspeção, posta",
+    "is_error": false,
+    "timestamp": 1790287541645
   }
 ]
