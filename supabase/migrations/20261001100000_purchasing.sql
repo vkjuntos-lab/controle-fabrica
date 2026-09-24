@@ -1574,7 +1574,7 @@ DO $$ DECLARE t text; BEGIN
   EXECUTE format('DROP TRIGGER IF EXISTS purchasing_guard_relations ON public.%I',t);
   EXECUTE format('CREATE TRIGGER purchasing_guard_relations BEFORE INSERT OR UPDATE ON public.%I FOR EACH ROW EXECUTE FUNCTION public.purchasing_guard_relations()',t);
  END LOOP;
- FOREACH t IN ARRAY ARRAY['purchase_orders','goods_receipts','goods_receipt_items','supplier_returns','supplier_return_items','supplier_documents'] LOOP
+ FOREACH t IN ARRAY ARRAY['purchase_orders','goods_receipts','goods_receipt_items','supplier_returns','supplier_documents'] LOOP
   EXECUTE format('DROP TRIGGER IF EXISTS purchasing_immutable ON public.%I',t);
   EXECUTE format('CREATE TRIGGER purchasing_immutable BEFORE UPDATE OR DELETE ON public.%I FOR EACH ROW EXECUTE FUNCTION public.purchasing_immutable()',t);
  END LOOP;
