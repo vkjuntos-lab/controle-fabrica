@@ -103,6 +103,7 @@ export type SupplierDetail = Json & {
   code: string;
   legal_name: string;
   trade_name: string | null;
+  document_number: string | null;
   email: string | null;
   phone: string | null;
   status: string;

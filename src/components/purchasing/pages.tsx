@@ -600,7 +600,6 @@ export function FornecedorDetailPage({ id }: { id: string }) {
   const { currentOrganization, hasPermission, isLoading } = useOrganization();
   const org = currentOrganization?.organization_id;
   const fetch = useServerFn(querySuppliers);
-  const productsFetch = useServerFn(saveSupplierProduct);
   const qc = useQueryClient();
   const [openProduct, setOpenProduct] = useState(false);
   const canRead = hasPermission("suppliers.read");
@@ -821,9 +820,6 @@ export function FornecedorDetailPage({ id }: { id: string }) {
               }}
             />
           ) : null}
-          <div className="hidden">
-            {productsFetch.method}
-          </div>
         </>
       ) : null}
     </AppShell>
@@ -921,8 +917,7 @@ export function RequisicoesPage() {
     enabled: Boolean(org && canRead),
   });
   const run = (id: string, action: "submit" | "approve" | "cancel") =>
-    act
-      .mutateAsync({ data: { organizationId: org!, requestId: id, action, data: { reason: "Usuário" } } })
+    act({ data: { organizationId: org!, requestId: id, action, data: { reason: "Usuário" } } })
       .then(() => {
         toast.success("Requisição atualizada.");
         void qc.invalidateQueries({ queryKey: ["purchasing", "requests", org] });
