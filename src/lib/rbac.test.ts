@@ -136,7 +136,7 @@ it("alinha as permissões de compras ao contrato do banco", () => {
     [
       ...migration.matchAll(/'(?:suppliers|purchase_requests|quotations|purchase_orders|goods_receipts|supplier_returns|supplier_documents|purchase_exceptions)\.[a-z_]+'/g),
       ...migration.matchAll(/'(purchasing\.(?:read|dashboard))'/g),
-    ].map((match) => match[1]),
+    ].map((match) => match[0].replace(/'/g, "")),
   );
   const keys = Object.entries(PERMISSIONS).filter(
     ([key]) =>
