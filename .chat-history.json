@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "grep",
-    "input": {
-      "path": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations",
-      "pattern": "inventory_get_balance\\("
-    },
-    "timestamp": 1790284847237
-  },
-  {
-    "role": "tool_result",
-    "content": "Found 9 matches\n/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260923100000_inventory_workflows.sql:\n  Line 415:       v_balance := public.inventory_get_balance(\n\n\n/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql:\n  Line 299: CREATE OR ",
-    "is_error": false,
-    "timestamp": 1790284847275
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260917110000_catalog_mestre.sql",
@@ -1566,5 +1551,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790285778115
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "runuser -u claude-runner -- python3 /root/Zheus\\ AI\\ Projects/controle-fabrica/scripts/test-purchasing-db.py 2>&1 | tail -40",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica",
+      "timeout": 300000
+    },
+    "timestamp": 1790285780304
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: fornecedores + catálogo (perfil, prazos, rolo->m)\nPASS: requisição DRAFT->SUBMITTED->APPROVED\nPASS: cotação multi-fornecedor + premiação\nPASS: pedido aprovado NÃO gera movimento; segregação de aprovação; cancelamento restaura requisição aprovada?\nPASS: recebimento parcial 5/10, inspeção, posta",
+    "is_error": false,
+    "timestamp": 1790285783256
   }
 ]
