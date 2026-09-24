@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "npx vitest run src/lib/rbac.test.ts 2>&1 | tail -8",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica",
-      "timeout": 180000
-    },
-    "timestamp": 1790286103064
-  },
-  {
-    "role": "tool_result",
-    "content": "⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯\n\n\n Test Files  1 failed (1)\n      Tests  1 failed | 11 passed (12)\n   Start at  21:41:43\n   Duration  404ms (transform 125ms, setup 0ms, collect 142ms, tests 21ms, environment 0ms, prepare 88ms)\n\n",
-    "is_error": false,
-    "timestamp": 1790286104395
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "npx vitest run src/lib/rbac.test.ts 2>&1 | grep -A3 \"→\\|AssertionError\" | head -20",
       "workdir": "/root/Zheus AI Projects/controle-fabrica",
       "timeout": 180000
@@ -1550,5 +1534,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790286768946
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "npx tsc --noEmit -p tsconfig.json 2>&1 | tee /tmp/opencode/tsc3.txt; echo \"EXIT ${PIPESTATUS[0]}\"",
+      "timeout": 300000
+    },
+    "timestamp": 1790286770485
+  },
+  {
+    "role": "tool_result",
+    "content": "EXIT 0\n",
+    "is_error": false,
+    "timestamp": 1790286793908
   }
 ]
