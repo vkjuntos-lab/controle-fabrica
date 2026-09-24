@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"CREATE TABLE public.inventory_movements\" -A 30 supabase/migrations/20260918100000_inventory_ledger.sql",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790285508625
-  },
-  {
-    "role": "tool_result",
-    "content": "107:CREATE TABLE public.inventory_movements (\n108-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n109-  organization_id uuid NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,\n110-  variant_id uuid NOT NULL REFERENCES public.product_variants(id),\n111-  location_id uuid NOT NULL REFEREN",
-    "is_error": false,
-    "timestamp": 1790285508645
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
@@ -1598,5 +1583,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql</path>\n<type>file</type>\n<content>\n857: CREATE FUNCTION public.po_save(_org uuid,_data jsonb,_id uuid DEFAULT NULL) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n858: DECLAR",
     "is_error": false,
     "timestamp": 1790286139716
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
+      "limit": 45,
+      "offset": 710
+    },
+    "timestamp": 1790286144491
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql</path>\n<type>file</type>\n<content>\n710:     IF NOT FOUND THEN RAISE EXCEPTION 'Requisição não encontrada ou já encaminhada.'; END IF;\n711:     DELETE FROM public.purchase_request_items WHERE purchase_req",
+    "is_error": false,
+    "timestamp": 1790286144523
   }
 ]
