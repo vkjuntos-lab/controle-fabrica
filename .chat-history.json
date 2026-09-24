@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
-      "newString": "INSERT INTO public.quotation_supplier_items(organization_id,quotation_id,supplier_id,purchase_request_item_id,variant_id,quantity,unit_of_measure_id,unit_price,discount_amount,freight_amount,tax_amount,other_amount,total_amount,delivery_days,payment_terms,valid_until,notes)\n      VALUES(_org,v,(supp->>'supplier_id')::uuid,nullif(it->>'purchase_request_item_id','')::uuid,(it->>'variant_id')::uuid,v_qty,nullif(it->>'unit_of_measure_id','')::uuid,v_price,coalesce((it->>'discount_amount')::numeric,0),coalesce((it->>'freight_amount')::numeric,0),coalesce((it->>'tax_amount')::numeric,0),coalesce((it->>'other_amount')::numeric,0),\n        round(v_qty*v_price - coalesce((it->>'discount_amount')::numeric,0) + coalesce((it->>'freight_amount')::numeric,0) + coalesce((it->>'tax_amount')::numeric,0) + coalesce((it->>'other_amount')::numeric,0),6),\n        nullif(regexp_replace(coalesce(it->>'delivery_days',''),'[^0-9]','','g'),'')::int,it->>'payment_terms',nullif(it->>'valid_until','')::date,it->>'notes');",
-      "oldString": "INSERT INTO public.quotation_supplier_items(organization_id,quotation_id,supplier_id,purchase_request_item_id,variant_id,quantity,unit_of_measure_id,unit_price,discount_amount,freight_amount,tax_amount,other_amount,total_amount,delivery_days,payment_terms,valid_until,notes)\n      VALUES(_org,v,(supp->>'supplier_id')::uuid,nullif(it->>'purchase_request_item_id','')::uuid,(it->>'variant_id')::uuid,v_qty,nullif(it->>'unit_of_measure_id','')::uuid,v_price,coalesce((it->>'discount_amount')::numeric,0),coalesce((it->>'freight_amount')::numeric,0),coalesce((it->>'tax_amount')::numeric,0),coalesce((it->>'other_amount')::numeric,0),\n        round(v_qty*v_price - coalesce((it->>'discount_amount')::numeric,0) + coalesce((it->>'freight_amount')::numeric,0) + coalesce((it->>'tax_amount')::numeric,0) + coalesce((it->>'other_amount')::numeric,0),6),\n        nullif(regexp_replace(_data->>'delivery_days'||'', '[^0-9]','','g'),'')::int,nullif(it->>'delivery_days',''),it->>'payment_terms',nullif(it->>'valid_until','')::date,it->>'notes');"
-    },
-    "timestamp": 1790285192158
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790285192184
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
       "newString": "IF r.supplier_document_id IS NOT NULL AND r.severity='BLOCKING' AND NOT EXISTS(SELECT 1 FROM public.purchase_exceptions WHERE supplier_document_id=r.supplier_document_id AND severity='BLOCKING' AND status IN ('OPEN','IN_REVIEW')) THEN",
       "oldString": "IF r.supplier_document_id IS NOT NULL AND r.blocking AND NOT EXISTS(SELECT 1 FROM public.purchase_exceptions WHERE supplier_document_id=r.supplier_document_id AND severity='BLOCKING' AND status IN ('OPEN','IN_REVIEW')) THEN"
     },
@@ -1568,5 +1552,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790285879078
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-purchasing-db.py",
+      "newString": "for user, excpected_perms in [(prod, True), (c, False)]:",
+      "oldString": "for user, excpected_perms in [(r, True), (c, False)]:"
+    },
+    "timestamp": 1790285881082
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790285881119
   }
 ]
