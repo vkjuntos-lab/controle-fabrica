@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"CREATE TRIGGER\\|inventory_balances\\|BEFORE INSERT ON public.inventory_movements\\|AFTER INSERT ON public.inventory_movements\\|apply_movement\\|balance\" supabase/migrations/20260918100000_inventory_ledger.sql | head -40"
-    },
-    "timestamp": 1790284314381
-  },
-  {
-    "role": "tool_result",
-    "content": "262:CREATE TRIGGER inventory_locations_updated_at BEFORE UPDATE ON public.inventory_locations\n264:CREATE TRIGGER inventory_batches_updated_at BEFORE UPDATE ON public.inventory_batches\n266:CREATE TRIGGER inventory_transfers_updated_at BEFORE UPDATE ON public.inventory_transfers\n268:CREATE TRIGGER inv",
-    "is_error": false,
-    "timestamp": 1790284314418
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql",
@@ -1587,5 +1573,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql</path>\n<type>file</type>\n<content>\n500: -- =====================================================================\n501: -- 13. Histórico de custo de aquisição (base da política AVERAGE).\n502: -- ==========",
     "is_error": false,
     "timestamp": 1790285607905
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"material_cost_versions_source_type_check\\|source_type text NOT NULL\\|source_reference\" supabase/migrations/20260930100000_cost_engine.sql | head",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790285633949
+  },
+  {
+    "role": "tool_result",
+    "content": "8: source_type text NOT NULL DEFAULT 'MANUAL' CHECK(source_type IN ('MANUAL','ADJUSTMENT')),source_reference text NOT NULL CHECK(length(trim(source_reference))>0),\n58: source_reference jsonb NOT NULL,issues jsonb NOT NULL DEFAULT '[]',input_fingerprint text NOT NULL,\n87: source_reference text NOT NU",
+    "is_error": false,
+    "timestamp": 1790285633979
   }
 ]
