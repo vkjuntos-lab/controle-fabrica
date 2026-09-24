@@ -100,7 +100,7 @@ páginas de compras delegam ao `pages.tsx` e os pares lista+detalhe usam o mesmo
 ## Pendências
 
 - Publicação da migration no Lovable Cloud e smoke test autenticado publicado (fornecedores →
-  requisição → cotação → pedido → recebimento/inspação → postagem → documento → exceções →
+  requisição → cotação → pedido → recebimento/inspeção → postagem → documento → exceções →
   reposição), como nos módulos anteriores.
 - Importador MASTER 005 (continua): pedidos de compra ainda são cadastrados manualmente.
 - Seleção automática de fornecedor, MRP/APS e previsão assistida ficam para módulos futuros
