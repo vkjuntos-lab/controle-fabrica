@@ -1,35 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql</path>\n<type>file</type>\n<content>\n175:   INSERT INTO public.cost_routing_steps(organization_id,bom_id,activity,standard_minutes,effective_from,reason,created_by)\n176:   VALUES(_org,(_data->>'bom_id')::",
-    "is_error": false,
-    "timestamp": 1790281945358
-  },
-  {
-    "role": "tool",
-    "tool": "grep",
-    "input": {
-      "path": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql",
-      "pattern": "source_reference|->>'reason'"
-    },
-    "timestamp": 1790281954083
-  },
-  {
-    "role": "tool_result",
-    "content": "Found 22 matches\n/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql:\n  Line 8:  source_type text NOT NULL DEFAULT 'MANUAL' CHECK(source_type IN ('MANUAL','ADJUSTMENT')),source_reference text NOT NULL CHECK(length(trim(source_reference))>0),\n\n  Line 58:  sourc",
-    "is_error": false,
-    "timestamp": 1790281954124
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/costs/costs.functions.ts"
-    },
-    "timestamp": 1790281958702
-  },
-  {
-    "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/costs/costs.functions.ts</path>\n<type>file</type>\n<content>\n1: import { createServerFn } from \"@tanstack/react-start\";\n2: import { z } from \"zod\";\n3: import { requireSupabaseAuth } from \"@/integrations/supabase/auth-middleware\";\n4: import type {",
     "is_error": false,
     "timestamp": 1790281958714
@@ -1594,5 +1565,36 @@
     "content": "[\n  {\n    \"content\": \"Escrever migration 20261001100000_purchasing.sql (tabelas, enum PURCHASE_RETURN, RPCs, RLS, permissões, eventos)\",\n    \"status\": \"in_progress\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Adicionar permissões purchasing.* + rótulos + módulo 'compras' em src/lib/rbac.ts\",\n  ",
     "is_error": false,
     "timestamp": 1790284394424
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260924100000_partners.sql",
+      "limit": 33
+    },
+    "timestamp": 1790284435735
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260924100000_partners.sql</path>\n<type>file</type>\n<content>\n1: -- MASTER 006. Remessa não é venda. Estoque permanece exclusivamente no ledger.\n2: BEGIN;\n3: CREATE TABLE public.companies (\n4:  id uuid PRIMARY KEY DEFAULT gen_random",
+    "is_error": false,
+    "timestamp": 1790284435746
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
+      "limit": 30,
+      "offset": 268
+    },
+    "timestamp": 1790284436002
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n268: );\n269: \n270: -- Evento de domínio (outbox) para o próximo domínio (financeiro/cobrança).\n271: CREATE TABLE public.domain_events (\n272:   id uuid PRIMA",
+    "is_error": false,
+    "timestamp": 1790284436036
   }
 ]
