@@ -1466,7 +1466,7 @@ $$;
 
 CREATE FUNCTION public.exception_query(_org uuid,_kind text,_filters jsonb DEFAULT '{}',_page integer DEFAULT 1)
 RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$
-DECLARE result jsonb; status text:=coalesce(_filters->>'status',''); etype text:=coalesce(_filters->>'exception_type','');
+DECLARE result jsonb; st text:=coalesce(_filters->>'status',''); etype text:=coalesce(_filters->>'exception_type','');
 BEGIN
   PERFORM public.purchasing_require(_org,'purchase_exceptions.read');
   IF _kind='exceptions' THEN
