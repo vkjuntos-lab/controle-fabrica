@@ -196,6 +196,31 @@ Validação local; publicação não verificada.
     `/reconciliacao/tabelas-preco` (+ `/$id`), `/reconciliacao/lojas`, `/reconciliacao/mapeamento`;
     item "Reconciliação parcerias" no menu Operação. Parceiro 360 ganhou abas Marketplaces/Vendas/
     Reconciliações/Fechamentos.
+- Domínio Custos, Precificação e Rentabilidade (LOVABLE MASTER 009):
+  - Cost Engine central: `cost_compute`/`cost_calculate` com deduplicação por fingerprint,
+    simulação isolada (never grava), `cost_version_action` (approve/publish/archive invariante),
+    `cost_save_input` (material, mão de obra, roteiro, overhead, apontamento real, regra variável,
+    economics, conversão oficial de unidade) e `cost_query` (dashboard/opções/materiais/mão de obra/
+    overhead/roteiro/apontamentos/runs/versões/regras/economics/tabelas/vendas/snapshots/
+    rentabilidade agrupada/impacto/comparativo).
+  - Versão histórica: `product_cost_versions` STANDARD e ACTUAL_PRODUCTION, `material_cost_versions`,
+    `labor_rates`, `overhead_rules`, `cost_routing_steps`, `production_labor_entries` — tudo imutável
+    fora do fluxo, com vigências não sobrepostas e aprovação/publicação exigindo COMPLETE.
+  - Formação de preço: `pricing_math` (MARKUP / margem sobre preço / margem-alvo com deduções),
+    `pricing_simulate`, `pricing_publish` (versão por vigência fechando a anterior), reutilizando
+    `price_tables`/`price_table_items`/`partner_price_links` do MASTER 007 (evolui: `channel`,
+    `approved_by/at`, `minimum_price`, índice `price_item_effective`).
+  - Rentabilidade: `sale_cost_snapshots` imutável por venda (COGS + deduções + margem + contribuição)
+    capturado no fechamento do parceiro (billable da regra comercial, nunca o gross) ou manualmente
+    para venda própria; `sale_economics` com proveniência explícita; relatório agrupado no banco por
+    produto/variante/loja/parceiro/canal.
+  - Segurança: `cost_require` + RLS por permissão em tabelas novas, helpers `cost_*` privados,
+    `cost_price` legado de `product_variants` revogado (sem API de custo paralela), RPCs públicas
+    selecionadas, auditoria `cost_engine` e permssões `costs.*/pricing.*/profitability.*` para
+    admin/gestor.
+  - Telas: `/custos` (+ insumos, produção, versões, calcular, simulador, impacto),
+    `/precificacao`, `/relatorios/rentabilidade`; RBAC central em `src/lib/rbac.ts` e menu do
+    `AppShell`.
 - Documentação: ADR-001/ADR-006/ADR-007, CORE-BUSINESS, INVENTORY, PARTNERS, PARTNER-SHIPMENTS,
   PARTNER-RECONCILIATION, PARTNER-PRICING, este handoff.
 
