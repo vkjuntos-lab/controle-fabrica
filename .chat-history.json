@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
-      "limit": 70,
-      "offset": 314
-    },
-    "timestamp": 1790284273760
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql</path>\n<type>file</type>\n<content>\n314: CREATE FUNCTION public.finance_require(_org uuid,_permission text) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n315: BEGIN IF auth.uid(",
-    "is_error": false,
-    "timestamp": 1790284273791
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql",
       "limit": 70,
       "offset": 500
@@ -1588,5 +1572,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql</path>\n<type>file</type>\n<content>\n540: -- 15. RLS + grants (escrita somente via RPC).\n541: -- =====================================================================\n542: DO $$ DECLARE t text; perm text; ",
     "is_error": false,
     "timestamp": 1790285600299
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"purchase_receipt_costs\" -A 8 supabase/migrations/20261001100000_purchasing.sql | head -20; echo ====; grep -n \"purchasing_settings (\" -A 14 supabase/migrations/20261001100000_purchasing.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790285606051
+  },
+  {
+    "role": "tool_result",
+    "content": "503:CREATE TABLE public.purchase_receipt_costs (\n504-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n505-  organization_id uuid NOT NULL REFERENCES public.organizations,\n506-  variant_id uuid NOT NULL REFERENCES public.product_variants,\n507-  goods_receipt_id uuid NOT NULL REFERENCES public.goods_r",
+    "is_error": false,
+    "timestamp": 1790285606075
   }
 ]
