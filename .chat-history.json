@@ -1,21 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\nfor source,target in [('.output','.output.before-partner-validation'),('node_modules/.nitro','node_modules/.nitro.before-partner-validation')]:\n p=Path(source)\n if p.exists():p.rename(target)\nwith open('.git/info/exclude','a') as f:f.write('\\\\n.output.before-partner-validation/\\\\nscripts/__pycache__/\\\\n')\nPY\nnpx prettier --write src/lib/rbac.ts src/lib/rbac.test.ts src/components/reconciliation/marketplace.tsx > /tmp/partner-format.log 2>&1\nnpm run build > /tmp/partner-final-build.log 2>&1\""
-    },
-    "timestamp": 1790271699388
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc 'npx eslint src/components/partners/pages.tsx src/components/reconciliation/marketplace.tsx src/components/reconciliation/pages.tsx src/lib/rbac.ts src/lib/rbac.test.ts > /tmp/partner-final-lint.log 2>&1\nnpm run typecheck && npm run test'"
-    },
-    "timestamp": 1790271700583
-  },
-  {
     "role": "tool_result",
     "content": "",
     "is_error": false,
@@ -1426,5 +1410,50 @@
     "content": "PASS: BOM 10+5+2+8+5=30, calculation deduplication, approval and publication\nPASS: query contracts\nPASS: scrap 20+1, missing cost/conversion blocks publication, official roll conversion, isolated simulation\nPASS: markup, gross margin, marketplace contribution and target price use distinct formulas\nP",
     "is_error": false,
     "timestamp": 1790282114215
+  },
+  {
+    "role": "tool",
+    "tool": "todowrite",
+    "input": {
+      "todos": [
+        {
+          "content": "Corrigir bugs da migration cost_engine (id ambíguo, source_reference)",
+          "status": "completed",
+          "priority": "high"
+        },
+        {
+          "content": "Corrigir cenários do teste test-costs-db.py e fazer passar",
+          "status": "completed",
+          "priority": "high"
+        },
+        {
+          "content": "Mapear validação do MASTER 009 (resposta ao usuário)",
+          "status": "in_progress",
+          "priority": "high"
+        },
+        {
+          "content": "Rodar validações completas: vitest, lint, build",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Adicionar script test:costs:db ao package.json",
+          "status": "pending",
+          "priority": "medium"
+        },
+        {
+          "content": "Atualizar PROJECT-STATE.md e criar MASTER-009-VALIDATION.md",
+          "status": "pending",
+          "priority": "medium"
+        }
+      ]
+    },
+    "timestamp": 1790282126779
+  },
+  {
+    "role": "tool_result",
+    "content": "[\n  {\n    \"content\": \"Corrigir bugs da migration cost_engine (id ambíguo, source_reference)\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Corrigir cenários do teste test-costs-db.py e fazer passar\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"conten",
+    "is_error": false,
+    "timestamp": 1790282126785
   }
 ]
