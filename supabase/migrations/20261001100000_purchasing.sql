@@ -141,6 +141,7 @@ BEGIN
     v_id:=(v_data->>v_pair[1])::uuid;
     IF v_id IS NULL THEN CONTINUE; END IF;
     EXECUTE format('SELECT organization_id FROM public.%I WHERE id=$1',v_pair[2]) INTO v_org USING v_id;
+    IF v_org IS NULL AND v_pair[2]='units_of_measure' THEN CONTINUE; END IF;
     IF v_org IS DISTINCT FROM NEW.organization_id THEN RAISE EXCEPTION 'Referência fora da organização.'; END IF;
   END LOOP;
   RETURN NEW;

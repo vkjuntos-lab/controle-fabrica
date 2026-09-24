@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790282260090
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
-      "limit": 20,
-      "offset": 341
-    },
-    "timestamp": 1790282262280
-  },
-  {
-    "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md</path>\n<type>file</type>\n<content>\n341: ## VALIDAÇÃO DESTA CONTINUAÇÃO\n342: \n343: Relatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-VALIDATION.md`,\n344: `docs/handoff/MASTER-007-VALIDATION.md` e ",
     "is_error": false,
     "timestamp": 1790282262292
@@ -1574,5 +1558,21 @@
     "content": "30:CREATE TABLE public.units_of_measure (\n31-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n32-  organization_id uuid REFERENCES public.organizations(id) ON DELETE CASCADE,\n33-  code text NOT NULL,\n34-  name text NOT NULL,\n35-  category public.unit_category NOT NULL DEFAULT 'COUNT',\n36-  decimal_p",
     "is_error": false,
     "timestamp": 1790285304368
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
+      "newString": "v_id:=(v_data->>v_pair[1])::uuid;\n    IF v_id IS NULL THEN CONTINUE; END IF;\n    EXECUTE format('SELECT organization_id FROM public.%I WHERE id=$1',v_pair[2]) INTO v_org USING v_id;\n    IF v_org IS NULL AND v_pair[2]='units_of_measure' THEN CONTINUE; END IF;\n    IF v_org IS DISTINCT FROM NEW.organization_id THEN RAISE EXCEPTION 'Referência fora da organização.'; END IF;",
+      "oldString": "v_id:=(v_data->>v_pair[1])::uuid;\n    IF v_id IS NULL THEN CONTINUE; END IF;\n    EXECUTE format('SELECT organization_id FROM public.%I WHERE id=$1',v_pair[2]) INTO v_org USING v_id;\n    IF v_org IS DISTINCT FROM NEW.organization_id THEN RAISE EXCEPTION 'Referência fora da organização.'; END IF;"
+    },
+    "timestamp": 1790285312983
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790285313011
   }
 ]
