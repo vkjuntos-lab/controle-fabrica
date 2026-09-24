@@ -795,7 +795,7 @@ BEGIN
       INSERT INTO public.quotation_supplier_items(organization_id,quotation_id,supplier_id,purchase_request_item_id,variant_id,quantity,unit_of_measure_id,unit_price,discount_amount,freight_amount,tax_amount,other_amount,total_amount,delivery_days,payment_terms,valid_until,notes)
       VALUES(_org,v,(supp->>'supplier_id')::uuid,nullif(it->>'purchase_request_item_id','')::uuid,(it->>'variant_id')::uuid,v_qty,nullif(it->>'unit_of_measure_id','')::uuid,v_price,coalesce((it->>'discount_amount')::numeric,0),coalesce((it->>'freight_amount')::numeric,0),coalesce((it->>'tax_amount')::numeric,0),coalesce((it->>'other_amount')::numeric,0),
         round(v_qty*v_price - coalesce((it->>'discount_amount')::numeric,0) + coalesce((it->>'freight_amount')::numeric,0) + coalesce((it->>'tax_amount')::numeric,0) + coalesce((it->>'other_amount')::numeric,0),6),
-        nullif(regexp_replace(_data->>'delivery_days'||'', '[^0-9]','','g'),'')::int,nullif(it->>'delivery_days',''),it->>'payment_terms',nullif(it->>'valid_until','')::date,it->>'notes');
+        nullif(regexp_replace(coalesce(it->>'delivery_days',''),'[^0-9]','','g'),'')::int,it->>'payment_terms',nullif(it->>'valid_until','')::date,it->>'notes');
     END LOOP;
   END LOOP;
   UPDATE public.quotations SET status='AWAITING' WHERE id=v AND status='DRAFT';
