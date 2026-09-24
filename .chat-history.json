@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "rg -n \"ALTER TABLE public.inventory_movements|unit_cost|total_cost\" \"supabase/migrations/20260921100000_inventory_integrity.sql\" \"supabase/migrations/20260930100000_cost_engine.sql\" 2>/dev/null | head -40",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790284858328
-  },
-  {
-    "role": "tool_result",
-    "content": "(no output)",
-    "is_error": false,
-    "timestamp": 1790284858350
-  },
-  {
-    "role": "tool",
     "tool": "grep",
     "input": {
       "path": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql",
@@ -1567,5 +1552,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790285798972
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "runuser -u claude-runner -- python3 /root/Zheus\\ AI\\ Projects/controle-fabrica/scripts/test-purchasing-db.py 2>&1 | tail -40",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica",
+      "timeout": 300000
+    },
+    "timestamp": 1790285801221
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS: fornecedores + catálogo (perfil, prazos, rolo->m)\nPASS: requisição DRAFT->SUBMITTED->APPROVED\nPASS: cotação multi-fornecedor + premiação\nPASS: pedido aprovado NÃO gera movimento; segregação de aprovação; cancelamento restaura requisição aprovada?\nPASS: recebimento parcial 5/10, inspeção, posta",
+    "is_error": false,
+    "timestamp": 1790285804512
   }
 ]
