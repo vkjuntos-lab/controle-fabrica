@@ -1,6 +1,19 @@
 # Estado do projeto — handoff contínuo
 
-## Continuação validada — 24/09/2026 (MASTER 009)
+## Continuação validada — 24/09/2026 (MASTER 010)
+
+Compras, fornecedores, recebimento e reposição implementados e validados localmente
+(`20261001100000_purchasing.sql` + telas `/compras/*` e `/fornecedores`). O módulo cobre
+requisição → cotação → pedido → recebimento → inspeção → postagem → documento → pagamento,
+com exceções e sugestão de reposição. Harness `npm run test:purchasing:db`, 37 testes
+unitários, TypeScript, build e lint do domínio verificados. Banco é a fonte da verdade:
+tabelas novas SELECT-only sob RLS; toda escrita via RPCs `SECURITY DEFINER` com validação de
+permissão (`purchasing_require`), máquina de estados explícita e auditoria `purchasing.*`.
+Recebimento postado é imutável (triggers) e muta ledger (`PURCHASE_RECEIPT`), custo
+(`purchase_receipt_costs` + política em `purchasing_settings`) e contas a pagar (parcelas de
+`payment_terms`, `UNIQUE(org,source_type,source_id,installment)`). Aprimorou o RBAC
+(31 chaves `purchasing.*`/`suppliers.*` + módulo `compras` disponível) e os tipos gerados de
+Supabase (27 RPCs). Detalhes em `MASTER-010-VALIDATION.md`.
 
 Cost Engine, formação de preço, margens e rentabilidade implementados e validados localmente
 (`20260930100000_cost_engine.sql` + telas `/custos`, `/precificacao`, `/relatorios/rentabilidade`).
