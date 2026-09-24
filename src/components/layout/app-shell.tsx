@@ -13,6 +13,7 @@ import {
   Scale,
   ScrollText,
   ShieldCheck,
+  ShoppingCart,
   User,
   Users,
   Wallet,
