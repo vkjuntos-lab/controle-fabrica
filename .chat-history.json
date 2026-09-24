@@ -1,20 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "npx eslint src/lib/costs src/components/costs src/routes/_authenticated/custos src/routes/_authenticated/precificacao src/routes/_authenticated/relatorios scripts/test-costs-db.py 2>&1 | tail -30",
-      "timeout": 300000
-    },
-    "timestamp": 1790282132519
-  },
-  {
-    "role": "tool_result",
-    "content": "\n> test\n> vitest run\n\n\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabrica\n\n ✓ src/lib/rbac.test.ts (10 tests) 16ms\n ✓ src/lib/inventory/ledger.test.ts (12 tests) 8ms\n ✓ src/lib/middleware/rate-limit.test.ts (3 tests) 5ms\n ✓ src/lib/csv.test.ts (5 tests) 8ms\n ✓ src/lib/webhook/signature.test.ts (5",
-    "is_error": false,
-    "timestamp": 1790282134631
-  },
-  {
     "role": "tool_result",
     "content": "\n/root/Zheus AI Projects/controle-fabrica/scripts/test-costs-db.py\n  0:0  warning  File ignored because no matching configuration was supplied\n\n/root/Zheus AI Projects/controle-fabrica/src/components/costs/shared.tsx\n   9:14  warning  Fast refresh only works when a file only exports components. Use ",
     "is_error": false,
@@ -1571,5 +1556,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790285192184
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
+      "newString": "IF r.supplier_document_id IS NOT NULL AND r.severity='BLOCKING' AND NOT EXISTS(SELECT 1 FROM public.purchase_exceptions WHERE supplier_document_id=r.supplier_document_id AND severity='BLOCKING' AND status IN ('OPEN','IN_REVIEW')) THEN",
+      "oldString": "IF r.supplier_document_id IS NOT NULL AND r.blocking AND NOT EXISTS(SELECT 1 FROM public.purchase_exceptions WHERE supplier_document_id=r.supplier_document_id AND severity='BLOCKING' AND status IN ('OPEN','IN_REVIEW')) THEN"
+    },
+    "timestamp": 1790285194179
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790285194209
   }
 ]

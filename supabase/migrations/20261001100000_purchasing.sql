@@ -1450,7 +1450,7 @@ BEGIN
     IF _action='resolve' THEN
       IF nullif(trim(_data->>'resolution_notes'),'') IS NULL THEN RAISE EXCEPTION 'Notas de resolução obrigatórias.'; END IF;
       UPDATE public.purchase_exceptions SET status='RESOLVED',resolved_by=auth.uid(),resolved_at=now(),resolution_notes=_data->>'resolution_notes',updated_at=now() WHERE id=_id;
-      IF r.supplier_document_id IS NOT NULL AND r.blocking AND NOT EXISTS(SELECT 1 FROM public.purchase_exceptions WHERE supplier_document_id=r.supplier_document_id AND severity='BLOCKING' AND status IN ('OPEN','IN_REVIEW')) THEN
+      IF r.supplier_document_id IS NOT NULL AND r.severity='BLOCKING' AND NOT EXISTS(SELECT 1 FROM public.purchase_exceptions WHERE supplier_document_id=r.supplier_document_id AND severity='BLOCKING' AND status IN ('OPEN','IN_REVIEW')) THEN
         UPDATE public.supplier_documents SET status='MATCHED',updated_at=now() WHERE id=r.supplier_document_id;
       END IF;
       PERFORM public.purchasing_audit(_org,'purchasing.exception.resolve','purchase_exceptions',_id,_data);
