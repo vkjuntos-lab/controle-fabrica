@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"inventory_movements.*CHECK\\|CHECK (.*movement_type\\|movement_type IN\\|material_cost_versions_source_type\\|DROP CONSTRAINT\\|ADD CONSTRAINT\" supabase/migrations/20260918100000_inventory_ledger.sql supabase/migrations/20260930100000_cost_engine.sql supabase/migrations/20260928100000_finance.sql | head -40"
-    },
-    "timestamp": 1790284136175
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20260918100000_inventory_ledger.sql:137:    (direction = 'IN'  AND movement_type IN (\nsupabase/migrations/20260918100000_inventory_ledger.sql:141:    (direction = 'OUT' AND movement_type IN (\nsupabase/migrations/20260918100000_inventory_ledger.sql:384:  IF _movement_type IN ('TRA",
-    "is_error": false,
-    "timestamp": 1790284136221
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql",
@@ -1566,5 +1552,20 @@
     "content": "545:  EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY',t);\n548:  EXECUTE format('CREATE POLICY tenant_read ON public.%I FOR SELECT TO authenticated USING(public.has_permission(organization_id,%L))',t,perm);\n552:  EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY',t);\n55",
     "is_error": false,
     "timestamp": 1790285481509
+  },
+  {
+    "role": "tool",
+    "tool": "grep",
+    "input": {
+      "path": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
+      "pattern": "purchasing_require|FUNCTION public.purchasing_require|permissão|CREATE OR REPLACE FUNCTION public.purchasing_audit"
+    },
+    "timestamp": 1790285484816
+  },
+  {
+    "role": "tool_result",
+    "content": "Found 88 matches\n/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql:\n  Line 102: CREATE FUNCTION public.purchasing_require(_org uuid,_permission text) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n\n  Line 103: BEGIN IF auth.uid() ",
+    "is_error": false,
+    "timestamp": 1790285484852
   }
 ]
