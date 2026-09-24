@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "grep",
-    "input": {
-      "path": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
-      "pattern": "^function PedidosPage|^function ReceiveDialog|^function RecebimentosPage|function useSupports|void PLEASE|^import|PLEASE"
-    },
-    "timestamp": 1790286610363
-  },
-  {
-    "role": "tool_result",
-    "content": "Found 22 matches\n/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx:\n  Line 1: import { useEffect, useState } from \"react\";\n\n  Line 2: import { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\n\n  Line 3: import { useServerFn } from \"@tanstack/react-star",
-    "is_error": false,
-    "timestamp": 1790286610393
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
@@ -1545,5 +1530,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790287451862
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "# Reposição de Compras — Replenishment\n\nDocumento de negócio e modelo técnico da sugestão de reposição (MASTER 010). O objetivo é\n**sugerir** compra, nunca comprar sozinho. Não há MRP/APS nem previsão assistida: a regra usa saldo,\nmínimos/pontos da variante e pedidos/requisições já existentes.\n\n## Base de dados\n\n- `product_variants.minimum_stock`, `reorder_point`, `target_stock` e o novo\n  `replenishment_policy` (`REORDER_POINT` | `TARGET_STOCK` | `MANUAL`, default `REORDER_POINT`).\n- Saldo atual via view `inventory_balances` (`on_hand`) / `inventory_get_balance`.\n- Em aberto: quantidade de itens de pedido `OPEN/PARTIALLY_RECEIVED` (`open_qty`) e itens de\n  requisição `PENDING/APPROVED` (`pending_req`) do mesmo fornecedor vinculado.\n\n## Candidatos (`replenishment_query`)\n\nVariantes `ACTIVE` com `replenishment_policy <> 'MANUAL'` entram na fila. Para cada uma:\n\n```\ndisponível = on_hand + open_qty + pending_req\n```\n\n| Política | Sugestão |\n| --- | --- |\n| `REORDER_POINT` | Quando `disponível <= reorder_point` (ou `minimum_stock` se sem ponto), sugere `max(0, minimum_stock − disponível)`. |\n| `TARGET_STOCK` | Quando abaixo do alvo, sugere `tamanho do lote` (parcela do alvo), não o saldo até o teto — compra em lotes. |\n| `MANUAL` | Nunca sugerido. |\n\nSaída por linha: variante/SKU/produto, política, mínimos/alvo, disponível, **sugestão**, melhor\nfornecedor (catálogo com menor custo/preferido) e `lead_time_days`, correndo na própria query.\nO `_filters->>'months'` controla a janela de consumo a considerar nos agregados (painel).\n\nO dashboard também informa `purchase_orders.issued_in_period` e o total de variantes abaixo do\nmínimo, para priorização.\n\n## Regras e limites\n\n- `replenishment_query` exige `purchasing.read`; consulta `STABLE`, não altera nada.\n- Sugestão é **referência** para a tela `/compras/reposicao` — o fluxo de compra continua pelas\n  telas normais (requisição → cotação → pedido). Não existe criação automática de pedido.\n- Requisições já `ORDERED` e pedidos cancelados não contam como \"em aberto\".\n- Fora do escopo: dimensionamento de lote econômico, estoque de segurança dinâmico, previsão de\n  demanda, priorização por criticidade automática e integração com produção.\n\n## Tela\n\n`/compras/reposicao` — tabela de candidatos com saldo, sugestão por política, fornecedor sugerido\ne atalhos para criar pedido a partir da linha.",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/REPLENISHMENT.md"
+    },
+    "timestamp": 1790287458007
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790287458010
   }
 ]
