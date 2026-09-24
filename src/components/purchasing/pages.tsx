@@ -1839,7 +1839,7 @@ function ReceiveDialog({
           },
         },
       });
-      toast.success("Recebimento criado. Inspecione antes de postar.");
+      toast.success(`Recebimento ${String(receiptId).slice(0, 8)} criado. Inspecione antes de postar.`);
       void onSaved();
     },
     onError: (e: Error) => toast.error(e.message),

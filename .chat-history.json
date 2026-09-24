@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "runuser -u claude-runner -- python3 /root/Zheus\\ AI\\ Projects/controle-fabrica/scripts/test-purchasing-db.py 2>&1 | tail -30",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica",
-      "timeout": 300000
-    },
-    "timestamp": 1790285924299
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS: fornecedores + catálogo (perfil, prazos, rolo->m)\nPASS: requisição DRAFT->SUBMITTED->APPROVED\nPASS: cotação multi-fornecedor + premiação\nPASS: pedido aprovado NÃO gera movimento; segregação de aprovação; cancelamento restaura requisição aprovada?\nPASS: recebimento parcial 5/10, inspeção, posta",
-    "is_error": false,
-    "timestamp": 1790285927695
-  },
-  {
-    "role": "tool",
     "tool": "todowrite",
     "input": {
       "todos": [
@@ -1583,5 +1567,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx</path>\n<type>file</type>\n<content>\n1826:   const [form, setForm] = useState<Record<string, string>>({});\n1827:   const [lines, setLines] = useState<Record<string, string>[]>([]);\n1828:   const save = useMutation({\n182",
     "is_error": false,
     "timestamp": 1790286640949
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
+      "newString": "toast.success(`Recebimento ${String(receiptId).slice(0, 8)} criado. Inspecione antes de postar.`);",
+      "oldString": "toast.success(\"Recebimento criado. Inspecione antes de postar.\");"
+    },
+    "timestamp": 1790286642419
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790286642445
   }
 ]
