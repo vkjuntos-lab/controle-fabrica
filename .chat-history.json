@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
-      "newString": "FOREACH t IN ARRAY ARRAY['purchase_orders','goods_receipts','goods_receipt_items','supplier_returns','supplier_documents'] LOOP",
-      "oldString": "FOREACH t IN ARRAY ARRAY['purchase_orders','goods_receipts','goods_receipt_items','supplier_returns','supplier_return_items','supplier_documents'] LOOP"
-    },
-    "timestamp": 1790285224334
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790285224353
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
       "newString": "IF v_pol IN ('LAST_PURCHASE','AVERAGE') AND _inv_unit IS NOT NULL THEN",
       "oldString": "IF v_pol IN ('LAST_PURCHASE','AVERAGE') THEN"
     },
@@ -1566,5 +1550,21 @@
     "content": "(no output)",
     "is_error": false,
     "timestamp": 1790285886667
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-purchasing-db.py",
+      "newString": "assert sql(f\"SELECT count(*) FROM purchase_orders WHERE organization_id={q(org)}\", prod) == '0'  # tenancy enforced",
+      "oldString": "assert sql(f\"SELECT count(*) FROM purchase_orders WHERE organization_id={q(org)}\", r) == '0'  # tenancy enforced"
+    },
+    "timestamp": 1790285889404
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790285889415
   }
 ]
