@@ -1434,6 +1434,7 @@ export function PedidosPage() {
   const [open, setOpen] = useState(false);
   const canRead = hasPermission("purchase_orders.read");
   const canCreate = hasPermission("purchase_orders.create");
+  const qc = useQueryClient();
   const filters = { query, status };
   const q = useQuery({
     queryKey: ["purchasing", "orders", org, filters],
@@ -1523,7 +1524,7 @@ export function PedidosPage() {
               organizationId={org}
               onClose={() => setOpen(false)}
               onSaved={() => {
-                void qcInvalidateOrders(org);
+                void qcInvalidateOrders(qc, org);
                 setOpen(false);
               }}
             />
@@ -1534,10 +1535,9 @@ export function PedidosPage() {
   );
 }
 
-import { useQueryClient as useQCI } from "@tanstack/react-query";
-function qcInvalidateOrders(org: string | undefined) {
-  void useQCI().invalidateQueries({ queryKey: ["purchasing", "orders", org] });
-  void useQCI().invalidateQueries({ queryKey: ["purchasing", "dashboard", org] });
+function qcInvalidateOrders(qc: QueryClient, org: string | undefined) {
+  void qc.invalidateQueries({ queryKey: ["purchasing", "orders", org] });
+  void qc.invalidateQueries({ queryKey: ["purchasing", "dashboard", org] });
 }
 
 function OrderDialog({
@@ -3010,7 +3010,3 @@ function formatNumber(value: number | string | null | undefined, digits = 3): st
   const n = typeof value === "string" ? Number(value) : value;
   return new Intl.NumberFormat("pt-BR", { maximumFractionDigits: digits }).format(n);
 }
-
-// Reexporta PLEASE apenas para manter a importação de rbac em uso quando o
-// preenchimento automático a remover.
-void PLEASE;

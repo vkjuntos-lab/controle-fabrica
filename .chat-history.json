@@ -3,69 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"select count(\\*) FROM purchase_orders\" scripts/test-purchasing-db.py",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790285886650
-  },
-  {
-    "role": "tool_result",
-    "content": "(no output)",
-    "is_error": false,
-    "timestamp": 1790285886667
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-purchasing-db.py",
-      "newString": "assert sql(f\"SELECT count(*) FROM purchase_orders WHERE organization_id={q(org)}\", prod) == '0'  # tenancy enforced",
-      "oldString": "assert sql(f\"SELECT count(*) FROM purchase_orders WHERE organization_id={q(org)}\", r) == '0'  # tenancy enforced"
-    },
-    "timestamp": 1790285889404
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790285889415
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "runuser -u claude-runner -- python3 /root/Zheus\\ AI\\ Projects/controle-fabrica/scripts/test-purchasing-db.py 2>&1 | tail -30",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica",
-      "timeout": 300000
-    },
-    "timestamp": 1790285891475
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS: pedido COMPLETED; 1 obrigação por pedido (2 parcelas = 310)\nPASS: histórico de custo R$30 -> R$36 (versão 2, PURCHASE)\nPASS: política AVERAGE = (10*30+10*36+10*45)/30 = 37; custo igual não gera nova versão\nPASS: conversão rolo 5m -> movimento de 10 (un) e custo R$12/m\nPASS: estoque com AUTH_OV",
-    "is_error": false,
-    "timestamp": 1790285894815
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-purchasing-db.py",
-      "newString": "for user, ok in [(prod, True), (c, False)]:\n        if ok:\n            res = j(rpc('po_query', org, 'orders', user=user))\n            assert res['total'] >= 1\n        else:\n            rpc('po_query', org, 'orders', user=user, fail='permissão')",
-      "oldString": "for user, excpected_perms in [(prod, True), (c, False)]:\n        res = j(rpc('po_query', org, 'orders', user=user))\n        if excpected_perms:\n            assert res['total'] >= 1\n        else:\n            rpc('po_query', org, 'orders', user=user, fail='permissão')"
-    },
-    "timestamp": 1790285899125
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790285899139
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "runuser -u claude-runner -- python3 /root/Zheus\\ AI\\ Projects/controle-fabrica/scripts/test-purchasing-db.py 2>&1 | tail -30",
       "workdir": "/root/Zheus AI Projects/controle-fabrica",
       "timeout": 300000
@@ -1582,5 +1519,69 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790286629472
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
+      "newString": "const canRead = hasPermission(\"purchase_orders.read\");\n  const canCreate = hasPermission(\"purchase_orders.create\");\n  const qc = useQueryClient();\n  const filters = { query, status };",
+      "oldString": "const canRead = hasPermission(\"purchase_orders.read\");\n  const canCreate = hasPermission(\"purchase_orders.create\");\n  const filters = { query, status };"
+    },
+    "timestamp": 1790286631035
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790286631080
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
+      "newString": "onSaved={() => {\n                void qcInvalidateOrders(qc, org);\n                setOpen(false);\n              }}",
+      "oldString": "onSaved={() => {\n                void qcInvalidateOrders(org);\n                setOpen(false);\n              }}"
+    },
+    "timestamp": 1790286631425
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790286631460
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
+      "newString": "function qcInvalidateOrders(qc: QueryClient, org: string | undefined) {\n  void qc.invalidateQueries({ queryKey: [\"purchasing\", \"orders\", org] });\n  void qc.invalidateQueries({ queryKey: [\"purchasing\", \"dashboard\", org] });\n}",
+      "oldString": "import { useQueryClient as useQCI } from \"@tanstack/react-query\";\nfunction qcInvalidateOrders(org: string | undefined) {\n  void useQCI().invalidateQueries({ queryKey: [\"purchasing\", \"orders\", org] });\n  void useQCI().invalidateQueries({ queryKey: [\"purchasing\", \"dashboard\", org] });\n}"
+    },
+    "timestamp": 1790286632303
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790286632333
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
+      "newString": "function formatNumber(value: number | string | null | undefined, digits = 3): string {\n  if (value == null) return \"0\";\n  const n = typeof value === \"string\" ? Number(value) : value;\n  return new Intl.NumberFormat(\"pt-BR\", { maximumFractionDigits: digits }).format(n);\n}",
+      "oldString": "function formatNumber(value: number | string | null | undefined, digits = 3): string {\n  if (value == null) return \"0\";\n  const n = typeof value === \"string\" ? Number(value) : value;\n  return new Intl.NumberFormat(\"pt-BR\", { maximumFractionDigits: digits }).format(n);\n}\n\n// Reexporta PLEASE apenas para manter a importação de rbac em uso quando o\n// preenchimento automático a remover.\nvoid PLEASE;"
+    },
+    "timestamp": 1790286632979
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790286633018
   }
 ]
