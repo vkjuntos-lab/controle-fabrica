@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql",
-      "limit": 70,
-      "offset": 500
-    },
-    "timestamp": 1790284281878
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql</path>\n<type>file</type>\n<content>\n500:    'materials_without_cost',(SELECT count(*) FROM public.product_variants v JOIN public.products p ON p.id=v.product_id WHERE v.organization_id=_org AND p.item_ty",
-    "is_error": false,
-    "timestamp": 1790284281914
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -n \"CREATE TRIGGER\\|inventory_balances\\|BEFORE INSERT ON public.inventory_movements\\|AFTER INSERT ON public.inventory_movements\\|apply_movement\\|balance\" supabase/migrations/20260918100000_inventory_ledger.sql | head -40"
@@ -1587,5 +1571,21 @@
     "content": "503:CREATE TABLE public.purchase_receipt_costs (\n504-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n505-  organization_id uuid NOT NULL REFERENCES public.organizations,\n506-  variant_id uuid NOT NULL REFERENCES public.product_variants,\n507-  goods_receipt_id uuid NOT NULL REFERENCES public.goods_r",
     "is_error": false,
     "timestamp": 1790285606075
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
+      "limit": 16,
+      "offset": 500
+    },
+    "timestamp": 1790285607874
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql</path>\n<type>file</type>\n<content>\n500: -- =====================================================================\n501: -- 13. Histórico de custo de aquisição (base da política AVERAGE).\n502: -- ==========",
+    "is_error": false,
+    "timestamp": 1790285607905
   }
 ]
