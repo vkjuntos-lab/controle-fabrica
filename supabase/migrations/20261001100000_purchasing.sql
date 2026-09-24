@@ -1477,7 +1477,7 @@ BEGIN
       LEFT JOIN public.purchase_orders po ON po.id=ex.purchase_order_id LEFT JOIN public.goods_receipts gr ON gr.id=ex.goods_receipt_id
       LEFT JOIN public.supplier_documents sd ON sd.id=ex.supplier_document_id LEFT JOIN public.product_variants v ON v.id=ex.variant_id
       WHERE ex.organization_id=_org)
-    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (status='' OR "status"=status) AND (etype='' OR exception_type=etype) ORDER BY created_at DESC LIMIT 100 OFFSET (_page-1)*100) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;
+    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (st='' OR "status"=st) AND (etype='' OR exception_type=etype) ORDER BY created_at DESC LIMIT 100 OFFSET (_page-1)*100) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;
   ELSIF _kind='open' THEN
     SELECT jsonb_build_object('count',(SELECT count(*) FROM public.purchase_exceptions WHERE organization_id=_org AND status IN ('OPEN','IN_REVIEW')),
       'blocking',(SELECT count(*) FROM public.purchase_exceptions WHERE organization_id=_org AND status IN ('OPEN','IN_REVIEW') AND severity='BLOCKING')) INTO result;
