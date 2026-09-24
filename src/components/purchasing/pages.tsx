@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState, type ReactNode } from "react";
+import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { AppShell } from "@/components/layout/app-shell";
@@ -18,7 +18,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useOrganization } from "@/lib/org/org-context";
-import { PLEASE } from "@/lib/rbac";
 import {
   saveCompany,
   saveSupplierProduct,
@@ -185,7 +184,7 @@ function useSuppliersFlat(org: string | undefined, enabled: boolean) {
 type DialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  children: React.ReactNode;
+  children: ReactNode;
   title: string;
   description?: string;
 };
