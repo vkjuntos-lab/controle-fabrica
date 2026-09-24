@@ -1039,7 +1039,7 @@ BEGIN
     SELECT sum(quantity*unit_cost)/nullif(sum(quantity),0) INTO v_avg FROM public.purchase_receipt_costs WHERE organization_id=_org AND variant_id=_variant;
     _cost_inv:=coalesce(v_avg,_cost_inv);
   END IF;
-  IF v_pol IN ('LAST_PURCHASE','AVERAGE') THEN
+  IF v_pol IN ('LAST_PURCHASE','AVERAGE') AND _inv_unit IS NOT NULL THEN
     SELECT max(version)+1,max(effective_from) INTO v_ver,v_last FROM public.material_cost_versions WHERE organization_id=_org AND variant_id=_variant;
     IF v_last IS NULL OR _date>v_last THEN
       UPDATE public.material_cost_versions SET status='SUPERSEDED',effective_to=_date WHERE organization_id=_org AND variant_id=_variant AND status='ACTIVE';
