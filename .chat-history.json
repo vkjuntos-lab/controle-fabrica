@@ -1,20 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790282266267
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "runuser -u claude-runner -- python3 /root/Zheus\\ AI\\ Projects/controle-fabrica/scripts/test-costs-db.py 2>&1 | tail -12",
-      "timeout": 900000
-    },
-    "timestamp": 1790282271090
-  },
-  {
     "role": "tool",
     "tool": "bash",
     "input": {
@@ -1574,5 +1559,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790285338047
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"CREATE TABLE public.companies\" -A 20 supabase/migrations/20260924100000_partners.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790285346545
+  },
+  {
+    "role": "tool_result",
+    "content": "3:CREATE TABLE public.companies (\n4- id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES public.organizations,\n5- code text NOT NULL CHECK(length(trim(code))>0), legal_name text NOT NULL CHECK(length(trim(legal_name))>0),\n6- trade_name text, document_type text CHE",
+    "is_error": false,
+    "timestamp": 1790285346556
   }
 ]
