@@ -216,7 +216,7 @@ Validação local; publicação não verificada.
     produto/variante/loja/parceiro/canal.
   - Segurança: `cost_require` + RLS por permissão em tabelas novas, helpers `cost_*` privados,
     `cost_price` legado de `product_variants` revogado (sem API de custo paralela), RPCs públicas
-    selecionadas, auditoria `cost_engine` e permssões `costs.*/pricing.*/profitability.*` para
+    selecionadas, auditoria `cost_engine` e permissões `costs.*/pricing.*/profitability.*` para
     admin/gestor.
   - Telas: `/custos` (+ insumos, produção, versões, calcular, simulador, impacto),
     `/precificacao`, `/relatorios/rentabilidade`; RBAC central em `src/lib/rbac.ts` e menu do
