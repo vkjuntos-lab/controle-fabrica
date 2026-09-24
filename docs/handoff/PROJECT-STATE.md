@@ -234,6 +234,35 @@ Validação local; publicação não verificada.
   - Telas: `/custos` (+ insumos, produção, versões, calcular, simulador, impacto),
     `/precificacao`, `/relatorios/rentabilidade`; RBAC central em `src/lib/rbac.ts` e menu do
     `AppShell`.
+- Domínio Compras, Fornecedores, Recebimento e Reposição (LOVABLE MASTER 010):
+  - Fornecedores: reutiliza `companies`/`company_roles` (papel `SUPPLIER`) com
+    `supplier_profiles` (código único, condições, preferência) e `supplier_products` (catálogo com
+    unidades/fator de conversão/preço de referência). `supplier_save_company` cria empresa + papel +
+    perfil + catálogo na mesma transação e retorna o `company_id`.
+  - Fluxo completo: `purchase_requests` (DRAFT→SUBMITTED→APPROVED→ORDERED/CANCELED),
+    `quotations` + `quotation_supplier_items` (DRAFT→AWAITING→AWARDED com premiação por item),
+    `purchase_orders` (DRAFT→PENDING_APPROVAL→APPROVED→SENT→RECEIVING→COMPLETED/CANCELED, com
+    segregação de funções), `goods_receipts` (DRAFT→ACCEPTED/REJECTED→POSTED, imutável),
+    `supplier_documents` (3-way match×process), `supplier_returns` (POSTED grava `PURCHASE_RETURN`)),
+    `purchase_exceptions` (resolve/ignore/reopen) e `replenishment_query` (sugestão por
+    REORDER_POINT/TARGET_STOCK/MANUAL).
+  - Financeiro/custo integrados: postagem do recebimento gera ledger `PURCHASE_RECEIPT` IN,
+    `purchase_receipt_costs` + política de custo (`purchasing_apply_cost_policy`, versões de custo
+    do MASTER 009), e `account_payables` parceladas de `payment_terms`
+    (`UNIQUE(org,source_type,source_id,installment)`). Políticas em `purchasing_settings`
+    (custo, frete, over-receipt BLOCK/AUTH_OVERRIDE, payable_on, segregação).
+  - Segurança: tabelas novas com RLS SELECT-only; RPCs SECURITY DEFINER (`purchasing_require`);
+    triggers de imutabilidade de `POSTED`; idempotência no ledger (`PURCHASING:GR:…`) e payables;
+    auditoria `purchasing.*` + evento `purchasing.receipt.posted`. Permissões `purchasing.*`,
+    `suppliers.*`, `purchase_requests.*`, `quotations.*`, `purchase_orders.*`, `goods_receipts.*`,
+    `supplier_returns.*`, `supplier_documents.*`, `purchase_exceptions.*` e módulo `compras`
+    disponível em `src/lib/rbac.ts`.
+  - Telas: `/compras` (dashboard), `/compras/requisicoes`, `/compras/cotacoes` (+ `/$id`),
+    `/compras/pedidos` (+ `/$id`), `/compras/recebimentos` (+ `/$id`), `/compras/devolucoes`,
+    `/compras/documentos`, `/compras/excecoes`, `/compras/reposicao`, `/compras/configuracoes`,
+    `/fornecedores` (+ `/$id` Fornecedor 360). Menu Operação do `AppShell` com item Compras e
+    sub-itens. Server functions em `src/lib/purchasing/*`, tipos manuais atualizados no
+    `src/integrations/supabase/types.ts`.
 - Documentação: ADR-001/ADR-006/ADR-007, CORE-BUSINESS, INVENTORY, PARTNERS, PARTNER-SHIPMENTS,
   PARTNER-RECONCILIATION, PARTNER-PRICING, este handoff.
 

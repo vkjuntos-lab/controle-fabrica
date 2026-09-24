@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "grep",
-    "input": {
-      "path": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
-      "pattern": "function useVariants|function useLocations|function useSuppliersFlat|function useSuppliers\\b"
-    },
-    "timestamp": 1790286614949
-  },
-  {
-    "role": "tool_result",
-    "content": "Found 4 matches\n/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx:\n  Line 138: function useVariants(org: string | undefined, enabled: boolean) {\n\n  Line 147: function useLocations(org: string | undefined, enabled: boolean) {\n\n  Line 163: function useSuppliers(org: string |",
-    "is_error": false,
-    "timestamp": 1790286614973
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
@@ -1541,5 +1526,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790287472467
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
+      "newString": "- Domínio Compras, Fornecedores, Recebimento e Reposição (LOVABLE MASTER 010):\n  - Fornecedores: reutiliza `companies`/`company_roles` (papel `SUPPLIER`) com\n    `supplier_profiles` (código único, condições, preferência) e `supplier_products` (catálogo com\n    unidades/fator de conversão/preço de referência). `supplier_save_company` cria empresa + papel +\n    perfil + catálogo na mesma transação e retorna o `company_id`.\n  - Fluxo completo: `purchase_requests` (DRAFT→SUBMITTED→APPROVED→ORDERED/CANCELED),\n    `quotations` + `quotation_supplier_items` (DRAFT→AWAITING→AWARDED com premiação por item),\n    `purchase_orders` (DRAFT→PENDING_APPROVAL→APPROVED→SENT→RECEIVING→COMPLETED/CANCELED, com\n    segregação de funções), `goods_receipts` (DRAFT→ACCEPTED/REJECTED→POSTED, imutável),\n    `supplier_documents` (3-way match×process), `supplier_returns` (POSTED grava `PURCHASE_RETURN`)),\n    `purchase_exceptions` (resolve/ignore/reopen) e `replenishment_query` (sugestão por\n    REORDER_POINT/TARGET_STOCK/MANUAL).\n  - Financeiro/custo integrados: postagem do recebimento gera ledger `PURCHASE_RECEIPT` IN,\n    `purchase_receipt_costs` + política de custo (`purchasing_apply_cost_policy`, versões de custo\n    do MASTER 009), e `account_payables` parceladas de `payment_terms`\n    (`UNIQUE(org,source_type,source_id,installment)`). Políticas em `purchasing_settings`\n    (custo, frete, over-receipt BLOCK/AUTH_OVERRIDE, payable_on, segregação).\n  - Segurança: tabelas novas com RLS SELECT-only; RPCs SECURITY DEFINER (`purchasing_require`);\n    triggers de imutabilidade de `POSTED`; idempotência no ledger (`PURCHASING:GR:…`) e payables;\n    auditoria `purchasing.*` + evento `purchasing.receipt.posted`. Permissões `purchasing.*`,\n    `suppliers.*`, `purchase_requests.*`, `quotations.*`, `purchase_orders.*`, `goods_receipts.*`,\n    `supplier_returns.*`, `supplier_documents.*`, `purchase_exceptions.*` e módulo `compras`\n    disponível em `src/lib/rbac.ts`.\n  - Telas: `/compras` (dashboard), `/compras/requisicoes`, `/compras/cotacoes` (+ `/$id`),\n    `/compras/pedidos` (+ `/$id`), `/compras/recebimentos` (+ `/$id`), `/compras/devolucoes`,\n    `/compras/documentos`, `/compras/excecoes`, `/compras/reposicao`, `/compras/configuracoes`,\n    `/fornecedores` (+ `/$id` Fornecedor 360). Menu Operação do `AppShell` com item Compras e\n    sub-itens. Server functions em `src/lib/purchasing/*`, tipos manuais atualizados no\n    `src/integrations/supabase/types.ts`.\n- Documentação: ADR-001/ADR-006/ADR-007, CORE-BUSINESS, INVENTORY, PARTNERS, PARTNER-SHIPMENTS,",
+      "oldString": "- Documentação: ADR-001/ADR-006/ADR-007, CORE-BUSINESS, INVENTORY, PARTNERS, PARTNER-SHIPMENTS,"
+    },
+    "timestamp": 1790287478220
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790287478225
   }
 ]
