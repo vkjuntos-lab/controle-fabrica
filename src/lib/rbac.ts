@@ -330,6 +330,12 @@ export const PLATFORM_MODULES: ModuleDefinition[] = [
     status: "available",
   },
   {
+    key: "compras",
+    label: "Compras",
+    description: "Fornecedores, cotações, pedidos, recebimentos e devoluções.",
+    status: "available",
+  },
+  {
     key: "estoque",
     label: "Estoque",
     description: "Inventory ledger e posição por local.",

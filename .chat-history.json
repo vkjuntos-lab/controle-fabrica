@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
-      "newString": "FOREACH v_pair SLICE 1 IN ARRAY CASE TG_TABLE_NAME\n    WHEN 'supplier_profiles' THEN ARRAY[ARRAY['company_id','companies']]\n    WHEN 'supplier_products' THEN ARRAY[ARRAY['supplier_id','supplier_profiles'],ARRAY['variant_id','product_variants'],ARRAY['purchase_unit_id','units_of_measure'],ARRAY['inventory_unit_id','units_of_measure']]\n    WHEN 'purchase_requests' THEN ARRAY[ARRAY['cost_center_id','cost_centers']]\n    WHEN 'purchase_request_items' THEN ARRAY[ARRAY['variant_id','product_variants'],ARRAY['unit_of_measure_id','units_of_measure']]\n    WHEN 'quotations' THEN ARRAY[ARRAY['purchase_request_id','purchase_requests']]\n    WHEN 'quotation_suppliers' THEN ARRAY[ARRAY['quotation_id','quotations'],ARRAY['supplier_id','supplier_profiles']]\n    WHEN 'quotation_supplier_items' THEN ARRAY[ARRAY['quotation_id','quotations'],ARRAY['supplier_id','supplier_profiles'],ARRAY['variant_id','product_variants'],ARRAY['unit_of_measure_id','units_of_measure']]\n    WHEN 'purchase_orders' THEN ARRAY[ARRAY['supplier_id','supplier_profiles'],ARRAY['quotation_id','quotations'],ARRAY['purchase_request_id','purchase_requests'],ARRAY['destination_location_id','inventory_locations'],ARRAY['financial_category_id','financial_categories'],ARRAY['cost_center_id','cost_centers']]\n    WHEN 'purchase_order_items' THEN ARRAY[ARRAY['purchase_order_id','purchase_orders'],ARRAY['variant_id','product_variants'],ARRAY['purchase_unit_id','units_of_measure'],ARRAY['inventory_unit_id','units_of_measure']]\n    WHEN 'goods_receipts' THEN ARRAY[ARRAY['purchase_order_id','purchase_orders'],ARRAY['supplier_id','supplier_profiles'],ARRAY['destination_location_id','inventory_locations']]\n    WHEN 'goods_receipt_items' THEN ARRAY[ARRAY['goods_receipt_id','goods_receipts'],ARRAY['purchase_order_item_id','purchase_order_items'],ARRAY['variant_id','product_variants'],ARRAY['purchase_unit_id','units_of_measure'],ARRAY['inventory_unit_id','units_of_measure'],ARRAY['batch_id','inventory_batches']]\n    WHEN 'supplier_returns' THEN ARRAY[ARRAY['supplier_id','supplier_profiles'],ARRAY['goods_receipt_id','goods_receipts'],ARRAY['source_location_id','inventory_locations']]\n    WHEN 'supplier_return_items' THEN ARRAY[ARRAY['supplier_return_id','supplier_returns'],ARRAY['variant_id','product_variants'],ARRAY['batch_id','inventory_batches']]\n    WHEN 'supplier_documents' THEN ARRAY[ARRAY['supplier_id','supplier_profiles'],ARRAY['purchase_order_id','purchase_orders'],ARRAY['goods_receipt_id','goods_receipts']]\n    WHEN 'purchase_exceptions' THEN ARRAY[ARRAY['purchase_order_id','purchase_orders'],ARRAY['purchase_order_item_id','purchase_order_items'],ARRAY['goods_receipt_id','goods_receipts'],ARRAY['supplier_document_id','supplier_documents'],ARRAY['variant_id','product_variants']]\n    ELSE ARRAY[ARRAY[]::text[]]\n  END\n  LOOP",
-      "oldString": "FOREACH v_pair SLICE 1 IN ARRAY CASE TG_TABLE_NAME\n    WHEN 'supplier_profiles' THEN ARRAY[['company_id','companies']]\n    WHEN 'supplier_products' THEN ARRAY[['supplier_id','supplier_profiles'],['variant_id','product_variants'],['purchase_unit_id','units_of_measure'],['inventory_unit_id','units_of_measure']]\n    WHEN 'purchase_requests' THEN ARRAY[['cost_center_id','cost_centers']]\n    WHEN 'purchase_request_items' THEN ARRAY[['variant_id','product_variants'],['unit_of_measure_id','units_of_measure']]\n    WHEN 'quotations' THEN ARRAY[['purchase_request_id','purchase_requests']]\n    WHEN 'quotation_suppliers' THEN ARRAY[['quotation_id','quotations'],['supplier_id','supplier_profiles']]\n    WHEN 'quotation_supplier_items' THEN ARRAY[['quotation_id','quotations'],['supplier_id','supplier_profiles'],['variant_id','product_variants'],['unit_of_measure_id','units_of_measure']]\n    WHEN 'purchase_orders' THEN ARRAY[['supplier_id','supplier_profiles'],['quotation_id','quotations'],['purchase_request_id','purchase_requests'],['destination_location_id','inventory_locations'],['financial_category_id','financial_categories'],['cost_center_id','cost_centers']]\n    WHEN 'purchase_order_items' THEN ARRAY[['purchase_order_id','purchase_orders'],['variant_id','product_variants'],['purchase_unit_id','units_of_measure'],['inventory_unit_id','units_of_measure']]\n    WHEN 'goods_receipts' THEN ARRAY[['purchase_order_id','purchase_orders'],['supplier_id','supplier_profiles'],['destination_location_id','inventory_locations']]\n    WHEN 'goods_receipt_items' THEN ARRAY[['goods_receipt_id','goods_receipts'],['purchase_order_item_id','purchase_order_items'],['variant_id','product_variants'],['purchase_unit_id','units_of_measure'],['inventory_unit_id','units_of_measure'],['batch_id','inventory_batches']]\n    WHEN 'supplier_returns' THEN ARRAY[['supplier_id','supplier_profiles'],['goods_receipt_id','goods_receipts'],['source_location_id','inventory_locations']]\n    WHEN 'supplier_return_items' THEN ARRAY[['supplier_return_id','supplier_returns'],['variant_id','product_variants'],['batch_id','inventory_batches']]\n    WHEN 'supplier_documents' THEN ARRAY[['supplier_id','supplier_profiles'],['purchase_order_id','purchase_orders'],['goods_receipt_id','goods_receipts']]\n    WHEN 'purchase_exceptions' THEN ARRAY[['purchase_order_id','purchase_orders'],['purchase_order_item_id','purchase_order_items'],['goods_receipt_id','goods_receipts'],['supplier_document_id','supplier_documents'],['variant_id','product_variants']]\n    ELSE ARRAY[]::text[]\n  END\n  LOOP"
-    },
-    "timestamp": 1790285338006
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790285338047
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -n \"CREATE TABLE public.companies\" -A 20 supabase/migrations/20260924100000_partners.sql",
@@ -1600,5 +1584,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790286054661
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/rbac.ts",
+      "newString": "{\n    key: \"produtos\",\n    label: \"Produtos\",\n    description: \"Produtos, variantes e SKUs.\",\n    status: \"available\",\n  },\n  {\n    key: \"compras\",\n    label: \"Compras\",\n    description: \"Fornecedores, cotações, pedidos, recebimentos e devoluções.\",\n    status: \"available\",\n  },",
+      "oldString": "{\n    key: \"produtos\",\n    label: \"Produtos\",\n    description: \"Produtos, variantes e SKUs.\",\n    status: \"available\",\n  },"
+    },
+    "timestamp": 1790286056978
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790286056989
   }
 ]
