@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"CREATE FUNCTION public.partner_save_company\\|CREATE FUNCTION public.partner_query\\|partner_profiles\\|company_roles\\|GRANT EXECUTE\\|has_permission\\|partner.manage\\|roles\\b\" supabase/migrations/20260924100000_partners.sql | head -50"
-    },
-    "timestamp": 1790284250503
-  },
-  {
-    "role": "tool_result",
-    "content": "13:CREATE TABLE public.company_roles (\n34:CREATE TABLE public.partner_profiles (\n43:ALTER TABLE public.inventory_locations ADD CONSTRAINT inventory_partner_fk FOREIGN KEY(partner_id) REFERENCES public.partner_profiles(id) NOT VALID;\n53: FOREIGN KEY(organization_id,partner_id) REFERENCES public.partn",
-    "is_error": false,
-    "timestamp": 1790284250527
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260924100000_partners.sql",
@@ -1580,5 +1566,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql</path>\n<type>file</type>\n<content>\n1059: CREATE FUNCTION public.po_receive(_org uuid,_po_id uuid,_data jsonb DEFAULT '{}') RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n1060",
     "is_error": false,
     "timestamp": 1790285532866
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
+      "limit": 75,
+      "offset": 883
+    },
+    "timestamp": 1790285536649
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql</path>\n<type>file</type>\n<content>\n883:     IF NOT EXISTS(SELECT 1 FROM public.product_variants WHERE id=(it->>'variant_id')::uuid AND organization_id=_org) THEN RAISE EXCEPTION 'Item inválido: variante ",
+    "is_error": false,
+    "timestamp": 1790285536682
   }
 ]
