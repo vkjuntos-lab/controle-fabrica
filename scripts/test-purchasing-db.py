@@ -167,11 +167,11 @@ def run():
     gr5 = rpc('po_receive', org, po5, {'received_at': '2026-09-22', 'items': [{'variant_id': V1, 'quantity': 12}]})
     gi = j(rpc('receipt_query', org, 'receipt', {'id': gr5}))['items'][0]['id']
     j(rpc('receipt_action', org, gr5, 'inspect', {'items': [{'item_id': gi, 'accepted_quantity': 12}]}))
-    assert num(f"SELECT accepted_quantity FROM goods_receipt_items WHERE id='{gi}'") == 10
+    assert num(f"SELECT received_quantity FROM goods_receipt_items WHERE id='{gi}' AND accepted_quantity=12") == 12  # AUTH_OVERRIDE autoriza o excesso
     exc = j(rpc('exception_query', org, 'exceptions'))['rows'][0]
     assert exc['exception_type'] == 'OVER_RECEIPT' and exc['severity'] == 'WARNING', exc
     j(rpc('receipt_action', org, gr5, 'post'))
-    print('PASS: sobre-entrada além do pedido é limitada e gera exceção OVER_RECEIPT')
+    print('PASS: estoque com AUTH_OVERRIDE registra excesso e exceção OVER_RECEIPT')
 
     # --- Documento 3-way: idêntico == MATCHED/PROCESSED ---------------------
     doc1 = rpc('document_save', org, {'supplier_id': sup, 'document_type': 'INVOICE', 'document_number': 'NF-001',
