@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"material_cost_versions_source_type_check\\|source_type text NOT NULL\\|source_reference\" supabase/migrations/20260930100000_cost_engine.sql | head",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790285633949
-  },
-  {
-    "role": "tool_result",
-    "content": "8: source_type text NOT NULL DEFAULT 'MANUAL' CHECK(source_type IN ('MANUAL','ADJUSTMENT')),source_reference text NOT NULL CHECK(length(trim(source_reference))>0),\n58: source_reference jsonb NOT NULL,issues jsonb NOT NULL DEFAULT '[]',input_fingerprint text NOT NULL,\n87: source_reference text NOT NU",
-    "is_error": false,
-    "timestamp": 1790285633979
-  },
-  {
-    "role": "tool",
     "tool": "write",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-purchasing-db.py",
@@ -1596,5 +1581,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts</path>\n<type>file</type>\n<content>\n1126:         Args: { _organization_id: string; _location_id: string };\n1127:         Returns: Json;\n1128:       };\n1129:       inventory_save_count_item: {\n1130:         Args: {\n1131",
     "is_error": false,
     "timestamp": 1790286251815
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/integrations/supabase/types.ts",
+      "newString": "rec_reverse_item: {\n        Args: { _org: string; _item_id: string; _reason: string };\n        Returns: Json;\n      };\n\n      supplier_save_company: {\n        Args: { _org: string; _data: Json; _id?: string };\n        Returns: string;\n      };\n      supplier_product_save: {\n        Args: { _org: string; _data: Json; _id?: string };\n        Returns: string;\n      };\n      supplier_query: {\n        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };\n        Returns: Json;\n      };\n      request_save: { Args: { _org: string; _data: Json; _id?: string }; Returns: string };\n      request_action: {\n        Args: { _org: string; _id: string; _action: string; _data?: Json };\n        Returns: Json;\n      };\n      request_query: {\n        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };\n        Returns: Json;\n      };\n      quotation_save: {\n        Args: { _org: string; _data: Json; _id?: string };\n        Returns: string;\n      };\n      quotation_award: {\n        Args: { _org: string; _quotation_id: string; _data: Json };\n        Returns: Json;\n      };\n      quotation_query: {\n        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };\n        Returns: Json;\n      };\n      po_save: { Args: { _org: string; _data: Json; _id?: string }; Returns: string };\n      po_action: {\n        Args: { _org: string; _id: string; _action: string; _data?: Json };\n        Returns: Json;\n      };\n      po_query: {\n        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };\n        Returns: Json;\n      };\n      po_receive: {\n        Args: { _org: string; _po_id: string; _data?: Json };\n        Returns: string;\n      };\n      receipt_action: {\n        Args: { _org: string; _id: string; _action: string; _data?: Json };\n        Returns: Json;\n      };\n      receipt_query: {\n        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };\n        Returns: Json;\n      };\n      return_save: { Args: { _org: string; _data: Json; _id?: string }; Returns: string };\n      return_action: {\n        Args: { _org: string; _id: string; _action: string; _data?: Json };\n        Returns: Json;\n      };\n      return_query: {\n        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };\n        Returns: Json;\n      };\n      document_save: {\n        Args: { _org: string; _data: Json; _id?: string };\n        Returns: string;\n      };\n      document_action: {\n        Args: { _org: string; _id: string; _action: string; _data?: Json };\n        Returns: Json;\n      };\n      document_query: {\n        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };\n        Returns: Json;\n      };\n      exception_action: {\n        Args: { _org: string; _id: string; _action: string; _data?: Json };\n        Returns: Json;\n      };\n      exception_query: {\n        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };\n        Returns: Json;\n      };\n      replenishment_query: {\n        Args: { _org: string; _filters?: Json; _page?: number };\n        Returns: Json;\n      };\n      purchasing_query: { Args: { _org: string; _kind: string }; Returns: Json };\n      purchasing_settings_save: { Args: { _org: string; _data: Json }; Returns: Json };",
+      "oldString": "rec_reverse_item: {\n        Args: { _org: string; _item_id: string; _reason: string };\n        Returns: Json;\n      };"
+    },
+    "timestamp": 1790286263692
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790286263719
   }
 ]

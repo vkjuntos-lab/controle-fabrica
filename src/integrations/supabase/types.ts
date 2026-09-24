@@ -1112,6 +1112,96 @@ export type Database = {
         Returns: Json;
       };
 
+      supplier_save_company: {
+        Args: { _org: string; _data: Json; _id?: string };
+        Returns: string;
+      };
+      supplier_product_save: {
+        Args: { _org: string; _data: Json; _id?: string };
+        Returns: string;
+      };
+      supplier_query: {
+        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };
+        Returns: Json;
+      };
+      request_save: { Args: { _org: string; _data: Json; _id?: string }; Returns: string };
+      request_action: {
+        Args: { _org: string; _id: string; _action: string; _data?: Json };
+        Returns: Json;
+      };
+      request_query: {
+        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };
+        Returns: Json;
+      };
+      quotation_save: {
+        Args: { _org: string; _data: Json; _id?: string };
+        Returns: string;
+      };
+      quotation_award: {
+        Args: { _org: string; _quotation_id: string; _data: Json };
+        Returns: Json;
+      };
+      quotation_query: {
+        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };
+        Returns: Json;
+      };
+      po_save: { Args: { _org: string; _data: Json; _id?: string }; Returns: string };
+      po_action: {
+        Args: { _org: string; _id: string; _action: string; _data?: Json };
+        Returns: Json;
+      };
+      po_query: {
+        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };
+        Returns: Json;
+      };
+      po_receive: {
+        Args: { _org: string; _po_id: string; _data?: Json };
+        Returns: string;
+      };
+      receipt_action: {
+        Args: { _org: string; _id: string; _action: string; _data?: Json };
+        Returns: Json;
+      };
+      receipt_query: {
+        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };
+        Returns: Json;
+      };
+      return_save: { Args: { _org: string; _data: Json; _id?: string }; Returns: string };
+      return_action: {
+        Args: { _org: string; _id: string; _action: string; _data?: Json };
+        Returns: Json;
+      };
+      return_query: {
+        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };
+        Returns: Json;
+      };
+      document_save: {
+        Args: { _org: string; _data: Json; _id?: string };
+        Returns: string;
+      };
+      document_action: {
+        Args: { _org: string; _id: string; _action: string; _data?: Json };
+        Returns: Json;
+      };
+      document_query: {
+        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };
+        Returns: Json;
+      };
+      exception_action: {
+        Args: { _org: string; _id: string; _action: string; _data?: Json };
+        Returns: Json;
+      };
+      exception_query: {
+        Args: { _org: string; _kind: string; _filters?: Json; _page?: number };
+        Returns: Json;
+      };
+      replenishment_query: {
+        Args: { _org: string; _filters?: Json; _page?: number };
+        Returns: Json;
+      };
+      purchasing_query: { Args: { _org: string; _kind: string }; Returns: Json };
+      purchasing_settings_save: { Args: { _org: string; _data: Json }; Returns: Json };
+
       inventory_search_variants: {
         Args: { _organization_id: string; _query?: string; _active_only?: boolean };
         Returns: Json;
