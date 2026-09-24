@@ -120,22 +120,22 @@ DECLARE v_data jsonb:=to_jsonb(NEW); v_pair text[]; v_id uuid; v_org uuid;
 BEGIN
   IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAISE EXCEPTION 'Organização imutável.'; END IF;
   FOREACH v_pair SLICE 1 IN ARRAY CASE TG_TABLE_NAME
-    WHEN 'supplier_profiles' THEN ARRAY[['company_id','companies']]
-    WHEN 'supplier_products' THEN ARRAY[['supplier_id','supplier_profiles'],['variant_id','product_variants'],['purchase_unit_id','units_of_measure'],['inventory_unit_id','units_of_measure']]
-    WHEN 'purchase_requests' THEN ARRAY[['cost_center_id','cost_centers']]
-    WHEN 'purchase_request_items' THEN ARRAY[['variant_id','product_variants'],['unit_of_measure_id','units_of_measure']]
-    WHEN 'quotations' THEN ARRAY[['purchase_request_id','purchase_requests']]
-    WHEN 'quotation_suppliers' THEN ARRAY[['quotation_id','quotations'],['supplier_id','supplier_profiles']]
-    WHEN 'quotation_supplier_items' THEN ARRAY[['quotation_id','quotations'],['supplier_id','supplier_profiles'],['variant_id','product_variants'],['unit_of_measure_id','units_of_measure']]
-    WHEN 'purchase_orders' THEN ARRAY[['supplier_id','supplier_profiles'],['quotation_id','quotations'],['purchase_request_id','purchase_requests'],['destination_location_id','inventory_locations'],['financial_category_id','financial_categories'],['cost_center_id','cost_centers']]
-    WHEN 'purchase_order_items' THEN ARRAY[['purchase_order_id','purchase_orders'],['variant_id','product_variants'],['purchase_unit_id','units_of_measure'],['inventory_unit_id','units_of_measure']]
-    WHEN 'goods_receipts' THEN ARRAY[['purchase_order_id','purchase_orders'],['supplier_id','supplier_profiles'],['destination_location_id','inventory_locations']]
-    WHEN 'goods_receipt_items' THEN ARRAY[['goods_receipt_id','goods_receipts'],['purchase_order_item_id','purchase_order_items'],['variant_id','product_variants'],['purchase_unit_id','units_of_measure'],['inventory_unit_id','units_of_measure'],['batch_id','inventory_batches']]
-    WHEN 'supplier_returns' THEN ARRAY[['supplier_id','supplier_profiles'],['goods_receipt_id','goods_receipts'],['source_location_id','inventory_locations']]
-    WHEN 'supplier_return_items' THEN ARRAY[['supplier_return_id','supplier_returns'],['variant_id','product_variants'],['batch_id','inventory_batches']]
-    WHEN 'supplier_documents' THEN ARRAY[['supplier_id','supplier_profiles'],['purchase_order_id','purchase_orders'],['goods_receipt_id','goods_receipts']]
-    WHEN 'purchase_exceptions' THEN ARRAY[['purchase_order_id','purchase_orders'],['purchase_order_item_id','purchase_order_items'],['goods_receipt_id','goods_receipts'],['supplier_document_id','supplier_documents'],['variant_id','product_variants']]
-    ELSE ARRAY[]::text[]
+    WHEN 'supplier_profiles' THEN ARRAY[ARRAY['company_id','companies']]
+    WHEN 'supplier_products' THEN ARRAY[ARRAY['supplier_id','supplier_profiles'],ARRAY['variant_id','product_variants'],ARRAY['purchase_unit_id','units_of_measure'],ARRAY['inventory_unit_id','units_of_measure']]
+    WHEN 'purchase_requests' THEN ARRAY[ARRAY['cost_center_id','cost_centers']]
+    WHEN 'purchase_request_items' THEN ARRAY[ARRAY['variant_id','product_variants'],ARRAY['unit_of_measure_id','units_of_measure']]
+    WHEN 'quotations' THEN ARRAY[ARRAY['purchase_request_id','purchase_requests']]
+    WHEN 'quotation_suppliers' THEN ARRAY[ARRAY['quotation_id','quotations'],ARRAY['supplier_id','supplier_profiles']]
+    WHEN 'quotation_supplier_items' THEN ARRAY[ARRAY['quotation_id','quotations'],ARRAY['supplier_id','supplier_profiles'],ARRAY['variant_id','product_variants'],ARRAY['unit_of_measure_id','units_of_measure']]
+    WHEN 'purchase_orders' THEN ARRAY[ARRAY['supplier_id','supplier_profiles'],ARRAY['quotation_id','quotations'],ARRAY['purchase_request_id','purchase_requests'],ARRAY['destination_location_id','inventory_locations'],ARRAY['financial_category_id','financial_categories'],ARRAY['cost_center_id','cost_centers']]
+    WHEN 'purchase_order_items' THEN ARRAY[ARRAY['purchase_order_id','purchase_orders'],ARRAY['variant_id','product_variants'],ARRAY['purchase_unit_id','units_of_measure'],ARRAY['inventory_unit_id','units_of_measure']]
+    WHEN 'goods_receipts' THEN ARRAY[ARRAY['purchase_order_id','purchase_orders'],ARRAY['supplier_id','supplier_profiles'],ARRAY['destination_location_id','inventory_locations']]
+    WHEN 'goods_receipt_items' THEN ARRAY[ARRAY['goods_receipt_id','goods_receipts'],ARRAY['purchase_order_item_id','purchase_order_items'],ARRAY['variant_id','product_variants'],ARRAY['purchase_unit_id','units_of_measure'],ARRAY['inventory_unit_id','units_of_measure'],ARRAY['batch_id','inventory_batches']]
+    WHEN 'supplier_returns' THEN ARRAY[ARRAY['supplier_id','supplier_profiles'],ARRAY['goods_receipt_id','goods_receipts'],ARRAY['source_location_id','inventory_locations']]
+    WHEN 'supplier_return_items' THEN ARRAY[ARRAY['supplier_return_id','supplier_returns'],ARRAY['variant_id','product_variants'],ARRAY['batch_id','inventory_batches']]
+    WHEN 'supplier_documents' THEN ARRAY[ARRAY['supplier_id','supplier_profiles'],ARRAY['purchase_order_id','purchase_orders'],ARRAY['goods_receipt_id','goods_receipts']]
+    WHEN 'purchase_exceptions' THEN ARRAY[ARRAY['purchase_order_id','purchase_orders'],ARRAY['purchase_order_item_id','purchase_order_items'],ARRAY['goods_receipt_id','goods_receipts'],ARRAY['supplier_document_id','supplier_documents'],ARRAY['variant_id','product_variants']]
+    ELSE ARRAY[ARRAY[]::text[]]
   END
   LOOP
     v_id:=(v_data->>v_pair[1])::uuid;
