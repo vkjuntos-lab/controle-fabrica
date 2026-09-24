@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md</path>\n<type>file</type>\n<content>\n16: ## Continuação validada — 24/09/2026 (MASTER 006)\n17: \n18: Parceiros/lojas: interface alinhada às permissões reais `reconciliation.*` e `marketplace.manage`.\n19: Aba de lojas do Parcei",
-    "is_error": false,
-    "timestamp": 1790282229546
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
-      "newString": "Última atualização: LOVABLE MASTER 009 — Cost Engine, formação de preço, margens e rentabilidade,\nsobre o MASTER 008 (Financeiro), 007 (reconciliação/tabelas de preço), 006 (parceiros),\n003 (Inventory Ledger), 002 (Catálogo) e a fundação do MASTER 001. O MASTER 005 (importador\nmarketplace automático) não está no checkout — o registro de vendas é manual com o mesmo contrato.\nEtapa atual: cost/preço/rentabilidade validados localmente\n(`20260930100000_cost_engine.sql`, telas `/custos`, `/precificacao`, `/relatorios/rentabilidade`,\nRBAC e harness PostgreSQL reproduzível via `npm run test:costs:db`).\nValidação local; publicação não verificada.",
-      "oldString": "Última atualização: LOVABLE MASTER 009 — Cost Engine, formação de preço, margens e rentabilidade,\ncomercial (tabelas de preço) e reconciliação com fechamento idempotente de parceiros, sobre o\nMASTER 006 (parceiros), MASTER 003 (Inventory Ledger), MASTER 002 (Catálogo) e a fundação do\nMASTER 001. O MASTER 005 (importador marketplace automático) não está no checkout — o registro de\nvendas é manual com o mesmo contrato. Etapa atual: reconciliação validada localmente\n(`20260926100000_partner_reconciliation.sql`, telas, RBAC e testes PostgreSQL reproduzíveis).\nValidação local; publicação não verificada."
-    },
-    "timestamp": 1790282234859
-  },
-  {
-    "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790282234871
@@ -1579,5 +1563,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790285267307
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
+      "newString": "IF v_bal IS NULL THEN RAISE EXCEPTION 'Sem acesso ao saldo de estoque.'; END IF;\n      IF v_bal < it.quantity THEN RAISE EXCEPTION 'Saldo insuficiente para devolução da variante.'; END IF;\n      v_unit:='un';\n      INSERT INTO public.inventory_movements(organization_id,variant_id,location_id,batch_id,movement_type,direction,quantity,unit,reference_type,reference_id,reason,occurred_at,created_by,status,idempotency_key,source)\n      VALUES(_org,it.variant_id,r.source_location_id,it.batch_id,'PURCHASE_RETURN','OUT',it.quantity,v_unit,'SUPPLIER_RETURN',_id,coalesce(nullif(it.reason,''),'Devolução a fornecedor'),now(),auth.uid(),'POSTED','PURCHASING:SR:'||_id||':'||it.id::text,'PURCHASING');",
+      "oldString": "IF v_bal IS NULL THEN RAISE EXCEPTION 'Sem acesso ao saldo de estoque.'; END IF;\n      IF v_bal < it.quantity THEN RAISE EXCEPTION 'Saldo insuficiente para devolução da variante.'; END IF;\n      SELECT code INTO v_unit FROM public.units_of_measure u WHERE u.id=(SELECT pu.inventory_unit_id FROM public.supplier_products pu WHERE pu.variant_id=it.variant_id AND pu.supplier_id=r.supplier_id AND pu.organization_id=_org LIMIT 1);\n      v_unit:=coalesce(v_unit,'un');\n      INSERT INTO public.inventory_movements(organization_id,variant_id,location_id,batch_id,movement_type,direction,quantity,unit,reference_type,reference_id,reason,occurred_at,created_by,status,idempotency_key,source)\n      VALUES(_org,it.variant_id,r.source_location_id,it.batch_id,'PURCHASE_RETURN','OUT',it.quantity,v_unit,'SUPPLIER_RETURN',_id,coalesce(nullif(it.reason,''),'Devolução a fornecedor'),now(),auth.uid(),'POSTED','PURCHASING:SR:'||_id||':'||it.id::text,'PURCHASING');"
+    },
+    "timestamp": 1790285273352
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790285273409
   }
 ]

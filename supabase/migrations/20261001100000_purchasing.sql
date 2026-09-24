@@ -1267,8 +1267,7 @@ BEGIN
       v_bal:=public.inventory_get_balance(_org,it.variant_id,r.source_location_id,it.batch_id,auth.uid());
       IF v_bal IS NULL THEN RAISE EXCEPTION 'Sem acesso ao saldo de estoque.'; END IF;
       IF v_bal < it.quantity THEN RAISE EXCEPTION 'Saldo insuficiente para devolução da variante.'; END IF;
-      SELECT code INTO v_unit FROM public.units_of_measure u WHERE u.id=(SELECT pu.inventory_unit_id FROM public.supplier_products pu WHERE pu.variant_id=it.variant_id AND pu.supplier_id=r.supplier_id AND pu.organization_id=_org LIMIT 1);
-      v_unit:=coalesce(v_unit,'un');
+      v_unit:='un';
       INSERT INTO public.inventory_movements(organization_id,variant_id,location_id,batch_id,movement_type,direction,quantity,unit,reference_type,reference_id,reason,occurred_at,created_by,status,idempotency_key,source)
       VALUES(_org,it.variant_id,r.source_location_id,it.batch_id,'PURCHASE_RETURN','OUT',it.quantity,v_unit,'SUPPLIER_RETURN',_id,coalesce(nullif(it.reason,''),'Devolução a fornecedor'),now(),auth.uid(),'POSTED','PURCHASING:SR:'||_id||':'||it.id::text,'PURCHASING');
     END LOOP;
