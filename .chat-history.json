@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"rg -n 'GRANT|REVOKE' supabase/migrations/20260917110000_catalog_mestre.sql; rg -n 'product_variants\\\\(\\\\*\\\\)|from\\\\(\\\"product_variants\\\"\\\\)|select\\\\(\\\"\\\\*\\\"' src/lib | head -40; sed -n '430,490p' src/routes/_authenticated/produtos.\\\\\"'$id.tsx; sed -n '\"'108,146p' src/routes/_authenticated/produtos.\\\\\"'$id.tsx'"
-    },
-    "timestamp": 1790272766227
-  },
-  {
-    "role": "tool_result",
-    "content": "32:GRANT SELECT, INSERT, UPDATE, DELETE ON public.product_categories TO authenticated;\n33:GRANT ALL ON public.product_categories TO service_role;\n57:GRANT SELECT, INSERT, UPDATE, DELETE ON public.products TO authenticated;\n58:GRANT ALL ON public.products TO service_role;\n86:GRANT SELECT, INSERT, UPD",
-    "is_error": false,
-    "timestamp": 1790272766235
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20260930100000_cost_engine.sql');s=p.read_text().replace(' started_at timestamptz NOT NULL DEFAULT now(),completed_at timestamptz,',' created_at timestamptz NOT NULL DEFAULT now(),started_at timestamptz NOT NULL DEFAULT now(),completed_at timestamptz,');a=s.index('CREATE FUNCTION public.cost_capture_sale');b=s.index('CREATE FUNCTION public.cost_on_reconciliation_close',a);part=s[a:b].replace('channel text;','v_channel text;').replace(' channel:=',' v_channel:=').replace(\\\"IF channel=\\\",\\\"IF v_channel=\\\").replace('pricing_variable_rules.channel=channel','pricing_variable_rules.channel=v_channel').replace(\\\"WHEN channel=\\\",\\\"WHEN v_channel=\\\").replace('s.sale_date,channel,s.currency','s.sale_date,v_channel,s.currency');s=s[:a]+part+s[b:]\n# extra public query options without exposing costs\ns=s.replace(\\\"WHEN _kind IN ('variable_rules','price_tables','settings')\\\", \\\"WHEN _kind IN ('variable_rules','price_tables','settings','pricing_options')\\\")\ns=s.replace(\\\" ELSIF _kind='options' THEN\\\", \\\" ELSIF _kind IN ('options','pricing_options') THEN\\\")\n# same options reveal no monetary fields; production metadata still identifier only\n# official units conversions entry\ns=s.replace(\\\"WHEN 'material' THEN 'costs.manage_material_cost'\\\", \\\"WHEN 'conversion' THEN 'costs.manage_material_cost' WHEN 'material' THEN 'costs.manage_material_cost'\\\")\ns=s.replace(\\\" IF _kind='material' THEN\\\", \\\"\\\"\\\" IF _kind='conversion' THEN\n  IF (SELECT count(*) FROM public.units_of_measure WHERE id IN ((_data->>'from_unit_id')::uuid,(_data->>'to_unit_id')::uuid) AND (organization_id=_org OR organization_id IS NULL))<>2 THEN RAISE EXCEPTION 'Unidades inválidas.';END IF;\n  IF nullif(trim(_data->>'reason'),'') IS NULL THEN RAISE EXCEPTION 'Conversão exige referência.';END IF;\n  INSERT INTO public.unit_conversions(organization_id,from_unit_id,to_unit_id,factor,created_by) VALUES(_org,(_data->>'from_unit_id')::uuid,(_data->>'to_unit_id')::uuid,(_data->>'factor')::numeric,auth.uid()) RETURNING unit_conversions.id INTO id;\n ELSIF _kind='material' THEN\\\"\\\"\\\")\nextra=\\\"\\\"\\\"\n-- Keep old catalogue amounts for migration review, without a parallel editable/readable cost API.\nDO \"'$$ DECLARE columns text;BEGIN\n SELECT string_agg(quote_ident(column_name),'\"',') INTO columns FROM information_schema.columns WHERE table_schema='public' AND table_name='product_variants' AND column_name<>'cost_price';\n REVOKE SELECT,INSERT,UPDATE ON public.product_variants FROM authenticated;\n EXECUTE 'GRANT SELECT ('||columns||'), INSERT ('||columns||'), UPDATE ('||columns||') ON public.product_variants TO authenticated';\nEND \"'$$;\n-- The existing price editor also uses the same versioned publishing operation.\nCREATE OR REPLACE FUNCTION public.price_save_item(_org uuid,_data jsonb,_item_id uuid DEFAULT NULL,_user_id uuid DEFAULT auth.uid()) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE old public.price_table_items;payload jsonb:=_data;BEGIN\n IF _user_id IS DISTINCT FROM auth.uid() THEN RAISE EXCEPTION '\"'Usuário inválido.';END IF;\n IF _item_id IS NOT NULL THEN\n  SELECT * INTO old FROM public.price_table_items WHERE id=_item_id AND organization_id=_org;\n  IF NOT FOUND THEN RAISE EXCEPTION 'Preço não encontrado.';END IF;\n  payload:=jsonb_build_object('price_table_id',old.price_table_id,'variant_id',old.variant_id)||_data;\n END IF;\n RETURN jsonb_build_object('id',public.pricing_publish(_org,payload));\nEND \"'$$;\n\"\"\"\ns=s.replace('\"'\\\\nCOMMIT;',extra+'\\\\nCOMMIT;');p.write_text(s)\np=Path('src/lib/products/products.functions.ts');s=p.read_text().replace('product_variants(*)','product_variants(id, sku, barcode, size, color, sell_price, weight_grams, status, attributes, created_at, updated_at)').replace('cost_price: v.cost_price == null ? null : Number(v.cost_price),','cost_price: null,').replace('        costPrice: priceSchema,\\\\n','').replace('        cost_price: data.costPrice ?? null,\\\\n','');p.write_text(s)\np=Path('src/routes/_authenticated/produtos.\"'$id.tsx'\"');s=p.read_text().replace('  const [costPrice, setCostPrice] = useState(\\\"\\\");\\\\n','').replace('    setCostPrice(variant?.cost_price == null ? \\\"\\\" : String(variant.cost_price));\\\\n','').replace('        costPrice: toPrice(costPrice),\\\\n','');a=s.index('              <Label htmlFor=\\\"variant-cost\\\">');start=s.rfind('            <div',0,a);end=s.index('</div>',a)+len('</div>');s=s[:start]+s[end:];s=s.replace('                        <TableHead className=\\\"text-right\\\">Custo</TableHead>\\\\n','');s=s.replace('                          <TableCell className=\\\"text-right\\\">\\\\n                            {formatBRL(variant.cost_price)}\\\\n                          </TableCell>\\\\n','');p.write_text(s)\nPY\npython3 scripts/test-costs-db.py\""
     },
     "timestamp": 1790272813616
@@ -1502,5 +1488,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md</path>\n<type>file</type>\n<content>\n341: ## VALIDAÇÃO DESTA CONTINUAÇÃO\n342: \n343: Relatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-VALIDATION.md`,\n344: `docs/handoff/MASTER-007-VALIDATION.md` e ",
     "is_error": false,
     "timestamp": 1790282262292
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md",
+      "newString": "35 testes unitários, harness PostgreSQL do estoque, de parceiros, de reconciliação e de custos\n(MASTER 009: `npm run test:costs:db`), TypeScript, build e lint do domínio verificados. A implantação\nno banco publicado não faz parte da evidência local e permanece pendente.",
+      "oldString": "35 testes unitários, harness PostgreSQL do estoque, de parceiros, de reconciliação e de custos\n(MASTER 009: `npm run test:costs:db`), TypeScript, build e lint do domínio verificados. A implantação\nno banco publicado não faz parte da evidência local e permanece pendente.\n\nRelatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-VALIDATION.md` e\n`docs/handoff/MASTER-007-VALIDATION.md`.\n33 testes unitários, harness PostgreSQL do estoque, de parceiros e de reconciliação (12 grupos no\nMASTER 007), TypeScript, build e lint do domínio verificados. A implantação no banco publicado não\nfaz parte da evidência local e permanece pendente."
+    },
+    "timestamp": 1790282266254
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790282266267
   }
 ]

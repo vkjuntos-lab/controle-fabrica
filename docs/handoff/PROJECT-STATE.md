@@ -345,9 +345,3 @@ Relatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-V
 35 testes unitários, harness PostgreSQL do estoque, de parceiros, de reconciliação e de custos
 (MASTER 009: `npm run test:costs:db`), TypeScript, build e lint do domínio verificados. A implantação
 no banco publicado não faz parte da evidência local e permanece pendente.
-
-Relatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-VALIDATION.md` e
-`docs/handoff/MASTER-007-VALIDATION.md`.
-33 testes unitários, harness PostgreSQL do estoque, de parceiros e de reconciliação (12 grupos no
-MASTER 007), TypeScript, build e lint do domínio verificados. A implantação no banco publicado não
-faz parte da evidência local e permanece pendente.
