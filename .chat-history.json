@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py</path>\n<type>file</type>\n<content>\n1: #!/usr/bin/env python3\n2: \"\"\"Isolated PostgreSQL integration tests. Never connects to a deployed database.\"\"\"\n3: import concurrent.futures\n4: import json\n5: import os\n6: from pathlib imp",
-    "is_error": false,
-    "timestamp": 1790281896783
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cp scripts/test-costs-db.py scripts/.test-costs-db.tmp.py && sed -i \"s/fail='incompleto'/fail='completo'/\" scripts/.test-costs-db.tmp.py && runuser -u claude-runner -- python3 /root/Zheus\\ AI\\ Projects/controle-fabrica/scripts/.test-costs-db.tmp.py 2>&1 | tail -30; rm -f scripts/.test-costs-db.tmp.py",
-      "timeout": 900000
-    },
-    "timestamp": 1790281907219
-  },
-  {
-    "role": "tool_result",
     "content": "PASS: BOM 10+5+2+8+5=30, calculation deduplication, approval and publication\nPASS: query contracts\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/.test-costs-db.tmp.py\", line 134, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/con",
     "is_error": false,
     "timestamp": 1790281909344
@@ -1562,5 +1547,21 @@
     "content": "3:CREATE TABLE public.material_cost_versions (\n124:  IF TG_TABLE_NAME IN ('product_cost_versions','material_cost_versions','labor_rates','overhead_rules') THEN\n137: FOREACH t IN ARRAY ARRAY['material_cost_versions','labor_rates','overhead_rules','cost_routing_steps','production_labor_entries','cost_",
     "is_error": false,
     "timestamp": 1790284338057
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql",
+      "limit": 30,
+      "offset": 147
+    },
+    "timestamp": 1790284339894
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql</path>\n<type>file</type>\n<content>\n147: CREATE FUNCTION public.cost_save_input(_org uuid,_kind text,_data jsonb) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n148: DECLARE ",
+    "is_error": false,
+    "timestamp": 1790284339930
   }
 ]
