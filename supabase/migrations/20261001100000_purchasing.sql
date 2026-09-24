@@ -849,4 +849,374 @@ BEGIN
 END;
 $$;
 
---@@@PART_C
+-- =====================================================================
+-- 19. RPCs: Pedidos de compra.
+-- =====================================================================
+CREATE FUNCTION public.po_save(_org uuid,_data jsonb,_id uuid DEFAULT NULL) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE
+  v uuid:=coalesce(_id,gen_random_uuid());
+  it jsonb; v_sup uuid; v_qty numeric; v_price numeric; v_line numeric;
+  v_sku text; v_pu uuid; v_iu uuid; v_cf numeric; v_terms text;
+  v_sub numeric; v_disc numeric; v_tax numeric; v_frete numeric; v_outro numeric;
+BEGIN
+  PERFORM public.purchasing_require(_org,'purchase_orders.create');
+  v_sup:=(_data->>'supplier_id')::uuid;
+  IF NOT EXISTS(SELECT 1 FROM public.supplier_profiles WHERE id=v_sup AND organization_id=_org) THEN RAISE EXCEPTION 'Fornecedor não encontrado.'; END IF;
+  IF _data->'items' IS NULL OR jsonb_array_length(_data->'items')=0 THEN RAISE EXCEPTION 'Informe ao menos um item.'; END IF;
+  SELECT default_payment_terms INTO v_terms FROM public.supplier_profiles WHERE id=v_sup AND organization_id=_org;
+  IF _id IS NULL THEN
+    INSERT INTO public.purchase_orders(organization_id,order_number,supplier_id,quotation_id,purchase_request_id,status,issue_date,expected_delivery_date,currency,payment_terms,destination_location_id,financial_category_id,cost_center_id,notes,created_by)
+    VALUES(_org,'PO-'||to_char(now(),'YYYY')||'-'||lpad(nextval('public.purchase_order_seq')::text,6,'0'),v_sup,nullif(_data->>'quotation_id','')::uuid,nullif(_data->>'purchase_request_id','')::uuid,'DRAFT',coalesce(nullif(_data->>'issue_date','')::date,CURRENT_DATE),nullif(_data->>'expected_delivery_date','')::date,coalesce(nullif(_data->>'currency',''),'BRL'),coalesce(nullif(_data->>'payment_terms',''),v_terms),nullif(_data->>'destination_location_id','')::uuid,nullif(_data->>'financial_category_id','')::uuid,nullif(_data->>'cost_center_id','')::uuid,_data->>'notes',auth.uid()) RETURNING id INTO v;
+    IF _data->>'purchase_request_id' IS NOT NULL THEN
+      UPDATE public.purchase_requests SET status='ORDERED',updated_at=now() WHERE id=(_data->>'purchase_request_id')::uuid AND organization_id=_org AND status='APPROVED';
+      UPDATE public.purchase_request_items SET status='ORDERED' WHERE purchase_request_id=(_data->>'purchase_request_id')::uuid AND organization_id=_org AND status='PENDING';
+    END IF;
+  ELSE
+    IF NOT EXISTS(SELECT 1 FROM public.purchase_orders WHERE id=v AND organization_id=_org AND status='DRAFT') THEN RAISE EXCEPTION 'Pedido não encontrado ou não é rascunho.'; END IF;
+    UPDATE public.purchase_orders SET supplier_id=v_sup,quotation_id=nullif(_data->>'quotation_id','')::uuid,purchase_request_id=nullif(_data->>'purchase_request_id','')::uuid,expected_delivery_date=nullif(_data->>'expected_delivery_date','')::date,currency=coalesce(nullif(_data->>'currency',''),currency),payment_terms=coalesce(nullif(_data->>'payment_terms',''),payment_terms),destination_location_id=nullif(_data->>'destination_location_id','')::uuid,financial_category_id=nullif(_data->>'financial_category_id','')::uuid,cost_center_id=nullif(_data->>'cost_center_id','')::uuid,notes=coalesce(_data->>'notes',notes),updated_at=now() WHERE id=v AND organization_id=_org;
+    DELETE FROM public.purchase_order_items WHERE purchase_order_id=v AND status='OPEN';
+  END IF;
+  FOR it IN SELECT * FROM jsonb_array_elements(_data->'items')
+  LOOP
+    IF NOT EXISTS(SELECT 1 FROM public.product_variants WHERE id=(it->>'variant_id')::uuid AND organization_id=_org) THEN RAISE EXCEPTION 'Item inválido: variante não pertence à organização.'; END IF;
+    v_qty:=(it->>'ordered_quantity')::numeric; v_price:=(it->>'unit_price')::numeric;
+    IF v_qty IS NULL OR v_qty<=0 THEN RAISE EXCEPTION 'Quantidade do pedido inválida.'; END IF;
+    IF v_price IS NULL OR v_price<0 THEN RAISE EXCEPTION 'Preço unitário inválido.'; END IF;
+    v_sku:=NULL; v_pu:=NULL; v_iu:=NULL; v_cf:=1;
+    SELECT supplier_sku,purchase_unit_id,inventory_unit_id,conversion_factor INTO v_sku,v_pu,v_iu,v_cf
+      FROM public.supplier_products WHERE supplier_id=v_sup AND variant_id=(it->>'variant_id')::uuid AND organization_id=_org;
+    IF NOT FOUND THEN v_cf:=1; END IF;
+    v_cf:=coalesce(nullif((it->>'conversion_factor')::numeric,NULL),coalesce(v_cf,NULL),1);
+    IF v_cf<=0 THEN RAISE EXCEPTION 'Fator de conversão inválido.'; END IF;
+    v_pu:=coalesce(nullif((it->>'purchase_unit_id')::uuid::text,'')::uuid,v_pu);
+    v_iu:=coalesce(nullif((it->>'inventory_unit_id')::uuid::text,'')::uuid,v_iu);
+    v_line:=round(v_qty*v_price - coalesce((it->>'discount_amount')::numeric,0) + coalesce((it->>'tax_amount')::numeric,0),6);
+    INSERT INTO public.purchase_order_items(organization_id,purchase_order_id,variant_id,supplier_sku,ordered_quantity,purchase_unit_id,inventory_unit_id,conversion_factor,unit_price,discount_amount,tax_amount,line_total,expected_delivery_date,status)
+    VALUES(_org,v,(it->>'variant_id')::uuid,v_sku,v_qty,v_pu,v_iu,v_cf,v_price,coalesce((it->>'discount_amount')::numeric,0),coalesce((it->>'tax_amount')::numeric,0),v_line,nullif(it->>'expected_delivery_date','')::date,'OPEN');
+  END LOOP;
+  SELECT coalesce(sum(ordered_quantity*unit_price),0),coalesce(sum(discount_amount),0),coalesce(sum(tax_amount),0) INTO v_sub,v_disc,v_tax FROM public.purchase_order_items WHERE purchase_order_id=v;
+  v_frete:=coalesce((_data->>'freight_amount')::numeric,0); v_outro:=coalesce((_data->>'other_amount')::numeric,0);
+  IF v_frete<0 OR v_outro<0 THEN RAISE EXCEPTION 'Valores de frete e outros devem ser >= 0.'; END IF;
+  UPDATE public.purchase_orders SET subtotal=v_sub,discount_amount=v_disc,tax_amount=v_tax,freight_amount=v_frete,other_amount=v_outro,
+    total_amount=greatest(0,v_sub-v_disc+v_tax+v_frete+v_outro),updated_at=now() WHERE id=v;
+  PERFORM public.purchasing_audit(_org,CASE WHEN _id IS NULL THEN 'purchasing.purchase_order.create' ELSE 'purchasing.purchase_order.update' END,'purchase_orders',v,_data);
+  RETURN v;
+END;
+$$;
+
+CREATE FUNCTION public.po_action(_org uuid,_id uuid,_action text,_data jsonb DEFAULT '{}') RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE r public.purchase_orders; v_seg boolean; v_pending text;
+BEGIN
+  IF _action NOT IN ('submit','approve','send','cancel') THEN RAISE EXCEPTION 'Ação inválida.'; END IF;
+  PERFORM public.purchasing_require(_org,CASE _action WHEN 'approve' THEN 'purchase_orders.approve' WHEN 'send' THEN 'purchase_orders.send' WHEN 'cancel' THEN 'purchase_orders.cancel' ELSE 'purchase_orders.create' END);
+  SELECT * INTO r FROM public.purchase_orders WHERE id=_id AND organization_id=_org FOR UPDATE;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Pedido não encontrado.'; END IF;
+  IF _action='submit' THEN
+    IF r.status<>'DRAFT' THEN RAISE EXCEPTION 'Somente rascunhos podem ser submetidos.'; END IF;
+    IF NOT EXISTS(SELECT 1 FROM public.purchase_order_items WHERE purchase_order_id=_id) THEN RAISE EXCEPTION 'Pedido sem itens.'; END IF;
+    UPDATE public.purchase_orders SET status='PENDING_APPROVAL',updated_at=now() WHERE id=_id;
+  ELSIF _action='approve' THEN
+    IF r.status<>'PENDING_APPROVAL' THEN RAISE EXCEPTION 'Somente pedidos pendentes podem ser aprovados.'; END IF;
+    SELECT coalesce(approval_segregation,true) INTO v_seg FROM public.purchasing_settings WHERE organization_id=_org;
+    IF v_seg AND r.created_by=auth.uid() THEN RAISE EXCEPTION 'Segregação de funções: não é permitido aprovar pedido criado por você.'; END IF;
+    UPDATE public.purchase_orders SET status='APPROVED',approved_by=auth.uid(),approved_at=now(),updated_at=now() WHERE id=_id;
+  ELSIF _action='send' THEN
+    IF r.status<>'APPROVED' THEN RAISE EXCEPTION 'Somente pedidos aprovados podem ser enviados.'; END IF;
+    UPDATE public.purchase_orders SET status='SENT',sent_at=now(),updated_at=now() WHERE id=_id;
+  ELSIF _action='cancel' THEN
+    IF r.status IN ('COMPLETED','CANCELED') THEN RAISE EXCEPTION 'Pedido já concluído/cancelado.'; END IF;
+    IF EXISTS(SELECT 1 FROM public.goods_receipts WHERE purchase_order_id=_id AND status NOT IN ('CANCELED')) THEN RAISE EXCEPTION 'Pedido com recebimentos não pode ser cancelado.'; END IF;
+    UPDATE public.purchase_orders SET status='CANCELED',cancel_reason=coalesce(_data->>'reason',''),updated_at=now() WHERE id=_id;
+    UPDATE public.purchase_order_items SET status='CANCELED' WHERE purchase_order_id=_id AND status='OPEN';
+    IF r.purchase_request_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM public.purchase_orders WHERE organization_id=_org AND purchase_request_id=r.purchase_request_id AND status NOT IN ('CANCELED')) THEN
+      UPDATE public.purchase_requests SET status='APPROVED',updated_at=now() WHERE id=r.purchase_request_id;
+      UPDATE public.purchase_request_items SET status='PENDING' WHERE purchase_request_id=r.purchase_request_id AND status='ORDERED';
+    END IF;
+  END IF;
+  PERFORM public.purchasing_audit(_org,'purchasing.purchase_order.'||_action,'purchase_orders',_id,_data);
+  RETURN jsonb_build_object('id',_id,'status',CASE _action WHEN 'submit' THEN 'PENDING_APPROVAL' WHEN 'approve' THEN 'APPROVED' WHEN 'send' THEN 'SENT' ELSE 'CANCELED' END);
+END;
+$$;
+
+CREATE FUNCTION public.po_query(_org uuid,_kind text,_filters jsonb DEFAULT '{}',_page integer DEFAULT 1)
+RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$
+DECLARE result jsonb; query text:=lower(coalesce(_filters->>'query','')); status text:=coalesce(_filters->>'status',''); v_id uuid;
+BEGIN
+  PERFORM public.purchasing_require(_org,'purchase_orders.read');
+  IF _kind='orders' THEN
+    WITH rows AS MATERIALIZED(
+      SELECT po.id,po.order_number,po.supplier_id,po.status,po.issue_date,po.expected_delivery_date,po.total_amount,po.currency,po.payment_terms,
+        c.legal_name supplier_name,sp.supplier_code,
+        (SELECT count(*) FROM public.purchase_order_items i WHERE i.purchase_order_id=po.id) items,
+        (SELECT count(*) FROM public.purchase_order_items i WHERE i.purchase_order_id=po.id AND i.status='OPEN') open_items
+      FROM public.purchase_orders po JOIN public.supplier_profiles sp ON sp.id=po.supplier_id JOIN public.companies c ON c.id=sp.company_id
+      WHERE po.organization_id=_org)
+    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(concat_ws(' ',order_number,supplier_name,supplier_code)),query)>0) AND (status='' OR "status"=status) ORDER BY issue_date DESC,order_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;
+  ELSIF _kind='order' THEN
+    v_id:=(_filters->>'id')::uuid;
+    result:=jsonb_build_object(
+      'order',(SELECT to_jsonb(po) FROM public.purchase_orders po WHERE po.id=v_id AND po.organization_id=_org),
+      'items',(SELECT coalesce(jsonb_agg(i),'[]'::jsonb) FROM (SELECT i.*,v.sku,pr.name product_name,u.code purchase_unit_code FROM public.purchase_order_items i JOIN public.product_variants v ON v.id=i.variant_id JOIN public.products pr ON pr.id=v.product_id LEFT JOIN public.units_of_measure u ON u.id=i.purchase_unit_id WHERE i.purchase_order_id=v_id ORDER BY v.sku) i),
+      'receipts',(SELECT coalesce(jsonb_agg(gr),'[]'::jsonb) FROM (SELECT gr.id,gr.receipt_number,gr.status,gr.received_at,gr.total_accepted,gr.total_rejected FROM public.goods_receipts gr WHERE gr.purchase_order_id=v_id ORDER BY gr.created_at) gr));
+    IF result->'order'='null' THEN RAISE EXCEPTION 'Pedido não encontrado.'; END IF;
+  ELSIF _kind='candidates' THEN
+    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(o)) FROM (SELECT po.id,po.order_number,po.status,po.issue_date,po.total_amount,c.legal_name supplier_name FROM public.purchase_orders po JOIN public.supplier_profiles sp ON sp.id=po.supplier_id JOIN public.companies c ON c.id=sp.company_id WHERE po.organization_id=_org AND po.status IN ('APPROVED','SENT','RECEIVING') AND NOT EXISTS(SELECT 1 FROM public.supplier_documents sd WHERE sd.purchase_order_id=po.id AND sd.status<>'CANCELED') ORDER BY po.issue_date DESC LIMIT 50) o),'[]'::jsonb)) INTO result;
+  ELSE RAISE EXCEPTION 'Consulta inválida.'; END IF;
+  RETURN result;
+END;
+$$;
+
+-- =====================================================================
+-- 20. Helpers de custo e financeiro do recebimento.
+-- =====================================================================
+CREATE FUNCTION public.purchasing_find_factor(_from_unit uuid,_to_unit uuid) RETURNS numeric LANGUAGE sql STABLE SET search_path=public AS $$
+ SELECT coalesce(
+   (SELECT CASE WHEN uc.from_unit_id=_from_unit AND uc.to_unit_id=_to_unit THEN uc.factor ELSE 1/uc.factor END FROM public.unit_conversions uc WHERE (uc.from_unit_id=_from_unit AND uc.to_unit_id=_to_unit) OR (uc.from_unit_id=_to_unit AND uc.to_unit_id=_from_unit) LIMIT 1),1)
+$$;
+
+CREATE FUNCTION public.purchasing_po_payable_total(_org uuid,_po_id uuid) RETURNS numeric LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
+ SELECT coalesce(sum(original_amount),0) FROM public.account_payables WHERE organization_id=_org AND source_type='PURCHASE' AND source_id=_po_id::text AND status<>'CANCELED';
+$$;
+
+CREATE FUNCTION public.purchasing_create_payables(_org uuid,_po_id uuid) RETURNS int LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE po public.purchase_orders; terms int[]; n int; base numeric; due date; doc text; seq bigint;
+  fin uuid; dc uuid; company uuid; amt numeric; i int; cnt int:=0;
+BEGIN
+  SELECT * INTO po FROM public.purchase_orders WHERE id=_po_id AND organization_id=_org;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Pedido não encontrado.'; END IF;
+  IF public.purchasing_po_payable_total(_org,_po_id)>0 THEN RAISE EXCEPTION 'Obrigação financeira já criada para este pedido.'; END IF;
+  SELECT company_id INTO company FROM public.supplier_profiles WHERE id=po.supplier_id;
+  SELECT id INTO fin FROM public.financial_categories WHERE organization_id=_org ORDER BY name LIMIT 1;
+  dc:=po.cost_center_id; IF dc IS NULL THEN SELECT id INTO dc FROM public.cost_centers WHERE organization_id=_org ORDER BY name LIMIT 1; END IF;
+  terms:=public.purchasing_split_terms(coalesce(po.payment_terms,'0'));
+  n:=array_length(terms,1); IF n IS NULL OR n<=0 THEN n:=1; END IF;
+  base:=round(po.total_amount/n,2);
+  FOR i IN 1..n LOOP
+    seq:=nextval('public.purchase_payable_seq');
+    doc:='CMP-'||to_char(po.issue_date,'YYYY')||'-'||lpad(seq::text,6,'0')||'/'||i;
+    amt:=CASE WHEN i<n THEN base ELSE round(po.total_amount-base*(n-1),2) END;
+    due:=po.issue_date + (CASE WHEN i<=n THEN terms[i] ELSE 0 END);
+    INSERT INTO public.account_payables(organization_id,company_id,source_type,source_id,source_status,document_number,description,issue_date,due_date,original_amount,open_amount,currency,financial_category_id,cost_center_id,notes,created_by,installment_number,total_installments)
+    VALUES(_org,company,'PURCHASE',_po_id::text,'ACTIVE',doc,'Pedido de compra '||po.order_number||' - parcela '||i||'/'||n,po.issue_date,due,amt,amt,po.currency,fin,dc,po.notes,auth.uid(),i,n);
+    cnt:=cnt+1;
+  END LOOP;
+  PERFORM public.purchasing_audit(_org,'purchasing.payables.create','purchase_orders',_po_id,jsonb_build_object('installments',cnt,'total',po.total_amount));
+  RETURN cnt;
+END;
+$$;
+
+CREATE FUNCTION public.purchasing_create_payable_doc(_org uuid,_doc_id uuid) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE doc public.supplier_documents; company uuid; fin uuid; dc uuid; seq bigint; pay uuid;
+BEGIN
+  SELECT * INTO doc FROM public.supplier_documents WHERE id=_doc_id AND organization_id=_org;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Documento não encontrado.'; END IF;
+  SELECT company_id INTO company FROM public.supplier_profiles WHERE id=doc.supplier_id;
+  SELECT id INTO fin FROM public.financial_categories WHERE organization_id=_org ORDER BY name LIMIT 1;
+  SELECT id INTO dc FROM public.cost_centers WHERE organization_id=_org ORDER BY name LIMIT 1;
+  seq:=nextval('public.purchase_payable_seq');
+  INSERT INTO public.account_payables(organization_id,company_id,source_type,source_id,source_status,document_number,description,issue_date,due_date,original_amount,open_amount,currency,financial_category_id,cost_center_id,notes,created_by,installment_number,total_installments)
+  VALUES(_org,company,'SUPPLIER_DOCUMENT',_doc_id::text,'ACTIVE','CMP-'||to_char(doc.issue_date,'YYYY')||'-'||lpad(seq::text,6,'0')||'/1','Documento de fornecedor '||doc.document_type||' '||doc.document_number,doc.issue_date,doc.issue_date,doc.total_amount,doc.total_amount,doc.total_amount,coalesce((SELECT currency FROM public.companies c WHERE c.id=company),'BRL'),fin,dc,doc.notes,auth.uid(),1,1)
+  RETURNING id INTO pay;
+  PERFORM public.purchasing_audit(_org,'purchasing.payables.create_doc','supplier_documents',_doc_id,jsonb_build_object('payable',pay,'total',doc.total_amount));
+  RETURN pay;
+END;
+$$;
+
+-- Aplica a política de custo após o recebimento (LAST_PURCHASE gravado como a
+-- versão corrente; AVERAGE grava a média ponderada do histórico de recebimentos;
+-- STANDARD/NONE não sobrescrevem o custo padrão).
+CREATE FUNCTION public.purchasing_apply_cost_policy(_org uuid,_variant uuid,_inv_unit uuid,_date date,_qty_inv numeric,_cost_inv numeric,_receipt_number text) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE v_pol text; v_ver integer; v_last date; v_avg numeric;
+BEGIN
+  INSERT INTO public.purchase_receipt_costs(organization_id,variant_id,goods_receipt_id,effective_date,quantity,unit_cost,total_value)
+  VALUES(_org,_variant,(SELECT id FROM public.goods_receipts WHERE organization_id=_org AND receipt_number=_receipt_number),_date,_qty_inv,_cost_inv,round(_qty_inv*_cost_inv,6)) ON CONFLICT(organization_id,goods_receipt_id,variant_id) DO NOTHING;
+  SELECT acquisition_cost_policy INTO v_pol FROM public.purchasing_settings WHERE organization_id=_org;
+  IF v_pol IS NULL THEN v_pol:='LAST_PURCHASE'; END IF;
+  IF _variant IS NULL THEN RETURN; END IF;
+  IF v_pol='AVERAGE' THEN
+    SELECT sum(quantity*unit_cost)/nullif(sum(quantity),0) INTO v_avg FROM public.purchase_receipt_costs WHERE organization_id=_org AND variant_id=_variant;
+    _cost_inv:=coalesce(v_avg,_cost_inv);
+  END IF;
+  IF v_pol IN ('LAST_PURCHASE','AVERAGE') THEN
+    SELECT max(version)+1,max(effective_from) INTO v_ver,v_last FROM public.material_cost_versions WHERE organization_id=_org AND variant_id=_variant;
+    IF v_last IS NULL OR _date>v_last THEN
+      UPDATE public.material_cost_versions SET status='SUPERSEDED',effective_to=_date WHERE organization_id=_org AND variant_id=_variant AND status='ACTIVE';
+      INSERT INTO public.material_cost_versions(organization_id,variant_id,version,unit_of_measure_id,unit_cost,effective_from,source_type,source_reference,created_by,status)
+      VALUES(_org,_variant,coalesce(v_ver,1),_inv_unit,_cost_inv,_date,'PURCHASE',_receipt_number,auth.uid(),'ACTIVE');
+      UPDATE public.supplier_products sp SET last_price=(SELECT pu.unit_price FROM public.purchase_order_items pu WHERE pu.variant_id=_variant AND pu.purchase_order_id=(SELECT purchase_order_id FROM public.goods_receipts WHERE organization_id=_org AND receipt_number=_receipt_number) ORDER BY pu.created_at DESC LIMIT 1),last_price_date=_date
+      WHERE sp.organization_id=_org AND sp.variant_id=_variant;
+    END IF;
+  END IF;
+END;
+$$;
+
+-- =====================================================================
+-- 21. RPCs: Recebimento de mercadorias.
+-- =====================================================================
+CREATE FUNCTION public.po_receive(_org uuid,_po_id uuid,_data jsonb DEFAULT '{}') RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE
+  v uuid; v_po public.purchase_orders; it jsonb; v_item record; v_qty numeric; v_unit numeric; v_unit_cost numeric; v_line numeric;
+  v_req_qty numeric;
+BEGIN
+  PERFORM public.purchasing_require(_org,'goods_receipts.create');
+  PERFORM public.inventory_lock(_org);
+  SELECT * INTO v_po FROM public.purchase_orders WHERE id=_po_id AND organization_id=_org FOR UPDATE;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Pedido não encontrado.'; END IF;
+  IF v_po.status NOT IN ('APPROVED','SENT','RECEIVING') THEN RAISE EXCEPTION 'Pedido não pode ser recebido no status % .',v_po.status; END IF;
+  INSERT INTO public.goods_receipts(organization_id,receipt_number,purchase_order_id,supplier_id,destination_location_id,received_at,received_by,status,supplier_document_number,notes)
+  VALUES(_org,'GR-'||to_char(now(),'YYYY')||'-'||lpad(nextval('public.goods_receipt_seq')::text,6,'0'),_po_id,v_po.supplier_id,coalesce(nullif(_data->>'destination_location_id','')::uuid,v_po.destination_location_id),coalesce(nullif(_data->>'received_at','')::date,CURRENT_DATE),auth.uid(),'DRAFT',_data->>'supplier_document_number',_data->>'notes') RETURNING id INTO v;
+  FOR it IN SELECT * FROM jsonb_array_elements(coalesce(_data->'items',(SELECT coalesce(jsonb_agg(jsonb_build_object('variant_id',i.variant_id,'quantity',i.ordered_quantity-i.received_quantity)),'[]'::jsonb) FROM public.purchase_order_items i WHERE i.purchase_order_id=_po_id AND i.status='OPEN')))
+  LOOP
+    v_req_qty:=(it->>'quantity')::numeric;
+    SELECT i.*,i.ordered_quantity-i.received_quantity AS remaining INTO v_item FROM public.purchase_order_items i WHERE i.purchase_order_id=_po_id AND i.variant_id=(it->>'variant_id')::uuid AND organization_id=_org AND i.status IN ('OPEN','PARTIALLY_RECEIVED');
+    IF NOT FOUND THEN RAISE EXCEPTION 'Item do pedido não encontrado para a variante fornecida.'; END IF;
+    IF v_req_qty IS NULL OR v_req_qty<=0 THEN RAISE EXCEPTION 'Quantidade inválida para recebimento.'; END IF;
+    IF v_req_qty > v_item.remaining THEN
+      IF (SELECT over_receipt_policy FROM public.purchasing_settings WHERE organization_id=_org)='BLOCK' AND NOT public.has_permission(_org,'purchase_exceptions.resolve') THEN
+        v_req_qty:=v_item.remaining;
+      END IF;
+    END IF;
+    v_unit_cost:=v_item.unit_price; v_line:=round(v_req_qty*v_unit_cost,6);
+    INSERT INTO public.goods_receipt_items(organization_id,goods_receipt_id,purchase_order_item_id,variant_id,received_quantity,accepted_quantity,inventory_unit_id,purchase_unit_id,conversion_factor,unit_cost,line_total,status)
+    VALUES(_org,v,v_item.id,v_item.variant_id,v_req_qty,v_req_qty,v_item.inventory_unit_id,v_item.purchase_unit_id,coalesce(v_item.conversion_factor,1),v_unit_cost,v_line,'ACCEPTED');
+  END LOOP;
+  UPDATE public.goods_receipts SET total_received=coalesce((SELECT sum(received_quantity) FROM public.goods_receipt_items WHERE goods_receipt_id=v),0),
+    total_accepted=coalesce((SELECT sum(accepted_quantity) FROM public.goods_receipt_items WHERE goods_receipt_id=v),0) WHERE id=v;
+  UPDATE public.purchase_orders SET status='RECEIVING',updated_at=now() WHERE id=_po_id;
+  PERFORM public.purchasing_audit(_org,'purchasing.purchase_order.receive','goods_receipts',v,_data);
+  RETURN v;
+END;
+$$;
+
+CREATE FUNCTION public.receipt_action(_org uuid,_id uuid,_action text,_data jsonb DEFAULT '{}') RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE
+  r public.goods_receipts; it jsonb; v_item record; v_remaining numeric; v_cap numeric; v_allowed boolean;
+  v_pool numeric; v_extra numeric; v_pol text; v_cf numeric; v_qty_inv numeric; v_money numeric; v_cost_inv numeric; v_unit text:='un';
+  v_po_status text; v_events int:=0;
+  v_placed integer:=0;
+  v_polpay text;
+  po public.purchase_orders;
+BEGIN
+  IF _action NOT IN ('inspect','post','cancel') THEN RAISE EXCEPTION 'Ação inválida.'; END IF;
+  PERFORM public.purchasing_require(_org,CASE _action WHEN 'post' THEN 'goods_receipts.post' WHEN 'cancel' THEN 'goods_receipts.cancel' ELSE 'goods_receipts.inspect' END);
+  PERFORM public.inventory_lock(_org);
+  SELECT * INTO r FROM public.goods_receipts WHERE id=_id AND organization_id=_org FOR UPDATE;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Recebimento não encontrado.'; END IF;
+
+  IF _action='inspect' THEN
+    IF r.status NOT IN ('DRAFT','UNDER_INSPECTION') THEN RAISE EXCEPTION 'Somente recebimentos pendentes de inspeção podem ser inspecionados.'; END IF;
+    SELECT over_receipt_policy INTO v_pol FROM public.purchasing_settings WHERE organization_id=_org;
+    IF v_pol IS NULL THEN v_pol:='BLOCK'; END IF;
+    v_allowed:=v_pol<>'BLOCK' OR public.has_permission(_org,'purchase_exceptions.resolve');
+    FOR it IN SELECT * FROM jsonb_array_elements(_data->'items')
+    LOOP
+      SELECT * INTO v_item FROM public.goods_receipt_items WHERE id=(it->>'item_id')::uuid AND goods_receipt_id=_id AND organization_id=_org FOR UPDATE;
+      IF NOT FOUND THEN RAISE EXCEPTION 'Item de recebimento não encontrado.'; END IF;
+      v_cap:=coalesce((it->>'accepted_quantity')::numeric,v_item.received_quantity);
+      IF v_cap<0 THEN RAISE EXCEPTION 'Quantidade aceita negativa.'; END IF;
+      IF v_cap>v_item.received_quantity THEN RAISE EXCEPTION 'Quantidade aceita não pode exceder a recebida.'; END IF;
+      SELECT i.ordered_quantity-i.received_quantity INTO v_remaining
+        FROM public.purchase_order_items i WHERE i.id=v_item.purchase_order_item_id AND i.organization_id=_org;
+      IF v_cap>v_remaining AND NOT v_allowed THEN
+        v_cap:=v_remaining;
+        INSERT INTO public.purchase_exceptions(organization_id,exception_type,severity,status,purchase_order_id,purchase_order_item_id,goods_receipt_id,variant_id,message,details)
+        VALUES(_org,'OVER_RECEIPT','WARNING','OPEN',r.purchase_order_id,v_item.purchase_order_item_id,_id,v_item.variant_id,'Quantidade recebida acima do pedido foi limitada automaticamente.',jsonb_build_object('requested',coalesce((it->>'accepted_quantity')::numeric,v_item.received_quantity),'capped',v_remaining));
+      ELSIF v_cap>v_remaining THEN
+        INSERT INTO public.purchase_exceptions(organization_id,exception_type,severity,status,purchase_order_id,purchase_order_item_id,goods_receipt_id,variant_id,message,details)
+        VALUES(_org,'OVER_RECEIPT','WARNING','OPEN',r.purchase_order_id,v_item.purchase_order_item_id,_id,v_item.variant_id,'Excesso de recebimento em relação ao pedido autorizado.',jsonb_build_object('requested',v_cap,'ordered',v_remaining));
+      END IF;
+      UPDATE public.goods_receipt_items SET accepted_quantity=v_cap,
+        rejected_quantity=greatest(0,v_item.received_quantity-v_cap),
+        reason=coalesce((it->>'reason')::text,reason),
+        status=CASE WHEN v_cap>0 THEN 'ACCEPTED' ELSE 'REJECTED' END,
+        line_total=round(v_cap*unit_cost,6) WHERE id=v_item.id;
+    END LOOP;
+    UPDATE public.goods_receipts SET total_accepted=coalesce((SELECT sum(accepted_quantity) FROM public.goods_receipt_items WHERE goods_receipt_id=_id),0),
+      total_rejected=coalesce((SELECT sum(rejected_quantity) FROM public.goods_receipt_items WHERE goods_receipt_id=_id),0),
+      total_received=coalesce((SELECT sum(received_quantity) FROM public.goods_receipt_items WHERE goods_receipt_id=_id),0),
+      status=CASE WHEN coalesce((SELECT sum(accepted_quantity) FROM public.goods_receipt_items WHERE goods_receipt_id=_id),0)>0 THEN 'ACCEPTED' ELSE 'REJECTED' END,
+      updated_at=now() WHERE id=_id;
+    PERFORM public.purchasing_audit(_org,'purchasing.goods_receipt.inspect','goods_receipts',_id,_data);
+    RETURN jsonb_build_object('id',_id,'status',CASE WHEN EXISTS(SELECT 1 FROM public.goods_receipt_items WHERE goods_receipt_id=_id AND accepted_quantity>0) THEN 'ACCEPTED' ELSE 'REJECTED' END);
+
+  ELSIF _action='post' THEN
+    IF r.status NOT IN ('ACCEPTED','REJECTED') THEN RAISE EXCEPTION 'Recebimento precisa ser inspecionado antes da postagem.'; END IF;
+    IF EXISTS(SELECT 1 FROM public.inventory_movements WHERE organization_id=_org AND reference_type='GOODS_RECEIPT' AND reference_id=_id) THEN RAISE EXCEPTION 'Recebimento já postado.'; END IF;
+    SELECT * INTO po FROM public.purchase_orders WHERE id=r.purchase_order_id AND organization_id=_org;
+    SELECT sum(accepted_quantity*unit_cost) INTO v_pool FROM public.goods_receipt_items WHERE goods_receipt_id=_id;
+    SELECT freight_policy,payable_on INTO v_pol,v_polpay FROM public.purchasing_settings WHERE organization_id=_org;
+    IF v_pol IS NULL THEN v_pol:='EXPENSE_SEPARATELY'; END IF;
+    IF v_polpay IS NULL THEN v_polpay:='GOODS_RECEIPT'; END IF;
+    v_extra:=CASE WHEN v_pol='INCLUDE_IN_INVENTORY_COST' THEN po.freight_amount ELSE 0 END;
+    FOR v_item IN SELECT gi.*,i.variant_id vid FROM public.goods_receipt_items gi JOIN public.purchase_order_items i ON i.id=gi.purchase_order_item_id WHERE gi.goods_receipt_id=_id
+    LOOP
+      IF v_item.accepted_quantity<=0 THEN CONTINUE; END IF;
+      v_cf:=coalesce(v_item.conversion_factor,1);
+      v_qty_inv:=round(v_item.accepted_quantity*v_cf,3);
+      v_money:=round(v_item.accepted_quantity*v_item.unit_cost + CASE WHEN v_pool>0 AND v_extra>0 THEN v_extra*(v_item.accepted_quantity*v_item.unit_cost)/v_pool ELSE 0 END,6);
+      v_cost_inv:=round(v_money/v_qty_inv,6);
+      SELECT code INTO v_unit FROM public.units_of_measure WHERE id=v_item.inventory_unit_id;
+      v_unit:=coalesce(v_unit,'un');
+      INSERT INTO public.inventory_movements(organization_id,variant_id,location_id,batch_id,movement_type,direction,quantity,unit,reference_type,reference_id,reason,occurred_at,created_by,status,idempotency_key,source)
+      VALUES(_org,v_item.vid,po.destination_location_id,v_item.batch_id,'PURCHASE_RECEIPT','IN',v_qty_inv,v_unit,'GOODS_RECEIPT',_id,CASE WHEN v_item.status='REJECTED' THEN 'Item recebido e rejeitado na inspeção' ELSE 'Recebimento de compra' END,now(),auth.uid(),'POSTED','PURCHASING:GR:'||_id||':'||v_item.id::text,'PURCHASING');
+      PERFORM public.purchasing_apply_cost_policy(_org,v_item.vid,v_item.inventory_unit_id,r.received_at,v_qty_inv,v_cost_inv,r.receipt_number);
+      UPDATE public.purchase_order_items SET received_quantity=received_quantity+v_item.accepted_quantity,
+        status=CASE WHEN received_quantity+v_item.accepted_quantity>=ordered_quantity THEN 'RECEIVED' ELSE 'PARTIALLY_RECEIVED' END
+        WHERE id=v_item.purchase_order_item_id;
+    END LOOP;
+    UPDATE public.goods_receipts SET status='POSTED',posted_by=auth.uid(),posted_at=now(),updated_at=now() WHERE id=_id;
+    IF NOT EXISTS(SELECT 1 FROM public.purchase_order_items WHERE purchase_order_id=r.purchase_order_id AND status IN ('OPEN','PARTIALLY_RECEIVED')) THEN
+      UPDATE public.purchase_orders SET status='COMPLETED',completed_at=now(),updated_at=now() WHERE id=r.purchase_order_id;
+      IF po.purchase_request_id IS NOT NULL THEN
+        UPDATE public.purchase_request_items SET status='CANCELLED' WHERE purchase_request_id=po.purchase_request_id AND status='ORDERED' AND variant_id IN (SELECT variant_id FROM public.purchase_order_items WHERE purchase_order_id=r.purchase_order_id AND status='RECEIVED');
+      END IF;
+    ELSE
+      UPDATE public.purchase_orders SET status='RECEIVING',updated_at=now() WHERE id=r.purchase_order_id;
+    END IF;
+    IF v_polpay='GOODS_RECEIPT' THEN PERFORM public.purchasing_create_payables(_org,r.purchase_order_id); END IF;
+    IF public.has_permission(_org,'purchasing.read') THEN
+      INSERT INTO public.domain_events(organization_id,event_type,event_source,event_key,payload)
+      VALUES(_org,'purchasing.receipt.posted','PURCHASING','purchasing:receipt:'||_id::text,jsonb_build_object('receipt_id',_id,'purchase_order_id',r.purchase_order_id,'total_accepted',r.total_accepted))
+      ON CONFLICT DO NOTHING;
+    END IF;
+    PERFORM public.purchasing_audit(_org,'purchasing.goods_receipt.post','goods_receipts',_id,_data);
+    RETURN jsonb_build_object('id',_id,'status','POSTED');
+
+  ELSE -- cancel
+    IF r.status IN ('POSTED','CANCELED') THEN RAISE EXCEPTION 'Recebimento postado/cancelado não pode ser cancelado.'; END IF;
+    UPDATE public.goods_receipts SET status='CANCELED',updated_at=now() WHERE id=_id;
+    IF NOT EXISTS(SELECT 1 FROM public.goods_receipts WHERE purchase_order_id=r.purchase_order_id AND status NOT IN ('CANCELED')) THEN
+      UPDATE public.purchase_orders SET status=CASE WHEN sent_at IS NOT NULL THEN 'SENT' ELSE 'APPROVED' END,updated_at=now() WHERE id=r.purchase_order_id;
+    END IF;
+    PERFORM public.purchasing_audit(_org,'purchasing.goods_receipt.cancel','goods_receipts',_id,_data);
+    RETURN jsonb_build_object('id',_id,'status','CANCELED');
+  END IF;
+END;
+$$;
+
+CREATE FUNCTION public.receipt_query(_org uuid,_kind text,_filters jsonb DEFAULT '{}',_page integer DEFAULT 1)
+RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$
+DECLARE result jsonb; query text:=lower(coalesce(_filters->>'query','')); status text:=coalesce(_filters->>'status',''); v_id uuid;
+BEGIN
+  PERFORM public.purchasing_require(_org,'goods_receipts.read');
+  IF _kind='receipts' THEN
+    WITH rows AS MATERIALIZED(
+      SELECT gr.id,gr.receipt_number,gr.purchase_order_id,gr.supplier_id,gr.status,gr.received_at,gr.total_received,gr.total_accepted,gr.total_rejected,gr.supplier_document_number,
+        po.order_number,c.legal_name supplier_name,
+        (SELECT count(*) FROM public.goods_receipt_items i WHERE i.goods_receipt_id=gr.id) items
+      FROM public.goods_receipts gr JOIN public.purchase_orders po ON po.id=gr.purchase_order_id JOIN public.supplier_profiles sp ON sp.id=gr.supplier_id JOIN public.companies c ON c.id=sp.company_id
+      WHERE gr.organization_id=_org)
+    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(concat_ws(' ',receipt_number,order_number,supplier_name)),query)>0) AND (status='' OR "status"=status) ORDER BY received_at DESC,receipt_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;
+  ELSIF _kind='receipt' THEN
+    v_id:=(_filters->>'id')::uuid;
+    result:=jsonb_build_object(
+      'receipt',(SELECT to_jsonb(gr) FROM public.goods_receipts gr WHERE gr.id=v_id AND gr.organization_id=_org),
+      'order',(SELECT to_jsonb(po) FROM public.purchase_orders po WHERE po.id=(SELECT purchase_order_id FROM public.goods_receipts WHERE id=v_id)),
+      'items',(SELECT coalesce(jsonb_agg(i),'[]'::jsonb) FROM (SELECT gi.*,v.sku,pr.name product_name,CASE WHEN gi.accepted_quantity>0 THEN round(gi.line_total/gi.accepted_quantity,6) ELSE gi.unit_cost END effective_unit_cost FROM public.goods_receipt_items gi JOIN public.product_variants v ON v.id=gi.variant_id JOIN public.products pr ON pr.id=v.product_id WHERE gi.goods_receipt_id=v_id ORDER BY v.sku) i));
+    IF result->'receipt'='null' THEN RAISE EXCEPTION 'Recebimento não encontrado.'; END IF;
+  ELSE RAISE EXCEPTION 'Consulta inválida.'; END IF;
+  RETURN result;
+END;
+$$;
+
+--@@@PART_D
