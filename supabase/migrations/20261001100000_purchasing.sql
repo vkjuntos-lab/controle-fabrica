@@ -23,11 +23,11 @@ CREATE SEQUENCE IF NOT EXISTS public.purchase_payable_seq MINVALUE 1;
 ALTER TYPE public.inventory_movement_type ADD VALUE IF NOT EXISTS 'PURCHASE_RETURN';
 ALTER TABLE public.inventory_movements DROP CONSTRAINT IF EXISTS inventory_movements_check;
 ALTER TABLE public.inventory_movements ADD CONSTRAINT inventory_movements_check CHECK (
-    (direction = 'IN'  AND movement_type IN (
+    (direction = 'IN'  AND movement_type::text IN (
       'OPENING_BALANCE','PURCHASE_RECEIPT','PRODUCTION_OUTPUT','SALE_RETURN',
       'PARTNER_SHIPMENT','PARTNER_RETURN','TRANSFER_IN','ADJUSTMENT_IN','MANUAL_CORRECTION','REVERSAL'))
     OR
-    (direction = 'OUT' AND movement_type IN (
+    (direction = 'OUT' AND movement_type::text IN (
       'PRODUCTION_CONSUMPTION','SALE','PARTNER_SHIPMENT','PARTNER_RETURN','TRANSFER_OUT',
       'ADJUSTMENT_OUT','LOSS','MANUAL_CORRECTION','REVERSAL','PURCHASE_RETURN'))
 ) NOT VALID;

@@ -1,56 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "todowrite",
-    "input": {
-      "todos": [
-        {
-          "content": "Escrever migration 20261001100000_purchasing.sql (tabelas, enum PURCHASE_RETURN, RPCs, RLS, permissões, eventos)",
-          "status": "in_progress",
-          "priority": "high"
-        },
-        {
-          "content": "Adicionar permissões purchasing.* + rótulos + módulo 'compras' em src/lib/rbac.ts",
-          "status": "pending",
-          "priority": "high"
-        },
-        {
-          "content": "Criar scripts/test-purchasing-db.py cobrindo itens 97-110 e validar no PostgreSQL",
-          "status": "pending",
-          "priority": "high"
-        },
-        {
-          "content": "Criar src/lib/purchasing/types.ts e purchasing.functions.ts (server functions)",
-          "status": "pending",
-          "priority": "high"
-        },
-        {
-          "content": "Criar rotas e telas Compras/Fornecedores em src/routes/_authenticated + atualizar app-shell",
-          "status": "pending",
-          "priority": "medium"
-        },
-        {
-          "content": "Criar/adicionar teste de contrato purchasing.* em src/lib/rbac.test.ts e rodar vitest/lint/typecheck/build",
-          "status": "pending",
-          "priority": "medium"
-        },
-        {
-          "content": "Documentos: docs/business/PURCHASING.md, SUPPLIERS.md, GOODS-RECEIPT.md, REPLENISHMENT.md e atualizar PROJECT-STATE.md",
-          "status": "pending",
-          "priority": "medium"
-        }
-      ]
-    },
-    "timestamp": 1790284394419
-  },
-  {
-    "role": "tool_result",
-    "content": "[\n  {\n    \"content\": \"Escrever migration 20261001100000_purchasing.sql (tabelas, enum PURCHASE_RETURN, RPCs, RLS, permissões, eventos)\",\n    \"status\": \"in_progress\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Adicionar permissões purchasing.* + rótulos + módulo 'compras' em src/lib/rbac.ts\",\n  ",
-    "is_error": false,
-    "timestamp": 1790284394424
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260924100000_partners.sql",
@@ -1592,5 +1542,21 @@
     "content": "Traceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-purchasing-db.py\", line 234, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-purchasing-db.py\", line 16, in run\n    sql((db.ROOT / 'supabase/migrations' / na",
     "is_error": false,
     "timestamp": 1790285682894
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
+      "newString": "ALTER TABLE public.inventory_movements DROP CONSTRAINT IF EXISTS inventory_movements_check;\nALTER TABLE public.inventory_movements ADD CONSTRAINT inventory_movements_check CHECK (\n    (direction = 'IN'  AND movement_type::text IN (\n      'OPENING_BALANCE','PURCHASE_RECEIPT','PRODUCTION_OUTPUT','SALE_RETURN',\n      'PARTNER_SHIPMENT','PARTNER_RETURN','TRANSFER_IN','ADJUSTMENT_IN','MANUAL_CORRECTION','REVERSAL'))\n    OR\n    (direction = 'OUT' AND movement_type::text IN (\n      'PRODUCTION_CONSUMPTION','SALE','PARTNER_SHIPMENT','PARTNER_RETURN','TRANSFER_OUT',\n      'ADJUSTMENT_OUT','LOSS','MANUAL_CORRECTION','REVERSAL','PURCHASE_RETURN'))\n) NOT VALID;",
+      "oldString": "ALTER TABLE public.inventory_movements DROP CONSTRAINT IF EXISTS inventory_movements_check;\nALTER TABLE public.inventory_movements ADD CONSTRAINT inventory_movements_check CHECK (\n    (direction = 'IN'  AND movement_type IN (\n      'OPENING_BALANCE','PURCHASE_RECEIPT','PRODUCTION_OUTPUT','SALE_RETURN',\n      'PARTNER_SHIPMENT','PARTNER_RETURN','TRANSFER_IN','ADJUSTMENT_IN','MANUAL_CORRECTION','REVERSAL'))\n    OR\n    (direction = 'OUT' AND movement_type IN (\n      'PRODUCTION_CONSUMPTION','SALE','PARTNER_SHIPMENT','PARTNER_RETURN','TRANSFER_OUT',\n      'ADJUSTMENT_OUT','LOSS','MANUAL_CORRECTION','REVERSAL','PURCHASE_RETURN'))\n) NOT VALID;"
+    },
+    "timestamp": 1790285693880
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790285693913
   }
 ]
