@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "grep",
-    "input": {
-      "pattern": "CREATE TABLE public.domain_events",
-      "path": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations"
-    },
-    "timestamp": 1790284836820
-  },
-  {
-    "role": "tool_result",
-    "content": "Found 1 matches\n/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql:\n  Line 271: CREATE TABLE public.domain_events (\n",
-    "is_error": false,
-    "timestamp": 1790284836844
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql",
@@ -1564,5 +1549,21 @@
     "content": "PASS: fornecedores + catálogo (perfil, prazos, rolo->m)\nPASS: requisição DRAFT->SUBMITTED->APPROVED\nPASS: cotação multi-fornecedor + premiação\nPASS: pedido aprovado NÃO gera movimento; segregação de aprovação; cancelamento restaura requisição aprovada?\nPASS: recebimento parcial 5/10, inspeção, posta",
     "is_error": false,
     "timestamp": 1790285742870
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
+      "newString": "IF v_polpay='GOODS_RECEIPT' AND public.purchasing_po_payable_total(_org,r.purchase_order_id)=0 THEN PERFORM public.purchasing_create_payables(_org,r.purchase_order_id); END IF;",
+      "oldString": "IF v_polpay='GOODS_RECEIPT' THEN PERFORM public.purchasing_create_payables(_org,r.purchase_order_id); END IF;"
+    },
+    "timestamp": 1790285747981
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790285747998
   }
 ]

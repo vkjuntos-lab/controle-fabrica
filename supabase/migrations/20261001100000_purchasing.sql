@@ -1176,7 +1176,7 @@ BEGIN
     ELSE
       UPDATE public.purchase_orders SET status='RECEIVING',updated_at=now() WHERE id=r.purchase_order_id;
     END IF;
-    IF v_polpay='GOODS_RECEIPT' THEN PERFORM public.purchasing_create_payables(_org,r.purchase_order_id); END IF;
+    IF v_polpay='GOODS_RECEIPT' AND public.purchasing_po_payable_total(_org,r.purchase_order_id)=0 THEN PERFORM public.purchasing_create_payables(_org,r.purchase_order_id); END IF;
     IF public.has_permission(_org,'purchasing.read') THEN
       INSERT INTO public.domain_events(organization_id,event_type,event_source,event_key,payload)
       VALUES(_org,'purchasing.receipt.posted','PURCHASING','purchasing:receipt:'||_id::text,jsonb_build_object('receipt_id',_id,'purchase_order_id',r.purchase_order_id,'total_accepted',r.total_accepted))
