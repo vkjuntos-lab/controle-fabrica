@@ -1065,7 +1065,7 @@ BEGIN
   IF v_po.status NOT IN ('APPROVED','SENT','RECEIVING') THEN RAISE EXCEPTION 'Pedido não pode ser recebido no status % .',v_po.status; END IF;
   INSERT INTO public.goods_receipts(organization_id,receipt_number,purchase_order_id,supplier_id,destination_location_id,received_at,received_by,status,supplier_document_number,notes)
   VALUES(_org,'GR-'||to_char(now(),'YYYY')||'-'||lpad(nextval('public.goods_receipt_seq')::text,6,'0'),_po_id,v_po.supplier_id,coalesce(nullif(_data->>'destination_location_id','')::uuid,v_po.destination_location_id),coalesce(nullif(_data->>'received_at','')::date,CURRENT_DATE),auth.uid(),'DRAFT',_data->>'supplier_document_number',_data->>'notes') RETURNING id INTO v;
-  FOR it IN SELECT * FROM jsonb_array_elements(coalesce(_data->'items',(SELECT coalesce(jsonb_agg(jsonb_build_object('variant_id',i.variant_id,'quantity',i.ordered_quantity-i.received_quantity)),'[]'::jsonb) FROM public.purchase_order_items i WHERE i.purchase_order_id=_po_id AND i.status='OPEN')))
+  FOR it IN SELECT * FROM jsonb_array_elements(coalesce(_data->'items',(SELECT coalesce(jsonb_agg(jsonb_build_object('variant_id',i.variant_id,'quantity',i.ordered_quantity-i.received_quantity)),'[]'::jsonb) FROM public.purchase_order_items i WHERE i.purchase_order_id=_po_id AND i.status IN ('OPEN','PARTIALLY_RECEIVED'))))
   LOOP
     v_req_qty:=(it->>'quantity')::numeric;
     SELECT i.*,i.ordered_quantity-i.received_quantity AS remaining INTO v_item FROM public.purchase_order_items i WHERE i.purchase_order_id=_po_id AND i.variant_id=(it->>'variant_id')::uuid AND organization_id=_org AND i.status IN ('OPEN','PARTIALLY_RECEIVED');

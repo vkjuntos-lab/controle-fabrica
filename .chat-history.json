@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n113: -- 2. Tabelas de preço (regra comercial vence; DECIMAL, nunca float).\n114: -- =====================================================================\n115",
-    "is_error": false,
-    "timestamp": 1790282098608
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql",
-      "limit": 65,
-      "offset": 593
-    },
-    "timestamp": 1790282103654
-  },
-  {
-    "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql</path>\n<type>file</type>\n<content>\n593: \n594: -- =====================================================================\n595: -- 9. RPC: tabelas de preço.\n596: -- ==============================",
     "is_error": false,
     "timestamp": 1790282103692
@@ -1598,5 +1582,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790284986450
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
+      "newString": "FOR it IN SELECT * FROM jsonb_array_elements(coalesce(_data->'items',(SELECT coalesce(jsonb_agg(jsonb_build_object('variant_id',i.variant_id,'quantity',i.ordered_quantity-i.received_quantity)),'[]'::jsonb) FROM public.purchase_order_items i WHERE i.purchase_order_id=_po_id AND i.status IN ('OPEN','PARTIALLY_RECEIVED'))))",
+      "oldString": "FOR it IN SELECT * FROM jsonb_array_elements(coalesce(_data->'items',(SELECT coalesce(jsonb_agg(jsonb_build_object('variant_id',i.variant_id,'quantity',i.ordered_quantity-i.received_quantity)),'[]'::jsonb) FROM public.purchase_order_items i WHERE i.purchase_order_id=_po_id AND i.status='OPEN')))"
+    },
+    "timestamp": 1790285017117
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790285017167
   }
 ]
