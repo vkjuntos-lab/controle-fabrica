@@ -1150,6 +1150,7 @@ BEGIN
     IF v_pol IS NULL THEN v_pol:='EXPENSE_SEPARATELY'; END IF;
     IF v_polpay IS NULL THEN v_polpay:='GOODS_RECEIPT'; END IF;
     v_extra:=CASE WHEN v_pol='INCLUDE_IN_INVENTORY_COST' THEN po.freight_amount ELSE 0 END;
+    IF coalesce(r.destination_location_id,po.destination_location_id) IS NULL THEN RAISE EXCEPTION 'Informe a localização de destino do recebimento.'; END IF;
     FOR v_item IN SELECT gi.*,i.variant_id vid FROM public.goods_receipt_items gi JOIN public.purchase_order_items i ON i.id=gi.purchase_order_item_id WHERE gi.goods_receipt_id=_id
     LOOP
       IF v_item.accepted_quantity<=0 THEN CONTINUE; END IF;
@@ -1157,8 +1158,7 @@ BEGIN
       v_qty_inv:=round(v_item.accepted_quantity*v_cf,3);
       v_money:=round(v_item.accepted_quantity*v_item.unit_cost + CASE WHEN v_pool>0 AND v_extra>0 THEN v_extra*(v_item.accepted_quantity*v_item.unit_cost)/v_pool ELSE 0 END,6);
       v_cost_inv:=round(v_money/v_qty_inv,6);
-      SELECT code INTO v_unit FROM public.units_of_measure WHERE id=v_item.inventory_unit_id;
-      v_unit:=coalesce(v_unit,'un');
+      v_unit:='un';
       INSERT INTO public.inventory_movements(organization_id,variant_id,location_id,batch_id,movement_type,direction,quantity,unit,reference_type,reference_id,reason,occurred_at,created_by,status,idempotency_key,source)
       VALUES(_org,v_item.vid,coalesce(r.destination_location_id,po.destination_location_id),v_item.batch_id,'PURCHASE_RECEIPT','IN',v_qty_inv,v_unit,'GOODS_RECEIPT',_id,CASE WHEN v_item.status='REJECTED' THEN 'Item recebido e rejeitado na inspeção' ELSE 'Recebimento de compra' END,now(),auth.uid(),'POSTED','PURCHASING:GR:'||_id||':'||v_item.id::text,'PURCHASING');
       PERFORM public.purchasing_apply_cost_policy(_org,v_item.vid,v_item.inventory_unit_id,r.received_at,v_qty_inv,v_cost_inv,r.receipt_number);
