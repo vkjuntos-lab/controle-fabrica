@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cat > /tmp/opencode/dbg.py <<'EOF'\nimport runpy, importlib.util, sys\nsys.argv=['x']\nfrom pathlib import Path\nspec = importlib.util.spec_from_file_location('inv', '/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py')\nm = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)\norig = m.sql\ndef sql(query, user=None, fail=None):\n    print('===SQLUSER=',repr(user)); print(query[:200].replace('\\n',' '))\n    return orig(query, user, fail)\nm.sql = sql\nm.call = lambda name,args,user,fail=None: sql(f\"SELECT public.{name}({args});\", user, fail)\nimport importlib\nt = '/root/Zheus AI Projects/controle-fabrica/scripts/test-purchasing-db.py'\n# load with patched db\nct = Path(t).read_text()\nct = ct.replace(\"import importlib.util\\nimport json\\nfrom pathlib import Path\\nspec = importlib.util.spec_from_file_location('inventory_db', Path(__file__).with_name('test-inventory-db.py'))\\ndb = importlib.util.module_from_spec(spec); spec.loader.exec_module(db)\\nq, sql, uid = db.q, db.sql, db.uid\", \"import importlib.util\\nimport json\\nfrom pathlib import Path\\nimport os\\nns={};exec(Path(r'/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py').read_text().replace('if __name__ == \\\\'__main__\\\\':','if __name__ == \\\\'__nomodule__\\\\':'),ns)\\nns['sql']=sql\\nimport sys\\nsys.modules['dbmod'] = type('X',(),{})()\\n\")\n# too fiddly - just exec with patched db injected\nns = {'db': m, 'q': m.q, 'sql': sql, 'uid': m.uid}\ng = {'__file__': t, 'db': m, 'q': m.q, 'sql': sql, 'uid': m.uid}\nexec(compile(Path(t).read_text(), 'test', 'exec'), g)\nEOF\nrunuser -u claude-runner -- python3 /tmp/opencode/dbg.py 2>&1 | tail -15",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica",
-      "timeout": 300000
-    },
-    "timestamp": 1790285861460
-  },
-  {
-    "role": "tool_result",
-    "content": "    exec(compile(Path(t).read_text(), 'test', 'exec'), g)\n    ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"test\", line 238, in <module>\n  File \"test\", line 223, in run\n  File \"test\", line 24, in rpc\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line",
-    "is_error": false,
-    "timestamp": 1790285864723
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"\\br\\b\" scripts/test-purchasing-db.py | grep -v \"'r'\\|rpc\\|r2\\|r3\\|r'\\|_r\\|('r'\" | head -40",
       "workdir": "/root/Zheus AI Projects/controle-fabrica"
     },
@@ -1581,5 +1565,20 @@
     "content": "Found 2 matches\n/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx:\n  Line 75: const cls = \"h-10 rounded-md border border-input bg-background px-3 text-sm\";\n\n  Line 188:   children: React.ReactNode;\n",
     "is_error": false,
     "timestamp": 1790286618833
+  },
+  {
+    "role": "tool",
+    "tool": "grep",
+    "input": {
+      "path": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
+      "pattern": "export function PedidosPage|function PedidoDetailPage|const refresh|useQueryClient|useQCI"
+    },
+    "timestamp": 1790286623581
+  },
+  {
+    "role": "tool_result",
+    "content": "Found 19 matches\n/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx:\n  Line 2: import { useMutation, useQuery, useQueryClient } from \"@tanstack/react-query\";\n\n  Line 418:   const qc = useQueryClient();\n\n  Line 605:   const qc = useQueryClient();\n\n  Line 906:   const qc = us",
+    "is_error": false,
+    "timestamp": 1790286623608
   }
 ]
