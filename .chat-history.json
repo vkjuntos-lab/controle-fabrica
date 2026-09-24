@@ -4,21 +4,6 @@
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql",
-      "limit": 45
-    },
-    "timestamp": 1790284924824
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql</path>\n<type>file</type>\n<content>\n1: -- MASTER 009: explicit versions and immutable source snapshots. No financial or inventory postings.\n2: BEGIN;\n3: CREATE TABLE public.material_cost_versions (\n4:  i",
-    "is_error": false,
-    "timestamp": 1790284924835
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql",
       "limit": 50,
       "offset": 130
     },
@@ -1568,5 +1553,21 @@
     "content": "205:    assert float(sql(f\"SELECT sum(quantity) FROM inventory_balances WHERE variant_id='{V1}' AND location_id='{factory}'\")) == 37  # 30 + 12(excesso) - 5\n",
     "is_error": false,
     "timestamp": 1790285806885
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-purchasing-db.py",
+      "newString": "assert float(sql(f\"SELECT sum(on_hand) FROM inventory_balances WHERE variant_id='{V1}' AND location_id='{factory}'\")) == 37  # 30 + 12(excesso) - 5",
+      "oldString": "assert float(sql(f\"SELECT sum(quantity) FROM inventory_balances WHERE variant_id='{V1}' AND location_id='{factory}'\")) == 37  # 30 + 12(excesso) - 5"
+    },
+    "timestamp": 1790285808871
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790285808893
   }
 ]
