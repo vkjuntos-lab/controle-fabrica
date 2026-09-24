@@ -80,8 +80,7 @@ def run():
     assert num("SELECT count(*) FROM inventory_movements WHERE organization_id='" + org + "'") == 0
     assert j(rpc('po_query', org, 'orders'))['rows'][0]['status'] == 'APPROVED'
     po1rows = j(rpc('po_query', org, 'order', {'id': po1}))
-    assert po1rows['po']['total_amount'] == 310 and j(rpc('purchase_requests.read', *[]) if False else ['']) or True
-    assert po1rows['po']['total_amount'] == 310  # 10*30 + frete 10
+    assert po1rows['order']['total_amount'] == 310  # 10*30 + frete 10
     # Segregação: o próprio criador não aprova.
     po_self = rpc('po_save', org, {'supplier_id': sup, 'payment_terms': '0', 'destination_location_id': factory,
                                    'items': [{'variant_id': V2, 'ordered_quantity': 1, 'unit_price': 1}]})
