@@ -1,20 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "npm run typecheck >/dev/null 2>&1 && echo \"TYPECHECK OK\"; npm test 2>&1 | grep -E \"Test Files|Tests \"",
-      "timeout": 600000
-    },
-    "timestamp": 1790282271418
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS: BOM 10+5+2+8+5=30, calculation deduplication, approval and publication\nPASS: query contracts\nPASS: scrap 20+1, missing cost/conversion blocks publication, official roll conversion, isolated simulation\nPASS: markup, gross margin, marketplace contribution and target price use distinct formulas\nP",
-    "is_error": false,
-    "timestamp": 1790282275974
-  },
-  {
     "role": "tool_result",
     "content": "TYPECHECK OK\n Test Files  5 passed (5)\n      Tests  35 passed (35)\n",
     "is_error": false,
@@ -1574,5 +1559,21 @@
     "content": "3:CREATE TABLE public.companies (\n4- id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES public.organizations,\n5- code text NOT NULL CHECK(length(trim(code))>0), legal_name text NOT NULL CHECK(length(trim(legal_name))>0),\n6- trade_name text, document_type text CHE",
     "is_error": false,
     "timestamp": 1790285346556
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
+      "newString": "RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\nDECLARE result jsonb; query text:=lower(coalesce(_filters->>'query','')); st text:=coalesce(_filters->>'status',''); v_id uuid;\nBEGIN\n  PERFORM public.purchasing_require(_org,'purchase_orders.read');\n  IF _kind='orders' THEN\n    WITH rows AS MATERIALIZED(\n      SELECT po.id,po.order_number,po.supplier_id,po.status,po.issue_date,po.expected_delivery_date,po.total_amount,po.currency,po.payment_terms,\n        c.legal_name supplier_name,sp.supplier_code,\n        (SELECT count(*) FROM public.purchase_order_items i WHERE i.purchase_order_id=po.id) items,\n        (SELECT count(*) FROM public.purchase_order_items i WHERE i.purchase_order_id=po.id AND i.status='OPEN') open_items\n      FROM public.purchase_orders po JOIN public.supplier_profiles sp ON sp.id=po.supplier_id JOIN public.companies c ON c.id=sp.company_id\n      WHERE po.organization_id=_org)\n    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(concat_ws(' ',order_number,supplier_name,supplier_code)),query)>0) AND (st='' OR \"status\"=st) ORDER BY issue_date DESC,order_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;",
+      "oldString": "RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\nDECLARE result jsonb; query text:=lower(coalesce(_filters->>'query','')); status text:=coalesce(_filters->>'status',''); v_id uuid;\nBEGIN\n  PERFORM public.purchasing_require(_org,'purchase_orders.read');\n  IF _kind='orders' THEN\n    WITH rows AS MATERIALIZED(\n      SELECT po.id,po.order_number,po.supplier_id,po.status,po.issue_date,po.expected_delivery_date,po.total_amount,po.currency,po.payment_terms,\n        c.legal_name supplier_name,sp.supplier_code,\n        (SELECT count(*) FROM public.purchase_order_items i WHERE i.purchase_order_id=po.id) items,\n        (SELECT count(*) FROM public.purchase_order_items i WHERE i.purchase_order_id=po.id AND i.status='OPEN') open_items\n      FROM public.purchase_orders po JOIN public.supplier_profiles sp ON sp.id=po.supplier_id JOIN public.companies c ON c.id=sp.company_id\n      WHERE po.organization_id=_org)\n    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(concat_ws(' ',order_number,supplier_name,supplier_code)),query)>0) AND (status='' OR \"status\"=status) ORDER BY issue_date DESC,order_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;"
+    },
+    "timestamp": 1790285377234
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790285377261
   }
 ]
