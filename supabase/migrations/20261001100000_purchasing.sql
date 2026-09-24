@@ -1291,7 +1291,7 @@ $$;
 
 CREATE FUNCTION public.return_query(_org uuid,_kind text,_filters jsonb DEFAULT '{}',_page integer DEFAULT 1)
 RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$
-DECLARE result jsonb; query text:=lower(coalesce(_filters->>'query','')); status text:=coalesce(_filters->>'status',''); v_id uuid;
+DECLARE result jsonb; query text:=lower(coalesce(_filters->>'query','')); st text:=coalesce(_filters->>'status',''); v_id uuid;
 BEGIN
   PERFORM public.purchasing_require(_org,'supplier_returns.read');
   IF _kind='returns' THEN
@@ -1302,7 +1302,7 @@ BEGIN
         (SELECT coalesce(sum(i.quantity),0) FROM public.supplier_return_items i WHERE i.supplier_return_id=sr.id) total_qty
       FROM public.supplier_returns sr JOIN public.supplier_profiles sp ON sp.id=sr.supplier_id JOIN public.companies c ON c.id=sp.company_id LEFT JOIN public.goods_receipts gr ON gr.id=sr.goods_receipt_id
       WHERE sr.organization_id=_org)
-    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(concat_ws(' ',return_number,supplier_name)),query)>0) AND (status='' OR "status"=status) ORDER BY return_date DESC,return_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;
+    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(concat_ws(' ',return_number,supplier_name)),query)>0) AND (st='' OR "status"=st) ORDER BY return_date DESC,return_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;
   ELSIF _kind='return' THEN
     v_id:=(_filters->>'id')::uuid;
     result:=jsonb_build_object('return',(SELECT to_jsonb(sr) FROM public.supplier_returns sr WHERE sr.id=v_id AND sr.organization_id=_org),
