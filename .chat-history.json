@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "PASS: BOM 10+5+2+8+5=30, calculation deduplication, approval and publication\nPASS: query contracts\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-costs-db.py\", line 134, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle",
-    "is_error": false,
-    "timestamp": 1790281858789
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-costs-db.py"
-    },
-    "timestamp": 1790281879691
-  },
-  {
-    "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/scripts/test-costs-db.py</path>\n<type>file</type>\n<content>\n1: #!/usr/bin/env python3\n2: \"\"\"Cost engine acceptance, actual PostgreSQL/RLS, isolated disposable database.\"\"\"\n3: import importlib.util\n4: import json\n5: from pathlib import Path\n6: spec = imp",
     "is_error": false,
     "timestamp": 1790281879740
@@ -1561,5 +1547,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260928100000_finance.sql</path>\n<type>file</type>\n<content>\n314: CREATE FUNCTION public.finance_require(_org uuid,_permission text) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n315: BEGIN IF auth.uid(",
     "is_error": false,
     "timestamp": 1790284273791
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql",
+      "limit": 70,
+      "offset": 500
+    },
+    "timestamp": 1790284281878
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql</path>\n<type>file</type>\n<content>\n500:    'materials_without_cost',(SELECT count(*) FROM public.product_variants v JOIN public.products p ON p.id=v.product_id WHERE v.organization_id=_org AND p.item_ty",
+    "is_error": false,
+    "timestamp": 1790284281914
   }
 ]
