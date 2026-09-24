@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "PASS: BOM 10+5+2+8+5=30, calculation deduplication, approval and publication\nPASS: query contracts\nPASS: scrap 20+1, missing cost/conversion blocks publication, official roll conversion, isolated simulation\nPASS: markup, gross margin, marketplace contribution and target price use distinct formulas\nP",
-    "is_error": false,
-    "timestamp": 1790281979099
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql",
-      "limit": 75,
-      "offset": 388
-    },
-    "timestamp": 1790281994833
-  },
-  {
-    "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql</path>\n<type>file</type>\n<content>\n388: CREATE FUNCTION public.cost_capture_sale(_org uuid,_sale uuid,_reconciliation uuid DEFAULT NULL) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=pu",
     "is_error": false,
     "timestamp": 1790281994850
@@ -1594,5 +1578,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql</path>\n<type>file</type>\n<content>\n720:   PERFORM public.purchasing_audit(_org,CASE WHEN _id IS NULL THEN 'purchasing.request.create' ELSE 'purchasing.request.update' END,'purchase_requests',v,_data);\n72",
     "is_error": false,
     "timestamp": 1790284795998
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
+      "oldString": "SELECT r.id,r.request_number,r.request_date,r.status,r.priority,r.needed_by_date,cc.name cost_center,\n        (SELECT count(*) FROM public.purchase_request_items i WHERE i.purchase_request_id=r.id) items,\n        (SELECT count(*) FROM public.purchase_request_items i WHERE i.purchase_request_id=r.id AND i.status='PENDING') pending_items\n      FROM public.purchase_requests r LEFT JOIN public.cost_centers cc ON cc.id=r.cost_center_id\n      WHERE r.organization_id=_org)\n    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(request_number),query)>0) AND (status='' OR status=rows_status) ORDER BY request_date DESC,request_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;",
+      "newString": "SELECT r.id,r.request_number,r.request_date,r.status AS st,r.priority,r.needed_by_date,cc.name cost_center,\n        (SELECT count(*) FROM public.purchase_request_items i WHERE i.purchase_request_id=r.id) items,\n        (SELECT count(*) FROM public.purchase_request_items i WHERE i.purchase_request_id=r.id AND i.status='PENDING') pending_items\n      FROM public.purchase_requests r LEFT JOIN public.cost_centers cc ON cc.id=r.cost_center_id\n      WHERE r.organization_id=_org)\n    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(request_number),query)>0) AND (status='' OR st=status) ORDER BY request_date DESC,request_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;"
+    },
+    "timestamp": 1790284830271
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790284830301
   }
 ]

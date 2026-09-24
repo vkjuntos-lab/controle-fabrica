@@ -753,12 +753,12 @@ BEGIN
   PERFORM public.purchasing_require(_org,'purchase_requests.read');
   IF _kind='requests' THEN
     WITH rows AS MATERIALIZED(
-      SELECT r.id,r.request_number,r.request_date,r.status,r.priority,r.needed_by_date,cc.name cost_center,
+      SELECT r.id,r.request_number,r.request_date,r.status AS st,r.priority,r.needed_by_date,cc.name cost_center,
         (SELECT count(*) FROM public.purchase_request_items i WHERE i.purchase_request_id=r.id) items,
         (SELECT count(*) FROM public.purchase_request_items i WHERE i.purchase_request_id=r.id AND i.status='PENDING') pending_items
       FROM public.purchase_requests r LEFT JOIN public.cost_centers cc ON cc.id=r.cost_center_id
       WHERE r.organization_id=_org)
-    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(request_number),query)>0) AND (status='' OR status=rows_status) ORDER BY request_date DESC,request_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;
+    SELECT jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT * FROM rows WHERE (query='' OR strpos(lower(request_number),query)>0) AND (status='' OR st=status) ORDER BY request_date DESC,request_number DESC LIMIT 50 OFFSET (_page-1)*50) q),'[]'::jsonb),'total',(SELECT count(*) FROM rows)) INTO result;
   ELSIF _kind='request' THEN
     result:=jsonb_build_object('request',(SELECT to_jsonb(r) FROM public.purchase_requests r WHERE id=(_filters->>'id')::uuid AND organization_id=_org),
       'items',(SELECT coalesce(jsonb_agg(to_jsonb(i)),'[]'::jsonb) FROM public.purchase_request_items i WHERE i.purchase_request_id=(_filters->>'id')::uuid));
