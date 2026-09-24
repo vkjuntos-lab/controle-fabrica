@@ -1822,7 +1822,7 @@ function ReceiveDialog({
   onSaved: () => void;
 }) {
   const variants = useVariants(organizationId, true);
-  const locations = useSupports(organizationId);
+  const locations = useLocations(organizationId, true);
   const [form, setForm] = useState<Record<string, string>>({});
   const [lines, setLines] = useState<Record<string, string>[]>([]);
   const save = useMutation({
@@ -1849,7 +1849,14 @@ function ReceiveDialog({
     <FormDialog open onOpenChange={(o) => !o && onClose()} title="Registrar recebimento">
       <div className="grid gap-3 md:grid-cols-2">
         <Input placeholder="Data (AAAA-MM-DD)" value={form.received_at ?? ""} onChange={(e) => set("received_at", e.target.value)} />
-        {locations.type === "ready" ? null : null}
+        <select className={cls} value={form.destination_location_id ?? ""} onChange={(e) => set("destination_location_id", e.target.value)}>
+          <option value="">Local de entrada</option>
+          {(locations.data ?? []).map((l) => (
+            <option key={l.id} value={l.id}>
+              {l.code} — {l.name}
+            </option>
+          ))}
+        </select>
       </div>
       <ItemEditor
         values={form}
@@ -1870,11 +1877,6 @@ function ReceiveDialog({
       </DialogFooter>
     </FormDialog>
   );
-}
-
-function useSupports(org: string | undefined) {
-  const locations = useLocations(org, true);
-  return { type: "ready" as const, locations };
 }
 
 /* ============================================================
