@@ -58,7 +58,7 @@ ALTER TABLE public.account_payables
 -- 3. Permissões do módulo (fonte de verdade no banco).
 -- =====================================================================
 INSERT INTO public.role_permissions(role,permission)
-SELECT r,p FROM unnest(ARRAY['admin','gestor']) r CROSS JOIN unnest(ARRAY[
+SELECT r,p FROM unnest(ARRAY['admin','gestor']::public.app_role[]) r CROSS JOIN unnest(ARRAY[
   'purchasing.read','purchasing.dashboard',
   'suppliers.read','suppliers.manage',
   'purchase_requests.read','purchase_requests.create','purchase_requests.approve','purchase_requests.cancel',
@@ -69,7 +69,7 @@ SELECT r,p FROM unnest(ARRAY['admin','gestor']) r CROSS JOIN unnest(ARRAY[
   'supplier_documents.read','supplier_documents.create','supplier_documents.process','supplier_documents.cancel',
   'purchase_exceptions.read','purchase_exceptions.resolve']) p ON CONFLICT DO NOTHING;
 INSERT INTO public.role_permissions(role,permission)
-SELECT r,p FROM unnest(ARRAY['comercial']) r CROSS JOIN unnest(ARRAY[
+SELECT r,p FROM unnest(ARRAY['comercial']::public.app_role[]) r CROSS JOIN unnest(ARRAY[
   'purchasing.read','purchasing.dashboard',
   'suppliers.read','suppliers.manage',
   'purchase_requests.read','purchase_requests.create','purchase_requests.cancel',
@@ -80,7 +80,7 @@ SELECT r,p FROM unnest(ARRAY['comercial']) r CROSS JOIN unnest(ARRAY[
   'supplier_documents.read','supplier_documents.create','supplier_documents.process',
   'purchase_exceptions.read']) p ON CONFLICT DO NOTHING;
 INSERT INTO public.role_permissions(role,permission)
-SELECT r,p FROM unnest(ARRAY['estoque']) r CROSS JOIN unnest(ARRAY[
+SELECT r,p FROM unnest(ARRAY['estoque']::public.app_role[]) r CROSS JOIN unnest(ARRAY[
   'purchasing.read','purchasing.dashboard',
   'suppliers.read',
   'purchase_requests.read','purchase_orders.read',
@@ -88,11 +88,11 @@ SELECT r,p FROM unnest(ARRAY['estoque']) r CROSS JOIN unnest(ARRAY[
   'supplier_returns.read','supplier_returns.create','supplier_returns.post',
   'supplier_documents.read','purchase_exceptions.read']) p ON CONFLICT DO NOTHING;
 INSERT INTO public.role_permissions(role,permission)
-SELECT r,p FROM unnest(ARRAY['financeiro']) r CROSS JOIN unnest(ARRAY[
+SELECT r,p FROM unnest(ARRAY['financeiro']::public.app_role[]) r CROSS JOIN unnest(ARRAY[
   'purchasing.read','purchasing.dashboard','suppliers.read','purchase_requests.read','purchase_orders.read',
   'goods_receipts.read','supplier_documents.read','purchase_exceptions.read']) p ON CONFLICT DO NOTHING;
 INSERT INTO public.role_permissions(role,permission)
-SELECT r,p FROM unnest(ARRAY['producao','marketplace']) r CROSS JOIN unnest(ARRAY[
+SELECT r,p FROM unnest(ARRAY['producao','marketplace']::public.app_role[]) r CROSS JOIN unnest(ARRAY[
   'purchasing.read','purchasing.dashboard','suppliers.read','purchase_requests.read',
   'purchase_orders.read','goods_receipts.read']) p ON CONFLICT DO NOTHING;
 
