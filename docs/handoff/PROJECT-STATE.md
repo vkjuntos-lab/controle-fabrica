@@ -27,11 +27,12 @@ Publicação e smoke test autenticado continuam sem verificação.
 
 
 Última atualização: LOVABLE MASTER 009 — Cost Engine, formação de preço, margens e rentabilidade,
-comercial (tabelas de preço) e reconciliação com fechamento idempotente de parceiros, sobre o
-MASTER 006 (parceiros), MASTER 003 (Inventory Ledger), MASTER 002 (Catálogo) e a fundação do
-MASTER 001. O MASTER 005 (importador marketplace automático) não está no checkout — o registro de
-vendas é manual com o mesmo contrato. Etapa atual: reconciliação validada localmente
-(`20260926100000_partner_reconciliation.sql`, telas, RBAC e testes PostgreSQL reproduzíveis).
+sobre o MASTER 008 (Financeiro), 007 (reconciliação/tabelas de preço), 006 (parceiros),
+003 (Inventory Ledger), 002 (Catálogo) e a fundação do MASTER 001. O MASTER 005 (importador
+marketplace automático) não está no checkout — o registro de vendas é manual com o mesmo contrato.
+Etapa atual: cost/preço/rentabilidade validados localmente
+(`20260930100000_cost_engine.sql`, telas `/custos`, `/precificacao`, `/relatorios/rentabilidade`,
+RBAC e harness PostgreSQL reproduzível via `npm run test:costs:db`).
 Validação local; publicação não verificada.
 
 ## IMPLEMENTED
