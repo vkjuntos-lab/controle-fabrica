@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "de8b97b AI: alteracao automatica\nc276cea AI: alteracao automatica\nc5ae65d AI: alteracao automatica\ndocs/handoff/MASTER-006-VALIDATION.md\nsrc/components/partners/company-form.tsx\ndocs/handoff/MASTER-007-VALIDATION.md\ndocs/handoff/PROJECT-STATE.md\ndocs/handoff/MASTER-003-VALIDATION.md\nscripts/test-inv",
-    "is_error": false,
-    "timestamp": 1790171193561
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"cat docs/handoff/MASTER-006-VALIDATION.md; head -75 docs/handoff/PROJECT-STATE.md; git show --stat --oneline HEAD; rg -n 'migrations|partners.sql|finance|reconciliation' scripts/test-inventory-db.py; rg --files supabase/migrations | tail -15; cat AGENTS.md\""
-    },
-    "timestamp": 1790171200293
-  },
-  {
-    "role": "tool_result",
     "content": "# MASTER 006 — Entrega e validação local\n\nData: 22/09/2026. Continuação do projeto existente sobre a fundação, catálogo e Inventory Ledger;\nsem recriar nada do MASTER 001/002/003. Nenhuma migration publicada foi alterada; nenhum push/deploy\nfoi feito. Este checkout não contém o MASTER 005 (Marketpla",
     "is_error": false,
     "timestamp": 1790171200298
@@ -1385,5 +1371,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/costs/commercial.tsx</path>\n<type>file</type>\n<content>\n430:   const detail = useQuery({\n431:     queryKey: [\"costs\", org, \"snapshot\", selected],\n432:     queryFn: () =>\n433:       api({ data: { organizationId: org, kind: \"snapshot\", filt",
     "is_error": false,
     "timestamp": 1790281964193
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql",
+      "newString": "VALUES(_org,(_data->>'sale_id')::uuid,(_data->>'commission_amount')::numeric,(_data->>'company_shipping_amount')::numeric,(_data->>'company_discount_amount')::numeric,(_data->>'marketplace_discount_amount')::numeric,(_data->>'tax_amount')::numeric,(_data->>'other_amount')::numeric,_data->>'source_reference',auth.uid()) RETURNING sale_economics.id INTO id;",
+      "oldString": "VALUES(_org,(_data->>'sale_id')::uuid,(_data->>'commission_amount')::numeric,(_data->>'company_shipping_amount')::numeric,(_data->>'company_discount_amount')::numeric,(_data->>'marketplace_discount_amount')::numeric,(_data->>'tax_amount')::numeric,(_data->>'other_amount')::numeric,_data->>'reason',auth.uid()) RETURNING sale_economics.id INTO id;"
+    },
+    "timestamp": 1790281968680
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790281968718
   }
 ]

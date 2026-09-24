@@ -189,7 +189,7 @@ BEGIN
   INSERT INTO public.profitability_settings(organization_id,low_margin_percent,updated_by) VALUES(_org,nullif(_data->>'low_margin_percent','')::numeric,auth.uid()) ON CONFLICT(organization_id) DO UPDATE SET low_margin_percent=excluded.low_margin_percent,updated_at=now(),updated_by=auth.uid();id:=_org;
  ELSIF _kind='economics' THEN
   INSERT INTO public.sale_economics(organization_id,sale_id,commission_amount,company_shipping_amount,company_discount_amount,marketplace_discount_amount,tax_amount,other_amount,source_reference,created_by)
-  VALUES(_org,(_data->>'sale_id')::uuid,(_data->>'commission_amount')::numeric,(_data->>'company_shipping_amount')::numeric,(_data->>'company_discount_amount')::numeric,(_data->>'marketplace_discount_amount')::numeric,(_data->>'tax_amount')::numeric,(_data->>'other_amount')::numeric,_data->>'reason',auth.uid()) RETURNING sale_economics.id INTO id;
+  VALUES(_org,(_data->>'sale_id')::uuid,(_data->>'commission_amount')::numeric,(_data->>'company_shipping_amount')::numeric,(_data->>'company_discount_amount')::numeric,(_data->>'marketplace_discount_amount')::numeric,(_data->>'tax_amount')::numeric,(_data->>'other_amount')::numeric,_data->>'source_reference',auth.uid()) RETURNING sale_economics.id INTO id;
  END IF;
  PERFORM public.cost_audit(_org,'cost.input.'||_kind,id,_data);RETURN id;
 END $$;
