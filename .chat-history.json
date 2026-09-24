@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "PASS: BOM 10+5+2+8+5=30, calculation deduplication, approval and publication\nPASS: query contracts\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/.test-costs-db.tmp.py\", line 134, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/con",
-    "is_error": false,
-    "timestamp": 1790281909344
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql",
-      "limit": 55,
-      "offset": 120
-    },
-    "timestamp": 1790281926067
-  },
-  {
-    "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql</path>\n<type>file</type>\n<content>\n120: DECLARE j jsonb:=to_jsonb(NEW);pair text[];o uuid;n bigint;\n121: BEGIN\n122:  IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Histórico de custo imutável.';END IF;\n123:  I",
     "is_error": false,
     "timestamp": 1790281926102
@@ -1563,5 +1547,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260930100000_cost_engine.sql</path>\n<type>file</type>\n<content>\n147: CREATE FUNCTION public.cost_save_input(_org uuid,_kind text,_data jsonb) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n148: DECLARE ",
     "is_error": false,
     "timestamp": 1790284339930
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"CREATE TABLE public.unit_conversions\" -A 12 supabase/migrations/20260930100000_cost_engine.sql; echo ===units seed===; grep -n \"units_of_measure\" supabase/migrations/*.sql | grep -i \"insert\\|code\" | head"
+    },
+    "timestamp": 1790284383912
+  },
+  {
+    "role": "tool_result",
+    "content": "===units seed===\nsupabase/migrations/20260922100000_production.sql:43:CREATE UNIQUE INDEX units_of_measure_global_code_idx ON public.units_of_measure (lower(code)) WHERE organization_id IS NULL;\nsupabase/migrations/20260922100000_production.sql:44:CREATE UNIQUE INDEX units_of_measure_org_code_idx ON",
+    "is_error": false,
+    "timestamp": 1790284383956
   }
 ]
