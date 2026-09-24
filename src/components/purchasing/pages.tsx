@@ -825,7 +825,7 @@ export function FornecedorDetailPage({ id }: { id: string }) {
             {productsFetch.method}
           </div>
         </>
-      )}
+      ) : null}
     </AppShell>
   );
 }
