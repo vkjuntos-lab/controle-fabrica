@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql",
-      "limit": 20,
-      "offset": 73
-    },
-    "timestamp": 1790285233707
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql</path>\n<type>file</type>\n<content>\n73: CREATE TABLE public.audit_log (\n74:   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n75:   organization_id uuid REFERENCES public.organiza",
-    "is_error": false,
-    "timestamp": 1790285233725
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260921100000_inventory_integrity.sql",
       "limit": 85,
       "offset": 54
@@ -1567,5 +1551,21 @@
     "content": "PASS: fornecedores + catálogo (perfil, prazos, rolo->m)\nPASS: requisição DRAFT->SUBMITTED->APPROVED\nPASS: cotação multi-fornecedor + premiação\nPASS: pedido aprovado NÃO gera movimento; segregação de aprovação; cancelamento restaura requisição aprovada?\nPASS: recebimento parcial 5/10, inspeção, posta",
     "is_error": false,
     "timestamp": 1790285905535
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-purchasing-db.py",
+      "newString": "assert sql(f\"SELECT count(*) FROM purchase_orders WHERE organization_id={q(org)}\", c) == '0'  # tenancy enforced\n    assert sql(f\"SELECT count(*) FROM purchase_orders WHERE organization_id={q(other)}\", prod) == '0'  # sem vínculo com outra org",
+      "oldString": "assert sql(f\"SELECT count(*) FROM purchase_orders WHERE organization_id={q(org)}\", prod) == '0'  # tenancy enforced"
+    },
+    "timestamp": 1790285910207
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790285910233
   }
 ]

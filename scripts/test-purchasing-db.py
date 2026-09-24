@@ -227,7 +227,8 @@ def run():
             rpc('po_query', org, 'orders', user=user, fail='permissão')
     rpc('po_save', org, {'supplier_id': sup, 'items': [{'variant_id': V1, 'ordered_quantity': 1, 'unit_price': 1}]}, user=prod, fail='permissão')
     rpc('supplier_query', org, 'suppliers', user=prod)  # leitura via RPC liberada à produção
-    assert sql(f"SELECT count(*) FROM purchase_orders WHERE organization_id={q(org)}", prod) == '0'  # tenancy enforced
+    assert sql(f"SELECT count(*) FROM purchase_orders WHERE organization_id={q(org)}", c) == '0'  # tenancy enforced
+    assert sql(f"SELECT count(*) FROM purchase_orders WHERE organization_id={q(other)}", prod) == '0'  # sem vínculo com outra org
     sql(f"INSERT INTO purchase_orders(organization_id,order_number,supplier_id,status) VALUES({q(org)},'PO-X',{q(sup)},'DRAFT')", a, fail='permission denied')
     sql(f"UPDATE goods_receipts SET notes='x' WHERE organization_id={q(org)}", a, fail='imutável')
     sql(f"UPDATE purchase_orders SET status='SENT' WHERE id={q(po3)} AND organization_id={q(org)}", a, fail='imutável')
