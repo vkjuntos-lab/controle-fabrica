@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql"
-    },
-    "timestamp": 1790284793328
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql</path>\n<type>file</type>\n<content>\n1: -- MASTER 010: Compras, Fornecedores, Recebimento, Reposição e integração com\n2: -- Estoque / Custos / Financeiro. Pedido aprovado NÃO move estoque: só o\n3: -- receb",
-    "is_error": false,
-    "timestamp": 1790284793349
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
       "offset": 720
     },
@@ -1559,5 +1545,21 @@
     "content": "Traceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-purchasing-db.py\", line 234, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-purchasing-db.py\", line 48, in run\n    rpc('supplier_product_save', org, {'suppl",
     "is_error": false,
     "timestamp": 1790285716650
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-purchasing-db.py",
+      "newString": "sup = rpc('supplier_save_company', org, {'code': 'TECSUL', 'legal_name': 'Tecidos Sul Ltda', 'default_payment_terms': '30/60', 'lead_time_days': 5})\n    sup2 = rpc('supplier_save_company', org, {'code': 'BOTCO', 'legal_name': 'Botões Centro Oeste', 'default_payment_terms': '0'})\n    def supplier_profile(company_id): return sql(f\"SELECT id FROM supplier_profiles WHERE company_id={q(company_id)}\")\n    sup, sup2 = supplier_profile(sup), supplier_profile(sup2)\n    assert j(rpc('supplier_query', org, 'suppliers'))['total'] == 2",
+      "oldString": "sup = rpc('supplier_save_company', org, {'code': 'TECSUL', 'legal_name': 'Tecidos Sul Ltda', 'default_payment_terms': '30/60', 'lead_time_days': 5})\n    sup2 = rpc('supplier_save_company', org, {'code': 'BOTCO', 'legal_name': 'Botões Centro Oeste', 'default_payment_terms': '0'})\n    assert j(rpc('supplier_query', org, 'suppliers'))['total'] == 2"
+    },
+    "timestamp": 1790285721146
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790285721163
   }
 ]

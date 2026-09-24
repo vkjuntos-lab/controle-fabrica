@@ -44,6 +44,8 @@ def run():
     # --- Fornecedores + catálogo --------------------------------------------
     sup = rpc('supplier_save_company', org, {'code': 'TECSUL', 'legal_name': 'Tecidos Sul Ltda', 'default_payment_terms': '30/60', 'lead_time_days': 5})
     sup2 = rpc('supplier_save_company', org, {'code': 'BOTCO', 'legal_name': 'Botões Centro Oeste', 'default_payment_terms': '0'})
+    def supplier_profile(company_id): return sql(f"SELECT id FROM supplier_profiles WHERE company_id={q(company_id)}")
+    sup, sup2 = supplier_profile(sup), supplier_profile(sup2)
     assert j(rpc('supplier_query', org, 'suppliers'))['total'] == 2
     rpc('supplier_product_save', org, {'supplier_id': sup, 'variant_id': V1, 'supplier_sku': 'TEC-001', 'purchase_unit_id': un, 'inventory_unit_id': un, 'conversion_factor': 1, 'minimum_order_quantity': 10, 'lead_time_days': 5})
     rpc('supplier_product_save', org, {'supplier_id': sup, 'variant_id': V3, 'supplier_sku': 'TEC-R-01', 'purchase_unit_id': roll, 'inventory_unit_id': meter, 'conversion_factor': 5, 'minimum_order_quantity': 1})
