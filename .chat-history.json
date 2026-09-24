@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql",
-      "offset": 107,
-      "limit": 70
-    },
-    "timestamp": 1790284210453
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260918100000_inventory_ledger.sql</path>\n<type>file</type>\n<content>\n107: CREATE TABLE public.inventory_movements (\n108:   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n109:   organization_id uuid NOT NULL REFERENCES public.organi",
-    "is_error": false,
-    "timestamp": 1790284210464
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -n \"material_cost_versions_source_type_check\\|source_type IN\\|CREATE TABLE public.material_cost_versions\" supabase/migrations/20260930100000_cost_engine.sql; echo \"==AP==\"; grep -n \"source_type_source_id_key\\|CREATE TABLE public.account_payables\\|CREATE TABLE public.account_receivables\\|installment\" supabase/migrations/20260928100000_finance.sql | head"
@@ -1567,5 +1551,21 @@
     "content": "Found 88 matches\n/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql:\n  Line 102: CREATE FUNCTION public.purchasing_require(_org uuid,_permission text) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n\n  Line 103: BEGIN IF auth.uid() ",
     "is_error": false,
     "timestamp": 1790285484852
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
+      "limit": 45,
+      "offset": 157
+    },
+    "timestamp": 1790285487756
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql</path>\n<type>file</type>\n<content>\n157:   IF TG_TABLE_NAME='goods_receipts' AND OLD.status IN ('POSTED','CANCELED') THEN RAISE EXCEPTION 'Recebimento postado/cancelado é imutável.'; END IF;\n158:   IF TG_",
+    "is_error": false,
+    "timestamp": 1790285487768
   }
 ]
