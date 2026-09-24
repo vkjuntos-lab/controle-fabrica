@@ -219,9 +219,9 @@ def run():
     print('PASS: sugestão de reposição REORDER_POINT (8 un) + dashboard')
 
     # --- RLS / permissões / tenância / imutabilidade / auditoria ------------
-    for user, excpected_perms in [(prod, True), (c, False)]:
-        res = j(rpc('po_query', org, 'orders', user=user))
-        if excpected_perms:
+    for user, ok in [(prod, True), (c, False)]:
+        if ok:
+            res = j(rpc('po_query', org, 'orders', user=user))
             assert res['total'] >= 1
         else:
             rpc('po_query', org, 'orders', user=user, fail='permissão')
