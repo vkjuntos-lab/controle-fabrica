@@ -114,7 +114,7 @@ def run():
     r2 = j(rpc('receipt_query', org, 'receipt', {'id': rej2}))['items'][0]
     j(rpc('receipt_action', org, rej2, 'inspect', {'items': [{'item_id': r2['id'], 'accepted_quantity': 5}]}))
     j(rpc('receipt_action', org, rej2, 'post'))
-    assert j(rpc('po_query', org, 'order', {'id': po1}))['po']['status'] == 'COMPLETED'
+    assert j(rpc('po_query', org, 'order', {'id': po1}))['order']['status'] == 'COMPLETED'
     assert num(f"SELECT count(*) FROM account_payables WHERE source_type='PURCHASE' AND source_id='{po1}'") == 2  # 1 obrigação por pedido
     assert float(sql(f"SELECT sum(open_amount) FROM account_payables WHERE source_type='PURCHASE' AND source_id='{po1}'")) == 310
     print('PASS: pedido COMPLETED; 1 obrigação por pedido (2 parcelas = 310)')
