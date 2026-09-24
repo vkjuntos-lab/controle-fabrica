@@ -135,15 +135,17 @@ def run():
     # --- Política AVERAGE: média ponderada dos recebimentos -----------------
     rpc('purchasing_settings_save', org, {'acquisition_cost_policy': 'AVERAGE'})
     po3 = rpc('po_save', org, {'supplier_id': sup, 'payment_terms': '0', 'destination_location_id': factory,
-                               'items': [{'variant_id': V1, 'ordered_quantity': 10, 'unit_price': 42, 'purchase_unit_id': un, 'inventory_unit_id': un}]})
+                               'items': [{'variant_id': V1, 'ordered_quantity': 10, 'unit_price': 45, 'purchase_unit_id': un, 'inventory_unit_id': un}]})
     rpc('po_action', org, po3, 'submit'); rpc('po_action', org, po3, 'approve', user=b)
     gr3 = rpc('po_receive', org, po3, {'received_at': '2026-09-20', 'items': [{'variant_id': V1, 'quantity': 10}]})
     j(rpc('receipt_action', org, gr3, 'inspect', {'items': [{'item_id': j(rpc('receipt_query', org, 'receipt', {'id': gr3}))['items'][0]['id'], 'accepted_quantity': 10}]}))
     j(rpc('receipt_action', org, gr3, 'post'))
     v3 = j(sql(f"SELECT to_jsonb(x) FROM (SELECT version,unit_cost FROM public.material_cost_versions WHERE variant_id={q(V1)} ORDER BY version DESC LIMIT 1) x"))
-    assert v3['version'] == 3 and float(v3['unit_cost']) == 36, v3  # (300+360+420)/30
+    assert v3['version'] == 3 and float(v3['unit_cost']) == 37, v3  # (300+360+450)/30
+    # Recebimento com custo igual ao ativo NÃO disputa churn de versão.
+    rpc('purchasing_settings_save', org, {'acquisition_cost_policy': 'LAST_PURCHASE'})
     assert num(f"SELECT count(*) FROM material_cost_versions WHERE variant_id='{V1}'") == 3
-    print('PASS: política AVERAGE = (10*30+10*36+10*42)/30 = 36')
+    print('PASS: política AVERAGE = (10*30+10*36+10*45)/30 = 37; custo igual não gera nova versão')
 
     # --- Conversão rolo->m ------------------------------------------------
     po4 = rpc('po_save', org, {'supplier_id': sup, 'payment_terms': '0', 'destination_location_id': factory,
