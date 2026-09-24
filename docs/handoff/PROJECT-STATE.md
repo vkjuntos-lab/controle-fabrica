@@ -1,5 +1,18 @@
 # Estado do projeto — handoff contínuo
 
+## Continuação validada — 24/09/2026
+
+Parceiros/lojas: interface alinhada às permissões reais `reconciliation.*` e `marketplace.manage`.
+Aba de lojas do Parceiro 360 com paginação e acesso negado explícito. Teste integrado aplica os schemas
+existentes de parceiros, reconciliação e financeiro e comprova vínculo de loja isolado por organização,
+remessa 100→80/20, devolução →85/15, idempotência e ausência de venda/cobrança/efeito financeiro automático.
+35 testes unitários, 9 grupos SQL de parceiros e 2 grupos de integração passaram, assim como
+TypeScript, build e lint dos arquivos alterados. Detalhes em `MASTER-006-VALIDATION.md`.
+Nenhuma migration foi alterada nesta continuação. O MASTER 007 e o código financeiro preexistentes
+foram preservados. MarketplaceStore já existe; a pendência MASTER 005 é o importador automático.
+Publicação e smoke test autenticado continuam sem verificação.
+
+
 Última atualização: LOVABLE MASTER 007 — Marketplaces/lojas, vendas, mapeamento de SKU, regra
 comercial (tabelas de preço) e reconciliação com fechamento idempotente de parceiros, sobre o
 MASTER 006 (parceiros), MASTER 003 (Inventory Ledger), MASTER 002 (Catálogo) e a fundação do
@@ -269,9 +282,8 @@ Validação local; publicação não verificada.
 
 ## NEXT_STEPS
 
-1. Implementar/validar o MASTER 005 (MarketplaceStore e importação com mapeamento de colunas) e
-   então o vínculo da loja com ownership_type PARTNER à `partner_profiles`/Company — a reconciliação
-   M007 já compartilha o contrato de `marketplace_sales` com esse importador.
+1. Implementar/validar o importador MASTER 005 com o contrato de `marketplace_stores`, vínculo
+   PARTNER → `partner_profiles` e `marketplace_sales` já existentes. Não duplicar o cadastro de lojas.
 2. Financeiro de parceiros: consumir o snapshot/evento `PARTNER_RECONCILIATION_CLOSED` para gerar
    cobrança (AR) e registrar pagamento; limites de crédito e condições de pagamento.
 3. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,

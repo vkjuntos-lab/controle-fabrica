@@ -499,14 +499,18 @@ function PartnerStoresTab({
 }) {
   const { hasPermission } = useOrganization();
   const fetch = useServerFn(queryReconciliation);
+  const [page, setPage] = useState(1);
+  useEffect(() => setPage(1), [organizationId, partnerId]);
   const q = useQuery({
-    queryKey: ["reconciliation", "stores", organizationId, "partner", partnerId],
+    queryKey: ["reconciliation", "stores", organizationId, "partner", partnerId, page],
     queryFn: async () =>
       (await fetch({
-        data: { organizationId, kind: "stores", filters: { partner_id: partnerId }, page: 1 },
+        data: { organizationId, kind: "stores", filters: { partner_id: partnerId }, page },
       })) as MarketplaceStoreList,
     enabled: Boolean(organizationId && hasPermission("reconciliation.read")),
   });
+  if (!hasPermission("reconciliation.read"))
+    return <PermissionDenied permission="reconciliation.read" />;
   return (
     <div className="space-y-2">
       {q.isLoading ? <LoadingState rows={2} /> : null}
@@ -531,6 +535,17 @@ function PartnerStoresTab({
           <p className="text-xs text-muted-foreground">{formatDate(s.created_at)}</p>
         </div>
       ))}
+      {q.data && q.data.total > 50 ? (
+        <div className="flex justify-between">
+          <Button disabled={page === 1} onClick={() => setPage((p) => p - 1)}>
+            Anterior
+          </Button>
+          <span>Página {page}</span>
+          <Button disabled={page * 50 >= q.data.total} onClick={() => setPage((p) => p + 1)}>
+            Próxima
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }

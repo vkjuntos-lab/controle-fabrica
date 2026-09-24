@@ -1,5 +1,54 @@
 # MASTER 006 — Entrega e validação local
 
+## Continuação de 24/09/2026 — estado atual
+
+O registro original abaixo descreve o checkout de 22/09. Agora o projeto já contém
+MarketplaceStore, reconciliação MASTER 007 e schema financeiro. Essas implementações foram
+preservadas. A pendência MASTER 005 é o importador automático; o vínculo de loja já existe.
+
+### Implementado e alterado
+
+- Verificações da interface alinhadas a `reconciliation.*`, como concedido pelo banco.
+- Cadastro de lojas, mapeamento de SKU e vendas externas exigem `marketplace.manage`, como suas RPCs.
+- Aba de lojas do Parceiro 360 com paginação e estado de acesso negado.
+- Teste de contrato impede divergência entre permissões do cliente e da migration do servidor.
+- Teste integrado de loja/remessa/devolução, com o schema financeiro instalado, disponível em
+  `npm run test:partners:integration` (`scripts/test-partner-store-integration-db.py`).
+
+Arquivos alterados: `src/components/partners/pages.tsx`,
+`src/components/reconciliation/{pages,marketplace}.tsx`, `src/lib/rbac.ts`,
+`src/lib/rbac.test.ts`, `package.json` e documentação. O script integrado foi criado na continuação
+anterior e validado novamente nesta. Nenhuma migration, tabela, RPC ou rota foi criada/alterada
+nesta continuação. A migration e as entidades do MASTER 006 estão inventariadas abaixo.
+
+### Integração, RLS, auditoria e testes
+
+Reutilizadas migrations de parceiros, reconciliação e financeiro existentes. MarketplaceStore
+PARTNER referencia PartnerProfile dentro da organização. Usuário de outro tenant não consulta
+nem associa indevidamente a loja. Não houve alteração no mecanismo de auditoria ou nas regras
+financeiras/reconciliação. Permissões do cliente agora correspondem às verificações server-side.
+
+Resultados desta execução:
+
+- `npm run test`: **35 testes passaram**.
+- `npm run test:partners:db`: **9 grupos PostgreSQL passaram**, incluindo concorrência real.
+- `npm run test:partners:integration`: **2 grupos passaram** com lojas e financeiro presentes.
+- `npm run typecheck`, `npm run build` e ESLint dos arquivos alterados: **passaram**.
+- `git diff --check`: sem erros.
+
+A integração prova 100→80/20 na remessa e 85/15 após devolver 5. Repetir confirmação não duplica
+movimento; a remessa continua registrando 20 enviados. Permanecem **zero** vendas externas,
+contas a receber, transações financeiras e reconciliações geradas pelas operações de mercadoria.
+
+### Limitações, pendências e próximo domínio
+
+Publicação e smoke test autenticado não foram executados. Importador automático MASTER 005
+continua pendente; deve usar o cadastro/contrato existente, sem duplicar lojas. Anexos continuam
+com preparação de Storage, sem interface de upload. Preservar os módulos MASTER 007/financeiro
+já presentes; esta continuação não adicionou lógica financeira nem reconciliou vendas.
+
+## Registro da entrega original
+
 Data: 22/09/2026. Continuação do projeto existente sobre a fundação, catálogo e Inventory Ledger;
 sem recriar nada do MASTER 001/002/003. Nenhuma migration publicada foi alterada; nenhum push/deploy
 foi feito. Este checkout não contém o MASTER 005 (MarketplaceStore/lojas) — a integração com lojas
@@ -111,7 +160,7 @@ organizações (isolamento por tenant e lista acessível).
 - `bun run build`: compilação de produção verificada.
 - `git diff --check`: sem erros de whitespace.
 
-Cenário de aceite: remessa de 100 unidades para o parceiro → 80 na origem e 20 no parceiro; o
+Cenário de aceite: saldo inicial de 100 unidades, remessa de 20 → 80 na origem e 20 no parceiro; o
 estoque nunca fica fora do ledger; a expedição é idempotente no retry; entregar não repete o
 movimento; devoluções recebidas preservam a quantidade enviada original da remessa. Os testes rodaram
 como usuário não root (`initdb` recusa root); para reproduzir: `su - claude-runner -c "cd '<raiz-do-projeto>' && python3 scripts/test-partners-db.py"`.

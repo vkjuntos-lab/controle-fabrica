@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import {
@@ -94,4 +95,21 @@ describe("rbac", () => {
       expect(PERMISSION_LABELS[key].length).toBeGreaterThan(0);
     }
   });
+});
+
+it("alinha as permissões de reconciliação ao contrato do banco", () => {
+  const migration = readFileSync(
+    new URL("../../supabase/migrations/20260926100000_partner_reconciliation.sql", import.meta.url),
+    "utf8",
+  );
+  const databaseKeys = new Set(
+    [...migration.matchAll(/'((?:reconciliation|marketplace)\.[a-z_]+)'/g)].map(
+      (match) => match[1],
+    ),
+  );
+  const keys = Object.entries(PERMISSIONS).filter(
+    ([key]) => key.startsWith("partnerReconciliation") || key.startsWith("marketplace"),
+  );
+  expect(keys.length).toBeGreaterThan(0);
+  for (const [, value] of keys) expect(databaseKeys.has(value), value).toBe(true);
 });

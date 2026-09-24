@@ -2,10 +2,11 @@
 
 ## Estado e limites
 
-Implementação operacional no código, validada em PostgreSQL local. A migration ainda precisa ser
-aplicada ao ambiente publicado. Este checkout possui fundação, catálogo e Inventory Ledger; tem
-migration preparatória de produção, mas não contém Marketplace/MarketplaceStore nem o pipeline
-MASTER 005. O vínculo com lojas **não está implementado**. Não foi criada uma segunda tabela de lojas.
+Implementação operacional no código, validada em PostgreSQL local. Publicação e smoke test
+autenticado continuam pendentes. Na continuação de 24/09/2026, o checkout já contém
+`marketplace_stores`, cadastro de lojas e reconciliação do MASTER 007, além de schema financeiro.
+A aba Marketplaces do Parceiro 360 reutiliza essas lojas e seu vínculo com PartnerProfile.
+O importador automático MASTER 005 permanece pendente; não foi criado cadastro paralelo de lojas.
 
 ## Regras empresariais
 
@@ -68,7 +69,7 @@ não são unidades vendidas. Itens/SKUs distintos e unidades são métricas sepa
 
 `/parceiros`: empresas, busca, status e dashboard real com período.
 `/parceiros/empresas/$id`: Parceiro 360, dados, contatos, endereços, remessas, estoque, devoluções,
-histórico operacional e aviso de integração de lojas pendente. Histórico do ledger paginado inclui
+histórico operacional e lojas vinculadas, com paginação e estado de acesso negado. Histórico do ledger paginado inclui
 entradas, saídas, remessas, devoluções e ajustes nas localizações do parceiro.
 `/parceiros/estoque`: busca por parceiro/produto/SKU/barcode, categoria e data; CSV completo dos filtros.
 Listas de remessas/devoluções incluem relatórios por SKU, período e CSV com condição/motivo nas devoluções.
@@ -99,11 +100,15 @@ quantidades de picking, conclusão da separação, transferências e devoluçõe
 
 ## Integrações e próximos módulos
 
-MarketplaceStore ainda é pré-requisito ausente: quando MASTER 005 estiver disponível, a loja existente
-com ownership_type PARTNER deverá referenciar `partner_profiles` ou Company por FK composta com
-organization_id. Não duplicar lojas e não consumir MarketplaceSale para baixar estoque nesta fase.
+`marketplace_stores` existente possui `ownership_type = PARTNER` e FK composta
+(organization_id, partner_id) para `partner_profiles`. O cadastro existente `marketplace_save_store`
+aplica `marketplace.manage`; a leitura da aba usa `rec_query`, que exige `reconciliation.read`.
+A interface foi alinhada a esses nomes reais do banco, sem criar permissões substitutas.
+Teste de integração aplica as migrations de parceiros, reconciliação e financeiro e confirma que
+remessa/devolução não criam `marketplace_sales`, `account_receivables`, `financial_transactions`
+ou `partner_reconciliations`. O vínculo de loja não reconcilia venda automaticamente.
 
 Limite de crédito, condições de pagamento, tabela de preço e preferências de cobrança ficam reservados
 para uma extensão relacionada à Company, sem colunas/efeitos financeiros fictícios nesta versão.
-Reconciliação auditável/idempotente (MASTER 007) só deve começar depois de validar MASTER 005 e seu
-vínculo com parceiros. Ver `PARTNER-SHIPMENTS.md` e `../handoff/MASTER-006-VALIDATION.md`.
+O MASTER 007 já existe neste checkout e permanece preservado. A pendência de integração é validar
+o importador MASTER 005 contra o contrato de lojas/vendas existente. Ver `PARTNER-SHIPMENTS.md` e `../handoff/MASTER-006-VALIDATION.md`.

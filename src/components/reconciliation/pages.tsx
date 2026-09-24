@@ -82,7 +82,7 @@ export function ReconciliationDashboard() {
       (await fetch({
         data: { organizationId: org!, kind: "dashboard", filters: {}, page: 1 },
       })) as DashboardSummary,
-    enabled: Boolean(org && hasPermission("partner_reconciliation.read")),
+    enabled: Boolean(org && hasPermission("reconciliation.read")),
   });
   return (
     <AppShell title="Reconciliação · Visão geral">
@@ -91,8 +91,8 @@ export function ReconciliationDashboard() {
         <LoadingState />
       ) : !org ? (
         <EmptyState title="Selecione uma organização" />
-      ) : !hasPermission("partner_reconciliation.read") ? (
-        <PermissionDenied permission="partner_reconciliation.read" />
+      ) : !hasPermission("reconciliation.read") ? (
+        <PermissionDenied permission="reconciliation.read" />
       ) : q.isLoading ? (
         <LoadingState />
       ) : q.error ? (
@@ -159,7 +159,7 @@ export function ReconciliationListPage() {
   const [to, setTo] = useState("");
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
-  const canRead = hasPermission("partner_reconciliation.read");
+  const canRead = hasPermission("reconciliation.read");
   const filters = { query, status, from, to };
   useEffect(() => setPage(1), [org, query, status, from, to]);
   const q = useQuery({
@@ -178,12 +178,12 @@ export function ReconciliationListPage() {
       ) : !org ? (
         <EmptyState title="Selecione uma organização" />
       ) : !canRead ? (
-        <PermissionDenied permission="partner_reconciliation.read" />
+        <PermissionDenied permission="reconciliation.read" />
       ) : (
         <>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="font-heading text-xl font-semibold">Períodos de reconciliação</h2>
-            {hasPermission("partner_reconciliation.create") ? (
+            {hasPermission("reconciliation.create") ? (
               <Button onClick={() => setOpen(true)}>Novo período</Button>
             ) : null}
           </div>
@@ -281,7 +281,7 @@ export function ReconciliationListPage() {
               ) : null}
             </CardContent>
           </Card>
-          {open && hasPermission("partner_reconciliation.create") ? (
+          {open && hasPermission("reconciliation.create") ? (
             <NewReconciliationDialog
               organizationId={org}
               onClose={() => setOpen(false)}
@@ -313,7 +313,7 @@ export function ReconciliationDetailPage({ id }: { id: string }) {
   const { currentOrganization, hasPermission, isLoading } = useOrganization();
   const org = currentOrganization?.organization_id;
   const qc = useQueryClient();
-  const canRead = hasPermission("partner_reconciliation.read");
+  const canRead = hasPermission("reconciliation.read");
   const q = useDetail(org, id, canRead);
   const invalidate = () => {
     void qc.invalidateQueries({ queryKey: ["reconciliation"] });
@@ -388,7 +388,7 @@ export function ReconciliationDetailPage({ id }: { id: string }) {
       ) : !org ? (
         <EmptyState title="Selecione uma organização" />
       ) : !canRead ? (
-        <PermissionDenied permission="partner_reconciliation.read" />
+        <PermissionDenied permission="reconciliation.read" />
       ) : q.isLoading ? (
         <LoadingState />
       ) : q.error ? (
@@ -406,7 +406,7 @@ export function ReconciliationDetailPage({ id }: { id: string }) {
               </p>
             </div>
             <div className="flex flex-wrap gap-2 print:hidden">
-              {hasPermission("partner_reconciliation.process") &&
+              {hasPermission("reconciliation.process") &&
               !["CLOSED", "CANCELED"].includes(d.status) ? (
                 <Button
                   disabled={processMutation.isPending}
@@ -415,20 +415,20 @@ export function ReconciliationDetailPage({ id }: { id: string }) {
                   Processar
                 </Button>
               ) : null}
-              {hasPermission("partner_reconciliation.close") && d.status === "READY_TO_CLOSE" ? (
+              {hasPermission("reconciliation.close") && d.status === "READY_TO_CLOSE" ? (
                 <Button onClick={() => setDialog("close")}>Fechar</Button>
               ) : null}
-              {hasPermission("partner_reconciliation.reopen") && d.status === "CLOSED" ? (
+              {hasPermission("reconciliation.reopen") && d.status === "CLOSED" ? (
                 <Button variant="outline" onClick={() => setDialog("reopen")}>
                   Reabrir
                 </Button>
               ) : null}
-              {hasPermission("partner_reconciliation.reverse") && d.status === "CLOSED" ? (
+              {hasPermission("reconciliation.reverse") && d.status === "CLOSED" ? (
                 <Button variant="outline" onClick={() => setDialog("adjust")}>
                   Ajuste
                 </Button>
               ) : null}
-              {hasPermission("partner_reconciliation.review") &&
+              {hasPermission("reconciliation.review") &&
               ["DRAFT", "PROCESSING", "REVIEW_REQUIRED", "REOPENED"].includes(d.status) ? (
                 <Button variant="destructive" onClick={() => setDialog("cancel")}>
                   Cancelar
@@ -512,7 +512,7 @@ export function ReconciliationDetailPage({ id }: { id: string }) {
                       ) : null}
                       <div className="mt-2 flex flex-wrap gap-2 print:hidden">
                         {i.status === "EXCEPTION" &&
-                        hasPermission("partner_reconciliation.process") &&
+                        hasPermission("reconciliation.process") &&
                         !["CLOSED", "CANCELED"].includes(d.status) ? (
                           <Button
                             variant="outline"
@@ -524,7 +524,7 @@ export function ReconciliationDetailPage({ id }: { id: string }) {
                           </Button>
                         ) : null}
                         {i.inventory_effect_status === "APPLIED" &&
-                        hasPermission("partner_reconciliation.reverse") &&
+                        hasPermission("reconciliation.reverse") &&
                         d.status !== "CLOSED" ? (
                           <Button variant="outline" size="sm" onClick={() => setReverseItem(i)}>
                             Estornar baixa
@@ -568,7 +568,7 @@ export function ReconciliationDetailPage({ id }: { id: string }) {
                         {x.resolved_at ? ` · resolvida em ${formatDateTime(x.resolved_at)}` : ""}
                       </p>
                       {x.status !== "RESOLVED" &&
-                      hasPermission("partner_reconciliation.resolve_exception") ? (
+                      hasPermission("reconciliation.resolve_exception") ? (
                         <div className="mt-2 print:hidden">
                           <Button variant="outline" size="sm" onClick={() => setException(x)}>
                             Resolver
@@ -771,7 +771,7 @@ export function ExceptionsPage() {
       (await fetch({
         data: { organizationId: org!, kind: "exceptions", filters, page },
       })) as ReconciliationException[],
-    enabled: Boolean(org && hasPermission("partner_reconciliation.read")),
+    enabled: Boolean(org && hasPermission("reconciliation.read")),
   });
   return (
     <AppShell title="Reconciliação · Exceções">
@@ -780,8 +780,8 @@ export function ExceptionsPage() {
         <LoadingState />
       ) : !org ? (
         <EmptyState title="Selecione uma organização" />
-      ) : !hasPermission("partner_reconciliation.read") ? (
-        <PermissionDenied permission="partner_reconciliation.read" />
+      ) : !hasPermission("reconciliation.read") ? (
+        <PermissionDenied permission="reconciliation.read" />
       ) : (
         <>
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -855,7 +855,7 @@ export function ExceptionsPage() {
                         {formatDateTime(x.created_at)}
                       </p>
                       {x.status !== "RESOLVED" &&
-                      hasPermission("partner_reconciliation.resolve_exception") ? (
+                      hasPermission("reconciliation.resolve_exception") ? (
                         <div className="mt-2 print:hidden">
                           <Button variant="outline" size="sm" onClick={() => setSelected(x)}>
                             Resolver

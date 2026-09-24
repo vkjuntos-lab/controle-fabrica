@@ -46,7 +46,7 @@ export function SalesPage() {
   const [to, setTo] = useState("");
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
-  const canRead = hasPermission("partner_reconciliation.read");
+  const canRead = hasPermission("reconciliation.read");
   const stores = useQuery({
     queryKey: ["reconciliation", "stores", org],
     queryFn: async () =>
@@ -82,12 +82,12 @@ export function SalesPage() {
       ) : !org ? (
         <EmptyState title="Selecione uma organização" />
       ) : !canRead ? (
-        <PermissionDenied permission="partner_reconciliation.read" />
+        <PermissionDenied permission="reconciliation.read" />
       ) : (
         <>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="font-heading text-xl font-semibold">Vendas do marketplace</h2>
-            {hasPermission("partner_reconciliation.review") ? (
+            {hasPermission("marketplace.manage") ? (
               <Button onClick={() => setOpen(true)}>Registrar venda</Button>
             ) : null}
           </div>
@@ -176,7 +176,7 @@ export function SalesPage() {
                         origem {s.source}
                       </p>
                       {["IMPORTED", "VALIDATED", "EXCEPTION"].includes(s.status) &&
-                      hasPermission("partner_reconciliation.review") ? (
+                      hasPermission("marketplace.manage") ? (
                         <div className="mt-2 print:hidden">
                           <Button
                             variant="outline"
@@ -210,7 +210,7 @@ export function SalesPage() {
               ) : null}
             </CardContent>
           </Card>
-          {open && hasPermission("partner_reconciliation.review") ? (
+          {open && hasPermission("marketplace.manage") ? (
             <RegisterSaleDialog
               organizationId={org}
               onClose={() => setOpen(false)}
@@ -233,7 +233,7 @@ export function StoresPage() {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
-  const canRead = hasPermission("partner_reconciliation.read");
+  const canRead = hasPermission("reconciliation.read");
   const filters = { query };
   useEffect(() => setPage(1), [org, query]);
   const q = useQuery({
@@ -252,12 +252,12 @@ export function StoresPage() {
       ) : !org ? (
         <EmptyState title="Selecione uma organização" />
       ) : !canRead ? (
-        <PermissionDenied permission="partner_reconciliation.read" />
+        <PermissionDenied permission="reconciliation.read" />
       ) : (
         <>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="font-heading text-xl font-semibold">Lojas de marketplace</h2>
-            {hasPermission("partner_reconciliation.create") ? (
+            {hasPermission("marketplace.manage") ? (
               <Button onClick={() => setOpen(true)}>Nova loja</Button>
             ) : null}
           </div>
@@ -316,7 +316,7 @@ export function StoresPage() {
               ) : null}
             </CardContent>
           </Card>
-          {open && hasPermission("partner_reconciliation.create") ? (
+          {open && hasPermission("marketplace.manage") ? (
             <SaveStoreDialog
               organizationId={org}
               onClose={() => setOpen(false)}
@@ -339,7 +339,7 @@ export function SkuMappingsPage() {
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
   const [open, setOpen] = useState(false);
-  const canRead = hasPermission("partner_reconciliation.read");
+  const canRead = hasPermission("reconciliation.read");
   const filters = { query };
   useEffect(() => setPage(1), [org, query]);
   const q = useQuery({
@@ -358,12 +358,12 @@ export function SkuMappingsPage() {
       ) : !org ? (
         <EmptyState title="Selecione uma organização" />
       ) : !canRead ? (
-        <PermissionDenied permission="partner_reconciliation.read" />
+        <PermissionDenied permission="reconciliation.read" />
       ) : (
         <>
           <div className="flex flex-wrap items-center justify-between gap-3">
             <h2 className="font-heading text-xl font-semibold">Mapeamento de SKU externo</h2>
-            {hasPermission("partner_reconciliation.create") ? (
+            {hasPermission("marketplace.manage") ? (
               <Button onClick={() => setOpen(true)}>Novo mapeamento</Button>
             ) : null}
           </div>
@@ -422,7 +422,7 @@ export function SkuMappingsPage() {
               ) : null}
             </CardContent>
           </Card>
-          {open && hasPermission("partner_reconciliation.create") ? (
+          {open && hasPermission("marketplace.manage") ? (
             <SaveMappingDialog
               organizationId={org}
               onClose={() => setOpen(false)}
