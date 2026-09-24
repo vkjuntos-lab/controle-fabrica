@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "6:  \"scripts\": {\n7-    \"dev\": \"vite dev\",\n8-    \"build\": \"vite build\",\n9-    \"build:dev\": \"vite build --mode development\",\n10-    \"preview\": \"vite preview\",\n11-    \"lint\": \"eslint .\",\n12-    \"test\": \"vitest run\",\n13-    \"test:inventory:db\": \"python3 scripts/test-inventory-db.py\",\n14-    \"test:partne",
-    "is_error": false,
-    "timestamp": 1790129200253
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "ls node_modules/.bin/ | grep -i \"tsr\\|router\" ; grep -rn \"router-plugin\\|tsr\" package.json vite.config.* 2>/dev/null | head; echo ===; grep -n \"financeiro\\|reconciliacao\" src/routeTree.gen.ts | head"
-    },
-    "timestamp": 1790129203868
-  },
-  {
-    "role": "tool_result",
     "content": "package.json:55:    \"@tanstack/router-plugin\": \"^1.168.18\",\n===\n36:import { Route as AuthenticatedReconciliacaoIndexRouteImport } from './routes/_authenticated/reconciliacao/index'\n37:import { Route as AuthenticatedReconciliacaoExcecoesRouteImport } from './routes/_authenticated/reconciliacao/exceco",
     "is_error": false,
     "timestamp": 1790129203902
@@ -1367,5 +1353,20 @@
     "content": "\n> typecheck\n> tsc --noEmit\n\nnpm notice\nnpm notice New major version of npm available! 10.8.2 -> 12.1.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.1.0\nnpm notice To update run: npm install -g npm@12.1.0\nnpm notice\n",
     "is_error": false,
     "timestamp": 1790281851756
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 scripts/test-costs-db.py 2>&1 | tail -40",
+      "timeout": 600000
+    },
+    "timestamp": 1790281853201
+  },
+  {
+    "role": "tool_result",
+    "content": "initdb: error: cannot be run as root\ninitdb: hint: Please log in (using, e.g., \"su\") as the (unprivileged) user that will own the server process.\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-costs-db.py\", line 134, in <module>\n    try:run()\n       ",
+    "is_error": false,
+    "timestamp": 1790281853323
   }
 ]
