@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
-      "offset": 1490,
-      "limit": 140
-    },
-    "timestamp": 1790286606969
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx</path>\n<type>file</type>\n<content>\n1490:                         <th className=\"pb-2 pr-4\">Fornecedor</th>\n1491:                         <th className=\"pb-2 pr-4\">Emissão</th>\n1492:                         <th classNa",
-    "is_error": false,
-    "timestamp": 1790286606983
-  },
-  {
-    "role": "tool",
     "tool": "grep",
     "input": {
       "path": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
@@ -1546,5 +1530,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790287439731
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "# Recebimento de Mercadorias — Goods Receipt\n\nDocumento de negócio e modelo técnico do recebimento físico, inspeção e postagem (MASTER 010).\nComplementa `PURCHASING.md`. Este é o ponto onde compra vira **estoque**, **custo** e\n**obrigação financeira**.\n\n## Fluxo\n\n```\nPO (APPROVED/SENT/RECEIVING) ──po_receive──▶ Recebimento DRAFT\n   → receipt_action inspect  → ACCEPTED ou REJECTED (por item)\n   → receipt_action post     → POSTED  (ledger + custo + AP)  [imutável]\n   → receipt_action cancel   → CANCELED (antes da postagem)\n```\n\n## Criar (`po_receive`)\n\n- Permissão `goods_receipts.create`; trava por organização (`inventory_lock`).\n- Só para pedidos `APPROVED/SENT/RECEIVING`; número sequencial `GR-<ano>-<6 dígitos>`.\n- Itens default = o que está em aberto (`ordered − received`); também aceita payload explícito.\n- **Excedente sobre o pedido**: com `over_receipt_policy=BLOCK` e sem `purchase_exceptions.resolve`,\n  a quantidade é **cortada para o restante do pedido** e registrada uma exceção `OVER_RECEIPT`\n  WARNING (`requested` / `capped`). Com `AUTH_OVERRIDE` (ou permissão de resolution) o excedente é\n  aceito e gera exceção WARNING `requested`/`ordered`.\n- Itens nascem `ACCEPTED` com as unidades e fator herdados da linha do pedido; `total_received` e\n  `total_accepted` são recalculados. O pedido vai a `RECEIVING`.\n- Se nenhum `destination_location_id` for informado, usa o do pedido; a postagem exige localização.\n\n## Inspecionar (`receipt_action inspect`)\n\n- Permissão `goods_receipts.inspect`; somente `DRAFT`/`UNDER_INSPECTION`.\n- Item a item: `accepted_quantity` entre 0 e o recebido; rejeitado ⇒ `rejected_quantity` e\n  `reason`; unidade aceita não pode exceder o recebido.\n- Excedente aceito além do restante do pedido só com `AUTH_OVERRIDE`/permissão (gera exceção).\n- Ao final: recebimento `ACCEPTED` (algum item aceito) ou `REJECTED` (nenhum).\n\n## Postar (`receipt_action post`)\n\n- Permissão `goods_receipts.post`; exige inspeção prévia (`ACCEPTED`/`REJECTED`) e localização de\n  destino; recusa se já existe movimento `GOODS_RECEIPT` para o recebimento (idempotência).\n- Para cada item aceito (`accepted_quantity > 0`):\n  1. **Ledger**: movimento `PURCHASE_RECEIPT` IN pelo `reference` do recebimento, com\n     `quantity = accepted × conversion_factor`, idempotência `PURCHASING:GR:<receipt>:<item>`;\n  2. **Custo**: `purchasing_apply_cost_policy` grava `purchase_receipt_costs` e aplica a política\n     (`NONE/LAST_PURCHASE/STANDARD/AVERAGE`). `LAST_PURCHASE`/`AVERAGE` criam/supersedem a versão\n     ativa de custo **somente quando o valor difere e a data é posterior** (nunca reescreve\n     histórico) — integração com o Cost Engine (MASTER 009);\n  3. **Pedido**: soma ao `received_quantity` e avança `PARTIALLY_RECEIVED`/`RECEIVED`; itens\n     rejeitados nunca entram no saldo.\n- Ao postar: recebimento `POSTED` (imutável); pedido vira `COMPLETED` quando todos os itens\n  fecham (senão permanece `RECEIVING`); a requisição vínculada tem seus itens `ORDERED` cancelados.\n- **Financeiro**: com `payable_on=GOODS_RECEIPT`, `purchasing_create_payables` cria os títulos da\n  `account_payables` (parcelas de `payment_terms`, `UNIQUE(org,source_type,source_id,installment)`,\n  uma obrigação por pedido). Frete segue `freight_policy` (`EXPENSE_SEPARATELY` ou pro-rata no\n  custo de inventário).\n- Evento `purchasing.receipt.posted` no `domain_events`.\n\n## Cancelar (`receipt_action cancel`)\n\n- Permissão `goods_receipts.cancel`; somente antes da postagem (`POSTED/CANCELED` recusados).\n- Devolve o pedido a `SENT` (se enviado) ou `APPROVED` quando não há outro recebimento vigente.\n\n## Consulta (`receipt_query`)\n\n- `receipts` — lista do recebimento com pedido/fornecedor/itens/status (50/página, filtros).\n- `receipt` — detalhe com `receipt`, `order` e `items` (+ `effective_unit_cost` quando\n  `accepted_quantity > 0`).\n\n## Imutabilidade\n\nAs tabelas `goods_receipts`/`goods_receipt_items` têm triggers que **rejeitam UPDATE/DELETE** de\nregistros `POSTED` (e o movimento vinculado). Toda correção física depois da postagem é um novo\ndocumento (devolução a fornecedor ou ajuste de estoque com motivo), nunca um UPDATE no recebimento.\n\n## Regras\n\n- Quantidade de inventário = aceita × fator de conversão; unidade do item aceito segue o catálogo.\n- Localização de destino é obrigatória na postagem (do recebimento ou do pedido).\n- Público-alvo: estoquista/gestor com `goods_receipts.*`; financeiro lê recebimentos e títulos gerados.\n- Telas: `/compras/recebimentos` (+ `/$id` com inspeção por item e postagem).",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/GOODS-RECEIPT.md"
+    },
+    "timestamp": 1790287451858
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790287451862
   }
 ]
