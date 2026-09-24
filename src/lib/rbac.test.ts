@@ -126,3 +126,30 @@ it("alinha as permissões de reconciliação ao contrato do banco", () => {
   expect(keys.length).toBeGreaterThan(0);
   for (const [, value] of keys) expect(databaseKeys.has(value), value).toBe(true);
 });
+
+it("alinha as permissões de compras ao contrato do banco", () => {
+  const migration = readFileSync(
+    new URL("../../supabase/migrations/20261001100000_purchasing.sql", import.meta.url),
+    "utf8",
+  );
+  const databaseKeys = new Set(
+    [
+      ...migration.matchAll(/'(suppliers|purchase_requests|quotations|purchase_orders|goods_receipts|supplier_returns|supplier_documents|purchase_exceptions)\.[a-z_]+'/g),
+      ...migration.matchAll(/'(purchasing\.(?:read|dashboard))'/g),
+    ].map((match) => match[1]),
+  );
+  const keys = Object.entries(PERMISSIONS).filter(
+    ([key]) =>
+      key.startsWith("suppliers") ||
+      key.startsWith("purchaseRequests") ||
+      key.startsWith("quotations") ||
+      key.startsWith("purchaseOrders") ||
+      key.startsWith("goodsReceipts") ||
+      key.startsWith("supplierReturns") ||
+      key.startsWith("supplierDocuments") ||
+      key.startsWith("purchaseExceptions") ||
+      key.startsWith("purchasing"),
+  );
+  expect(keys.length).toBeGreaterThan(0);
+  for (const [, value] of keys) expect(databaseKeys.has(value), value).toBe(true);
+});
