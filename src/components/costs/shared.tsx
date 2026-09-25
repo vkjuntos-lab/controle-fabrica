@@ -50,7 +50,9 @@ export function CostShell({
       ) : !hasPermission(permission) ? (
         <PermissionDenied permission={permission} />
       ) : (
-        children(currentOrganization.organization_id)
+        <div key={currentOrganization.organization_id} className="space-y-5">
+          {children(currentOrganization.organization_id)}
+        </div>
       )}
     </AppShell>
   );

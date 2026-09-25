@@ -131,5 +131,20 @@ def run():
  for kind,filters in [('impact',{'material_id':histmat,'unit_cost':'50'}),('comparison',{}),('snapshot',{'id':snap['id']})]:
   json.loads(rpc('cost_query',org,kind,filters))
  print('PASS: impact, standard/actual comparison and snapshot detail contracts')
+ # Concurrent retry must reuse one version; direct writes remain protected.
+ from concurrent.futures import ThreadPoolExecutor
+ concurrent_data={'variants':[hist],'effective_from':'2026-04-01'}
+ with ThreadPoolExecutor(max_workers=2) as pool:
+  results=list(pool.map(lambda _:json.loads(rpc('cost_calculate',org,concurrent_data))['results'][0],range(2)))
+ assert results[0]['id']==results[1]['id'],results
+ assert sql(f"SELECT count(*) FROM product_cost_versions WHERE variant_id={q(hist)} AND effective_from='2026-04-01'")=='1'
+ # Unknown actual deductions must not become zero or a fabricated contribution.
+ unknown=json.loads(rpc('marketplace_register_sale',org,{'store_id':store,'sale_date':'2026-01-16','external_order_id':'UNKNOWN-FEES','external_event_id':'UNKNOWN-FEES-EVENT','external_sku':'HIST','quantity':1,'gross_amount':100}))['id']
+ rpc('profitability_capture',org,{'sales':[unknown]})
+ pending=json.loads(sql(f"SELECT to_jsonb(s) FROM sale_cost_snapshots s WHERE sale_id={q(unknown)}"))
+ assert pending['completeness']=='INCOMPLETE' and pending['contribution'] is None and pending['cogs']==40,pending
+ sql(f"UPDATE sale_cost_snapshots SET cogs=1 WHERE id={q(pending['id'])}",fail='imutável')
+ assert sql(f"SELECT count(*) FROM product_variants WHERE id={q(hist)}",reader)=='1'
+ print('PASS: concurrent calculation deduplicates, unknown fees remain incomplete, snapshots immutable and catalogue still readable')
 try:run()
 finally:db.cleanup()

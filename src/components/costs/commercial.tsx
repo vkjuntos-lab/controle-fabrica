@@ -263,7 +263,7 @@ function Pricing({ org }: { org: string }) {
                 <option value="">Selecione</option>
                 {asRows(options.data?.variants).map((r) => (
                   <option key={r.id} value={r.id}>
-                    {String(r.sku)} · {String(r.product_name)}
+                    {String(r.sku)} · {String(r.name)}
                   </option>
                 ))}
               </select>

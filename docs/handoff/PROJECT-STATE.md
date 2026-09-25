@@ -1,5 +1,28 @@
 # Estado do projeto — handoff contínuo
 
+## Revisão de continuidade — 25/09/2026 (MASTER 009)
+
+O checkout já contém os módulos posteriores de Compras e Planejamento. Esta revisão preservou
+essas implementações e as migrations existentes; não iniciou outro projeto nem outro domínio.
+
+Concluída a documentação exigida do MASTER 009: [COSTING](../business/COSTING.md),
+[PRICING](../business/PRICING.md), [PROFITABILITY](../business/PROFITABILITY.md) e
+[ADR 009](../architecture/ADR-009-COSTING.md). Elas detalham a metodologia efetiva, as vigências,
+as fontes, as permissões, a captura histórica e as limitações — incluindo BRL, BOM de um nível,
+rateio de overhead organizacional, estimativas identificadas e ajustes globais do fechamento
+não distribuídos nos itens. Não se deve considerar publicação cloud ou testes de navegador
+como realizados.
+
+Interface: corrigido o nome da variante/produto no seletor de preço; troca de organização
+remonta o conteúdo de custos para descartar simulações e seleções do tenant anterior.
+Teste SQL ampliado com cálculo concorrente deduplicado, despesas desconhecidas que mantêm
+contribuição pendente, imutabilidade e leitura do catálogo sem acesso a custos.
+Verificações: 10 grupos SQL de custos, 15 de Compras, 37 testes unitários, TypeScript e build
+passaram. Lint de custos sem erros (2 avisos); lint global ainda falha em arquivos preexistentes
+fora deste domínio e artefatos antigos.
+Relatório desta continuação: [MASTER-009-COMPLETION](MASTER-009-COMPLETION.md).
+
+
 ## Continuação validada — 24/09/2026 (MASTER 010)
 
 Compras, fornecedores, recebimento e reposição implementados e validados localmente
