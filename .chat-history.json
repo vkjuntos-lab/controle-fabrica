@@ -1,142 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md"
-    },
-    "timestamp": 1790287359441
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md</path>\n<type>file</type>\n<content>\n1: # Estado do projeto — handoff contínuo\n2: \n3: ## Continuação validada — 24/09/2026 (MASTER 009)\n4: \n5: Cost Engine, formação de preço, margens e rentabilidade implementados e validados ",
-    "is_error": false,
-    "timestamp": 1790287359464
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sleep 20; if ps -p 2507633 > /dev/null 2>&1; then echo \"STILL RUNNING\"; else echo \"DONE\"; wc -l /tmp/opencode/lint-full.txt; tail -15 /tmp/opencode/lint-full.txt; fi",
-      "timeout": 40000
-    },
-    "timestamp": 1790287363215
-  },
-  {
-    "role": "tool_result",
-    "content": "STILL RUNNING\n",
-    "is_error": false,
-    "timestamp": 1790287383261
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"replenishment\\|acquisition_cost_policy\\|forecast_window_days\\|purchase_order_settings\\|reorder_point\\|supplier_default\\|AUTH_OVERRIDE\\|OVER_RECEIPT\" supabase/migrations/20261001100000_purchasing.sql | head -40"
-    },
-    "timestamp": 1790287390239
-  },
-  {
-    "role": "tool_result",
-    "content": "39:-- Campos de política de reposição na variante (minimum_stock/reorder_point já existem).\n42:  ADD COLUMN IF NOT EXISTS replenishment_policy text NOT NULL DEFAULT 'REORDER_POINT'\n43:    CHECK (replenishment_policy IN ('REORDER_POINT','TARGET_STOCK','MANUAL'));\n480:    'OVER_RECEIPT','QUANTITY_VARI",
-    "is_error": false,
-    "timestamp": 1790287390260
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
-      "limit": 120,
-      "offset": 1030
-    },
-    "timestamp": 1790287392308
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql</path>\n<type>file</type>\n<content>\n1030: -- STANDARD/NONE não sobrescrevem o custo padrão).\n1031: CREATE FUNCTION public.purchasing_apply_cost_policy(_org uuid,_variant uuid,_inv_unit uuid,_date date,_qt",
-    "is_error": false,
-    "timestamp": 1790287392355
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
-      "limit": 150,
-      "offset": 1149
-    },
-    "timestamp": 1790287394033
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql</path>\n<type>file</type>\n<content>\n1149:     SELECT * INTO po FROM public.purchase_orders WHERE id=r.purchase_order_id AND organization_id=_org;\n1150:     SELECT sum(accepted_quantity*unit_cost) INTO v_p",
-    "is_error": false,
-    "timestamp": 1790287394060
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql",
-      "limit": 240,
-      "offset": 760
-    },
-    "timestamp": 1790287396698
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261001100000_purchasing.sql</path>\n<type>file</type>\n<content>\n760:       FROM public.purchase_requests r LEFT JOIN public.cost_centers cc ON cc.id=r.cost_center_id\n761:       WHERE r.organization_id=_org)\n762:     SELECT jsonb_bui",
-    "is_error": false,
-    "timestamp": 1790287396764
-  },
-  {
-    "role": "tool",
-    "tool": "todowrite",
-    "input": {
-      "todos": [
-        {
-          "content": "Corrigir pages.tsx + typecheck (fixes conhecidos)",
-          "status": "completed",
-          "priority": "high"
-        },
-        {
-          "content": "Criar rotas /compras/* e /fornecedores (+ fix link company_id)",
-          "status": "completed",
-          "priority": "high"
-        },
-        {
-          "content": "build + vitest + lint dos arquivos tocados",
-          "status": "completed",
-          "priority": "high"
-        },
-        {
-          "content": "Escrita docs/business (PURCHASING, SUPPLIERS, GOODS-RECEIPT, REPLENISHMENT)",
-          "status": "in_progress",
-          "priority": "medium"
-        },
-        {
-          "content": "Atualizar docs/handoff/PROJECT-STATE.md",
-          "status": "pending",
-          "priority": "medium"
-        },
-        {
-          "content": "Relatório docs/handoff/MASTER-010-VALIDATION.md + git status",
-          "status": "pending",
-          "priority": "high"
-        }
-      ]
-    },
-    "timestamp": 1790287402858
-  },
-  {
-    "role": "tool_result",
-    "content": "[\n  {\n    \"content\": \"Corrigir pages.tsx + typecheck (fixes conhecidos)\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Criar rotas /compras/* e /fornecedores (+ fix link company_id)\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"build + vit",
-    "is_error": false,
-    "timestamp": 1790287402859
-  },
-  {
-    "role": "tool",
     "tool": "write",
     "input": {
       "content": "# Compras — Purchase to Pay\n\nDocumento de negócio e modelo técnico do módulo de compras do MASTER 010. Cobre o fluxo completo\nde **requisição → cotação → pedido → recebimento → inspeção → postagem → documento → pagamento**,\ncom exceções e reposição. É o \"Purchase to Pay\" da fábrica.\n\nDocumentos relacionados: `SUPPLIERS.md` (cadastro de fornecedores), `GOODS-RECEIPT.md`\n(recebimento/inspeção/postagem), `REPLENISHMENT.md` (sugestão de compra).\n\n## Princípios centrais\n\n1. **Banco é a fonte da verdade** — toda escrita acontece por RPCs `SECURITY DEFINER` que validam\n   tenant (`organization_id`), permissão e transição de estado. As tabelas novas são **SELECT-only**\n   para o papel autenticado (RLS estrita); escrita direta é `permission denied`.\n2. **Estados explícitos e imutáveis** — depois de *postado* (recebimento, devolução) ou\n   *concluído* (pedido), o registro não muda. Correção é um novo documento, nunca edição.\n3. **Financeiro nunca é inventado** — recebimento gera contas a pagar, custo e saldo de estoque\n   apenas quando postado, nas políticas configuradas. Aprovação respeita **segregação de funções**.\n4. **Custo ≠ preço ≠ receita ≠ recebimento** — o custo de aquisição segue a política\n   (`acquisition_cost_policy`) e versiona `material_cost_versions` (integração com o Cost Engine,\n   MASTER 009). Nenhuma RPC de compras lança AR/despesa fora das regras do módulo financeiro existente.\n\n## Modelo de dados\n\n| Objeto | Papel |\n| --- | --- |\n| `companies` / `company_roles` / `supplier_profiles` | Fornecedor (ver `SUPPLIERS.md`). |\n| `supplier_products` | Catálogo do fornecedor (SKU interno, unidades e fator de conversão). |\n| `purchase_requests` / `purchase_request_items` | Requisição de compra e itens (necessidade interna). |\n| `quotations` / `quotation_suppliers` / `quotation_supplier_items` | Cotação: pedidos de proposta a 1..n fornecedores. |\n| `purchase_orders` / `purchase_order_items` | Pedido de compra e itens com preço/frete/impostos. |\n| `goods_receipts` / `goods_receipt_items` | Recebimento físico e inspeção (ver `GOODS-RECEIPT.md`). |\n| `supplier_returns` / `supplier_return_items` | Devolução ao fornecedor. |\n| `supplier_documents` / `supplier_document_items` | Documentos fiscais (nota/fatura) conciliados ao pedido. |\n| `purchase_exceptions` | Exceções de compra (excesso, variação, conversão faltante...). |\n| `purchase_receipt_costs` | Histórico de custo por recebimento/variante (base do custo médio). |\n| `purchasing_settings` | `acquisition_cost_policy`, `freight_policy`, `over_receipt_policy`, `payable_on`, `approval_segregation`, janelas de previsão. |\n| `purchase_orders` → `account_payables` | Obrigação financeira criada na postagem (payable_on). |\n\n## Fluxo principal\n\n```\nRequisição (DRAFT) → submit → SUBMITTED → approve → APPROVED → po_save (ORDERED)\nCotação (DRAFT) → quotation_save (AWAITING) → quotation_award (AWARDED)\nPedido (DRAFT) → submit → PENDING_APPROVAL → approve → APPROVED → send → SENT\n   → po_receive → RECEIVING → inspeção (ACCEPTED/REJECTED) → post → COMPLETED\n   → documento (match/process) → contas a pagar\nDevolução (DRAFT) → post → POSTED (saída de estoque PURCHASE_RETURN)\n```\n\n### 1. Requisição (`request_save` / `request_action` / `request_query`)\n\n- Criada como `DRAFT` com itens `PENDING`. `request_action submit|approve|cancel` controla o fluxo\n  interno (`submit` exige `purchase_requests.create`, `approve` exige `purchase_requests.approve`,\n  `cancel` exige `purchase_requests.cancel`).\n- Consulta por `request_query` kinds `requests|request` (50 por página, filtro por status/número).\n\n### 2. Cotação (`quotation_save` / `quotation_award` / `quotation_query`)\n\n- `quotation_save` cria/atualiza a cotação **DRAFT** com fornecedores e itens (qtd + preço, desconto,\n  frete, imposto, outros e `delivery_days`/`payment_terms`/`valid_until`); ao salvar um rascunho\n  vai a **AWAITING**.\n- `quotation_award` marca itens premiados por variante/fornecedor (com motivo e responsável);\n  qualquer item `awarded` torna a cotação **AWARDED**.\n- Consulta por `quotation_query` kinds `quotations|quotation` (detalhe traz `suppliers` e `items`).\n\n### 3. Pedido (`po_save` / `po_action` / `po_receive` / `po_query`)\n\n- `po_save` cria/edita rascunho; herda condições padrão do fornecedor e o fator de conversão do\n  catálogo; recalcula `subtotal/discount/tax/freight/other/total`. Itens só de variantes da própria\n  organização; quantidades > 0 e preço >= 0.\n- `po_action` máquina de estados:\n  - `submit` `DRAFT → PENDING_APPROVAL` (exige pelo menos um item; permissão `purchase_orders.create`);\n  - `approve` `PENDING_APPROVAL → APPROVED` (exige `purchase_orders.approve`; com\n    `approval_segregation` ativa, **aprovador ≠ criador**);\n  - `send` `APPROVED → SENT` (`purchase_orders.send`) — \"pedido enviado ao fornecedor\";\n  - `cancel` para qualquer status exceto `COMPLETED/CANCELED`, bloqueado se há recebimentos não\n    cancelados; libera a requisição de volta a `APPROVED`/`PENDING` quando não há outro pedido vivo.\n  - `po_receive` cria o recebimento `DRAFT` (ver `GOODS-RECEIPT.md`). Status do pedido vai a\n    `RECEIVING`; ao completar todos os itens, `COMPLETED`.\n- Consulta por `po_query` kinds `orders|order|candidates` (candidatos = pedidos aprovados/enviados\n  sem documento vigente, para o 3-way do documento).\n\n### 4. Recebimento e inspeção (`po_receive` / `receipt_action` / `receipt_query`)\n\nVer `GOODS-RECEIPT.md` em detalhe. Resumo: criar (DRAFT) → `inspect` (ACCEPTED/REJECTED por item,\ngera `OVER_RECEIPT` quando aplicável) → `post` (ledger `PURCHASE_RECEIPT`, custo por política,\ncontas a pagar conforme `payable_on`) ou `cancel` (antes da postagem).\n\n### 5. Documento fiscal (`document_save` / `document_action` / `document_query`)\n\n- `document_save` cria/edita documento (`DRAFT`) com cabeçalho do fornecedor e itens\n  (variante, quantidade, preço unitário e valores). Número de documento único por organização.\n- `document_action`:\n  - `match` — concilia o documento ao pedido (3-way: documento × pedido × recebimento). Sem\n    correspondência ou com divergência de quantidade/valor em aberto, o item fica como exceção\n    (`document-exception`), nunca fabrica saldo.\n  - `process` — consolida o documento (status `PROCESSED`); é o gatilho do financeiro (contas a\n    pagar) quando aplicável.\n  - `cancel` — descarta o documento.\n- Consulta por `document_query` kinds `documents|document`.\n\n### 6. Exceções (`exception_action` / `exception_query`)\n\n- `exception_action resolve|ignore|reopen`: `resolve` exige `purchase_exceptions.resolve` e registra\n  decisão/responsável; `ignore` deixa `IGNORED_WITH_AUTHORIZATION`; `reopen` devolve a `OPEN`.\n- `exception_query` kinds `exceptions|open` (fila de exceções em aberto).\n\n### 7. Devolução ao fornecedor (`return_save` / `return_action` / `return_query`)\n\n- `return_save` cria/edita devolução `DRAFT` (fornecedor, opcionalmente referente a um recebimento,\n  localização de origem, itens e motivo).\n- `return_action post|cancel`: `post` exige `supplier_returns.post`, valida **saldo suficiente** na\n  origem e gera movimento `PURCHASE_RETURN` OUT com idempotência `PURCHASING:SR:<id>:<item>`; `cancel`\n  só antes da postagem. Postada é imutável.\n- Consulta por `return_query` kinds `returns|return`.\n\n## Políticas (`purchasing_settings`)\n\n| Política | Valores | Efeito |\n| --- | --- | --- |\n| `acquisition_cost_policy` | `NONE` / `LAST_PURCHASE` / `STANDARD` / `AVERAGE` | Como o recebimento vira custo. `AVERAGE` usa o histórico de `purchase_receipt_costs`; `LAST_PURCHASE`/`AVERAGE` criam/atualizam versão de custo quando o valor difere do `ACTIVE` e a data é posterior (regra sem reescrita de histórico — um custo nunca muda uma versão antiga). |\n| `freight_policy` | `EXPENSE_SEPARATELY` / `INCLUDE_IN_INVENTORY_COST` | Frete do pedido: despesa avulsa ou rateado proporcional ao valor dos itens aceitos (pro-rata). |\n| `over_receipt_policy` | `BLOCK` / `AUTH_OVERRIDE` | Excedente sobre o pedido: `BLOCK` corta para o restante (e registra `OVER_RECEIPT` WARNING); `AUTH_OVERRIDE` permite quando o usuário tem `purchase_exceptions.resolve` (gera exceção WARNING). |\n| `payable_on` | `GOODS_RECEIPT` / `DOCUMENT` | Quando a conta a pagar é criada: no recebimento ou no processamento do documento. |\n| `approval_segregation` | booleano (default true) | Proíbe o criador do pedido de aprová-lo. |\n\n## Regras de fluxo de caixa/estoque\n\n- **Postagem do recebimento** cria movimento `PURCHASE_RECEIPT` (IN) por item aceito, na localização\n  de destino, com idempotência `PURCHASING:GR:<receipt>:<item>`, quantidade = `accepted × conversion_factor`,\n  custo unitário = (item + pro-rata de frete) ÷ quantidade de inventário. Item rejeitado na\n  inspeção **não** entra no saldo (motivo \"rejeitado\").\n- **Contas a pagar**: `purchasing_create_payables` gera `account_payables` `source_type=PURCHASE`\n  com parcelas derivadas de `payment_terms` (ex. `30/60` → 2 títulos), documentos `CMP-<ano>-<seq>/<i>`\n  e `UNIQUE(organization_id, source_type, source_id, installment_number)`. Uma única obrigação por pedido\n  (`purchasing_po_payable_total` + guarda).\n- **Requisição ordenada** não é mais considerada na reposição (hjá \"ORDERED\").\n\n## Permissões (RBAC)\n\n`purchasing.read|dashboard`, `suppliers.read|manage`, `purchase_requests.read|create|approve|cancel`,\n`quotations.read|create|manage|award`, `purchase_orders.read|create|approve|send|cancel`,\n`goods_receipts.read|create|inspect|post|cancel`, `supplier_returns.read|create|post|cancel`,\n`supplier_documents.read|create|process|cancel`, `purchase_exceptions.read|resolve`.\n\nPadrão: admin/gestor com acesso completo; demais papéis conforme a necessidade (estoquista recebe\nrecebimento/inspeção/postagem e leitura das demais áreas; financeiro lê pedidos/recebimentos/pagáveis;\nprodução e comercial leem cotações/pedidos e criam requisições). Tudo validado server-side por\n`purchasing_require` e registrado em auditoria (`purchasing.*`).\n\n## Telas (MASTER 010)\n\n- `/compras` — dashboard (KPIs, fluxo do mês, alertas).\n- `/compras/requisicoes`, `/compras/cotacoes` (+ `/$id` com premiação),\n  `/compras/pedidos` (+ `/$id` com ações e recebimento), `/compras/recebimentos` (+ `/$id` com\n  inspeção), `/compras/devolucoes`, `/compras/documentos`, `/compras/excecoes`,\n  `/compras/reposicao`, `/compras/configuracoes`.\n- `/fornecedores` (+ `/$id` — Fornecedor 360).\n- Item \"Compras\" (dashboard) e sub-itens no menu Operação do `AppShell`.\n\n## Fora do escopo deste domínio\n\nMRP/APS, previsão de demanda assistida, seleção automática de fornecedor, portal do fornecedor,\nEDI/emissão de NF-e, SPED/contabilidade, automação bancária, catálogo eletrônico/efêmero e\nreposição com estoque de segurança dinâmico. `replenishment_query` é sugestão (ver `REPLENISHMENT.md`).",
@@ -1702,5 +1566,115 @@
     "content": "<task id=\"ses_f27bb1282ffeLfz7OPFJKriFZV\" state=\"completed\">\n<task_result>\nContinuei sem necessidade de clarificação. O próximo passo era consolidar a auditoria; abaixo está o relatório final. Nenhuma migration foi alterada nem executada.\n\n## Diagnóstico executivo\n\nA migration [`/root/Zheus AI Proje",
     "is_error": false,
     "timestamp": 1790335975415
+  },
+  {
+    "role": "tool",
+    "tool": "grep",
+    "input": {
+      "pattern": "CREATE TABLE IF NOT EXISTS public\\.(products|product_variants|units_of_measure|bill_of_materials|bill_of_materials_items|production_orders|production_order_items)",
+      "path": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations",
+      "include": "*.sql"
+    },
+    "timestamp": 1790335980046
+  },
+  {
+    "role": "tool_result",
+    "content": "No files found",
+    "is_error": false,
+    "timestamp": 1790335980086
+  },
+  {
+    "role": "tool",
+    "tool": "grep",
+    "input": {
+      "pattern": "CREATE TABLE IF NOT EXISTS public\\.(purchase_requests|purchase_request_items|purchase_orders|purchase_order_items|supplier_products|supplier_profiles)",
+      "path": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations",
+      "include": "*.sql"
+    },
+    "timestamp": 1790335980330
+  },
+  {
+    "role": "tool_result",
+    "content": "No files found",
+    "is_error": false,
+    "timestamp": 1790335980345
+  },
+  {
+    "role": "tool",
+    "tool": "grep",
+    "input": {
+      "pattern": "CREATE TABLE IF NOT EXISTS public\\.marketplace_sales|CREATE TABLE public\\.marketplace_sales",
+      "path": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations",
+      "include": "*.sql"
+    },
+    "timestamp": 1790335980697
+  },
+  {
+    "role": "tool_result",
+    "content": "Found 1 matches\n/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20260926100000_partner_reconciliation.sql:\n  Line 67: CREATE TABLE public.marketplace_sales (\n",
+    "is_error": false,
+    "timestamp": 1790335980710
+  },
+  {
+    "role": "tool",
+    "tool": "grep",
+    "input": {
+      "pattern": "CREATE OR REPLACE FUNCTION public\\.(request_save|production_create_order|production_order_action|production_query|purchasing_require)",
+      "path": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations",
+      "include": "*.sql"
+    },
+    "timestamp": 1790335981334
+  },
+  {
+    "role": "tool_result",
+    "content": "No files found",
+    "is_error": false,
+    "timestamp": 1790335981347
+  },
+  {
+    "role": "tool",
+    "tool": "grep",
+    "input": {
+      "pattern": "production|planning|purchasing|inventory",
+      "path": "/root/Zheus AI Projects/controle-fabrica/src/lib",
+      "include": "*.ts"
+    },
+    "timestamp": 1790335981667
+  },
+  {
+    "role": "tool",
+    "tool": "glob",
+    "input": {
+      "pattern": "**/*",
+      "path": "/root/Zheus AI Projects/controle-fabrica/src/lib"
+    },
+    "timestamp": 1790335981672
+  },
+  {
+    "role": "tool_result",
+    "content": "/root/Zheus AI Projects/controle-fabrica/src/lib/finance/types.ts\n/root/Zheus AI Projects/controle-fabrica/src/lib/finance/export.ts\n/root/Zheus AI Projects/controle-fabrica/src/lib/finance/constants.ts\n/root/Zheus AI Projects/controle-fabrica/src/lib/finance/finance.functions.ts\n/root/Zheus AI Proj",
+    "is_error": false,
+    "timestamp": 1790335981691
+  },
+  {
+    "role": "tool_result",
+    "content": "Found 100 matches (more matches available)\n/root/Zheus AI Projects/controle-fabrica/src/lib/monitoring/logger.ts:\n  Line 25:     // In a production environment, this would send to a logging service (Datadog, Loggly, etc.)\n\n\n/root/Zheus AI Projects/controle-fabrica/src/lib/inventory/ledger.ts:\n  Line",
+    "is_error": false,
+    "timestamp": 1790335981694
+  },
+  {
+    "role": "tool",
+    "tool": "glob",
+    "input": {
+      "pattern": "**/*",
+      "path": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated"
+    },
+    "timestamp": 1790335981789
+  },
+  {
+    "role": "tool_result",
+    "content": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/admin.permissoes.tsx\n/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/admin.organizacao.tsx\n/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/perfil.tsx\n/root/Zheus AI Projects/controle-fabrica/src/",
+    "is_error": false,
+    "timestamp": 1790335981822
   }
 ]
