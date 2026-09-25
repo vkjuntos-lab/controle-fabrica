@@ -1,142 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "write",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/compras/reposicao.tsx",
-      "content": "import { createFileRoute } from \"@tanstack/react-router\";\nimport { ReposicaoPage } from \"@/components/purchasing/pages\";\nexport const Route = createFileRoute(\"/_authenticated/compras/reposicao\")({\n  head: () => ({\n    meta: [{ title: \"Compras — Reposição\" }, { name: \"robots\", content: \"noindex\" }],\n  }),\n  component: ReposicaoPage,\n});"
-    },
-    "timestamp": 1790286929564
-  },
-  {
-    "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1790286929570
-  },
-  {
-    "role": "tool",
-    "tool": "write",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/compras/configuracoes.tsx",
-      "content": "import { createFileRoute } from \"@tanstack/react-router\";\nimport { PurchasingSettingsPage } from \"@/components/purchasing/pages\";\nexport const Route = createFileRoute(\"/_authenticated/compras/configuracoes\")({\n  head: () => ({\n    meta: [{ title: \"Compras — Configurações\" }, { name: \"robots\", content: \"noindex\" }],\n  }),\n  component: PurchasingSettingsPage,\n});"
-    },
-    "timestamp": 1790286930107
-  },
-  {
-    "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1790286930112
-  },
-  {
-    "role": "tool",
-    "tool": "write",
-    "input": {
-      "content": "import { createFileRoute, Outlet, useRouterState } from \"@tanstack/react-router\";\nimport { FornecedoresPage } from \"@/components/purchasing/pages\";\nexport const Route = createFileRoute(\"/_authenticated/fornecedores\")({\n  head: () => ({\n    meta: [{ title: \"Fornecedores — Estratégia\" }, { name: \"robots\", content: \"noindex\" }],\n  }),\n  component: Page,\n});\nconst DETAIL = \"/_authenticated/fornecedores/$id\";\nfunction Page() {\n  const detail = useRouterState({ select: (s) => s.matches.some((m) => m.routeId === DETAIL) });\n  return detail ? <Outlet /> : <FornecedoresPage />;\n}",
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/fornecedores.tsx"
-    },
-    "timestamp": 1790286932865
-  },
-  {
-    "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1790286932885
-  },
-  {
-    "role": "tool",
-    "tool": "write",
-    "input": {
-      "content": "import { createFileRoute } from \"@tanstack/react-router\";\nimport { FornecedorDetailPage } from \"@/components/purchasing/pages\";\nexport const Route = createFileRoute(\"/_authenticated/fornecedores/$id\")({\n  head: () => ({\n    meta: [{ title: \"Fornecedor — Estratégia\" }, { name: \"robots\", content: \"noindex\" }],\n  }),\n  component: Page,\n});\nfunction Page() {\n  return <FornecedorDetailPage id={Route.useParams().id} />;\n}",
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/routes/_authenticated/fornecedores.$id.tsx"
-    },
-    "timestamp": 1790286933456
-  },
-  {
-    "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1790286933463
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
-      "limit": 15,
-      "offset": 488
-    },
-    "timestamp": 1790286935427
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx</path>\n<type>file</type>\n<content>\n488:                       </tr>\n489:                     </thead>\n490:                     <tbody>\n491:                       {rows.map((s) => (\n492:                         <tr key",
-    "is_error": false,
-    "timestamp": 1790286935479
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/purchasing/pages.tsx",
-      "newString": "<a href={`/fornecedores/${s.company_id}`} className=\"font-medium underline\">",
-      "oldString": "<a href={`/fornecedores/${s.supplier_id}`} className=\"font-medium underline\">"
-    },
-    "timestamp": 1790286937372
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790286937387
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n '\"scripts\"' -A 20 package.json"
-    },
-    "timestamp": 1790286939428
-  },
-  {
-    "role": "tool_result",
-    "content": "6:  \"scripts\": {\n7-    \"dev\": \"vite dev\",\n8-    \"build\": \"vite build\",\n9-    \"build:dev\": \"vite build --mode development\",\n10-    \"preview\": \"vite preview\",\n11-    \"lint\": \"eslint .\",\n12-    \"test\": \"vitest run\",\n13-    \"test:inventory:db\": \"python3 scripts/test-inventory-db.py\",\n14-    \"test:partne",
-    "is_error": false,
-    "timestamp": 1790286939462
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "npm run build 2>&1 | tail -60; echo \"EXIT ${PIPESTATUS[0]}\"",
-      "timeout": 600000
-    },
-    "timestamp": 1790286943180
-  },
-  {
-    "role": "tool_result",
-    "content": " \u001b[38;5;240m  │\u001b[0m \u001b[38;5;115mHelp\u001b[0m: For more information, see https://rolldown.rs/in-depth/directives#other-directives\n\u001b[38;5;246m───╯\u001b[0m\n\n\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@radix-ui/react-dismissable-layer/dist/index.mj",
-    "is_error": false,
-    "timestamp": 1790286962421
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -c \"compras\" src/routeTree.gen.ts; grep -c \"fornecedores\" src/routeTree.gen.ts; npx tsc --noEmit -p tsconfig.json 2>&1 | tee /tmp/opencode/tsc4.txt; echo \"EXIT ${PIPESTATUS[0]}\"",
-      "timeout": 300000
-    },
-    "timestamp": 1790286965191
-  },
-  {
-    "role": "tool_result",
-    "content": "160\n23\nEXIT 0\n",
-    "is_error": false,
-    "timestamp": 1790286989117
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "npx vitest run 2>&1 | tail -30; echo \"EXIT ${PIPESTATUS[0]}\"",
@@ -1684,5 +1548,149 @@
     "content": "46a2bc8 AI: alteracao automatica\n4b5a718 AI: alteracao automatica\ne4147c8 AI: alteracao automatica\n6eb8507 AI: alteracao automatica\na1049fb AI: alteracao automatica\n690a953 AI: alteracao automatica\ncff6658 AI: alteracao automatica\ned5c93c AI: alteracao automatica\n67bcb7a AI: alteracao automatica\nfda",
     "is_error": false,
     "timestamp": 1790334772307
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/PARTNERS.md",
+      "offset": 1,
+      "limit": 2500
+    },
+    "timestamp": 1790334775104
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/PARTNER-SHIPMENTS.md",
+      "offset": 1,
+      "limit": 2500
+    },
+    "timestamp": 1790334775107
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/docs/business/PARTNERS.md</path>\n<type>file</type>\n<content>\n1: # Empresas e parceiros — MASTER 006\n2: \n3: ## Estado e limites\n4: \n5: Implementação operacional no código, validada em PostgreSQL local. Publicação e smoke test\n6: autenticado continuam pen",
+    "is_error": false,
+    "timestamp": 1790334775146
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/docs/business/PARTNER-SHIPMENTS.md</path>\n<type>file</type>\n<content>\n1: # Remessas e devoluções — MASTER 006\n2: \n3: ## Estratégia física\n4: \n5: **Remessa não é venda. Remessa não gera automaticamente contas a receber.**\n6: **Estoque do parceiro é deriv",
+    "is_error": false,
+    "timestamp": 1790334775160
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/PARTNER-RECONCILIATION.md",
+      "offset": 1,
+      "limit": 2500
+    },
+    "timestamp": 1790334775308
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/docs/business/PARTNER-RECONCILIATION.md</path>\n<type>file</type>\n<content>\n1: # Reconciliação de parceiros — regras de negócio\n2: \n3: Domínio implementado no MASTER 007 sobre parceiros (MASTER 006), Inventory Ledger (MASTER 003),\n4: catálogo (MASTER 002",
+    "is_error": false,
+    "timestamp": 1790334775325
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/PARTNER-PRICING.md",
+      "offset": 1,
+      "limit": 2500
+    },
+    "timestamp": 1790334775592
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/docs/business/PARTNER-PRICING.md</path>\n<type>file</type>\n<content>\n1: # Tabelas de preço e regra comercial de parceiros\n2: \n3: Complemento do MASTER 007 ao domínio de reconciliação (ver PARTNER-RECONCILIATION.md).\n4: \n5: ## Visão\n6: \n7: O marketplace i",
+    "is_error": false,
+    "timestamp": 1790334775617
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/SUPPLIERS.md",
+      "offset": 1,
+      "limit": 2500
+    },
+    "timestamp": 1790334775836
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/GOODS-RECEIPT.md",
+      "offset": 1,
+      "limit": 2500
+    },
+    "timestamp": 1790334775839
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/docs/business/GOODS-RECEIPT.md</path>\n<type>file</type>\n<content>\n1: # Recebimento de Mercadorias — Goods Receipt\n2: \n3: Documento de negócio e modelo técnico do recebimento físico, inspeção e postagem (MASTER 010).\n4: Complementa `PURCHASING.md`. Este ",
+    "is_error": false,
+    "timestamp": 1790334775851
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/docs/business/SUPPLIERS.md</path>\n<type>file</type>\n<content>\n1: # Fornecedores — Suppliers\n2: \n3: Documento de negócio e modelo técnico do cadastro de fornecedores (MASTER 010). Complementa\n4: `PURCHASING.md` e `GOODS-RECEIPT.md`.\n5: \n6: ## Princípio c",
+    "is_error": false,
+    "timestamp": 1790334775856
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/architecture/ADR-001-initial-architecture.md",
+      "offset": 1,
+      "limit": 2000
+    },
+    "timestamp": 1790334776070
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/docs/architecture/ADR-001-initial-architecture.md</path>\n<type>file</type>\n<content>\n1: # ADR-001 — Arquitetura inicial\n2: \n3: - **Status:** aceito\n4: - **Data:** 2026-09-15\n5: - **Contexto do produto:** plataforma SaaS de gestão para uma fábrica (segme",
+    "is_error": false,
+    "timestamp": 1790334776082
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/architecture/ADR-006-PARTNER-SHIPMENTS.md",
+      "offset": 1,
+      "limit": 2000
+    },
+    "timestamp": 1790334776395
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/docs/architecture/ADR-006-PARTNER-SHIPMENTS.md</path>\n<type>file</type>\n<content>\n1: # ADR-006 — Remessa direta ao parceiro e núcleo único do ledger\n2: \n3: Status: implementado no código; validação local. Implantação pendente.\n4: \n5: ## Contexto\n6: \n7: ",
+    "is_error": false,
+    "timestamp": 1790334776411
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/architecture/ADR-007-PARTNER-RECONCILIATION.md",
+      "offset": 1,
+      "limit": 2000
+    },
+    "timestamp": 1790334776527
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/docs/architecture/ADR-007-PARTNER-RECONCILIATION.md</path>\n<type>file</type>\n<content>\n1: # ADR-007 — Reconciliação de parceiros, baixa única e fechamento idempotente\n2: \n3: Status: implementado no código; validação local. Implantação pendente.\n4: \n5: #",
+    "is_error": false,
+    "timestamp": 1790334776536
   }
 ]
