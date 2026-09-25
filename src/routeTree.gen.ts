@@ -61,6 +61,11 @@ import { Route as AuthenticatedParceirosIndexRouteImport } from './routes/_authe
 import { Route as AuthenticatedParceirosDevolucoesRouteImport } from './routes/_authenticated/parceiros/devolucoes'
 import { Route as AuthenticatedParceirosEstoqueRouteImport } from './routes/_authenticated/parceiros/estoque'
 import { Route as AuthenticatedParceirosRemessasRouteImport } from './routes/_authenticated/parceiros/remessas'
+import { Route as AuthenticatedPlanejamentoIndexRouteImport } from './routes/_authenticated/planejamento/index'
+import { Route as AuthenticatedPlanejamentoConfiguracoesRouteImport } from './routes/_authenticated/planejamento/configuracoes'
+import { Route as AuthenticatedPlanejamentoExecucoesRouteImport } from './routes/_authenticated/planejamento/execucoes'
+import { Route as AuthenticatedPlanejamentoForecastRouteImport } from './routes/_authenticated/planejamento/forecast'
+import { Route as AuthenticatedPlanejamentoSimulacaoRouteImport } from './routes/_authenticated/planejamento/simulacao'
 import { Route as AuthenticatedPrecificacaoIndexRouteImport } from './routes/_authenticated/precificacao/index'
 import { Route as AuthenticatedProdutosIdRouteImport } from './routes/_authenticated/produtos.$id'
 import { Route as AuthenticatedReconciliacaoIndexRouteImport } from './routes/_authenticated/reconciliacao/index'
@@ -83,6 +88,7 @@ import { Route as AuthenticatedFinanceiroReceberIdRouteImport } from './routes/_
 import { Route as AuthenticatedParceirosDevolucoesIdRouteImport } from './routes/_authenticated/parceiros/devolucoes_.$id'
 import { Route as AuthenticatedParceirosEmpresasIdRouteImport } from './routes/_authenticated/parceiros/empresas.$id'
 import { Route as AuthenticatedParceirosRemessasIdRouteImport } from './routes/_authenticated/parceiros/remessas_.$id'
+import { Route as AuthenticatedPlanejamentoExecucoesIdRouteImport } from './routes/_authenticated/planejamento/execucoes_.$id'
 import { Route as AuthenticatedReconciliacaoPeriodosIdRouteImport } from './routes/_authenticated/reconciliacao/periodos_.$id'
 import { Route as AuthenticatedReconciliacaoTabelasPrecoIdRouteImport } from './routes/_authenticated/reconciliacao/tabelas-preco_.$id'
 
@@ -388,6 +394,36 @@ const AuthenticatedParceirosRemessasRoute =
     path: '/parceiros/remessas',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPlanejamentoIndexRoute =
+  AuthenticatedPlanejamentoIndexRouteImport.update({
+    id: '/planejamento/',
+    path: '/planejamento/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPlanejamentoConfiguracoesRoute =
+  AuthenticatedPlanejamentoConfiguracoesRouteImport.update({
+    id: '/planejamento/configuracoes',
+    path: '/planejamento/configuracoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPlanejamentoExecucoesRoute =
+  AuthenticatedPlanejamentoExecucoesRouteImport.update({
+    id: '/planejamento/execucoes',
+    path: '/planejamento/execucoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPlanejamentoForecastRoute =
+  AuthenticatedPlanejamentoForecastRouteImport.update({
+    id: '/planejamento/forecast',
+    path: '/planejamento/forecast',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPlanejamentoSimulacaoRoute =
+  AuthenticatedPlanejamentoSimulacaoRouteImport.update({
+    id: '/planejamento/simulacao',
+    path: '/planejamento/simulacao',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPrecificacaoIndexRoute =
   AuthenticatedPrecificacaoIndexRouteImport.update({
     id: '/precificacao/',
@@ -517,6 +553,12 @@ const AuthenticatedParceirosRemessasIdRoute =
     path: '/parceiros/remessas/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedPlanejamentoExecucoesIdRoute =
+  AuthenticatedPlanejamentoExecucoesIdRouteImport.update({
+    id: '/planejamento/execucoes_/$id',
+    path: '/planejamento/execucoes/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedReconciliacaoPeriodosIdRoute =
   AuthenticatedReconciliacaoPeriodosIdRouteImport.update({
     id: '/reconciliacao/periodos_/$id',
@@ -577,6 +619,10 @@ export interface FileRoutesByFullPath {
   '/parceiros/devolucoes': typeof AuthenticatedParceirosDevolucoesRoute
   '/parceiros/estoque': typeof AuthenticatedParceirosEstoqueRoute
   '/parceiros/remessas': typeof AuthenticatedParceirosRemessasRoute
+  '/planejamento/configuracoes': typeof AuthenticatedPlanejamentoConfiguracoesRoute
+  '/planejamento/execucoes': typeof AuthenticatedPlanejamentoExecucoesRoute
+  '/planejamento/forecast': typeof AuthenticatedPlanejamentoForecastRoute
+  '/planejamento/simulacao': typeof AuthenticatedPlanejamentoSimulacaoRoute
   '/produtos/$id': typeof AuthenticatedProdutosIdRoute
   '/reconciliacao/excecoes': typeof AuthenticatedReconciliacaoExcecoesRoute
   '/reconciliacao/lojas': typeof AuthenticatedReconciliacaoLojasRoute
@@ -592,6 +638,7 @@ export interface FileRoutesByFullPath {
   '/estoque/': typeof AuthenticatedEstoqueIndexRoute
   '/financeiro/': typeof AuthenticatedFinanceiroIndexRoute
   '/parceiros/': typeof AuthenticatedParceirosIndexRoute
+  '/planejamento/': typeof AuthenticatedPlanejamentoIndexRoute
   '/precificacao/': typeof AuthenticatedPrecificacaoIndexRoute
   '/reconciliacao/': typeof AuthenticatedReconciliacaoIndexRoute
   '/compras/cotacoes/$id': typeof AuthenticatedComprasCotacoesIdRoute
@@ -604,6 +651,7 @@ export interface FileRoutesByFullPath {
   '/parceiros/devolucoes/$id': typeof AuthenticatedParceirosDevolucoesIdRoute
   '/parceiros/empresas/$id': typeof AuthenticatedParceirosEmpresasIdRoute
   '/parceiros/remessas/$id': typeof AuthenticatedParceirosRemessasIdRoute
+  '/planejamento/execucoes/$id': typeof AuthenticatedPlanejamentoExecucoesIdRoute
   '/reconciliacao/periodos/$id': typeof AuthenticatedReconciliacaoPeriodosIdRoute
   '/reconciliacao/tabelas-preco/$id': typeof AuthenticatedReconciliacaoTabelasPrecoIdRoute
 }
@@ -654,6 +702,10 @@ export interface FileRoutesByTo {
   '/parceiros/devolucoes': typeof AuthenticatedParceirosDevolucoesRoute
   '/parceiros/estoque': typeof AuthenticatedParceirosEstoqueRoute
   '/parceiros/remessas': typeof AuthenticatedParceirosRemessasRoute
+  '/planejamento/configuracoes': typeof AuthenticatedPlanejamentoConfiguracoesRoute
+  '/planejamento/execucoes': typeof AuthenticatedPlanejamentoExecucoesRoute
+  '/planejamento/forecast': typeof AuthenticatedPlanejamentoForecastRoute
+  '/planejamento/simulacao': typeof AuthenticatedPlanejamentoSimulacaoRoute
   '/produtos/$id': typeof AuthenticatedProdutosIdRoute
   '/reconciliacao/excecoes': typeof AuthenticatedReconciliacaoExcecoesRoute
   '/reconciliacao/lojas': typeof AuthenticatedReconciliacaoLojasRoute
@@ -669,6 +721,7 @@ export interface FileRoutesByTo {
   '/estoque': typeof AuthenticatedEstoqueIndexRoute
   '/financeiro': typeof AuthenticatedFinanceiroIndexRoute
   '/parceiros': typeof AuthenticatedParceirosIndexRoute
+  '/planejamento': typeof AuthenticatedPlanejamentoIndexRoute
   '/precificacao': typeof AuthenticatedPrecificacaoIndexRoute
   '/reconciliacao': typeof AuthenticatedReconciliacaoIndexRoute
   '/compras/cotacoes/$id': typeof AuthenticatedComprasCotacoesIdRoute
@@ -681,6 +734,7 @@ export interface FileRoutesByTo {
   '/parceiros/devolucoes/$id': typeof AuthenticatedParceirosDevolucoesIdRoute
   '/parceiros/empresas/$id': typeof AuthenticatedParceirosEmpresasIdRoute
   '/parceiros/remessas/$id': typeof AuthenticatedParceirosRemessasIdRoute
+  '/planejamento/execucoes/$id': typeof AuthenticatedPlanejamentoExecucoesIdRoute
   '/reconciliacao/periodos/$id': typeof AuthenticatedReconciliacaoPeriodosIdRoute
   '/reconciliacao/tabelas-preco/$id': typeof AuthenticatedReconciliacaoTabelasPrecoIdRoute
 }
@@ -733,6 +787,10 @@ export interface FileRoutesById {
   '/_authenticated/parceiros/devolucoes': typeof AuthenticatedParceirosDevolucoesRoute
   '/_authenticated/parceiros/estoque': typeof AuthenticatedParceirosEstoqueRoute
   '/_authenticated/parceiros/remessas': typeof AuthenticatedParceirosRemessasRoute
+  '/_authenticated/planejamento/configuracoes': typeof AuthenticatedPlanejamentoConfiguracoesRoute
+  '/_authenticated/planejamento/execucoes': typeof AuthenticatedPlanejamentoExecucoesRoute
+  '/_authenticated/planejamento/forecast': typeof AuthenticatedPlanejamentoForecastRoute
+  '/_authenticated/planejamento/simulacao': typeof AuthenticatedPlanejamentoSimulacaoRoute
   '/_authenticated/produtos/$id': typeof AuthenticatedProdutosIdRoute
   '/_authenticated/reconciliacao/excecoes': typeof AuthenticatedReconciliacaoExcecoesRoute
   '/_authenticated/reconciliacao/lojas': typeof AuthenticatedReconciliacaoLojasRoute
@@ -748,6 +806,7 @@ export interface FileRoutesById {
   '/_authenticated/estoque/': typeof AuthenticatedEstoqueIndexRoute
   '/_authenticated/financeiro/': typeof AuthenticatedFinanceiroIndexRoute
   '/_authenticated/parceiros/': typeof AuthenticatedParceirosIndexRoute
+  '/_authenticated/planejamento/': typeof AuthenticatedPlanejamentoIndexRoute
   '/_authenticated/precificacao/': typeof AuthenticatedPrecificacaoIndexRoute
   '/_authenticated/reconciliacao/': typeof AuthenticatedReconciliacaoIndexRoute
   '/_authenticated/compras/cotacoes/$id': typeof AuthenticatedComprasCotacoesIdRoute
@@ -760,6 +819,7 @@ export interface FileRoutesById {
   '/_authenticated/parceiros/devolucoes_/$id': typeof AuthenticatedParceirosDevolucoesIdRoute
   '/_authenticated/parceiros/empresas/$id': typeof AuthenticatedParceirosEmpresasIdRoute
   '/_authenticated/parceiros/remessas_/$id': typeof AuthenticatedParceirosRemessasIdRoute
+  '/_authenticated/planejamento/execucoes_/$id': typeof AuthenticatedPlanejamentoExecucoesIdRoute
   '/_authenticated/reconciliacao/periodos_/$id': typeof AuthenticatedReconciliacaoPeriodosIdRoute
   '/_authenticated/reconciliacao/tabelas-preco_/$id': typeof AuthenticatedReconciliacaoTabelasPrecoIdRoute
 }
@@ -812,6 +872,10 @@ export interface FileRouteTypes {
     | '/parceiros/devolucoes'
     | '/parceiros/estoque'
     | '/parceiros/remessas'
+    | '/planejamento/configuracoes'
+    | '/planejamento/execucoes'
+    | '/planejamento/forecast'
+    | '/planejamento/simulacao'
     | '/produtos/$id'
     | '/reconciliacao/excecoes'
     | '/reconciliacao/lojas'
@@ -827,6 +891,7 @@ export interface FileRouteTypes {
     | '/estoque/'
     | '/financeiro/'
     | '/parceiros/'
+    | '/planejamento/'
     | '/precificacao/'
     | '/reconciliacao/'
     | '/compras/cotacoes/$id'
@@ -839,6 +904,7 @@ export interface FileRouteTypes {
     | '/parceiros/devolucoes/$id'
     | '/parceiros/empresas/$id'
     | '/parceiros/remessas/$id'
+    | '/planejamento/execucoes/$id'
     | '/reconciliacao/periodos/$id'
     | '/reconciliacao/tabelas-preco/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -889,6 +955,10 @@ export interface FileRouteTypes {
     | '/parceiros/devolucoes'
     | '/parceiros/estoque'
     | '/parceiros/remessas'
+    | '/planejamento/configuracoes'
+    | '/planejamento/execucoes'
+    | '/planejamento/forecast'
+    | '/planejamento/simulacao'
     | '/produtos/$id'
     | '/reconciliacao/excecoes'
     | '/reconciliacao/lojas'
@@ -904,6 +974,7 @@ export interface FileRouteTypes {
     | '/estoque'
     | '/financeiro'
     | '/parceiros'
+    | '/planejamento'
     | '/precificacao'
     | '/reconciliacao'
     | '/compras/cotacoes/$id'
@@ -916,6 +987,7 @@ export interface FileRouteTypes {
     | '/parceiros/devolucoes/$id'
     | '/parceiros/empresas/$id'
     | '/parceiros/remessas/$id'
+    | '/planejamento/execucoes/$id'
     | '/reconciliacao/periodos/$id'
     | '/reconciliacao/tabelas-preco/$id'
   id:
@@ -967,6 +1039,10 @@ export interface FileRouteTypes {
     | '/_authenticated/parceiros/devolucoes'
     | '/_authenticated/parceiros/estoque'
     | '/_authenticated/parceiros/remessas'
+    | '/_authenticated/planejamento/configuracoes'
+    | '/_authenticated/planejamento/execucoes'
+    | '/_authenticated/planejamento/forecast'
+    | '/_authenticated/planejamento/simulacao'
     | '/_authenticated/produtos/$id'
     | '/_authenticated/reconciliacao/excecoes'
     | '/_authenticated/reconciliacao/lojas'
@@ -982,6 +1058,7 @@ export interface FileRouteTypes {
     | '/_authenticated/estoque/'
     | '/_authenticated/financeiro/'
     | '/_authenticated/parceiros/'
+    | '/_authenticated/planejamento/'
     | '/_authenticated/precificacao/'
     | '/_authenticated/reconciliacao/'
     | '/_authenticated/compras/cotacoes/$id'
@@ -994,6 +1071,7 @@ export interface FileRouteTypes {
     | '/_authenticated/parceiros/devolucoes_/$id'
     | '/_authenticated/parceiros/empresas/$id'
     | '/_authenticated/parceiros/remessas_/$id'
+    | '/_authenticated/planejamento/execucoes_/$id'
     | '/_authenticated/reconciliacao/periodos_/$id'
     | '/_authenticated/reconciliacao/tabelas-preco_/$id'
   fileRoutesById: FileRoutesById
@@ -1374,6 +1452,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedParceirosRemessasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/planejamento/': {
+      id: '/_authenticated/planejamento/'
+      path: '/planejamento'
+      fullPath: '/planejamento/'
+      preLoaderRoute: typeof AuthenticatedPlanejamentoIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/planejamento/configuracoes': {
+      id: '/_authenticated/planejamento/configuracoes'
+      path: '/planejamento/configuracoes'
+      fullPath: '/planejamento/configuracoes'
+      preLoaderRoute: typeof AuthenticatedPlanejamentoConfiguracoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/planejamento/execucoes': {
+      id: '/_authenticated/planejamento/execucoes'
+      path: '/planejamento/execucoes'
+      fullPath: '/planejamento/execucoes'
+      preLoaderRoute: typeof AuthenticatedPlanejamentoExecucoesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/planejamento/forecast': {
+      id: '/_authenticated/planejamento/forecast'
+      path: '/planejamento/forecast'
+      fullPath: '/planejamento/forecast'
+      preLoaderRoute: typeof AuthenticatedPlanejamentoForecastRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/planejamento/simulacao': {
+      id: '/_authenticated/planejamento/simulacao'
+      path: '/planejamento/simulacao'
+      fullPath: '/planejamento/simulacao'
+      preLoaderRoute: typeof AuthenticatedPlanejamentoSimulacaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/precificacao/': {
       id: '/_authenticated/precificacao/'
       path: '/precificacao'
@@ -1526,6 +1639,13 @@ declare module '@tanstack/react-router' {
       path: '/parceiros/remessas/$id'
       fullPath: '/parceiros/remessas/$id'
       preLoaderRoute: typeof AuthenticatedParceirosRemessasIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/planejamento/execucoes_/$id': {
+      id: '/_authenticated/planejamento/execucoes_/$id'
+      path: '/planejamento/execucoes/$id'
+      fullPath: '/planejamento/execucoes/$id'
+      preLoaderRoute: typeof AuthenticatedPlanejamentoExecucoesIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/reconciliacao/periodos_/$id': {
@@ -1687,6 +1807,10 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedParceirosDevolucoesRoute: typeof AuthenticatedParceirosDevolucoesRoute
   AuthenticatedParceirosEstoqueRoute: typeof AuthenticatedParceirosEstoqueRoute
   AuthenticatedParceirosRemessasRoute: typeof AuthenticatedParceirosRemessasRoute
+  AuthenticatedPlanejamentoConfiguracoesRoute: typeof AuthenticatedPlanejamentoConfiguracoesRoute
+  AuthenticatedPlanejamentoExecucoesRoute: typeof AuthenticatedPlanejamentoExecucoesRoute
+  AuthenticatedPlanejamentoForecastRoute: typeof AuthenticatedPlanejamentoForecastRoute
+  AuthenticatedPlanejamentoSimulacaoRoute: typeof AuthenticatedPlanejamentoSimulacaoRoute
   AuthenticatedReconciliacaoExcecoesRoute: typeof AuthenticatedReconciliacaoExcecoesRoute
   AuthenticatedReconciliacaoLojasRoute: typeof AuthenticatedReconciliacaoLojasRoute
   AuthenticatedReconciliacaoMapeamentoRoute: typeof AuthenticatedReconciliacaoMapeamentoRoute
@@ -1699,6 +1823,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedEstoqueIndexRoute: typeof AuthenticatedEstoqueIndexRoute
   AuthenticatedFinanceiroIndexRoute: typeof AuthenticatedFinanceiroIndexRoute
   AuthenticatedParceirosIndexRoute: typeof AuthenticatedParceirosIndexRoute
+  AuthenticatedPlanejamentoIndexRoute: typeof AuthenticatedPlanejamentoIndexRoute
   AuthenticatedPrecificacaoIndexRoute: typeof AuthenticatedPrecificacaoIndexRoute
   AuthenticatedReconciliacaoIndexRoute: typeof AuthenticatedReconciliacaoIndexRoute
   AuthenticatedFinanceiroPagarIdRoute: typeof AuthenticatedFinanceiroPagarIdRoute
@@ -1706,6 +1831,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedParceirosDevolucoesIdRoute: typeof AuthenticatedParceirosDevolucoesIdRoute
   AuthenticatedParceirosEmpresasIdRoute: typeof AuthenticatedParceirosEmpresasIdRoute
   AuthenticatedParceirosRemessasIdRoute: typeof AuthenticatedParceirosRemessasIdRoute
+  AuthenticatedPlanejamentoExecucoesIdRoute: typeof AuthenticatedPlanejamentoExecucoesIdRoute
   AuthenticatedReconciliacaoPeriodosIdRoute: typeof AuthenticatedReconciliacaoPeriodosIdRoute
   AuthenticatedReconciliacaoTabelasPrecoIdRoute: typeof AuthenticatedReconciliacaoTabelasPrecoIdRoute
 }
@@ -1763,6 +1889,14 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedParceirosDevolucoesRoute: AuthenticatedParceirosDevolucoesRoute,
   AuthenticatedParceirosEstoqueRoute: AuthenticatedParceirosEstoqueRoute,
   AuthenticatedParceirosRemessasRoute: AuthenticatedParceirosRemessasRoute,
+  AuthenticatedPlanejamentoConfiguracoesRoute:
+    AuthenticatedPlanejamentoConfiguracoesRoute,
+  AuthenticatedPlanejamentoExecucoesRoute:
+    AuthenticatedPlanejamentoExecucoesRoute,
+  AuthenticatedPlanejamentoForecastRoute:
+    AuthenticatedPlanejamentoForecastRoute,
+  AuthenticatedPlanejamentoSimulacaoRoute:
+    AuthenticatedPlanejamentoSimulacaoRoute,
   AuthenticatedReconciliacaoExcecoesRoute:
     AuthenticatedReconciliacaoExcecoesRoute,
   AuthenticatedReconciliacaoLojasRoute: AuthenticatedReconciliacaoLojasRoute,
@@ -1780,6 +1914,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedEstoqueIndexRoute: AuthenticatedEstoqueIndexRoute,
   AuthenticatedFinanceiroIndexRoute: AuthenticatedFinanceiroIndexRoute,
   AuthenticatedParceirosIndexRoute: AuthenticatedParceirosIndexRoute,
+  AuthenticatedPlanejamentoIndexRoute: AuthenticatedPlanejamentoIndexRoute,
   AuthenticatedPrecificacaoIndexRoute: AuthenticatedPrecificacaoIndexRoute,
   AuthenticatedReconciliacaoIndexRoute: AuthenticatedReconciliacaoIndexRoute,
   AuthenticatedFinanceiroPagarIdRoute: AuthenticatedFinanceiroPagarIdRoute,
@@ -1788,6 +1923,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedParceirosDevolucoesIdRoute,
   AuthenticatedParceirosEmpresasIdRoute: AuthenticatedParceirosEmpresasIdRoute,
   AuthenticatedParceirosRemessasIdRoute: AuthenticatedParceirosRemessasIdRoute,
+  AuthenticatedPlanejamentoExecucoesIdRoute:
+    AuthenticatedPlanejamentoExecucoesIdRoute,
   AuthenticatedReconciliacaoPeriodosIdRoute:
     AuthenticatedReconciliacaoPeriodosIdRoute,
   AuthenticatedReconciliacaoTabelasPrecoIdRoute:

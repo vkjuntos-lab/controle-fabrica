@@ -975,6 +975,21 @@ export type Database = {
       };
     };
     Functions: {
+      planning_query: {
+        Args: { _org: string; _kind: string; _filters?: Json; _page?: number; _export?: boolean };
+        Returns: Json;
+      };
+      planning_save: { Args: { _org: string; _kind: string; _data: Json }; Returns: Json };
+      planning_execute: { Args: { _org: string; _data: Json }; Returns: Json };
+      planning_order_action: {
+        Args: { _org: string; _id: string; _action: string; _data?: Json };
+        Returns: Json;
+      };
+      planning_exception_action: {
+        Args: { _org: string; _id: string; _action: string; _data?: Json };
+        Returns: Json;
+      };
+
       cost_query: {
         Args: { _org: string; _kind: string; _filters?: Json; _page?: number; _export?: boolean };
         Returns: Json;

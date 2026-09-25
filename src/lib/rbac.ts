@@ -41,6 +41,15 @@ export const ROLE_DESCRIPTIONS: Record<AppRole, string> = {
 
 /** Permissões atualmente reconhecidas pela aplicação. */
 export const PERMISSIONS = {
+  planningRead: "planning.read",
+  planningRun: "planning.run",
+  planningSimulate: "planning.simulate",
+  planningAdjustForecast: "planning.adjust_forecast",
+  planningApproveSuggestion: "planning.approve_suggestion",
+  planningConvertPurchase: "planning.convert_purchase",
+  planningConvertProduction: "planning.convert_production",
+  planningExport: "planning.export",
+
   costsRead: "costs.read",
   costsCalculate: "costs.calculate",
   costsSimulate: "costs.simulate",
@@ -172,6 +181,14 @@ export const PERMISSIONS = {
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 
 export const PERMISSION_LABELS: Record<string, string> = {
+  "planning.read": "Ver planejamento",
+  "planning.run": "Executar planejamento e configurar parâmetros",
+  "planning.simulate": "Simular planejamento",
+  "planning.adjust_forecast": "Ajustar forecast",
+  "planning.approve_suggestion": "Revisar sugestões",
+  "planning.convert_purchase": "Converter em requisição de compra",
+  "planning.convert_production": "Converter em ordem de produção",
+  "planning.export": "Exportar planejamento",
   "costs.read": "Ver custos",
   "costs.calculate": "Calcular custos",
   "costs.simulate": "Simular custos",

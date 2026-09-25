@@ -767,7 +767,7 @@ BEGIN
       organization_id,planning_run_id,variant_id,source_kind,parent_planned_order_id,
       required_quantity,available_quantity,scheduled_receipt_quantity,net_requirement,planning_quantity,
       required_date,suggested_order_date,unit_of_measure_id,block_reason)
-    VALUES(_org,_run,_variant,_source,v_bom.id IS NOT NULL AND _oqid IS NOT NULL AND v_item_type IN ('FINISHED_GOOD','SEMI_FINISHED_GOOD') THEN NULL ELSE v_oqid END,
+    VALUES(_org,_run,_variant,_source,CASE WHEN v_bom.id IS NOT NULL AND v_oqid IS NOT NULL AND v_item_type IN ('FINISHED_GOOD','SEMI_FINISHED_GOOD') THEN NULL ELSE v_oqid END,
       v_dem,v_avail,v_sched,greatest(0,v_net),greatest(0,v_net),b, v_odate, v_unit, CASE WHEN v_is_short=1 THEN 'Sem sugestão viável' ELSE NULL END)
     ON CONFLICT (organization_id,planning_run_id,variant_id,source_kind,required_date) DO UPDATE SET
       required_quantity=EXCLUDED.required_quantity,
@@ -793,3 +793,16 @@ BEGIN
   END IF;
 END
 $$;
+
+-- Installation repair: the repository draft ended before COMMIT and lacked RLS/grants.
+-- No legacy planning helper is exposed; the completion migration supplies the public engine.
+DO $$ DECLARE t text; f record; BEGIN
+ FOREACH t IN ARRAY ARRAY['planning_settings','planning_scenarios','planning_availability','forecast_adjustments','planning_runs','planned_orders','material_requirements','projected_shortages','planning_exceptions'] LOOP
+  EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY',t);
+  EXECUTE format('REVOKE ALL ON public.%I FROM PUBLIC,anon,authenticated',t);
+ END LOOP;
+ FOR f IN SELECT oid::regprocedure sig FROM pg_proc WHERE pronamespace='public'::regnamespace AND (proname LIKE 'planning_%' OR proname LIKE 'pln_%') LOOP
+  EXECUTE format('REVOKE ALL ON FUNCTION %s FROM PUBLIC,anon,authenticated',f.sig);
+ END LOOP;
+END $$;
+COMMIT;
