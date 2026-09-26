@@ -328,8 +328,9 @@ export function RecordDialog({
 }) {
   const api = useServerFn(saveCrm);
   const usable = (fields ?? area.fields).filter(
-    // O vínculo com a empresa é imutável: trocar a empresa cria outro cliente.
-    (item) => !(record && item.key === "company_id" && area.query === "customers"),
+    // Campos imutáveis somem na edição: o servidor criaria um registro paralelo
+    // em vez de recusar, e a tela deve dizer que a troca não existe.
+    (item) => !(record && (area.immutableOnEdit ?? []).includes(item.key)),
   );
   const [values, setValues] = useState<FormState>(() => ({
     ...(initialValues ?? {}),
@@ -338,19 +339,29 @@ export function RecordDialog({
 
   const save = useMutation({
     mutationFn: async () => {
-      const payload: Record<string, unknown> = { ...values };
-      if (record) payload.id = record.id;
-      usable.forEach((item) => {
-        if (payload[item.key] === "" || payload[item.key] === undefined) {
-          delete payload[item.key];
-          return;
+      const steps = saveSteps(area);
+      if (!steps.length) throw new Error("Área sem gravação configurada.");
+      let previous: { id?: string } = {};
+      for (const step of steps) {
+        if (step.onlyExisting && !record) continue;
+        const payload: Record<string, unknown> = {};
+        for (const key of step.fields) {
+          const raw = values[key];
+          if (raw === undefined) continue;
+          // Campo vazio é removido, nunca enviado como string vazia: em patch
+          // isso zeraria um número e em insert quebraria um NOT NULL.
+          if (raw === "") continue;
+          const field = area.fields.find((item) => item.key === key);
+          payload[key] = field?.type === "number" ? numeric(raw) : raw;
         }
-        if (item.type === "number") {
-          const parsed = Number(payload[item.key]);
-          payload[item.key] = Number.isFinite(parsed) ? parsed : null;
-        }
-      });
-      await api({ data: { organizationId: org, kind: area.save!, values: payload } });
+        const stepId = step.usePreviousId ? previous.id ?? record?.id : record?.id;
+        if (stepId) payload.id = stepId;
+        if (!Object.keys(payload).some((key) => key !== "id")) continue;
+        const result = await api({
+          data: { organizationId: org, kind: step.kind, values: payload },
+        });
+        if (typeof result?.id === "string") previous = { id: result.id };
+      }
     },
     onSuccess: () => {
       toast.success(record ? "Registro atualizado." : "Registro criado.");
