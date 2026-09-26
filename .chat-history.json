@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/crm/list.tsx"
-    },
-    "timestamp": 1790412711062
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/components/crm/list.tsx</path>\n<type>file</type>\n<content>\n1: import { useEffect, useState, type ReactNode } from \"react\";\n2: import { useMutation, useQueryClient } from \"@tanstack/react-query\";\n3: import { useServerFn } from \"@tanstack/react-start\"",
-    "is_error": false,
-    "timestamp": 1790412711103
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -n \"required\" src/components/ui/select.tsx | head -20; echo \"--- org-context ---\"; grep -n \"hasPermission\\|currentOrganization\" src/lib/org/org-context.tsx | head -20; echo \"--- listOrganizationMembers ---\"; grep -n \"listOrganizationMembers\" -A 25 src/lib/org/organizations.functions.ts | head -40",
@@ -1625,5 +1611,20 @@
     "content": "False False\n",
     "is_error": false,
     "timestamp": 1790413709970
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "# Leads, qualificação e conversão\n\nData: 26/09/2026. MASTER 012.\n\nUm lead é um contato ainda não convertido. Ele existe em `leads`, com origem, responsável,\nqualificação e consentimento de contato, e vira cliente e oportunidade por uma única ação\nidempotente.\n\n## Ciclo de vida\n\n`NEW` → `CONTACTED` → `QUALIFIED` → `CONVERTED`, com `DISQUALIFIED` como saída de qualificação\ne `NURTURE` como espera.\n\nA conversão não apaga o lead: o registro vira `CONVERTED` e guarda `converted_customer_id` e\n`converted_opportunity_id`. O histórico de como a conta foi conquistada é tão comercial quanto a\nconta, e perder esse vínculo inviabilisa a leitura de marketing sobre origem de receita.\n\n## Qualificação\n\nFaixa (`score`) e campos estruturados definem apriorização. A tela de lead mostra a perda\nesperada de cada oportunidade já convertida a partir daquela origem, porque a qualificação é\nmelhorada por evidência histórica e não por intuição.\n\nMotivo de desqualificação é obrigatório ao sair para `DISQUALIFIED` e grava em\n`crm_operation_keys` junto da ação, o que impede que o mesmo lead seja desqualificado com\nmotivos contraditórios sem deixar rastro.\n\n## Conversão\n\nA conversão é uma **única** ação de `crm_action` com a chave de idempotência, e executa em\ntransação:\n\n1. cria ou reutiliza a empresa, a partir do nome e documento informados;\n2. cria o contato, ou reutiliza o existente pelo e-mail dentro da organização;\n3. cria o `customer_profile` com o segmento e a condição de pagamento herdados do lead;\n4. cria a oportunidade no pipeline padrão, na primeira etapa, com o valor e a itens informados;\n5. atribui o responsável e registra a atividade de conversão;\n6. marca o lead como `CONVERTED` com os ids gerados.\n\nReenviar a mesma chave devolve o resultado original. A conversão parcial é impossível: ou os\nseis passos acontecem, ou nenhum.\n\nA conversão exige `leads.convert`, permissão separada de `leads.create`. Um usuário pode\ncapturar e qualificar sem poder criar oportunidade comercial — a segregação de funções não\ndepende só do RBAC do papel, mas da permissão da ação.\n\n## Origem\n\n`commercial_sources` registra o canal. A origem acompanha lead, cliente e oportunidade, o que\npermite comparar conversão e margem por canal sem planilha paralela.\n\n## Limitações\n\nSem verificação de e-mail, sem score automático, sem enriquecimento de dados e sem disparo de\ncampanha. O consentimento é registrado, mas nada é enviado automaticamente: isso depende do\nMASTER 013.\n",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/LEADS.md"
+    },
+    "timestamp": 1790413719137
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790413719143
   }
 ]
