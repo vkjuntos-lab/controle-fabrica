@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"src/components/crm/customers.tsx\")\ns = p.read_text()\ns = s.replace('import { Picker, ResultState, Shell, StatusBadge, money, str } from \"./shared\";',\n              'import { Picker, ResultState, Shell, StatusBadge, money, selectClass, str } from \"./shared\";', 1)\np.write_text(s)\nprint(\"ok\")\nPY\ngrep -n \"export const\" src/lib/crm/constants.ts"
-    },
-    "timestamp": 1790412813617
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n9:export const LEAD_STATUS: Record<string, string> = {\n20:export const LEAD_ELIGIBLE_STATUS = [\"NEW\", \"CONTACT_ATTEMPTED\", \"CONTACTED\", \"QUALIFIED\"] as const;\n22:export const OPPORTUNITY_STATUS: Record<string, string> = {\n30:export const OPEN_OPPORTUNITY_STATUS = [\"OPEN\"] as const;\n32:export cons",
-    "is_error": false,
-    "timestamp": 1790412813687
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && npx tsc --noEmit 2>&1 | grep -E \"crm|Found\" | head -40"
     },
     "timestamp": 1790412816088
@@ -1616,5 +1602,19 @@
     "content": "  441:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components\n\n✖ 12 problems (0 errors, 12 warnings)\n\n ✓ src/lib/csv.test.ts (5 tests) 5ms\n ✓ src/lib/middleware/rate-limit.test.t",
     "is_error": false,
     "timestamp": 1790413839518
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && head -50 docs/handoff/PROJECT-STATE.md"
+    },
+    "timestamp": 1790413841593
+  },
+  {
+    "role": "tool_result",
+    "content": "# Estado do projeto — handoff contínuo\n\n## Revisão de continuidade — 26/09/2026 (MASTER 011)\n\nO checkout já continha o esqueleto do MASTER 011. Esta revisão corrigiu o motor, fechou lacunas de\ninterface e documentou o domínio. Não iniciou outro projeto nem outro domínio, e não reescreveu\nmigration p",
+    "is_error": false,
+    "timestamp": 1790413841626
   }
 ]
