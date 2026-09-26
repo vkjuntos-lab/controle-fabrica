@@ -1,19 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"sed -n '198,257p' supabase/migrations/20261001100000_purchasing.sql; sed -n '344,386p' supabase/migrations/20261001100000_purchasing.sql; sed -n '695,728p' supabase/migrations/20261001100000_purchasing.sql; cat docs/architecture/*.md; cat docs/business/CORE-BUSINESS.md\""
-    },
-    "timestamp": 1790342063533
-  },
-  {
-    "role": "tool_result",
-    "content": "CREATE TABLE public.supplier_products (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations,\n  supplier_id uuid NOT NULL REFERENCES public.supplier_profiles,\n  variant_id uuid NOT NULL REFERENCES public.product_variants,\n  supplier_sku tex",
-    "is_error": false,
-    "timestamp": 1790342063542
-  },
-  {
     "role": "tool_result",
     "content": "",
     "is_error": true,
@@ -1398,5 +1384,21 @@
     "content": "58: table=json.loads(call('price_save_table',org,{'code':'B2B','name':'B2B','valid_from':'2020-01-01'}))['id']\n59: for v in variants:call('pricing_publish',org,{'price_table_id':table,'variant_id':v,'unit_price':10,'valid_from':'2020-01-01'})\n71: for v in variants:call('pricing_publish',org,{'price_",
     "is_error": false,
     "timestamp": 1790411784209
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 3000 python3 scripts/test-crm-db.py\" 2>&1 | tail -30",
+      "timeout": 3000000,
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790411785885
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS A: supplier gains customer role without duplicate Company\nPASS B: concurrent lead conversion idempotent; contact and history retained\nPASS C: portfolio changes preserve prior assignments and opportunity owner\nPASS D: item quantities sum to 60; stage snapshots; no stock writes\nTraceback (most re",
+    "is_error": false,
+    "timestamp": 1790411788425
   }
 ]
