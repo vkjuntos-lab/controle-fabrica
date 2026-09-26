@@ -975,6 +975,9 @@ export type Database = {
       };
     };
     Functions: {
+      crm_query: { Args: { _org: string; _kind: string; _filters?: Json; _page?: number; _export?: boolean }; Returns: Json };
+      crm_save: { Args: { _org: string; _kind: string; _data: Json }; Returns: Json };
+      crm_action: { Args: { _org: string; _kind: string; _id: string; _action: string; _data: Json; _key: string }; Returns: Json };
       planning_query: {
         Args: { _org: string; _kind: string; _filters?: Json; _page?: number; _export?: boolean };
         Returns: Json;
