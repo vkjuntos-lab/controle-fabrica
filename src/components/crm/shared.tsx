@@ -225,16 +225,17 @@ export function Pager({
 type MemberOption = { user_id: string; full_name: string | null; email: string | null };
 
 /**
- * Seletor de referência. Busca no servidor com `crm_query` — exceto membros,
- * que vêm da lista real de `organization_members` porque não são um kind do
- * CRM. A organização nunca é adivinhada: a busca sempre usa a organização ativa.
+ * Seletor de referência. Busca no servidor com `crm_query` e sempre na
+ * organização ativa — a organização nunca é adivinhada. Membros também são um
+ * `kind` do CRM (`members`), então seguem a mesma permissão e o mesmo isolamento,
+ * em vez de depender de `users.read`, que é permissão de administração de
+ * usuários e esconderia o responsável de um lead de quem pode ver o lead.
  */
 export function Picker({
   org,
   kind,
   value,
   onChange,
-  required = false,
   label,
   id,
 }: {
@@ -242,12 +243,10 @@ export function Picker({
   kind: string;
   value: string;
   onChange: (value: string) => void;
-  required?: boolean;
   label?: string;
   id?: string;
 }) {
   const api = useServerFn(queryCrm);
-  const membersFn = useServerFn(listOrganizationMembers);
   const [term, setTerm] = useState("");
   const [page, setPage] = useState(1);
 
@@ -256,20 +255,6 @@ export function Picker({
   const options = useQuery({
     queryKey: ["crm", org, "picker", kind, term, page],
     queryFn: async () => {
-      if (kind === "members") {
-        const list = (await membersFn({ data: { organizationId: org } })) as MemberOption[];
-        return {
-          rows: list
-            .filter((member) => !term || `${member.full_name ?? ""} ${member.email ?? ""}`
-              .toLowerCase()
-              .includes(term.toLowerCase()))
-            .map((member) => ({
-              id: member.user_id,
-              name: member.full_name || member.email || member.user_id,
-            })) as CrmRow[],
-          total: list.length,
-        };
-      }
       const response = await api({
         data: { organizationId: org, kind, filters: term ? { q: term } : {}, page },
       });
@@ -287,14 +272,14 @@ export function Picker({
     <div className="space-y-1">
       {label ? <Label htmlFor={id}>{label}</Label> : null}
       <Input
-        id={id}
+        id={id ? `${id}-busca` : undefined}
         placeholder="Buscar opções"
         value={term}
-        aria-label="Buscar opções"
+        aria-label={`${label ?? "Opção"}: buscar`}
         onChange={(event) => setTerm(event.target.value)}
       />
-      <Select value={value} onValueChange={onChange} required={required}>
-        <SelectTrigger id={id} aria-label="Selecione uma opção">
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger id={id} aria-label={label ?? "Selecione uma opção"}>
           <SelectValue placeholder="Selecione" />
         </SelectTrigger>
         <SelectContent>
@@ -315,6 +300,39 @@ export function Picker({
       <Pager page={page} total={options.data?.total ?? 0} setPage={setPage} />
     </div>
   );
+}
+
+/**
+ * Mapa id → nome das referências usadas nas colunas de uma área, para que a
+ * listagem mostre "Ana Souza" em vez do UUID. Uma consulta por `kind`, e apenas
+ * para as chaves realmente exibidas.
+ *
+ * O servidor decide a visibilidade: empresas fora da carteira do usuário não
+ * entram no mapa e a célula cai para um identificador curto, sem inventar nome.
+ */
+export function useRefLabels(org: string, refColumns?: Record<string, string>) {
+  const api = useServerFn(queryCrm);
+  const kinds = useMemo(
+    () => [...new Set(Object.values(refColumns ?? {}))].sort(),
+    [refColumns],
+  );
+  return useQuery({
+    queryKey: ["crm", org, "ref-labels", kinds],
+    queryFn: async () => {
+      const maps: Record<string, Record<string, string>> = {};
+      for (const kind of kinds) {
+        const response = await api({ data: { organizationId: org, kind, filters: {}, page: 1 } });
+        maps[kind] = Object.fromEntries(
+          (response.rows ?? []).map((row) => [
+            row.id,
+            str(row.name ?? row.legal_name ?? row.title ?? row.email ?? row.code),
+          ]),
+        );
+      }
+      return maps;
+    },
+    enabled: Boolean(org) && kinds.length > 0,
+  });
 }
 
 /** Formulário gerado a partir da área. Estado simples, como nos demais módulos. */
