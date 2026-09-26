@@ -184,12 +184,13 @@ function ListBody({
                         </td>
                       ))}
                       <td className="py-2 text-right">
-                        <div className="flex justify-end gap-2">
+                        <div className="flex flex-wrap justify-end gap-2">
                           {rowHref ? (
                             <Button asChild size="sm" variant="outline">
                               <a href={rowHref(row)}>Abrir</a>
                             </Button>
                           ) : null}
+                          {rowActions?.(row)}
                           {canWrite ? (
                             <Button size="sm" variant="outline" onClick={() => setEditing(row)}>
                               Editar
