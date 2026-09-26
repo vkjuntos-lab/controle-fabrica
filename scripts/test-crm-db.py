@@ -66,6 +66,7 @@ def run():
  action('quote',quote,'approve',{'reason':'Excede'},fail='alçada')
  authid=query('authorities')['rows'][0]['id']
  save('discount_authority',{'id':authid,'max_discount_percent':20,'reason':'Revisão'})
+ print('DEBUG authority=',sql(f"SELECT max_discount_percent||'|'||user_id||'|'||count(*) OVER () FROM commercial_discount_authorities WHERE organization_id={q(org)}"));print('DEBUG quote discount=',sql(f"SELECT discount_percent||'|'||status FROM sales_quotes WHERE id={q(quote)}"))
  action('quote',quote,'approve',{'reason':'Aprovado'})
  action('quote',quote,'send')
  for v in variants:call('pricing_publish',org,{'price_table_id':table,'variant_id':v,'unit_price':20,'valid_from':datetime.date.today().isoformat()})
