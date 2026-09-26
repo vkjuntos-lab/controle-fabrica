@@ -12,76 +12,71 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { actCrm, saveCrm, type CrmRow } from "@/lib/crm/crm.functions";
-import { LEAD_STATUS, leadStatusLabel } from "@/lib/crm/constants";
+import { actCrm, type CrmRow } from "@/lib/crm/crm.functions";
+import { LEAD_STATUS } from "@/lib/crm/constants";
 import { useOrganization } from "@/lib/org/org-context";
 import { areas } from "./config";
-import { useCrmQuery } from "./data";
-import { CrmListPage, RecordDialog } from "./list";
-import { Picker, StatusBadge, str } from "./shared";
+import { CrmListPage } from "./list";
+import { Picker, str } from "./shared";
 
 const area = areas.leads;
 
 /**
- * Tela de leads. A conversão é uma transição do servidor (`crm_action` com
- * `kind=lead`), não um INSERT de cliente: ela exige lead qualificado, procura
- * o contato pelo e-mail/telefone antes de criar e é idempotente pela chave de
- * operação, então repetir o clique não duplica empresa nem oportunidade.
+ * Tela de leads.
+ *
+ * A conversão é uma transição do servidor (`crm_action` com `kind=lead`), não
+ * um INSERT de cliente: exige lead qualificado, procura contato existente pelo
+ * e-mail/telefone antes de criar e é idempotente pela chave de operação — repetir
+ * o clique não duplica empresa nem oportunidade.
  */
 export function LeadsPage() {
   const { hasPermission } = useOrganization();
   const [converting, setConverting] = useState<CrmRow | null>(null);
+
   return (
-    <CrmListPage
-      area={area}
-      title="Comercial · Leads"
-      intro="O lead existe antes do cadastro empresarial. Só um lead qualificado pode ser convertido; a desqualificação exige motivo configurado."
-      extraActions={
-        hasPermission("leads.convert") ? (
-          <Button
-            variant="outline"
-            onClick={() => {
-              const list = document.querySelector<HTMLSelectElement>("#leads-convert");
-              if (list?.value) {
-                window.location.href = `/comercial/leads?convertir=${list.value}`;
-              }
-            }}
-            className="hidden"
-          >
-            Converter
-          </Button>
-        ) : null
-      }
-      toolbar={
-        hasPermission("leads.convert") ? <ConvertTrigger onPick={setConverting} /> : null
-      }
-      rowKey={(row) => row.id}
-    />
+    <>
+      <CrmListPage
+        area={area}
+        title="Comercial · Leads"
+        intro="O lead existe antes do cadastro empresarial. Só um lead qualificado pode ser convertido, e a desqualificação exige um motivo configurado."
+        rowActions={(row) => {
+          if (!hasPermission("leads.convert")) return null;
+          if (String(row.status) !== "QUALIFIED") return null;
+          return (
+            <Button size="sm" variant="outline" onClick={() => setConverting(row)}>
+              Converter
+            </Button>
+          );
+        }}
+      />
+      {converting ? (
+        <ConvertDialog org={useOrganizationOrg()} lead={converting} onClose={() => setConverting(null)} />
+      ) : null}
+    </>
   );
 }
 
-function ConvertTrigger({ onPick }: { onPick: (row: CrmRow) => void }) {
-  return (
-    <span className="hidden" aria-hidden>
-      <Trigger onPick={onPick} />
-    </span>
-  );
+/** Organização ativa, lida uma única vez para montar o diálogo. */
+function useOrganizationOrg() {
+  return useOrganization().currentOrganization?.organization_id ?? "";
 }
 
-function Trigger({ onPick }: { onPick: (row: CrmRow) => void }) {
-  return <button type="button" onClick={() => onPick({ id: "" })} className="hidden" />;
-}
-
-/** Seleção do lead a converter: apenas os qualificados são elegíveis. */
-function ConvertDialog({ org, lead, onClose }: { org: string; lead: CrmRow; onClose: () => void }) {
+function ConvertDialog({
+  org,
+  lead,
+  onClose,
+}: {
+  org: string;
+  lead: CrmRow;
+  onClose: () => void;
+}) {
   const api = useServerFn(actCrm);
   const client = useQueryClient();
   const [stage, setStage] = useState("");
   const [title, setTitle] = useState("");
-  const [reason, setReason] = useState("");
-  const [operationKey, setOperationKey] = useState(() => crypto.randomUUID());
+  const [operationKey, setOperationKey] = useState(() => newOperationKey());
 
   const convert = useMutation({
     mutationFn: async () => {
@@ -105,7 +100,12 @@ function ConvertDialog({ org, lead, onClose }: { org: string; lead: CrmRow; onCl
       void client.invalidateQueries({ queryKey: ["crm"] });
       onClose();
     },
-    onError: (error: Error) => toast.error(error.message),
+    onError: (error: Error) => {
+      // Uma nova chave só é sorteada quando a tentativa falha: repetir a mesma
+      // requisição devolve o mesmo resultado, uma falha pode ser corrigida.
+      setOperationKey(newOperationKey());
+      toast.error(error.message);
+    },
   });
 
   return (
@@ -127,28 +127,17 @@ function ConvertDialog({ org, lead, onClose }: { org: string; lead: CrmRow; onCl
           <Picker org={org} kind="stages" value={stage} onChange={setStage} label="Etapa inicial" />
           <div className="space-y-1">
             <Label htmlFor="lead-convert-title">Título da oportunidade</Label>
-            <input
+            <Input
               id="lead-convert-title"
-              className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
               value={title}
               placeholder="Opcional — usa o nome do lead"
               onChange={(event) => setTitle(event.target.value)}
             />
           </div>
-          <div className="space-y-1 sm:col-span-2">
-            <Label htmlFor="lead-convert-reason">Motivo da conversão</Label>
-            <Textarea
-              id="lead-convert-reason"
-              rows={2}
-              value={reason}
-              placeholder="Opcional — fica no histórico da operação"
-              onChange={(event) => setReason(event.target.value)}
-            />
-          </div>
         </div>
         <p className="text-xs text-muted-foreground">
-          A empresa é criada somente quando necessário: informe uma empresa existente no cadastro do
-          lead para vincular em vez de criar.
+          Status atual: {LEAD_STATUS[str(lead.status)] ?? str(lead.status)}. A empresa é criada
+          somente quando necessário; se o lead já estiver vinculado a uma empresa, ela é reaproveitada.
         </p>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
@@ -163,11 +152,5 @@ function ConvertDialog({ org, lead, onClose }: { org: string; lead: CrmRow; onCl
   );
 }
 
-/** Painel de leads com a ação de conversão disponível por linha. */
-export function LeadsBoard() {
-  return (
-    <CrmListPage area={area} title="Comercial · Leads" rowKey={(row) => row.id} />
-  );
-}
-
-export { ConvertDialog, leadStatusLabel, LEAD_STATUS, saveCrm, StatusBadge, useCrmQuery };
+/** Chave de idempotência da operação de conversão. */
+export const newOperationKey = () => crypto.randomUUID();
