@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { EmptyState, ErrorState, LoadingState, PermissionDenied } from "@/components/states";
-import { listOrganizationMembers } from "@/lib/org/organizations.functions";
 import { useOrganization } from "@/lib/org/org-context";
 import { queryCrm, type CrmRow } from "@/lib/crm/crm.functions";
 import {
@@ -222,8 +221,6 @@ export function Pager({
   );
 }
 
-type MemberOption = { user_id: string; full_name: string | null; email: string | null };
-
 /**
  * Seletor de referência. Busca no servidor com `crm_query` e sempre na
  * organização ativa — a organização nunca é adivinhada. Membros também são um
@@ -366,7 +363,6 @@ export function Fields({
                 kind={item.lookup}
                 value={values[item.key] ?? ""}
                 onChange={(next) => set(item.key, next)}
-                required={item.required}
                 label={item.label}
                 id={inputId}
               />
