@@ -802,7 +802,19 @@ BEGIN
  PERFORM public.crm_require(_org,'crm.read');
  IF _export THEN PERFORM public.crm_require(_org,'crm.export'); END IF;
  IF _page<1 OR _page>100000 THEN RAISE EXCEPTION 'Página inválida.'; END IF;
- IF _kind='finance' THEN
+ IF _kind='members' THEN
+  -- Lista de nomes da própria organização, usada por responsáveis, alçadas e
+  -- gestores. Não exige `users.read` (permissão de administration de usuários):
+  -- exibir o nome de um colega da mesma organização não é administrar usuários,
+  -- e exigir a permissão de usuários esconderia o responsável de um lead.
+  PERFORM public.crm_require(_org,'crm.read');
+  IF NOT public.is_org_member(_org) THEN RAISE EXCEPTION 'Organização não autorizada.'; END IF;
+  SELECT coalesce(jsonb_agg(jsonb_build_object('id',m.user_id,'name',coalesce(p.full_name,p.email,m.user_id::text))),'[]') INTO result
+  FROM organization_members m LEFT JOIN profiles p ON p.id=m.user_id
+  WHERE m.organization_id=_org AND m.is_active
+   AND (nullif(_filters->>'q','') IS NULL OR coalesce(p.full_name,p.email,'') ILIKE '%'||(_filters->>'q')||'%');
+  RETURN jsonb_build_object('rows',result,'total',jsonb_array_length(result));
+ ELSIF _kind='finance' THEN
   PERFORM public.crm_require(_org,'commercial_sensitive.read');PERFORM public.crm_require(_org,'receivables.read');
   IF company IS NULL OR NOT public.crm_company_access(_org,company) THEN RAISE EXCEPTION 'Empresa não autorizada.'; END IF;
   RETURN public.crm_financial_position(_org,company);
