@@ -1,5 +1,40 @@
 # Estado do projeto — handoff contínuo
 
+## Revisão de continuidade — 26/09/2026 (MASTER 012)
+
+O checkout já continha o schema e as funções do CRM em `20261005100000_crm.sql`. Esta revisão
+implementou a interface sobre esse contrato, corrigiu um defeito de escrita e fechou a lacuna de
+documentação. Nenhuma migration publicada foi reescrita e nenhum outro módulo foi alterado, exceto
+permissões e menu necessários para o comercial existir.
+
+O defeito corrigido: `crm_save` sobrescrevia colunas ausentes do payload com o default do schema,
+apagando dado já gravado em um update parcial. Preservar campo omitido é o que permite, por
+exemplo, editar o responsável de um cliente sem tocar no limite de crédito. Também foi adicionado o
+kind `members` ao `crm_query`, para que a lista de responsáveis não dependa de `users.read` — um
+comercial não precisa de permissão de administration para atribuir um cliente.
+
+Interface entregue em `src/components/crm/*`: cadastro comercial unificado, leads e conversão,
+contatos, clientes e Customer 360, representantes e carteiras, pipeline com kanban, detalhe e
+histórico de etapas, propostas com itens, versões, aprovação e aceite, atividades e agenda,
+relatórios e configurações comerciais, com 15 rotas em `src/routes/_authenticated/comercial/`. A
+configuração é declarativa em `config.ts`, e `crm.test.ts` amarra essa configuração ao SQL: todo
+`kind` usado por área, lookup, filtro ou coluna precisa existir no `crm_query`/`crm_save`, e toda
+permissão precisa bater com a exigida pelo servidor. Esse teste já encontrou duas falhas reais —
+`commercial_status` sem rótulo, que apareceria como `ACTIVE` cru no cadastro de clientes, e
+`QUOTE_FLOW` sem os status terminais.
+
+Documentação criada: [CRM](../business/CRM.md), [LEADS](../business/LEADS.md),
+[SALES-PIPELINE](../business/SALES-PIPELINE.md), [SALES-REPRESENTATIVES](../business/SALES-REPRESENTATIVES.md),
+[SALES-QUOTES](../business/SALES-QUOTES.md), [CUSTOMER-360](../business/CUSTOMER-360.md),
+[COMMERCIAL-POLICIES](../business/COMMERCIAL-POLICIES.md) e
+[ADR 010](../architecture/ADR-010-CRM.md). Relatório: [MASTER-012-VALIDATION](MASTER-012-VALIDATION.md).
+
+Não implementado por decisão de escopo e por depender de integração futura: motor de pedidos de
+venda, reserva definitiva de estoque, separação e expedição, faturamento fiscal, NF-e, WhatsApp,
+campanhas, comissionamento financeiro liquidado e previsão comercial apresentada como garantia.
+São do MASTER 013. Também não houve smoke test autenticado no Lovable Cloud: a aplicação da
+migration e o funcionamento em navegador publicado continuam não verificados.
+
 ## Revisão de continuidade — 26/09/2026 (MASTER 011)
 
 O checkout já continha o esqueleto do MASTER 011. Esta revisão corrigiu o motor, fechou lacunas de
