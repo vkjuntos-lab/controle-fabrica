@@ -13,8 +13,10 @@ def run():
 
  a,b,c,org,other,ext=[uid() for _ in range(6)]
  sql(f"INSERT INTO auth.users(id,email) VALUES({q(a)},'crm@test'),({q(b)},'commercial@test'),({q(c)},'other@test'),({q(ext)},'external@test');INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'CRM',{q(org)},{q(a)}),({q(other)},'Other',{q(other)},{q(c)});INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(b)},'comercial'),({q(org)},{q(ext)},'comercial')")
- def rpc(name,*args,user=a,fail=None):
-  value=db.call(name,','.join(q(json.dumps(x) if isinstance(x,(dict,list)) else x) if x is not None else 'NULL' for x in args),user,fail)
+ def call(name,*args,user=a,fail=None):
+  return db.call(name,','.join(q(json.dumps(x) if isinstance(x,(dict,list)) else x) if x is not None else 'NULL' for x in args),user,fail)
+ def rpc(name,*args,**kw):
+  value=call(name,*args,**kw)
   return json.loads(value) if value else None
  def save(kind,data,**kw):return rpc('crm_save',org,kind,data,**kw)
  def action(kind,id,verb,data={},key=None,**kw):return rpc('crm_action',org,kind,id,verb,data,key or uid(),**kw)
