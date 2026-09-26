@@ -64,7 +64,7 @@ vir zerada. A UI esconde o campo, mas quem tem acesso à API continua protegido:
 decidida no `crm_query`, não no componente.
 
 `crm_query` também é o caminho de exportação. Com `export = true` a mesma consulta devolve o
-recorte filtrado, sem需要 o cliente reimplementar a regra.
+recorte filtrado, sem que o cliente reimplemente a regra.
 
 ## Status comercial
 
@@ -89,7 +89,7 @@ próprias consultáveis, porque o CRM precisa mostrar a linha do tempo, não só
 
 `company_merge_requests` recebe o par de empresas e o motivo. A mesclagem **não** é executada
 pela interface: ela é enviada para análise, e a decisão fica registrada. Isso evita que um erro
-de digitação no cadastroozinho apague histórico comercial de uma razão social inteira.
+de digitação no cadastro apague histórico comercial de uma razão social inteira.
 
 ## Integrações
 
