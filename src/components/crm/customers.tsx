@@ -20,7 +20,7 @@ import { useOrganization } from "@/lib/org/org-context";
 import { areas } from "./config";
 import { asRecord, useCrmDetail, useCrmQuery } from "./data";
 import { CrmListPage } from "./list";
-import { Picker, ResultState, Shell, StatusBadge, money, str } from "./shared";
+import { Picker, ResultState, Shell, StatusBadge, money, selectClass, str } from "./shared";
 
 const area = areas.clientes;
 
