@@ -67,10 +67,7 @@ export function AssignPortfolioButton() {
     <>
       <Button onClick={() => setOpen(true)}>Atribuir carteira</Button>
       {open && currentOrganization ? (
-        <AssignDialog
-          org={currentOrganization.organization_id}
-          onClose={() => setOpen(false)}
-        />
+        <AssignDialog org={currentOrganization.organization_id} onClose={() => setOpen(false)} />
       ) : null}
     </>
   );
@@ -124,7 +121,13 @@ function AssignDialog({ org, onClose }: { org: string; onClose: () => void }) {
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Picker org={org} kind="companies" value={companyId} onChange={setCompanyId} label="Cliente" />
+          <Picker
+            org={org}
+            kind="companies"
+            value={companyId}
+            onChange={setCompanyId}
+            label="Cliente"
+          />
           <Picker
             org={org}
             kind="representatives"
@@ -169,13 +172,9 @@ export function RepresentativePortfolioPage({ id }: { id: string }) {
   const { currentOrganization, hasPermission } = useOrganization();
   const rows = useCrmQuery(currentOrganization?.organization_id ?? "", "portfolios", {}, 1);
   const companies = useCrmQuery(currentOrganization?.organization_id ?? "", "companies", {}, 1);
-  const assignments = asRowsFrom(rows.data).filter(
-    (row) => String(row.representative_id) === id,
-  );
+  const assignments = asRowsFrom(rows.data).filter((row) => String(row.representative_id) === id);
   const name = (row: CrmRow) => str(row.name ?? row.legal_name ?? row.id);
-  const companyName = new Map(
-    asRowsFrom(companies.data).map((row) => [row.id, name(row)]),
-  );
+  const companyName = new Map(asRowsFrom(companies.data).map((row) => [row.id, name(row)]));
 
   return (
     <div className="space-y-5">
@@ -193,7 +192,10 @@ export function RepresentativePortfolioPage({ id }: { id: string }) {
                 {assignments
                   .filter((row) => !row.ended_at)
                   .map((row) => (
-                    <li key={row.id} className="flex items-center justify-between gap-3 border-b py-1">
+                    <li
+                      key={row.id}
+                      className="flex items-center justify-between gap-3 border-b py-1"
+                    >
                       <a
                         href={`/comercial/clientes/${String(row.company_id)}`}
                         className="hover:underline"

@@ -76,11 +76,7 @@ function Reports({ org }: { org: string }) {
         ) : null}
       </div>
 
-      <ResultState
-        loading={dashboard.isLoading}
-        error={dashboard.error}
-        empty={!dashboard.data}
-      >
+      <ResultState loading={dashboard.isLoading} error={dashboard.error} empty={!dashboard.data}>
         <Funnel dashboard={dashboard.data ?? {}} />
       </ResultState>
 
@@ -114,8 +110,8 @@ function Reports({ org }: { org: string }) {
         <CardContent className="space-y-2 pt-6">
           <h3 className="font-heading text-base font-semibold">Oportunidades por etapa</h3>
           <p className="text-xs text-muted-foreground">
-            Valor estimado somado pelo servidor no período selecionado. Opportunity não é receita:
-            o valor só vira receita com venda confirmada.
+            Valor estimado somado pelo servidor no período selecionado. Opportunity não é receita: o
+            valor só vira receita com venda confirmada.
           </p>
           <ResultState
             loading={opportunities.isLoading}
@@ -141,7 +137,9 @@ function Reports({ org }: { org: string }) {
           <h3 className="font-heading text-base font-semibold">Atividades</h3>
           <p className="text-sm text-muted-foreground">
             {number(activities.data?.total ?? 0, 0)} atividades registradas no escopo visível.
-            {sensitive ? "" : " Valores sensíveis não são consultados sem a permissão correspondente."}
+            {sensitive
+              ? ""
+              : " Valores sensíveis não são consultados sem a permissão correspondente."}
           </p>
         </CardContent>
       </Card>
@@ -199,7 +197,8 @@ function Funnel({ dashboard }: { dashboard: CrmResult }) {
           <p className="text-sm text-muted-foreground">Leads no período</p>
           <p className="text-2xl font-semibold tabular-nums">{number(leads, 0)}</p>
           <p className="text-xs text-muted-foreground">
-            {number(qualified, 0)} qualificados · {percent(dashboard.conversion_percent)} convertidos
+            {number(qualified, 0)} qualificados · {percent(dashboard.conversion_percent)}{" "}
+            convertidos
           </p>
         </CardContent>
       </Card>
@@ -226,10 +225,12 @@ function Funnel({ dashboard }: { dashboard: CrmResult }) {
       <Card>
         <CardContent className="pt-6">
           <p className="text-sm text-muted-foreground">Propostas</p>
-          <p className="text-2xl font-semibold tabular-nums">{number(dashboard.sent ?? 0, 0)} enviadas</p>
+          <p className="text-2xl font-semibold tabular-nums">
+            {number(dashboard.sent ?? 0, 0)} enviadas
+          </p>
           <p className="text-xs text-muted-foreground">
-            {number(dashboard.accepted ?? 0, 0)} aceitas · {percent(dashboard.acceptance_percent)} de
-            aceite sobre enviadas respondidas
+            {number(dashboard.accepted ?? 0, 0)} aceitas · {percent(dashboard.acceptance_percent)}{" "}
+            de aceite sobre enviadas respondidas
           </p>
         </CardContent>
       </Card>

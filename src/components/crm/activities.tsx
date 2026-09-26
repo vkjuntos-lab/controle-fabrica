@@ -52,10 +52,18 @@ export function ActivitiesPage() {
           if (!canManage || row.status !== "PENDING") return null;
           return (
             <>
-              <Button size="sm" variant="outline" onClick={() => setTarget({ row, mode: "complete" })}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setTarget({ row, mode: "complete" })}
+              >
                 Concluir
               </Button>
-              <Button size="sm" variant="outline" onClick={() => setTarget({ row, mode: "reschedule" })}>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setTarget({ row, mode: "reschedule" })}
+              >
                 Reagendar
               </Button>
             </>
@@ -88,7 +96,12 @@ export function ActivitiesPage() {
           description="A data anterior permanece no histórico da atividade. O servidor recusa reagendar sem motivo."
           confirmLabel="Reagendar"
           fields={[
-            { key: "scheduled_at", label: "Nova data e hora", type: "datetime-local", required: true },
+            {
+              key: "scheduled_at",
+              label: "Nova data e hora",
+              type: "datetime-local",
+              required: true,
+            },
             { key: "reason", label: "Motivo", type: "text", required: true },
           ]}
           onClose={() => setTarget(null)}
@@ -224,7 +237,9 @@ function MySchedule({ org }: { org: string }) {
           <ActivityGroup title="Atrasadas" rows={overdue} empty="Nada atrasado." />
           <ActivityGroup title="Próximas" rows={upcoming} empty="Nada agendado." />
         </div>
-        <p className="text-sm text-muted-foreground">{rows.length} atividades pendentes no total.</p>
+        <p className="text-sm text-muted-foreground">
+          {rows.length} atividades pendentes no total.
+        </p>
       </ResultState>
     </div>
   );
