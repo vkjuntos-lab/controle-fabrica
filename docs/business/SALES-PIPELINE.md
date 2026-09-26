@@ -34,7 +34,7 @@ de pipeline. O histórico é append-only: corrigir a看板 não reescreve o pass
 
 `WON` e `LOST` são finais. Uma oportunidade ganha não volta para aberto, porque seu sucessor
 natural é a proposta, e uma nova negociação é outra oportunidade. O ciclo previsto é comparado
-ao realizado na看板 de desempenho.
+ao realizado no quadro de desempenho.
 
 ## Exibição
 
@@ -46,5 +46,5 @@ responsável: um representante externo não vê a carteira de outro.
 ## Limitações
 
 Sem forecast probabilístico, sem pontuação de risco, sem automação de movimentação de etapa e
-sem forecast de receitaurry. A previsão comercial não é apresentada como garantia: o MASTER 012
+sem forecast de receita. A previsão comercial não é apresentada como garantia: o MASTER 012
 entrega histórico e ciclo, não promessa de fechamento.
