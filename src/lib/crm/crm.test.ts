@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { sanitizeFilters } from "@/lib/crm/export";
 import {
   ACTIVITY_TYPE,
+  COMMERCIAL_STATUS,
   COMMISSION_RATE_TYPE,
   COMMISSION_TRIGGER,
   CRM_FILTER_KEYS,
@@ -156,6 +157,7 @@ describe("rótulos das opções fixas", () => {
     ["kind", REASON_KIND],
     ["trigger_event", COMMISSION_TRIGGER],
     ["rate_type", COMMISSION_RATE_TYPE],
+    ["commercial_status", COMMERCIAL_STATUS],
   ];
 
   it("todo valor de option tem rótulo em português", () => {
