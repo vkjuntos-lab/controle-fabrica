@@ -368,7 +368,8 @@ export const PERMISSION_LABELS: Record<string, string> = {
   "representatives.read": "Ver representantes",
   "representatives.manage": "Gerenciar representantes",
   "portfolios.manage": "Transferir carteiras",
-  "commercial_sensitive.read": "Ver dados comerciais sensíveis (limite de crédito, margem, comissão)",
+  "commercial_sensitive.read":
+    "Ver dados comerciais sensíveis (limite de crédito, margem, comissão)",
 };
 
 /**
