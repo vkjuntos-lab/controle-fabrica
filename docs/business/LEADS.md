@@ -17,7 +17,7 @@ conta, e perder esse vínculo inviabilisa a leitura de marketing sobre origem de
 
 ## Qualificação
 
-Faixa (`score`) e campos estruturados definem apriorização. A tela de lead mostra a perda
+Faixa (`score`) e campos estruturados definem priorização. A tela de lead mostra a perda
 esperada de cada oportunidade já convertida a partir daquela origem, porque a qualificação é
 melhorada por evidência histórica e não por intuição.
 
