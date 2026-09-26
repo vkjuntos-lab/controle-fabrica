@@ -40,12 +40,23 @@ export const QUOTE_STATUS: Record<string, string> = {
   CANCELED: "Cancelada",
 };
 
-/** Transições que o servidor aceita; qualquer outra é recusada. */
+/**
+ * Transições que o servidor aceita; qualquer outra é recusada.
+ *
+ * `REJECTED`, `CANCELED` e `ACCEPTED` terminam o fluxo: `ACCEPTED` é
+ * irreversível porque outra versão não pode ser aceita depois dela. Um status
+ * ausente desta lista é terminal por definição — a lista é completa para todos os
+ * status de proposta, e um teste cobra isso.
+ */
 export const QUOTE_FLOW: Record<string, string[]> = {
   DRAFT: ["PENDING_APPROVAL"],
   PENDING_APPROVAL: ["APPROVED"],
   APPROVED: ["SENT"],
   SENT: ["ACCEPTED", "REJECTED"],
+  ACCEPTED: [],
+  REJECTED: [],
+  EXPIRED: [],
+  CANCELED: [],
 };
 
 export const ACTIVITY_TYPE: Record<string, string> = {

@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -rn \"organization_members\" src/lib/*/*.ts | head -20; echo \"---SUPPLIER QUERY members?---\"; grep -n \"'members'\\|\\\"members\\\"\" src/lib/*/*.ts | head",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790412430039
-  },
-  {
-    "role": "tool_result",
-    "content": "src/lib/org/organizations.functions.ts:145:      .from(\"organization_members\")\nsrc/lib/org/organizations.functions.ts:195:      .from(\"organization_members\")\nsrc/lib/org/organizations.functions.ts:205:      resource: \"organization_members\",\nsrc/lib/org/organizations.functions.ts:226:      .from(\"org",
-    "is_error": false,
-    "timestamp": 1790412430080
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sed -n '135,215p' src/lib/org/organizations.functions.ts",
       "workdir": "/root/Zheus AI Projects/controle-fabrica"
     },
@@ -1550,5 +1535,21 @@
     "content": "export const QUOTE_STATUS: Record<string, string> = {\n  DRAFT: \"Rascunho\",\n  PENDING_APPROVAL: \"Aguardando aprovação\",\n  APPROVED: \"Aprovada\",\n  SENT: \"Enviada\",\n  ACCEPTED: \"Aceita\",\n  REJECTED: \"Rejeitada\",\n  EXPIRED: \"Vencida\",\n  CANCELED: \"Cancelada\",\n};\n\n/** Transições que o servidor aceita; qu",
     "is_error": false,
     "timestamp": 1790413492152
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/crm/constants.ts",
+      "newString": "/**\n * Transições que o servidor aceita; qualquer outra é recusada.\n *\n * `REJECTED`, `CANCELED` e `ACCEPTED` terminam o fluxo: `ACCEPTED` é\n * irreversível porque outra versão não pode ser aceita depois dela. Um status\n * ausente desta lista é terminal por definição — a lista é completa para todos os\n * status de proposta, e um teste cobra isso.\n */\nexport const QUOTE_FLOW: Record<string, string[]> = {\n  DRAFT: [\"PENDING_APPROVAL\"],\n  PENDING_APPROVAL: [\"APPROVED\"],\n  APPROVED: [\"SENT\"],\n  SENT: [\"ACCEPTED\", \"REJECTED\"],\n  ACCEPTED: [],\n  REJECTED: [],\n  EXPIRED: [],\n  CANCELED: [],\n};\n",
+      "oldString": "/** Transições que o servidor aceita; qualquer outra é recusada. */\nexport const QUOTE_FLOW: Record<string, string[]> = {\n  DRAFT: [\"PENDING_APPROVAL\"],\n  PENDING_APPROVAL: [\"APPROVED\"],\n  APPROVED: [\"SENT\"],\n  SENT: [\"ACCEPTED\", \"REJECTED\"],\n};\n"
+    },
+    "timestamp": 1790413498708
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790413498721
   }
 ]
