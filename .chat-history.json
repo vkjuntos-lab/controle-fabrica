@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 3000 python3 scripts/test-crm-db.py\" 2>&1 | tail -30",
-      "timeout": 3000000,
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790411808665
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS A: supplier gains customer role without duplicate Company\nPASS B: concurrent lead conversion idempotent; contact and history retained\nPASS C: portfolio changes preserve prior assignments and opportunity owner\nPASS D: item quantities sum to 60; stage snapshots; no stock writes\nTraceback (most re",
-    "is_error": false,
-    "timestamp": 1790411811273
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'EOF'\np='scripts/test-crm-db.py'\ns=open(p).read()\ns=s.replace(\" action('quote',quote,'approve',{'reason':'Aprovado'})\",\" print('DEBUG authority=',sql(f\\\"SELECT max_discount_percent||'|'||user_id||'|'||count(*) OVER () FROM commercial_discount_authorities WHERE organization_id={q(org)}\\\"));print('DEBUG quote discount=',sql(f\\\"SELECT discount_percent||'|'||status FROM sales_quotes WHERE id={q(quote)}\\\"))\\n action('quote',quote,'approve',{'reason':'Aprovado'})\")\nopen(p,'w').write(s)\nEOF\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 3000 python3 scripts/test-crm-db.py\" 2>&1 | grep -E \"DEBUG|PASS|Error|error\" | head -20",
       "timeout": 3000000
     },
@@ -1631,5 +1615,19 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790413228412
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"src/components/crm/reports.tsx\")\ns = p.read_text()\ns = s.replace(\"Comandos de有心 — valores sensíveis não são consultados.\",\n              \"Valores sensíveis não são consultados sem a permissão correspondente.\", 1)\ns = s.replace('\\nexport { StatusBadge };\\n', '')\ns = s.replace('import { ResultState, Shell, StatusBadge, money, number, percent, str } from \"./shared\";',\n              'import { ResultState, Shell, money, number, percent, str } from \"./shared\";', 1)\np.write_text(s)\nprint(\"ok\")\nPY\nnpm run typecheck 2>&1 | tail -30"
+    },
+    "timestamp": 1790413231023
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n\n> typecheck\n> tsc --noEmit\n\nsrc/components/crm/reports.tsx(83,17): error TS2322: Type 'CrmResult' is not assignable to type 'Record<string, never>'.\n  'string' index signatures are incompatible.\n    Type 'Json | CrmRow[] | undefined' is not assignable to type 'never'.\n      Type 'undefined' is n",
+    "is_error": false,
+    "timestamp": 1790413256410
   }
 ]

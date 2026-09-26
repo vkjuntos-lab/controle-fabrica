@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useOrganization } from "@/lib/org/org-context";
 import { useCrmQuery } from "./data";
-import { ResultState, Shell, StatusBadge, money, number, percent, str } from "./shared";
+import { ResultState, Shell, money, number, percent, str } from "./shared";
 
 /**
  * Relatórios comerciais.
@@ -140,7 +140,7 @@ function Reports({ org }: { org: string }) {
           <h3 className="font-heading text-base font-semibold">Atividades</h3>
           <p className="text-sm text-muted-foreground">
             {number(activities.data?.total ?? 0, 0)} atividades registradas no escopo visível.
-            {sensitive ? "" : " Comandos de有心 — valores sensíveis não são consultados."}
+            {sensitive ? "" : " Valores sensíveis não são consultados sem a permissão correspondente."}
           </p>
         </CardContent>
       </Card>
@@ -246,5 +246,3 @@ function StatusBreakdown({ total, hint }: { total: number; hint?: string }) {
     </p>
   );
 }
-
-export { StatusBadge };
