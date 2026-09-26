@@ -38,6 +38,7 @@ export function CrmListPage({
   extraActions,
   rowHref,
   rowKey,
+  rowActions,
   toolbar,
   intro,
 }: {
@@ -46,6 +47,7 @@ export function CrmListPage({
   extraActions?: ReactNode;
   rowHref?: (row: CrmRow) => string;
   rowKey?: (row: CrmRow) => string;
+  rowActions?: (row: CrmRow) => ReactNode;
   toolbar?: ReactNode;
   intro?: string;
 }) {
@@ -58,6 +60,7 @@ export function CrmListPage({
           extraActions={extraActions}
           rowHref={rowHref}
           rowKey={rowKey}
+          rowActions={rowActions}
           toolbar={toolbar}
           intro={intro}
         />
@@ -72,6 +75,7 @@ function ListBody({
   extraActions,
   rowHref,
   rowKey,
+  rowActions,
   toolbar,
   intro,
 }: {
@@ -80,6 +84,7 @@ function ListBody({
   extraActions?: ReactNode;
   rowHref?: (row: CrmRow) => string;
   rowKey?: (row: CrmRow) => string;
+  rowActions?: (row: CrmRow) => ReactNode;
   toolbar?: ReactNode;
   intro?: string;
 }) {
