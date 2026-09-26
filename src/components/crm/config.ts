@@ -48,6 +48,30 @@ export type Area = {
   columns: string[];
   /** `kind` de `crm_query` usado como options em filtros. */
   filters?: { key: string; label: string; kind: string; permission: string }[];
+  /**
+   * Gravação em mais de um `crm_save`. O cliente comercial é o caso real: o
+   * vínculo empresa↔perfil e os atributos do perfil são tabelas diferentes, e o
+   * servidor trata as duas com permissões e efeitos colaterais próprios.
+   */
+  saves?: SaveStep[];
+  /** Campos que não podem mudar depois de criados (ver `saves`). */
+  immutableOnEdit?: string[];
+  /** Colunas de chave estrangeira e o `kind` usado para mostrar o nome. */
+  refColumns?: Record<string, string>;
+};
+
+export type SaveStep = {
+  /** `kind` enviado para `crm_save`. */
+  kind: string;
+  /** Campos do formulário pertencentes a este passo. */
+  fields: string[];
+  /**
+   * Usa como `id` o registro devolvido pelo passo anterior. Necessário quando o
+   * id do perfil só existe depois da criação do vínculo.
+   */
+  usePreviousId?: boolean;
+  /** Executa apenas quando o registro já existe. */
+  onlyExisting?: boolean;
 };
 
 const field = (key: string, label: string, extra: Partial<Field> = {}): Field => ({
