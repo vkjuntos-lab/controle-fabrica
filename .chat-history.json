@@ -1,19 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"cat supabase/migrations/20260704201919_2a9ff92d-3a4a-4e77-9c8c-2edc7ed0b932.sql | head -n 60; cat docs/business/CORE-BUSINESS.md; rg -n 'notification|storage|attachment|approval' src/lib src/components/partners | head -n 40; sed -n '107,118p' supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql; sed -n '110,135p' supabase/migrations/20260926100000_partner_reconciliation.sql; rg -n 'price|active|effective' src/lib/costs/costs.functions.ts | head; rg -n 'comercial|planejamento' src/components/layout/app-shell.tsx src/lib/rbac.ts\""
-    },
-    "timestamp": 1790386971947
-  },
-  {
-    "role": "tool_result",
-    "content": "\n-- Customers\nCREATE TABLE public.customers (\n  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),\n  cpf TEXT NOT NULL UNIQUE,\n  name TEXT NOT NULL,\n  phone TEXT,\n  tier TEXT NOT NULL DEFAULT 'Bronze',\n  cashback NUMERIC NOT NULL DEFAULT 0,\n  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),\n  updated_at T",
-    "is_error": false,
-    "timestamp": 1790386971960
-  },
-  {
     "role": "assistant",
     "content": "A auditoria encontrou Company, contatos, tabelas de preço versionadas, recebíveis e eventos de domínio reutilizáveis. Há também um cadastro antigo de clientes de varejo, sem o modelo organizacional do ERP; ele não será usado como base do CRM B2B. Vou vincular o perfil comercial à Company existente e proteger no servidor o acesso por carteira e os dados financeiros.\n",
     "timestamp": 1790386978162
@@ -1544,5 +1530,20 @@
     "content": "  PERFORM public.crm_require(_org,CASE WHEN _data->>'id' IS NULL THEN 'opportunities.create' ELSE 'opportunities.update' END);\n  company:=(_data->>'company_id')::uuid;\n  IF NOT public.crm_company_access(_org,company) THEN RAISE EXCEPTION 'Empresa fora da carteira.'; END IF;\n  SELECT to_jsonb(o) INTO",
     "is_error": false,
     "timestamp": 1790412678422
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '700,800p' supabase/migrations/20261005100000_crm.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790412680891
+  },
+  {
+    "role": "tool_result",
+    "content": "   IF _action='revise' THEN\n    SELECT * INTO quote FROM sales_quotes WHERE id=_id AND organization_id=_org FOR UPDATE;\n    IF NOT FOUND OR NOT public.crm_company_access(_org,quote.company_id) THEN RAISE EXCEPTION 'Proposta não encontrada.'; END IF;\n    IF EXISTS(SELECT 1 FROM sales_quotes WHERE org",
+    "is_error": false,
+    "timestamp": 1790412680924
   }
 ]
