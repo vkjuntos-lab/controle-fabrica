@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && npm run typecheck 2>&1 | tail -20"
-    },
-    "timestamp": 1790413003436
-  },
-  {
-    "role": "tool_result",
-    "content": "\n> typecheck\n> tsc --noEmit\n\n",
-    "is_error": false,
-    "timestamp": 1790413027826
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && npx eslint src/components/crm src/lib/crm 2>&1 | tail -60"
     },
     "timestamp": 1790413030576
@@ -1593,5 +1579,19 @@
     "content": ".env\n--- outras URLs ---\nhttps://example.supabase.co\nhttps://realtime.supabase.co\nhttps://xyzcompany.supabase.co\n--- cli supabase ---\nCLI ausente\nsem .temp (projeto nao linkado)\n",
     "is_error": false,
     "timestamp": 1790416565619
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && set -a && . ./.env 2>/dev/null; set +a; echo \"=== tabelas que o banco do .env realmente tem (procurando dominios ja entregues) ===\"; for t in organizations users profiles audit_log suppliers purchases planning_runs production_orders partner_shipments finance_accounts costing_runs products variants price_tables; do code=$(curl -s -o /dev/null -w \"%{http_code}\" \"$SUPABASE_URL/rest/v1/$t?select=*&limit=1\" -H \"apikey: $SUPABASE_PUBLISHABLE_KEY\"); printf \"%-24s %s\\n\" \"$t\" \"$code\"; done; echo; echo \"=== RPCs ja existem? ===\"; for f in crm_query planning_execute costing_compute partner_shipping_reconcile; do code=$(curl -s -o /tmp/f.json -w \"%{http_code}\" -X POST \"$SUPABASE_URL/rest/v1/rpc/$f\" -H \"apikey: $SUPABASE_PUBLISHABLE_KEY\" -H \"Content-Type: application/json\" -d '{}'); printf \"%-28s %s %s\\n\" \"$f\" \"$code\" \"$(head -c 90 /tmp/f.json)\"; done"
+    },
+    "timestamp": 1790416568721
+  },
+  {
+    "role": "tool_result",
+    "content": "=== tabelas que o banco do .env realmente tem (procurando dominios ja entregues) ===\norganizations            401\nusers                    404\nprofiles                 401\naudit_log                401\nsuppliers                404\npurchases                404\nplanning_runs            404\nproduction_o",
+    "is_error": false,
+    "timestamp": 1790416573834
   }
 ]
