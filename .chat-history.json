@@ -1,16 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "\n> test:planning:db\n> python3 scripts/test-planning-db.py\n\nPASS: target100 - onhand30 - pending20 = 50; run retry; planning has no operational/financial writes\nPASS: production100 × BOM .5 = material50; onhand20 + receipt10 -> net20; required minus 15 calendar days\nPASS: late receipt does not cover ",
-    "is_error": false,
-    "timestamp": 1790386294481
-  },
-  {
-    "role": "assistant",
-    "content": "Os testes ampliados passaram: 90 unidades em 30 dias geram média de 3 por dia; venda de parceiro é contada uma única vez; cancelamentos ficam fora; e a visão semanal preserva os saldos de abertura e fechamento. Estou concluindo o build e revisando a documentação para distinguir a validação local da publicação, que ainda não foi verificada.\n",
-    "timestamp": 1790386326487
-  },
-  {
     "role": "tool",
     "tool": "Bash",
     "input": {
@@ -1511,5 +1500,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790412464287
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "import { useQuery, type UseQueryResult } from \"@tanstack/react-query\";\nimport { useServerFn } from \"@tanstack/react-start\";\n\nimport { queryCrm, type CrmResult, type CrmRow } from \"@/lib/crm/crm.functions\";\nimport { sanitizeFilters } from \"@/lib/crm/export\";\n\nexport type CrmFilters = Record<string, string>;\n\n/** `crm_query` devolve `{ rows, total }` nas listagens e objetos nos demais kinds. */\nexport const asRows = (value: unknown): CrmRow[] =>\n  Array.isArray(value) ? (value as CrmRow[]) : [];\n\nexport const asRowsFrom = (response: CrmResult | undefined): CrmRow[] =>\n  asRows(response?.rows);\n\nexport const asRecord = (value: unknown): Record<string, unknown> =>\n  value && typeof value === \"object\" && !Array.isArray(value)\n    ? (value as Record<string, unknown>)\n    : {};\n\n/** Número de `crm_query` chega como string do Postgres (numeric). */\nexport const asNumber = (value: unknown, fallback = 0): number => {\n  const parsed = Number(value);\n  return Number.isFinite(parsed) ? parsed : fallback;\n};\n\n/**\n * Consulta tabular do CRM na organização ativa.\n *\n * A chave inclui a organização, o kind, os filtros e a página; a troca de\n * qualquer um deles invalida a página anterior. Filtros fora da lista branca\n * são removidos aqui para que a tela nunca finte um recorte que o servidor\n * não aplicou.\n */\nexport function useCrmQuery(\n  org: string | undefined,\n  kind: string,\n  filters: CrmFilters = {},\n  page = 1,\n  enabled = true,\n): UseQueryResult<CrmResult, Error> {\n  const api = useServerFn(queryCrm);\n  const clean = sanitizeFilters(filters);\n  return useQuery<CrmResult, Error>({\n    queryKey: [\"crm\", org, kind, clean, page],\n    queryFn: async () => {\n      const response = (await api({\n        data: { organizationId: org!, kind, filters: clean, page },\n      })) as CrmResult;\n      return response ?? {};\n    },\n    enabled: Boolean(org && enabled),\n  }) as UseQueryResult<CrmResult, Error>;\n}\n\n/** Opções de um seletor (segmentos, origens, pipelines, …) já paginadas. */\nexport function useCrmOptions(org: string | undefined, kind: string, enabled = true) {\n  return useCrmQuery(org, kind, {}, 1, enabled);\n}\n\n/**\n * Consulta não tabular (dashboard, finance, margin, stock, commission).\n * Esses kinds devolvem um objeto e nunca linhas paginadas.\n */\nexport function useCrmDetail(\n  org: string | undefined,\n  kind: string,\n  filters: CrmFilters = {},\n  enabled = true,\n): UseQueryResult<CrmResult, Error> {\n  const api = useServerFn(queryCrm);\n  const clean = sanitizeFilters(filters);\n  return useQuery<CrmResult, Error>({\n    queryKey: [\"crm\", org, kind, clean],\n    queryFn: async () => {\n      const response = (await api({\n        data: { organizationId: org!, kind, filters: clean, page: 1 },\n      })) as CrmResult;\n      return response ?? {};\n    },\n    enabled: Boolean(org && enabled),\n  }) as UseQueryResult<CrmResult, Error>;\n}\n",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/crm/data.ts"
+    },
+    "timestamp": 1790412475141
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790412475152
   }
 ]
