@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"src/components/crm/quotes.tsx\")\ns = p.read_text()\n\n# 1) asRows -> asRowsFrom (a resposta é {rows,total}, não array)\ns = s.replace('import { asNumber, asRecord, asRows, useCrmDetail, useCrmQuery } from \"./data\";',\n              'import { asNumber, asRecord, asRowsFrom, useCrmDetail, useCrmQuery } from \"./data\";', 1)\ns = s.replace('asRows(items.data)', 'asRowsFrom(items.data)')\ns = s.replace('asRows(approvals.data)', 'asRowsFrom(approvals.data)')\ns = s.replace('asRows(versions.data)', 'asRowsFrom(versions.data)')\ns = s.replace('asRows(commission.data)', 'asRowsFrom(commission.data)')\ns = s.replace('commission={asRows(commission.data)}', 'commission={asRowsFrom(commission.data)}')\ns = s.replace('commission: CrmRow[];', 'commission: CrmRow[];')\n\n# 2) QuotesPage: dialogo dentro do Shell (sem hook em JSX condicional)\ns = s.replace('''export function QuotesPage() {\n  const { hasPermission } = useOrganization();\n  const [creating, setCreating] = useState(false);\n  return (\n    <>\n      <CrmListPage\n        area={area}\n        title=\"Comercial · Propostas\"\n        intro=\"Toda proposta nasce de uma tabela de preços vigente e de um snapshot de produto e preço por item. Revisar cria uma nova versão com o mesmo número; a versão aceita nunca é reescrita.\"\n        extraActions={\n          hasPermission(\"quotes.create\") ? (\n            <Button onClick={() => setCreating(true)}>Nova proposta</Button>\n          ) : null\n        }\n        rowHref={(row) => `/comercial/propostas/${row.id}`}\n      />\n      {creating ? <QuoteDialog org={orgId()} onClose={() => setCreating(false)} /> : null}\n    </>\n  );\n}\n\n/** Organização ativa, usada só para montar o diálogo fora do `Shell`. */\nfunction orgId() {\n  return useOrganization().currentOrganization?.organization_id ?? \"\";\n}''',\n'''export function QuotesPage() {\n  return (\n    <CrmListPage\n      area={area}\n      title=\"Comercial · Propostas\"\n      intro=\"Toda proposta nasce de uma tabela de preços vigente e de um snapshot de produto e preço por item. Revisar cria uma nova versão com o mesmo número; a versão aceita nunca é reescrita.\"\n      extraActions={<NewQuoteButton />}\n      rowHref={(row) => `/comercial/propostas/${row.id}`}\n    />\n  );\n}\n\n/** Atalho de criação. Fica fora da área declarativa porque o formulário tem itens. */\nfunction NewQuoteButton() {\n  const { currentOrganization, hasPermission } = useOrganization();\n  const [creating, setCreating] = useState(false);\n  if (!hasPermission(\"quotes.create\")) return null;\n  return (\n    <>\n      <Button onClick={() => setCreating(true)}>Nova proposta</Button>\n      {creating && currentOrganization ? (\n        <QuoteDialog\n          org={currentOrganization.organization_id}\n          onClose={() => setCreating(false)}\n        />\n      ) : null}\n    </>\n  );\n}''', 1)\n\n# 3) QuoteActions: org via prop, sem hook dentro do mutationFn\ns = s.replace('''        <QuoteActions\n          quote={quote!}\n          onRevise={() => setRevising(true)}''',\n'''        <QuoteActions\n          org={org}\n          quote={quote!}\n          onRevise={() => setRevising(true)}''', 1)\n\ns = s.replace('''function QuoteActions({\n  quote,\n  onRevise,\n  onApprove,\n  onAccept,\n  onDone,\n}: {\n  quote: CrmRow;''',\n'''function QuoteActions({\n  org,\n  quote,\n  onRevise,\n  onApprove,\n  onAccept,\n  onDone,\n}: {\n  org: string;\n  quote: CrmRow;''', 1)\n\ns = s.replace('''      await api({\n        data: {\n          organizationId: useOrganization().currentOrganization?.organization_id ?? \"\",\n          kind: \"quote\",\n          id: quote.id,\n          action,\n          values: {},\n          key,\n        },\n      });''',\n'''      await api({ data: { organizationId: org, kind: \"quote\", id: quote.id, action, values: {}, key } });''', 1)\n\n# 4) palavras em ingles / caracteres estranhos\ns = s.replace(\"Mandar preço do cliente aqui permitiria proposes um valor que o\\n * preço oficial não bate.\",\n              \"Informar o preço aqui permitiria propor um valor que o\\n * preço oficial não contradiz.\", 1)\ns = s.replace(\"e dispara o evento para os módulos que reação a ele.\",\n              \"e publica o evento para os módulos que reagem a ele.\", 1)\ns = s.replace(\"não gravaBooks, pedido ou recebível.\", \"não grava pedido nem recebível.\", 1)\ns = s.replace('toast.success(`Proposta ${quoteStatusLabel(action).toLowerCase()}.`);',\n              'toast.success(\"Status da proposta atualizado.\");', 1)\ns = s.replace(\"  const { hasPermission } = useOrganization();\\n  const api = useServerFn(actCrm);\\n  const [key, setKey] = useState(() => crypto.randomUUID());\\n  const [pending, setPending] = useState<string | null>(null);\",\n              \"  const { hasPermission } = useOrganization();\\n  const api = useServerFn(actCrm);\\n  const [key, setKey] = useState(() => crypto.randomUUID());\\n  const [pending, setPending] = useState<string | null>(null);\", 1)\n\np.write_text(s)\nprint(\"ok\")\nPY\ngrep -n \"asRows(\\|orgId()\\|useOrganization()\" src/components/crm/quotes.tsx"
-    },
-    "timestamp": 1790413001242
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n53:  const { currentOrganization, hasPermission } = useOrganization();\n332:  const { hasPermission } = useOrganization();\n536:  const { hasPermission } = useOrganization();\n",
-    "is_error": false,
-    "timestamp": 1790413001289
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && npm run typecheck 2>&1 | tail -20"
     },
     "timestamp": 1790413003436
@@ -1593,5 +1579,19 @@
     "content": "URL host: imxtzwwyolutyjoqjyvh\ncompanies          HTTP 404  {\"code\":\"PGRST205\",\"details\":null,\"hint\":null,\"message\":\"Could not find the table 'public.companies' in the schema cache\ncontacts           HTTP 404  {\"code\":\"PGRST205\",\"details\":null,\"hint\":null,\"message\":\"Could not find the table 'public.",
     "is_error": false,
     "timestamp": 1790416557208
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && ls -a | grep -i env; echo \"--- outras URLs ---\"; grep -rho \"https://[a-z0-9]*\\.supabase\\.co\" --include=\"*.ts\" --include=\"*.tsx\" --include=\"*.json\" --include=\"*.md\" . 2>/dev/null | sort -u | head; echo \"--- cli supabase ---\"; which supabase || echo \"CLI ausente\"; ls supabase/.temp 2>/dev/null || echo \"sem .temp (projeto nao linkado)\""
+    },
+    "timestamp": 1790416563347
+  },
+  {
+    "role": "tool_result",
+    "content": ".env\n--- outras URLs ---\nhttps://example.supabase.co\nhttps://realtime.supabase.co\nhttps://xyzcompany.supabase.co\n--- cli supabase ---\nCLI ausente\nsem .temp (projeto nao linkado)\n",
+    "is_error": false,
+    "timestamp": 1790416565619
   }
 ]
