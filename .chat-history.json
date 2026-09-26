@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"CREATE FUNCTION public.crm_save\" -A 75 supabase/migrations/20261005100000_crm.sql",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790412675272
-  },
-  {
-    "role": "tool_result",
-    "content": "513:CREATE FUNCTION public.crm_save(_org uuid,_kind text,_data jsonb) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n514-DECLARE ident uuid:=coalesce(nullif(_data->>'id','')::uuid,gen_random_uuid()); company uuid; rep uuid; stage public.sales_pipeline_stages;\n515- old j",
-    "is_error": false,
-    "timestamp": 1790412675300
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sed -n '588,700p' supabase/migrations/20261005100000_crm.sql",
       "workdir": "/root/Zheus AI Projects/controle-fabrica"
     },
@@ -1627,5 +1612,19 @@
     "content": "21:2. Leia `docs/handoff/PROJECT-STATE.md`.\n1012:`docs/business/CRM.md`\n1014:`docs/business/LEADS.md`\n1016:`docs/business/SALES-PIPELINE.md`\n1018:`docs/business/SALES-REPRESENTATIVES.md`\n1020:`docs/business/SALES-QUOTES.md`\n1022:`docs/business/CUSTOMER-360.md`\n1024:`docs/business/COMMERCIAL-POLICIES",
     "is_error": false,
     "timestamp": 1790413639277
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd /tmp/opencode && sed -n '995,1035p' master012.md"
+    },
+    "timestamp": 1790413687346
+  },
+  {
+    "role": "tool_result",
+    "content": "\n**Teste K — RLS**\n\nUsuário da Organização A tenta consultar cliente, oportunidade ou proposta da Organização B.\n\nResultado: acesso negado.\n\n**Teste L — Permissões**\n\nRepresentante sem permissão de visualizar custos tenta consultar margem por chamada direta.\n\nResultado: acesso negado.\n\n### 49. DOCUM",
+    "is_error": false,
+    "timestamp": 1790413687359
   }
 ]
