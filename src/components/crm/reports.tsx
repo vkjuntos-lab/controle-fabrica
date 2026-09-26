@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useOrganization } from "@/lib/org/org-context";
-import { useCrmQuery } from "./data";
+import type { CrmResult } from "@/lib/crm/crm.functions";
+import { asRowsFrom, useCrmQuery } from "./data";
 import { ResultState, Shell, money, number, percent, str } from "./shared";
 
 /**
@@ -122,7 +123,7 @@ function Reports({ org }: { org: string }) {
             empty={!opportunities.data?.total}
           >
             <ul className="space-y-1 text-sm">
-              {((opportunities.data?.rows ?? []) as Record<string, never>[]).map((row) => (
+              {asRowsFrom(opportunities.data).map((row) => (
                 <li key={row.id} className="flex items-center justify-between gap-3 border-b py-1">
                   <span>{str(row.title)}</span>
                   <span className="tabular-nums">
@@ -186,7 +187,7 @@ function ReportCard({
  * PostgreSQL calcula com `round` — para que o número da tela seja o mesmo número
  * que o servidor gravou no evento.
  */
-function Funnel({ dashboard }: { dashboard: Record<string, never> }) {
+function Funnel({ dashboard }: { dashboard: CrmResult }) {
   const leads = Number(dashboard.leads ?? 0);
   const qualified = Number(dashboard.qualified ?? 0);
   const converted = Number(dashboard.converted ?? 0);
