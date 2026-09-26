@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "write",
     "input": {
-      "content": "import { useState } from \"react\";\n\nimport { Button } from \"@/components/ui/button\";\nimport { Card, CardContent } from \"@/components/ui/card\";\nimport { Input } from \"@/components/ui/input\";\nimport { Label } from \"@/components/ui/label\";\nimport { useOrganization } from \"@/lib/org/org-context\";\nimport { exportCrmCsv } from \"@/lib/crm/export\";\nimport { asNumber, asRecord, useCrmDetail, useCrmQuery } from \"./data\";\nimport { Metric, ResultState, Shell, money, number, percent } from \"./shared\";\n\n/**\n * Indicadores do CRM. Todos os números vêm de `crm_query` com `kind=dashboard`,\n * ou seja, são fatos do próprio módulo: nada aqui é estimativa apresentada como\n * receita, e oportunidade em aberto nunca entra como venda realizada.\n */\nexport function CommercialDashboard() {\n  return (\n    <Shell title=\"Comercial · Dashboard\" permission=\"crm.dashboard\">\n      {(org) => <Dashboard org={org} />}\n    </Shell>\n  );\n}\n\nfunction Dashboard({ org }: { org: string }) {\n  const [from, setFrom] = useState(\"\");\n  const [to, setTo] = useState(\"\");\n  const [exporting, setExporting] = useState(false);\n\n  const filters = { ...(from ? { from } : {}), ...(to ? { to } : {}) };\n  const summary = useCrmDetail(org, \"dashboard\", filters);\n  const byStage = useCrmQuery(org, \"opportunities\", { status: \"OPEN\" });\n  const byRep = useCrmQuery(org, \"opportunities\", { status: \"OPEN\" });\n\n  async function exportRows() {\n    setExporting(true);\n    try {\n      const leads = await collect(org, \"leads\", filters);\n      exportCrmCsv(\"comercial-leads.csv\", leads as Record<string, unknown>[]);\n    } catch (error) {\n      window.alert(error instanceof Error ? error.message : \"Falha ao exportar\");\n    } finally {\n      setExporting(false);\n    }\n  }\n\n  const data = asRecord(summary.data);\n  const openRows = asRecord(byStage.data);\n  const total = asNumber(data.leads);\n\n  return (\n    <>\n      <div className=\"flex flex-wrap items-end justify-between gap-3\">\n        <div className=\"grid gap-3 sm:grid-cols-2\">\n          <div className=\"space-y-1\">\n            <Label htmlFor=\"crm-from\">De</Label>\n            <Input\n              id=\"crm-from\"\n              type=\"date\"\n              value={from}\n              onChange={(event) => setFrom(event.target.value)}\n            />\n          </div>\n          <div className=\"space-y-1\">\n            <Label htmlFor=\"crm-to\">Até</Label>\n            <Input\n              id=\"crm-to\"\n              type=\"date\"\n              value={to}\n              onChange={(event) => setTo(event.target.value)}\n            />\n          </div>\n        </div>\n        <Button variant=\"outline\" disabled={exporting} onClick={() => void exportRows()}>\n          {exporting ? \"Exportando...\" : \"CSV de leads\"}\n        </Button>\n      </div>\n\n      <p className=\"text-sm text-muted-foreground\">\n        Oportunidade em aberto é previsão comercial, não receita. Filtros de período consideram a\n        data de registro de cada fato.\n      </p>\n\n      <ResultState\n        loading={summary.isLoading}\n        error={summary.error}\n        empty={!summary.data || Object.keys(summary.data).length === 0}\n      >\n        <div className=\"grid gap-3 sm:grid-cols-2 lg:grid-cols-4\">\n          <Metric label=\"Leads cadastrados\" value={total} />\n          <Metric label=\"Leads qualificados\" value={asNumber(data.qualified)} />\n          <Metric label=\"Leads convertidos\" value={asNumber(data.converted)} />\n          <Metric\n            label=\"Taxa de conversão de leads\"\n            value={percent(data.conversion_percent)}\n            hint=\"Convertidos ÷ leads não arquivados\"\n          />\n          <Metric label=\"Oportunidades abertas\" value={asNumber(data.open_opportunities)} />\n          <Metric\n            label=\"Valor estimado aberto\"\n            value={money(data.estimated_value)}\n            hint=\"Somatório de oportunidades em aberto\"\n          />\n          <Metric\n            label=\"Valor ponderado (estimativa)\"\n            value={money(data.weighted_estimate)}\n            hint=\"Estimado × probabilidade da etapa\"\n          />\n          <Metric label=\"Propostas enviadas\" value={asNumber(data.sent)} />\n          <Metric label=\"Propostas aceitas\" value={asNumber(data.accepted)} />\n          <Metric\n            label=\"Taxa de aceite\"\n            value={percent(data.acceptance_percent)}\n            hint=\"Aceitas ÷ decisões conhecidas (aceita ou rejeitada)\"\n          />\n          <Metric label=\"Atividades pendentes\" value={asNumber(data.pending_activities)} />\n          <Metric\n            label=\"Atividades atrasadas\"\n            value={asNumber(data.overdue_activities)}\n            hint=\"Pendentes com agendamento no passado\"\n          />\n        </div>\n      </ResultState>\n\n      <div className=\"grid gap-4 lg:grid-cols-2\">\n        <Card>\n          <CardContent className=\"pt-6\">\n            <h3 className=\"mb-3 font-heading text-base font-semibold\">\n              Distribuição por etapa (oportunidades abertas)\n            </h3>\n            <StageBreakdown rows={Array.isArray(openRows.rows) ? (openRows.rows as never[]) : []} />\n          </CardContent>\n        </Card>\n        <Card>\n          <CardContent className=\"pt-6\">\n            <h3 className=\"mb-3 font-heading text-base font-semibold\">\n              Distribuição por representante\n            </h3>\n            <p className=\"text-sm text-muted-foreground\">\n              Abaixo está a relação de oportunidades abertas carregada com sucesso. A\n              consolidação por representante usa a mesma lista oficial do pipeline.\n            </p>\n            <RepresentativeBreakdown\n              rows={Array.isArray(byRep.data?.rows) ? (byRep.data.rows as never[]) : []}\n            />\n          </CardContent>\n        </Card>\n      </div>\n    </>\n  );\n}\n\ntype RowLike = { stage_id?: string; representative_id?: string; estimated_value?: number };\n\nfunction groupBy(rows: RowLike[], key: \"stage_id\" | \"representative_id\") {\n  const totals = new Map<string, { count: number; value: number }>();\n  rows.forEach((row) => {\n    const id = String(row[key] ?? \"—\");\n    const current = totals.get(id) ?? { count: 0, value: 0 };\n    current.count += 1;\n    current.value += Number(row.estimated_value ?? 0);\n    totals.set(id, current);\n  });\n  return [...totals.entries()];\n}\n\nfunction StageBreakdown({ rows }: { rows: RowLike[] }) {\n  const groups = groupBy(rows, \"stage_id\");\n  if (!groups.length) {\n    return <p className=\"text-sm text-muted-foreground\">Nenhuma oportunidade em aberto.</p>;\n  }\n  return (\n    <table className=\"w-full text-sm\">\n      <thead>\n        <tr className=\"border-b text-left text-muted-foreground\">\n          <th className=\"pb-2 pr-4\">Etapa</th>\n          <th className=\"pb-2 pr-4 text-right\">Oportunidades</th>\n          <th className=\"pb-2 text-right\">Valor estimado</th>\n        </tr>\n      </thead>\n      <tbody>\n        {groups.map(([id, total]) => (\n          <tr key={id} className=\"border-b hover:bg-muted/40\">\n            <td className=\"py-2 pr-4 font-mono text-xs\">{id}</td>\n            <td className=\"py-2 pr-4 text-right\">{total.count}</td>\n            <td className=\"py-2 text-right\">{money(total.value)}</td>\n          </tr>\n        ))}\n      </tbody>\n    </table>\n  );\n}\n\nfunction RepresentativeBreakdown({ rows }: { rows: RowLike[] }) {\n  const groups = groupBy(rows, \"representative_id\");\n  if (!groups.length) {\n    return <p className=\"text-sm text-muted-foreground\">Nenhuma oportunidade em aberto.</p>;\n  }\n  return (\n    <table className=\"w-full text-sm\">\n      <thead>\n        <tr className=\"border-b text-left text-muted-foreground\">\n          <th className=\"pb-2 pr-4\">Representante</th>\n          <th className=\"pb-2 pr-4 text-right\">Oportunidades</th>\n          <th className=\"pb-2 text-right\">Valor estimado</th>\n        </tr>\n      </thead>\n      <tbody>\n        {groups.map(([id, total]) => (\n          <tr key={id} className=\"border-b hover:bg-muted/40\">\n            <td className=\"py-2 pr-4 font-mono text-xs\">{id}</td>\n            <td className=\"py-2 pr-4 text-right\">{total.count}</td>\n            <td className=\"py-2 text-right\">{money(total.value)}</td>\n          </tr>\n        ))}\n      </tbody>\n    </table>\n  );\n}\n\n/** Busca todas as páginas de um kind, respeitando o mesmo filtro da tela. */\nexport async function collect(org: string, kind: string, filters: Record<string, string>) {\n  const { queryCrm } = await import(\"@/lib/crm/crm.functions\");\n  const rows: Record<string, unknown>[] = [];\n  let page = 1;\n  let total = 1;\n  while (rows.length < total) {\n    const response = (await queryCrm({\n      data: { organizationId: org, kind, filters, page, export: false },\n    })) as { rows?: Record<string, unknown>[]; total?: number };\n    const got = response?.rows ?? [];\n    rows.push(...got);\n    total = Number(response?.total ?? got.length);\n    if (!got.length) break;\n    page += 1;\n  }\n  return rows;\n}\n\nexport { number };\n",
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/crm/dashboard.tsx"
-    },
-    "timestamp": 1790412487986
-  },
-  {
-    "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1790412487996
-  },
-  {
-    "role": "tool",
-    "tool": "write",
-    "input": {
       "content": "import { useState } from \"react\";\nimport { useServerFn } from \"@tanstack/react-start\";\n\nimport { Button } from \"@/components/ui/button\";\nimport { Card, CardContent } from \"@/components/ui/card\";\nimport { Input } from \"@/components/ui/input\";\nimport { Label } from \"@/components/ui/label\";\nimport { queryCrm, type CrmRow } from \"@/lib/crm/crm.functions\";\nimport { exportCrmCsv } from \"@/lib/crm/export\";\nimport { asNumber, asRecord, useCrmDetail, useCrmQuery } from \"./data\";\nimport { Metric, ResultState, Shell, money, percent } from \"./shared\";\n\n/**\n * Indicadores do CRM. Todos os números vêm de `crm_query` com `kind=dashboard`,\n * ou seja, são fatos do próprio módulo: nada aqui é estimativa apresentada como\n * receita, e oportunidade em aberto nunca entra como venda realizada.\n */\nexport function CommercialDashboard() {\n  return (\n    <Shell title=\"Comercial · Dashboard\" permission=\"crm.dashboard\">\n      {(org) => <Dashboard org={org} />}\n    </Shell>\n  );\n}\n\nfunction Dashboard({ org }: { org: string }) {\n  const api = useServerFn(queryCrm);\n  const [from, setFrom] = useState(\"\");\n  const [to, setTo] = useState(\"\");\n  const [exporting, setExporting] = useState(false);\n\n  const filters = { ...(from ? { from } : {}), ...(to ? { to } : {}) };\n  const summary = useCrmDetail(org, \"dashboard\", filters);\n  const open = useCrmQuery(org, \"opportunities\", { status: \"OPEN\" });\n\n  const data = asRecord(summary.data);\n  const openRows = (open.data?.rows ?? []) as CrmRow[];\n\n  async function exportRows() {\n    setExporting(true);\n    try {\n      const rows: CrmRow[] = [];\n      let page = 1;\n      let total = 1;\n      while (rows.length < total) {\n        const response = await api({\n          data: { organizationId: org, kind: \"leads\", filters, page, export: true },\n        });\n        const got = (response?.rows ?? []) as CrmRow[];\n        rows.push(...got);\n        total = Number(response?.total ?? got.length);\n        if (!got.length) break;\n        page += 1;\n      }\n      exportCrmCsv(\"comercial-leads.csv\", rows as Record<string, unknown>[]);\n    } catch (error) {\n      window.alert(error instanceof Error ? error.message : \"Falha ao exportar\");\n    } finally {\n      setExporting(false);\n    }\n  }\n\n  return (\n    <>\n      <div className=\"flex flex-wrap items-end justify-between gap-3\">\n        <div className=\"grid gap-3 sm:grid-cols-2\">\n          <div className=\"space-y-1\">\n            <Label htmlFor=\"crm-from\">De</Label>\n            <Input\n              id=\"crm-from\"\n              type=\"date\"\n              value={from}\n              onChange={(event) => setFrom(event.target.value)}\n            />\n          </div>\n          <div className=\"space-y-1\">\n            <Label htmlFor=\"crm-to\">Até</Label>\n            <Input\n              id=\"crm-to\"\n              type=\"date\"\n              value={to}\n              onChange={(event) => setTo(event.target.value)}\n            />\n          </div>\n        </div>\n        <Button variant=\"outline\" disabled={exporting} onClick={() => void exportRows()}>\n          {exporting ? \"Exportando...\" : \"CSV de leads\"}\n        </Button>\n      </div>\n\n      <p className=\"text-sm text-muted-foreground\">\n        Oportunidade em aberto é previsão comercial, não receita. O filtro de período considera a\n        data de registro de cada fato.\n      </p>\n\n      <ResultState\n        loading={summary.isLoading}\n        error={summary.error}\n        empty={!summary.data || Object.keys(summary.data).length === 0}\n      >\n        <div className=\"grid gap-3 sm:grid-cols-2 lg:grid-cols-4\">\n          <Metric label=\"Leads cadastrados\" value={asNumber(data.leads)} />\n          <Metric label=\"Leads qualificados\" value={asNumber(data.qualified)} />\n          <Metric label=\"Leads convertidos\" value={asNumber(data.converted)} />\n          <Metric\n            label=\"Taxa de conversão de leads\"\n            value={percent(data.conversion_percent)}\n            hint=\"Convertidos ÷ leads não arquivados\"\n          />\n          <Metric label=\"Oportunidades abertas\" value={asNumber(data.open_opportunities)} />\n          <Metric\n            label=\"Valor estimado aberto\"\n            value={money(data.estimated_value)}\n            hint=\"Somatório das oportunidades em aberto\"\n          />\n          <Metric\n            label=\"Valor ponderado (estimativa)\"\n            value={money(data.weighted_estimate)}\n            hint=\"Valor estimado × probabilidade da etapa\"\n          />\n          <Metric label=\"Propostas enviadas\" value={asNumber(data.sent)} />\n          <Metric label=\"Propostas aceitas\" value={asNumber(data.accepted)} />\n          <Metric\n            label=\"Taxa de aceite\"\n            value={percent(data.acceptance_percent)}\n            hint=\"Aceitas ÷ decisões conhecidas (aceita ou rejeitada)\"\n          />\n          <Metric label=\"Atividades pendentes\" value={asNumber(data.pending_activities)} />\n          <Metric\n            label=\"Atividades atrasadas\"\n            value={asNumber(data.overdue_activities)}\n            hint=\"Pendentes com agendamento no passado\"\n          />\n        </div>\n      </ResultState>\n\n      <div className=\"grid gap-4 lg:grid-cols-2\">\n        <Card>\n          <CardContent className=\"pt-6\">\n            <h3 className=\"mb-3 font-heading text-base font-semibold\">\n              Oportunidades abertas por etapa\n            </h3>\n            <Breakdown rows={openRows} groupBy=\"stage_id\" empty=\"Nenhuma oportunidade em aberto.\" />\n          </CardContent>\n        </Card>\n        <Card>\n          <CardContent className=\"pt-6\">\n            <h3 className=\"mb-3 font-heading text-base font-semibold\">\n              Oportunidades abertas por representante\n            </h3>\n            <Breakdown\n              rows={openRows}\n              groupBy=\"representative_id\"\n              empty=\"Nenhuma oportunidade em aberto.\"\n            />\n          </CardContent>\n        </Card>\n      </div>\n    </>\n  );\n}\n\nfunction Breakdown({\n  rows,\n  groupBy,\n  empty,\n}: {\n  rows: CrmRow[];\n  groupBy: \"stage_id\" | \"representative_id\";\n  empty: string;\n}) {\n  const totals = new Map<string, { count: number; value: number }>();\n  rows.forEach((row) => {\n    const id = String(row[groupBy] ?? \"—\");\n    const current = totals.get(id) ?? { count: 0, value: 0 };\n    current.count += 1;\n    current.value += Number(row.estimated_value ?? 0);\n    totals.set(id, current);\n  });\n  if (!totals.size) return <p className=\"text-sm text-muted-foreground\">{empty}</p>;\n  return (\n    <div className=\"overflow-x-auto\">\n      <table className=\"w-full text-sm\">\n        <thead>\n          <tr className=\"border-b text-left text-muted-foreground\">\n            <th className=\"pb-2 pr-4\">{groupBy === \"stage_id\" ? \"Etapa\" : \"Representante\"}</th>\n            <th className=\"pb-2 pr-4 text-right\">Oportunidades</th>\n            <th className=\"pb-2 text-right\">Valor estimado</th>\n          </tr>\n        </thead>\n        <tbody>\n          {[...totals.entries()].map(([id, total]) => (\n            <tr key={id} className=\"border-b hover:bg-muted/40\">\n              <td className=\"py-2 pr-4 font-mono text-xs\">{id}</td>\n              <td className=\"py-2 pr-4 text-right\">{total.count}</td>\n              <td className=\"py-2 text-right\">{money(total.value)}</td>\n            </tr>\n          ))}\n        </tbody>\n      </table>\n    </div>\n  );\n}\n",
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/crm/dashboard.tsx"
     },
@@ -1550,5 +1535,105 @@
     "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabrica\n\nstderr | src/lib/crm/crm.test.ts\n⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/su",
     "is_error": false,
     "timestamp": 1790413519880
+  },
+  {
+    "role": "tool",
+    "tool": "todowrite",
+    "input": {
+      "todos": [
+        {
+          "content": "Auditar codebase e planejar MASTER 012",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Auditar migration e backend CRM existentes",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Criar e rodar testes de banco do CRM",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Corrigir bug de patch parcial no crm_save",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Adicionar permissões CRM no RBAC e menu",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Criar config/shared/data/list/dashboard do CRM",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Validar typecheck e harness após kind members",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Telas de leads, clientes e Customer 360",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Tela de pipeline, Kanban e histórico de oportunidades",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Tela de propostas, itens, versões e aceite",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Telas de atividades, representantes e carteiras",
+          "priority": "medium",
+          "status": "completed"
+        },
+        {
+          "content": "Tela de relatórios e configurações comerciais",
+          "priority": "medium",
+          "status": "completed"
+        },
+        {
+          "content": "Criar todas as rotas em src/routes/_authenticated/comercial",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Testes unitários da lógica pura do CRM",
+          "priority": "medium",
+          "status": "completed"
+        },
+        {
+          "content": "Atualizar tipos Supabase das RPCs CRM",
+          "priority": "medium",
+          "status": "in_progress"
+        },
+        {
+          "content": "Documentação, ADR, PROJECT-STATE e MASTER-012-VALIDATION",
+          "priority": "medium",
+          "status": "pending"
+        },
+        {
+          "content": "Validação final: test, typecheck, build, lint, test:crm:db",
+          "priority": "high",
+          "status": "pending"
+        }
+      ]
+    },
+    "timestamp": 1790413526258
+  },
+  {
+    "role": "tool_result",
+    "content": "[\n  {\n    \"content\": \"Auditar codebase e planejar MASTER 012\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Auditar migration e backend CRM existentes\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Criar e rodar testes de banco do CRM\",\n   ",
+    "is_error": false,
+    "timestamp": 1790413526266
   }
 ]
