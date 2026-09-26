@@ -66,7 +66,7 @@ export const actCrm = createServerFn({ method: "POST" })
     const { data: result, error } = await context.supabase.rpc("crm_action", {
       _org: data.organizationId,
       _kind: data.kind,
-      _id: data.id as string,
+      _id: data.id,
       _action: data.action,
       _data: data.values as Json,
       _key: data.key,
