@@ -28,10 +28,10 @@ const area = areas.oportunidades;
 /**
  * Pipeline.
  *
- * A visualização padrão é o Kanban por etapa, porque é assim que a operação lê
- * o funil. A tabela completa continua em "Lista", porque o Kanban não mostra
- * contato, valor ponderado nem histórico — escondê-lo seria损失的 de informação,
- * não uma escolha de visual.
+ * A visualização padrão é o Kanban por etapa, porque é assim que a operação lê o
+ * funil. A lista completa continua disponível, porque o quadro não mostra
+ * contato, valor ponderado nem histórico — omitir isso perderia informação, não
+ * seria uma escolha de visual.
  */
 export function OpportunitiesPage() {
   const [view, setView] = useState<"kanban" | "list">("kanban");
@@ -64,7 +64,8 @@ type Stage = CrmRow & { id: string };
  * servidor que grava histórico e recalcula probabilidade.
  */
 function Kanban({ org }: { org: string }) {
-  const { currentOrganization, hasPermission } = useOrganization();
+  const { hasPermission } = useOrganization();
+  const client = useQueryClient();
   const [pipelineId, setPipelineId] = useState("");
   const [editing, setEditing] = useState<CrmRow | null | undefined>(undefined);
   const [dragging, setDragging] = useState<CrmRow | null>(null);
@@ -86,8 +87,6 @@ function Kanban({ org }: { org: string }) {
     (a, b) => asNumber(a.position) - asNumber(b.position),
   );
   const cards = (board.data?.rows ?? []) as CrmRow[];
-
-  if (!currentOrganization) return null;
   const canWrite = hasPermission(area.write!);
 
   return (
@@ -165,12 +164,7 @@ function Kanban({ org }: { org: string }) {
                         </span>
                       </button>
                       <div className="flex flex-wrap gap-2 pt-1">
-                        <Button
-                          asChild
-                          size="sm"
-                          variant="outline"
-                          onClick={() => undefined}
-                        >
+                        <Button asChild size="sm" variant="outline">
                           <a href={`/comercial/oportunidades/${card.id}`}>Abrir</a>
                         </Button>
                         {canWrite ? (
@@ -202,24 +196,16 @@ function Kanban({ org }: { org: string }) {
           area={area}
           record={editing}
           title={editing ? "Editar oportunidade" : "Nova oportunidade"}
-          description="O servidor recusa edição de oportunidade já existente: a mudança de etapa, a概率 de encerramento e os itens são transições com histórico. Criar aqui registra a etapa inicial e a primeira entrada do histórico."
+          description="O servidor recusa alteração de oportunidade já existente: mudança de etapa, encerramento e itens são transições com histórico. A criação registra a etapa inicial e a primeira entrada do histórico."
           onClose={() => setEditing(undefined)}
           onSaved={() => {
             setEditing(undefined);
-            void useQueryClientSafe(org);
+            void client.invalidateQueries({ queryKey: ["crm"] });
           }}
         />
       ) : null}
     </>
   );
-}
-
-/** Invalida as consultas do módulo após a gravação. */
-function useQueryClientSafe(org: string) {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const client = useQueryClient();
-  void org;
-  return client.invalidateQueries({ queryKey: ["crm"] });
 }
 
 /** Lista completa com as mesmas informações do quadro, em colunas. */
@@ -246,7 +232,6 @@ function OpportunityRows({
   empty: string;
 }) {
   const { hasPermission } = useOrganization();
-  const client = useQueryClient();
   const query = useCrmQuery(org, "opportunities", filters, 1);
   const rows = (query.data?.rows ?? []) as CrmRow[];
   return (
@@ -279,14 +264,8 @@ function OpportunityRows({
         </ul>
         <p className="text-sm text-muted-foreground">{query.data?.total ?? 0} registros</p>
       </ResultState>
-      <ClientRefresher client={client} />
     </div>
   );
-}
-
-function ClientRefresher({ client }: { client: ReturnType<typeof useQueryClient> }) {
-  void client;
-  return null;
 }
 
 /**
@@ -341,7 +320,7 @@ function OpportunityDetail({ org, id }: { org: string; id: string }) {
       <section className="space-y-2">
         <h3 className="font-heading text-base font-semibold">Itens estimados</h3>
         <p className="text-xs text-muted-foreground">
-          Itens de oportunidade são estimativas de negotiation. Não reservam estoque, não geram
+          Itens de oportunidade são estimativas de negociação. Não reservam estoque, não geram
           contas a receber e não entram em preço oficial — a proposta é que usa a tabela de preços
           vigente.
         </p>
