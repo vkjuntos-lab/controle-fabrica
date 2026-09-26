@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PY'\nimport re, pathlib\np = pathlib.Path(\"src/components/crm/config.ts\")\ns = p.read_text()\n\nedits = [\n# oportunidades\n(\"\"\"    columns: [\n      \"title\",\n      \"company_id\",\n      \"representative_id\",\n      \"estimated_value\",\n      \"probability\",\n      \"status\",\n      \"expected_close_date\",\n    ],\"\"\",\n\"\"\"    columns: [\n      \"title\",\n      \"company_id\",\n      \"representative_id\",\n      \"estimated_value\",\n      \"probability\",\n      \"status\",\n      \"expected_close_date\",\n    ],\n    refColumns: { company_id: \"companies\", representative_id: \"representatives\" },\"\"\"),\n# propostas\n(\"\"\"    columns: [\"quote_number\", \"version\", \"company_id\", \"total\", \"status\", \"valid_until\"],\"\"\",\n\"\"\"    columns: [\"quote_number\", \"version\", \"company_id\", \"total\", \"status\", \"valid_until\"],\n    refColumns: { company_id: \"companies\", representative_id: \"representatives\" },\"\"\"),\n# atividades\n(\"\"\"    columns: [\"subject\", \"activity_type\", \"company_id\", \"scheduled_at\", \"status\"],\"\"\",\n\"\"\"    columns: [\"subject\", \"activity_type\", \"company_id\", \"scheduled_at\", \"status\"],\n    refColumns: { company_id: \"companies\", lead_id: \"leads\", opportunity_id: \"opportunities\" },\"\"\"),\n# representantes\n(\"\"\"    columns: [\"name\", \"representative_code\", \"representative_type\", \"status\"],\"\"\",\n\"\"\"    columns: [\"name\", \"representative_code\", \"representative_type\", \"status\"],\n    refColumns: { company_id: \"companies\", user_id: \"members\" },\"\"\"),\n# carteiras\n(\"\"\"    columns: [\"company_id\", \"representative_id\", \"started_at\", \"ended_at\"],\"\"\",\n\"\"\"    columns: [\"company_id\", \"representative_id\", \"started_at\", \"ended_at\"],\n    refColumns: { company_id: \"companies\", representative_id: \"representatives\" },\"\"\"),\n# etiquetas -> customers ref\n(\"\"\"    columns: [\"customer_code\", \"company_id\", \"commercial_status\", \"commercial_segment_id\"],\n    refColumns: { company_id: \"companies\" },\"\"\",\n\"\"\"    columns: [\"customer_code\", \"company_id\", \"commercial_status\", \"commercial_segment_id\"],\n    refColumns: { company_id: \"companies\" },\"\"\"),\n]\nfor old, new in edits:\n    if old not in s:\n        raise SystemExit(\"NOT FOUND: \" + old[:60])\n    s = s.replace(old, new, 1)\n\n# etiquetas: colunas de etiqueta\ns = s.replace(\"\"\"    permission: \"customers.read\",\n    write: \"crm.configure\",\n    fields: [nameField],\n    columns: [\"name\"],\"\"\",\n\"\"\"    permission: \"customers.read\",\n    write: \"crm.configure\",\n    fields: [nameField],\n    columns: [\"name\"],\"\"\", 1)\n\n# etapas refColumns pipeline_id -> pipelines\ns = s.replace(\"\"\"    columns: [\"name\", \"pipeline_id\", \"position\", \"probability\"],\"\"\",\n\"\"\"    columns: [\"name\", \"pipeline_id\", \"position\", \"probability\"],\n    refColumns: { pipeline_id: \"pipelines\" },\"\"\", 1)\n\n# alçadas refColumns user_id -> members\ns = s.replace(\"\"\"    columns: [\"user_id\", \"max_discount_percent\"],\"\"\",\n\"\"\"    columns: [\"user_id\", \"max_discount_percent\"],\n    refColumns: { user_id: \"members\" },\"\"\", 1)\n\n# regras refColumns\ns = s.replace(\"\"\"    columns: [\"rate_type\", \"rate\", \"effective_from\", \"effective_to\"],\"\"\",\n\"\"\"    columns: [\"plan_id\", \"representative_id\", \"rate_type\", \"rate\", \"effective_from\", \"effective_to\"],\n    refColumns: {\n      plan_id: \"commission_plans\",\n      representative_id: \"representatives\",\n      company_id: \"companies\",\n      variant_id: \"variants\",\n    },\"\"\", 1)\n\n# motivos: coluna kind ja e badge\np.write_text(s)\nprint(\"ok\")\nPY"
-    },
-    "timestamp": 1790412761225
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n",
-    "is_error": false,
-    "timestamp": 1790412761283
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/crm/shared.tsx",
@@ -1618,5 +1604,19 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790413760197
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"docs/business/SALES-REPRESENTATIVES.md\"); s = p.read_text()\ns = s.replace(\"É o critério padrão paraOverflow de carteira\", \"É o critério padrão para overflow de carteira\")\ns = s.replace(\"paraOverflow\", \"para overflow\")\ns = s.replace(\"apagar aReceipt depois\", \"apagar o recibo depois\")\np.write_text(s)\nprint([c for c in s if ord(c) > 0x2FFF and c not in \"—’“”…\"])\nPY"
+    },
+    "timestamp": 1790413762249
+  },
+  {
+    "role": "tool_result",
+    "content": "[]\n",
+    "is_error": false,
+    "timestamp": 1790413762310
   }
 ]

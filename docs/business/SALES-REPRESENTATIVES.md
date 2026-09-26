@@ -12,7 +12,7 @@ representantes vinculados.
 ## Territórios
 
 `sales_territories` define a divisão geográfica ou de cartera. O vínculo cliente ↔ território é
-`customer_territories`, com vigência. Território é o critério padrão paraOverflow de carteira:
+`customer_territories`, com vigência. Território é o critério padrão para overflow de carteira:
 ao cadastrar um cliente sem representante explícito, o servidor considera o território.
 
 ## Carteira
@@ -37,7 +37,7 @@ depender da tela.
 `commission_plans` e `commission_rules` descrevem o plano por gatilho (venda ganha, aceite de
 proposta, recebimento) e tipo de cálculo (percentual do valor, por unidade, por margem). O plano
 é cadastrado e simulado; a apuração financeira **não** acontece neste master, porque depende de
-faturamento e recebimento, que são do MASTER 013. Registrar a regra agora e apagar aReceipt depois
+faturamento e recebimento, que são do MASTER 013. Registrar a regra agora e apagar o recibo depois
 seria perda de informação.
 
 ## Limitações
