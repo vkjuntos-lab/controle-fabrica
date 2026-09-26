@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 3000 python3 scripts/test-crm-db.py\" 2>&1 | tail -30",
-      "timeout": 3000000,
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790411785885
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS A: supplier gains customer role without duplicate Company\nPASS B: concurrent lead conversion idempotent; contact and history retained\nPASS C: portfolio changes preserve prior assignments and opportunity owner\nPASS D: item quantities sum to 60; stage snapshots; no stock writes\nTraceback (most re",
-    "is_error": false,
-    "timestamp": 1790411788425
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261005100000_crm.sql",
@@ -1634,5 +1618,19 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790413206038
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"src/components/crm/team.tsx\")\ns = p.read_text()\ns = s.replace(\"O移 responsável reflete\", \"O responsável exibido reflete\", 1)\ns = s.replace('\\nexport { renderCell };\\n', '')\ns = s.replace('import { CrmListPage, renderCell } from \"./list\";', 'import { CrmListPage } from \"./list\";', 1)\np.write_text(s)\nprint(\"ok\")\nPY\ngrep -rnP \"[\\x{4e00}-\\x{9fff}]\" src/components/crm/ || echo \"sem CJK\""
+    },
+    "timestamp": 1790413208696
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nsem CJK\n",
+    "is_error": false,
+    "timestamp": 1790413208749
   }
 ]

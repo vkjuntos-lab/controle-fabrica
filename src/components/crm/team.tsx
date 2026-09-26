@@ -17,7 +17,7 @@ import { actCrm, type CrmRow } from "@/lib/crm/crm.functions";
 import { useOrganization } from "@/lib/org/org-context";
 import { areas } from "./config";
 import { asRowsFrom, useCrmQuery } from "./data";
-import { CrmListPage, renderCell } from "./list";
+import { CrmListPage } from "./list";
 import { Picker, ResultState, StatusBadge, str } from "./shared";
 
 /**
@@ -239,10 +239,8 @@ export function RepresentativePortfolioPage({ id }: { id: string }) {
 
       <p className="text-xs text-muted-foreground">
         A negociação já registrada mantém o representante que estava na carteira quando foi criada.
-        O移 responsável reflete o estado atual da carteira, não o passado da negociação.
+        O responsável exibido reflete o estado atual da carteira, não o passado da negociação.
       </p>
     </div>
   );
 }
-
-export { renderCell };
