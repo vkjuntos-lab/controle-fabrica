@@ -193,6 +193,7 @@ export const areas: Record<string, Area> = {
       "status",
       "expected_close_date",
     ],
+    refColumns: { company_id: "companies", representative_id: "representatives" },
     filters: [
       { key: "status", label: "Status", kind: "", permission: "opportunities.read" },
       {
@@ -223,6 +224,7 @@ export const areas: Record<string, Area> = {
       field("notes", "Observações", { type: "longtext" }),
     ],
     columns: ["quote_number", "version", "company_id", "total", "status", "valid_until"],
+    refColumns: { company_id: "companies", representative_id: "representatives" },
     filters: [
       { key: "status", label: "Status", kind: "", permission: "quotes.read" },
       {
@@ -266,6 +268,7 @@ export const areas: Record<string, Area> = {
       field("reason", "Motivo da alteração", { type: "longtext" }),
     ],
     columns: ["subject", "activity_type", "company_id", "scheduled_at", "status"],
+    refColumns: { company_id: "companies", lead_id: "leads", opportunity_id: "opportunities" },
     filters: [
       { key: "status", label: "Status", kind: "", permission: "activities.read" },
       { key: "assigned_user_id", label: "Responsável", kind: "", permission: "activities.read" },
@@ -291,6 +294,7 @@ export const areas: Record<string, Area> = {
       field("status", "Status", { type: "options", options: ["ACTIVE", "INACTIVE"] }),
     ],
     columns: ["name", "representative_code", "representative_type", "status"],
+    refColumns: { company_id: "companies", user_id: "members" },
   },
   carteiras: {
     title: "Carteiras",
@@ -306,6 +310,7 @@ export const areas: Record<string, Area> = {
       field("reason", "Motivo da atribuição", { required: true }),
     ],
     columns: ["company_id", "representative_id", "started_at", "ended_at"],
+    refColumns: { company_id: "companies", representative_id: "representatives" },
   },
 };
 
@@ -400,6 +405,7 @@ export const configurations: Record<string, Area> = {
       field("probability", "Probabilidade %", { type: "number", required: true }),
     ],
     columns: ["name", "pipeline_id", "position", "probability"],
+    refColumns: { pipeline_id: "pipelines" },
   },
   alcadas: {
     title: "Alçadas de desconto",
@@ -413,6 +419,7 @@ export const configurations: Record<string, Area> = {
       field("reason", "Motivo", { required: true }),
     ],
     columns: ["user_id", "max_discount_percent"],
+    refColumns: { user_id: "members" },
   },
   comissoes: {
     title: "Planos de comissão",
@@ -451,7 +458,13 @@ export const configurations: Record<string, Area> = {
       field("effective_from", "Vigência inicial", { type: "date", required: true }),
       field("effective_to", "Vigência final", { type: "date" }),
     ],
-    columns: ["rate_type", "rate", "effective_from", "effective_to"],
+    columns: ["plan_id", "representative_id", "rate_type", "rate", "effective_from", "effective_to"],
+    refColumns: {
+      plan_id: "commission_plans",
+      representative_id: "representatives",
+      company_id: "companies",
+      variant_id: "variants",
+    },
   },
 };
 
