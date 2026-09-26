@@ -28,7 +28,7 @@ Mover a oportunidade é `crm_action` com a etapa de destino. O servidor:
    `commercial_reasons` para `LOST`.
 
 O motivo é obrigatório em perda porque a análise de motivo é o principal insumo de correção
-de pipeline. O histórico é append-only: corrigir a看板 não reescreve o passado registrado.
+de pipeline. O histórico é append-only: corrigir o quadro não reescreve o passado registrado.
 
 ## Fechamento
 
