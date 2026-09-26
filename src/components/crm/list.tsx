@@ -17,7 +17,18 @@ import { Input } from "@/components/ui/input";
 import { saveCrm, type CrmRow } from "@/lib/crm/crm.functions";
 import { useOrganization } from "@/lib/org/org-context";
 import { useCrmQuery } from "./data";
-import { Fields, Pager, ResultState, Shell, StatusBadge, columnLabel, money, str } from "./shared";
+import {
+  Fields,
+  Pager,
+  ResultState,
+  Shell,
+  StatusBadge,
+  columnLabel,
+  money,
+  optionLabels,
+  str,
+  useRefLabels,
+} from "./shared";
 import { configurationOrder, configurations, type Area, type Field } from "./config";
 
 type FormState = Record<string, string>;
@@ -99,7 +110,8 @@ function ListBody({
 
   const query = useCrmQuery(org, area.query, { ...filters, ...(term ? { q: term } : {}) }, page);
   const rows = (query.data?.rows ?? []) as CrmRow[];
-  const canWrite = Boolean(area.write && area.save && hasPermission(area.write));
+  const refs = useRefLabels(org, area.refColumns);
+  const canWrite = Boolean(area.write && saveSteps(area).length && hasPermission(area.write));
 
   return (
     <>
@@ -151,7 +163,7 @@ function ListBody({
                 <option value="">Todos</option>
                 {STATUS_OPTIONS[area.query]?.map((option) => (
                   <option key={option} value={option}>
-                    {option}
+                    {optionLabels.status[option] ?? option}
                   </option>
                 ))}
               </select>
@@ -180,7 +192,7 @@ function ListBody({
                     <tr key={rowKey ? rowKey(row) : row.id} className="border-b hover:bg-muted/40">
                       {area.columns.map((column) => (
                         <td key={column} className="py-2 pr-4">
-                          {renderCell(row, column)}
+                          {renderCell(row, column, area.refColumns?.[column], refs.data)}
                         </td>
                       ))}
                       <td className="py-2 text-right">
@@ -422,7 +434,8 @@ function ConfigurationBody({
   const [editing, setEditing] = useState<CrmRow | null | undefined>(undefined);
   const query = useCrmQuery(org, area.query, {}, 1);
   const rows = (query.data?.rows ?? []) as CrmRow[];
-  const canWrite = Boolean(area.write && hasPermission(area.write));
+  const refs = useRefLabels(org, area.refColumns);
+  const canWrite = Boolean(area.write && saveSteps(area).length && hasPermission(area.write));
 
   return (
     <>
