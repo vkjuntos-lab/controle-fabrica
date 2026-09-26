@@ -65,7 +65,8 @@ def run():
  save('discount_authority',{'user_id':a,'max_discount_percent':5,'reason':'Limite'})
  action('quote',quote,'approve',{'reason':'Excede'},fail='alçada')
  authid=query('authorities')['rows'][0]['id']
- save('discount_authority',{'id':authid,'max_discount_percent':20,'reason':'Revisão'})
+ print('DEBUG authid=',authid)
+ print('DEBUG save_result=',save('discount_authority',{'id':authid,'max_discount_percent':20,'reason':'Revisão'}))
  print('DEBUG authority=',sql(f"SELECT max_discount_percent||'|'||user_id||'|'||count(*) OVER () FROM commercial_discount_authorities WHERE organization_id={q(org)}"));print('DEBUG quote discount=',sql(f"SELECT discount_percent||'|'||status FROM sales_quotes WHERE id={q(quote)}"))
  action('quote',quote,'approve',{'reason':'Aprovado'})
  action('quote',quote,'send')
