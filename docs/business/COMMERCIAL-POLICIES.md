@@ -6,16 +6,16 @@ servidor; a interface apenas as apresenta e envia a intenção.
 ## Crédito
 
 `customer_credit_policies` define limite, dias de carência e alçada por cliente. O servidor
-recusa operação acima do limite disponível e considera o carveiro de valores já comprometidos.
+recusa operação acima do limite disponível e considera o valor já comprometido por propostas aprovadas.
 Cliente `BLOCKED` é recusado em qualquer operação comercial, mesmo dentro do limite.
 
-Crédito é limite de política, não表皮 de财务: nada aqui emite título, não registra recebimento e
+Crédito aqui é limite de política, não operação financeira: nada deste master emite título, não registra recebimento e
 não substitui o financeiro do MASTER 013.
 
 ## Desconto e alçada
 
 `commercial_discount_authorities` define, por papel, a faixa de desconto e o percentual máximo
-que a pessoa pode aprovar, e o status daauthority (ativa, expirada, revogada). Um desconto acima
+que a pessoa pode aprovar, e o status da authority (ativa, expirada, revogada). Um desconto acima
 da alçada exige aprovação de quem a tem, registrada em `quote_approvals`, com aprovador, momento
 e limite. Tentativa negada também gera auditoria.
 
