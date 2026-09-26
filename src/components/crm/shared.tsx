@@ -52,6 +52,9 @@ export const optionLabels: Record<string, Record<string, string>> = {
   kind: REASON_KIND,
   trigger_event: COMMISSION_TRIGGER,
   rate_type: COMMISSION_RATE_TYPE,
+  // Campos com opções próprias, fora do conjunto de status. Sem esta entrada o
+  // seletor mostraria "ACTIVE" e "BLOCKED" crus no cadastro de clientes.
+  commercial_status: COMMERCIAL_STATUS,
 };
 
 export const selectClass = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";
