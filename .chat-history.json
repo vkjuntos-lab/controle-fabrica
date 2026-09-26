@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "ls src/components/ui/ | tr '\\n' ' '; echo; echo \"---EXPORT---\"; cat src/lib/partners/export.ts",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790412458501
-  },
-  {
-    "role": "tool_result",
-    "content": "accordion.tsx alert-dialog.tsx alert.tsx aspect-ratio.tsx avatar.tsx badge.tsx breadcrumb.tsx button.tsx calendar.tsx card.tsx carousel.tsx chart.tsx checkbox.tsx collapsible.tsx command.tsx context-menu.tsx dialog.tsx drawer.tsx dropdown-menu.tsx form.tsx hover-card.tsx input-otp.tsx input.tsx labe",
-    "is_error": false,
-    "timestamp": 1790412458522
-  },
-  {
-    "role": "tool",
     "tool": "write",
     "input": {
       "content": "import { toCsv, downloadCsv } from \"@/lib/csv\";\nimport { columnLabel } from \"@/components/crm/shared\";\nimport { CRM_FILTER_KEYS } from \"@/lib/crm/constants\";\n\n/**\n * Exporta o resultado já filtrado da consulta do CRM.\n *\n * Reusa a infraestrutura de CSV dos demais módulos e neutraliza fórmulas de\n * planilha em texto digitado pelo usuário. As linhas vêm da mesma RPC com\n * `export = true`, ou seja, respeitam RLS, escopo de carteira e as permissões\n * do chamador — o navegador nunca amplia o que o servidor devolveu.\n */\nexport function exportCrmCsv(\n  filename: string,\n  rows: Record<string, unknown>[],\n  columns?: string[],\n) {\n  const safe = rows.map((row) =>\n    Object.fromEntries(\n      Object.entries(row).map(([key, value]) => [\n        key,\n        typeof value === \"string\" && /^[=+@\\-\\t\\r]/.test(value) ? `'${value}` : value,\n      ]),\n    ),\n  );\n  const visible = columns?.length ? columns : undefined;\n  downloadCsv(filename, toCsv(safe, visible));\n}\n\n/** Cabeçalhos em português na ordem das colunas visíveis. */\nexport const csvHeaders = (columns: string[]): Record<string, string> =>\n  Object.fromEntries(columns.map((column) => [column, columnLabel(column)]));\n\n/** Remove chaves de filtro que o servidor ignora, para não exportar dados de outro recorte. */\nexport function sanitizeFilters(filters: Record<string, string>): Record<string, string> {\n  const allowed = new Set<string>(CRM_FILTER_KEYS);\n  return Object.fromEntries(\n    Object.entries(filters).filter(([key, value]) => allowed.has(key) && value !== \"\"),\n  );\n}\n",
@@ -1552,5 +1537,19 @@
     "content": "   ✓ gravações em etapas > um passo que depende do id anterior vem depois de um que o cria 0ms\n   ✓ gravações em etapas > nenhum campo aparece em dois passos da mesma área 0ms\n\n⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  src/lib/crm/crm.test.ts > rótulos das opções fixas > todo valor de option tem rótulo",
     "is_error": false,
     "timestamp": 1790413509826
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sed -n '69,80p' src/lib/crm/constants.ts"
+    },
+    "timestamp": 1790413512465
+  },
+  {
+    "role": "tool_result",
+    "content": "  FOLLOW_UP: \"Retomada\",\n  NOTE: \"Anotação\",\n  OTHER: \"Outra\",\n};\n\nexport const ACTIVITY_STATUS: Record<string, string> = {\n  PENDING: \"Pendente\",\n  COMPLETED: \"Concluída\",\n  CANCELED: \"Cancelada\",\n};\n\nexport const COMMERCIAL_STATUS: Record<string, string> = {\n",
+    "is_error": false,
+    "timestamp": 1790413512472
   }
 ]
