@@ -53,6 +53,7 @@ export function PortfoliosPage() {
       area={portfolioArea}
       title="Comercial · Carteiras"
       intro="Cada cliente tem uma carteira ativa. A transferência encerra a anterior, abre a nova com motivo e não reescreve o responsável de negociações já existentes."
+      extraActions={<AssignPortfolioButton />}
     />
   );
 }
