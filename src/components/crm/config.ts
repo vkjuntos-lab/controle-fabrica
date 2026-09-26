@@ -120,9 +120,29 @@ export const areas: Record<string, Area> = {
   clientes: {
     title: "Clientes",
     query: "customers",
-    save: "customer",
     permission: "customers.read",
     write: "customers.create",
+    // `crm_save('customer')` vincula a empresa ao perfil e grava o código
+    // comercial; `crm_save('customer_profile')` grava os atributos e exige o id
+    // do perfil, que só existe depois do primeiro passo. Trocar a empresa criaria
+    // um segundo perfil e deixaria este órfão, então o vínculo é imutável.
+    saves: [
+      { kind: "customer", fields: ["company_id", "customer_code"] },
+      {
+        kind: "customer_profile",
+        fields: [
+          "customer_type",
+          "commercial_status",
+          "commercial_segment_id",
+          "acquisition_source_id",
+          "price_table_id",
+          "payment_terms_id",
+          "notes",
+        ],
+        usePreviousId: true,
+      },
+    ],
+    immutableOnEdit: ["company_id"],
     fields: [
       companyField,
       field("customer_code", "Código comercial"),
@@ -138,6 +158,7 @@ export const areas: Record<string, Area> = {
       field("notes", "Observações comerciais", { type: "longtext" }),
     ],
     columns: ["customer_code", "company_id", "commercial_status", "commercial_segment_id"],
+    refColumns: { company_id: "companies" },
     filters: [
       { key: "status", label: "Status", kind: "", permission: "customers.read" },
       {
