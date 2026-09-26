@@ -624,13 +624,13 @@ BEGIN
  IF _data->>'id' IS NOT NULL AND old IS NULL THEN RAISE EXCEPTION 'Registro não encontrado.'; END IF;
   FOREACH col IN ARRAY cols LOOP
    IF NOT (_data ? col) THEN CONTINUE; END IF;
-   names:=names||format(',%I',col);expr:=expr||format(',r.%I',col);changes:=changes||CASE WHEN changes='' THEN '' ELSE ',' END||format('%I=%I.%I',col,tab,col);
+   names:=names||format(',%I',col);expr:=expr||format(',r.%I',col);changes:=changes||CASE WHEN changes='' THEN '' ELSE ',' END||format('%I=r.%I',col,col);
   END LOOP;
   IF names='' THEN RAISE EXCEPTION 'Informe os dados.'; END IF;
   -- Patch semantics: an identified record is updated with the submitted fields only, so omitted
   -- columns keep their stored value and a partial save can never blank or break NOT NULL.
   IF _data->>'id' IS NOT NULL THEN
-   EXECUTE format('UPDATE public.%I SET %s,updated_at=now() WHERE id=$1 AND organization_id=$2 RETURNING to_jsonb(%I)',tab,changes,tab) INTO result USING ident,_org;
+   EXECUTE format('UPDATE public.%I t SET %s,updated_at=now() FROM jsonb_populate_record(NULL::public.%I,$3)r WHERE t.id=$1 AND t.organization_id=$2 RETURNING to_jsonb(t)',tab,changes,tab) INTO result USING ident,_org,_data;
   ELSE
    EXECUTE format('INSERT INTO public.%I(id,organization_id%s) SELECT $2,$3%s FROM jsonb_populate_record(NULL::public.%I,$1)r RETURNING to_jsonb(%I)',tab,names,expr,tab,tab) INTO result USING _data,ident,_org;
   END IF;
