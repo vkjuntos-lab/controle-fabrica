@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "wc -l supabase/migrations/20261005100000_crm.sql; echo \"---CRM LIB---\"; wc -l src/lib/crm/*; echo \"---ROUTES CRM---\"; find src/routes -path '*crm*' -o -path '*comercial*' -o -path '*lead*' -o -path '*cliente*' -o -path '*oportunidade*' -o -path '*proposta*' | sort",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790411726858
-  },
-  {
-    "role": "tool_result",
-    "content": "892 supabase/migrations/20261005100000_crm.sql\n---CRM LIB---\n26 src/lib/crm/crm.functions.ts\n---ROUTES CRM---\nsrc/routes/_authenticated/comercial\n",
-    "is_error": false,
-    "timestamp": 1790411726899
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "wc -l scripts/test-crm-db.py; echo \"---TABELAS CRM---\"; grep -n \"CREATE TABLE\" supabase/migrations/20261005100000_crm.sql",
       "workdir": "/root/Zheus AI Projects/controle-fabrica"
     },
@@ -1653,5 +1638,19 @@
     "content": "ok\nlimpo\n",
     "is_error": false,
     "timestamp": 1790412922683
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -rnP \"[\\x{4e00}-\\x{9fff}]\" src/components/crm/ src/lib/crm/ || echo \"sem caracteres CJK\"; npm run typecheck 2>&1 | tail -20"
+    },
+    "timestamp": 1790412924779
+  },
+  {
+    "role": "tool_result",
+    "content": "sem caracteres CJK\n\n> typecheck\n> tsc --noEmit\n\n",
+    "is_error": false,
+    "timestamp": 1790412949227
   }
 ]
