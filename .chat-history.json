@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "",
-    "is_error": true,
-    "timestamp": 1790342763025
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc 'tail -25 /tmp/planning-tests.log; cat /tmp/planning-compile.log; mkdir -p src/lib/planning src/components/planning src/routes/_authenticated/planejamento'"
-    },
-    "timestamp": 1790342785442
-  },
-  {
-    "role": "tool_result",
     "content": "  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-planning-db.py\", line 126, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-planning-db.py\", line 42, in run\n    rpc('planning_save',org,'settings',{'demand_sources':['MANUAL_FORECAST',",
     "is_error": false,
     "timestamp": 1790342785451
@@ -1419,5 +1405,19 @@
     "content": "PASS A: supplier gains customer role without duplicate Company\nPASS B: concurrent lead conversion idempotent; contact and history retained\nPASS C: portfolio changes preserve prior assignments and opportunity owner\nPASS D: item quantities sum to 60; stage snapshots; no stock writes\nDEBUG authid= 0cbf",
     "is_error": false,
     "timestamp": 1790411852481
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'EOF'\np='scripts/test-crm-db.py'\ns=open(p).read()\ns=s.replace(\" print('DEBUG authid=',authid)\\n print('DEBUG save_result=',save('discount_authority',{'id':authid,'max_discount_percent':20,'reason':'Revisão'}))\\n print('DEBUG authority=',sql(f\\\"SELECT max_discount_percent||'|'||user_id||'|'||count(*) OVER () FROM commercial_discount_authorities WHERE organization_id={q(org)}\\\"));print('DEBUG quote discount=',sql(f\\\"SELECT discount_percent||'|'||status FROM sales_quotes WHERE id={q(quote)}\\\"))\\n\",\" save('discount_authority',{'id':authid,'max_discount_percent':20,'reason':'Revisão'})\\n\")\nopen(p,'w').write(s)\nEOF\ngrep -c DEBUG scripts/test-crm-db.py; git diff --stat scripts/test-crm-db.py"
+    },
+    "timestamp": 1790411857217
+  },
+  {
+    "role": "tool_result",
+    "content": "0\n scripts/test-crm-db.py | 4 +---\n 1 file changed, 1 insertion(+), 3 deletions(-)\n",
+    "is_error": false,
+    "timestamp": 1790411857266
   }
 ]
