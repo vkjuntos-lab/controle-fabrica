@@ -359,6 +359,12 @@ export const PLATFORM_MODULES: ModuleDefinition[] = [
     status: "available",
   },
   {
+    key: "planejamento",
+    label: "Planejamento",
+    description: "Previsão de demanda, MRP, necessidades e sugestões planejadas.",
+    status: "available",
+  },
+  {
     key: "producao",
     label: "Produção",
     description: "Matéria-prima e ordens de produção.",

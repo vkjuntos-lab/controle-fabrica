@@ -38,6 +38,7 @@ describe("rbac", () => {
       "parceiros",
       "financeiro",
       "compras",
+      "planejamento",
     ];
     const opcionais = PLATFORM_MODULES.filter((m) => !disponiveis.includes(m.key));
     for (const mod of opcionais) {
@@ -102,6 +103,17 @@ describe("rbac", () => {
     expect(PERMISSIONS.financialTransfersCreate).toBe("financial_transfers.create");
   });
 
+  it("reconhece as permissões do domínio de planejamento", () => {
+    expect(PERMISSIONS.planningRead).toBe("planning.read");
+    expect(PERMISSIONS.planningRun).toBe("planning.run");
+    expect(PERMISSIONS.planningSimulate).toBe("planning.simulate");
+    expect(PERMISSIONS.planningAdjustForecast).toBe("planning.adjust_forecast");
+    expect(PERMISSIONS.planningApproveSuggestion).toBe("planning.approve_suggestion");
+    expect(PERMISSIONS.planningConvertPurchase).toBe("planning.convert_purchase");
+    expect(PERMISSIONS.planningConvertProduction).toBe("planning.convert_production");
+    expect(PERMISSIONS.planningExport).toBe("planning.export");
+  });
+
   it("declara rótulo para todas as chaves reconhecidas", () => {
     for (const key of Object.values(PERMISSIONS)) {
       expect(typeof PERMISSION_LABELS[key]).toBe("string");
@@ -123,6 +135,19 @@ it("alinha as permissões de reconciliação ao contrato do banco", () => {
   const keys = Object.entries(PERMISSIONS).filter(
     ([key]) => key.startsWith("partnerReconciliation") || key.startsWith("marketplace"),
   );
+  expect(keys.length).toBeGreaterThan(0);
+  for (const [, value] of keys) expect(databaseKeys.has(value), value).toBe(true);
+});
+
+it("alinha as permissões de planejamento ao contrato do banco", () => {
+  const migration = readFileSync(
+    new URL("../../supabase/migrations/20261002100000_planning.sql", import.meta.url),
+    "utf8",
+  );
+  const databaseKeys = new Set(
+    [...migration.matchAll(/'(planning\.[a-z_]+)'/g)].map((match) => match[1]),
+  );
+  const keys = Object.entries(PERMISSIONS).filter(([key]) => key.startsWith("planning"));
   expect(keys.length).toBeGreaterThan(0);
   for (const [, value] of keys) expect(databaseKeys.has(value), value).toBe(true);
 });

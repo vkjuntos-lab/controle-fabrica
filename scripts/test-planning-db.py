@@ -9,7 +9,7 @@ q,sql,uid=db.q,db.sql,db.uid
 
 def run():
  db.setup()
- for name in ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql','20261001100000_purchasing.sql','20261002100000_planning.sql','20261003100000_planning_engine.sql']:sql((db.ROOT/'supabase/migrations'/name).read_text())
+ for name in ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql','20261001100000_purchasing.sql','20261002100000_planning.sql','20261003100000_planning_engine.sql','20261004100000_planning_fixes.sql']:sql((db.ROOT/'supabase/migrations'/name).read_text())
  a,b,c,org,other=[uid() for _ in range(5)]
  sql(f"INSERT INTO auth.users(id,email) VALUES({q(a)},'plan@test'),({q(b)},'approve@test'),({q(c)},'other@test');INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'Planning',{q(org)},{q(a)}),({q(other)},'Other',{q(other)},{q(c)});INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(b)},'gestor')")
  today=datetime.date.fromisoformat(sql('SELECT current_date'))
@@ -69,7 +69,7 @@ def run():
  print('PASS: partner100 and transit8 remain separate from factory20; inclusion rejected')
  # Partial PO through actual receiving/posting APIs.
  partial=variant('COMPRA-PARCIAL');catalog(partial);pid=po(partial,100,10)
- receipt=rpc('po_receive',org,pid,{'items':[{'variant_id':partial,'received_quantity':60}]})
+ receipt=rpc('po_receive',org,pid,{'items':[{'variant_id':partial,'quantity':60}]})
  rpc('receipt_action',org,receipt,'inspect');rpc('receipt_action',org,receipt,'post')
  r,_=execute();facts=rows(r,'facts',variant_id=partial);fact=next(x for x in facts if x['source_type']=='PURCHASE_RECEIPT');assert fact['quantity']==40,facts
  print('PASS: PO100 - posted receipt60 = scheduled40')
@@ -117,6 +117,78 @@ def run():
  rpc('pln_supplier',org,moq,user=a,fail='permission denied')
  assert int(sql("SELECT count(*) FROM audit_log WHERE action LIKE 'planning.%'"))>10
  print('PASS: RLS all planning entities, direct IDs, permissions, private helpers, audit')
+ # Forecast adjustments are editable and never silently duplicated.
+ fa=variant('AJUSTE');fid=jrpc('planning_save',org,'forecast',{'variant_id':fa,'quantity':10,'adjustment_date':date(5),'reason':'Demanda firme'})['id']
+ rpc('planning_save',org,'forecast',{'id':fid,'variant_id':fa,'quantity':25,'adjustment_date':date(5),'reason':'Demanda revista'})
+ assert sql(f"SELECT quantity FROM forecast_adjustments WHERE id={q(fid)}")=='25.000'
+ rpc('planning_save',org,'forecast',{'variant_id':fa,'quantity':5,'adjustment_date':date(5),'reason':'Duplicado'},fail='Já existe ajuste')
+ print('PASS: forecast adjustment edited in place; duplicate period rejected with clear message')
+ # Observed lead time comes from posted receipts and never fails the run.
+ obs=variant('LEAD-OBSERVADO');catalog(obs);obs_po=po(obs,30,0)
+ sql(f"UPDATE purchase_orders SET issue_date=current_date-10 WHERE id={q(obs_po)}")
+ obs_receipt=rpc('po_receive',org,obs_po,{'items':[{'variant_id':obs,'quantity':30}]})
+ rpc('receipt_action',org,obs_receipt,'inspect');rpc('receipt_action',org,obs_receipt,'post');forecast(obs,50,20)
+ rpc('planning_save',org,'settings',{'lead_time_policy':'USE_OBSERVED'})
+ obs_run,_=execute();assert obs_run['status']!='FAILED',obs_run
+ assert 9<=rows(obs_run,'orders',variant_id=obs)[0]['why']['lead_time_days']<=11,rows(obs_run,'orders',variant_id=obs)
+ rpc('planning_save',org,'settings',{'lead_time_policy':'USE_CONFIGURED'})
+ print('PASS: observed lead time measured from posted receipts without failing the run')
+ # Manual lead time override per variant is reachable and can be cleared.
+ manual=variant('LEAD-MANUAL');manual_catalog=catalog(manual);forecast(manual,10,20)
+ rpc('planning_save',org,'settings',{'lead_time_policy':'USE_MANUAL'})
+ rpc('planning_save',org,'variant',{'variant_id':manual,'safety_stock':0,'purchase_lead_time_days':9})
+ mrun,_=execute();assert rows(mrun,'orders',variant_id=manual)[0]['why']['lead_time_days']==9,rows(mrun,'orders',variant_id=manual)
+ rpc('planning_save',org,'variant',{'variant_id':manual,'safety_stock':0,'purchase_lead_time_days':''})
+ assert sql(f"SELECT lead_time_overrides->'{manual}' FROM planning_settings WHERE organization_id={q(org)}")==''
+ rpc('planning_save',org,'settings',{'lead_time_policy':'USE_CONFIGURED'})
+ print('PASS: manual lead time override applied and cleared per variant')
+ # Parameter writes do not bypass catalog, BOM or supplier permissions.
+ prod_user=uid()
+ sql(f"INSERT INTO auth.users(id,email) VALUES({q(prod_user)},'prod@test');INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(prod_user)},'producao')")
+ rpc('planning_save',org,'variant',{'variant_id':manual,'safety_stock':5},user=prod_user,fail='products.manage')
+ rpc('planning_save',org,'supplier_product',{'id':manual_catalog,'order_multiple':5},user=prod_user,fail='suppliers.manage')
+ print('PASS: planning parameter writes require the domain permission of the target table')
+ # Run names are unique per organization and the list never carries the heavy snapshot.
+ named={'name':'Nome repetido','idempotency_key':uid(),'horizon_start':date(0),'horizon_end':date(5)}
+ assert jrpc('planning_execute',org,named)['status']!='FAILED'
+ rpc('planning_execute',org,{**named,'idempotency_key':uid()},fail='Já existe um planejamento')
+ listed=jrpc('planning_query',org,'runs',{})['rows']
+ assert listed and 'parameters_snapshot' not in listed[0] and 'request_payload' not in listed[0],listed[0]
+ assert 'parameters_snapshot' in jrpc('planning_query',org,'run',{'run_id':listed[0]['id']})
+ print('PASS: duplicated run name rejected; run list slim while detail keeps the snapshot')
+ # Historical unit forecast, cancelled sales excluded, partner sales counted once.
+ hist=variant('HISTORICO');catalog(hist)
+ ownstore=jrpc('marketplace_save_store',org,{'code':'HIST-OWN','name':'Loja própria','marketplace':'TEST','ownership_type':'OWN'})['id']
+ rpc('marketplace_save_mapping',org,{'external_sku':'HIST-SKU','variant_id':hist})
+ rpc('marketplace_register_sale',org,{'store_id':ownstore,'sale_date':date(-30),'external_order_id':'HIST-90','external_event_id':'HIST-90','external_sku':'HIST-SKU','quantity':90,'gross_amount':900})
+ canceled=jrpc('marketplace_register_sale',org,{'store_id':ownstore,'sale_date':date(-1),'external_order_id':'CANCELED-999','external_event_id':'CANCELED-999','external_sku':'HIST-SKU','quantity':999,'gross_amount':999})['id']
+ sql(f"UPDATE marketplace_sales SET status='CANCELED' WHERE id={q(canceled)}")
+ ph=variant('HIST-PARCEIRO');catalog(ph)
+ company=rpc('partner_save_company',org,{'code':'HIST-P','legal_name':'Parceiro histórico','roles':['PARTNER']})
+ profile=jrpc('partner_query',org,'company',{'id':company})['profile'];ploc=profile['default_inventory_location_id']
+ rpc('inventory_post_movement',org,ph,ploc,'OPENING_BALANCE',20,'Saldo anterior',date(-40))
+ st=jrpc('marketplace_save_store',org,{'code':'HIST-P','name':'Loja parceira','marketplace':'TEST','ownership_type':'PARTNER','partner_id':profile['id']})['id']
+ rpc('marketplace_save_mapping',org,{'external_sku':'HIST-P-SKU','variant_id':ph})
+ ps=jrpc('marketplace_register_sale',org,{'store_id':st,'sale_date':date(-30),'external_order_id':'PARTNER-10','external_event_id':'PARTNER-10','external_sku':'HIST-P-SKU','quantity':10,'gross_amount':100})['id']
+ rec=jrpc('rec_create',org,{'partner_id':profile['id'],'period_start':date(-30),'period_end':date(-1)})['reconciliation_id'];rpc('rec_process',org,rec)
+ rpc('planning_save',org,'settings',{'demand_sources':['HISTORICAL_SALES','MANUAL_FORECAST','MINIMUM_STOCK'],'history_days':30,'min_history_days':30,'forecast_method':'SIMPLE_MOVING_AVERAGE'})
+ history_run,_=execute(horizon_end=date(29))
+ assert rows(history_run,'items',variant_id=hist)[0]['daily_demand']==3
+ assert float(sql(f"SELECT sum(base_forecast) FROM planning_projections WHERE planning_run_id={q(history_run['id'])} AND variant_id={q(hist)}"))==90
+ facts=rows(history_run,'facts',variant_id=ph);sales=[f for f in facts if f['source_type']=='HISTORICAL_SALES'];assert len(sales)==1 and sales[0]['quantity']==10,sales
+ assert sql(f"SELECT count(*) FROM planning_source_facts WHERE planning_run_id={q(history_run['id'])} AND source_id={q(canceled)}")=='0'
+ assert rows(history_run,'items',variant_id=fa)[0]['days_of_cover'] is None
+ print('PASS: 90/30 = 3 daily and 90 projected; partner10 counted once; cancellation excluded; zero-demand cover NULL')
+ forecast(hist,5,10);adjusted,_=execute(horizon_end=date(29))
+ assert float(sql(f"SELECT sum(demand) FROM planning_projections WHERE planning_run_id={q(adjusted['id'])} AND variant_id={q(hist)}"))==95
+ weekly=rows(adjusted,'projections',variant_id=hist,bucket='WEEKLY');assert sum(x['base_forecast'] for x in weekly)==90 and sum(x['manual_adjustment'] for x in weekly)==5,weekly
+ assert len(weekly)==5 and weekly[0]['opening_quantity']==0
+ print('PASS: base90 + adjustment5 =95; weekly sums flows while retaining opening/closing balances')
+ weighted=variant('PONDERADO');catalog(weighted);rpc('marketplace_save_mapping',org,{'external_sku':'W-SKU','variant_id':weighted})
+ for age,qty in [(30,30),(1,60)]:rpc('marketplace_register_sale',org,{'store_id':ownstore,'sale_date':date(-age),'external_order_id':f'W-{age}','external_event_id':f'W-{age}','external_sku':'W-SKU','quantity':qty,'gross_amount':qty})
+ rpc('planning_save',org,'settings',{'forecast_method':'WEIGHTED_MOVING_AVERAGE','weighted_weights':[2,1]})
+ wrun,_=execute(horizon_end=date(29));daily=rows(wrun,'items',variant_id=weighted)[0]['daily_demand'];assert abs(daily-(60*2+30)/(15*2+15))<.000001,daily
+ print('PASS: configurable weighted mean uses daily denominators and higher recent weights')
  # The graph cycle blocks the entire run without generating suggestions.
  x=variant('CYCLE-A','SEMI_FINISHED_GOOD');y=variant('CYCLE-B','SEMI_FINISHED_GOOD');bom(x,y);bom(y,x);forecast(x,10,10)
  bad=jrpc('planning_execute',org,{'name':uid(),'idempotency_key':uid(),'horizon_end':date(30)})

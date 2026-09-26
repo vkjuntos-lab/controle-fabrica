@@ -133,6 +133,7 @@ function Runs({ org, simulation }: { org: string; simulation: boolean }) {
             demand_multiplier: Number(f.demand_multiplier),
             lead_time_adjustment_days: Number(f.lead_time_adjustment_days),
             safety_stock_multiplier: Number(f.safety_stock_multiplier),
+            target_stock_multiplier: Number(f.target_stock_multiplier),
           },
         },
       });
@@ -215,6 +216,18 @@ function Runs({ org, simulation }: { org: string; simulation: boolean }) {
                   Multiplicador de segurança
                   <Input
                     name="safety_stock_multiplier"
+                    required
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    defaultValue="1"
+                  />
+                </Label>
+                <Label>
+                  Multiplicador do estoque alvo
+                  <Input
+                    name="target_stock_multiplier"
                     required
                     type="number"
                     min="0"
@@ -443,6 +456,7 @@ function Forecast({ org }: { org: string }) {
     cache = useQueryClient();
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [editing, setEditing] = useState<PlanningRow | null>(null);
   const options = useQuery({
     queryKey: ["planning", org, "options", search],
     queryFn: () =>
@@ -460,6 +474,7 @@ function Forecast({ org }: { org: string }) {
           organizationId: org,
           kind: "forecast",
           values: {
+            ...(editing ? { id: String(editing.id) } : {}),
             variant_id: String(f.variant_id),
             adjustment_date: String(f.adjustment_date),
             quantity: Number(f.quantity),
@@ -469,7 +484,12 @@ function Forecast({ org }: { org: string }) {
       });
     },
     onSuccess: () => {
-      toast.success("Ajuste registrado; execute novo planejamento para utilizá-lo");
+      toast.success(
+        editing
+          ? "Ajuste atualizado; execute novo planejamento para utilizá-lo"
+          : "Ajuste registrado; execute novo planejamento para utilizá-lo",
+      );
+      setEditing(null);
       void cache.invalidateQueries({ queryKey: ["planning", org] });
     },
     onError: (e) => toast.error(e.message),
@@ -482,6 +502,7 @@ function Forecast({ org }: { org: string }) {
       </p>
       <State loading={options.isLoading} error={options.error} empty={!options.data}>
         <form
+          key={editing ? String(editing.id) : "novo"}
           className="space-y-3 rounded border p-4"
           onSubmit={(e) => {
             e.preventDefault();
@@ -496,7 +517,12 @@ function Forecast({ org }: { org: string }) {
           <div className="grid gap-3 sm:grid-cols-2">
             <Label>
               Variante
-              <select required name="variant_id" className={inputClass}>
+              <select
+                required
+                name="variant_id"
+                className={inputClass}
+                defaultValue={editing ? String(editing.variant_id) : ""}
+              >
                 <option value="">Selecione</option>
                 {rows(options.data?.variants).map((v) => (
                   <option key={v.id} value={v.id}>
@@ -507,27 +533,52 @@ function Forecast({ org }: { org: string }) {
             </Label>
             <Label>
               Data necessária
-              <Input required name="adjustment_date" type="date" min={today()} />
+              <Input
+                required
+                name="adjustment_date"
+                type="date"
+                min={today()}
+                defaultValue={editing ? String(editing.adjustment_date) : ""}
+              />
             </Label>
             <Label>
               Quantidade adicional
-              <Input required name="quantity" type="number" min="0.001" step="0.001" />
+              <Input
+                required
+                name="quantity"
+                type="number"
+                min="0.001"
+                step="0.001"
+                defaultValue={editing ? number(editing.quantity) : undefined}
+              />
             </Label>
             <Label>
               Motivo
-              <Input required name="reason" />
+              <Input required name="reason" defaultValue={editing ? String(editing.reason) : ""} />
             </Label>
           </div>
-          <Button disabled={mutation.isPending}>Registrar ajuste</Button>
+          <div className="flex gap-2">
+            <Button disabled={mutation.isPending}>
+              {editing ? "Salvar ajuste" : "Registrar ajuste"}
+            </Button>
+            {editing ? (
+              <Button type="button" variant="outline" onClick={() => setEditing(null)}>
+                Cancelar edição
+              </Button>
+            ) : null}
+          </div>
         </form>
       </State>
       <State loading={q.isLoading} error={q.error} empty={!rows(q.data?.rows).length}>
         {rows(q.data?.rows).map((r) => (
-          <article key={r.id} className="rounded border p-3">
+          <article key={r.id} className="flex flex-wrap items-center gap-3 rounded border p-3">
             <strong>{String(r.sku)}</strong>
             <p>
               {String(r.adjustment_date)} · +{number(r.quantity)} · {String(r.reason)}
             </p>
+            <Button type="button" variant="outline" onClick={() => setEditing(r)}>
+              Editar
+            </Button>
           </article>
         ))}
         <Pagination page={page} total={q.data?.total ?? 0} setPage={setPage} />
@@ -665,6 +716,7 @@ function Settings({ org }: { org: string }) {
             >
               <option value="USE_CONFIGURED">Configurado no fornecedor</option>
               <option value="USE_OBSERVED">Observado nos recebimentos postados</option>
+              <option value="USE_MANUAL">Manual por variante</option>
             </select>
           </Label>
           <Label>
@@ -765,6 +817,7 @@ function Settings({ org }: { org: string }) {
                 values: {
                   variant_id: v.id,
                   safety_stock: Number(f.safety_stock),
+                  purchase_lead_time_days: String(f.purchase_lead_time_days ?? ""),
                   ...(f.production_lead_time_days !== ""
                     ? { production_lead_time_days: Number(f.production_lead_time_days) }
                     : {}),
@@ -794,6 +847,16 @@ function Settings({ org }: { org: string }) {
                 defaultValue={
                   v.production_lead_time_days == null ? "" : Number(v.production_lead_time_days)
                 }
+              />
+            </Label>
+            <Label>
+              Prazo manual de compra (dias)
+              <Input
+                name="purchase_lead_time_days"
+                type="number"
+                min="0"
+                max="365"
+                defaultValue={String(record(cfg.lead_time_overrides)[String(v.id)] ?? "")}
               />
             </Label>
             <Button disabled={mutation.isPending}>Salvar variante</Button>

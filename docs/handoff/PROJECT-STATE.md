@@ -1,5 +1,39 @@
 # Estado do projeto — handoff contínuo
 
+## Revisão de continuidade — 26/09/2026 (MASTER 011)
+
+O checkout já continha o esqueleto do MASTER 011. Esta revisão corrigiu o motor, fechou lacunas de
+interface e documentou o domínio. Não iniciou outro projeto nem outro domínio, e não reescreveu
+migration publicada: as correções estão em `20261004100000_planning_fixes.sql`.
+
+O cálculo com BOM podia falhar: `planning_execute` falhava ao validar componentes da BOM com
+`column reference "factor" is ambiguous` (coluna `pln_edges.factor` × variável PL/pgSQL `factor`).
+Corrigido, junto com drift de BOM exigindo `ACTIVE` contra o critério de BOM vigente por data,
+`planning_save` gravando catálogo/BOM/múltiplo sem a permissão do domínio, papel `estoque` com
+`planning.convert_purchase` sem `purchase_requests.create` (botão que sempre falhava), nome de
+execução repetido com erro cru, `parameters_snapshot` (todas as arestas de BOM da organização) na
+listagem e no dashboard, ajuste de forecast sem edição e com duplicidade silenciosa, limite de
+sugestões com `count(*)` por dia, e política `USE_MANUAL` e prazo por variante sem caminho na
+interface. O `eslint.config.js` também não ignorava artefatos de build e o lint global não
+concluía.
+
+Documentação do domínio criada: [PLANNING](../business/PLANNING.md), [MRP](../business/MRP.md),
+[DEMAND-FORECAST](../business/DEMAND-FORECAST.md),
+[REPLENISHMENT-PLANNING](../business/REPLENISHMENT-PLANNING.md) e
+[ADR 008](../architecture/ADR-008-PLANNING-ENGINE.md). A reposição do MASTER 010 continua válida
+e complementar: ela sugere compra pelo saldo atual, o planejamento projeta a necessidade e a
+converte por decisão humana.
+
+Verificações: `npm run test:planning:db` com 20 grupos em PostgreSQL descartável, 39 testes
+unitários, build, TypeScript e lint do domínio sem erros. Regra mestra verificada por teste: planejamento
+não cria movimento de estoque, pedido, ordem de produção nem conta a pagar. Relatório desta
+continuação: [MASTER-011-VALIDATION](MASTER-011-VALIDATION.md).
+
+Pendências honestas: a aplicação das três migrations de planejamento no Lovable Cloud não foi verificada e
+não houve smoke test autenticado no ambiente publicado. Dívida de formatação pré-existente
+permanece em arquivos de outros módulos (`auth-middleware`, `csv`, `logger`, entre outros): 169
+erros de Prettier não introduzidos aqui.
+
 ## Revisão de continuidade — 25/09/2026 (MASTER 009)
 
 O checkout já contém os módulos posteriores de Compras e Planejamento. Esta revisão preservou
@@ -391,26 +425,33 @@ Validação local; publicação não verificada.
 
 ## NEXT_STEPS
 
-1. Aplicar a migration do MASTER 010 no Lovable Cloud e executar smoke test autenticado
+1. Aplicar as três migrations do MASTER 011 (`20261002100000_planning.sql`,
+   `20261003100000_planning_engine.sql`, `20261004100000_planning_fixes.sql`) no Lovable Cloud e
+   executar smoke test autenticado (parâmetros, execução, forecast, simulação, sugestão → conversão)
+   no ambiente publicado.
+2. Aplicar a migration do MASTER 010 no Lovable Cloud e executar smoke test autenticado
    (fornecedores, requisição → cotação → pedido → recebimento → postagem, documento/exceções,
    reposição) no ambiente publicado.
-2. Aplicar a migration do MASTER 009 no Lovable Cloud e executar smoke test autenticado
+3. Aplicar a migration do MASTER 009 no Lovable Cloud e executar smoke test autenticado
    (custos, precificação, rentabilidade) no ambiente publicado.
-2. Implementar/validar o importador MASTER 005 com o contrato de `marketplace_stores`, vínculo
+4. Implementar/validar o importador MASTER 005 com o contrato de `marketplace_stores`, vínculo
    PARTNER → `partner_profiles` e `marketplace_sales` já existentes. Não duplicar o cadastro de lojas.
-3. Financeiro de parceiros: consumir o snapshot/evento `PARTNER_RECONCILIATION_CLOSED` para gerar
+5. Financeiro de parceiros: consumir o snapshot/evento `PARTNER_RECONCILIATION_CLOSED` para gerar
    cobrança (AR) e registrar pagamento; limites de crédito e condições de pagamento.
-4. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,
+6. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,
    `PURCHASE_RECEIPT`, `PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`).
-5. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.
-6. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a
+7. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.
+8. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a
    `/api/webhooks/receiver` quando houver integração externa.
+9. Quitar a dívida de formatação pré-existente do lint global (169 erros de Prettier em
+   `auth-middleware`, `csv`, `logger` e rotas antigas), sem misturar com mudanças de domínio.
 
 ## VALIDAÇÃO DESTA CONTINUAÇÃO
 
 Relatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-VALIDATION.md`,
-`docs/handoff/MASTER-007-VALIDATION.md`, `docs/handoff/MASTER-009-VALIDATION.md` e
-`docs/handoff/MASTER-010-VALIDATION.md`.
-37 testes unitários, harness PostgreSQL de estoque, de parceiros, de reconciliação, de custos e de
-compras (MASTER 010: `npm run test:purchasing:db`), TypeScript, build e lint do domínio verificados.
-A implantação no banco publicado não faz parte da evidência local e permanece pendente.
+`docs/handoff/MASTER-007-VALIDATION.md`, `docs/handoff/MASTER-009-VALIDATION.md`,
+`docs/handoff/MASTER-010-VALIDATION.md` e `docs/handoff/MASTER-011-VALIDATION.md`.
+39 testes unitários, harness PostgreSQL de estoque, de parceiros, de reconciliação, de custos, de
+compras e de planejamento (MASTER 011: `npm run test:planning:db`, 20 grupos), TypeScript e lint do
+domínio verificados. A implantação no banco publicado não faz parte da evidência local e permanece
+pendente.
