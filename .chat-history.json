@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "edit",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261005100000_crm.sql",
-      "oldString": " IF _kind='finance' THEN\n  PERFORM public.crm_require(_org,'commercial_sensitive.read');PERFORM public.crm_require(_org,'receivables.read');\n  IF company IS NULL OR NOT public.crm_company_access(_org,company) THEN RAISE EXCEPTION 'Empresa não autorizada.'; END IF;\n  RETURN public.crm_financial_position(_org,company);",
-      "newString": " IF _kind='members' THEN\n  -- Lista de nomes da própria organização, usada por responsáveis, alçadas e\n  -- gestores. Não exige `users.read` (permissão de administration de usuários):\n  -- exibir o nome de um colega da mesma organização não é administrar usuários,\n  -- e exigir a permissão de usuários esconderia o responsável de um lead.\n  PERFORM public.crm_require(_org,'crm.read');\n  IF NOT public.is_org_member(_org) THEN RAISE EXCEPTION 'Organização não autorizada.'; END IF;\n  SELECT coalesce(jsonb_agg(jsonb_build_object('id',m.user_id,'name',coalesce(p.full_name,p.email,m.user_id::text))),'[]') INTO result\n  FROM organization_members m LEFT JOIN profiles p ON p.id=m.user_id\n  WHERE m.organization_id=_org AND m.is_active\n   AND (nullif(_filters->>'q','') IS NULL OR coalesce(p.full_name,p.email,'') ILIKE '%'||(_filters->>'q')||'%');\n  RETURN jsonb_build_object('rows',result,'total',jsonb_array_length(result));\n ELSIF _kind='finance' THEN\n  PERFORM public.crm_require(_org,'commercial_sensitive.read');PERFORM public.crm_require(_org,'receivables.read');\n  IF company IS NULL OR NOT public.crm_company_access(_org,company) THEN RAISE EXCEPTION 'Empresa não autorizada.'; END IF;\n  RETURN public.crm_financial_position(_org,company);"
-    },
-    "timestamp": 1790412744310
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790412744318
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/crm/config.ts",
       "newString": "export type Area = {\n  title: string;\n  /** `kind` enviado para `crm_query`. */\n  query: string;\n  /** `kind` enviado para `crm_save`; ausente quando o cadastro é só leitura. */\n  save?: string;\n  permission: string;\n  /** Permissão necessária para gravar; o servidor exige a mesma chave. */\n  write?: string;\n  fields: Field[];\n  /** Colunas exibidas na listagem, na ordem desejada. */\n  columns: string[];\n  /** `kind` de `crm_query` usado como options em filtros. */\n  filters?: { key: string; label: string; kind: string; permission: string }[];\n  /**\n   * Gravação em mais de um `crm_save`. O cliente comercial é o caso real: o\n   * vínculo empresa↔perfil e os atributos do perfil são tabelas diferentes, e o\n   * servidor trata as duas com permissões e efeitos colaterais próprios.\n   */\n  saves?: SaveStep[];\n  /** Campos que não podem mudar depois de criados (ver `saves`). */\n  immutableOnEdit?: string[];\n  /** Colunas de chave estrangeira e o `kind` usado para mostrar o nome. */\n  refColumns?: Record<string, string>;\n};\n\nexport type SaveStep = {\n  /** `kind` enviado para `crm_save`. */\n  kind: string;\n  /** Campos do formulário pertencentes a este passo. */\n  fields: string[];\n  /**\n   * Usa como `id` o registro devolvido pelo passo anterior. Necessário quando o\n   * id do perfil só existe depois da criação do vínculo.\n   */\n  usePreviousId?: boolean;\n  /** Executa apenas quando o registro já existe. */\n  onlyExisting?: boolean;\n};\n",
       "oldString": "export type Area = {\n  title: string;\n  /** `kind` enviado para `crm_query`. */\n  query: string;\n  /** `kind` enviado para `crm_save`; ausente quando o cadastro é só leitura. */\n  save?: string;\n  permission: string;\n  /** Permissão necessária para gravar; o servidor exige a mesma chave. */\n  write?: string;\n  fields: Field[];\n  /** Colunas exibidas na listagem, na ordem desejada. */\n  columns: string[];\n  /** `kind` de `crm_query` usado como options em filtros. */\n  filters?: { key: string; label: string; kind: string; permission: string }[];\n};\n"
@@ -1622,5 +1606,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790413737571
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "# Propostas, versionamento e aprovação\n\nData: 26/09/2026. MASTER 012.\n\nProposta é o compromisso formal com preço. Uma oportunidade pode ter várias propostas e cada\nproposta pode ter várias versões, mas apenas uma versão vigente.\n\n## Proposta e versões\n\n`sales_quotes` guarda a proposta (oportunidade, cliente, responsável, condição de pagamento,\nvalidade, status) e `sales_quote_items` guarda os itens. O total, o desconto e a margem **não**\nsão informados pelo usuário: o servidor os calcula a partir dos itens, da tabela de preço\nvigente e do Cost Engine, e os persiste como snapshot da versão.\n\nVersionar copia os itens da versão anterior para uma nova, que nasce `DRAFT`. A versão anterior\nvira histórica e continua auditável. Isso é o que permite responder \"por que o cliente recebeu\naquele preço em março\" depois de a tabela de preço ter mudado.\n\n## Status e transições\n\n`DRAFT` → `PENDING_APPROVAL` → `APPROVED` → `SENT` → `ACCEPTED` ou `REJECTED`, com\n`EXPIRED` e `CANCELED` como saídas.\n\n- `DRAFT` é editável e deletável.\n- `PENDING_APPROVAL` bloqueia edição de itens e total; a proposta já está sob decisão de\n  alçada.\n- `APPROVED` exige ter passado por aprovação dentro da alçada. Uma proposta sem aprovação\n  registrada não chega a `APPROVED`, mesmo com a permissão de edição.\n- `SENT` é o estado em que o cliente tem a proposta. `ACCEPTED` é irreversível: Versions\n  posteriores não podem ser aceitas depois de um aceite, porque o aceite é o compromisso.\n- `EXPIRED` é automático por validade, no servidor.\n\nAs transições são `crm_action` com chave de idempotência. Repetir aceite devolve o mesmo\nresultado, sem duplicar版本.\n\n## Aprovação e alçada\n\n`quote_approvals` registra cada decisão: aprovador, alçada exigida, decisão, motivo e momento.\nA alçada vem de `commercial_discount_authorities`, que define por papel, faixa de desconto e\npercentual máximo aprovado. Um aprovador sem alçada suficiente não aprova, e a tentativa fica\nregistrada em auditoria.\n\nIsso substitui o controle informal de \"o gerente olhou e mandou aprovar\": a aprovação é um\nregistro com pessoa, hora e limite.\n\n## Integração com preços e estoque\n\nO preço vem da tabela vigente (MASTER 007) e a margem do Cost Engine (MASTER 009). O item\ncarrega a variante e a quantidade; qualquer divergência de preço é resolvida pelo servidor no\nmomento da leitura e da aprovação.\n\nA consulta de estoque de cada item é informativa, via Inventory Ledger. **Não há reserva**: a\nproposta aprovada não bloqueia estoque, porque reserva operacional definitiva pertence ao motor\nde pedidos do MASTER 013. A tela deixa isso explícito em vez de sugerir disponibilidade\ngarantida.\n\n## Limitações\n\nSem assinatura eletrônica, sem envio real por e-mail ou WhatsApp, sem PDF gerado, sem\ncomissionamento financeiro e sem faturamento. Todos esses itens estão no MASTER 013.\n",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/SALES-QUOTES.md"
+    },
+    "timestamp": 1790413748531
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790413748539
   }
 ]
