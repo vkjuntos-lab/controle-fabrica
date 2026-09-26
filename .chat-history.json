@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md"
-    },
-    "timestamp": 1790411716032
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/docs/handoff/PROJECT-STATE.md</path>\n<type>file</type>\n<content>\n1: # Estado do projeto — handoff contínuo\n2: \n3: ## Revisão de continuidade — 26/09/2026 (MASTER 011)\n4: \n5: O checkout já continha o esqueleto do MASTER 011. Esta revisão corrigiu o motor",
-    "is_error": false,
-    "timestamp": 1790411716075
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/tmp/opencode/master012.md"
     },
     "timestamp": 1790411719309
@@ -1567,5 +1553,20 @@
     "content": "\n> typecheck\n> tsc --noEmit\n\n",
     "is_error": false,
     "timestamp": 1790412869330
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 3000 python3 scripts/test-crm-db.py\" 2>&1 | tail -30",
+      "timeout": 3000000
+    },
+    "timestamp": 1790412872255
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS A: supplier gains customer role without duplicate Company\nPASS B: concurrent lead conversion idempotent; contact and history retained\nPASS C: portfolio changes preserve prior assignments and opportunity owner\nPASS D: item quantities sum to 60; stage snapshots; no stock writes\nPASS E/F/G: quote ",
+    "is_error": false,
+    "timestamp": 1790412875342
   }
 ]
