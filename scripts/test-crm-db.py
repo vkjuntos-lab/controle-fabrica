@@ -53,7 +53,7 @@ def run():
  assert sql(f"SELECT count(*) FROM opportunity_stage_history WHERE opportunity_id={q(opp)}")=='2'
  assert sql("SELECT count(*) FROM inventory_movements")=='0'
  print('PASS D: item quantities sum to 60; stage snapshots; no stock writes')
- table=sql(f"SELECT price_save_table({q(org)},'{json.dumps({'code':'B2B','name':'B2B','valid_from':'2020-01-01'})}')",a)
+ table=json.loads(rpc('price_save_table',org,{'code':'B2B','name':'B2B','valid_from':'2020-01-01'}))['id']
  for v in variants:rpc('pricing_publish',org,{'price_table_id':table,'variant_id':v,'unit_price':10,'valid_from':'2020-01-01'})
  valid=(datetime.date.today()+datetime.timedelta(days=30)).isoformat()
  quote_data={'company_id':company,'price_table_id':table,'primary_contact_id':contact,'valid_until':valid,'items':items,'discount_percent':10}
