@@ -1,106 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "todowrite",
-    "input": {
-      "todos": [
-        {
-          "content": "Auditar codebase e planejar MASTER 012",
-          "status": "completed",
-          "priority": "high"
-        },
-        {
-          "content": "Auditar migration e backend CRM existentes",
-          "status": "completed",
-          "priority": "high"
-        },
-        {
-          "content": "Criar e rodar testes de banco do CRM",
-          "status": "completed",
-          "priority": "high"
-        },
-        {
-          "content": "Corrigir bug de patch parcial no crm_save",
-          "status": "completed",
-          "priority": "high"
-        },
-        {
-          "content": "Adicionar permissões CRM no RBAC e menu",
-          "status": "completed",
-          "priority": "high"
-        },
-        {
-          "content": "Criar config/shared/data/list/dashboard do CRM",
-          "status": "completed",
-          "priority": "high"
-        },
-        {
-          "content": "Validar typecheck e harness após kind members",
-          "status": "completed",
-          "priority": "high"
-        },
-        {
-          "content": "Telas de leads, clientes e Customer 360",
-          "status": "completed",
-          "priority": "high"
-        },
-        {
-          "content": "Tela de pipeline, Kanban e histórico de oportunidades",
-          "status": "in_progress",
-          "priority": "high"
-        },
-        {
-          "content": "Tela de propostas, itens, versões e aceite",
-          "status": "pending",
-          "priority": "high"
-        },
-        {
-          "content": "Telas de atividades, representantes e carteiras",
-          "status": "pending",
-          "priority": "medium"
-        },
-        {
-          "content": "Tela de relatórios e configurações comerciais",
-          "status": "pending",
-          "priority": "medium"
-        },
-        {
-          "content": "Criar todas as rotas em src/routes/_authenticated/comercial",
-          "status": "pending",
-          "priority": "high"
-        },
-        {
-          "content": "Atualizar tipos Supabase das RPCs CRM",
-          "status": "pending",
-          "priority": "medium"
-        },
-        {
-          "content": "Testes unitários da lógica pura do CRM",
-          "status": "pending",
-          "priority": "medium"
-        },
-        {
-          "content": "Documentação, ADR, PROJECT-STATE e MASTER-012-VALIDATION",
-          "status": "pending",
-          "priority": "medium"
-        },
-        {
-          "content": "Validação final: test, typecheck, build, lint, test:crm:db",
-          "status": "pending",
-          "priority": "high"
-        }
-      ]
-    },
-    "timestamp": 1790412881826
-  },
-  {
-    "role": "tool_result",
-    "content": "[\n  {\n    \"content\": \"Auditar codebase e planejar MASTER 012\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Auditar migration e backend CRM existentes\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Criar e rodar testes de banco do CRM\",\n   ",
-    "is_error": false,
-    "timestamp": 1790412881831
-  },
-  {
-    "role": "tool",
     "tool": "write",
     "input": {
       "content": "import { useState } from \"react\";\nimport { useMutation, useQueryClient } from \"@tanstack/react-query\";\nimport { useServerFn } from \"@tanstack/react-start\";\nimport { toast } from \"sonner\";\n\nimport { Button } from \"@/components/ui/button\";\nimport { Card, CardContent } from \"@/components/ui/card\";\nimport {\n  Dialog,\n  DialogContent,\n  DialogDescription,\n  DialogFooter,\n  DialogHeader,\n  DialogTitle,\n} from \"@/components/ui/dialog\";\nimport { Tabs, TabsContent, TabsList, TabsTrigger } from \"@/components/ui/tabs\";\nimport { Textarea } from \"@/components/ui/textarea\";\nimport { actCrm, type CrmRow } from \"@/lib/crm/crm.functions\";\nimport { OPPORTUNITY_STATUS, opportunityStatusLabel } from \"@/lib/crm/constants\";\nimport { useOrganization } from \"@/lib/org/org-context\";\nimport { areas } from \"./config\";\nimport { asNumber, useCrmQuery } from \"./data\";\nimport { CrmListPage, RecordDialog } from \"./list\";\nimport { Picker, ResultState, Shell, StatusBadge, money, percent, str } from \"./shared\";\n\nconst area = areas.oportunidades;\n\n/**\n * Pipeline.\n *\n * A visualização padrão é o Kanban por etapa, porque é assim que a operação lê\n * o funil. A tabela completa continua em \"Lista\", porque o Kanban não mostra\n * contato, valor ponderado nem histórico — escondê-lo seria损失的 de informação,\n * não uma escolha de visual.\n */\nexport function OpportunitiesPage() {\n  const [view, setView] = useState<\"kanban\" | \"list\">(\"kanban\");\n  return (\n    <Shell title=\"Comercial · Pipeline\" permission={area.permission}>\n      {(org) => (\n        <div className=\"space-y-5\">\n          <div className=\"flex flex-wrap items-center justify-between gap-3\">\n            <h2 className=\"font-heading text-xl font-semibold\">Pipeline</h2>\n            <Tabs value={view} onValueChange={(next) => setView(next as \"kanban\" | \"list\")}>\n              <TabsList>\n                <TabsTrigger value=\"kanban\">Kanban</TabsTrigger>\n                <TabsTrigger value=\"list\">Lista</TabsTrigger>\n              </TabsList>\n            </Tabs>\n          </div>\n          {view === \"kanban\" ? <Kanban org={org} /> : <OpportunityTable org={org} />}\n        </div>\n      )}\n    </Shell>\n  );\n}\n\ntype Stage = CrmRow & { id: string };\n\n/**\n * Kanban. Os cartões são as oportunidades abertas do pipeline escolhido; a\n * contagem e o total de cada coluna vêm da consulta, não de um cálculo local, e\n * arrastar cartão não é permitido: a mudança de etapa é uma transição de\n * servidor que grava histórico e recalcula probabilidade.\n */\nfunction Kanban({ org }: { org: string }) {\n  const { currentOrganization, hasPermission } = useOrganization();\n  const [pipelineId, setPipelineId] = useState(\"\");\n  const [editing, setEditing] = useState<CrmRow | null | undefined>(undefined);\n  const [dragging, setDragging] = useState<CrmRow | null>(null);\n\n  const pipelines = useCrmQuery(org, \"pipelines\", { status: \"ACTIVE\" }, 1);\n  const activePipeline =\n    pipelineId ||\n    (((pipelines.data?.rows ?? [])[0] as CrmRow | undefined)?.id ?? \"\");\n  const stages = useCrmQuery(org, \"stages\", activePipeline ? { pipeline_id: activePipeline } : {}, 1);\n  const board = useCrmQuery(\n    org,\n    \"opportunities\",\n    { status: \"OPEN\", ...(activePipeline ? { pipeline_id: activePipeline } : {}) },\n    1,\n    Boolean(activePipeline),\n  );\n\n  const columns = ((stages.data?.rows ?? []) as Stage[]).sort(\n    (a, b) => asNumber(a.position) - asNumber(b.position),\n  );\n  const cards = (board.data?.rows ?? []) as CrmRow[];\n\n  if (!currentOrganization) return null;\n  const canWrite = hasPermission(area.write!);\n\n  return (\n    <>\n      <div className=\"flex flex-wrap items-end gap-3\">\n        <div className=\"min-w-64 space-y-1\">\n          <label className=\"text-sm\" htmlFor=\"pipeline-select\">\n            Pipeline\n          </label>\n          <select\n            id=\"pipeline-select\"\n            className=\"h-10 w-full rounded-md border border-input bg-background px-3 text-sm\"\n            value={activePipeline}\n            onChange={(event) => setPipelineId(event.target.value)}\n          >\n            {((pipelines.data?.rows ?? []) as CrmRow[]).map((row) => (\n              <option key={row.id} value={row.id}>\n                {str(row.name)}\n              </option>\n            ))}\n          </select>\n        </div>\n        {canWrite ? <Button onClick={() => setEditing(null)}>Nova oportunidade</Button> : null}\n      </div>\n\n      <ResultState\n        loading={pipelines.isLoading || stages.isLoading || board.isLoading}\n        error={pipelines.error ?? stages.error ?? board.error}\n        empty={!columns.length}\n      >\n        <div className=\"flex gap-4 overflow-x-auto pb-4\">\n          {columns.map((stage) => {\n            const inStage = cards.filter((card) => card.stage_id === stage.id);\n            const total = inStage.reduce((sum, card) => sum + asNumber(card.estimated_value), 0);\n            const weighted = inStage.reduce(\n              (sum, card) => sum + asNumber(card.estimated_value) * asNumber(card.probability) / 100,\n              0,\n            );\n            return (\n              <section\n                key={stage.id}\n                onDragOver={(event) => {\n                  if (dragging) event.preventDefault();\n                }}\n                onDrop={() => {\n                  setDragging(null);\n                }}\n                className=\"w-72 shrink-0 space-y-3 rounded-lg bg-muted/40 p-3\"\n              >\n                <header className=\"space-y-1\">\n                  <div className=\"flex items-center justify-between gap-2\">\n                    <h3 className=\"font-heading text-sm font-semibold\">{str(stage.name)}</h3>\n                    <span className=\"text-xs text-muted-foreground\">{inStage.length}</span>\n                  </div>\n                  <p className=\"text-xs text-muted-foreground\">\n                    {money(total)} · ponderado {money(weighted)} · prob. {str(stage.probability)}%\n                  </p>\n                </header>\n                {inStage.map((card) => (\n                  <Card key={card.id} className=\"cursor-grab active:cursor-grabbing\">\n                    <CardContent className=\"space-y-1 pt-4\">\n                      <button\n                        type=\"button\"\n                        draggable\n                        onDragStart={() => setDragging(card)}\n                        onDragEnd={() => setDragging(null)}\n                        className=\"w-full space-y-1 text-left\"\n                      >\n                        <span className=\"block font-medium\">{str(card.title)}</span>\n                        <span className=\"block text-sm text-muted-foreground\">\n                          {money(card.estimated_value)} · {percent(card.probability)}\n                        </span>\n                        <span className=\"block text-xs text-muted-foreground\">\n                          {str(card.expected_close_date)}\n                        </span>\n                      </button>\n                      <div className=\"flex flex-wrap gap-2 pt-1\">\n                        <Button\n                          asChild\n                          size=\"sm\"\n                          variant=\"outline\"\n                          onClick={() => undefined}\n                        >\n                          <a href={`/comercial/oportunidades/${card.id}`}>Abrir</a>\n                        </Button>\n                        {canWrite ? (\n                          <Button size=\"sm\" variant=\"outline\" onClick={() => setEditing(card)}>\n                            Editar\n                          </Button>\n                        ) : null}\n                      </div>\n                    </CardContent>\n                  </Card>\n                ))}\n                {!inStage.length ? (\n                  <p className=\"text-xs text-muted-foreground\">Nenhuma oportunidade nesta etapa.</p>\n                ) : null}\n              </section>\n            );\n          })}\n        </div>\n      </ResultState>\n\n      <p className=\"text-xs text-muted-foreground\">\n        Soltar um cartão numa coluna não move a oportunidade: a troca de etapa é registrada em\n        \"Abrir\", porque o servidor grava histórico e recalcula a probabilidade da nova etapa.\n      </p>\n\n      {editing !== undefined && canWrite ? (\n        <RecordDialog\n          org={org}\n          area={area}\n          record={editing}\n          title={editing ? \"Editar oportunidade\" : \"Nova oportunidade\"}\n          description=\"O servidor recusa edição de oportunidade já existente: a mudança de etapa, a概率 de encerramento e os itens são transições com histórico. Criar aqui registra a etapa inicial e a primeira entrada do histórico.\"\n          onClose={() => setEditing(undefined)}\n          onSaved={() => {\n            setEditing(undefined);\n            void useQueryClientSafe(org);\n          }}\n        />\n      ) : null}\n    </>\n  );\n}\n\n/** Invalida as consultas do módulo após a gravação. */\nfunction useQueryClientSafe(org: string) {\n  // eslint-disable-next-line react-hooks/rules-of-hooks\n  const client = useQueryClient();\n  void org;\n  return client.invalidateQueries({ queryKey: [\"crm\"] });\n}\n\n/** Lista completa com as mesmas informações do quadro, em colunas. */\nfunction OpportunityTable({ org }: { org: string }) {\n  return (\n    <OpportunityRows\n      org={org}\n      filters={{ status: \"OPEN\" }}\n      title=\"Oportunidades abertas\"\n      empty=\"Nenhuma oportunidade aberta.\"\n    />\n  );\n}\n\nfunction OpportunityRows({\n  org,\n  filters,\n  title,\n  empty,\n}: {\n  org: string;\n  filters: Record<string, string>;\n  title: string;\n  empty: string;\n}) {\n  const { hasPermission } = useOrganization();\n  const client = useQueryClient();\n  const query = useCrmQuery(org, \"opportunities\", filters, 1);\n  const rows = (query.data?.rows ?? []) as CrmRow[];\n  return (\n    <div className=\"space-y-3\">\n      <h3 className=\"font-heading text-base font-semibold\">{title}</h3>\n      <ResultState loading={query.isLoading} error={query.error} empty={!rows.length}>\n        <ul className=\"space-y-2\">\n          {rows.map((row) => (\n            <li key={row.id} className=\"flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3\">\n              <div className=\"space-y-0.5\">\n                <a href={`/comercial/oportunidades/${row.id}`} className=\"font-medium hover:underline\">\n                  {str(row.title)}\n                </a>\n                <p className=\"text-sm text-muted-foreground\">\n                  {money(row.estimated_value)} · ponderado{\" \"}\n                  {money(asNumber(row.estimated_value) * asNumber(row.probability) / 100)} ·{\" \"}\n                  {percent(row.probability)}\n                </p>\n              </div>\n              <div className=\"flex items-center gap-2\">\n                <StatusBadge value={row.status} kind=\"status\" />\n                {hasPermission(\"opportunities.close\") ? (\n                  <Button asChild size=\"sm\" variant=\"outline\">\n                    <a href={`/comercial/oportunidades/${row.id}`}>Transições</a>\n                  </Button>\n                ) : null}\n              </div>\n            </li>\n          ))}\n        </ul>\n        <p className=\"text-sm text-muted-foreground\">{query.data?.total ?? 0} registros</p>\n      </ResultState>\n      <ClientRefresher client={client} />\n    </div>\n  );\n}\n\nfunction ClientRefresher({ client }: { client: ReturnType<typeof useQueryClient> }) {\n  void client;\n  return null;\n}\n\n/**\n * Detalhe da oportunidade: itens, histórico de etapas e as transições possíveis.\n * A edição fica fora de propósito — o servidor recusa alteração de registro\n * existente, e oferecer um formulário que sempre falharia seria enganoso.\n */\nexport function OpportunityDetailPage({ id }: { id: string }) {\n  return (\n    <Shell title=\"Comercial · Oportunidade\" permission={area.permission}>\n      {(org) => <OpportunityDetail org={org} id={id} />}\n    </Shell>\n  );\n}\n\nfunction OpportunityDetail({ org, id }: { org: string; id: string }) {\n  const { hasPermission } = useOrganization();\n  const client = useQueryClient();\n  const rows = useCrmQuery(org, \"opportunities\", { id }, 1);\n  const opportunity = (rows.data?.rows ?? [])[0] as CrmRow | undefined;\n  const items = useCrmQuery(org, \"opportunity_items\", { opportunity_id: id });\n  const history = useCrmQuery(org, \"stage_history\", { opportunity_id: id });\n  const [moving, setMoving] = useState(false);\n  const [closing, setClosing] = useState(false);\n\n  return (\n    <>\n      <div className=\"flex flex-wrap items-center justify-between gap-3\">\n        <h2 className=\"font-heading text-xl font-semibold\">{str(opportunity?.title)}</h2>\n        <div className=\"flex flex-wrap items-center gap-2\">\n          <StatusBadge value={opportunity?.status} kind=\"status\" />\n          {opportunity?.status === \"OPEN\" && hasPermission(\"opportunities.update\") ? (\n            <Button onClick={() => setMoving(true)}>Mover etapa</Button>\n          ) : null}\n          {opportunity?.status === \"OPEN\" && hasPermission(\"opportunities.close\") ? (\n            <Button variant=\"outline\" onClick={() => setClosing(true)}>\n              Encerrar\n            </Button>\n          ) : null}\n        </div>\n      </div>\n\n      <ResultState loading={rows.isLoading} error={rows.error} empty={!opportunity}>\n        <div className=\"grid gap-3 sm:grid-cols-4\">\n          <Stat label=\"Valor estimado\" value={money(opportunity?.estimated_value)} />\n          <Stat label=\"Probabilidade\" value={percent(opportunity?.probability)} />\n          <Stat label=\"Previsão\" value={str(opportunity?.expected_close_date)} />\n          <Stat label=\"Etapa\" value={opportunityStatusLabel(str(opportunity?.status))} />\n        </div>\n      </ResultState>\n\n      <section className=\"space-y-2\">\n        <h3 className=\"font-heading text-base font-semibold\">Itens estimados</h3>\n        <p className=\"text-xs text-muted-foreground\">\n          Itens de oportunidade são estimativas de negotiation. Não reservam estoque, não geram\n          contas a receber e não entram em preço oficial — a proposta é que usa a tabela de preços\n          vigente.\n        </p>\n        <ResultState\n          loading={items.isLoading}\n          error={items.error}\n          empty={!(items.data?.rows ?? []).length}\n        >\n          <ul className=\"space-y-1 text-sm\">\n            {((items.data?.rows ?? []) as CrmRow[]).map((item) => (\n              <li key={item.id} className=\"flex items-center justify-between gap-3 border-b py-1\">\n                <span>{str(item.notes ?? item.variant_id)}</span>\n                <span className=\"tabular-nums\">\n                  {asNumber(item.estimated_quantity)} × {money(item.estimated_unit_price)} ={\" \"}\n                  {money(item.estimated_total)}\n                </span>\n              </li>\n            ))}\n          </ul>\n        </ResultState>\n      </section>\n\n      <section className=\"space-y-2\">\n        <h3 className=\"font-heading text-base font-semibold\">Histórico de etapas</h3>\n        <ResultState\n          loading={history.isLoading}\n          error={history.error}\n          empty={!(history.data?.rows ?? []).length}\n        >\n          <ol className=\"space-y-2 text-sm\">\n            {((history.data?.rows ?? []) as CrmRow[]).map((entry) => (\n              <li key={entry.id} className=\"rounded-lg border p-3\">\n                <p>\n                  {str((entry.previous_stage as Record<string, unknown> | null)?.name ?? \"Criação\")} →{\" \"}\n                  {str((entry.new_stage as Record<string, unknown> | null)?.name ?? \"—\")}\n                </p>\n                <p className=\"text-xs text-muted-foreground\">\n                  {str(entry.moved_at ?? entry.created_at)}\n                  {entry.reason ? ` · ${str(entry.reason)}` : \"\"}\n                </p>\n              </li>\n            ))}\n          </ol>\n        </ResultState>\n      </section>\n\n      {moving ? (\n        <StageDialog\n          org={org}\n          id={id}\n          onClose={() => setMoving(false)}\n          onSaved={() => {\n            setMoving(false);\n            void client.invalidateQueries({ queryKey: [\"crm\"] });\n          }}\n        />\n      ) : null}\n      {closing ? (\n        <CloseDialog\n          org={org}\n          id={id}\n          onClose={() => setClosing(false)}\n          onSaved={() => {\n            setClosing(false);\n            void client.invalidateQueries({ queryKey: [\"crm\"] });\n          }}\n        />\n      ) : null}\n    </>\n  );\n}\n\nfunction Stat({ label, value }: { label: string; value: string }) {\n  return (\n    <div className=\"rounded border p-3\">\n      <p className=\"text-sm text-muted-foreground\">{label}</p>\n      <p className=\"text-lg font-semibold\">{value}</p>\n    </div>\n  );\n}\n\n/**\n * Mudança de etapa. A etapa é Validada contra o pipeline da oportunidade pelo\n * servidor; a razão é obrigatória e fica no histórico, porque um funil sem motivo\n * não é auditável.\n */\nfunction StageDialog({\n  org,\n  id,\n  onClose,\n  onSaved,\n}: {\n  org: string;\n  id: string;\n  onClose: () => void;\n  onSaved: () => void;\n}) {\n  const api = useServerFn(actCrm);\n  const [stageId, setStageId] = useState(\"\");\n  const [reason, setReason] = useState(\"\");\n  const [key, setKey] = useState(() => crypto.randomUUID());\n\n  const move = useMutation({\n    mutationFn: async () => {\n      await api({\n        data: {\n          organizationId: org,\n          kind: \"opportunity\",\n          id,\n          action: \"stage\",\n          values: { stage_id: stageId, reason },\n          key,\n        },\n      });\n    },\n    onSuccess: () => {\n      toast.success(\"Etapa alterada. Probabilidade recalculada pelo servidor.\");\n      onSaved();\n    },\n    onError: (error: Error) => {\n      setKey(crypto.randomUUID());\n      toast.error(error.message);\n    },\n  });\n\n  return (\n    <Dialog\n      open\n      onOpenChange={(open) => {\n        if (!open) onClose();\n      }}\n    >\n      <DialogContent className=\"sm:max-w-xl\">\n        <DialogHeader>\n          <DialogTitle>Mover etapa</DialogTitle>\n          <DialogDescription>\n            A nova etapa recalcula a probabilidade a partir do valor configurado na etapa. A razão é\n            gravada no histórico e é obrigatória.\n          </DialogDescription>\n        </DialogHeader>\n        <div className=\"space-y-4\">\n          <Picker org={org} kind=\"stages\" value={stageId} onChange={setStageId} label=\"Nova etapa\" />\n          <div className=\"space-y-1\">\n            <label className=\"text-sm\" htmlFor=\"stage-reason\">\n              Razão\n            </label>\n            <Textarea\n              id=\"stage-reason\"\n              rows={2}\n              value={reason}\n              onChange={(event) => setReason(event.target.value)}\n            />\n          </div>\n        </div>\n        <DialogFooter>\n          <Button variant=\"outline\" onClick={onClose}>\n            Cancelar\n          </Button>\n          <Button disabled={move.isPending || !stageId || !reason.trim()} onClick={() => move.mutate()}>\n            {move.isPending ? \"Movendo...\" : \"Mover\"}\n          </Button>\n        </DialogFooter>\n      </DialogContent>\n    </Dialog>\n  );\n}\n\n/**\n * Encerramento. Ganhar fecha a negociação; perder exige motivo cadastrado do tipo\n * LOSS. Nenhum dos dois cria pedido, reserva ou recebível — o MASTER 012 não\n * conecta a venda à ordem de produção.\n */\nfunction CloseDialog({\n  org,\n  id,\n  onClose,\n  onSaved,\n}: {\n  org: string;\n  id: string;\n  onClose: () => void;\n  onSaved: () => void;\n}) {\n  const api = useServerFn(actCrm);\n  const [outcome, setOutcome] = useState<\"WON\" | \"LOST\" | \"CANCELED\">(\"WON\");\n  const [lossReason, setLossReason] = useState(\"\");\n  const [key, setKey] = useState(() => crypto.randomUUID());\n\n  const close = useMutation({\n    mutationFn: async () => {\n      await api({\n        data: {\n          organizationId: org,\n          kind: \"opportunity\",\n          id,\n          action: outcome,\n          values: outcome === \"LOST\" ? { loss_reason_id: lossReason } : {},\n          key,\n        },\n      });\n    },\n    onSuccess: () => {\n      toast.success(\"Oportunidade encerrada.\");\n      onSaved();\n    },\n    onError: (error: Error) => {\n      setKey(crypto.randomUUID());\n      toast.error(error.message);\n    },\n  });\n\n  return (\n    <Dialog\n      open\n      onOpenChange={(open) => {\n        if (!open) onClose();\n      }}\n    >\n      <DialogContent className=\"sm:max-w-xl\">\n        <DialogHeader>\n          <DialogTitle>Encerrar oportunidade</DialogTitle>\n          <DialogDescription>\n            O encerramento é definitivo: o servidor não reabre uma oportunidade encerrada. Para\n            retomar o trabalho, crie outra oportunidade.\n          </DialogDescription>\n        </DialogHeader>\n        <div className=\"space-y-4\">\n          <div className=\"space-y-1\">\n            <label className=\"text-sm\" htmlFor=\"close-outcome\">\n              Resultado\n            </label>\n            <select\n              id=\"close-outcome\"\n              className=\"h-10 w-full rounded-md border border-input bg-background px-3 text-sm\"\n              value={outcome}\n              onChange={(event) => setOutcome(event.target.value as typeof outcome)}\n            >\n              {([\"WON\", \"LOST\", \"CANCELED\"] as const).map((value) => (\n                <option key={value} value={value}>\n                  {OPPORTUNITY_STATUS[value]}\n                </option>\n              ))}\n            </select>\n          </div>\n          {outcome === \"LOST\" ? (\n            <Picker\n              org={org}\n              kind=\"reasons\"\n              value={lossReason}\n              onChange={setLossReason}\n              label=\"Motivo da perda\"\n            />\n          ) : null}\n        </div>\n        <DialogFooter>\n          <Button variant=\"outline\" onClick={onClose}>\n            Cancelar\n          </Button>\n          <Button\n            variant={outcome === \"WON\" ? \"default\" : \"destructive\"}\n            disabled={close.isPending || (outcome === \"LOST\" && !lossReason)}\n            onClick={() => close.mutate()}\n          >\n            {close.isPending ? \"Encerrando...\" : \"Encerrar\"}\n          </Button>\n        </DialogFooter>\n      </DialogContent>\n    </Dialog>\n  );\n}\n",
@@ -1619,5 +1519,85 @@
     "content": "> typecheck\n> tsc --noEmit\n\n Test Files  6 passed (6)\n      Tests  59 passed (59)\n   Start at  09:11:40\n   Duration  2.53s (transform 450ms, setup 0ms, collect 1.28s, tests 61ms, environment 1ms, prepare 434ms)\n\n M .chat-history.json\n",
     "is_error": false,
     "timestamp": 1790413902972
+  },
+  {
+    "role": "tool",
+    "tool": "todowrite",
+    "input": {
+      "todos": [
+        {
+          "priority": "high",
+          "content": "Auditar codebase e planejar MASTER 012",
+          "status": "completed"
+        },
+        {
+          "priority": "high",
+          "content": "Auditar migration e backend CRM existentes",
+          "status": "completed"
+        },
+        {
+          "priority": "high",
+          "content": "Criar e rodar testes de banco do CRM",
+          "status": "completed"
+        },
+        {
+          "priority": "high",
+          "content": "Corrigir bug de patch parcial no crm_save",
+          "status": "completed"
+        },
+        {
+          "priority": "high",
+          "content": "Adicionar permissões CRM no RBAC e menu",
+          "status": "completed"
+        },
+        {
+          "priority": "high",
+          "content": "Criar config/shared/data/list/dashboard do CRM",
+          "status": "completed"
+        },
+        {
+          "priority": "high",
+          "content": "Telas de leads, clientes e Customer 360",
+          "status": "completed"
+        },
+        {
+          "priority": "high",
+          "content": "Telas de pipeline, propostas, atividades e relatórios",
+          "status": "completed"
+        },
+        {
+          "priority": "high",
+          "content": "Criar todas as rotas em src/routes/_authenticated/comercial",
+          "status": "completed"
+        },
+        {
+          "priority": "medium",
+          "content": "Testes unitários da lógica pura do CRM",
+          "status": "completed"
+        },
+        {
+          "priority": "medium",
+          "content": "Corrigir tipos Supabase das RPCs CRM",
+          "status": "completed"
+        },
+        {
+          "priority": "medium",
+          "content": "Documentação de negócio, ADR, PROJECT-STATE e MASTER-012-VALIDATION",
+          "status": "completed"
+        },
+        {
+          "priority": "high",
+          "content": "Validação final: test, typecheck, build, lint, test:crm:db",
+          "status": "completed"
+        }
+      ]
+    },
+    "timestamp": 1790413908089
+  },
+  {
+    "role": "tool_result",
+    "content": "[\n  {\n    \"content\": \"Auditar codebase e planejar MASTER 012\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Auditar migration e backend CRM existentes\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Criar e rodar testes de banco do CRM\",\n   ",
+    "is_error": false,
+    "timestamp": 1790413908093
   }
 ]
