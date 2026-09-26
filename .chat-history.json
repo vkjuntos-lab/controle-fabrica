@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"pricing_publish\" supabase/migrations/20260930100000_cost_engine.sql | head; echo \"---ASSINATURA---\"; awk '/CREATE FUNCTION public.pricing_publish/,/\\$\\$;/' supabase/migrations/20260930100000_cost_engine.sql | head -20; echo \"---COMO O HARNESS DE CUSTOS CHAMA---\"; grep -n \"pricing_publish\" scripts/test-costs-db.py | head",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790411753055
-  },
-  {
-    "role": "tool_result",
-    "content": "369:CREATE FUNCTION public.pricing_publish(_org uuid,_data jsonb) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n547: FOR f IN SELECT oid::regprocedure signature,proname FROM pg_proc WHERE pronamespace='public'::regnamespace AND (proname LIKE 'cost_%' OR proname IN ('pri",
-    "is_error": false,
-    "timestamp": 1790411753092
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"def rpc\\|def q\\|def sql\" scripts/test-costs-db.py scripts/test-inventory-db.py | head",
       "workdir": "/root/Zheus AI Projects/controle-fabrica"
     },
@@ -1645,5 +1630,19 @@
     "content": "  1:19  error  Replace `'zod'` with `\"zod\"`  prettier/prettier\n\n✖ 192 problems (170 errors, 22 warnings)\n  164 errors and 0 warnings potentially fixable with the `--fix` option.\n\n=== typecheck ===\n\n> typecheck\n> tsc --noEmit\n\n",
     "is_error": false,
     "timestamp": 1790413087632
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && git stash list >/dev/null 2>&1; git status --porcelain | head -30; echo \"=== lint baseline (HEAD) ===\"; git stash -u -q && npx eslint src 2>&1 | tail -3; git stash pop -q && echo \"restaurado\""
+    },
+    "timestamp": 1790413089708
+  },
+  {
+    "role": "tool_result",
+    "content": "=== lint baseline (HEAD) ===\n✖ 192 problems (170 errors, 22 warnings)\n  164 errors and 0 warnings potentially fixable with the `--fix` option.\n\nrestaurado\n",
+    "is_error": false,
+    "timestamp": 1790413104511
   }
 ]
