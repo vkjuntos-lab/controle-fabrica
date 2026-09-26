@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"cat supabase/migrations/20260811000001_crm_wa_improvements.sql; rg -n 'CREATE TABLE.*(leads|customers|crm_|sales_|quotes)' supabase/migrations; sed -n '115,143p' supabase/migrations/20260928100000_finance.sql; sed -n '271,290p' supabase/migrations/20260926100000_partner_reconciliation.sql; rg -n 'pricing_|price_table_items|resolve' supabase/migrations/20260930100000_cost_engine.sql | tail -n 30; cat src/components/planning/shared.tsx | head -n 90; cat src/routes/_authenticated/planejamento/index.tsx; head -n 45 scripts/test-planning-db.py; rg -n 'memberships|organization_members|CREATE.*has_permission' supabase/migrations/202609152*.sql\""
-    },
-    "timestamp": 1790386962781
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20260711173809_77878755-a005-476d-9065-58becea39703.sql:1:CREATE TABLE IF NOT EXISTS public.bella_leads (\nsupabase/migrations/20260704201919_2a9ff92d-3a4a-4e77-9c8c-2edc7ed0b932.sql:3:CREATE TABLE public.customers (\nCREATE TABLE public.account_receivables (\n  id uuid PRIMARY KEY ",
-    "is_error": false,
-    "timestamp": 1790386962788
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"cat supabase/migrations/20260704201919_2a9ff92d-3a4a-4e77-9c8c-2edc7ed0b932.sql | head -n 60; cat docs/business/CORE-BUSINESS.md; rg -n 'notification|storage|attachment|approval' src/lib src/components/partners | head -n 40; sed -n '107,118p' supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql; sed -n '110,135p' supabase/migrations/20260926100000_partner_reconciliation.sql; rg -n 'price|active|effective' src/lib/costs/costs.functions.ts | head; rg -n 'comercial|planejamento' src/components/layout/app-shell.tsx src/lib/rbac.ts\""
     },
     "timestamp": 1790386971947
@@ -1543,5 +1529,20 @@
     "content": "513:CREATE FUNCTION public.crm_save(_org uuid,_kind text,_data jsonb) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n514-DECLARE ident uuid:=coalesce(nullif(_data->>'id','')::uuid,gen_random_uuid()); company uuid; rep uuid; stage public.sales_pipeline_stages;\n515- old j",
     "is_error": false,
     "timestamp": 1790412675300
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '588,700p' supabase/migrations/20261005100000_crm.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790412678410
+  },
+  {
+    "role": "tool_result",
+    "content": "  PERFORM public.crm_require(_org,CASE WHEN _data->>'id' IS NULL THEN 'opportunities.create' ELSE 'opportunities.update' END);\n  company:=(_data->>'company_id')::uuid;\n  IF NOT public.crm_company_access(_org,company) THEN RAISE EXCEPTION 'Empresa fora da carteira.'; END IF;\n  SELECT to_jsonb(o) INTO",
+    "is_error": false,
+    "timestamp": 1790412678422
   }
 ]
