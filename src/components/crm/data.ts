@@ -10,8 +10,7 @@ export type CrmFilters = Record<string, string>;
 export const asRows = (value: unknown): CrmRow[] =>
   Array.isArray(value) ? (value as CrmRow[]) : [];
 
-export const asRowsFrom = (response: CrmResult | undefined): CrmRow[] =>
-  asRows(response?.rows);
+export const asRowsFrom = (response: CrmResult | undefined): CrmRow[] => asRows(response?.rows);
 
 export const asRecord = (value: unknown): Record<string, unknown> =>
   value && typeof value === "object" && !Array.isArray(value)

@@ -38,7 +38,15 @@ import { areaOrder, areas, configurationOrder, configurations, labels, type Fiel
 
 /** Rótulos pt-BR das opções fixas de formulário e de coluna. */
 export const optionLabels: Record<string, Record<string, string>> = {
-  status: { ...LEAD_STATUS, ...OPPORTUNITY_STATUS, ...QUOTE_STATUS, ...ACTIVITY_STATUS, ...COMMERCIAL_STATUS, ACTIVE: "Ativo", INACTIVE: "Inativo" },
+  status: {
+    ...LEAD_STATUS,
+    ...OPPORTUNITY_STATUS,
+    ...QUOTE_STATUS,
+    ...ACTIVITY_STATUS,
+    ...COMMERCIAL_STATUS,
+    ACTIVE: "Ativo",
+    INACTIVE: "Inativo",
+  },
   activity_type: ACTIVITY_TYPE,
   representative_type: REPRESENTATIVE_TYPE,
   kind: REASON_KIND,
@@ -46,8 +54,7 @@ export const optionLabels: Record<string, Record<string, string>> = {
   rate_type: COMMISSION_RATE_TYPE,
 };
 
-export const selectClass =
-  "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";
+export const selectClass = "h-10 w-full rounded-md border border-input bg-background px-3 text-sm";
 const inputClass = "w-full rounded-md border border-input bg-background px-3 py-2 text-sm";
 
 /** Exibe qualquer valor vindo de `crm_query` sem quebrar a tabela. */
@@ -137,7 +144,9 @@ export function Shell({
   const { currentOrganization, hasPermission, isLoading } = useOrganization();
   const items: [string, string, string][] = [
     ["", "Dashboard", "crm.dashboard"],
-    ...areaOrder.map((key) => [key, areas[key].title, areas[key].permission] as [string, string, string]),
+    ...areaOrder.map(
+      (key) => [key, areas[key].title, areas[key].permission] as [string, string, string],
+    ),
     ["relatorios", "Relatórios", "crm.read"],
     ["configuracoes", "Configurações", "crm.configure"],
   ];
@@ -293,7 +302,9 @@ export function Picker({
           {options.error.message}
         </p>
       ) : null}
-      {options.isLoading ? <p className="text-xs text-muted-foreground">Carregando opções…</p> : null}
+      {options.isLoading ? (
+        <p className="text-xs text-muted-foreground">Carregando opções…</p>
+      ) : null}
       <Pager page={page} total={options.data?.total ?? 0} setPage={setPage} />
     </div>
   );
@@ -309,10 +320,7 @@ export function Picker({
  */
 export function useRefLabels(org: string, refColumns?: Record<string, string>) {
   const api = useServerFn(queryCrm);
-  const kinds = useMemo(
-    () => [...new Set(Object.values(refColumns ?? {}))].sort(),
-    [refColumns],
-  );
+  const kinds = useMemo(() => [...new Set(Object.values(refColumns ?? {}))].sort(), [refColumns]);
   return useQuery({
     queryKey: ["crm", org, "ref-labels", kinds],
     queryFn: async () => {
@@ -431,6 +439,3 @@ export const configurationSections = configurationOrder.map((key) => ({
   key,
   ...configurations[key],
 }));
-
-export { areas, configurations, areaOrder, configurationOrder };
-export { leadStatusLabel, quoteStatusLabel, opportunityStatusLabel, activityTypeLabel };

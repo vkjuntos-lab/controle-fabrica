@@ -57,10 +57,7 @@ function NewQuoteButton() {
     <>
       <Button onClick={() => setCreating(true)}>Nova proposta</Button>
       {creating && currentOrganization ? (
-        <QuoteDialog
-          org={currentOrganization.organization_id}
-          onClose={() => setCreating(false)}
-        />
+        <QuoteDialog org={currentOrganization.organization_id} onClose={() => setCreating(false)} />
       ) : null}
     </>
   );
@@ -119,7 +116,9 @@ function QuoteDialog({
     },
     onSuccess: () => {
       toast.success(
-        quote ? "Nova versão criada. A anterior continua no histórico." : "Proposta criada em rascunho.",
+        quote
+          ? "Nova versão criada. A anterior continua no histórico."
+          : "Proposta criada em rascunho.",
       );
       onClose();
       void client.invalidateQueries({ queryKey: ["crm"] });
@@ -132,8 +131,8 @@ function QuoteDialog({
 
   const ready = Boolean(
     values.valid_until &&
-      items.some((item) => item.variantId) &&
-      (quote || (companyId && priceTableId)),
+    items.some((item) => item.variantId) &&
+    (quote || (companyId && priceTableId)),
   );
 
   return (
@@ -165,7 +164,13 @@ function QuoteDialog({
             </Card>
           ) : (
             <>
-              <Picker org={org} kind="companies" value={companyId} onChange={setCompanyId} label="Cliente" />
+              <Picker
+                org={org}
+                kind="companies"
+                value={companyId}
+                onChange={setCompanyId}
+                label="Cliente"
+              />
               <Picker
                 org={org}
                 kind="price_tables"
@@ -173,7 +178,13 @@ function QuoteDialog({
                 onChange={setPriceTableId}
                 label="Tabela de preços"
               />
-              <Picker org={org} kind="contacts" value={contactId} onChange={setContactId} label="Contato" />
+              <Picker
+                org={org}
+                kind="contacts"
+                value={contactId}
+                onChange={setContactId}
+                label="Contato"
+              />
               <Picker
                 org={org}
                 kind="opportunities"
@@ -307,7 +318,11 @@ function ItemsEditor({
           </Button>
         </div>
       ))}
-      <Button type="button" variant="outline" onClick={() => setItems([...items, { variantId: "", quantity: "1" }])}>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => setItems([...items, { variantId: "", quantity: "1" }])}
+      >
         Adicionar item
       </Button>
     </fieldset>
@@ -335,7 +350,12 @@ function QuoteDetail({ org, id }: { org: string; id: string }) {
   const quote = (rows.data?.rows ?? [])[0] as CrmRow | undefined;
   const items = useCrmQuery(org, "quote_items", { quote_id: id });
   const approvals = useCrmQuery(org, "approvals", { quote_id: id });
-  const versions = useCrmQuery(org, "quotes", quote ? { company_id: String(quote.company_id) } : {}, 1);
+  const versions = useCrmQuery(
+    org,
+    "quotes",
+    quote ? { company_id: String(quote.company_id) } : {},
+    1,
+  );
   const [revising, setRevising] = useState(false);
   const [action, setAction] = useState<"approve" | "accept" | null>(null);
 
@@ -374,8 +394,14 @@ function QuoteDetail({ org, id }: { org: string; id: string }) {
         <QuoteFlow status={str(quote?.status)} />
         <div className="grid gap-3 sm:grid-cols-4">
           <Stat label="Subtotal" value={money(quote?.subtotal)} />
-          <Stat label="Desconto" value={`${percent(quote?.discount_percent)} · ${money(quote?.discount_amount)}`} />
-          <Stat label="Frete e tributos" value={money(asNumber(quote?.freight) + asNumber(quote?.tax_amount))} />
+          <Stat
+            label="Desconto"
+            value={`${percent(quote?.discount_percent)} · ${money(quote?.discount_amount)}`}
+          />
+          <Stat
+            label="Frete e tributos"
+            value={money(asNumber(quote?.freight) + asNumber(quote?.tax_amount))}
+          />
           <Stat label="Total" value={money(quote?.total)} />
         </div>
         <QuoteActions
@@ -399,7 +425,10 @@ function QuoteDetail({ org, id }: { org: string; id: string }) {
             {asRowsFrom(items.data).map((item) => {
               const product = asRecord(item.product_snapshot);
               return (
-                <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 border-b py-1">
+                <li
+                  key={item.id}
+                  className="flex flex-wrap items-center justify-between gap-3 border-b py-1"
+                >
                   <span>
                     {str(product.name ?? item.variant_id)}
                     <span className="ml-2 text-xs text-muted-foreground">
@@ -444,7 +473,9 @@ function QuoteDetail({ org, id }: { org: string; id: string }) {
             {asRowsFrom(approvals.data).map((row) => (
               <li key={row.id} className="border-b py-1">
                 <span className="font-medium">{str(row.decision)}</span> · {str(row.reason)} ·{" "}
-                <span className="text-xs text-muted-foreground">{str(row.decided_at ?? row.created_at)}</span>
+                <span className="text-xs text-muted-foreground">
+                  {str(row.decided_at ?? row.created_at)}
+                </span>
               </li>
             ))}
           </ul>
@@ -540,7 +571,9 @@ function QuoteActions({
 
   const transition = useMutation({
     mutationFn: async (action: string) => {
-      await api({ data: { organizationId: org, kind: "quote", id: quote.id, action, values: {}, key } });
+      await api({
+        data: { organizationId: org, kind: "quote", id: quote.id, action, values: {}, key },
+      });
     },
     onSuccess: (_result, action) => {
       toast.success("Status da proposta atualizado.");
@@ -558,7 +591,11 @@ function QuoteActions({
   return (
     <div className="flex flex-wrap items-center gap-2">
       {status === "DRAFT" && hasPermission("quotes.update") ? (
-        <Button variant="outline" onClick={() => transition.mutate("submit")} disabled={transition.isPending}>
+        <Button
+          variant="outline"
+          onClick={() => transition.mutate("submit")}
+          disabled={transition.isPending}
+        >
           Enviar para aprovação
         </Button>
       ) : null}
@@ -574,7 +611,11 @@ function QuoteActions({
         <>
           <Button onClick={onAccept}>Registrar aceite</Button>
           {hasPermission("quotes.update") ? (
-            <Button variant="outline" onClick={() => transition.mutate("reject")} disabled={transition.isPending}>
+            <Button
+              variant="outline"
+              onClick={() => transition.mutate("reject")}
+              disabled={transition.isPending}
+            >
               Rejeitar
             </Button>
           ) : null}
@@ -734,7 +775,13 @@ function AcceptDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          <Picker org={org} kind="contacts" value={contactId} onChange={setContactId} label="Contato que aceitou" />
+          <Picker
+            org={org}
+            kind="contacts"
+            value={contactId}
+            onChange={setContactId}
+            label="Contato que aceitou"
+          />
           <div className="space-y-1">
             <label className="text-sm" htmlFor="evidence">
               Evidência do aceite
@@ -795,8 +842,8 @@ function MarginPanel({
             </p>
           )}
           <p className="text-xs text-muted-foreground">
-            Custo estimado a partir das versões de custo vigentes. Não é custo realizado: o custo real
-            aparece quando a venda entra em produção e consumo.
+            Custo estimado a partir das versões de custo vigentes. Não é custo realizado: o custo
+            real aparece quando a venda entra em produção e consumo.
           </p>
         </CardContent>
       </Card>
@@ -808,7 +855,9 @@ function MarginPanel({
               <li key={row.id} className="flex items-center justify-between gap-3 border-b py-1">
                 <span>
                   {str(row.name)}
-                  <span className="ml-2 text-xs text-muted-foreground">{str(row.trigger_event)}</span>
+                  <span className="ml-2 text-xs text-muted-foreground">
+                    {str(row.trigger_event)}
+                  </span>
                 </span>
                 <span className="tabular-nums">{money(row.estimated_commission)}</span>
               </li>

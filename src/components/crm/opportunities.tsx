@@ -72,9 +72,13 @@ function Kanban({ org }: { org: string }) {
 
   const pipelines = useCrmQuery(org, "pipelines", { status: "ACTIVE" }, 1);
   const activePipeline =
-    pipelineId ||
-    (((pipelines.data?.rows ?? [])[0] as CrmRow | undefined)?.id ?? "");
-  const stages = useCrmQuery(org, "stages", activePipeline ? { pipeline_id: activePipeline } : {}, 1);
+    pipelineId || (((pipelines.data?.rows ?? [])[0] as CrmRow | undefined)?.id ?? "");
+  const stages = useCrmQuery(
+    org,
+    "stages",
+    activePipeline ? { pipeline_id: activePipeline } : {},
+    1,
+  );
   const board = useCrmQuery(
     org,
     "opportunities",
@@ -122,7 +126,8 @@ function Kanban({ org }: { org: string }) {
             const inStage = cards.filter((card) => card.stage_id === stage.id);
             const total = inStage.reduce((sum, card) => sum + asNumber(card.estimated_value), 0);
             const weighted = inStage.reduce(
-              (sum, card) => sum + asNumber(card.estimated_value) * asNumber(card.probability) / 100,
+              (sum, card) =>
+                sum + (asNumber(card.estimated_value) * asNumber(card.probability)) / 100,
               0,
             );
             return (
@@ -240,14 +245,20 @@ function OpportunityRows({
       <ResultState loading={query.isLoading} error={query.error} empty={!rows.length}>
         <ul className="space-y-2">
           {rows.map((row) => (
-            <li key={row.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3">
+            <li
+              key={row.id}
+              className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3"
+            >
               <div className="space-y-0.5">
-                <a href={`/comercial/oportunidades/${row.id}`} className="font-medium hover:underline">
+                <a
+                  href={`/comercial/oportunidades/${row.id}`}
+                  className="font-medium hover:underline"
+                >
                   {str(row.title)}
                 </a>
                 <p className="text-sm text-muted-foreground">
                   {money(row.estimated_value)} · ponderado{" "}
-                  {money(asNumber(row.estimated_value) * asNumber(row.probability) / 100)} ·{" "}
+                  {money((asNumber(row.estimated_value) * asNumber(row.probability)) / 100)} ·{" "}
                   {percent(row.probability)}
                 </p>
               </div>
@@ -354,8 +365,8 @@ function OpportunityDetail({ org, id }: { org: string; id: string }) {
             {((history.data?.rows ?? []) as CrmRow[]).map((entry) => (
               <li key={entry.id} className="rounded-lg border p-3">
                 <p>
-                  {str((entry.previous_stage as Record<string, unknown> | null)?.name ?? "Criação")} →{" "}
-                  {str((entry.new_stage as Record<string, unknown> | null)?.name ?? "—")}
+                  {str((entry.previous_stage as Record<string, unknown> | null)?.name ?? "Criação")}{" "}
+                  → {str((entry.new_stage as Record<string, unknown> | null)?.name ?? "—")}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {str(entry.moved_at ?? entry.created_at)}
@@ -462,7 +473,13 @@ function StageDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          <Picker org={org} kind="stages" value={stageId} onChange={setStageId} label="Nova etapa" />
+          <Picker
+            org={org}
+            kind="stages"
+            value={stageId}
+            onChange={setStageId}
+            label="Nova etapa"
+          />
           <div className="space-y-1">
             <label className="text-sm" htmlFor="stage-reason">
               Razão
@@ -479,7 +496,10 @@ function StageDialog({
           <Button variant="outline" onClick={onClose}>
             Cancelar
           </Button>
-          <Button disabled={move.isPending || !stageId || !reason.trim()} onClick={() => move.mutate()}>
+          <Button
+            disabled={move.isPending || !stageId || !reason.trim()}
+            onClick={() => move.mutate()}
+          >
             {move.isPending ? "Movendo..." : "Mover"}
           </Button>
         </DialogFooter>

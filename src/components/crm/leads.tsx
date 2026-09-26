@@ -59,15 +59,7 @@ export function LeadsPage() {
   );
 }
 
-function ConvertDialog({
-  org,
-  lead,
-  onClose,
-}: {
-  org: string;
-  lead: CrmRow;
-  onClose: () => void;
-}) {
+function ConvertDialog({ org, lead, onClose }: { org: string; lead: CrmRow; onClose: () => void }) {
   const api = useServerFn(actCrm);
   const client = useQueryClient();
   const [stage, setStage] = useState("");
@@ -133,7 +125,8 @@ function ConvertDialog({
         </div>
         <p className="text-xs text-muted-foreground">
           Status atual: {LEAD_STATUS[str(lead.status)] ?? str(lead.status)}. A empresa é criada
-          somente quando necessário; se o lead já estiver vinculado a uma empresa, ela é reaproveitada.
+          somente quando necessário; se o lead já estiver vinculado a uma empresa, ela é
+          reaproveitada.
         </p>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>

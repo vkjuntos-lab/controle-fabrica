@@ -156,9 +156,7 @@ function ListBody({
                 id={`${area.query}-${filter.key}`}
                 className={selectClass}
                 value={filters[filter.key] ?? ""}
-                onChange={(event) =>
-                  setFilters({ ...filters, [filter.key]: event.target.value })
-                }
+                onChange={(event) => setFilters({ ...filters, [filter.key]: event.target.value })}
               >
                 <option value="">Todos</option>
                 {STATUS_OPTIONS[area.query]?.map((option) => (
@@ -354,7 +352,7 @@ export function RecordDialog({
           const field = area.fields.find((item) => item.key === key);
           payload[key] = field?.type === "number" ? numeric(raw) : raw;
         }
-        const stepId = step.usePreviousId ? previous.id ?? record?.id : record?.id;
+        const stepId = step.usePreviousId ? (previous.id ?? record?.id) : record?.id;
         if (stepId) payload.id = stepId;
         if (!Object.keys(payload).some((key) => key !== "id")) continue;
         const result = await api({
@@ -444,15 +442,7 @@ export function ConfigurationPage({ section }: { section: string }) {
   );
 }
 
-function ConfigurationBody({
-  org,
-  area,
-  section,
-}: {
-  org: string;
-  area: Area;
-  section: string;
-}) {
+function ConfigurationBody({ org, area, section }: { org: string; area: Area; section: string }) {
   const { hasPermission } = useOrganization();
   const client = useQueryClient();
   const [editing, setEditing] = useState<CrmRow | null | undefined>(undefined);
@@ -470,11 +460,7 @@ function ConfigurationBody({
 
       <nav className="flex flex-wrap gap-2">
         {configurationOrder.map((item) => (
-          <Button
-            key={item}
-            asChild
-            variant={item === section ? "default" : "outline"}
-          >
+          <Button key={item} asChild variant={item === section ? "default" : "outline"}>
             <a href={`/comercial/configuracoes/${item}`}>{configurations[item].title}</a>
           </Button>
         ))}
@@ -561,11 +547,7 @@ export function renderCell(
   }
   if (refKind) {
     const label = refs?.[refKind]?.[String(value ?? "")];
-    return (
-      <span title={label ? undefined : String(value ?? "")}>
-        {label ?? shortId(value)}
-      </span>
-    );
+    return <span title={label ? undefined : String(value ?? "")}>{label ?? shortId(value)}</span>;
   }
   if (column.endsWith("_id")) return <span className="font-mono text-xs">{shortId(value)}</span>;
   if (["estimated_value", "total", "subtotal", "credit_limit"].includes(column)) {

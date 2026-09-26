@@ -12,14 +12,7 @@
  */
 
 export type FieldType =
-  | "text"
-  | "email"
-  | "number"
-  | "date"
-  | "datetime-local"
-  | "options"
-  | "lookup"
-  | "longtext";
+  "text" | "email" | "number" | "date" | "datetime-local" | "options" | "lookup" | "longtext";
 
 export type Field = {
   key: string;
@@ -322,7 +315,10 @@ export const configurations: Record<string, Area> = {
     save: "segment",
     permission: "crm.read",
     write: "crm.configure",
-    fields: [nameField, field("status", "Status", { type: "options", options: ["ACTIVE", "INACTIVE"] })],
+    fields: [
+      nameField,
+      field("status", "Status", { type: "options", options: ["ACTIVE", "INACTIVE"] }),
+    ],
     columns: ["name", "status"],
   },
   origens: {
@@ -331,7 +327,10 @@ export const configurations: Record<string, Area> = {
     save: "source",
     permission: "crm.read",
     write: "crm.configure",
-    fields: [nameField, field("status", "Status", { type: "options", options: ["ACTIVE", "INACTIVE"] })],
+    fields: [
+      nameField,
+      field("status", "Status", { type: "options", options: ["ACTIVE", "INACTIVE"] }),
+    ],
     columns: ["name", "status"],
   },
   motivos: {
@@ -389,7 +388,10 @@ export const configurations: Record<string, Area> = {
     save: "pipeline",
     permission: "opportunities.read",
     write: "crm.configure",
-    fields: [nameField, field("status", "Status", { type: "options", options: ["ACTIVE", "INACTIVE"] })],
+    fields: [
+      nameField,
+      field("status", "Status", { type: "options", options: ["ACTIVE", "INACTIVE"] }),
+    ],
     columns: ["name", "status"],
   },
   etapas: {
@@ -458,7 +460,14 @@ export const configurations: Record<string, Area> = {
       field("effective_from", "Vigência inicial", { type: "date", required: true }),
       field("effective_to", "Vigência final", { type: "date" }),
     ],
-    columns: ["plan_id", "representative_id", "rate_type", "rate", "effective_from", "effective_to"],
+    columns: [
+      "plan_id",
+      "representative_id",
+      "rate_type",
+      "rate",
+      "effective_from",
+      "effective_to",
+    ],
     refColumns: {
       plan_id: "commission_plans",
       representative_id: "representatives",

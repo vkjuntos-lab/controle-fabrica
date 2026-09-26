@@ -83,7 +83,6 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
   const loading = company.isLoading || profile.isLoading;
   const error = company.error ?? profile.error;
 
-
   return (
     <>
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -91,10 +90,7 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
           {str(companyRow?.legal_name ?? companyRow?.trade_name ?? "Cliente")}
         </h2>
         <div className="flex flex-wrap items-center gap-2">
-          <StatusBadge
-            value={profileRow?.commercial_status ?? companyRow?.status}
-            kind="status"
-          />
+          <StatusBadge value={profileRow?.commercial_status ?? companyRow?.status} kind="status" />
           {hasPermission("customers.merge") ? (
             <Button variant="outline" onClick={() => setMerging(true)}>
               Solicitar mesclagem
@@ -126,11 +122,7 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
         </TabsList>
 
         <TabsContent value="overview">
-          <ResultState
-            loading={loading}
-            error={error}
-            empty={!companyRow && !profileRow}
-          >
+          <ResultState loading={loading} error={error} empty={!companyRow && !profileRow}>
             <div className="grid gap-4 lg:grid-cols-2">
               <Card>
                 <CardContent className="pt-6">
@@ -145,10 +137,7 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
                     <Row label="Segmento" value={str(profileRow?.commercial_segment_id)} />
                     <Row label="Origem" value={str(profileRow?.acquisition_source_id)} />
                     <Row label="Tabela de preços" value={str(profileRow?.price_table_id)} />
-                    <Row
-                      label="Condição de pagamento"
-                      value={str(profileRow?.payment_terms_id)}
-                    />
+                    <Row label="Condição de pagamento" value={str(profileRow?.payment_terms_id)} />
                     <Row label="Observações" value={str(profileRow?.notes)} />
                   </dl>
                 </CardContent>
@@ -194,7 +183,9 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
                 </span>
                 <span className="text-xs text-muted-foreground">
                   Canal preferido: {str(row.preferred_channel ?? "não informado")}
-                  {row.marketing_opt_in ? " · aceita comunicação comercial" : " · sem consentimento de marketing"}
+                  {row.marketing_opt_in
+                    ? " · aceita comunicação comercial"
+                    : " · sem consentimento de marketing"}
                 </span>
               </>
             )}
@@ -300,7 +291,9 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
         </TabsContent>
       </Tabs>
 
-      {merging ? <MergeDialog org={org} companyId={companyId} onClose={() => setMerging(false)} /> : null}
+      {merging ? (
+        <MergeDialog org={org} companyId={companyId} onClose={() => setMerging(false)} />
+      ) : null}
     </>
   );
 }
@@ -443,7 +436,13 @@ function MergeDialog({
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 sm:grid-cols-2">
-          <Picker org={org} kind="companies" value={target} onChange={setTarget} label="Empresa que permanece" />
+          <Picker
+            org={org}
+            kind="companies"
+            value={target}
+            onChange={setTarget}
+            label="Empresa que permanece"
+          />
           <div className="space-y-1">
             <label className="text-sm" htmlFor="merge-reason">
               Motivo
@@ -463,7 +462,10 @@ function MergeDialog({
           <Button variant="outline" onClick={onClose}>
             Cancelar
           </Button>
-          <Button disabled={send.isPending || !target || !reason.trim()} onClick={() => send.mutate()}>
+          <Button
+            disabled={send.isPending || !target || !reason.trim()}
+            onClick={() => send.mutate()}
+          >
             {send.isPending ? "Registrando..." : "Registrar solicitação"}
           </Button>
         </DialogFooter>
