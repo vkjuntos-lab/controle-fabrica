@@ -33,10 +33,15 @@ const detailKinds = ["members", "finance", "margin", "stock", "commission", "das
 function queryPermissions(): Record<string, string> {
   const block = migration.slice(
     migration.indexOf("CASE _kind\n WHEN 'customers'"),
-    migration.indexOf("PERFORM public.crm_require(_org,perm);", migration.indexOf("CASE _kind\n WHEN 'customers'")),
+    migration.indexOf(
+      "PERFORM public.crm_require(_org,perm);",
+      migration.indexOf("CASE _kind\n WHEN 'customers'"),
+    ),
   );
   const found: Record<string, string> = {};
-  for (const match of block.matchAll(/WHEN '([a-z_]+)' THEN tab:='([a-z_]+)';perm:='([a-z_.]+)'/g)) {
+  for (const match of block.matchAll(
+    /WHEN '([a-z_]+)' THEN tab:='([a-z_]+)';perm:='([a-z_.]+)'/g,
+  )) {
     found[match[1]] = match[3];
   }
   return found;
@@ -54,11 +59,16 @@ function saveKinds(): string[] {
 }
 
 const permissions = queryPermissions();
-const declaredAreas = [...areaOrder.map((key) => areas[key]), ...configurationOrder.map((key) => configurations[key])];
+const declaredAreas = [
+  ...areaOrder.map((key) => areas[key]),
+  ...configurationOrder.map((key) => configurations[key]),
+];
 
 describe("filtros do CRM", () => {
   it("mantém apenas chaves que o servidor aplica", () => {
-    expect(sanitizeFilters({ status: "NEW", company_id: "x", sort: "name", role: "admin" })).toEqual({
+    expect(
+      sanitizeFilters({ status: "NEW", company_id: "x", sort: "name", role: "admin" }),
+    ).toEqual({
       status: "NEW",
       company_id: "x",
     });
