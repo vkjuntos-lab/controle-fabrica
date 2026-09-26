@@ -1,19 +1,26 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { actCrm, saveCrm, type CrmRow } from "@/lib/crm/crm.functions";
+import { saveCrm, type CrmRow } from "@/lib/crm/crm.functions";
 import { commercialStatusLabel } from "@/lib/crm/constants";
 import { useOrganization } from "@/lib/org/org-context";
 import { areas } from "./config";
-import { asNumber, asRecord, useCrmDetail, useCrmQuery } from "./data";
+import { asRecord, useCrmDetail, useCrmQuery } from "./data";
 import { CrmListPage } from "./list";
-import { ResultState, Shell, StatusBadge, money, str } from "./shared";
+import { Picker, ResultState, Shell, StatusBadge, money, str } from "./shared";
 
 const area = areas.clientes;
 
@@ -53,6 +60,7 @@ export function Customer360Page({ id }: { id: string }) {
 
 function Customer360({ org, companyId }: { org: string; companyId: string }) {
   const { hasPermission } = useOrganization();
+  const [merging, setMerging] = useState(false);
   const company = useCrmQuery(org, "companies", { id: companyId });
   const profile = useCrmQuery(org, "customers", { company_id: companyId });
   const contacts = useCrmQuery(org, "contacts", { company_id: companyId });
@@ -61,13 +69,20 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
   const activities = useCrmQuery(org, "activities", { company_id: companyId });
   const history = useCrmQuery(org, "leads", { company_id: companyId });
   const portfolios = useCrmQuery(org, "portfolios", { company_id: companyId });
-  const finance = useCrmDetail(org, "finance", { company_id: companyId }, hasPermission("commercial_sensitive.read"));
+  // A posição financeira só é consultada com a permissão: pedi-la sem permissão
+  // só produziria um erro do servidor para algo que o usuário não pode ver.
+  const finance = useCrmDetail(
+    org,
+    "finance",
+    { company_id: companyId },
+    hasPermission("commercial_sensitive.read"),
+  );
 
   const companyRow = (company.data?.rows ?? [])[0] as CrmRow | undefined;
   const profileRow = (profile.data?.rows ?? [])[0] as CrmRow | undefined;
   const loading = company.isLoading || profile.isLoading;
   const error = company.error ?? profile.error;
-  const mergedRequests = useMergeRequest(org, companyId);
+
 
   return (
     <>
@@ -81,7 +96,7 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
             kind="status"
           />
           {hasPermission("customers.merge") ? (
-            <Button variant="outline" onClick={() => mergedRequests.setOpen(true)}>
+            <Button variant="outline" onClick={() => setMerging(true)}>
               Solicitar mesclagem
             </Button>
           ) : null}
@@ -285,9 +300,7 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
         </TabsContent>
       </Tabs>
 
-      {mergedRequests.open ? (
-        <MergeDialog org={org} companyId={companyId} onClose={mergedRequests.close} />
-      ) : null}
+      {merging ? <MergeDialog org={org} companyId={companyId} onClose={() => setMerging(false)} /> : null}
     </>
   );
 }
@@ -312,7 +325,7 @@ function RowList({
   loading: boolean;
   error: Error | null;
   empty: string;
-  render: (row: CrmRow) => React.ReactNode;
+  render: (row: CrmRow) => ReactNode;
 }) {
   return (
     <ResultState loading={loading} error={error} empty={!rows?.length}>
@@ -377,12 +390,20 @@ function FinancePanel({ data }: { data: Record<string, unknown> }) {
 }
 
 /**
- * Mesclagem é um pedido de revisão, não uma junção automática: o servidor cria o
- * registro com status fixo de revisão e não move nenhum dado sem uma decisão
- * posterior registrada.
+ * Mesclagem é um pedido de revisão, não uma junção automática: o servidor grava a
+ * solicitação com origem, destino e motivo, e não move nenhum dado sem uma
+ * decisão posterior registrada. A tela também não tenta adivinhar a empresa que
+ * permanece — o usuário escolhe.
  */
-function useMergeRequest(org: string, companyId: string) {
-  const [open, setOpen] = useState(false);
+function MergeDialog({
+  org,
+  companyId,
+  onClose,
+}: {
+  org: string;
+  companyId: string;
+  onClose: () => void;
+}) {
   const api = useServerFn(saveCrm);
   const client = useQueryClient();
   const [target, setTarget] = useState("");
@@ -394,116 +415,18 @@ function useMergeRequest(org: string, companyId: string) {
         data: {
           organizationId: org,
           kind: "merge_request",
-          values: {
-            source_company_id: companyId,
-            target_company_id: target,
-            reason,
-          },
+          values: { source_company_id: companyId, target_company_id: target, reason },
         },
       });
     },
     onSuccess: () => {
       toast.success("Solicitação de mesclagem registrada para revisão.");
-      setOpen(false);
+      onClose();
       void client.invalidateQueries({ queryKey: ["crm"] });
     },
     onError: (error: Error) => toast.error(error.message),
   });
 
-  return { open, setOpen, close: () => setOpen(false), target, setTarget, reason, setReason, send };
-}
-
-function MergeDialog({
-  org,
-  companyId,
-  onClose,
-}: {
-  org: string;
-  companyId: string;
-  onClose: () => void;
-}) {
-  const request = useMergeRequest(org, companyId);
-  return (
-    <MergeDialogForm
-      title="Solicitar mesclagem de empresa"
-      description="Registra a solicitação com origem, destino e motivo. Nada é movido automaticamente: a mesclagem preserva histórico e auditoria e depende de uma decisão posterior."
-      target={request.target}
-      setTarget={request.setTarget}
-      reason={request.reason}
-      setReason={request.setReason}
-      pending={request.send.isPending}
-      onSubmit={() => request.send.mutate()}
-      onClose={onClose}
-    />
-  );
-}
-
-function MergeDialogForm({
-  title,
-  description,
-  target,
-  setTarget,
-  reason,
-  setReason,
-  pending,
-  onSubmit,
-  onClose,
-}: {
-  title: string;
-  description: string;
-  target: string;
-  setTarget: (value: string) => void;
-  reason: string;
-  setReason: (value: string) => void;
-  pending: boolean;
-  onSubmit: () => void;
-  onClose: () => void;
-}) {
-  return (
-    <RequestDialog
-      title={title}
-      description={description}
-      onClose={onClose}
-      footer={
-        <Button disabled={pending || !target || !reason.trim()} onClick={onSubmit}>
-          {pending ? "Registrando..." : "Registrar solicitação"}
-        </Button>
-      }
-    >
-      <div className="grid gap-4 sm:grid-cols-2">
-        <CompanyPicker org={orgFor(target)} value={target} onChange={setTarget} />
-        <div className="space-y-1">
-          <label className="text-sm" htmlFor="merge-reason">
-            Motivo
-          </label>
-          <input
-            id="merge-reason"
-            className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-            value={reason}
-            onChange={(event) => setReason(event.target.value)}
-          />
-        </div>
-      </div>
-    </RequestDialog>
-  );
-}
-
-const orgFor = (_value: string) => "";
-
-/** Diálogo genérico com cabeçalho, corpo e rodapé. */
-export function RequestDialog({
-  title,
-  description,
-  children,
-  onClose,
-  footer,
-}: {
-  title: string;
-  description: string;
-  children: React.ReactNode;
-  onClose: () => void;
-  footer: React.ReactNode;
-}) {
   return (
     <Dialog
       open
@@ -513,53 +436,38 @@ export function RequestDialog({
     >
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogTitle>Solicitar mesclagem de empresa</DialogTitle>
+          <DialogDescription>
+            Registra origem, destino e motivo. Nada é movido automaticamente: a mesclagem preserva
+            histórico e auditoria e depende de uma decisão posterior.
+          </DialogDescription>
         </DialogHeader>
-        {children}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Picker org={org} kind="companies" value={target} onChange={setTarget} label="Empresa que permanece" />
+          <div className="space-y-1">
+            <label className="text-sm" htmlFor="merge-reason">
+              Motivo
+            </label>
+            <input
+              id="merge-reason"
+              className={selectClass}
+              value={reason}
+              onChange={(event) => setReason(event.target.value)}
+            />
+          </div>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Origem: {companyId}. A empresa de origem continua existindo até a mesclagem ser concluída.
+        </p>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             Cancelar
           </Button>
-          {footer}
+          <Button disabled={send.isPending || !target || !reason.trim()} onClick={() => send.mutate()}>
+            {send.isPending ? "Registrando..." : "Registrar solicitação"}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
-
-function CompanyPicker({
-  org,
-  value,
-  onChange,
-}: {
-  org: string;
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  const { currentOrganization } = useOrganization();
-  const active = org || currentOrganization?.organization_id || "";
-  const query = useCrmQuery(active, "companies", {}, 1);
-  return (
-    <div className="space-y-1">
-      <label className="text-sm" htmlFor="merge-target">
-        Empresa que permanece
-      </label>
-      <select
-        id="merge-target"
-        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-      >
-        <option value="">Selecione</option>
-        {((query.data?.rows ?? []) as CrmRow[]).map((row) => (
-          <option key={row.id} value={row.id}>
-            {str(row.legal_name ?? row.trade_name ?? row.id)}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
-}
-
-export { Badge, asNumber, actCrm };
