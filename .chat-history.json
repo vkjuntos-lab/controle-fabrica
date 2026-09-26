@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/crm/list.tsx",
-      "newString": "/** Campos aceitos pelo `crm_save` carregados do registro existente. */\nfunction seedValues(fields: Field[], record: CrmRow): FormState {\n  const seed: FormState = {};\n  fields.forEach((item) => {\n    const value = record[item.key];\n    if (value === null || value === undefined) return;\n    seed[item.key] =\n      item.type === \"date\" && typeof value === \"string\" ? value.slice(0, 10) : String(value);\n  });\n  return seed;\n}\n\n/** Etapas de gravação da área, normalizando a forma antiga de um único `save`. */\nexport function saveSteps(area: Area) {\n  if (area.saves?.length) return area.saves;\n  if (!area.save) return [];\n  return [{ kind: area.save, fields: area.fields.map((item) => item.key) }];\n}\n\n/** Número gravado como numeric: `NaN` é removido em vez de virar null. */\nfunction numeric(raw: string): number | null {\n  const parsed = Number(raw);\n  return Number.isFinite(parsed) ? parsed : null;\n}\n",
-      "oldString": "/** Campos aceitos pelo `crm_save` carregados do registro existente. */\nfunction seedValues(fields: Field[], record: CrmRow): FormState {\n  const seed: FormState = {};\n  fields.forEach((item) => {\n    const value = record[item.key];\n    if (value === null || value === undefined) return;\n    seed[item.key] =\n      item.type === \"date\" && typeof value === \"string\" ? value.slice(0, 10) : String(value);\n  });\n  return seed;\n}\n"
-    },
-    "timestamp": 1790412789858
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790412789870
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/crm/list.tsx",
       "newString": "/**\n * Célula de tabela: status vira badge, dinheiro vira moeda, e chave estrangeira\n * vira o nome resolvido pelo servidor. Quando o nome não está no mapa — a empresa\n * está fora da carteira do usuário, por exemplo — a célula mostra um fragmento do\n * identificador em vez de mentir com um nome inventado.\n */\nexport function renderCell(\n  row: CrmRow,\n  column: string,\n  refKind?: string,\n  refs?: Record<string, Record<string, string>>,\n) {\n  const value = row[column];\n  if (column === \"status\" || column === \"commercial_status\") {\n    return <StatusBadge value={value} kind=\"status\" />;\n  }\n  if (column === \"kind\") {\n    return <StatusBadge value={value} kind=\"kind\" />;\n  }\n  if (refKind) {\n    const label = refs?.[refKind]?.[String(value ?? \"\")];\n    return (\n      <span title={label ? undefined : String(value ?? \"\")}>\n        {label ?? shortId(value)}\n      </span>\n    );\n  }\n  if (column.endsWith(\"_id\")) return <span className=\"font-mono text-xs\">{shortId(value)}</span>;\n  if ([\"estimated_value\", \"total\", \"subtotal\", \"credit_limit\"].includes(column)) {\n    return <span className=\"tabular-nums\">{money(value)}</span>;\n  }\n  if (column === \"probability\") return <span className=\"tabular-nums\">{str(value)}%</span>;\n  if ([\"created_at\", \"scheduled_at\", \"started_at\", \"effective_from\"].includes(column)) {\n    return <span className=\"text-xs text-muted-foreground\">{str(value)}</span>;\n  }\n  return <span>{str(value)}</span>;\n}\n\n/** UUID abreviado para caber na célula sem poluir a leitura. */\nfunction shortId(value: unknown): string {\n  const raw = str(value);\n  return raw.length > 12 ? `${raw.slice(0, 8)}…` : raw;\n}\n",
       "oldString": "/** Célula de tabela: status vira badge, demais valores seguem o tipo da coluna. */\nexport function renderCell(row: CrmRow, column: string) {\n  const value = row[column];\n  if (column === \"status\" || column === \"commercial_status\") {\n    return <StatusBadge value={value} kind=\"status\" />;\n  }\n  if (column.endsWith(\"_id\")) return <span className=\"font-mono text-xs\">{str(value)}</span>;\n  if ([\"estimated_value\", \"total\", \"subtotal\", \"credit_limit\"].includes(column)) {\n    return <span className=\"tabular-nums\">{money(value)}</span>;\n  }\n  if (column === \"probability\") return <span className=\"tabular-nums\">{str(value)}%</span>;\n  if ([\"created_at\", \"scheduled_at\", \"started_at\", \"effective_from\"].includes(column)) {\n    return <span className=\"text-xs text-muted-foreground\">{str(value)}</span>;\n  }\n  return <span>{str(value)}</span>;\n}\n"
     },
@@ -1617,5 +1601,19 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790413791396
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"docs/architecture/ADR-010-CRM.md\"); s = p.read_text()\ns = s.replace(\"a RPC genérica não é_graph API\", \"a RPC genérica não é uma API de\")\ns = s.replace(\"não é_graph API de leitura em cache\", \"leitura em cache\")\ns = s.replace(\"a quem opened a API\", \"a quem abriu a API\")\np.write_text(s)\nprint([c for c in s if ord(c) > 0x2FFF and c not in \"—’“”…\"])\nPY"
+    },
+    "timestamp": 1790413793441
+  },
+  {
+    "role": "tool_result",
+    "content": "[]\n",
+    "is_error": false,
+    "timestamp": 1790413793499
   }
 ]

@@ -30,9 +30,9 @@ troca, a interface não consegue inventar regra que o servidor não aplica — o
 sistemas onde preço e desconto eram digitados.
 
 A omissão de coluna sensível é decided no `crm_query`, e não no componente: esconder um campo
-com CSS ainda entrega o dado a quem opened a API. Um teste cobre exatamente esse caso.
+com CSS ainda entrega o dado a quem abriu a API. Um teste cobre exatamente esse caso.
 
-Limitações: a RPC genérica não é_graph API de leitura em cache; sem real-time, sem
+Limitações: a RPC genérica não é uma API de de leitura em cache; sem real-time, sem
 paginação por cursor, sem projection específica por tela além dos filtros aceitos. Os filtros de
 `crm_query` são lista branca, e a interface só oferece o que está nessa lista.
 
