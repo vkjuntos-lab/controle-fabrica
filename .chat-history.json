@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790386594780
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('docs/handoff/MASTER-011-VALIDATION.md')\ns=p.read_text()+\\\"\\\"\\\"\n## Arquivos e integrações\n\n- Migrations: as três listadas acima. A migration inicial contém nove tabelas; a segunda acrescenta quatro tabelas de projeção, fatos e conversões. A terceira concentra as correções desta revisão.\n- Servidor: \"'`src/lib/planning/planning.functions.ts`; cinco RPCs: `planning_save`, `planning_execute`, `planning_query`, `planning_order_action`, `planning_exception_action`.\n- Interface: `src/components/planning/{pages,detail,shared}.tsx`, `format.ts` e seis rotas em `src/routes/_authenticated/planejamento/`.\n- Integração: menu existente, tipos Supabase e matriz RBAC; ajustes em `src/lib/rbac.ts`, teste de permissões e exclusão de artefatos no ESLint.\n- Testes: `scripts/test-planning-db.py` e `src/lib/rbac.test.ts`.\n- Documentação criada: `docs/business/PLANNING.md`, `MRP.md`, `DEMAND-FORECAST.md`, `REPLENISHMENT-PLANNING.md`, `docs/architecture/ADR-008-PLANNING-ENGINE.md` e este relatório.\n- Handoff atualizado: `docs/handoff/PROJECT-STATE.md`.\n\nAs tabelas, rotas e oito permissões estão enumeradas em [PLANNING](../business/PLANNING.md). O motor reúne forecast simples/ponderado, ajustes manuais, recebimentos pendentes, explosão de BOM, necessidades líquidas, sugestões de compra/produção, projeção temporal, rupturas e exceções explicáveis. Cenários alteram demanda, segurança, estoque alvo e prazos sem alterar a configuração oficial.\n\nA disponibilidade consulta o Inventory Ledger. Conversões reutilizam `request_save` e `production_create_order`, com permissões dos respectivos domínios. RLS cobre as 13 tabelas; escrita somente por RPC autorizada. A auditoria registra execução, configuração, forecast, cenário, tratamento de sugestões e conversões.\n\n## Pendências e próximo domínio\n\nA entrega está validada localmente; implantação e aceitação visual no ambiente publicado continuam pendentes. Antes de aplicar migrations, conferir o histórico do banco de destino. O reparo mínimo do rascunho inicial foi necessário para o replay local; não há evidência de que esse rascunho tenha sido aplicado no banco publicado.\n\nO cálculo é síncrono e limitado a 20.000 posições variante/dia. Não houve teste de carga com catálogo real. A interface de comparação e de demanda por canal mostra até 50 linhas por consulta; expansão da navegação dessas visões permanece pendente. Exportação implementada em CSV; XLSX/PDF não implementados neste domínio. Segurança é por variante, não por combinação variante/localização. Ajuste manual é aditivo e por data.\n\nNão foi iniciado outro MASTER. O próximo passo é validar a implantação e o uso operacional do MASTER 011; o próximo domínio depende de especificação própria.\n\"\"\"\np.write_text(s)\nPY\ngit diff --check\ntail -n 4 /tmp/planning-build-final.log'"
-    },
-    "timestamp": 1790386596935
-  },
-  {
-    "role": "tool_result",
     "content": "ℹ Generated .output/nitro.json\n\n[nitro] ✔ You can preview this build using npx vite preview\n[nitro] ✔ You can deploy this build using npx nitro deploy --prebuilt\n",
     "is_error": false,
     "timestamp": 1790386596942
@@ -1533,5 +1519,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790412611390
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "wc -l src/components/crm/*.tsx src/components/crm/*.ts src/lib/crm/*.ts 2>/dev/null",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790412662184
+  },
+  {
+    "role": "tool_result",
+    "content": "  565 src/components/crm/customers.tsx\n  203 src/components/crm/dashboard.tsx\n  152 src/components/crm/leads.tsx\n  521 src/components/crm/list.tsx\n  422 src/components/crm/shared.tsx\n  482 src/components/crm/config.ts\n   83 src/components/crm/data.ts\n  180 src/lib/crm/constants.ts\n   26 src/lib/crm/",
+    "is_error": false,
+    "timestamp": 1790412662203
   }
 ]
