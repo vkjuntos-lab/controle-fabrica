@@ -395,7 +395,7 @@ export const PLATFORM_MODULES: ModuleDefinition[] = [
     key: "comercial",
     label: "Comercial",
     description: "Clientes, pedidos e vendas B2B.",
-    status: "coming_soon",
+    status: "available",
   },
   {
     key: "produtos",
