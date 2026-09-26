@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 3000 python3 scripts/test-crm-db.py\" 2>&1 | tail -30",
-      "timeout": 3000000
-    },
-    "timestamp": 1790412872255
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS A: supplier gains customer role without duplicate Company\nPASS B: concurrent lead conversion idempotent; contact and history retained\nPASS C: portfolio changes preserve prior assignments and opportunity owner\nPASS D: item quantities sum to 60; stage snapshots; no stock writes\nPASS E/F/G: quote ",
-    "is_error": false,
-    "timestamp": 1790412875342
-  },
-  {
-    "role": "tool",
     "tool": "todowrite",
     "input": {
       "todos": [
@@ -1619,5 +1604,20 @@
     "content": "checagem de nao-ASCII завершена\n",
     "is_error": false,
     "timestamp": 1790413873187
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && npm run typecheck 2>&1 | tail -3 && npx vitest run 2>&1 | tail -5 && git status --short | head -20",
+      "timeout": 600000
+    },
+    "timestamp": 1790413874562
+  },
+  {
+    "role": "tool_result",
+    "content": "> typecheck\n> tsc --noEmit\n\n Test Files  6 passed (6)\n      Tests  59 passed (59)\n   Start at  09:11:40\n   Duration  2.53s (transform 450ms, setup 0ms, collect 1.28s, tests 61ms, environment 1ms, prepare 434ms)\n\n M .chat-history.json\n",
+    "is_error": false,
+    "timestamp": 1790413902972
   }
 ]
