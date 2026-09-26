@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/crm/list.tsx",
-      "newString": "export function CrmListPage({\n  area,\n  title,\n  extraActions,\n  rowHref,\n  rowKey,\n  rowActions,\n  toolbar,\n  intro,\n}: {\n  area: Area;\n  title: string;\n  extraActions?: ReactNode;\n  rowHref?: (row: CrmRow) => string;\n  rowKey?: (row: CrmRow) => string;\n  rowActions?: (row: CrmRow) => ReactNode;\n  toolbar?: ReactNode;\n  intro?: string;\n}) {\n  return (\n    <Shell title={title} permission={area.permission}>\n      {(org) => (\n        <ListBody\n          org={org}\n          area={area}\n          extraActions={extraActions}\n          rowHref={rowHref}\n          rowKey={rowKey}\n          rowActions={rowActions}\n          toolbar={toolbar}\n          intro={intro}\n        />\n      )}\n    </Shell>\n  );\n}\n\nfunction ListBody({\n  org,\n  area,\n  extraActions,\n  rowHref,\n  rowKey,\n  rowActions,\n  toolbar,\n  intro,\n}: {\n  org: string;\n  area: Area;\n  extraActions?: ReactNode;\n  rowHref?: (row: CrmRow) => string;\n  rowKey?: (row: CrmRow) => string;\n  rowActions?: (row: CrmRow) => ReactNode;\n  toolbar?: ReactNode;\n  intro?: string;\n}) {",
-      "oldString": "export function CrmListPage({\n  area,\n  title,\n  extraActions,\n  rowHref,\n  rowKey,\n  toolbar,\n  intro,\n}: {\n  area: Area;\n  title: string;\n  extraActions?: ReactNode;\n  rowHref?: (row: CrmRow) => string;\n  rowKey?: (row: CrmRow) => string;\n  toolbar?: ReactNode;\n  intro?: string;\n}) {\n  return (\n    <Shell title={title} permission={area.permission}>\n      {(org) => (\n        <ListBody\n          org={org}\n          area={area}\n          extraActions={extraActions}\n          rowHref={rowHref}\n          rowKey={rowKey}\n          toolbar={toolbar}\n          intro={intro}\n        />\n      )}\n    </Shell>\n  );\n}\n\nfunction ListBody({\n  org,\n  area,\n  extraActions,\n  rowHref,\n  rowKey,\n  toolbar,\n  intro,\n}: {\n  org: string;\n  area: Area;\n  extraActions?: ReactNode;\n  rowHref?: (row: CrmRow) => string;\n  rowKey?: (row: CrmRow) => string;\n  toolbar?: ReactNode;\n  intro?: string;\n}) {"
-    },
-    "timestamp": 1790412564446
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790412564462
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/crm/list.tsx",
       "newString": "                      <td className=\"py-2 text-right\">\n                        <div className=\"flex flex-wrap justify-end gap-2\">\n                          {rowHref ? (\n                            <Button asChild size=\"sm\" variant=\"outline\">\n                              <a href={rowHref(row)}>Abrir</a>\n                            </Button>\n                          ) : null}\n                          {rowActions?.(row)}\n                          {canWrite ? (\n                            <Button size=\"sm\" variant=\"outline\" onClick={() => setEditing(row)}>\n                              Editar\n                            </Button>\n                          ) : null}\n                        </div>\n                      </td>",
       "oldString": "                      <td className=\"py-2 text-right\">\n                        <div className=\"flex justify-end gap-2\">\n                          {rowHref ? (\n                            <Button asChild size=\"sm\" variant=\"outline\">\n                              <a href={rowHref(row)}>Abrir</a>\n                            </Button>\n                          ) : null}\n                          {canWrite ? (\n                            <Button size=\"sm\" variant=\"outline\" onClick={() => setEditing(row)}>\n                              Editar\n                            </Button>\n                          ) : null}\n                        </div>\n                      </td>"
     },
@@ -1629,5 +1613,19 @@
     "content": "\n> typecheck\n> tsc --noEmit\n\n",
     "is_error": false,
     "timestamp": 1790413573035
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sed -n '50,80p' src/lib/crm/crm.functions.ts"
+    },
+    "timestamp": 1790413576174
+  },
+  {
+    "role": "tool_result",
+    "content": "  });\nexport const actCrm = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((i) =>\n    z\n      .object({\n        organizationId: uuid,\n        kind: z.enum([\"lead\", \"portfolio\", \"opportunity\", \"quote\"]),\n        id: uuid.nullable(),\n        action: z.string(",
+    "is_error": false,
+    "timestamp": 1790413576185
   }
 ]
