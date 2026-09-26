@@ -540,13 +540,34 @@ function ConfigurationBody({
   );
 }
 
-/** Célula de tabela: status vira badge, demais valores seguem o tipo da coluna. */
-export function renderCell(row: CrmRow, column: string) {
+/**
+ * Célula de tabela: status vira badge, dinheiro vira moeda, e chave estrangeira
+ * vira o nome resolvido pelo servidor. Quando o nome não está no mapa — a empresa
+ * está fora da carteira do usuário, por exemplo — a célula mostra um fragmento do
+ * identificador em vez de mentir com um nome inventado.
+ */
+export function renderCell(
+  row: CrmRow,
+  column: string,
+  refKind?: string,
+  refs?: Record<string, Record<string, string>>,
+) {
   const value = row[column];
   if (column === "status" || column === "commercial_status") {
     return <StatusBadge value={value} kind="status" />;
   }
-  if (column.endsWith("_id")) return <span className="font-mono text-xs">{str(value)}</span>;
+  if (column === "kind") {
+    return <StatusBadge value={value} kind="kind" />;
+  }
+  if (refKind) {
+    const label = refs?.[refKind]?.[String(value ?? "")];
+    return (
+      <span title={label ? undefined : String(value ?? "")}>
+        {label ?? shortId(value)}
+      </span>
+    );
+  }
+  if (column.endsWith("_id")) return <span className="font-mono text-xs">{shortId(value)}</span>;
   if (["estimated_value", "total", "subtotal", "credit_limit"].includes(column)) {
     return <span className="tabular-nums">{money(value)}</span>;
   }
@@ -555,4 +576,10 @@ export function renderCell(row: CrmRow, column: string) {
     return <span className="text-xs text-muted-foreground">{str(value)}</span>;
   }
   return <span>{str(value)}</span>;
+}
+
+/** UUID abreviado para caber na célula sem poluir a leitura. */
+function shortId(value: unknown): string {
+  const raw = str(value);
+  return raw.length > 12 ? `${raw.slice(0, 8)}…` : raw;
 }
