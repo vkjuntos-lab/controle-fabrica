@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n '\"typecheck\"\\|\"lint\"\\|\"build\"\\|\"test\"' package.json"
-    },
-    "timestamp": 1790412842540
-  },
-  {
-    "role": "tool_result",
-    "content": "8:    \"build\": \"vite build\",\n11:    \"lint\": \"eslint .\",\n12:    \"test\": \"vitest run\",\n20:    \"typecheck\": \"tsc --noEmit\",\n",
-    "is_error": false,
-    "timestamp": 1790412842559
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && npm run typecheck 2>&1 | tail -40"
     },
     "timestamp": 1790412844861
@@ -1618,5 +1604,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790413849352
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "# MASTER 012 — CRM, cadastro comercial, pipeline e propostas\n\nData: 26/09/2026. Continuação do MASTER 011, reutilizando catálogo mestre, Pricing e Cost Engine,\nInventory Ledger, empresas e contatos. Preserva a mesma casa: `organization_id` em tudo, RLS,\nRBAC central, Audit Log, idempotência e estado explícito com imutabilidade após conclusão.\n\nRegra mestra preservada e verificada por teste: **PREÇO, DESCONTO, TOTAL E MARGEM SÃO DO\nSERVIDOR**. O navegador envia variante e quantidade; a tabela de preço vigente, o custo e o total\nsão resolvidos em `crm_query`/`crm_save`. Um `crm_save` completo de proposta nunca cria\n`accounts_receivable` nem `inventory_movements` — a proposta não é pedido, não reserva estoque e\nnão fatura.\n\n## Implementado\n\n- **Schema e funções**: 29 tabelas do CRM em `20261005100000_crm.sql`, com leitura por\n  `crm_query`, escrita por `crm_save` e efeitos por `crm_action`. Nenhuma tabela gravável por\n  `authenticated`.\n- **Correção**: `crm_save` sobrescrevia colunas omitidas no payload com o default do schema em\n  update parcial, apagando dado já gravado. Corrigido e coberto por teste.\n- **Kind `members`**: a lista de responsáveis passou a ser resolvida por `crm_query`, sem exigir\n  `users.read`, que é permissão de administração.\n- **RBAC**: 27 permissões `crm.*`, `leads.*`, `customers.*`, `opportunities.*`, `quotes.*`,\n  `activities.*`, `representatives.*`, `crm.sensitive.read` e `crm.configure`; módulo\n  `comercial` como `available` e item no menu.\n- **Interface** em `src/components/crm/*` — `constants.ts`, `export.ts`, `config.ts`,\n  `shared.tsx`, `data.ts`, `list.tsx`, `dashboard.tsx`, `leads.tsx`, `customers.tsx`,\n  `opportunities.tsx`, `quotes.tsx`, `activities.tsx`, `team.tsx`, `reports.tsx` — e 15 rotas em\n  `src/routes/_authenticated/comercial/`.\n\n## Critérios de aceite\n\n| Item | Situação | Evidência |\n| --- | --- | --- |\n| Cadastro comercial unificado | IMPLEMENTED | `crm_query`/`crm_save`; teste A |\n| Leads e conversão | IMPLEMENTED | Teste B: conversão concorrente idempotente |\n| Contatos | IMPLEMENTED | Testes A e B: contato criado ou reutilizado, sem duplicar |\n| Representantes e carteiras | IMPLEMENTED | Teste C: troca de titular preserva histórico |\n| Pipeline e oportunidades | IMPLEMENTED | Teste D: itens somam 60, snapshot de etapa |\n| Histórico de etapas | IMPLEMENTED | Teste D: `opportunity_stage_history` |\n| Propostas e versionamento | IMPLEMENTED | Teste E: versão nova preserva preço anterior |\n| Integração com preços | IMPLEMENTED | Teste E/F/G: preço vigente resolvido no servidor |\n| Aprovações comerciais | IMPLEMENTED | Teste G: alçada configurada é exigida |\n| Consulta de estoque | IMPLEMENTED | Teste D: consulta por RPC oficial, sem escrita |\n| Atividades e agenda | IMPLEMENTED | Teste de atividades: reagendar com histórico |\n| Customer 360 | IMPLEMENTED | `customers.tsx`; escopo no teste K |\n| Dashboard com dados reais | IMPLEMENTED | Teste de dashboard: agregados oficiais |\n| RLS e permissões | IMPLEMENTED | Testes K e L |\n| Auditoria | IMPLEMENTED | Teste I/J: aceite gera um evento, sem ledger nem receivable |\n| Testes críticos | IMPLEMENTED | `npm run test:crm:db`, 19 testes unitários |\n| TypeScript e build | IMPLEMENTED | `npm run typecheck`, `npm run build` |\n\n## Verificado\n\n`npm run test:crm:db` — PostgreSQL real descartável, sem tocar em dado de organização real:\n\n1. **A**: fornecedor vira cliente sem duplicar `companies`.\n2. **B**: duas conversões simultâneas do mesmo lead produzem um único cliente, uma oportunidade e\n   um contato, com histórico preservado.\n3. **C**: troca de carteira encerra a atribuição anterior e mantém o responsável da oportunidade.\n4. **D**: itens somam 60; transição grava snapshot; nenhuma escrita de estoque.\n5. **E/F/G**: versões preservam preços; aprovação do servidor exige a alçada configurada.\n6. **I/J**: aceite produz um evento e não cria ledger nem conta a receber.\n7. **K/L**: escopo entre tenants e entre carteiras; permissão sensível exigida por RPC.\n8. **Atividades**: reagendamento com histórico, sem conclusão automática.\n9. **Dashboard**: agregados e saldo oficial.\n\n`npx vitest run` — 59 testes em 6 arquivos, incluindo `src/lib/crm/crm.test.ts` (19), que amarra a\nconfiguração da interface ao SQL e ao RBAC. Dois defeitos foram encontrados por esse teste e\ncorrigidos: `commercial_status` sem rótulo em `optionLabels` (apareceria como `ACTIVE` cru no\ncadastro) e `QUOTE_FLOW` sem os status terminais (`ACCEPTED`, `REJECTED`, `EXPIRED`, `CANCELED`).\n\n`npm run typecheck` e `npm run build` passam. Lint do escopo CRM sem erros; permanecem warnings\n`react-refresh/only-export-components`, que não afetam o bundle.\n\n## Defeitos encontrados na validação\n\n`crm_save` tratava todo update como insert completo: campo ausente do payload recebia o default do\nschema. Na edição de um cliente, por exemplo, salvar sem informar o limite de crédito zerava o\nlimite. O mesmo padrão apagava preferências, etiquetas e vínculos. Corrigido para patch parcial e\ncoberto pelo harness.\n\nTambém corrigidos: `commercial_status` sem rótulo, exibindo valor cru; `QUOTE_FLOW` incompleto;\n`_id` de `crm_action` tipado como não nulo, embora a criação de proposta envie `null`; `members`\ndependente de `users.read`; `config.ts` gravando cliente em chamada única quando a operação\nexige duas (`customer` + `customer_profile`) e permitindo editar `company_id`; `Picker` chamando\nkind inexistente e com `required` inválido; colunas de referência sem rótulo em listas; e teste de\nRBAC que tratava o módulo comercial como `coming_soon` depois de ele ter sido entregue.\n\n## Não implementado (por escopo ou dependência do MASTER 013)\n\nMotor de pedidos de venda; reserva definitiva de estoque; separação e expedição; faturamento\nfiscal; NF-e; integração WhatsApp sem configuração real; disparo de campanhas; comissionamento\nfinanceiro liquidado — o plano e as regras são cadastrados e simulados, mas a apuração depende de\nfaturamento e recebimento; previsão comercial apresentada como garantia.\n\n## Pendências honestas\n\nA aplicação da migration no Lovable Cloud e o funcionamento em navegador publicado não foram\nverificados: não houve smoke test autenticado. `src/integrations/supabase/types.ts` tem as três\nRPCs do CRM, mas as 29 tabelas não constam do bloco `Tables`, que é gerado; a aplicação não as\nconsulta diretamente, e a regeneração contra um banco com a migration aplicada as inclui. Os\ntipos de `crm_action` e `crm_query` aceitam `_kind` e `_filters` como texto livre, porque o `kind`\ndepende do resultado do `CASE` do servidor; o `crm.test.ts` é o que amarra esse texto ao SQL.\n\nDívida de formatação pré-existente permanece em arquivos de outros módulos (`auth-middleware`,\n`csv`, `logger`, entre outros).\n",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/handoff/MASTER-012-VALIDATION.md"
+    },
+    "timestamp": 1790413870223
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790413870246
   }
 ]
