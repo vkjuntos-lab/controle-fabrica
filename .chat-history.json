@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 3000 python3 scripts/test-crm-db.py\" 2>&1 | tail -25",
-      "timeout": 3000000,
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790411849466
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS A: supplier gains customer role without duplicate Company\nPASS B: concurrent lead conversion idempotent; contact and history retained\nPASS C: portfolio changes preserve prior assignments and opportunity owner\nPASS D: item quantities sum to 60; stage snapshots; no stock writes\nDEBUG authid= 0cbf",
-    "is_error": false,
-    "timestamp": 1790411852481
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'EOF'\np='scripts/test-crm-db.py'\ns=open(p).read()\ns=s.replace(\" print('DEBUG authid=',authid)\\n print('DEBUG save_result=',save('discount_authority',{'id':authid,'max_discount_percent':20,'reason':'Revisão'}))\\n print('DEBUG authority=',sql(f\\\"SELECT max_discount_percent||'|'||user_id||'|'||count(*) OVER () FROM commercial_discount_authorities WHERE organization_id={q(org)}\\\"));print('DEBUG quote discount=',sql(f\\\"SELECT discount_percent||'|'||status FROM sales_quotes WHERE id={q(quote)}\\\"))\\n\",\" save('discount_authority',{'id':authid,'max_discount_percent':20,'reason':'Revisão'})\\n\")\nopen(p,'w').write(s)\nEOF\ngrep -c DEBUG scripts/test-crm-db.py; git diff --stat scripts/test-crm-db.py"
     },
     "timestamp": 1790411857217
@@ -1622,5 +1606,19 @@
     "content": "1:// @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually\n3://   - tanstackStart, viteReact, tailwindcss, tsConfigPaths, nitro (build-only using cloudflare as a default target),\n6:import { defineConfig } from \"@lovable.dev/vite-tanstack-config\";\n10:  tanstackSt",
     "is_error": false,
     "timestamp": 1790413326836
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sed -n '5,20p' vite.config.ts; echo \"=== scripts ===\"; grep -n '\"scripts\"' -A 20 package.json"
+    },
+    "timestamp": 1790413329550
+  },
+  {
+    "role": "tool_result",
+    "content": "//     error logger plugins, and sandbox detection (port/host/strictPort).\nimport { defineConfig } from \"@lovable.dev/vite-tanstack-config\";\nimport { VitePWA } from \"vite-plugin-pwa\";\n\nexport default defineConfig({\n  tanstackStart: {\n    server: { entry: \"server\" },\n  },\n  vite: {\n    plugins: [\n   ",
+    "is_error": false,
+    "timestamp": 1790413329565
   }
 ]
