@@ -3,20 +3,6 @@
     "role": "tool_result",
     "content": "",
     "is_error": false,
-    "timestamp": 1790386242591
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('scripts/test-planning-db.py');s=p.read_text();needle=' # The graph cycle blocks the entire run without generating suggestions.'\nnew=''' # Historical unit forecast, cancelled sales excluded, partner sales counted once.\n hist=variant('HISTORICO');catalog(hist)\n ownstore=jrpc('marketplace_save_store',org,{'code':'HIST-OWN','name':'Loja própria','marketplace':'TEST','ownership_type':'OWN'})['id']\n rpc('marketplace_save_mapping',org,{'external_sku':'HIST-SKU','variant_id':hist})\n rpc('marketplace_register_sale',org,{'store_id':ownstore,'sale_date':date(-30),'external_order_id':'HIST-90','external_event_id':'HIST-90','external_sku':'HIST-SKU','quantity':90,'gross_amount':900})\n canceled=jrpc('marketplace_register_sale',org,{'store_id':ownstore,'sale_date':date(-1),'external_order_id':'CANCELED-999','external_event_id':'CANCELED-999','external_sku':'HIST-SKU','quantity':999,'gross_amount':999})['id']\n sql(f\\\"UPDATE marketplace_sales SET status='CANCELED' WHERE id={q(canceled)}\\\")\n ph=variant('HIST-PARCEIRO');catalog(ph)\n company=rpc('partner_save_company',org,{'code':'HIST-P','legal_name':'Parceiro histórico','roles':['PARTNER']})\n profile=jrpc('partner_query',org,'company',{'id':company})['profile'];ploc=profile['default_inventory_location_id']\n rpc('inventory_post_movement',org,ph,ploc,'OPENING_BALANCE',20,'Saldo anterior',date(-40))\n st=jrpc('marketplace_save_store',org,{'code':'HIST-P','name':'Loja parceira','marketplace':'TEST','ownership_type':'PARTNER','partner_id':profile['id']})['id']\n rpc('marketplace_save_mapping',org,{'external_sku':'HIST-P-SKU','variant_id':ph})\n ps=jrpc('marketplace_register_sale',org,{'store_id':st,'sale_date':date(-30),'external_order_id':'PARTNER-10','external_event_id':'PARTNER-10','external_sku':'HIST-P-SKU','quantity':10,'gross_amount':100})['id']\n rec=jrpc('rec_create',org,{'partner_id':profile['id'],'period_start':date(-30),'period_end':date(-1)})['reconciliation_id'];rpc('rec_process',org,rec)\n rpc('planning_save',org,'settings',{'demand_sources':['HISTORICAL_SALES','MANUAL_FORECAST','MINIMUM_STOCK'],'history_days':30,'min_history_days':30,'forecast_method':'SIMPLE_MOVING_AVERAGE'})\n history_run,_=execute(horizon_end=date(29))\n assert rows(history_run,'items',variant_id=hist)[0]['daily_demand']==3\n assert float(sql(f\\\"SELECT sum(base_forecast) FROM planning_projections WHERE planning_run_id={q(history_run['id'])} AND variant_id={q(hist)}\\\"))==90\n facts=rows(history_run,'facts',variant_id=ph);sales=[f for f in facts if f['source_type']=='HISTORICAL_SALES'];assert len(sales)==1 and sales[0]['quantity']==10,sales\n assert sql(f\\\"SELECT count(*) FROM planning_source_facts WHERE planning_run_id={q(history_run['id'])} AND source_id={q(canceled)}\\\")=='0'\n assert rows(history_run,'items',variant_id=fa)[0]['days_of_cover'] is None\n print('PASS: 90/30 = 3 daily and 90 projected; partner10 counted once; cancellation excluded; zero-demand cover NULL')\n forecast(hist,5,10);adjusted,_=execute(horizon_end=date(29))\n assert float(sql(f\\\"SELECT sum(demand) FROM planning_projections WHERE planning_run_id={q(adjusted['id'])} AND variant_id={q(hist)}\\\"))==95\n weekly=rows(adjusted,'projections',variant_id=hist,bucket='WEEKLY');assert sum(x['base_forecast'] for x in weekly)==90 and sum(x['manual_adjustment'] for x in weekly)==5,weekly\n assert len(weekly)==5 and weekly[0]['opening_quantity']==0\n print('PASS: base90 + adjustment5 =95; weekly sums flows while retaining opening/closing balances')\n weighted=variant('PONDERADO');catalog(weighted);rpc('marketplace_save_mapping',org,{'external_sku':'W-SKU','variant_id':weighted})\n for age,qty in [(30,30),(1,60)]:rpc('marketplace_register_sale',org,{'store_id':ownstore,'sale_date':date(-age),'external_order_id':f'W-{age}','external_event_id':f'W-{age}','external_sku':'W-SKU','quantity':qty,'gross_amount':qty})\n rpc('planning_save',org,'settings',{'forecast_method':'WEIGHTED_MOVING_AVERAGE','weighted_weights':[2,1]})\n wrun,_=execute(horizon_end=date(29));daily=rows(wrun,'items',variant_id=weighted)[0]['daily_demand'];assert abs(daily-(60*2+30)/(15*2+15))<.000001,daily\n print('PASS: configurable weighted mean uses daily denominators and higher recent weights')\n'''\ns=s.replace(needle,new+needle);p.write_text(s)\nPY\nnpm run test:planning:db > /tmp/planning-check.log 2>&1\""
-    },
-    "timestamp": 1790386273773
-  },
-  {
-    "role": "tool_result",
-    "content": "",
-    "is_error": false,
     "timestamp": 1790386280903
   },
   {
@@ -1509,5 +1495,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790412455529
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "ls src/components/ui/ | tr '\\n' ' '; echo; echo \"---EXPORT---\"; cat src/lib/partners/export.ts",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790412458501
+  },
+  {
+    "role": "tool_result",
+    "content": "accordion.tsx alert-dialog.tsx alert.tsx aspect-ratio.tsx avatar.tsx badge.tsx breadcrumb.tsx button.tsx calendar.tsx card.tsx carousel.tsx chart.tsx checkbox.tsx collapsible.tsx command.tsx context-menu.tsx dialog.tsx drawer.tsx dropdown-menu.tsx form.tsx hover-card.tsx input-otp.tsx input.tsx labe",
+    "is_error": false,
+    "timestamp": 1790412458522
   }
 ]
