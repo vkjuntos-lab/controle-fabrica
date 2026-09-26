@@ -23,6 +23,16 @@ import { Route as AuthenticatedAdminAuditoriaRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminOrganizacaoRouteImport } from './routes/_authenticated/admin.organizacao'
 import { Route as AuthenticatedAdminPermissoesRouteImport } from './routes/_authenticated/admin.permissoes'
 import { Route as AuthenticatedAdminUsuariosRouteImport } from './routes/_authenticated/admin.usuarios'
+import { Route as AuthenticatedComercialIndexRouteImport } from './routes/_authenticated/comercial/index'
+import { Route as AuthenticatedComercialAgendaRouteImport } from './routes/_authenticated/comercial/agenda'
+import { Route as AuthenticatedComercialAtividadesRouteImport } from './routes/_authenticated/comercial/atividades'
+import { Route as AuthenticatedComercialCarteirasRouteImport } from './routes/_authenticated/comercial/carteiras'
+import { Route as AuthenticatedComercialClientesRouteImport } from './routes/_authenticated/comercial/clientes'
+import { Route as AuthenticatedComercialLeadsRouteImport } from './routes/_authenticated/comercial/leads'
+import { Route as AuthenticatedComercialOportunidadesRouteImport } from './routes/_authenticated/comercial/oportunidades'
+import { Route as AuthenticatedComercialPropostasRouteImport } from './routes/_authenticated/comercial/propostas'
+import { Route as AuthenticatedComercialRelatoriosRouteImport } from './routes/_authenticated/comercial/relatorios'
+import { Route as AuthenticatedComercialRepresentantesRouteImport } from './routes/_authenticated/comercial/representantes'
 import { Route as AuthenticatedComprasIndexRouteImport } from './routes/_authenticated/compras/index'
 import { Route as AuthenticatedComprasConfiguracoesRouteImport } from './routes/_authenticated/compras/configuracoes'
 import { Route as AuthenticatedComprasCotacoesRouteImport } from './routes/_authenticated/compras/cotacoes'
@@ -78,6 +88,11 @@ import { Route as AuthenticatedReconciliacaoVendasRouteImport } from './routes/_
 import { Route as AuthenticatedRelatoriosRentabilidadeRouteImport } from './routes/_authenticated/relatorios/rentabilidade'
 import { Route as ApiCronHealthRouteImport } from './routes/api/cron.health'
 import { Route as ApiWebhooksReceiverRouteImport } from './routes/api/webhooks.receiver'
+import { Route as AuthenticatedComercialClientesIdRouteImport } from './routes/_authenticated/comercial/clientes.$id'
+import { Route as AuthenticatedComercialConfiguracoesSectionRouteImport } from './routes/_authenticated/comercial/configuracoes.$section'
+import { Route as AuthenticatedComercialOportunidadesIdRouteImport } from './routes/_authenticated/comercial/oportunidades.$id'
+import { Route as AuthenticatedComercialPropostasIdRouteImport } from './routes/_authenticated/comercial/propostas.$id'
+import { Route as AuthenticatedComercialRepresentantesIdRouteImport } from './routes/_authenticated/comercial/representantes.$id'
 import { Route as AuthenticatedComprasCotacoesIdRouteImport } from './routes/_authenticated/compras/cotacoes.$id'
 import { Route as AuthenticatedComprasPedidosIdRouteImport } from './routes/_authenticated/compras/pedidos.$id'
 import { Route as AuthenticatedComprasRecebimentosIdRouteImport } from './routes/_authenticated/compras/recebimentos.$id'
@@ -164,6 +179,66 @@ const AuthenticatedAdminUsuariosRoute =
   AuthenticatedAdminUsuariosRouteImport.update({
     id: '/admin/usuarios',
     path: '/admin/usuarios',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComercialIndexRoute =
+  AuthenticatedComercialIndexRouteImport.update({
+    id: '/comercial/',
+    path: '/comercial/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComercialAgendaRoute =
+  AuthenticatedComercialAgendaRouteImport.update({
+    id: '/comercial/agenda',
+    path: '/comercial/agenda',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComercialAtividadesRoute =
+  AuthenticatedComercialAtividadesRouteImport.update({
+    id: '/comercial/atividades',
+    path: '/comercial/atividades',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComercialCarteirasRoute =
+  AuthenticatedComercialCarteirasRouteImport.update({
+    id: '/comercial/carteiras',
+    path: '/comercial/carteiras',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComercialClientesRoute =
+  AuthenticatedComercialClientesRouteImport.update({
+    id: '/comercial/clientes',
+    path: '/comercial/clientes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComercialLeadsRoute =
+  AuthenticatedComercialLeadsRouteImport.update({
+    id: '/comercial/leads',
+    path: '/comercial/leads',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComercialOportunidadesRoute =
+  AuthenticatedComercialOportunidadesRouteImport.update({
+    id: '/comercial/oportunidades',
+    path: '/comercial/oportunidades',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComercialPropostasRoute =
+  AuthenticatedComercialPropostasRouteImport.update({
+    id: '/comercial/propostas',
+    path: '/comercial/propostas',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComercialRelatoriosRoute =
+  AuthenticatedComercialRelatoriosRouteImport.update({
+    id: '/comercial/relatorios',
+    path: '/comercial/relatorios',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComercialRepresentantesRoute =
+  AuthenticatedComercialRepresentantesRouteImport.update({
+    id: '/comercial/representantes',
+    path: '/comercial/representantes',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedComprasIndexRoute =
@@ -493,6 +568,36 @@ const ApiWebhooksReceiverRoute = ApiWebhooksReceiverRouteImport.update({
   path: '/api/webhooks/receiver',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedComercialClientesIdRoute =
+  AuthenticatedComercialClientesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedComercialClientesRoute,
+  } as any)
+const AuthenticatedComercialConfiguracoesSectionRoute =
+  AuthenticatedComercialConfiguracoesSectionRouteImport.update({
+    id: '/comercial/configuracoes/$section',
+    path: '/comercial/configuracoes/$section',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedComercialOportunidadesIdRoute =
+  AuthenticatedComercialOportunidadesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedComercialOportunidadesRoute,
+  } as any)
+const AuthenticatedComercialPropostasIdRoute =
+  AuthenticatedComercialPropostasIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedComercialPropostasRoute,
+  } as any)
+const AuthenticatedComercialRepresentantesIdRoute =
+  AuthenticatedComercialRepresentantesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedComercialRepresentantesRoute,
+  } as any)
 const AuthenticatedComprasCotacoesIdRoute =
   AuthenticatedComprasCotacoesIdRouteImport.update({
     id: '/$id',
@@ -586,6 +691,15 @@ export interface FileRoutesByFullPath {
   '/admin/organizacao': typeof AuthenticatedAdminOrganizacaoRoute
   '/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/comercial/agenda': typeof AuthenticatedComercialAgendaRoute
+  '/comercial/atividades': typeof AuthenticatedComercialAtividadesRoute
+  '/comercial/carteiras': typeof AuthenticatedComercialCarteirasRoute
+  '/comercial/clientes': typeof AuthenticatedComercialClientesRouteWithChildren
+  '/comercial/leads': typeof AuthenticatedComercialLeadsRoute
+  '/comercial/oportunidades': typeof AuthenticatedComercialOportunidadesRouteWithChildren
+  '/comercial/propostas': typeof AuthenticatedComercialPropostasRouteWithChildren
+  '/comercial/relatorios': typeof AuthenticatedComercialRelatoriosRoute
+  '/comercial/representantes': typeof AuthenticatedComercialRepresentantesRouteWithChildren
   '/compras/configuracoes': typeof AuthenticatedComprasConfiguracoesRoute
   '/compras/cotacoes': typeof AuthenticatedComprasCotacoesRouteWithChildren
   '/compras/devolucoes': typeof AuthenticatedComprasDevolucoesRoute
@@ -633,6 +747,7 @@ export interface FileRoutesByFullPath {
   '/relatorios/rentabilidade': typeof AuthenticatedRelatoriosRentabilidadeRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
+  '/comercial/': typeof AuthenticatedComercialIndexRoute
   '/compras/': typeof AuthenticatedComprasIndexRoute
   '/custos/': typeof AuthenticatedCustosIndexRoute
   '/estoque/': typeof AuthenticatedEstoqueIndexRoute
@@ -641,6 +756,11 @@ export interface FileRoutesByFullPath {
   '/planejamento/': typeof AuthenticatedPlanejamentoIndexRoute
   '/precificacao/': typeof AuthenticatedPrecificacaoIndexRoute
   '/reconciliacao/': typeof AuthenticatedReconciliacaoIndexRoute
+  '/comercial/clientes/$id': typeof AuthenticatedComercialClientesIdRoute
+  '/comercial/configuracoes/$section': typeof AuthenticatedComercialConfiguracoesSectionRoute
+  '/comercial/oportunidades/$id': typeof AuthenticatedComercialOportunidadesIdRoute
+  '/comercial/propostas/$id': typeof AuthenticatedComercialPropostasIdRoute
+  '/comercial/representantes/$id': typeof AuthenticatedComercialRepresentantesIdRoute
   '/compras/cotacoes/$id': typeof AuthenticatedComprasCotacoesIdRoute
   '/compras/pedidos/$id': typeof AuthenticatedComprasPedidosIdRoute
   '/compras/recebimentos/$id': typeof AuthenticatedComprasRecebimentosIdRoute
@@ -669,6 +789,15 @@ export interface FileRoutesByTo {
   '/admin/organizacao': typeof AuthenticatedAdminOrganizacaoRoute
   '/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/comercial/agenda': typeof AuthenticatedComercialAgendaRoute
+  '/comercial/atividades': typeof AuthenticatedComercialAtividadesRoute
+  '/comercial/carteiras': typeof AuthenticatedComercialCarteirasRoute
+  '/comercial/clientes': typeof AuthenticatedComercialClientesRouteWithChildren
+  '/comercial/leads': typeof AuthenticatedComercialLeadsRoute
+  '/comercial/oportunidades': typeof AuthenticatedComercialOportunidadesRouteWithChildren
+  '/comercial/propostas': typeof AuthenticatedComercialPropostasRouteWithChildren
+  '/comercial/relatorios': typeof AuthenticatedComercialRelatoriosRoute
+  '/comercial/representantes': typeof AuthenticatedComercialRepresentantesRouteWithChildren
   '/compras/configuracoes': typeof AuthenticatedComprasConfiguracoesRoute
   '/compras/cotacoes': typeof AuthenticatedComprasCotacoesRouteWithChildren
   '/compras/devolucoes': typeof AuthenticatedComprasDevolucoesRoute
@@ -716,6 +845,7 @@ export interface FileRoutesByTo {
   '/relatorios/rentabilidade': typeof AuthenticatedRelatoriosRentabilidadeRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
+  '/comercial': typeof AuthenticatedComercialIndexRoute
   '/compras': typeof AuthenticatedComprasIndexRoute
   '/custos': typeof AuthenticatedCustosIndexRoute
   '/estoque': typeof AuthenticatedEstoqueIndexRoute
@@ -724,6 +854,11 @@ export interface FileRoutesByTo {
   '/planejamento': typeof AuthenticatedPlanejamentoIndexRoute
   '/precificacao': typeof AuthenticatedPrecificacaoIndexRoute
   '/reconciliacao': typeof AuthenticatedReconciliacaoIndexRoute
+  '/comercial/clientes/$id': typeof AuthenticatedComercialClientesIdRoute
+  '/comercial/configuracoes/$section': typeof AuthenticatedComercialConfiguracoesSectionRoute
+  '/comercial/oportunidades/$id': typeof AuthenticatedComercialOportunidadesIdRoute
+  '/comercial/propostas/$id': typeof AuthenticatedComercialPropostasIdRoute
+  '/comercial/representantes/$id': typeof AuthenticatedComercialRepresentantesIdRoute
   '/compras/cotacoes/$id': typeof AuthenticatedComprasCotacoesIdRoute
   '/compras/pedidos/$id': typeof AuthenticatedComprasPedidosIdRoute
   '/compras/recebimentos/$id': typeof AuthenticatedComprasRecebimentosIdRoute
@@ -754,6 +889,15 @@ export interface FileRoutesById {
   '/_authenticated/admin/organizacao': typeof AuthenticatedAdminOrganizacaoRoute
   '/_authenticated/admin/permissoes': typeof AuthenticatedAdminPermissoesRoute
   '/_authenticated/admin/usuarios': typeof AuthenticatedAdminUsuariosRoute
+  '/_authenticated/comercial/agenda': typeof AuthenticatedComercialAgendaRoute
+  '/_authenticated/comercial/atividades': typeof AuthenticatedComercialAtividadesRoute
+  '/_authenticated/comercial/carteiras': typeof AuthenticatedComercialCarteirasRoute
+  '/_authenticated/comercial/clientes': typeof AuthenticatedComercialClientesRouteWithChildren
+  '/_authenticated/comercial/leads': typeof AuthenticatedComercialLeadsRoute
+  '/_authenticated/comercial/oportunidades': typeof AuthenticatedComercialOportunidadesRouteWithChildren
+  '/_authenticated/comercial/propostas': typeof AuthenticatedComercialPropostasRouteWithChildren
+  '/_authenticated/comercial/relatorios': typeof AuthenticatedComercialRelatoriosRoute
+  '/_authenticated/comercial/representantes': typeof AuthenticatedComercialRepresentantesRouteWithChildren
   '/_authenticated/compras/configuracoes': typeof AuthenticatedComprasConfiguracoesRoute
   '/_authenticated/compras/cotacoes': typeof AuthenticatedComprasCotacoesRouteWithChildren
   '/_authenticated/compras/devolucoes': typeof AuthenticatedComprasDevolucoesRoute
@@ -801,6 +945,7 @@ export interface FileRoutesById {
   '/_authenticated/relatorios/rentabilidade': typeof AuthenticatedRelatoriosRentabilidadeRoute
   '/api/cron/health': typeof ApiCronHealthRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
+  '/_authenticated/comercial/': typeof AuthenticatedComercialIndexRoute
   '/_authenticated/compras/': typeof AuthenticatedComprasIndexRoute
   '/_authenticated/custos/': typeof AuthenticatedCustosIndexRoute
   '/_authenticated/estoque/': typeof AuthenticatedEstoqueIndexRoute
@@ -809,6 +954,11 @@ export interface FileRoutesById {
   '/_authenticated/planejamento/': typeof AuthenticatedPlanejamentoIndexRoute
   '/_authenticated/precificacao/': typeof AuthenticatedPrecificacaoIndexRoute
   '/_authenticated/reconciliacao/': typeof AuthenticatedReconciliacaoIndexRoute
+  '/_authenticated/comercial/clientes/$id': typeof AuthenticatedComercialClientesIdRoute
+  '/_authenticated/comercial/configuracoes/$section': typeof AuthenticatedComercialConfiguracoesSectionRoute
+  '/_authenticated/comercial/oportunidades/$id': typeof AuthenticatedComercialOportunidadesIdRoute
+  '/_authenticated/comercial/propostas/$id': typeof AuthenticatedComercialPropostasIdRoute
+  '/_authenticated/comercial/representantes/$id': typeof AuthenticatedComercialRepresentantesIdRoute
   '/_authenticated/compras/cotacoes/$id': typeof AuthenticatedComprasCotacoesIdRoute
   '/_authenticated/compras/pedidos/$id': typeof AuthenticatedComprasPedidosIdRoute
   '/_authenticated/compras/recebimentos/$id': typeof AuthenticatedComprasRecebimentosIdRoute
@@ -839,6 +989,15 @@ export interface FileRouteTypes {
     | '/admin/organizacao'
     | '/admin/permissoes'
     | '/admin/usuarios'
+    | '/comercial/agenda'
+    | '/comercial/atividades'
+    | '/comercial/carteiras'
+    | '/comercial/clientes'
+    | '/comercial/leads'
+    | '/comercial/oportunidades'
+    | '/comercial/propostas'
+    | '/comercial/relatorios'
+    | '/comercial/representantes'
     | '/compras/configuracoes'
     | '/compras/cotacoes'
     | '/compras/devolucoes'
@@ -886,6 +1045,7 @@ export interface FileRouteTypes {
     | '/relatorios/rentabilidade'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
+    | '/comercial/'
     | '/compras/'
     | '/custos/'
     | '/estoque/'
@@ -894,6 +1054,11 @@ export interface FileRouteTypes {
     | '/planejamento/'
     | '/precificacao/'
     | '/reconciliacao/'
+    | '/comercial/clientes/$id'
+    | '/comercial/configuracoes/$section'
+    | '/comercial/oportunidades/$id'
+    | '/comercial/propostas/$id'
+    | '/comercial/representantes/$id'
     | '/compras/cotacoes/$id'
     | '/compras/pedidos/$id'
     | '/compras/recebimentos/$id'
@@ -922,6 +1087,15 @@ export interface FileRouteTypes {
     | '/admin/organizacao'
     | '/admin/permissoes'
     | '/admin/usuarios'
+    | '/comercial/agenda'
+    | '/comercial/atividades'
+    | '/comercial/carteiras'
+    | '/comercial/clientes'
+    | '/comercial/leads'
+    | '/comercial/oportunidades'
+    | '/comercial/propostas'
+    | '/comercial/relatorios'
+    | '/comercial/representantes'
     | '/compras/configuracoes'
     | '/compras/cotacoes'
     | '/compras/devolucoes'
@@ -969,6 +1143,7 @@ export interface FileRouteTypes {
     | '/relatorios/rentabilidade'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
+    | '/comercial'
     | '/compras'
     | '/custos'
     | '/estoque'
@@ -977,6 +1152,11 @@ export interface FileRouteTypes {
     | '/planejamento'
     | '/precificacao'
     | '/reconciliacao'
+    | '/comercial/clientes/$id'
+    | '/comercial/configuracoes/$section'
+    | '/comercial/oportunidades/$id'
+    | '/comercial/propostas/$id'
+    | '/comercial/representantes/$id'
     | '/compras/cotacoes/$id'
     | '/compras/pedidos/$id'
     | '/compras/recebimentos/$id'
@@ -1006,6 +1186,15 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/organizacao'
     | '/_authenticated/admin/permissoes'
     | '/_authenticated/admin/usuarios'
+    | '/_authenticated/comercial/agenda'
+    | '/_authenticated/comercial/atividades'
+    | '/_authenticated/comercial/carteiras'
+    | '/_authenticated/comercial/clientes'
+    | '/_authenticated/comercial/leads'
+    | '/_authenticated/comercial/oportunidades'
+    | '/_authenticated/comercial/propostas'
+    | '/_authenticated/comercial/relatorios'
+    | '/_authenticated/comercial/representantes'
     | '/_authenticated/compras/configuracoes'
     | '/_authenticated/compras/cotacoes'
     | '/_authenticated/compras/devolucoes'
@@ -1053,6 +1242,7 @@ export interface FileRouteTypes {
     | '/_authenticated/relatorios/rentabilidade'
     | '/api/cron/health'
     | '/api/webhooks/receiver'
+    | '/_authenticated/comercial/'
     | '/_authenticated/compras/'
     | '/_authenticated/custos/'
     | '/_authenticated/estoque/'
@@ -1061,6 +1251,11 @@ export interface FileRouteTypes {
     | '/_authenticated/planejamento/'
     | '/_authenticated/precificacao/'
     | '/_authenticated/reconciliacao/'
+    | '/_authenticated/comercial/clientes/$id'
+    | '/_authenticated/comercial/configuracoes/$section'
+    | '/_authenticated/comercial/oportunidades/$id'
+    | '/_authenticated/comercial/propostas/$id'
+    | '/_authenticated/comercial/representantes/$id'
     | '/_authenticated/compras/cotacoes/$id'
     | '/_authenticated/compras/pedidos/$id'
     | '/_authenticated/compras/recebimentos/$id'
@@ -1184,6 +1379,76 @@ declare module '@tanstack/react-router' {
       path: '/admin/usuarios'
       fullPath: '/admin/usuarios'
       preLoaderRoute: typeof AuthenticatedAdminUsuariosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/comercial/': {
+      id: '/_authenticated/comercial/'
+      path: '/comercial'
+      fullPath: '/comercial/'
+      preLoaderRoute: typeof AuthenticatedComercialIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/comercial/agenda': {
+      id: '/_authenticated/comercial/agenda'
+      path: '/comercial/agenda'
+      fullPath: '/comercial/agenda'
+      preLoaderRoute: typeof AuthenticatedComercialAgendaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/comercial/atividades': {
+      id: '/_authenticated/comercial/atividades'
+      path: '/comercial/atividades'
+      fullPath: '/comercial/atividades'
+      preLoaderRoute: typeof AuthenticatedComercialAtividadesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/comercial/carteiras': {
+      id: '/_authenticated/comercial/carteiras'
+      path: '/comercial/carteiras'
+      fullPath: '/comercial/carteiras'
+      preLoaderRoute: typeof AuthenticatedComercialCarteirasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/comercial/clientes': {
+      id: '/_authenticated/comercial/clientes'
+      path: '/comercial/clientes'
+      fullPath: '/comercial/clientes'
+      preLoaderRoute: typeof AuthenticatedComercialClientesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/comercial/leads': {
+      id: '/_authenticated/comercial/leads'
+      path: '/comercial/leads'
+      fullPath: '/comercial/leads'
+      preLoaderRoute: typeof AuthenticatedComercialLeadsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/comercial/oportunidades': {
+      id: '/_authenticated/comercial/oportunidades'
+      path: '/comercial/oportunidades'
+      fullPath: '/comercial/oportunidades'
+      preLoaderRoute: typeof AuthenticatedComercialOportunidadesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/comercial/propostas': {
+      id: '/_authenticated/comercial/propostas'
+      path: '/comercial/propostas'
+      fullPath: '/comercial/propostas'
+      preLoaderRoute: typeof AuthenticatedComercialPropostasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/comercial/relatorios': {
+      id: '/_authenticated/comercial/relatorios'
+      path: '/comercial/relatorios'
+      fullPath: '/comercial/relatorios'
+      preLoaderRoute: typeof AuthenticatedComercialRelatoriosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/comercial/representantes': {
+      id: '/_authenticated/comercial/representantes'
+      path: '/comercial/representantes'
+      fullPath: '/comercial/representantes'
+      preLoaderRoute: typeof AuthenticatedComercialRepresentantesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/compras/': {
@@ -1571,6 +1836,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWebhooksReceiverRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/comercial/clientes/$id': {
+      id: '/_authenticated/comercial/clientes/$id'
+      path: '/$id'
+      fullPath: '/comercial/clientes/$id'
+      preLoaderRoute: typeof AuthenticatedComercialClientesIdRouteImport
+      parentRoute: typeof AuthenticatedComercialClientesRoute
+    }
+    '/_authenticated/comercial/configuracoes/$section': {
+      id: '/_authenticated/comercial/configuracoes/$section'
+      path: '/comercial/configuracoes/$section'
+      fullPath: '/comercial/configuracoes/$section'
+      preLoaderRoute: typeof AuthenticatedComercialConfiguracoesSectionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/comercial/oportunidades/$id': {
+      id: '/_authenticated/comercial/oportunidades/$id'
+      path: '/$id'
+      fullPath: '/comercial/oportunidades/$id'
+      preLoaderRoute: typeof AuthenticatedComercialOportunidadesIdRouteImport
+      parentRoute: typeof AuthenticatedComercialOportunidadesRoute
+    }
+    '/_authenticated/comercial/propostas/$id': {
+      id: '/_authenticated/comercial/propostas/$id'
+      path: '/$id'
+      fullPath: '/comercial/propostas/$id'
+      preLoaderRoute: typeof AuthenticatedComercialPropostasIdRouteImport
+      parentRoute: typeof AuthenticatedComercialPropostasRoute
+    }
+    '/_authenticated/comercial/representantes/$id': {
+      id: '/_authenticated/comercial/representantes/$id'
+      path: '/$id'
+      fullPath: '/comercial/representantes/$id'
+      preLoaderRoute: typeof AuthenticatedComercialRepresentantesIdRouteImport
+      parentRoute: typeof AuthenticatedComercialRepresentantesRoute
+    }
     '/_authenticated/compras/cotacoes/$id': {
       id: '/_authenticated/compras/cotacoes/$id'
       path: '/$id'
@@ -1692,6 +1992,66 @@ const AuthenticatedProdutosRouteWithChildren =
     AuthenticatedProdutosRouteChildren,
   )
 
+interface AuthenticatedComercialClientesRouteChildren {
+  AuthenticatedComercialClientesIdRoute: typeof AuthenticatedComercialClientesIdRoute
+}
+
+const AuthenticatedComercialClientesRouteChildren: AuthenticatedComercialClientesRouteChildren =
+  {
+    AuthenticatedComercialClientesIdRoute:
+      AuthenticatedComercialClientesIdRoute,
+  }
+
+const AuthenticatedComercialClientesRouteWithChildren =
+  AuthenticatedComercialClientesRoute._addFileChildren(
+    AuthenticatedComercialClientesRouteChildren,
+  )
+
+interface AuthenticatedComercialOportunidadesRouteChildren {
+  AuthenticatedComercialOportunidadesIdRoute: typeof AuthenticatedComercialOportunidadesIdRoute
+}
+
+const AuthenticatedComercialOportunidadesRouteChildren: AuthenticatedComercialOportunidadesRouteChildren =
+  {
+    AuthenticatedComercialOportunidadesIdRoute:
+      AuthenticatedComercialOportunidadesIdRoute,
+  }
+
+const AuthenticatedComercialOportunidadesRouteWithChildren =
+  AuthenticatedComercialOportunidadesRoute._addFileChildren(
+    AuthenticatedComercialOportunidadesRouteChildren,
+  )
+
+interface AuthenticatedComercialPropostasRouteChildren {
+  AuthenticatedComercialPropostasIdRoute: typeof AuthenticatedComercialPropostasIdRoute
+}
+
+const AuthenticatedComercialPropostasRouteChildren: AuthenticatedComercialPropostasRouteChildren =
+  {
+    AuthenticatedComercialPropostasIdRoute:
+      AuthenticatedComercialPropostasIdRoute,
+  }
+
+const AuthenticatedComercialPropostasRouteWithChildren =
+  AuthenticatedComercialPropostasRoute._addFileChildren(
+    AuthenticatedComercialPropostasRouteChildren,
+  )
+
+interface AuthenticatedComercialRepresentantesRouteChildren {
+  AuthenticatedComercialRepresentantesIdRoute: typeof AuthenticatedComercialRepresentantesIdRoute
+}
+
+const AuthenticatedComercialRepresentantesRouteChildren: AuthenticatedComercialRepresentantesRouteChildren =
+  {
+    AuthenticatedComercialRepresentantesIdRoute:
+      AuthenticatedComercialRepresentantesIdRoute,
+  }
+
+const AuthenticatedComercialRepresentantesRouteWithChildren =
+  AuthenticatedComercialRepresentantesRoute._addFileChildren(
+    AuthenticatedComercialRepresentantesRouteChildren,
+  )
+
 interface AuthenticatedComprasCotacoesRouteChildren {
   AuthenticatedComprasCotacoesIdRoute: typeof AuthenticatedComprasCotacoesIdRoute
 }
@@ -1775,6 +2135,15 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminOrganizacaoRoute: typeof AuthenticatedAdminOrganizacaoRoute
   AuthenticatedAdminPermissoesRoute: typeof AuthenticatedAdminPermissoesRoute
   AuthenticatedAdminUsuariosRoute: typeof AuthenticatedAdminUsuariosRoute
+  AuthenticatedComercialAgendaRoute: typeof AuthenticatedComercialAgendaRoute
+  AuthenticatedComercialAtividadesRoute: typeof AuthenticatedComercialAtividadesRoute
+  AuthenticatedComercialCarteirasRoute: typeof AuthenticatedComercialCarteirasRoute
+  AuthenticatedComercialClientesRoute: typeof AuthenticatedComercialClientesRouteWithChildren
+  AuthenticatedComercialLeadsRoute: typeof AuthenticatedComercialLeadsRoute
+  AuthenticatedComercialOportunidadesRoute: typeof AuthenticatedComercialOportunidadesRouteWithChildren
+  AuthenticatedComercialPropostasRoute: typeof AuthenticatedComercialPropostasRouteWithChildren
+  AuthenticatedComercialRelatoriosRoute: typeof AuthenticatedComercialRelatoriosRoute
+  AuthenticatedComercialRepresentantesRoute: typeof AuthenticatedComercialRepresentantesRouteWithChildren
   AuthenticatedComprasConfiguracoesRoute: typeof AuthenticatedComprasConfiguracoesRoute
   AuthenticatedComprasCotacoesRoute: typeof AuthenticatedComprasCotacoesRouteWithChildren
   AuthenticatedComprasDevolucoesRoute: typeof AuthenticatedComprasDevolucoesRoute
@@ -1818,6 +2187,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedReconciliacaoTabelasPrecoRoute: typeof AuthenticatedReconciliacaoTabelasPrecoRoute
   AuthenticatedReconciliacaoVendasRoute: typeof AuthenticatedReconciliacaoVendasRoute
   AuthenticatedRelatoriosRentabilidadeRoute: typeof AuthenticatedRelatoriosRentabilidadeRoute
+  AuthenticatedComercialIndexRoute: typeof AuthenticatedComercialIndexRoute
   AuthenticatedComprasIndexRoute: typeof AuthenticatedComprasIndexRoute
   AuthenticatedCustosIndexRoute: typeof AuthenticatedCustosIndexRoute
   AuthenticatedEstoqueIndexRoute: typeof AuthenticatedEstoqueIndexRoute
@@ -1826,6 +2196,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPlanejamentoIndexRoute: typeof AuthenticatedPlanejamentoIndexRoute
   AuthenticatedPrecificacaoIndexRoute: typeof AuthenticatedPrecificacaoIndexRoute
   AuthenticatedReconciliacaoIndexRoute: typeof AuthenticatedReconciliacaoIndexRoute
+  AuthenticatedComercialConfiguracoesSectionRoute: typeof AuthenticatedComercialConfiguracoesSectionRoute
   AuthenticatedFinanceiroPagarIdRoute: typeof AuthenticatedFinanceiroPagarIdRoute
   AuthenticatedFinanceiroReceberIdRoute: typeof AuthenticatedFinanceiroReceberIdRoute
   AuthenticatedParceirosDevolucoesIdRoute: typeof AuthenticatedParceirosDevolucoesIdRoute
@@ -1846,6 +2217,19 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminOrganizacaoRoute: AuthenticatedAdminOrganizacaoRoute,
   AuthenticatedAdminPermissoesRoute: AuthenticatedAdminPermissoesRoute,
   AuthenticatedAdminUsuariosRoute: AuthenticatedAdminUsuariosRoute,
+  AuthenticatedComercialAgendaRoute: AuthenticatedComercialAgendaRoute,
+  AuthenticatedComercialAtividadesRoute: AuthenticatedComercialAtividadesRoute,
+  AuthenticatedComercialCarteirasRoute: AuthenticatedComercialCarteirasRoute,
+  AuthenticatedComercialClientesRoute:
+    AuthenticatedComercialClientesRouteWithChildren,
+  AuthenticatedComercialLeadsRoute: AuthenticatedComercialLeadsRoute,
+  AuthenticatedComercialOportunidadesRoute:
+    AuthenticatedComercialOportunidadesRouteWithChildren,
+  AuthenticatedComercialPropostasRoute:
+    AuthenticatedComercialPropostasRouteWithChildren,
+  AuthenticatedComercialRelatoriosRoute: AuthenticatedComercialRelatoriosRoute,
+  AuthenticatedComercialRepresentantesRoute:
+    AuthenticatedComercialRepresentantesRouteWithChildren,
   AuthenticatedComprasConfiguracoesRoute:
     AuthenticatedComprasConfiguracoesRoute,
   AuthenticatedComprasCotacoesRoute:
@@ -1909,6 +2293,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedReconciliacaoVendasRoute: AuthenticatedReconciliacaoVendasRoute,
   AuthenticatedRelatoriosRentabilidadeRoute:
     AuthenticatedRelatoriosRentabilidadeRoute,
+  AuthenticatedComercialIndexRoute: AuthenticatedComercialIndexRoute,
   AuthenticatedComprasIndexRoute: AuthenticatedComprasIndexRoute,
   AuthenticatedCustosIndexRoute: AuthenticatedCustosIndexRoute,
   AuthenticatedEstoqueIndexRoute: AuthenticatedEstoqueIndexRoute,
@@ -1917,6 +2302,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPlanejamentoIndexRoute: AuthenticatedPlanejamentoIndexRoute,
   AuthenticatedPrecificacaoIndexRoute: AuthenticatedPrecificacaoIndexRoute,
   AuthenticatedReconciliacaoIndexRoute: AuthenticatedReconciliacaoIndexRoute,
+  AuthenticatedComercialConfiguracoesSectionRoute:
+    AuthenticatedComercialConfiguracoesSectionRoute,
   AuthenticatedFinanceiroPagarIdRoute: AuthenticatedFinanceiroPagarIdRoute,
   AuthenticatedFinanceiroReceberIdRoute: AuthenticatedFinanceiroReceberIdRoute,
   AuthenticatedParceirosDevolucoesIdRoute:
