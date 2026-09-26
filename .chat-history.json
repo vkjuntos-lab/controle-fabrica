@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && npm run typecheck 2>&1 | tail -40"
-    },
-    "timestamp": 1790412844861
-  },
-  {
-    "role": "tool_result",
-    "content": "\n> typecheck\n> tsc --noEmit\n\n",
-    "is_error": false,
-    "timestamp": 1790412869330
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 3000 python3 scripts/test-crm-db.py\" 2>&1 | tail -30",
       "timeout": 3000000
     },
@@ -1619,5 +1605,19 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790413870246
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -rlP '[\\x{4e00}-\\x{9fff}\\x{0400}-\\x{04ff}]' docs/business/CRM.md docs/business/LEADS.md docs/business/SALES-PIPELINE.md docs/business/SALES-QUOTES.md docs/business/SALES-REPRESENTATIVES.md docs/business/CUSTOMER-360.md docs/business/COMMERCIAL-POLICIES.md docs/architecture/ADR-010-CRM.md docs/handoff/MASTER-012-VALIDATION.md docs/handoff/PROJECT-STATE.md; echo \"checagem de nao-ASCII завершена\""
+    },
+    "timestamp": 1790413873171
+  },
+  {
+    "role": "tool_result",
+    "content": "checagem de nao-ASCII завершена\n",
+    "is_error": false,
+    "timestamp": 1790413873187
   }
 ]
