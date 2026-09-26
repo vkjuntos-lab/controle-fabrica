@@ -1,19 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('docs/handoff/MASTER-009-COMPLETION.md');s=p.read_text().replace('- \"'`git diff --check`: passou.'\"', '- Lint global não passou: há erros preexistentes de formatação/tipagem de lint em autenticação, Compras e outros arquivos, além de artefatos antigos de build fora dos ignores. Não foram reformados módulos alheios ao escopo. O domínio de custos não apresentou erros.\\\\n- \"'`git diff --check`: passou.'\"');p.write_text(s)\np=Path('docs/handoff/PROJECT-STATE.md');s=p.read_text().replace('Relatório desta continuação:', 'Verificações: 10 grupos SQL de custos, 15 de Compras, 37 testes unitários, TypeScript e build\\\\npassaram. Lint de custos sem erros (2 avisos); lint global ainda falha em arquivos preexistentes\\\\nfora deste domínio e artefatos antigos.\\\\nRelatório desta continuação:');p.write_text(s)\nPY\ngit diff --check\""
-    },
-    "timestamp": 1790341802198
-  },
-  {
-    "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790341802202
-  },
-  {
     "role": "assistant",
     "content": "Concluí esta revisão local do **MASTER 009**, com correções de interface, documentação e testes adicionais.\n\n- Build e TypeScript passaram.\n- 37 testes unitários, 10 grupos de custos e 15 de Compras passaram.\n- Histórico, RLS, permissões e deduplicação concorrente validados.\n\nAinda faltam publicação e teste autenticado no navegador. O lint global apresenta erros preexistentes fora de Custos.\n\n[Relatório completo e limitações](</root/Zheus AI Projects/controle-fabrica/docs/handoff/MASTER-009-COMPLETION.md>).",
     "timestamp": 1790341809234
@@ -1383,5 +1369,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790411764534
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 3000 python3 scripts/test-crm-db.py\" 2>&1 | tail -30",
+      "timeout": 3000000,
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790411766480
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS A: supplier gains customer role without duplicate Company\nPASS B: concurrent lead conversion idempotent; contact and history retained\nPASS C: portfolio changes preserve prior assignments and opportunity owner\nPASS D: item quantities sum to 60; stage snapshots; no stock writes\nTraceback (most re",
+    "is_error": false,
+    "timestamp": 1790411769003
   }
 ]
