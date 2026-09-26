@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc 'cat AGENTS.md; cat docs/business/PARTNERS.md docs/business/PARTNER-PRICING.md docs/business/PRICING.md; head -n 170 supabase/migrations/20260924100000_partners.sql; cat supabase/migrations/20260811000001_crm_wa_improvements.sql'"
-    },
-    "timestamp": 1790386951675
-  },
-  {
-    "role": "tool_result",
-    "content": "<!-- LOVABLE:BEGIN -->\n> [!IMPORTANT]\n> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting\n> published git history — force pushing, or rebasing/amending/squashing commits\n> that are already pushed — as it rewrites history on Lovable's side and the\n> user will likely lose th",
-    "is_error": false,
-    "timestamp": 1790386951687
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"cat src/lib/planning/planning.functions.ts; head -n 100 src/lib/rbac.ts; rg -n 'price|resolve|payment_terms|CREATE TABLE' supabase/migrations/20260926100000_partner_reconciliation.sql | head -n 45; rg -n 'CREATE TABLE|CREATE OR REPLACE FUNCTION' supabase/migrations/20260928100000_finance.sql | head -n 45; rg -n 'CREATE TABLE.*(lead|customer|pipeline|opportun|quote)|webhook_events|notification' supabase/migrations/202609*.sql | head -n 35\""
     },
     "timestamp": 1790386951779
@@ -1541,5 +1527,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/src/lib/crm/crm.functions.ts</path>\n<type>file</type>\n<content>\n1: import { createServerFn } from \"@tanstack/react-start\";\n2: import { z } from \"zod\";\n3: import { requireSupabaseAuth } from \"@/integrations/supabase/auth-middleware\";\n4: import type { Jso",
     "is_error": false,
     "timestamp": 1790412667920
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"crm_query\" -A 200 supabase/migrations/20261005100000_crm.sql | head -260",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790412669613
+  },
+  {
+    "role": "tool_result",
+    "content": "799:CREATE FUNCTION public.crm_query(_org uuid,_kind text,_filters jsonb DEFAULT '{}',_page integer DEFAULT 1,_export boolean DEFAULT false) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n800-DECLARE tab text; perm text; scope text; result jsonb; cnt integer; offst inte",
+    "is_error": false,
+    "timestamp": 1790412669646
   }
 ]
