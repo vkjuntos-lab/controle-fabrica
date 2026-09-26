@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"cat src/lib/planning/planning.functions.ts; head -n 100 src/lib/rbac.ts; rg -n 'price|resolve|payment_terms|CREATE TABLE' supabase/migrations/20260926100000_partner_reconciliation.sql | head -n 45; rg -n 'CREATE TABLE|CREATE OR REPLACE FUNCTION' supabase/migrations/20260928100000_finance.sql | head -n 45; rg -n 'CREATE TABLE.*(lead|customer|pipeline|opportun|quote)|webhook_events|notification' supabase/migrations/202609*.sql | head -n 35\""
-    },
-    "timestamp": 1790386951779
-  },
-  {
-    "role": "tool_result",
-    "content": "import { createServerFn } from \"@tanstack/react-start\";\nimport { z } from \"zod\";\nimport { requireSupabaseAuth } from \"@/integrations/supabase/auth-middleware\";\nimport type { Json } from \"@/integrations/supabase/types\";\nexport type PlanningRow = { id: string; [key: string]: Json | undefined };\nexport",
-    "is_error": false,
-    "timestamp": 1790386951786
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"cat supabase/migrations/20260811000001_crm_wa_improvements.sql; rg -n 'CREATE TABLE.*(leads|customers|crm_|sales_|quotes)' supabase/migrations; sed -n '115,143p' supabase/migrations/20260928100000_finance.sql; sed -n '271,290p' supabase/migrations/20260926100000_partner_reconciliation.sql; rg -n 'pricing_|price_table_items|resolve' supabase/migrations/20260930100000_cost_engine.sql | tail -n 30; cat src/components/planning/shared.tsx | head -n 90; cat src/routes/_authenticated/planejamento/index.tsx; head -n 45 scripts/test-planning-db.py; rg -n 'memberships|organization_members|CREATE.*has_permission' supabase/migrations/202609152*.sql\""
     },
     "timestamp": 1790386962781
@@ -1542,5 +1528,20 @@
     "content": "799:CREATE FUNCTION public.crm_query(_org uuid,_kind text,_filters jsonb DEFAULT '{}',_page integer DEFAULT 1,_export boolean DEFAULT false) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n800-DECLARE tab text; perm text; scope text; result jsonb; cnt integer; offst inte",
     "is_error": false,
     "timestamp": 1790412669646
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"CREATE FUNCTION public.crm_save\" -A 75 supabase/migrations/20261005100000_crm.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790412675272
+  },
+  {
+    "role": "tool_result",
+    "content": "513:CREATE FUNCTION public.crm_save(_org uuid,_kind text,_data jsonb) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n514-DECLARE ident uuid:=coalesce(nullif(_data->>'id','')::uuid,gen_random_uuid()); company uuid; rep uuid; stage public.sales_pipeline_stages;\n515- old j",
+    "is_error": false,
+    "timestamp": 1790412675300
   }
 ]
