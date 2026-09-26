@@ -18,7 +18,7 @@ import { actCrm, type CrmRow } from "@/lib/crm/crm.functions";
 import { QUOTE_FLOW, QUOTE_STATUS, quoteStatusLabel } from "@/lib/crm/constants";
 import { useOrganization } from "@/lib/org/org-context";
 import { areas } from "./config";
-import { asNumber, asRecord, asRows, useCrmDetail, useCrmQuery } from "./data";
+import { asNumber, asRecord, asRowsFrom, useCrmDetail, useCrmQuery } from "./data";
 import { CrmListPage } from "./list";
 import { Picker, ResultState, Shell, StatusBadge, money, percent, str } from "./shared";
 
@@ -33,33 +33,37 @@ type DraftItem = { variantId: string; quantity: string };
  * proposta carrega itens e o total é calculado no servidor. O cliente envia apenas
  * variante e quantidade — preço unitário, desconto aplicado, frete, tributos e
  * total são resolvidos e consolidados por `crm_action`, a partir da tabela de
- * preços vigente. Mandar preço do cliente aqui permitiria proposes um valor que o
- * preço oficial não bate.
+ * preços vigente. Informar o preço aqui permitiria propor um valor que o
+ * preço oficial não contradiz.
  */
 export function QuotesPage() {
-  const { hasPermission } = useOrganization();
-  const [creating, setCreating] = useState(false);
   return (
-    <>
-      <CrmListPage
-        area={area}
-        title="Comercial · Propostas"
-        intro="Toda proposta nasce de uma tabela de preços vigente e de um snapshot de produto e preço por item. Revisar cria uma nova versão com o mesmo número; a versão aceita nunca é reescrita."
-        extraActions={
-          hasPermission("quotes.create") ? (
-            <Button onClick={() => setCreating(true)}>Nova proposta</Button>
-          ) : null
-        }
-        rowHref={(row) => `/comercial/propostas/${row.id}`}
-      />
-      {creating ? <QuoteDialog org={orgId()} onClose={() => setCreating(false)} /> : null}
-    </>
+    <CrmListPage
+      area={area}
+      title="Comercial · Propostas"
+      intro="Toda proposta nasce de uma tabela de preços vigente e de um snapshot de produto e preço por item. Revisar cria uma nova versão com o mesmo número; a versão aceita nunca é reescrita."
+      extraActions={<NewQuoteButton />}
+      rowHref={(row) => `/comercial/propostas/${row.id}`}
+    />
   );
 }
 
-/** Organização ativa, usada só para montar o diálogo fora do `Shell`. */
-function orgId() {
-  return useOrganization().currentOrganization?.organization_id ?? "";
+/** Atalho de criação. Fica fora da área declarativa porque o formulário tem itens. */
+function NewQuoteButton() {
+  const { currentOrganization, hasPermission } = useOrganization();
+  const [creating, setCreating] = useState(false);
+  if (!hasPermission("quotes.create")) return null;
+  return (
+    <>
+      <Button onClick={() => setCreating(true)}>Nova proposta</Button>
+      {creating && currentOrganization ? (
+        <QuoteDialog
+          org={currentOrganization.organization_id}
+          onClose={() => setCreating(false)}
+        />
+      ) : null}
+    </>
+  );
 }
 
 function QuoteDialog({
@@ -340,7 +344,7 @@ function QuoteDetail({ org, id }: { org: string; id: string }) {
   const commission = useCrmDetail(org, "commission", { id }, sensitive);
 
   const refresh = () => void client.invalidateQueries({ queryKey: ["crm"] });
-  const quoteRows = asRows(versions.data);
+  const quoteRows = asRowsFrom(versions.data);
   const siblings = quoteRows.filter(
     (row) => String(row.quote_number) === String(quote?.quote_number) && row.id !== id,
   );
@@ -375,6 +379,7 @@ function QuoteDetail({ org, id }: { org: string; id: string }) {
           <Stat label="Total" value={money(quote?.total)} />
         </div>
         <QuoteActions
+          org={org}
           quote={quote!}
           onRevise={() => setRevising(true)}
           onApprove={() => setAction("approve")}
@@ -388,10 +393,10 @@ function QuoteDetail({ org, id }: { org: string; id: string }) {
         <ResultState
           loading={items.isLoading}
           error={items.error}
-          empty={!asRows(items.data).length}
+          empty={!asRowsFrom(items.data).length}
         >
           <ul className="space-y-1 text-sm">
-            {asRows(items.data).map((item) => {
+            {asRowsFrom(items.data).map((item) => {
               const product = asRecord(item.product_snapshot);
               return (
                 <li key={item.id} className="flex flex-wrap items-center justify-between gap-3 border-b py-1">
@@ -433,10 +438,10 @@ function QuoteDetail({ org, id }: { org: string; id: string }) {
         <ResultState
           loading={approvals.isLoading}
           error={approvals.error}
-          empty={!asRows(approvals.data).length}
+          empty={!asRowsFrom(approvals.data).length}
         >
           <ul className="space-y-1 text-sm">
-            {asRows(approvals.data).map((row) => (
+            {asRowsFrom(approvals.data).map((row) => (
               <li key={row.id} className="border-b py-1">
                 <span className="font-medium">{str(row.decision)}</span> · {str(row.reason)} ·{" "}
                 <span className="text-xs text-muted-foreground">{str(row.decided_at ?? row.created_at)}</span>
@@ -449,7 +454,7 @@ function QuoteDetail({ org, id }: { org: string; id: string }) {
       {sensitive ? (
         <section className="space-y-2">
           <h3 className="font-heading text-base font-semibold">Margem e comissão estimada</h3>
-          <MarginPanel margin={asRecord(margin.data)} commission={asRows(commission.data)} />
+          <MarginPanel margin={asRecord(margin.data)} commission={asRowsFrom(commission.data)} />
         </section>
       ) : (
         <p className="text-sm text-muted-foreground">
@@ -514,12 +519,14 @@ function QuoteFlow({ status }: { status: string }) {
 }
 
 function QuoteActions({
+  org,
   quote,
   onRevise,
   onApprove,
   onAccept,
   onDone,
 }: {
+  org: string;
   quote: CrmRow;
   onRevise: () => void;
   onApprove: () => void;
@@ -533,19 +540,10 @@ function QuoteActions({
 
   const transition = useMutation({
     mutationFn: async (action: string) => {
-      await api({
-        data: {
-          organizationId: useOrganization().currentOrganization?.organization_id ?? "",
-          kind: "quote",
-          id: quote.id,
-          action,
-          values: {},
-          key,
-        },
-      });
+      await api({ data: { organizationId: org, kind: "quote", id: quote.id, action, values: {}, key } });
     },
     onSuccess: (_result, action) => {
-      toast.success(`Proposta ${quoteStatusLabel(action).toLowerCase()}.`);
+      toast.success("Status da proposta atualizado.");
       onDone();
     },
     onError: (error: Error) => {
@@ -677,7 +675,7 @@ function ReasonDialog({
  * Aceite. Exige o contato que aceitou — o servidor confere que ele pertence à
  * empresa e está ativo — e a evidência textual do aceite. O evento de domínio
  * `SALES_QUOTE_ACCEPTED` é emitido pelo servidor, de forma idempotente; esta tela
- * não gravaBooks, pedido ou recebível.
+ * não grava pedido nem recebível.
  */
 function AcceptDialog({
   org,
@@ -732,7 +730,7 @@ function AcceptDialog({
           <DialogDescription>
             O contato precisa pertencer à empresa da proposta e estar ativo. O aceite não cria
             pedido, não baixa estoque e não gera contas a receber: ele registra a decisão comercial
-            e dispara o evento para os módulos que reação a ele.
+            e publica o evento para os módulos que reagem a ele.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
