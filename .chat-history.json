@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": " M .chat-history.json\n M docs/handoff/PROJECT-STATE.md\n M eslint.config.js\n M scripts/test-planning-db.py\n M src/components/planning/pages.tsx\n M src/lib/rbac.test.ts\n M src/lib/rbac.ts\n?? docs/architecture/ADR-008-PLANNING-ENGINE.md\n?? docs/business/DEMAND-FORECAST.md\n?? docs/business/MRP.md\n?? doc",
-    "is_error": false,
-    "timestamp": 1790386189780
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc 'cat docs/handoff/MASTER-011-VALIDATION.md; cat supabase/migrations/20261004100000_planning_fixes.sql; git diff --stat; npm run test:planning:db > /tmp/planning-check.log 2>&1'"
-    },
-    "timestamp": 1790386197268
-  },
-  {
-    "role": "tool_result",
     "content": "",
     "is_error": false,
     "timestamp": 1790386203268
@@ -1504,5 +1490,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790412391523
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/crm/constants.ts",
+      "content": "/**\n * Rótulos e listas do CRM (MASTER 012).\n *\n * O banco guarda apenas códigos; toda tradução para português do Brasil vive\n * aqui, seguindo o mesmo padrão de `lib/finance/constants.ts` e\n * `lib/inventory/constants.ts`.\n */\n\nexport const LEAD_STATUS: Record<string, string> = {\n  NEW: \"Novo\",\n  CONTACT_ATTEMPTED: \"Contato tentado\",\n  CONTACTED: \"Contatado\",\n  QUALIFIED: \"Qualificado\",\n  UNQUALIFIED: \"Desqualificado\",\n  CONVERTED: \"Convertido\",\n  ARCHIVED: \"Arquivado\",\n};\n\n/** Etapas em que o lead ainda pode ser qualificado e convertido. */\nexport const LEAD_ELIGIBLE_STATUS = [\"NEW\", \"CONTACT_ATTEMPTED\", \"CONTACTED\", \"QUALIFIED\"] as const;\n\nexport const OPPORTUNITY_STATUS: Record<string, string> = {\n  OPEN: \"Em aberto\",\n  WON: \"Ganha\",\n  LOST: \"Perdida\",\n  CANCELED: \"Cancelada\",\n};\n\n/** Apenas oportunidades em aberto entram no pipeline e na previsão. */\nexport const OPEN_OPPORTUNITY_STATUS = [\"OPEN\"] as const;\n\nexport const QUOTE_STATUS: Record<string, string> = {\n  DRAFT: \"Rascunho\",\n  PENDING_APPROVAL: \"Aguardando aprovação\",\n  APPROVED: \"Aprovada\",\n  SENT: \"Enviada\",\n  ACCEPTED: \"Aceita\",\n  REJECTED: \"Rejeitada\",\n  EXPIRED: \"Vencida\",\n  CANCELED: \"Cancelada\",\n};\n\n/** Transições que o servidor aceita; qualquer outra é recusada. */\nexport const QUOTE_FLOW: Record<string, string[]> = {\n  DRAFT: [\"PENDING_APPROVAL\"],\n  PENDING_APPROVAL: [\"APPROVED\"],\n  APPROVED: [\"SENT\"],\n  SENT: [\"ACCEPTED\", \"REJECTED\"],\n};\n\nexport const ACTIVITY_TYPE: Record<string, string> = {\n  CALL: \"Ligação\",\n  MEETING: \"Reunião\",\n  EMAIL: \"E-mail\",\n  WHATSAPP: \"WhatsApp\",\n  VISIT: \"Visita\",\n  TASK: \"Tarefa\",\n  FOLLOW_UP: \"Retomada\",\n  NOTE: \"Anotação\",\n  OTHER: \"Outra\",\n};\n\nexport const ACTIVITY_STATUS: Record<string, string> = {\n  PENDING: \"Pendente\",\n  COMPLETED: \"Concluída\",\n  CANCELED: \"Cancelada\",\n};\n\nexport const COMMERCIAL_STATUS: Record<string, string> = {\n  ACTIVE: \"Ativo\",\n  INACTIVE: \"Inativo\",\n  BLOCKED: \"Bloqueado\",\n};\n\nexport const REPRESENTATIVE_TYPE: Record<string, string> = {\n  INTERNAL: \"Funcionário interno\",\n  EXTERNAL: \"Representante externo\",\n  COMPANY: \"Empresa de representação\",\n};\n\nexport const REASON_KIND: Record<string, string> = {\n  LEAD: \"Desqualificação de lead\",\n  LOSS: \"Perda de oportunidade\",\n};\n\nexport const COMMISSION_TRIGGER: Record<string, string> = {\n  SALE_CONFIRMED: \"Venda confirmada (MASTER 013)\",\n  RECEIPT_CONFIRMED: \"Recebimento confirmado (MASTER 013)\",\n};\n\nexport const COMMISSION_RATE_TYPE: Record<string, string> = {\n  PERCENT: \"Percentual sobre o valor\",\n  FIXED_PER_UNIT: \"Valor fixo por unidade\",\n};\n\nexport const CHANNEL_TYPE: Record<string, string> = {\n  PHONE: \"Telefone\",\n  EMAIL: \"E-mail\",\n  WHATSAPP: \"WhatsApp\",\n  PREFERRED: \"Canal preferido do contato\",\n};\n\nexport const leadStatusLabel = (status: string | null | undefined) =>\n  status ? (LEAD_STATUS[status] ?? status) : \"—\";\n\nexport const opportunityStatusLabel = (status: string | null | undefined) =>\n  status ? (OPPORTUNITY_STATUS[status] ?? status) : \"—\";\n\nexport const quoteStatusLabel = (status: string | null | undefined) =>\n  status ? (QUOTE_STATUS[status] ?? status) : \"—\";\n\nexport const activityTypeLabel = (type: string | null | undefined) =>\n  type ? (ACTIVITY_TYPE[type] ?? type) : \"—\";\n\nexport const activityStatusLabel = (status: string | null | undefined) =>\n  status ? (ACTIVITY_STATUS[status] ?? status) : \"—\";\n\nexport const commercialStatusLabel = (status: string | null | undefined) =>\n  status ? (COMMERCIAL_STATUS[status] ?? status) : \"—\";\n\nexport const representativeTypeLabel = (type: string | null | undefined) =>\n  type ? (REPRESENTATIVE_TYPE[type] ?? type) : \"—\";\n\n/** Kinds aceitos por `crm_query` para listagem tabular. */\nexport const CRM_LIST_KINDS = [\n  \"customers\",\n  \"companies\",\n  \"contacts\",\n  \"leads\",\n  \"opportunities\",\n  \"opportunity_items\",\n  \"stage_history\",\n  \"quotes\",\n  \"quote_items\",\n  \"approvals\",\n  \"activities\",\n  \"activity_history\",\n  \"representatives\",\n  \"portfolios\",\n  \"segments\",\n  \"sources\",\n  \"reasons\",\n  \"tags\",\n  \"customer_tags\",\n  \"territories\",\n  \"payment_terms\",\n  \"pipelines\",\n  \"stages\",\n  \"authorities\",\n  \"commission_plans\",\n  \"commission_rules\",\n  \"variants\",\n  \"price_tables\",\n  \"merge_requests\",\n] as const;\n\n/**\n * Chaves de filtro aceitas por `crm_query`. O servidor só aplica filtros desta\n * lista branca; qualquer outra chave é ignorada, então a tela deve respeitar\n * este conjunto para não prometer um filtro que não acontece.\n */\nexport const CRM_FILTER_KEYS = [\n  \"id\",\n  \"company_id\",\n  \"status\",\n  \"representative_id\",\n  \"commercial_segment_id\",\n  \"acquisition_source_id\",\n  \"opportunity_id\",\n  \"quote_id\",\n  \"pipeline_id\",\n  \"activity_id\",\n  \"assigned_user_id\",\n  \"q\",\n  \"from\",\n  \"to\",\n] as const;\n\n/** Colunas numéricas de oportunidade/proposta, para alinhar na tabela. */\nexport const CURRENCY = \"BRL\" as const;\n"
+    },
+    "timestamp": 1790412400999
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790412401008
   }
 ]
