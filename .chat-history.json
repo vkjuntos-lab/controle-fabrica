@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "wc -l src/components/crm/*.tsx src/components/crm/*.ts src/lib/crm/*.ts 2>/dev/null",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790412662184
-  },
-  {
-    "role": "tool_result",
-    "content": "  565 src/components/crm/customers.tsx\n  203 src/components/crm/dashboard.tsx\n  152 src/components/crm/leads.tsx\n  521 src/components/crm/list.tsx\n  422 src/components/crm/shared.tsx\n  482 src/components/crm/config.ts\n   83 src/components/crm/data.ts\n  180 src/lib/crm/constants.ts\n   26 src/lib/crm/",
-    "is_error": false,
-    "timestamp": 1790412662203
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/crm/data.ts"
@@ -1626,5 +1611,21 @@
     "content": "382:  key: string;\n385:  status: ModuleStatus;\n390:    key: \"dashboard\",\n393:    status: \"available\",\n396:    key: \"comercial\",\n399:    status: \"available\",\n402:    key: \"produtos\",\n405:    status: \"available\",\n408:    key: \"compras\",\n411:    status: \"available\",\n414:    key: \"estoque\",\n417:    stat",
     "is_error": false,
     "timestamp": 1790413615104
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/rbac.test.ts",
+      "newString": "  it(\"não declara módulo operacional como disponível antes de existir\", () => {\n    const disponiveis = [\n      \"dashboard\",\n      \"administracao\",\n      \"comercial\",\n      \"produtos\",\n      \"estoque\",\n      \"parceiros\",\n      \"financeiro\",\n      \"compras\",\n      \"planejamento\",\n    ];\n    const opcionais = PLATFORM_MODULES.filter((m) => !disponiveis.includes(m.key));\n    for (const mod of opcionais) {\n      expect(mod.status).toBe(\"coming_soon\");\n    }\n  });\n\n  it(\"mantém o módulo comercial disponível, com leitura no RBAC\", () => {\n    // O MASTER 012 entregou as telas de comercial; sem esta afirmação, trocar o\n    // status para `coming_soon` esconderia o módulo já implementado.\n    const comercial = PLATFORM_MODULES.find((m) => m.key === \"comercial\");\n    expect(comercial?.status).toBe(\"available\");\n    expect(PERMISSIONS.crmRead).toBe(\"crm.read\");\n    expect(PERMISSIONS.crmConfigure).toBe(\"crm.configure\");\n  });",
+      "oldString": "  it(\"não declara módulo operacional como disponível antes de existir\", () => {\n    const disponiveis = [\n      \"dashboard\",\n      \"administracao\",\n      \"produtos\",\n      \"estoque\",\n      \"parceiros\",\n      \"financeiro\",\n      \"compras\",\n      \"planejamento\",\n    ];\n    const opcionais = PLATFORM_MODULES.filter((m) => !disponiveis.includes(m.key));\n    for (const mod of opcionais) {\n      expect(mod.status).toBe(\"coming_soon\");\n    }\n  });"
+    },
+    "timestamp": 1790413620788
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790413620805
   }
 ]

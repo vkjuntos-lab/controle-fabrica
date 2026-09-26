@@ -33,6 +33,7 @@ describe("rbac", () => {
     const disponiveis = [
       "dashboard",
       "administracao",
+      "comercial",
       "produtos",
       "estoque",
       "parceiros",
@@ -44,6 +45,15 @@ describe("rbac", () => {
     for (const mod of opcionais) {
       expect(mod.status).toBe("coming_soon");
     }
+  });
+
+  it("mantém o módulo comercial disponível, com leitura no RBAC", () => {
+    // O MASTER 012 entregou as telas de comercial; sem esta afirmação, trocar o
+    // status para `coming_soon` esconderia o módulo já implementado.
+    const comercial = PLATFORM_MODULES.find((m) => m.key === "comercial");
+    expect(comercial?.status).toBe("available");
+    expect(PERMISSIONS.crmRead).toBe("crm.read");
+    expect(PERMISSIONS.crmConfigure).toBe("crm.configure");
   });
 
   it("expõe a permissão de edição da matriz", () => {
