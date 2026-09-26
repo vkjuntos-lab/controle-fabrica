@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { saveCrm, type CrmRow } from "@/lib/crm/crm.functions";
 import { useOrganization } from "@/lib/org/org-context";
 import { useCrmQuery } from "./data";
-import { Fields, Pager, ResultState, Shell, StatusBadge, columnLabel, str } from "./shared";
+import { Fields, Pager, ResultState, Shell, StatusBadge, columnLabel, money, str } from "./shared";
 import { configurationOrder, configurations, type Area, type Field } from "./config";
 
 type FormState = Record<string, string>;
