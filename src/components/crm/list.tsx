@@ -414,6 +414,19 @@ function seedValues(fields: Field[], record: CrmRow): FormState {
   return seed;
 }
 
+/** Etapas de gravação da área, normalizando a forma antiga de um único `save`. */
+export function saveSteps(area: Area) {
+  if (area.saves?.length) return area.saves;
+  if (!area.save) return [];
+  return [{ kind: area.save, fields: area.fields.map((item) => item.key) }];
+}
+
+/** Número gravado como numeric: `NaN` é removido em vez de virar null. */
+function numeric(raw: string): number | null {
+  const parsed = Number(raw);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 /**
  * Tela de configuração comercial. As abas são cadastros da própria
  * organização — segmento, origem, motivo, pipeline, alçada de desconto — e
