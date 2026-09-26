@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-planning-db.py\", line 126, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-planning-db.py\", line 42, in run\n    rpc('planning_save',org,'settings',{'demand_sources':['MANUAL_FORECAST',",
-    "is_error": false,
-    "timestamp": 1790342785451
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\nold=Path('supabase/migrations/20261002100000_planning.sql').read_text();f=old[old.index('CREATE OR REPLACE FUNCTION public.planning_guard_relations()'):old.index('CREATE TRIGGER planning_availability_relations')];f=f.replace(\\\"  FOREACH v_pair\\\", \\\"  IF TG_TABLE_NAME='planning_scenarios' THEN RETURN NEW;END IF;\\\\n  FOREACH v_pair\\\")\np=Path('supabase/migrations/20261003100000_planning_engine.sql');s=p.read_text().replace('CREATE OR REPLACE FUNCTION public.planning_run_guard()',f+'\\\\nCREATE OR REPLACE FUNCTION public.planning_run_guard()',1);p.write_text(s)\nPY\npython3 scripts/test-planning-db.py > /tmp/planning-tests.log 2>&1\""
-    },
-    "timestamp": 1790342798232
-  },
-  {
-    "role": "tool_result",
     "content": "",
     "is_error": true,
     "timestamp": 1790342799907
@@ -1419,5 +1405,75 @@
     "content": "0\n scripts/test-crm-db.py | 4 +---\n 1 file changed, 1 insertion(+), 3 deletions(-)\n",
     "is_error": false,
     "timestamp": 1790411857266
+  },
+  {
+    "role": "tool",
+    "tool": "todowrite",
+    "input": {
+      "todos": [
+        {
+          "content": "Auditar estado atual do MASTER 012 (banco, serviços, frontend, docs)",
+          "status": "completed",
+          "priority": "high"
+        },
+        {
+          "content": "Corrigir bugs do harness/migration CRM e validar testes A–L",
+          "status": "completed",
+          "priority": "high"
+        },
+        {
+          "content": "Mapear padrões de referência (módulo purchasing/planning) para as rotas",
+          "status": "in_progress",
+          "priority": "high"
+        },
+        {
+          "content": "Ativar módulo comercial no RBAC + permissões CRM + menu AppShell",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Tipos Supabase das RPCs CRM",
+          "status": "pending",
+          "priority": "medium"
+        },
+        {
+          "content": "Customer 360 (tela consolidada do cliente)",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Telas do módulo Comercial (dashboard, leads, clientes, oportunidades, propostas, atividades, representantes, carteiras, relatórios, configurações)",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Testes unitários da lógica pura do CRM",
+          "status": "pending",
+          "priority": "medium"
+        },
+        {
+          "content": "Documentação de negócio (7 docs) + ADR",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "PROJECT-STATE.md + MASTER-012-VALIDATION.md",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Verificação final: test:unit, typecheck, build, lint",
+          "status": "pending",
+          "priority": "high"
+        }
+      ]
+    },
+    "timestamp": 1790411861500
+  },
+  {
+    "role": "tool_result",
+    "content": "[\n  {\n    \"content\": \"Auditar estado atual do MASTER 012 (banco, serviços, frontend, docs)\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Corrigir bugs do harness/migration CRM e validar testes A–L\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"conten",
+    "is_error": false,
+    "timestamp": 1790411861504
   }
 ]
