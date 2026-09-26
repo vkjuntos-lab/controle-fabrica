@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/crm/list.tsx",
-      "newString": "  const api = useServerFn(saveCrm);\n  const usable = (fields ?? area.fields).filter(\n    // Campos imutáveis somem na edição: o servidor criaria um registro paralelo\n    // em vez de recusar, e a tela deve dizer que a troca não existe.\n    (item) => !(record && (area.immutableOnEdit ?? []).includes(item.key)),\n  );\n  const [values, setValues] = useState<FormState>(() => ({\n    ...(initialValues ?? {}),\n    ...(record ? seedValues(usable, record) : {}),\n  }));\n\n  const save = useMutation({\n    mutationFn: async () => {\n      const steps = saveSteps(area);\n      if (!steps.length) throw new Error(\"Área sem gravação configurada.\");\n      let previous: { id?: string } = {};\n      for (const step of steps) {\n        if (step.onlyExisting && !record) continue;\n        const payload: Record<string, unknown> = {};\n        for (const key of step.fields) {\n          const raw = values[key];\n          if (raw === undefined) continue;\n          // Campo vazio é removido, nunca enviado como string vazia: em patch\n          // isso zeraria um número e em insert quebraria um NOT NULL.\n          if (raw === \"\") continue;\n          const field = area.fields.find((item) => item.key === key);\n          payload[key] = field?.type === \"number\" ? numeric(raw) : raw;\n        }\n        const stepId = step.usePreviousId ? previous.id ?? record?.id : record?.id;\n        if (stepId) payload.id = stepId;\n        if (!Object.keys(payload).some((key) => key !== \"id\")) continue;\n        const result = await api({\n          data: { organizationId: org, kind: step.kind, values: payload },\n        });\n        if (typeof result?.id === \"string\") previous = { id: result.id };\n      }\n    },\n    onSuccess: () => {\n      toast.success(record ? \"Registro atualizado.\" : \"Registro criado.\");\n      onSaved();\n    },\n    onError: (error: Error) => toast.error(error.message),\n  });\n",
-      "oldString": "  const api = useServerFn(saveCrm);\n  const usable = (fields ?? area.fields).filter(\n    // O vínculo com a empresa é imutável: trocar a empresa cria outro cliente.\n    (item) => !(record && item.key === \"company_id\" && area.query === \"customers\"),\n  );\n  const [values, setValues] = useState<FormState>(() => ({\n    ...(initialValues ?? {}),\n    ...(record ? seedValues(usable, record) : {}),\n  }));\n\n  const save = useMutation({\n    mutationFn: async () => {\n      const payload: Record<string, unknown> = { ...values };\n      if (record) payload.id = record.id;\n      usable.forEach((item) => {\n        if (payload[item.key] === \"\" || payload[item.key] === undefined) {\n          delete payload[item.key];\n          return;\n        }\n        if (item.type === \"number\") {\n          const parsed = Number(payload[item.key]);\n          payload[item.key] = Number.isFinite(parsed) ? parsed : null;\n        }\n      });\n      await api({ data: { organizationId: org, kind: area.save!, values: payload } });\n    },\n    onSuccess: () => {\n      toast.success(record ? \"Registro atualizado.\" : \"Registro criado.\");\n      onSaved();\n    },\n    onError: (error: Error) => toast.error(error.message),\n  });\n"
-    },
-    "timestamp": 1790412786753
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790412786768
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/crm/list.tsx",
       "newString": "/** Campos aceitos pelo `crm_save` carregados do registro existente. */\nfunction seedValues(fields: Field[], record: CrmRow): FormState {\n  const seed: FormState = {};\n  fields.forEach((item) => {\n    const value = record[item.key];\n    if (value === null || value === undefined) return;\n    seed[item.key] =\n      item.type === \"date\" && typeof value === \"string\" ? value.slice(0, 10) : String(value);\n  });\n  return seed;\n}\n\n/** Etapas de gravação da área, normalizando a forma antiga de um único `save`. */\nexport function saveSteps(area: Area) {\n  if (area.saves?.length) return area.saves;\n  if (!area.save) return [];\n  return [{ kind: area.save, fields: area.fields.map((item) => item.key) }];\n}\n\n/** Número gravado como numeric: `NaN` é removido em vez de virar null. */\nfunction numeric(raw: string): number | null {\n  const parsed = Number(raw);\n  return Number.isFinite(parsed) ? parsed : null;\n}\n",
       "oldString": "/** Campos aceitos pelo `crm_save` carregados do registro existente. */\nfunction seedValues(fields: Field[], record: CrmRow): FormState {\n  const seed: FormState = {};\n  fields.forEach((item) => {\n    const value = record[item.key];\n    if (value === null || value === undefined) return;\n    seed[item.key] =\n      item.type === \"date\" && typeof value === \"string\" ? value.slice(0, 10) : String(value);\n  });\n  return seed;\n}\n"
     },
@@ -1618,5 +1602,20 @@
     "content": "[]\n",
     "is_error": false,
     "timestamp": 1790413782350
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "# ADR 010 — CRM por RPC, com escopo e projectional no servidor\n\nStatus: implementado localmente. Data: 26/09/2026.\n\n## Decisão\n\nO CRM é exposto por três funções PostgreSQL — `crm_query`, `crm_save` e `crm_action` — e não por\nacesso direto a tabelas. Nenhuma tabela do CRM é gravável por `authenticated`, e as de leitura\ntêm policy própria por `has_permission(organization_id, 'crm.read')`.\n\n`crm_query` decide o que cada chamador pode ver, aplicando escopo de carteira e omitindo colunas\nsensíveis para quem não tem `crm.sensitive.read`. `crm_save` valida e grava, com patch parcial\npreservando campos omitidos. `crm_action` executa as operações com efeito — converter lead, mudar\netapa, aprovar, enviar, aceitar, concluir atividade, atribuir carteira — validando transição,\npermissão, alçada e estado, tudo em transação, com chave de idempotência.\n\nTotais, desconto e margem nunca são recebidos do navegador. O cliente envia variante e\nquantidade; o servidor resolve preço vigente, custo e crédito. A interface é declarativa por\n`src/components/crm/config.ts`, e a mesma configuração descreve tabela, formulário, validação e\ngravações em etapas.\n\n## Consequências\n\nUm único contrato para todo o módulo: não há caminho no cliente capaz de contornar regra\ncomercial, porque não existe caminho no cliente. RLS, RBAC, auditoria, idempotência e escopo\ntêm um só lugar de implementação, testável em PostgreSQL real.\n\nO custo é a curva de entrada: quem mexe no CRM precisa escrever SQL, não apenas componente. Em\ntroca, a interface não consegue inventar regra que o servidor não aplica — o que já falhou em\nsistemas onde preço e desconto eram digitados.\n\nA omissão de coluna sensível é decided no `crm_query`, e não no componente: esconder um campo\ncom CSS ainda entrega o dado a quem opened a API. Um teste cobre exatamente esse caso.\n\nLimitações: a RPC genérica não é_graph API de leitura em cache; sem real-time, sem\npaginação por cursor, sem projection específica por tela além dos filtros aceitos. Os filtros de\n`crm_query` são lista branca, e a interface só oferece o que está nessa lista.\n\n## Evidência\n\n`scripts/test-crm-db.py` executa PostgreSQL real descartável e cobre clientes, leads e conversão,\ncontatos, representantes e carteira, pipeline e histórico, propostas e versionamento, aprovação e\nalçada, atividades, agenda, permissões, escopo externo, RLS entre organizações e dashboard.\n`src/lib/crm/crm.test.ts` amarra a configuração da interface ao SQL: todo `kind` usado por área,\nlookup, filtro ou coluna precisa existir no `crm_query`/`crm_save`, toda permissão precisa existir\nno RBAC e bater com a exigida pelo servidor, e todo `status` gravável precisa ter rótulo.\n\nDecisões de negócio detalhadas em `../business/CRM.md`, `LEADS.md`, `SALES-PIPELINE.md`,\n`SALES-QUOTES.md`, `SALES-REPRESENTATIVES.md`, `CUSTOMER-360.md` e `COMMERCIAL-POLICIES.md`.\n",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/architecture/ADR-010-CRM.md"
+    },
+    "timestamp": 1790413791385
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790413791396
   }
 ]
