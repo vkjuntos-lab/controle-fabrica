@@ -1,16 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "Traceback (most recent call last):\n  File \"/tmp/inspect-planning.py\", line 7, in <module>\n    for n in ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql','20261001100000_purchasing.sql','20261002100000_planning.sql']:db.sql((db.ROOT/'supabase/m",
-    "is_error": false,
-    "timestamp": 1790342070568
-  },
-  {
-    "role": "assistant",
-    "content": "A inspeção encontrou uma base incompleta do MASTER 011: a migration termina com erro de sintaxe, sem finalizar a transação, e ainda não há telas nem um fluxo executável de planejamento. Vou corrigir esse impedimento de instalação e completar o módulo sobre as entidades existentes. O teste local também apontou regras que precisam ser corrigidas antes do uso, como consumo acumulado por data e tratamento do estoque em parceiros.\n",
-    "timestamp": 1790342097180
-  },
-  {
     "role": "tool",
     "tool": "Bash",
     "input": {
@@ -1402,5 +1391,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261005100000_crm.sql</path>\n<type>file</type>\n<content>\n618:  IF _kind IN ('customer_tag','customer_territory') THEN\n619:   PERFORM public.crm_require(_org,'customers.update');\n620:   IF NOT public.crm_company_access(_org,(_data->>",
     "is_error": false,
     "timestamp": 1790411802624
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261005100000_crm.sql",
+      "oldString": "  FOREACH col IN ARRAY cols LOOP\n   IF NOT (_data ? col) THEN CONTINUE; END IF;\n   names:=names||format(',%I',col);expr:=expr||format(',r.%I',col);changes:=changes||CASE WHEN changes='' THEN '' ELSE ',' END||format('%I=excluded.%I',col,col);\n  END LOOP;\n  IF names='' THEN RAISE EXCEPTION 'Informe os dados.'; END IF;\n  EXECUTE format('INSERT INTO public.%I(id,organization_id%s) SELECT $2,$3%s FROM jsonb_populate_record(NULL::public.%I,$1)r ON CONFLICT(id) DO UPDATE SET %s,updated_at=now() RETURNING to_jsonb(%I)',tab,names,expr,tab,changes,tab) INTO result USING _data,ident,_org;",
+      "newString": "  FOREACH col IN ARRAY cols LOOP\n   IF NOT (_data ? col) THEN CONTINUE; END IF;\n   names:=names||format(',%I',col);expr:=expr||format(',r.%I',col);changes:=changes||CASE WHEN changes='' THEN '' ELSE ',' END||format('%I=%I.%I',col,tab,col);\n  END LOOP;\n  IF names='' THEN RAISE EXCEPTION 'Informe os dados.'; END IF;\n  -- Patch semantics: an identified record is updated with the submitted fields only, so omitted\n  -- columns keep their stored value and a partial save can never blank or break NOT NULL.\n  IF _data->>'id' IS NOT NULL THEN\n   EXECUTE format('UPDATE public.%I SET %s,updated_at=now() WHERE id=$1 AND organization_id=$2 RETURNING to_jsonb(%I)',tab,changes,tab) INTO result USING ident,_org;\n  ELSE\n   EXECUTE format('INSERT INTO public.%I(id,organization_id%s) SELECT $2,$3%s FROM jsonb_populate_record(NULL::public.%I,$1)r RETURNING to_jsonb(%I)',tab,names,expr,tab,tab) INTO result USING _data,ident,_org;\n  END IF;\n  IF result IS NULL THEN RAISE EXCEPTION 'Registro não encontrado.'; END IF;"
+    },
+    "timestamp": 1790411806794
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790411806822
   }
 ]

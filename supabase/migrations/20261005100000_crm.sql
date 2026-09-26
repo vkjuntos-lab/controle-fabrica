@@ -622,12 +622,19 @@ BEGIN
  IF _data->>'id' IS NOT NULL AND NOT EXISTS(SELECT 1 FROM jsonb_object_keys(_data) f WHERE f<>'id') THEN RAISE EXCEPTION 'Dados obrigatórios.'; END IF;
  EXECUTE format('SELECT to_jsonb(t) FROM public.%I t WHERE id=$1 AND organization_id=$2',tab) INTO old USING ident,_org;
  IF _data->>'id' IS NOT NULL AND old IS NULL THEN RAISE EXCEPTION 'Registro não encontrado.'; END IF;
- FOREACH col IN ARRAY cols LOOP
-  IF NOT (_data ? col) THEN CONTINUE; END IF;
-  names:=names||format(',%I',col);expr:=expr||format(',r.%I',col);changes:=changes||CASE WHEN changes='' THEN '' ELSE ',' END||format('%I=excluded.%I',col,col);
- END LOOP;
- IF names='' THEN RAISE EXCEPTION 'Informe os dados.'; END IF;
- EXECUTE format('INSERT INTO public.%I(id,organization_id%s) SELECT $2,$3%s FROM jsonb_populate_record(NULL::public.%I,$1)r ON CONFLICT(id) DO UPDATE SET %s,updated_at=now() RETURNING to_jsonb(%I)',tab,names,expr,tab,changes,tab) INTO result USING _data,ident,_org;
+  FOREACH col IN ARRAY cols LOOP
+   IF NOT (_data ? col) THEN CONTINUE; END IF;
+   names:=names||format(',%I',col);expr:=expr||format(',r.%I',col);changes:=changes||CASE WHEN changes='' THEN '' ELSE ',' END||format('%I=%I.%I',col,tab,col);
+  END LOOP;
+  IF names='' THEN RAISE EXCEPTION 'Informe os dados.'; END IF;
+  -- Patch semantics: an identified record is updated with the submitted fields only, so omitted
+  -- columns keep their stored value and a partial save can never blank or break NOT NULL.
+  IF _data->>'id' IS NOT NULL THEN
+   EXECUTE format('UPDATE public.%I SET %s,updated_at=now() WHERE id=$1 AND organization_id=$2 RETURNING to_jsonb(%I)',tab,changes,tab) INTO result USING ident,_org;
+  ELSE
+   EXECUTE format('INSERT INTO public.%I(id,organization_id%s) SELECT $2,$3%s FROM jsonb_populate_record(NULL::public.%I,$1)r RETURNING to_jsonb(%I)',tab,names,expr,tab,tab) INTO result USING _data,ident,_org;
+  END IF;
+  IF result IS NULL THEN RAISE EXCEPTION 'Registro não encontrado.'; END IF;
  IF _kind='activity' THEN INSERT INTO crm_activity_history(organization_id,activity_id,before_value,after_value,reason) VALUES(_org,ident,old,result,coalesce(_data->>'reason','Criação')); END IF;
  PERFORM public.crm_audit(_org,_kind||'.save',ident,jsonb_build_object('before',old,'after',result));
  RETURN jsonb_build_object('id',ident);
