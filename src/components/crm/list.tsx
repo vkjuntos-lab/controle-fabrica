@@ -513,11 +513,3 @@ export function renderCell(row: CrmRow, column: string) {
   }
   return <span>{str(value)}</span>;
 }
-
-function money(value: unknown) {
-  return Number(value ?? 0).toLocaleString("pt-BR", {
-    style: "currency",
-    currency: "BRL",
-    maximumFractionDigits: 2,
-  });
-}
