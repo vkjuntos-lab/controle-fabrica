@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sed -n '588,700p' supabase/migrations/20261005100000_crm.sql",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790412678410
-  },
-  {
-    "role": "tool_result",
-    "content": "  PERFORM public.crm_require(_org,CASE WHEN _data->>'id' IS NULL THEN 'opportunities.create' ELSE 'opportunities.update' END);\n  company:=(_data->>'company_id')::uuid;\n  IF NOT public.crm_company_access(_org,company) THEN RAISE EXCEPTION 'Empresa fora da carteira.'; END IF;\n  SELECT to_jsonb(o) INTO",
-    "is_error": false,
-    "timestamp": 1790412678422
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sed -n '700,800p' supabase/migrations/20261005100000_crm.sql",
       "workdir": "/root/Zheus AI Projects/controle-fabrica"
     },
@@ -1626,5 +1611,19 @@
     "content": "\n**Teste K — RLS**\n\nUsuário da Organização A tenta consultar cliente, oportunidade ou proposta da Organização B.\n\nResultado: acesso negado.\n\n**Teste L — Permissões**\n\nRepresentante sem permissão de visualizar custos tenta consultar margem por chamada direta.\n\nResultado: acesso negado.\n\n### 49. DOCUM",
     "is_error": false,
     "timestamp": 1790413687359
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sed -n '1035,1075p' /tmp/opencode/master012.md; echo \"##### TABELAS #####\"; grep -n \"CREATE TABLE\" supabase/migrations/20261005100000_crm.sql"
+    },
+    "timestamp": 1790413689569
+  },
+  {
+    "role": "tool_result",
+    "content": "\nSomente declare o MASTER 012 concluído quando:\n\n- Cadastro comercial unificado funcionar.\n- Leads e conversão funcionarem.\n- Contatos funcionarem.\n- Representantes e carteiras funcionarem.\n- Pipeline e oportunidades funcionarem.\n- Histórico de etapas funcionar.\n- Propostas e versionamento funcionar",
+    "is_error": false,
+    "timestamp": 1790413689587
   }
 ]
