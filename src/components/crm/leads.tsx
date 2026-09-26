@@ -32,8 +32,9 @@ const area = areas.leads;
  * o clique não duplica empresa nem oportunidade.
  */
 export function LeadsPage() {
-  const { hasPermission } = useOrganization();
+  const { currentOrganization, hasPermission } = useOrganization();
   const [converting, setConverting] = useState<CrmRow | null>(null);
+  const org = currentOrganization?.organization_id ?? "";
 
   return (
     <>
@@ -52,15 +53,10 @@ export function LeadsPage() {
         }}
       />
       {converting ? (
-        <ConvertDialog org={useOrganizationOrg()} lead={converting} onClose={() => setConverting(null)} />
+        <ConvertDialog org={org} lead={converting} onClose={() => setConverting(null)} />
       ) : null}
     </>
   );
-}
-
-/** Organização ativa, lida uma única vez para montar o diálogo. */
-function useOrganizationOrg() {
-  return useOrganization().currentOrganization?.organization_id ?? "";
 }
 
 function ConvertDialog({
