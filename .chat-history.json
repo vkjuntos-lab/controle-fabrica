@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"src/components/crm/shared.tsx\")\ns = p.read_text()\ns = s.replace('import { useEffect, useState, type ReactNode } from \"react\";',\n              'import { useEffect, useMemo, useState, type ReactNode } from \"react\";', 1)\ns = s.replace('import { listOrganizationMembers } from \"@/lib/org/organizations.functions\";\\n', '', 1)\ns = s.replace('type MemberOption = { user_id: string; full_name: string | null; email: string | null };\\n\\n', '', 1)\n# Fields: lookup sem `required` no Picker\ns = s.replace(\"\"\"                value={values[item.key] ?? \"\"}\n                onChange={(next) => set(item.key, next)}\n                required={item.required}\n                label={item.label}\"\"\",\n\"\"\"                value={values[item.key] ?? \"\"}\n                onChange={(next) => set(item.key, next)}\n                label={item.label}\"\"\", 1)\np.write_text(s)\nprint(\"ok\")\nPY\ngrep -n \"MemberOption\\|listOrganizationMembers\\|required={item.required}\" src/components/crm/shared.tsx"
-    },
-    "timestamp": 1790412774962
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n",
-    "is_error": false,
-    "timestamp": 1790412775017
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"src/components/crm/list.tsx\")\ns = p.read_text()\n\n# 1) imports\ns = s.replace(\n  'import { Fields, Pager, ResultState, Shell, StatusBadge, columnLabel, money, str } from \"./shared\";',\n  'import {\\n  Fields,\\n  Pager,\\n  ResultState,\\n  Shell,\\n  StatusBadge,\\n  columnLabel,\\n  money,\\n  optionLabels,\\n  str,\\n  useRefLabels,\\n} from \"./shared\";',\n  1)\n\n# 2) canWrite nos dois corpos\ns = s.replace(\n  '  const canWrite = Boolean(area.write && area.save && hasPermission(area.write));',\n  '  const canWrite = Boolean(area.write && saveSteps(area).length && hasPermission(area.write));',\n  1)\ns = s.replace(\n  '  const canWrite = Boolean(area.write && hasPermission(area.write));',\n  '  const canWrite = Boolean(area.write && saveSteps(area).length && hasPermission(area.write));',\n  1)\n\n# 3) filtro de status em pt-BR\ns = s.replace(\"\"\"                {STATUS_OPTIONS[area.query]?.map((option) => (\n                  <option key={option} value={option}>\n                    {option}\n                  </option>\n                ))}\"\"\",\n\"\"\"                {STATUS_OPTIONS[area.query]?.map((option) => (\n                  <option key={option} value={option}>\n                    {optionLabels.status[option] ?? option}\n                  </option>\n                ))}\"\"\", 1)\n\n# 4) refs na listagem\ns = s.replace(\"\"\"  const query = useCrmQuery(org, area.query, { ...filters, ...(term ? { q: term } : {}) }, page);\n  const rows = (query.data?.rows ?? []) as CrmRow[];\"\"\",\n\"\"\"  const query = useCrmQuery(org, area.query, { ...filters, ...(term ? { q: term } : {}) }, page);\n  const rows = (query.data?.rows ?? []) as CrmRow[];\n  const refs = useRefLabels(org, area.refColumns);\"\"\", 1)\n\ns = s.replace(\"\"\"                      {area.columns.map((column) => (\n                        <td key={column} className=\"py-2 pr-4\">\n                          {renderCell(row, column)}\n                        </td>\n                      ))}\n                      <td className=\"py-2 text-right\">\"\"\",\n\"\"\"                      {area.columns.map((column) => (\n                        <td key={column} className=\"py-2 pr-4\">\n                          {renderCell(row, column, area.refColumns?.[column], refs.data)}\n                        </td>\n                      ))}\n                      <td className=\"py-2 text-right\">\"\"\", 1)\n\n# 5) refs na configuracao\ns = s.replace(\"\"\"  const query = useCrmQuery(org, area.query, {}, 1);\n  const rows = (query.data?.rows ?? []) as CrmRow[];\"\"\",\n\"\"\"  const query = useCrmQuery(org, area.query, {}, 1);\n  const rows = (query.data?.rows ?? []) as CrmRow[];\n  const refs = useRefLabels(org, area.refColumns);\"\"\", 1)\n\ns = s.replace(\"\"\"                    {rows.map((row) => (\n                      <tr key={row.id} className=\"border-b hover:bg-muted/40\">\n                        {area.columns.map((column) => (\n                          <td key={column} className=\"py-2 pr-4\">\n                            {renderCell(row, column)}\n                          </td>\n                        ))}\"\"\",\n\"\"\"                    {rows.map((row) => (\n                      <tr key={row.id} className=\"border-b hover:bg-muted/40\">\n                        {area.columns.map((column) => (\n                          <td key={column} className=\"py-2 pr-4\">\n                            {renderCell(row, column, area.refColumns?.[column], refs.data)}\n                          </td>\n                        ))}\"\"\", 1)\n\np.write_text(s)\nprint(\"ok\")\nPY"
     },
     "timestamp": 1790412780899
@@ -1617,5 +1603,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790413770935
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "# Políticas comerciais\n\nData: 26/09/2026. MASTER 012. As políticas são configuráveis por organização e aplicadas no\nservidor; a interface apenas as apresenta e envia a intenção.\n\n## Crédito\n\n`customer_credit_policies` define limite, dias de carência e alçada por cliente. O servidor\nrecusa operação acima do limite disponível e considera o carveiro de valores já comprometidos.\nCliente `BLOCKED` é recusado em qualquer operação comercial, mesmo dentro do limite.\n\nCrédito é limite de política, não表皮 de财务: nada aqui emite título, não registra recebimento e\nnão substitui o financeiro do MASTER 013.\n\n## Desconto e alçada\n\n`commercial_discount_authorities` define, por papel, a faixa de desconto e o percentual máximo\nque a pessoa pode aprovar, e o status daauthority (ativa, expirada, revogada). Um desconto acima\nda alçada exige aprovação de quem a tem, registrada em `quote_approvals`, com aprovador, momento\ne limite. Tentativa negada também gera auditoria.\n\n## Condição de pagamento\n\n`commercial_payment_terms` define prazo em dias e número de parcelas. A condição escolhida na\nproposta precisa estar habilitada e dentro da alçada do cliente; prazo maior que o permitido é\nrecusado pelo servidor.\n\n## Carteira e território\n\nAtribuição de cliente, apoio e território são configuráveis e têm vigência, conforme\n[SALES-REPRESENTATIVES.md](SALES-REPRESENTATIVES.md). Troca de titular é transacional e\nencontra o histórico preservado.\n\n## Motivos e padronização\n\nPerda de oportunidade, recusa de proposta, desqualificação de lead e cancelamento exigem motivo\nde `commercial_reasons`. A padronização não é burocracia: sem motivo estruturado não há análise\nde causa, e análise de causa é o que separa um pipeline que aprende de um que só acumula.\n\n## Comissionamento\n\nRegras são cadastradas e simuladas; a apuração financeira é do MASTER 013. Ver\n[SALES-REPRESENTATIVES.md](SALES-REPRESENTATIVES.md).\n\n## Imutabilidade\n\nConfiguração comercial salva por `crm_save` exige `crm.configure`. Identificadores e\n`organization_id` não são editáveis, e uma configuração referenciada por registro existente não\npode ser apagada — a referência é preservada e o registro continua legível.\n",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/COMMERCIAL-POLICIES.md"
+    },
+    "timestamp": 1790413778422
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790413778437
   }
 ]
