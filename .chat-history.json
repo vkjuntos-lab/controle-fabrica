@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -rn \"listOrganizationMembers\" src/ | head; echo \"--- select root ---\"; sed -n '1,40p' src/components/ui/select.tsx",
-      "workdir": "/root/Zheus AI Projects/controle-fabrica"
-    },
-    "timestamp": 1790412725473
-  },
-  {
-    "role": "tool_result",
-    "content": "src/components/crm/shared.tsx:19:import { listOrganizationMembers } from \"@/lib/org/organizations.functions\";\nsrc/components/crm/shared.tsx:250:  const membersFn = useServerFn(listOrganizationMembers);\n--- select root ---\n\"use client\";\n\nimport * as React from \"react\";\nimport * as SelectPrimitive fro",
-    "is_error": false,
-    "timestamp": 1790412725495
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "ls src/lib/org/; echo \"--- exports ---\"; grep -rn \"^export const \\|^export function \" src/lib/org/*.ts src/lib/org/*.tsx 2>/dev/null | head -40",
       "workdir": "/root/Zheus AI Projects/controle-fabrica"
     },
@@ -1625,5 +1610,20 @@
     "content": "ok\n",
     "is_error": false,
     "timestamp": 1790413721584
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "# Pipeline e oportunidades\n\nData: 26/09/2026. MASTER 012.\n\nO pipeline é configurável: `sales_pipelines` e `sales_pipeline_stages` permitem mais de um\nfunil e etapas ordenadas com probabilidade esperada. A oportunidade em\n`sales_opportunities` guarda valor, etapa, probabilidade, ciclo previsto, responsável e origem.\n\n## Valor e margem\n\nO valor é `numeric`, nunca ponto flutuante. A margem exibida é calculada pelo Cost Engine a\npartir dos itens e do custo vigente, e só aparece para quem tem `crm.sensitive.read`. Ela não é\ngravada na oportunidade: custo muda, e um valor congelado mentiria sobre a margem atual.\n\nItens em `opportunity_items` guardam apenas variante e quantidade. Preço, desconto e total são\nresolvidos pelo servidor na consulta, respeitando a tabela de preço vigente na data. Isso\nimpede que um item seja cadastrado com preço digitado errado — o cliente não informa preço.\n\n## Transição de etapa\n\nMover a oportunidade é `crm_action` com a etapa de destino. O servidor:\n\n1. valida a transição contra as regras do funil (não qualquer etapa pode ser alcançada de\n   qualquer outra);\n2. grava em `opportunity_stage_history` com etapa anterior, etapa nova, motivo e responsável;\n3. recalcula a probabilidade ponderada por valor, quando as etapas têm probabilidade;\n4. marca `WON` ou `LOST` conforme o destino, exigindo motivo de perda cadastrado em\n   `commercial_reasons` para `LOST`.\n\nO motivo é obrigatório em perda porque a análise de motivo é o principal insumo de correção\nde pipeline. O histórico é append-only: corrigir a看板 não reescreve o passado registrado.\n\n## Fechamento\n\n`WON` e `LOST` são finais. Uma oportunidade ganha não volta para aberto, porque seu sucessor\nnatural é a proposta, e uma nova negociação é outra oportunidade. O ciclo previsto é comparado\nao realizado na看板 de desempenho.\n\n## Exibição\n\nA pipeline é kanban por etapa, com cartões ordenados por valor. Os totais do topo são somados no\ncliente a partir dos mesmos dados da consulta — o servidor devolve o recorte, e a agregação é\nmeramente visual. A tela mostra apenas as etapas do funil selecionado e respeita o escopo do\nresponsável: um representante externo não vê a carteira de outro.\n\n## Limitações\n\nSem forecast probabilístico, sem pontuação de risco, sem automação de movimentação de etapa e\nsem forecast de receitaurry. A previsão comercial não é apresentada como garantia: o MASTER 012\nentrega histórico e ciclo, não promessa de fechamento.\n",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/SALES-PIPELINE.md"
+    },
+    "timestamp": 1790413730806
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790413730816
   }
 ]
