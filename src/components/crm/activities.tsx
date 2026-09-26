@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
@@ -26,35 +26,85 @@ const area = areas.atividades;
 /**
  * Atividades.
  *
- * Concluir é `crm_save('activity')` com `status=COMPLETED` e resultado; reagendar
- * é a mesma gravação com nova data e motivo. O servidor guarda o antes e o depois
- * em `crm_activity_history` e recusa alteração sem motivo, então a tela sempre
- * pergunta o motivo em vez de presumir.
+ * Concluir é `crm_save('activity')` com `status=COMPLETED` e resultado;
+ * reagendar é a mesma gravação com nova data e motivo. O status não é digitado
+ * pelo usuário — a tela oferece só as duas transições que o servidor aceita, e
+ * ambas exigem justificativa, porque o histórico é gravado antes e depois.
  */
 export function ActivitiesPage() {
+  const { currentOrganization, hasPermission } = useOrganization();
+  const client = useQueryClient();
+  const [target, setTarget] = useState<{ row: CrmRow; mode: "complete" | "reschedule" } | null>(
+    null,
+  );
+
+  const org = currentOrganization?.organization_id ?? "";
+  const canManage = hasPermission("activities.manage");
+  const refresh = () => void client.invalidateQueries({ queryKey: ["crm"] });
+
   return (
-    <CrmListPage
-      area={area}
-      title="Comercial · Atividades"
-      intro="Tarefas, reuniões, ligações e visitas. Concluir ou reagendar exige resultado ou motivo, e cada mudança fica no histórico da atividade — nada é apagado."
-      rowActions={<ActivityRowActions />}
-    />
+    <>
+      <CrmListPage
+        area={area}
+        title="Comercial · Atividades"
+        intro="Tarefas, reuniões, ligações e visitas. Concluir ou reagendar exige resultado ou motivo, e cada mudança fica no histórico da atividade — nada é apagado."
+        rowActions={(row) => {
+          if (!canManage || row.status !== "PENDING") return null;
+          return (
+            <>
+              <Button size="sm" variant="outline" onClick={() => setTarget({ row, mode: "complete" })}>
+                Concluir
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => setTarget({ row, mode: "reschedule" })}>
+                Reagendar
+              </Button>
+            </>
+          );
+        }}
+      />
+
+      {target?.mode === "complete" ? (
+        <ActivityDialog
+          org={org}
+          activity={target.row}
+          title="Concluir atividade"
+          description="O resultado fica na atividade e no histórico. Concluir não gera pedido, não fatura e não altera a oportunidade."
+          confirmLabel="Concluir"
+          fixed={{ status: "COMPLETED" }}
+          fields={[
+            { key: "outcome", label: "Resultado", type: "text", required: true },
+            { key: "reason", label: "Motivo do registro", type: "text", required: true },
+          ]}
+          onClose={() => setTarget(null)}
+          onDone={refresh}
+        />
+      ) : null}
+
+      {target?.mode === "reschedule" ? (
+        <ActivityDialog
+          org={org}
+          activity={target.row}
+          title="Reagendar atividade"
+          description="A data anterior permanece no histórico da atividade. O servidor recusa reagendar sem motivo."
+          confirmLabel="Reagendar"
+          fields={[
+            { key: "scheduled_at", label: "Nova data e hora", type: "datetime-local", required: true },
+            { key: "reason", label: "Motivo", type: "text", required: true },
+          ]}
+          onClose={() => setTarget(null)}
+          onDone={refresh}
+        />
+      ) : null}
+    </>
   );
 }
 
-/** Ações por linha. Fica isolado para o `CrmListPage` continuar sem estado próprio. */
-function ActivityRowActions() {
-  return null;
-}
-
-/** Corpo da listagem, com os diálogos de conclusão e reagendamento. */
-function ActivitiesBody() {
-  return null;
-}
+type ActivityField = { key: string; label: string; type: string; required: boolean };
 
 /**
- * Alteração de status ou data de uma atividade. Um único formulário serve para
- * concluir e para reagendar: a diferença são os campos exigidos, não o fluxo.
+ * Alteração de uma atividade existente. Um único formulário serve para concluir e
+ * para reagendar: mudam os campos exigidos, não o fluxo. `fixed` carrega valores
+ * que a tela decide (o novo status) e que não fazem sentido como entrada de texto.
  */
 function ActivityDialog({
   org,
@@ -63,6 +113,7 @@ function ActivityDialog({
   description,
   confirmLabel,
   fields,
+  fixed,
   onClose,
   onDone,
 }: {
@@ -71,7 +122,8 @@ function ActivityDialog({
   title: string;
   description: string;
   confirmLabel: string;
-  fields: { key: string; label: string; type: string; required: boolean }[];
+  fields: ActivityField[];
+  fixed?: Record<string, string>;
   onClose: () => void;
   onDone: () => void;
 }) {
@@ -80,7 +132,7 @@ function ActivityDialog({
 
   const save = useMutation({
     mutationFn: async () => {
-      const payload: Record<string, unknown> = { id: activity.id };
+      const payload: Record<string, unknown> = { id: activity.id, ...(fixed ?? {}) };
       for (const field of fields) {
         const raw = values[field.key];
         // Campo vazio é omitido: em patch, string vazia zeraria o valor gravado.
@@ -127,7 +179,8 @@ function ActivityDialog({
           ))}
         </div>
         <p className="text-xs text-muted-foreground">
-          Atividade: {str(activity.subject)} ({activityTypeLabel(String(activity.activity_type))}).
+          {str(activity.subject)} · {activityTypeLabel(String(activity.activity_type))} · agendada
+          para {str(activity.scheduled_at)}
         </p>
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>
@@ -144,7 +197,7 @@ function ActivityDialog({
 
 /**
  * Agenda: o que já venceu fica separado do que ainda vai acontecer. Uma caixa de
- * entrada com tudo junto esconde o atraso, que é justamente o que a agenda serve
+ * entrada com tudo junto esconde o atraso, que é justamente o que a agenda existe
  * para mostrar. A lista vem da mesma consulta do servidor, que já aplica o escopo
  * de carteira — a tela não filtra por conta própria.
  */
@@ -171,9 +224,7 @@ function MySchedule({ org }: { org: string }) {
           <ActivityGroup title="Atrasadas" rows={overdue} empty="Nada atrasado." />
           <ActivityGroup title="Próximas" rows={upcoming} empty="Nada agendado." />
         </div>
-        <p className="text-sm text-muted-foreground">
-          {rows.length} atividades pendentes no total.
-        </p>
+        <p className="text-sm text-muted-foreground">{rows.length} atividades pendentes no total.</p>
       </ResultState>
     </div>
   );
@@ -204,74 +255,3 @@ function ActivityGroup({ title, rows, empty }: { title: string; rows: CrmRow[]; 
     </Card>
   );
 }
-
-/**
- * Tela completa de atividades com os diálogos. `CrmListPage` já resolve
- * organização, permissão e paginação; aqui ficam apenas as duas transições que a
- * listagem declarativa não conhece.
- */
-export function ActivitiesPageWithDialogs() {
-  const { currentOrganization, hasPermission } = useOrganization();
-  const client = useQueryClient();
-  const [target, setTarget] = useState<{ row: CrmRow; mode: "complete" | "reschedule" } | null>(null);
-
-  if (!currentOrganization) return <CrmListPage area={area} title="Comercial · Atividades" />;
-  const org = currentOrganization.organization_id;
-  const canManage = hasPermission("activities.manage");
-
-  return (
-    <>
-      <CrmListPage
-        area={area}
-        title="Comercial · Atividades"
-        intro="Tarefas, reuniões, ligações e visitas. Concluir ou reagendar exige resultado ou motivo, e cada mudança fica no histórico da atividade."
-        rowActions={(row) => {
-          if (!canManage || row.status !== "PENDING") return null;
-          return (
-            <>
-              <Button size="sm" variant="outline" onClick={() => setTarget({ row, mode: "complete" })}>
-                Concluir
-              </Button>
-              <Button size="sm" variant="outline" onClick={() => setTarget({ row, mode: "reschedule" })}>
-                Reagendar
-              </Button>
-            </>
-          );
-        }}
-      />
-      {target?.mode === "complete" ? (
-        <ActivityDialog
-          org={org}
-          activity={target.row}
-          title="Concluir atividade"
-          description="O resultado fica na atividade e no histórico. Concluir não gera pedido, não fatura e não altera a oportunidade."
-          confirmLabel="Concluir"
-          fields={[
-            { key: "status", label: "Novo status", type: "text", required: true },
-            { key: "outcome", label: "Resultado", type: "text", required: true },
-            { key: "reason", label: "Motivo", type: "text", required: true },
-          ]}
-          onClose={() => setTarget(null)}
-          onDone={() => void client.invalidateQueries({ queryKey: ["crm"] })}
-        />
-      ) : null}
-      {target?.mode === "reschedule" ? (
-        <ActivityDialog
-          org={org}
-          activity={target.row}
-          title="Reagendar atividade"
-          description="A data anterior permanece no histórico. O servidor recusa reagendar sem motivo."
-          confirmLabel="Reagendar"
-          fields={[
-            { key: "scheduled_at", label: "Nova data e hora", type: "datetime-local", required: true },
-            { key: "reason", label: "Motivo", type: "text", required: true },
-          ]}
-          onClose={() => setTarget(null)}
-          onDone={() => void client.invalidateQueries({ queryKey: ["crm"] })}
-        />
-      ) : null}
-    </>
-  );
-}
-
-export type { ReactNode };
