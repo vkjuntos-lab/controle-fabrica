@@ -55,8 +55,8 @@ def run():
  assert sql(f"SELECT count(*) FROM opportunity_stage_history WHERE opportunity_id={q(opp)}")=='2'
  assert sql("SELECT count(*) FROM inventory_movements")=='0'
  print('PASS D: item quantities sum to 60; stage snapshots; no stock writes')
- table=rpc('price_save_table',org,{'code':'B2B','name':'B2B','valid_from':'2020-01-01'})['id']
- for v in variants:rpc('pricing_publish',org,{'price_table_id':table,'variant_id':v,'unit_price':10,'valid_from':'2020-01-01'})
+ table=json.loads(call('price_save_table',org,{'code':'B2B','name':'B2B','valid_from':'2020-01-01'}))['id']
+ for v in variants:call('pricing_publish',org,{'price_table_id':table,'variant_id':v,'unit_price':10,'valid_from':'2020-01-01'})
  valid=(datetime.date.today()+datetime.timedelta(days=30)).isoformat()
  quote_data={'company_id':company,'price_table_id':table,'primary_contact_id':contact,'valid_until':valid,'items':items,'discount_percent':10}
  quote=action('quote',None,'create',quote_data)['id']
@@ -68,7 +68,7 @@ def run():
  save('discount_authority',{'id':authid,'max_discount_percent':20,'reason':'Revisão'})
  action('quote',quote,'approve',{'reason':'Aprovado'})
  action('quote',quote,'send')
- for v in variants:rpc('pricing_publish',org,{'price_table_id':table,'variant_id':v,'unit_price':20,'valid_from':datetime.date.today().isoformat()})
+ for v in variants:call('pricing_publish',org,{'price_table_id':table,'variant_id':v,'unit_price':20,'valid_from':datetime.date.today().isoformat()})
  q2=action('quote',quote,'revise',quote_data)['id']
  assert sql(f"SELECT total FROM sales_quotes WHERE id={q(quote)}")=='54.00'
  assert sql(f"SELECT total FROM sales_quotes WHERE id={q(q2)}")=='108.00'

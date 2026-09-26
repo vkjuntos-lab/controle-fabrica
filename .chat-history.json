@@ -1,19 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "# Compras — Purchase to Pay\n\nDocumento de negócio e modelo técnico do módulo de compras do MASTER 010. Cobre o fluxo completo\nde **requisição → cotação → pedido → recebimento → inspeção → postagem → documento → pagamento**,\ncom exceções e reposição. É o \"Purchase to Pay\" da fábrica.\n\nDocumentos rela",
-    "is_error": false,
-    "timestamp": 1790342040191
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"cat > /tmp/inspect-planning.py <<'PY'\nimport importlib.util\nfrom pathlib import Path\np=Path('/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py')\ns=importlib.util.spec_from_file_location('db',p);db=importlib.util.module_from_spec(s);s.loader.exec_module(db)\ntry:\n db.setup()\n for n in ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql','20261001100000_purchasing.sql','20261002100000_planning.sql']:db.sql((db.ROOT/'supabase/migrations'/n).read_text())\nfinally:db.cleanup()\nPY\npython3 /tmp/inspect-planning.py > /tmp/planning-initial.log 2>&1\""
-    },
-    "timestamp": 1790342062475
-  },
-  {
     "role": "tool",
     "tool": "Bash",
     "input": {
@@ -1398,5 +1384,19 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790411781203
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'EOF'\nimport re\np='scripts/test-crm-db.py'\ns=open(p).read()\ns=s.replace(\"table=rpc('price_save_table',org,{'code':'B2B','name':'B2B','valid_from':'2020-01-01'})['id']\",\"table=json.loads(call('price_save_table',org,{'code':'B2B','name':'B2B','valid_from':'2020-01-01'}))['id']\")\ns=s.replace(\"for v in variants:rpc('pricing_publish',org,{'price_table_id':table,'variant_id':v,'unit_price':10,'valid_from':'2020-01-01'})\",\"for v in variants:call('pricing_publish',org,{'price_table_id':table,'variant_id':v,'unit_price':10,'valid_from':'2020-01-01'})\")\ns=s.replace(\"for v in variants:rpc('pricing_publish',org,{'price_table_id':table,'variant_id':v,'unit_price':20,'valid_from':datetime.date.today().isoformat()})\",\"for v in variants:call('pricing_publish',org,{'price_table_id':table,'variant_id':v,'unit_price':20,'valid_from':datetime.date.today().isoformat()})\")\nopen(p,'w').write(s)\nEOF\ngrep -n \"pricing_publish\\|price_save_table\" scripts/test-crm-db.py"
+    },
+    "timestamp": 1790411784160
+  },
+  {
+    "role": "tool_result",
+    "content": "58: table=json.loads(call('price_save_table',org,{'code':'B2B','name':'B2B','valid_from':'2020-01-01'}))['id']\n59: for v in variants:call('pricing_publish',org,{'price_table_id':table,'variant_id':v,'unit_price':10,'valid_from':'2020-01-01'})\n71: for v in variants:call('pricing_publish',org,{'price_",
+    "is_error": false,
+    "timestamp": 1790411784209
   }
 ]
