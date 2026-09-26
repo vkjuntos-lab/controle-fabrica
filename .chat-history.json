@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'EOF'\np='scripts/test-crm-db.py'\ns=open(p).read()\ns=s.replace(\" print('DEBUG authid=',authid)\\n print('DEBUG save_result=',save('discount_authority',{'id':authid,'max_discount_percent':20,'reason':'Revisão'}))\\n print('DEBUG authority=',sql(f\\\"SELECT max_discount_percent||'|'||user_id||'|'||count(*) OVER () FROM commercial_discount_authorities WHERE organization_id={q(org)}\\\"));print('DEBUG quote discount=',sql(f\\\"SELECT discount_percent||'|'||status FROM sales_quotes WHERE id={q(quote)}\\\"))\\n\",\" save('discount_authority',{'id':authid,'max_discount_percent':20,'reason':'Revisão'})\\n\")\nopen(p,'w').write(s)\nEOF\ngrep -c DEBUG scripts/test-crm-db.py; git diff --stat scripts/test-crm-db.py"
-    },
-    "timestamp": 1790411857217
-  },
-  {
-    "role": "tool_result",
-    "content": "0\n scripts/test-crm-db.py | 4 +---\n 1 file changed, 1 insertion(+), 3 deletions(-)\n",
-    "is_error": false,
-    "timestamp": 1790411857266
-  },
-  {
-    "role": "tool",
     "tool": "todowrite",
     "input": {
       "todos": [
@@ -1620,5 +1606,19 @@
     "content": "//     error logger plugins, and sandbox detection (port/host/strictPort).\nimport { defineConfig } from \"@lovable.dev/vite-tanstack-config\";\nimport { VitePWA } from \"vite-plugin-pwa\";\n\nexport default defineConfig({\n  tanstackStart: {\n    server: { entry: \"server\" },\n  },\n  vite: {\n    plugins: [\n   ",
     "is_error": false,
     "timestamp": 1790413329565
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && mkdir -p src/routes/_authenticated/comercial && python3 - <<'PY'\nimport pathlib\n\nbase = pathlib.Path(\"src/routes/_authenticated/comercial\")\n\nHEAD = '''import {{ createFileRoute }} from \"@tanstack/react-router\";\n\nimport {{ {component} }} from \"@/components/crm/{module}\";\n\nexport const Route = createFileRoute(\"{path}\")({{\n  head: () => ({{\n    meta: [{{ name: \"robots\", content: \"noindex\" }}, {{ title: \"{title} — Estratégia\" }}],\n  }}),\n  component: {component},\n}});\n'''\n\nPAGES = [\n    (\"index.tsx\", \"/_authenticated/comercial/\", \"CrmDashboard\", \"dashboard\", \"Comercial\"),\n    (\"leads.tsx\", \"/_authenticated/comercial/leads\", \"LeadsPage\", \"leads\", \"Leads\"),\n    (\"clientes.tsx\", \"/_authenticated/comercial/clientes\", \"CustomersPage\", \"customers\", \"Clientes\"),\n    (\"clientes.$id.tsx\", \"/_authenticated/comercial/clientes/$id\", \"Customer360Page\", \"customers\", \"Cliente\"),\n    (\"oportunidades.tsx\", \"/_authenticated/comercial/oportunidades\", \"OpportunitiesPage\", \"opportunities\", \"Pipeline\"),\n    (\"oportunidades.$id.tsx\", \"/_authenticated/comercial/oportunidades/$id\", \"OpportunityDetailPage\", \"opportunities\", \"Oportunidade\"),\n    (\"propostas.tsx\", \"/_authenticated/comercial/propostas\", \"QuotesPage\", \"quotes\", \"Propostas\"),\n    (\"propostas.$id.tsx\", \"/_authenticated/comercial/propostas/$id\", \"QuoteDetailPage\", \"quotes\", \"Proposta\"),\n    (\"atividades.tsx\", \"/_authenticated/comercial/atividades\", \"ActivitiesPage\", \"activities\", \"Atividades\"),\n    (\"agenda.tsx\", \"/_authenticated/comercial/agenda\", \"MySchedulePage\", \"activities\", \"Minha agenda\"),\n    (\"representantes.tsx\", \"/_authenticated/comercial/representantes\", \"RepresentativesPage\", \"team\", \"Representantes\"),\n    (\"representantes.$id.tsx\", \"/_authenticated/comercial/representantes/$id\", \"RepresentativePortfolioPage\", \"team\", \"Carteira do representante\"),\n    (\"carteiras.tsx\", \"/_authenticated/comercial/carteiras\", \"PortfoliosPage\", \"team\", \"Carteiras\"),\n    (\"relatorios.tsx\", \"/_authenticated/comercial/relatorios\", \"ReportsPage\", \"reports\", \"Relatórios comerciais\"),\n    (\"configuracoes.$section.tsx\", \"/_authenticated/comercial/configuracoes/$section\", \"ConfigurationPage\", \"list\", \"Configurações comerciais\"),\n]\n\nfor filename, path, component, module, title in PAGES:\n    src = HEAD.format(component=component, module=module, path=path, title=title)\n    if component == \"ConfigurationPage\":\n        src = src.replace(\n            \"  component: ConfigurationPage,\\n\",\n            \"  component: ConfigurationRoute,\\n\",\n        )\n        src += '''\n/** A seção vem da rota; um valor desconhecido cai na primeira configuração. */\nfunction ConfigurationRoute() {\n  const { section } = Route.useParams();\n  return <ConfigurationPage section={section} />;\n}\n'''\n    if component == \"Customer360Page\":\n        src = src.replace(\n            \"  component: Customer360Page,\\n\",\n            \"  component: Customer360Route,\\n\",\n        )\n        src += '''\n/** O id da rota é o da empresa, não o do perfil comercial. */\nfunction Customer360Route() {\n  const { id } = Route.useParams();\n  return <Customer360Page id={id} />;\n}\n'''\n    if component == \"OpportunityDetailPage\":\n        src = src.replace(\n            \"  component: OpportunityDetailPage,\\n\",\n            \"  component: OpportunityRoute,\\n\",\n        )\n        src += '''\nfunction OpportunityRoute() {\n  const { id } = Route.useParams();\n  return <OpportunityDetailPage id={id} />;\n}\n'''\n    if component == \"QuoteDetailPage\":\n        src = src.replace(\"  component: QuoteDetailPage,\\n\", \"  component: QuoteRoute,\\n\")\n        src += '''\nfunction QuoteRoute() {\n  const { id } = Route.useParams();\n  return <QuoteDetailPage id={id} />;\n}\n'''\n    if component == \"RepresentativePortfolioPage\":\n        src = src.replace(\n            \"  component: RepresentativePortfolioPage,\\n\",\n            \"  component: RepresentativeRoute,\\n\",\n        )\n        src += '''\nfunction RepresentativeRoute() {\n  const { id } = Route.useParams();\n  return <RepresentativePortfolioPage id={id} />;\n}\n'''\n    (base / filename).write_text(src)\n\nprint(\"rotas criadas:\", len(PAGES))\nPY\nls src/routes/_authenticated/comercial/"
+    },
+    "timestamp": 1790413336463
+  },
+  {
+    "role": "tool_result",
+    "content": "rotas criadas: 15\nagenda.tsx\natividades.tsx\ncarteiras.tsx\nclientes.$id.tsx\nclientes.tsx\nconfiguracoes.$section.tsx\nindex.tsx\nleads.tsx\noportunidades.$id.tsx\noportunidades.tsx\npropostas.$id.tsx\npropostas.tsx\nrelatorios.tsx\nrepresentantes.$id.tsx\nrepresentantes.tsx\n",
+    "is_error": false,
+    "timestamp": 1790413336529
   }
 ]
