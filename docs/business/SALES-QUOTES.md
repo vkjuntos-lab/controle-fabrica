@@ -31,7 +31,7 @@ aquele preço em março" depois de a tabela de preço ter mudado.
 - `EXPIRED` é automático por validade, no servidor.
 
 As transições são `crm_action` com chave de idempotência. Repetir aceite devolve o mesmo
-resultado, sem duplicar版本.
+resultado, sem duplicar a versão.
 
 ## Aprovação e alçada
 

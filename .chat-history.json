@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/crm/config.ts",
-      "newString": "export type Area = {\n  title: string;\n  /** `kind` enviado para `crm_query`. */\n  query: string;\n  /** `kind` enviado para `crm_save`; ausente quando o cadastro é só leitura. */\n  save?: string;\n  permission: string;\n  /** Permissão necessária para gravar; o servidor exige a mesma chave. */\n  write?: string;\n  fields: Field[];\n  /** Colunas exibidas na listagem, na ordem desejada. */\n  columns: string[];\n  /** `kind` de `crm_query` usado como options em filtros. */\n  filters?: { key: string; label: string; kind: string; permission: string }[];\n  /**\n   * Gravação em mais de um `crm_save`. O cliente comercial é o caso real: o\n   * vínculo empresa↔perfil e os atributos do perfil são tabelas diferentes, e o\n   * servidor trata as duas com permissões e efeitos colaterais próprios.\n   */\n  saves?: SaveStep[];\n  /** Campos que não podem mudar depois de criados (ver `saves`). */\n  immutableOnEdit?: string[];\n  /** Colunas de chave estrangeira e o `kind` usado para mostrar o nome. */\n  refColumns?: Record<string, string>;\n};\n\nexport type SaveStep = {\n  /** `kind` enviado para `crm_save`. */\n  kind: string;\n  /** Campos do formulário pertencentes a este passo. */\n  fields: string[];\n  /**\n   * Usa como `id` o registro devolvido pelo passo anterior. Necessário quando o\n   * id do perfil só existe depois da criação do vínculo.\n   */\n  usePreviousId?: boolean;\n  /** Executa apenas quando o registro já existe. */\n  onlyExisting?: boolean;\n};\n",
-      "oldString": "export type Area = {\n  title: string;\n  /** `kind` enviado para `crm_query`. */\n  query: string;\n  /** `kind` enviado para `crm_save`; ausente quando o cadastro é só leitura. */\n  save?: string;\n  permission: string;\n  /** Permissão necessária para gravar; o servidor exige a mesma chave. */\n  write?: string;\n  fields: Field[];\n  /** Colunas exibidas na listagem, na ordem desejada. */\n  columns: string[];\n  /** `kind` de `crm_query` usado como options em filtros. */\n  filters?: { key: string; label: string; kind: string; permission: string }[];\n};\n"
-    },
-    "timestamp": 1790412750368
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790412750390
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/crm/config.ts",
       "newString": "  clientes: {\n    title: \"Clientes\",\n    query: \"customers\",\n    permission: \"customers.read\",\n    write: \"customers.create\",\n    // `crm_save('customer')` vincula a empresa ao perfil e grava o código\n    // comercial; `crm_save('customer_profile')` grava os atributos e exige o id\n    // do perfil, que só existe depois do primeiro passo. Trocar a empresa criaria\n    // um segundo perfil e deixaria este órfão, então o vínculo é imutável.\n    saves: [\n      { kind: \"customer\", fields: [\"company_id\", \"customer_code\"] },\n      {\n        kind: \"customer_profile\",\n        fields: [\n          \"customer_type\",\n          \"commercial_status\",\n          \"commercial_segment_id\",\n          \"acquisition_source_id\",\n          \"price_table_id\",\n          \"payment_terms_id\",\n          \"notes\",\n        ],\n        usePreviousId: true,\n      },\n    ],\n    immutableOnEdit: [\"company_id\"],\n    fields: [\n      companyField,\n      field(\"customer_code\", \"Código comercial\"),\n      field(\"customer_type\", \"Tipo\"),\n      field(\"commercial_status\", \"Status comercial\", {\n        type: \"options\",\n        options: [\"ACTIVE\", \"INACTIVE\", \"BLOCKED\"],\n      }),\n      field(\"commercial_segment_id\", \"Segmento\", { lookup: \"segments\" }),\n      field(\"acquisition_source_id\", \"Origem\", { lookup: \"sources\" }),\n      field(\"price_table_id\", \"Tabela de preços\", { lookup: \"price_tables\" }),\n      field(\"payment_terms_id\", \"Condição de pagamento\", { lookup: \"payment_terms\" }),\n      field(\"notes\", \"Observações comerciais\", { type: \"longtext\" }),\n    ],\n    columns: [\"customer_code\", \"company_id\", \"commercial_status\", \"commercial_segment_id\"],\n    refColumns: { company_id: \"companies\" },\n    filters: [\n      { key: \"status\", label: \"Status\", kind: \"\", permission: \"customers.read\" },\n      {\n        key: \"commercial_segment_id\",\n        label: \"Segmento\",\n        kind: \"segments\",\n        permission: \"crm.read\",\n      },\n      { key: \"acquisition_source_id\", label: \"Origem\", kind: \"sources\", permission: \"crm.read\" },\n    ],\n  },",
       "oldString": "  clientes: {\n    title: \"Clientes\",\n    query: \"customers\",\n    save: \"customer\",\n    permission: \"customers.read\",\n    write: \"customers.create\",\n    fields: [\n      companyField,\n      field(\"customer_code\", \"Código comercial\"),\n      field(\"customer_type\", \"Tipo\"),\n      field(\"commercial_status\", \"Status comercial\", {\n        type: \"options\",\n        options: [\"ACTIVE\", \"INACTIVE\", \"BLOCKED\"],\n      }),\n      field(\"commercial_segment_id\", \"Segmento\", { lookup: \"segments\" }),\n      field(\"acquisition_source_id\", \"Origem\", { lookup: \"sources\" }),\n      field(\"price_table_id\", \"Tabela de preços\", { lookup: \"price_tables\" }),\n      field(\"payment_terms_id\", \"Condição de pagamento\", { lookup: \"payment_terms\" }),\n      field(\"notes\", \"Observações comerciais\", { type: \"longtext\" }),\n    ],\n    columns: [\"customer_code\", \"company_id\", \"commercial_status\", \"commercial_segment_id\"],\n    filters: [\n      { key: \"status\", label: \"Status\", kind: \"\", permission: \"customers.read\" },\n      {\n        key: \"commercial_segment_id\",\n        label: \"Segmento\",\n        kind: \"segments\",\n        permission: \"crm.read\",\n      },\n      { key: \"acquisition_source_id\", label: \"Origem\", kind: \"sources\", permission: \"crm.read\" },\n    ],\n  },"
     },
@@ -1621,5 +1605,19 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790413748539
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"docs/business/SALES-QUOTES.md\"); s = p.read_text()\ns = s.replace(\"sem duplicar版本.\", \"sem duplicar a versão.\")\ns = s.replace(\"Repetir aceite devolve o mesmo\\nresultado, sem duplicar版本.\", \"Repetir aceite devolve o mesmo\\nresultado, sem duplicar a versão.\")\ns = s.replace(\"sem duplicar版本\", \"sem duplicar a versão\")\np.write_text(s)\nprint([c for c in s if ord(c) > 0x2FFF and c not in \"—’“”…\"])\nPY"
+    },
+    "timestamp": 1790413751102
+  },
+  {
+    "role": "tool_result",
+    "content": "[]\n",
+    "is_error": false,
+    "timestamp": 1790413751164
   }
 ]
