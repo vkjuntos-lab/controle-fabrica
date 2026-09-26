@@ -1,19 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "\n> test:planning:db\n> python3 scripts/test-planning-db.py\n\nPASS: target100 - onhand30 - pending20 = 50; run retry; planning has no operational/financial writes\nPASS: production100 × BOM .5 = material50; onhand20 + receipt10 -> net20; required minus 15 calendar days\nPASS: late receipt does not cover ",
-    "is_error": false,
-    "timestamp": 1790386217661
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc 'npm run typecheck > /tmp/planning-ts.log 2>&1'"
-    },
-    "timestamp": 1790386217690
-  },
-  {
     "role": "tool",
     "tool": "Bash",
     "input": {
@@ -1506,5 +1492,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790412425907
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -rn \"organization_members\" src/lib/*/*.ts | head -20; echo \"---SUPPLIER QUERY members?---\"; grep -n \"'members'\\|\\\"members\\\"\" src/lib/*/*.ts | head",
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790412430039
+  },
+  {
+    "role": "tool_result",
+    "content": "src/lib/org/organizations.functions.ts:145:      .from(\"organization_members\")\nsrc/lib/org/organizations.functions.ts:195:      .from(\"organization_members\")\nsrc/lib/org/organizations.functions.ts:205:      resource: \"organization_members\",\nsrc/lib/org/organizations.functions.ts:226:      .from(\"org",
+    "is_error": false,
+    "timestamp": 1790412430080
   }
 ]
