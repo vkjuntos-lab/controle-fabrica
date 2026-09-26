@@ -1,17 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "PASS: BOM 10+5+2+8+5=30, calculation deduplication, approval and publication\nPASS: query contracts\nPASS: scrap 20+1, missing cost/conversion blocks publication, official roll conversion, isolated simulation\nPASS: markup, gross margin, marketplace contribution and target price use distinct formulas\nP",
-    "is_error": false,
-    "timestamp": 1790341712915
-  },
-  {
-    "role": "tool_result",
-    "content": "\n> lint\n> eslint .\n\nTerminated\n",
-    "is_error": false,
-    "timestamp": 1790341720575
-  },
-  {
     "role": "tool",
     "tool": "Bash",
     "input": {
@@ -1374,5 +1362,21 @@
     "content": "initdb: error: cannot be run as root\ninitdb: hint: Please log in (using, e.g., \"su\") as the (unprivileged) user that will own the server process.\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-crm-db.py\", line 101, in <module>\n    try:run()\n        ~",
     "is_error": false,
     "timestamp": 1790411739828
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "chown -R claude-runner:claude-runner scripts 2>/dev/null; su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 3000 python3 scripts/test-crm-db.py\" 2>&1 | tail -30",
+      "timeout": 3000000,
+      "workdir": "/root/Zheus AI Projects/controle-fabrica"
+    },
+    "timestamp": 1790411742296
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS A: supplier gains customer role without duplicate Company\nPASS B: concurrent lead conversion idempotent; contact and history retained\nPASS C: portfolio changes preserve prior assignments and opportunity owner\nPASS D: item quantities sum to 60; stage snapshots; no stock writes\nTraceback (most re",
+    "is_error": false,
+    "timestamp": 1790411744869
   }
 ]
