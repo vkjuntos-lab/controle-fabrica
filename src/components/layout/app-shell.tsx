@@ -57,6 +57,7 @@ type NavItem = {
 };
 
 const OPERATION_ITEMS: NavItem[] = [
+  { label: "Comercial", to: "/comercial", icon: Users, permission: PERMISSIONS.crmRead },
   { label: "Planejamento", to: "/planejamento", icon: ClipboardList, permission: "planning.read" },
   { label: "Custos", to: "/custos", icon: Scale, permission: "costs.read" },
   { label: "Precificação", to: "/precificacao", icon: Wallet, permission: "pricing.read" },
