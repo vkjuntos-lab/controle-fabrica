@@ -21,7 +21,7 @@ import { optionLabels } from "@/components/crm/shared";
 import { PERMISSIONS } from "@/lib/rbac";
 
 const migration = readFileSync(
-  resolve(import.meta.dirname, "../../supabase/migrations/20261005100000_crm.sql"),
+  resolve(import.meta.dirname, "../../../supabase/migrations/20261005100000_crm.sql"),
   "utf8",
 );
 
