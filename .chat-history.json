@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1790413719143
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 -c \"\nimport pathlib\np = pathlib.Path('docs/business/LEADS.md'); s = p.read_text()\np.write_text(s.replace('apriorização', 'priorização'))\nprint('ok')\""
-    },
-    "timestamp": 1790413721469
-  },
-  {
-    "role": "tool_result",
     "content": "ok\n",
     "is_error": false,
     "timestamp": 1790413721584
@@ -1595,5 +1581,19 @@
     "content": " 'packing.manage',\n 'shipments.read','shipments.create','shipments.dispatch','shipments.confirm_delivery',\n 'returns.read','returns.create','returns.approve','returns.receive',\n 'logistics.export',\n 'sales.configure','carriers.manage','sales_credit.read']) p ON CONFLICT DO NOTHING;\n\n-- Comercial: op",
     "is_error": false,
     "timestamp": 1790521147333
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport re,pathlib\ns=re.sub(r'--[^\\n]*','',pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql').read_text())\nfor t in ['sales_orders','shipments','customer_returns']:\n    m=re.search(r'CREATE TABLE public\\.'+t+r'\\s*\\(',s)\n    i=m.end();d=1\n    while d>0:\n        if s[i]=='(':d+=1\n        elif s[i]==')':d-=1\n        i+=1\n    body=s[m.end():i-1]\n    for l in body.split('\\n'):\n        if 'status text NOT NULL' in l or (\"CHECK(status IN\" in l) or (l.strip().startswith(\"'\") and 'CHECK' not in l and 'status' in body):\n            pass\n    st=re.search(r'status text[^\\n]*\\n(?:\\s+[^\\n]*\\n)*?\\s*CHECK\\(status IN \\(([^)]*)\\)\\)',body)\n    print('###',t)\n    print(st.group(1).replace('\\n',' ') if st else 'n/a')\nPY"
+    },
+    "timestamp": 1790521152023
+  },
+  {
+    "role": "tool_result",
+    "content": "### sales_orders\n'DRAFT','PENDING_APPROVAL','APPROVED','AWAITING_STOCK','READY_FOR_FULFILLMENT',                     'PARTIALLY_FULFILLED','FULFILLED','CLOSED','CANCELED'\n### shipments\n'DRAFT','READY','DISPATCHED','IN_TRANSIT','DELIVERED','PARTIALLY_DELIVERED',                     'DELIVERY_EXCEPTIO",
+    "is_error": false,
+    "timestamp": 1790521152084
   }
 ]
