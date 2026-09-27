@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2529,2560p' supabase/migrations/20261006100000_sales_orders.sql"
-    },
-    "timestamp": 1790523494447
-  },
-  {
-    "role": "tool_result",
-    "content": " v_ord_status text; v_ord_ful text; v_req numeric; v_fulfilled numeric; v_ful uuid;\n v_carrier uuid; v_tracking text; v_expected timestamptz;\nBEGIN\n PERFORM public.sales_require(_org,'shipments.dispatch');\n -- Baixa de estoque e uma operacao de inventario: exige as duas permissoes.\n PERFORM public.s",
-    "is_error": false,
-    "timestamp": 1790523494457
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2520,2531p' supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790523500277
@@ -1398,5 +1384,19 @@
     "content": "ok\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  invalid input syntax for type json\nDETAIL:  Token \"f6b6b993\" is invalid.\nCONTEXT:  JSON data, line 1: f6b6b993...\nPL/pgSQL function sales_convert_quote(uuid,uuid,jsonb,uuid) line 72 at SQL statement\n\n",
     "is_error": false,
     "timestamp": 1790524278598
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\ns=s.replace(\"\"\"    v_terms_id,v_term,v_addr_id,v_bill_id,v_addr,q.company_snapshot,\n    v_snapshot,\"\"\",\"\"\"    v_terms_id,v_term,v_addr_id,v_bill_id,'{}'::jsonb,'{}'::jsonb,\n    '{}'::jsonb,\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -6"
+    },
+    "timestamp": 1790524293873
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  invalid input syntax for type json\nDETAIL:  Token \"af34f25a\" is invalid.\nCONTEXT:  JSON data, line 1: af34f25a...\nPL/pgSQL function sales_convert_quote(uuid,uuid,jsonb,uuid) line 72 at SQL statement\n\n",
+    "is_error": false,
+    "timestamp": 1790524298256
   }
 ]

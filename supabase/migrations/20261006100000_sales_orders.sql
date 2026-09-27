@@ -1367,8 +1367,8 @@ BEGIN
     currency,commercial_notes,internal_notes,created_by)
   VALUES(_org,v_number,q.company_id,v_profile,q.id,q.version,q.opportunity_id,v_rep,v_table,
     'QUOTE_CONVERSION',q.issue_date,nullif(_data->>'expected_delivery_date','')::date,
-    v_terms_id,v_term,v_addr_id,v_bill_id,v_addr,q.company_snapshot,
-    v_snapshot,
+    v_terms_id,v_term,v_addr_id,v_bill_id,'{}'::jsonb,'{}'::jsonb,
+    '{}'::jsonb,
     'BRL',q.notes,nullif(trim(coalesce(_data->>'internal_notes','')),''),auth.uid())
   RETURNING id INTO result;
 
