@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\ns=s.replace(\"\"\"'shipment_items',(SELECT coalesce(jsonb_agg(to_jsonb(si) ORDER BY si.created_at),'[]'::jsonb)\"\"\",\n\"\"\"'shipment_items',(SELECT coalesce(jsonb_agg(to_jsonb(si) ORDER BY si.sku_snapshot),'[]'::jsonb)\"\"\")\ns=s.replace(\"\"\"   WHERE organization_id=_org AND shipment_id=_shipment AND quantity>0 ORDER BY created_at\"\"\",\n\"\"\"   WHERE organization_id=_org AND shipment_id=_shipment AND quantity>0 ORDER BY sku_snapshot\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
-    },
-    "timestamp": 1790523429772
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  record \"old\" has no field \"status\"\nCONTEXT:  PL/pgSQL expression \"TG_TABLE_NAME='sales_orders' AND OLD.status IN ('CANCELED','CLOSED')\"\nPL/pgSQL function sales_immutable() line 18 at IF\nSQL statement \"UPDATE",
-    "is_error": false,
-    "timestamp": 1790523433252
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib,re\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nstart=s.index(\"CREATE FUNCTION public.sales_immutable()\")\nend=s.index(\"$$;\",start)+3\nbody=s[start:end]\nnew=body\n# Trigger function runs on tables with different shapes: field access must go\n# through the jsonb snapshot, never through OLD/NEW field resolution.\nnew=new.replace(\"IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN\",\"IF TG_OP='UPDATE' AND j->>'organization_id'<>to_jsonb(OLD)->>'organization_id' THEN\")\nnew=new.replace(\"OLD.status IN ('CANCELED','CLOSED')\",\"to_jsonb(OLD)->>'status' IN ('CANCELED','CLOSED')\")\nnew=new.replace(\"OLD.status IN ('CONSUMED','RELEASED','CANCELED')\",\"to_jsonb(OLD)->>'status' IN ('CONSUMED','RELEASED','CANCELED')\")\nnew=new.replace(\"OLD.status IN ('SHIPPED','CANCELED')\",\"to_jsonb(OLD)->>'status' IN ('SHIPPED','CANCELED')\")\nnew=new.replace(\"IF v_status='CONFIRMED' THEN\",\"IF v_status='CONFIRMED' THEN\")\nnew=new.replace(\"OLD.status IN ('DELIVERED','CANCELED')\",\"to_jsonb(OLD)->>'status' IN ('DELIVERED','CANCELED')\")\nnew=new.replace(\"OLD.status IN ('COMPLETED','REJECTED','CANCELED')\",\"to_jsonb(OLD)->>'status' IN ('COMPLETED','REJECTED','CANCELED')\")\nnew=new.replace(\"OLD.status IN ('RESOLVED','IGNORED')\",\"to_jsonb(OLD)->>'status' IN ('RESOLVED','IGNORED')\")\nnew=new.replace(\"AND to_jsonb(OLD)->>'sales_quote_id' IS NOT NULL\\n    AND (to_jsonb(OLD)->>'sales_quote_version') IS DISTINCT FROM (to_jsonb(NEW)->>'sales_quote_version') THEN\",\"AND to_jsonb(OLD)->>'sales_quote_id' IS NOT NULL\\n    AND (to_jsonb(OLD)->>'sales_quote_version') IS DISTINCT FROM (j->>'sales_quote_version') THEN\")\nnew=new.replace(\"\"\"   IF v_status='DRAFT' THEN RETURN OLD; END IF;\"\"\",\"\"\"   IF v_status='DRAFT' THEN RETURN OLD; END IF;\"\"\")\ns=s[:start]+new+s[end:]\np.write_text(s); print('OLD.status left:',new.count('OLD.status'),'NEW. left:',new.count('NEW.'))\nPY\ngrep -n \"OLD\\.\\|NEW\\.\" supabase/migrations/20261006100000_sales_orders.sql | sed -n '1,20p'"
     },
     "timestamp": 1790523442573
@@ -1398,5 +1384,19 @@
     "content": "6: payment_terms_snapshot jsonb NOT NULL DEFAULT '{}', company_snapshot jsonb NOT NULL DEFAULT '{}',\n12: accepted_by uuid REFERENCES public.profiles,acceptance_contact_id uuid REFERENCES public.company_contacts,acceptance_evidence text,\n",
     "is_error": false,
     "timestamp": 1790524169995
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk 'NR>=1311 && NR<=1360' supabase/migrations/20261006100000_sales_orders.sql | grep -n \"v_table\\|v_addr\\|v_term\\|v_profile_table\\|SELECT\" "
+    },
+    "timestamp": 1790524172370
+  },
+  {
+    "role": "tool_result",
+    "content": "1: SELECT * INTO q FROM public.sales_quotes WHERE id=_quote AND organization_id=_org FOR UPDATE;\n6: SELECT id,order_number,status INTO v_order_id,v_number,v_status FROM public.sales_orders\n11:  SELECT p.id,p.commercial_status,p.price_table_id,p.payment_terms_id\n12:   INTO v_profile,v_status,v_profil",
+    "is_error": false,
+    "timestamp": 1790524172384
   }
 ]
