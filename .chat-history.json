@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"não está neste atendimento\" supabase/migrations/20261006100000_sales_orders.sql"
-    },
-    "timestamp": 1790523202607
-  },
-  {
-    "role": "tool_result",
-    "content": "2202:    format('A variante %s não está neste atendimento.',v_row.sku),\n2204:  RAISE EXCEPTION 'A variante %s não está neste atendimento.',v_row.sku;\n",
-    "is_error": false,
-    "timestamp": 1790523202619
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2194,2210p' supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790523204749
@@ -1404,5 +1390,19 @@
     "content": "supabase/migrations/20260918100000_inventory_ledger.sql:299:CREATE OR REPLACE FUNCTION public.inventory_get_balance(\nsupabase/migrations/20260918100000_inventory_ledger.sql:450:      v_balance := public.inventory_get_balance(\nsupabase/migrations/20260918100000_inventory_ledger.sql:605:      v_balanc",
     "is_error": false,
     "timestamp": 1790523995081
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '299,330p' supabase/migrations/20260918100000_inventory_ledger.sql && grep -n \"def balance\\|inventory_get_balance\" scripts/test-sales-db.py | head"
+    },
+    "timestamp": 1790523996788
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE OR REPLACE FUNCTION public.inventory_get_balance(\n  _organization_id uuid,\n  _variant_id uuid,\n  _location_id uuid DEFAULT NULL,\n  _batch_id uuid DEFAULT NULL,\n  _user_id uuid DEFAULT auth.uid()\n)\nRETURNS numeric\nLANGUAGE plpgsql\nSTABLE\nSECURITY DEFINER\nSET search_path = public\nAS $$\nBEGIN\n  ",
+    "is_error": false,
+    "timestamp": 1790523996804
   }
 ]
