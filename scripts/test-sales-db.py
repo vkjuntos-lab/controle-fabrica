@@ -138,6 +138,7 @@ def run():
  print('PASS I: leitura por codigo de barras e SKU; item errado e excesso recusados; separar nao baixa estoque')
 
  rpc('sales_fulfillment_action',org,fulfillment['id'],'pick',{},user=picker)
+ print('DEBUG task',sql(f"SELECT status FROM picking_tasks WHERE id={q(fulfillment['picking_task_id'])}"),'ff',sql(f"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}"))
  item_id=sql(f"SELECT id FROM picking_task_items WHERE picking_task_id={q(fulfillment['picking_task_id'])}")
  rpc('sales_pick_confirm',org,fulfillment['picking_task_id'],{'items':[{'picking_task_item_id':item_id,'confirmed_quantity':19}]},user=picker)
  assert sql(f"SELECT count(*) FROM logistics_exceptions WHERE exception_type='PICKING_DIFFERENCE' AND status='OPEN'")=='1'

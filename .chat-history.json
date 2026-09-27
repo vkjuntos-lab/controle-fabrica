@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -rn \"inventory_location_type AS ENUM\" -A12 supabase/migrations/*.sql | head -20 && echo \"=== operational_purpose ===\" && grep -rn \"operational_purpose\" supabase/migrations/20260917110000_catalog_mestre.sql | head -3"
-    },
-    "timestamp": 1790522025079
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20260918100000_inventory_ledger.sql:22:CREATE TYPE public.inventory_location_type AS ENUM (\nsupabase/migrations/20260918100000_inventory_ledger.sql-23-  'FACTORY', 'WAREHOUSE', 'OWN_STORE', 'MARKETPLACE', 'PARTNER', 'TRANSIT', 'OTHER'\nsupabase/migrations/20260918100000_inventory_",
-    "is_error": false,
-    "timestamp": 1790522025126
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -rn \"operational_purpose\" supabase/migrations/*.sql | head -5 && echo \"--- def ---\" && grep -rn \"operational_purpose\" -B2 -A4 supabase/migrations/20260924100000_partners.sql | head -20"
     },
     "timestamp": 1790522027450
@@ -1428,5 +1414,19 @@
     "content": "PASS E: edicao substitui itens e recalcula total; rascunho permanece editavel\nPASS F: aprovacao exige outro usuario, preserva a consulta de credito e gera demanda\nPASS G: DISPONIVEL = SALDO FISICO - RESERVAS; reserva nao cria movimento e e idempotente\nPASS H: reserva de um pedido reduz o disponivel ",
     "is_error": false,
     "timestamp": 1790523257102
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\" item_id=sql(f\"SELECT id FROM picking_task_items WHERE picking_task_id={q(fulfillment['picking_task_id'])}\")\"\"\",\n\"\"\" print('DEBUG task',sql(f\"SELECT status FROM picking_tasks WHERE id={q(fulfillment['picking_task_id'])}\"),'ff',sql(f\"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"))\n item_id=sql(f\"SELECT id FROM picking_task_items WHERE picking_task_id={q(fulfillment['picking_task_id'])}\")\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"DEBUG|Assertion\" | tail -3"
+    },
+    "timestamp": 1790523268452
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nDEBUG task PICKED ff PICKED\nAssertionError: ERROR:  Tarefa não está em conferência.\n",
+    "is_error": false,
+    "timestamp": 1790523271637
   }
 ]
