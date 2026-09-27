@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\nold=\"\"\" action(order['id'],'submit',user=commercial)\n action(order['id'],'submit',user=commercial,fail='rascunho')\n action(order['id'],'approve',user=commercial,fail='Segrega')\n assert sql(f\"SELECT count(*) FROM sales_credit_checks WHERE sales_order_id={q(order['id'])}\")=='0'\n action(order['id'],'approve',user=approver)\"\"\"\nnew=\"\"\" action(order['id'],'submit',user=commercial)\n action(order['id'],'submit',user=commercial,fail='rascunho')\n action(order['id'],'approve',user=commercial,fail='sales_orders.approve')\n action(order['id'],'approve',user=a,fail='Segrega')\n assert sql(f\"SELECT count(*) FROM sales_credit_checks WHERE sales_order_id={q(order['id'])}\")=='0'\n action(order['id'],'approve',user=approver)\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -10"
-    },
-    "timestamp": 1790522714234
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\nPASS D: variante descontinuada bloqueada e permissao aplicada no servidor\nPASS E: edicao substitui itens e recalcula total; rascunho permanece editavel\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 299, in <module>\n    try:run(",
-    "is_error": false,
-    "timestamp": 1790522716999
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\nfor a,b in [(\"\"\"assert sql(f\"SELECT approved_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\")=='20'\"\"\",\"\"\"assert float(sql(f\"SELECT approved_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\"))==20.0\"\"\"),\n            (\"\"\"assert sql(f\"SELECT fulfilled_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\")=='20.000'\"\"\",\"\"\"assert float(sql(f\"SELECT fulfilled_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\"))==20.0\"\"\"),\n            (\"\"\"assert sql(f\"SELECT delivered_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\")=='20.000'\"\"\",\"\"\"assert float(sql(f\"SELECT delivered_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\"))==20.0\"\"\"),\n            (\"\"\"assert sql(f\"SELECT returned_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\")=='5.000'\"\"\",\"\"\"assert float(sql(f\"SELECT returned_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\"))==5.0\"\"\")]:\n    s=s.replace(a,b)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -10"
     },
     "timestamp": 1790522721240
@@ -1414,5 +1400,19 @@
     "content": "  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 28, in call\n    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                                                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  F",
     "is_error": false,
     "timestamp": 1790523639646
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -A6 \"invalid input syntax\" | head -10"
+    },
+    "timestamp": 1790523642065
+  },
+  {
+    "role": "tool_result",
+    "content": "AssertionError: ERROR:  invalid input syntax for type json\nLINE 1: v_proof:=coalesce(_data->'proof','_data'::jsonb)\n                                         ^\nDETAIL:  Token \"_data\" is invalid.\nQUERY:  v_proof:=coalesce(_data->'proof','_data'::jsonb)\nCONTEXT:  JSON data, line 1: _data\nPL/pgSQL funct",
+    "is_error": false,
+    "timestamp": 1790523645608
   }
 ]
