@@ -30,20 +30,21 @@ def run():
  def query(kind,filters={},**kw):return rpc('sales_query',org,kind,filters,**kw)
  def detail(order,**kw):return rpc('sales_order_detail',org,order,**kw)
  def raw(name,args,user,fail=None):return db.call(name,args,user,fail)
+ def arg(x):return q(json.dumps(x)) if isinstance(x,(dict,list)) else q(x)
  def nw(variant,loc):return raw('inventory_post_movement',','.join(map(q,[org,variant,loc,'OPENING_BALANCE',100]))+",_reason=>'Saldo inicial'",a)
  def balance(variant,loc):return float(sql(f"SELECT inventory_get_balance({q(org)},{q(variant)},{q(loc)})",a))
 
  # ---------------------------------------------------------------- cenario
- company=raw('partner_save_company',q(org)+','+json.dumps({'code':'ACLIENTE','legal_name':'Cliente Alfa','roles':['CUSTOMER']}),a)
+ company=raw('partner_save_company',q(org)+','+arg({'code':'ACLIENTE','legal_name':'Cliente Alfa','roles':['CUSTOMER']}),a)
  crm('customer',{'company_id':company})
  warehouse=sql(f"SELECT id FROM inventory_locations WHERE organization_id={q(org)} AND name='Fábrica'",a) or sql(f"""INSERT INTO inventory_locations(id,organization_id,code,name,type) VALUES({q(uid())},{q(org)},'PRINCIPAL','Fábrica','FACTORY') RETURNING id""",a)
  quarantine=sql(f"INSERT INTO inventory_locations(id,organization_id,code,name,type,operational_purpose) VALUES({q(uid())},{q(org)},'QUAR','Quarentena','OTHER','QUARANTINE') RETURNING id",a)
- table=json.loads(raw('price_save_table',q(org)+','+json.dumps({'code':'VAREJO','name':'Varejo','valid_from':'2020-01-01'}),a))['id']
+ table=json.loads(raw('price_save_table',q(org)+','+arg({'code':'VAREJO','name':'Varejo','valid_from':'2020-01-01'}),a))['id']
  variants={}
  for code,price,bc in [('SAP-001',25.00,'7891000100017'),('SAP-002',10.50,'7891000100024'),('SAP-003',7.25,None)]:
   p,v=uid(),uid()
   sql(f"INSERT INTO products(id,organization_id,code,name,status) VALUES({q(p)},{q(org)},'P-{code}','Produto {code}','ACTIVE');INSERT INTO product_variants(id,organization_id,product_id,sku,status,barcode) VALUES({q(v)},{q(org)},{q(p)},{q(code)},'ACTIVE',{q(bc) if bc else 'NULL'})")
-  raw('pricing_publish',q(org)+','+json.dumps({'price_table_id':table,'variant_id':v,'unit_price':price,'valid_from':'2020-01-01'}),a)
+  raw('pricing_publish',q(org)+','+arg({'price_table_id':table,'variant_id':v,'unit_price':price,'valid_from':'2020-01-01'}),a)
   variants[code]={'v':v,'price':price,'barcode':bc}
  nw(variants['SAP-001']['v'],warehouse);nw(variants['SAP-002']['v'],warehouse)
  assert balance(variants['SAP-001']['v'],warehouse)==100.0
