@@ -1,96 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "todowrite",
-    "input": {
-      "todos": [
-        {
-          "content": "Auditoria inicial: schema CRM/Financeiro/Estoque/Produção/Planejamento/Parceiros/Compras + frontend",
-          "status": "completed",
-          "priority": "high"
-        },
-        {
-          "content": "Migration SQL: tabelas de vendas, reservas, fulfillment, picking, packing, shipments, returns, exceções",
-          "status": "in_progress",
-          "priority": "high"
-        },
-        {
-          "content": "Migration SQL: helpers, settings, numeração, disponibilidade, consulta de crédito",
-          "status": "pending",
-          "priority": "high"
-        },
-        {
-          "content": "Migration SQL: RPCs de pedido (save, conversão de proposta, state machine, query)",
-          "status": "pending",
-          "priority": "high"
-        },
-        {
-          "content": "Migration SQL: RPCs de reserva, fulfillment, picking, packing, expedição (idempotente)",
-          "status": "pending",
-          "priority": "high"
-        },
-        {
-          "content": "Migration SQL: RPCs de devolução de cliente, exceções, transportadoras, dashboard/relatórios",
-          "status": "pending",
-          "priority": "high"
-        },
-        {
-          "content": "Migration SQL: eventos de domínio, permissões, RLS, grants",
-          "status": "pending",
-          "priority": "high"
-        },
-        {
-          "content": "Frontend: lib/sales (constants, types, functions, lógica pura testável)",
-          "status": "pending",
-          "priority": "high"
-        },
-        {
-          "content": "Frontend: rbac.ts, menu AppShell, tipos Supabase",
-          "status": "pending",
-          "priority": "high"
-        },
-        {
-          "content": "Frontend: componentes sales (pedidos, painel de expedição, reservas, devoluções, exceções)",
-          "status": "pending",
-          "priority": "high"
-        },
-        {
-          "content": "Frontend: rotas + Customer 360 ampliado",
-          "status": "pending",
-          "priority": "high"
-        },
-        {
-          "content": "Harness PostgreSQL: scripts/test-sales-db.py + npm run test:sales:db",
-          "status": "pending",
-          "priority": "high"
-        },
-        {
-          "content": "Testes unitários (disponibilidade, conferência, state machines)",
-          "status": "pending",
-          "priority": "high"
-        },
-        {
-          "content": "Verificação: vitest, typecheck, build, lint do domínio",
-          "status": "pending",
-          "priority": "high"
-        },
-        {
-          "content": "Documentação: 6 docs business + ADR + validação + PROJECT-STATE",
-          "status": "pending",
-          "priority": "high"
-        }
-      ]
-    },
-    "timestamp": 1790520331298
-  },
-  {
-    "role": "tool_result",
-    "content": "[\n  {\n    \"content\": \"Auditoria inicial: schema CRM/Financeiro/Estoque/Produção/Planejamento/Parceiros/Compras + frontend\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Migration SQL: tabelas de vendas, reservas, fulfillment, picking, packing, shipments, returns, exceçõ",
-    "is_error": false,
-    "timestamp": 1790520331300
-  },
-  {
-    "role": "tool",
     "tool": "write",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
@@ -1557,5 +1467,19 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790521905798
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\n# a ordem de declaracao da data tem current_date no meio: nunca chega a 3o argumento\ns=s.replace(\"coalesce(nullif(_data->>'order_date','')::date,current_date,CASE WHEN _quote IS NOT NULL THEN v_quote.issue_date END),\",\n            \"coalesce(nullif(_data->>'order_date','')::date,NULLIF(CASE WHEN _quote IS NOT NULL THEN v_quote.issue_date END,current_date)),\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/_probe-sales.py\" 2>&1 | tail -12"
+    },
+    "timestamp": 1790521909427
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nMIGRATION OK\nOK   orders {\"kind\": \"orders\", \"rows\": [], \"limit\": 50, \"total\": 0, \"off\nOK   exceptions {\"kind\": \"exceptions\", \"rows\": [], \"limit\": 50, \"total\": 0, \nOK   shipments {\"kind\": \"shipments\", \"rows\": [], \"limit\": 50, \"total\": 0, \"\nOK   returns {\"kind\": \"returns\", \"rows\": [], \"limit\": 50, ",
+    "is_error": false,
+    "timestamp": 1790521911523
   }
 ]
