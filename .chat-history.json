@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport re,pathlib\ns=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql').read_text()\nfor m in re.finditer(r'CREATE TABLE (public\\.\\w+)',s):\n    name=m.group(1); i=m.end(); d=1\n    while d>0:\n        if s[i]=='(':d+=1\n        elif s[i]==')':d-=1\n        i+=1\n    body=s[m.end():i]\n    cols=[l.strip().split()[0] for l in body.split('\\n') if l.strip() and not l.strip().startswith(('UNIQUE','CHECK','FOREIGN'))]\n    print('###',name)\n    print('  ',', '.join(cols))\nPY"
-    },
-    "timestamp": 1790521086141
-  },
-  {
-    "role": "tool_result",
-    "content": "Traceback (most recent call last):\n  File \"<stdin>\", line 6, in <module>\nIndexError: string index out of range\n",
-    "is_error": false,
-    "timestamp": 1790521086204
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport re,pathlib\ns=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql').read_text()\nfor m in re.finditer(r'CREATE TABLE (public\\.\\w+)',s):\n    name=m.group(1); i=m.end(); d=1\n    while d>0 and i<len(s):\n        if s[i]=='(':d+=1\n        elif s[i]==')':d-=1\n        i+=1\n    body=s[m.end():i-1]\n    cols=[l.strip().split()[0] for l in body.split('\\n') if l.strip() and not l.strip().startswith(('UNIQUE','CHECK','FOREIGN'))]\n    print('###',name)\n    print('  ',', '.join(cols))\nprint('--- fim arquivo, tem COMMIT:', s.rstrip().endswith('COMMIT;'))\nprint('--- tamanho', len(s))\nPY"
     },
     "timestamp": 1790521089560
@@ -1508,5 +1494,19 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790522521752
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
+    },
+    "timestamp": 1790522523614
+  },
+  {
+    "role": "tool_result",
+    "content": "    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                                                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n    ",
+    "is_error": false,
+    "timestamp": 1790522525959
   }
 ]
