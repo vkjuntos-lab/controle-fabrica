@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "import { useMutation, useQuery } from \"@tanstack/react-query\";\nimport { createFileRoute, Link } from \"@tanstack/react-router\";\nimport { useServerFn } from \"@tanstack/react-start\";\nimport { ArrowLeft, Package, Plus, ScanBarcode, Tag } from \"lucide-react\";\nimport { useEffect, useState, type FormEvent ",
-    "is_error": false,
-    "timestamp": 1790413320832
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -n \"tanstack\\|routes\" vite.config.ts 2>/dev/null | head; ls src/routeTree.gen.ts 2>/dev/null && grep -c \"\" src/routeTree.gen.ts; grep -n \"routeTree\" src/main.tsx src/routes/__root.tsx 2>/dev/null | head"
-    },
-    "timestamp": 1790413326794
-  },
-  {
-    "role": "tool_result",
     "content": "1:// @lovable.dev/vite-tanstack-config already includes the following — do NOT add them manually\n3://   - tanstackStart, viteReact, tailwindcss, tsConfigPaths, nitro (build-only using cloudflare as a default target),\n6:import { defineConfig } from \"@lovable.dev/vite-tanstack-config\";\n10:  tanstackSt",
     "is_error": false,
     "timestamp": 1790413326836
@@ -1587,5 +1573,20 @@
     "content": "__pycache__\ntest-costs-db.py\ntest-crm-db.py\ntest-finance-db.py\ntest-inventory-db.py\ntest-partner-store-integration-db.py\ntest-partners-db.py\ntest-planning-db.py\ntest-purchasing-db.py\ntest-reconciliation-db.py\n=== HEAD of test-crm ===\n#!/usr/bin/env python3\n\"\"\"CRM integration tests in disposable Post",
     "is_error": false,
     "timestamp": 1790520259953
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 npm run test:crm:db\" 2>&1 | tail -30",
+      "timeout": 960000
+    },
+    "timestamp": 1790520263379
+  },
+  {
+    "role": "tool_result",
+    "content": "\n> test:crm:db\n> python3 scripts/test-crm-db.py\n\nPASS A: supplier gains customer role without duplicate Company\nPASS B: concurrent lead conversion idempotent; contact and history retained\nPASS C: portfolio changes preserve prior assignments and opportunity owner\nPASS D: item quantities sum to 60; st",
+    "is_error": false,
+    "timestamp": 1790520266554
   }
 ]
