@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -14"
-    },
-    "timestamp": 1790522559704
-  },
-  {
-    "role": "tool_result",
-    "content": "           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  COALESCE types text and jsonb cannot be matched\nLINE 5: ...i->>'unit_snapshot',coalesce(i->>'price_snapshot','{}'::json...\n                                                             ^\nQUERY:  INSERT INTO public.sales_order_items(organization_id,s",
-    "is_error": false,
-    "timestamp": 1790522562146
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"price_snapshot'\" supabase/migrations/20261006100000_sales_orders.sql | grep \"coalesce(i->>\""
     },
     "timestamp": 1790522565203
@@ -1420,5 +1406,19 @@
     "content": "Traceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 302, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 166, in run\n    assert dispatched['quantity']==20 and bala",
     "is_error": false,
     "timestamp": 1790523449443
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"PARTIALLY_FULFILLED\\|FULFILLED'\" supabase/migrations/20261006100000_sales_orders.sql | sed -n '1,30p'"
+    },
+    "timestamp": 1790523460425
+  },
+  {
+    "role": "tool_result",
+    "content": "169:                    'PARTIALLY_FULFILLED','FULFILLED','CLOSED','CANCELED')),\n232:   CHECK(status IN ('OPEN','PARTIALLY_FULFILLED','FULFILLED','CANCELED')),\n1604:   WHERE organization_id=_org AND sales_order_id=_order AND status<>'FULFILLED';\n1615:  IF o.status NOT IN ('FULFILLED','PARTIALLY_FULF",
+    "is_error": false,
+    "timestamp": 1790523460460
   }
 ]
