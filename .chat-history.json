@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && ls supabase/migrations/ | tail -3 && echo \"=== harness ===\" && head -50 scripts/test-crm-db.py"
-    },
-    "timestamp": 1790521706483
-  },
-  {
-    "role": "tool_result",
-    "content": "20261004100000_planning_fixes.sql\n20261005100000_crm.sql\n20261006100000_sales_orders.sql\n=== harness ===\n#!/usr/bin/env python3\n\"\"\"CRM integration tests in disposable PostgreSQL. Never uses a published database.\"\"\"\nimport importlib.util,json,datetime\nfrom pathlib import Path\nfrom concurrent.futures ",
-    "is_error": false,
-    "timestamp": 1790521706565
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && head -70 scripts/test-inventory-db.py"
     },
     "timestamp": 1790521709152
@@ -1509,5 +1495,19 @@
     "content": "  IF _id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM public.company_contacts WHERE id=v AND company_id=_company AND organization_id=_org) THEN RAISE EXCEPTION 'Contato não encontrado.'; END IF;\n  IF coalesce((_data->>'is_primary')::boolean,false) THEN UPDATE public.company_contacts SET is_primary=false",
     "is_error": false,
     "timestamp": 1790522683166
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib,re\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\nold=\"\"\" crm('customer',{'company_id':company})\"\"\"\nnew=\"\"\" crm('customer',{'company_id':company})\n address=raw('partner_save_address',q(org)+','+q(company)+\",\"+arg({'type':'SHIPPING','postal_code':'01310-100','street':'Av. Paulista','number':'1000','district':'Bela Vista','city':'Sao Paulo','state':'SP','is_primary':True}),a)\"\"\"\nassert old in s; s=s.replace(old,new,1)\n# every order creation gets the shipping address\ns=s.replace(\"\"\" order=save({'company_id':company,'price_table_id':table,'items':[\"\"\",\"\"\" order=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[\"\"\")\ns=s.replace(\"\"\"below=save({'company_id':company,'price_table_id':table,'items':\"\"\",\"\"\"below=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':\"\"\")\ns=s.replace(\"\"\"save({'company_id':company,'price_table_id':table,'items':[{'variant_id':variants['SAP-003']['v'],'quantity':1}]},user=commercial,fail='descontinuada')\"\"\",\"\"\"save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[{'variant_id':variants['SAP-003']['v'],'quantity':1}]},user=commercial,fail='descontinuada')\"\"\")\ns=s.replace(\"\"\"save({'company_id':company,'price_table_id':table,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':1}]},user=picker,fail='Sem permiss')\"\"\",\"\"\"save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':1}]},user=picker,fail='Sem permiss')\"\"\")\ns=s.replace(\"\"\"save({'company_id':company,'price_table_id':table,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':1}]},user=outsider,fail='Sem permiss')\"\"\",\"\"\"save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':1}]},user=outsider,fail='Sem permiss')\"\"\")\ns=s.replace(\"\"\"order2=save({'company_id':company,'price_table_id':table,'items':\"\"\",\"\"\"order2=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':\"\"\")\ns=s.replace(\"\"\"second=save({'company_id':company,'price_table_id':table,'items':\"\"\",\"\"\"second=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':\"\"\")\ns=s.replace(\"\"\"order3=save({'company_id':company,'price_table_id':table,'items':\"\"\",\"\"\"order3=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':\"\"\")\ns=s.replace(\"\"\"order4=save({'company_id':company,'price_table_id':table,'items':\"\"\",\"\"\"order4=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':\"\"\")\np.write_text(s); print(s.count('shipping_address_id'))\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
+    },
+    "timestamp": 1790522689570
+  },
+  {
+    "role": "tool_result",
+    "content": "9\n                                             ~~~~~~~^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 28, in call\n    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                           ",
+    "is_error": false,
+    "timestamp": 1790522691737
   }
 ]

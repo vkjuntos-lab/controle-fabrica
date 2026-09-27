@@ -37,6 +37,7 @@ def run():
  # ---------------------------------------------------------------- cenario
  company=raw('partner_save_company',q(org)+','+arg({'code':'ACLIENTE','legal_name':'Cliente Alfa','roles':['CUSTOMER']}),a)
  crm('customer',{'company_id':company})
+ address=raw('partner_save_address',q(org)+','+q(company)+","+arg({'type':'SHIPPING','postal_code':'01310-100','street':'Av. Paulista','number':'1000','district':'Bela Vista','city':'Sao Paulo','state':'SP','is_primary':True}),a)
  warehouse=sql(f"SELECT id FROM inventory_locations WHERE organization_id={q(org)} AND name='Fábrica'",a) or sql(f"""INSERT INTO inventory_locations(id,organization_id,code,name,type) VALUES({q(uid())},{q(org)},'PRINCIPAL','Fábrica','FACTORY') RETURNING id""",a)
  quarantine=sql(f"INSERT INTO inventory_locations(id,organization_id,code,name,type,operational_purpose) VALUES({q(uid())},{q(org)},'QUAR','Quarentena','OTHER','QUARANTINE') RETURNING id",a)
  table=json.loads(raw('price_save_table',q(org)+','+arg({'code':'VAREJO','name':'Varejo','valid_from':'2020-01-01'}),a))['id']
@@ -51,7 +52,7 @@ def run():
  print('PASS A: cenario montado; saldo fisico oficial em 100')
 
  # ------------------------------------------------- criacao e preco oficial
- order=save({'company_id':company,'price_table_id':table,'items':[
+ order=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[
    {'variant_id':variants['SAP-001']['v'],'quantity':10},
    {'variant_id':variants['SAP-002']['v'],'quantity':4,'discount_amount':2.00}]})
  assert order['status']=='DRAFT' and float(order['total_amount'])==290.0, order
@@ -61,18 +62,18 @@ def run():
  print('PASS B: pedido nasce com preco oficial da tabela e subtotal correto; nenhum movimento')
 
  # Preco abaixo do minimo e preco Forcado: o servidor decide, nunca o front.
- below=save({'company_id':company,'price_table_id':table,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':1,'unit_price':1.00}]})
+ below=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':1,'unit_price':1.00}]})
  assert float(sql(f"SELECT unit_price FROM sales_order_items WHERE sales_order_id={q(below['id'])}"))==25.0
  sql(f"DELETE FROM sales_orders WHERE id={q(below['id'])}",a,fail='permission denied')
  print('PASS C: preco enviado pelo cliente e ignorado; a tabela oficial prevalece')
 
  # Variante descontinuada nao entra em pedido novo.
  sql(f"UPDATE product_variants SET status='DISCONTINUED' WHERE id={q(variants['SAP-003']['v'])}")
- save({'company_id':company,'price_table_id':table,'items':[{'variant_id':variants['SAP-003']['v'],'quantity':1}]},user=commercial,fail='descontinuada')
+ save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[{'variant_id':variants['SAP-003']['v'],'quantity':1}]},user=commercial,fail='descontinuada')
  sql(f"UPDATE product_variants SET status='ACTIVE' WHERE id={q(variants['SAP-003']['v'])}")
  # A力和 comercial: quem tem o cargo, e nao a tela, decide.
- save({'company_id':company,'price_table_id':table,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':1}]},user=picker,fail='Sem permiss')
- save({'company_id':company,'price_table_id':table,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':1}]},user=outsider,fail='Sem permiss')
+ save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':1}]},user=picker,fail='Sem permiss')
+ save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':1}]},user=outsider,fail='Sem permiss')
  print('PASS D: variante descontinuada bloqueada e permissao aplicada no servidor')
 
  # Edicao so em rascunho; depois da aprovacao o preco fica congelado.
@@ -114,7 +115,7 @@ def run():
  # Local de quarentena nunca atende venda direta.
  rpc('sales_reserve',org,order['id'],{'items':[{'sales_order_item_id':sql(f"SELECT id FROM sales_order_items WHERE sales_order_id={q(order['id'])}"),'quantity':1,'inventory_location_id':quarantine}]},user=picker,fail='nao autorizada')
  # Um segundo pedido do mesmo cliente ve o disponibilidade reduzido.
- order2=save({'company_id':company,'price_table_id':table,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':50}]})
+ order2=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':50}]})
  a2=rpc('sales_availability',org,order2['id'],None,user=a)
  assert a2['items'][0]['available']==80.0 and a2['sufficient'] is False, a2
  assert a2['items'][0]['make_to_order_suggested'] is True
@@ -168,7 +169,7 @@ def run():
  print('PASS L: expedicao baixa o ledger uma unica vez; reenvio nao duplica a baixa')
 
  # Expedicao exige as duas permissoes: quem nao move estoque nao despacha.
- second=save({'company_id':company,'price_table_id':table,'items':[{'variant_id':variants['SAP-002']['v'],'quantity':5}]})
+ second=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[{'variant_id':variants['SAP-002']['v'],'quantity':5}]})
  action(second['id'],'submit',user=commercial);action(second['id'],'approve',user=approver)
  rpc('sales_reserve',org,second['id'],{},user=picker)
  f2=rpc('sales_fulfillment_create',org,second['id'],{'items':[{'sales_order_item_id':sql(f"SELECT id FROM sales_order_items WHERE sales_order_id={q(second['id'])}"),'quantity':5}]},user=picker)
@@ -244,7 +245,7 @@ def run():
  print('PASS R: proposta aceita -> conversao idempotente por chave e por vinculo; preco aceito preservado')
 
  # ----------------------------------------------- cancelamento e reserva
- order3=save({'company_id':company,'price_table_id':table,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':5}]})
+ order3=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':5}]})
  action(order3['id'],'submit',user=commercial);action(order3['id'],'approve',user=approver)
  rpc('sales_reserve',org,order3['id'],{},user=picker)
  assert float(sql(f"SELECT reserved_quantity FROM sales_order_items WHERE sales_order_id={q(order3['id'])}"))==5.0
@@ -257,7 +258,7 @@ def run():
  print('PASS S: cancelar libera a reserva e devolve o disponivel sem tocar no saldo fisico')
 
  # Expiracao automatica de reserva vencida.
- order4=save({'company_id':company,'price_table_id':table,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':3}]})
+ order4=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':3}]})
  action(order4['id'],'submit',user=commercial);action(order4['id'],'approve',user=approver)
  rpc('sales_reserve',org,order4['id'],{'expires_hours':1},user=picker)
  assert sql(f"SELECT count(*) FROM inventory_reservations WHERE sales_order_id={q(order4['id'])} AND status='ACTIVE'")=='1'
