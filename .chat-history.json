@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"   INSERT INTO public.shipment_items(organization_id,shipment_id,sales_order_item_id,variant_id,sku_snapshot,\n     quantity,batch_id,reservation_id)\n   SELECT _org,ident,i.id,i.product_variant_id,i.sku_snapshot,\n     coalesce(nullif(v_item->>'quantity','')::numeric,0),nullif(v_item->>'batch_id','')::uuid,\"\"\"\nnew=\"\"\"   INSERT INTO public.shipment_items(organization_id,shipment_id,sales_order_item_id,variant_id,sku_snapshot,\n     description_snapshot,quantity,batch_id,reservation_id)\n   SELECT _org,ident,i.id,i.product_variant_id,i.sku_snapshot,i.description_snapshot,\n     coalesce(nullif(v_item->>'quantity','')::numeric,0),nullif(v_item->>'batch_id','')::uuid,\"\"\"\nassert old in s; s=s.replace(old,new)\nold2=\"\"\"  INSERT INTO public.shipment_items(organization_id,shipment_id,sales_order_item_id,variant_id,sku_snapshot,\n     quantity,batch_id,reservation_id)\n  SELECT _org,ident,pti.sales_order_item_id,pti.variant_id,pti.sku_snapshot,\n     pti.confirmed_quantity,pti.batch_id,\"\"\"\nnew2=\"\"\"  INSERT INTO public.shipment_items(organization_id,shipment_id,sales_order_item_id,variant_id,sku_snapshot,\n     description_snapshot,quantity,batch_id,reservation_id)\n  SELECT _org,ident,pti.sales_order_item_id,pti.variant_id,pti.sku_snapshot,pti.description_snapshot,\n     pti.confirmed_quantity,pti.batch_id,\"\"\"\nassert old2 in s; s=s.replace(old2,new2)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
-    },
-    "timestamp": 1790523421822
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  column \"created_at\" does not exist\nLINE 2: ...AND shipment_id=_shipment AND quantity>0 ORDER BY created_at\n                                                             ^\nQUERY:  SELECT * FROM public.shipment_items\n   WHERE organization_id=_org A",
-    "is_error": false,
-    "timestamp": 1790523425218
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"shipment_items\" supabase/migrations/20261006100000_sales_orders.sql | grep -nE \"created_at|updated_at\" | head"
     },
     "timestamp": 1790523427172
@@ -1398,5 +1384,19 @@
     "content": "    'tax_amount',0,'line_total',it.total,'price_snapshot',it.price_snapshot,\n    'expected_delivery_date',null);\n  END LOOP;\n  IF jsonb_array_length(items)<1 THEN RAISE EXCEPTION 'Proposta aceita não possui itens.'; END IF;\n  v_subtotal:=round(coalesce(q.subtotal,v_subtotal),2);\n  v_discount:=round(",
     "is_error": false,
     "timestamp": 1790524155516
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -A5 \"invalid input syntax\" | head -8"
+    },
+    "timestamp": 1790524157358
+  },
+  {
+    "role": "tool_result",
+    "content": "AssertionError: ERROR:  invalid input syntax for type json\nDETAIL:  Token \"42466ecf\" is invalid.\nCONTEXT:  JSON data, line 1: 42466ecf...\nPL/pgSQL function sales_convert_quote(uuid,uuid,jsonb,uuid) line 67 at SQL statement\n\n",
+    "is_error": false,
+    "timestamp": 1790524161613
   }
 ]
