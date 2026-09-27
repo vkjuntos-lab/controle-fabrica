@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '1205,1212p' supabase/migrations/20261006100000_sales_orders.sql | cat -A | sed 's/\\$$//' | head -10"
-    },
-    "timestamp": 1790521861488
-  },
-  {
-    "role": "tool_result",
-    "content": "\n -- Conversao repetida devolve o MESMO pedido. Nunca um segundo.\n SELECT id,order_number,status INTO v_out FROM public.sales_orders\n  WHERE organization_id=_org AND sales_quote_id=_quote;\n IF v_out.id IS NOT NULL THEN\n  result:=jsonb_build_object('id',v_out.id,'order_number',v_out.order_number,'sta",
-    "is_error": false,
-    "timestamp": 1790521861502
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
@@ -1495,5 +1481,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790523139512
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
+      "newString": "  FROM jsonb_array_elements(_data->'items') req\n  JOIN public.sales_order_items it ON it.id=nullif(req->>'sales_order_item_id','')::uuid\n  WHERE it.organization_id=_org AND it.sales_order_id=_order;",
+      "oldString": "  FROM jsonb_array_elements(_data->'items') v_item\n  JOIN public.sales_order_items it ON it.id=nullif(v_item->>'sales_order_item_id','')::uuid\n  WHERE it.organization_id=_org AND it.sales_order_id=_order;"
+    },
+    "timestamp": 1790523142381
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790523142411
   }
 ]

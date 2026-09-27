@@ -2073,9 +2073,9 @@ BEGIN
      FROM public.inventory_reservations r WHERE r.sales_order_item_id=it.id
        AND r.status IN ('ACTIVE','PARTIALLY_CONSUMED') AND r.inventory_location_id=v_loc),
    v_loc,now(),now()
- FROM jsonb_array_elements(_data->'items') v_item
- JOIN public.sales_order_items it ON it.id=nullif(v_item->>'sales_order_item_id','')::uuid
- WHERE it.organization_id=_org AND it.sales_order_id=_order;
+  FROM jsonb_array_elements(_data->'items') req
+  JOIN public.sales_order_items it ON it.id=nullif(req->>'sales_order_item_id','')::uuid
+  WHERE it.organization_id=_org AND it.sales_order_id=_order;
 
  -- Confere as quatro quantidades: solicitada x reservada x separada x conferida.
  FOR v_item IN SELECT * FROM jsonb_array_elements(
