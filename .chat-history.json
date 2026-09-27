@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
-      "newString": "  'totals',jsonb_build_object(\n      'orders',(SELECT count(*) FROM public.sales_orders so\n        WHERE so.organization_id=_org AND so.company_id=_company AND so.status NOT IN ('CANCELED')),\n      'amount',(SELECT coalesce(sum(so.total_amount),0) FROM public.sales_orders so\n        WHERE so.organization_id=_org AND so.company_id=_company AND so.status NOT IN ('CANCELED')),\n      'delivered_amount',(SELECT coalesce(sum(si.delivered_quantity),0)\n        FROM public.shipment_items si JOIN public.shipments sh ON sh.id=si.shipment_id\n        JOIN public.sales_orders so ON so.id=sh.sales_order_id\n        WHERE si.organization_id=_org AND so.company_id=_company\n          AND sh.status IN ('DELIVERED','PARTIALLY_DELIVERED'))),",
-      "oldString": "  'totals',(SELECT jsonb_build_object(\n      'orders',count(*),\n      'amount',coalesce(sum(total_amount),0),\n      'delivered_amount',coalesce(sum((SELECT coalesce(sum(si.delivered_quantity),0)\n        FROM public.shipment_items si JOIN public.shipments s ON s.id=si.shipment_id\n        WHERE s.sales_order_id=so.id)),0)\n    FROM public.sales_orders so\n    WHERE so.organization_id=_org AND so.company_id=_company AND so.status NOT IN ('CANCELED'))),"
-    },
-    "timestamp": 1790521805606
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790521805642
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/_probe-sales.py\" 2>&1 | tail -20"
@@ -1501,5 +1485,19 @@
     "content": "--\n-- DISPONIVEL = SALDO FISICO - RESERVAS ATIVAS.\n-- A reserva afeta o disponivel e NUNCA o saldo fisico: nenhuma linha de\n-- inventory_movements e criada aqui.\n-- =====================================================================\n\n-- Consulta de disponibilidade por item do pedido, por localizac",
     "is_error": false,
     "timestamp": 1790522770708
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"coalesce(i*t\\?\\.\\?approved_quantity\" supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790522773977
+  },
+  {
+    "role": "tool_result",
+    "content": "1782:  v_need:=coalesce(it.approved_quantity,it.ordered_quantity);\n1865:  v_need:=coalesce(it.approved_quantity,it.ordered_quantity);\n1933: SELECT coalesce(sum(greatest(0,coalesce(i.approved_quantity,i.ordered_quantity)\n1941: SELECT coalesce(sum(coalesce(i.approved_quantity,i.ordered_quantity)),0) I",
+    "is_error": false,
+    "timestamp": 1790522773996
   }
 ]
