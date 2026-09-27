@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "export const COMMERCIAL_STATUS: Record<string, string> = {\n  ACTIVE: \"Ativo\",\n  INACTIVE: \"Inativo\",\n  BLOCKED: \"Bloqueado\",\n};\n\nexport const REPRESENTATIVE_TYPE: Record<string, string> = {\n  INTERNAL: \"Funcionário interno\",\n  EXTERNAL: \"Representante externo\",\n  COMPANY: \"Empresa de representação\",",
-    "is_error": false,
-    "timestamp": 1790413515245
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && npx vitest run src/lib/crm/crm.test.ts 2>&1 | tail -30",
-      "timeout": 300000
-    },
-    "timestamp": 1790413517320
-  },
-  {
-    "role": "tool_result",
     "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabrica\n\nstderr | src/lib/crm/crm.test.ts\n⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/su",
     "is_error": false,
     "timestamp": 1790413519880
@@ -1679,5 +1664,21 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790520859687
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/tmp/opencode/sales_part4.sql",
+      "newString": " v_credit:=public.sales_credit_check(_org,o.company_id,o.total_amount,o.id);\n IF (v_credit->>'blocked')::boolean THEN\n  issues:=issues||jsonb_build_object('code','CREDIT_BLOCKED','blocking',true,\n    'message','Crédito insuficiente: '||array_to_string(v_credit->'blocked_reasons','; '),\n    'credit',v_credit);\n END IF;",
+      "oldString": " v_credit:=public.sales_credit_check(_org,o.company_id,o.total_amount,o.id);\n IF (v_credit->>'blocked')::boolean THEN\n  FOREACH v_pct IN ARRAY ARRAY[]::text[] LOOP NULL; END LOOP;\n  issues:=issues||jsonb_build_object('code','CREDIT_BLOCKED','blocking',true,\n    'message','Crédito insuficiente: '||array_to_string(v_credit->'blocked_reasons','; '),\n    'credit',v_credit);\n END IF;"
+    },
+    "timestamp": 1790520866754
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790520866772
   }
 ]
