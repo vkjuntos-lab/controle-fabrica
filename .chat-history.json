@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -rn \"não está em conferência\" supabase/migrations/*.sql"
-    },
-    "timestamp": 1790523307133
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20261006100000_sales_orders.sql:2242: IF t.status NOT IN ('IN_PROGRESS','PICKED','PENDING') THEN RAISE EXCEPTION 'Tarefa não está em conferência.'; END IF;\n",
-    "is_error": false,
-    "timestamp": 1790523307184
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2232,2245p' supabase/migrations/20261006100000_sales_orders.sql | cat -A | grep -n \"IN_PROGRESS\" | head -3"
     },
     "timestamp": 1790523309795
@@ -1404,5 +1390,19 @@
     "content": "     UPDATE sales_quotes SET status='PENDING_APPROVAL',updated_at=now() WHERE id=_id;\n    WHEN 'approve' THEN\n     IF quote.status<>'PENDING_APPROVAL' THEN RAISE EXCEPTION 'Aprovação exige proposta pendente.'; END IF;\n     SELECT max_discount_percent INTO authority FROM commercial_discount_authoriti",
     "is_error": false,
     "timestamp": 1790524055218
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep \"test-sales-db.py\\\", line\" | tail -2"
+    },
+    "timestamp": 1790524059321
+  },
+  {
+    "role": "tool_result",
+    "content": "  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 24, in rpc\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 22, in call\n",
+    "is_error": false,
+    "timestamp": 1790524063463
   }
 ]
