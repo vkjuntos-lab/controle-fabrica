@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\" print('DEBUG ff after ready',sql(f\"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"))\"\"\",\n\"\"\" print('DEBUG ids ff=',fulfillment['id'],'order=',order['id'],'status',sql(f\"SELECT status||'|'||sales_order_id||'|'||organization_id FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"))\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"DEBUG ids|Assertion\" | tail -3"
-    },
-    "timestamp": 1790523548879
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\nDEBUG ids ff= 52fce422-0159-4523-b69a-5d1efec52e28 order= cc99cc58-04e2-4c76-9c47-000cab3e09a5 status READY_FOR_SHIPMENT|cc99cc58-04e2-4c76-9c47-000cab3e09a5|f9d44454-7d8a-479a-8bee-9e33236c44a9\nAssertionError: ERROR:  Atendimento b51a1895-2044-45e4-adb2-e19e192170a9 não está liberado para expedi",
-    "is_error": false,
-    "timestamp": 1790523552462
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '160,180p' scripts/test-sales-db.py"
     },
     "timestamp": 1790523560743
@@ -1398,5 +1384,19 @@
     "content": "    return fn(*args, **kwargs)\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 258, in <lambda>\n    converted=list(pool.map(lambda _:rpc('sales_convert_quote',org,quote,{},key,user=commercial),range(2)))\n                                     ~~~^^^^^^^^^^^^^^^^^^^^^^^",
     "is_error": false,
     "timestamp": 1790524357077
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -rn \"sales_orders\" supabase/migrations/*.sql | grep -i \"create table\" | head"
+    },
+    "timestamp": 1790524370907
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20261006100000_sales_orders.sql:126:CREATE TABLE public.sales_orders (\n",
+    "is_error": false,
+    "timestamp": 1790524370943
   }
 ]
