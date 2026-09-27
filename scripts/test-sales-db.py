@@ -242,7 +242,7 @@ def run():
  print('PASS Q: gatilho ON_DISPATCH gera UM titulo por pedido, proporcional ao expedido; repetir nao duplica')
 
  # ------------------------------------------ proposta -> conversao unica
- contact=crmact('lead',None,'create',{'name':'Contato Alfa','company_name':'Cliente Alfa','email':'alfa@test'})['contact_id']
+ contact=crm('lead',{'name':'Contato Alfa','company_name':'Cliente Alfa','email':'alfa@test'})['id']
  valid=(today+datetime.timedelta(days=30)).isoformat()
  quote=crmact('quote',None,'create',{'company_id':company,'price_table_id':table,'primary_contact_id':contact,
    'valid_until':valid,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':8,'unit_price':22.00}]})['id']
