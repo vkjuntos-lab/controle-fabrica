@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
-      "newString": "DECLARE v_status text; j jsonb:=coalesce(to_jsonb(NEW),to_jsonb(OLD));\nBEGIN\n IF TG_OP='DELETE' THEN\n  -- Rascunho e a unica janela legitimamente mutavel: enquanto o pedido nao\n  -- saiu, a edicao substitui a linha de itens. Fora do rascunho, DELETE e\n  -- historico e nunca acontece.\n  IF TG_TABLE_NAME='sales_order_items' THEN\n   SELECT status INTO v_status FROM public.sales_orders WHERE id=(j->>'sales_order_id')::uuid;\n   IF v_status='DRAFT' THEN RETURN OLD; END IF;\n  END IF;\n  RAISE EXCEPTION 'Histórico não pode ser excluído.';\n END IF;",
-      "oldString": "DECLARE v_status text; j jsonb:=to_jsonb(NEW);\nBEGIN\n IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Histórico não pode ser excluído.'; END IF;"
-    },
-    "timestamp": 1790522617136
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790522617159
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
@@ -1418,5 +1402,19 @@
     "content": "2:DECLARE sh public.shipments; o public.sales_orders; cfg jsonb; si record; v_now timestamptz:=now();\n19:       'sales_order_item_id',si.sales_order_item_id,'quantity',si.quantity,\n20:       'inventory_movement_id',si.inventory_movement_id))\n21:       FROM public.shipment_items si WHERE si.organizat",
     "is_error": false,
     "timestamp": 1790523506093
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"     'deduped',true,'movements',coalesce((SELECT jsonb_agg(jsonb_build_object(\n       'sales_order_item_id',si.sales_order_item_id,'quantity',si.quantity,\n       'inventory_movement_id',si.inventory_movement_id))\n       FROM public.shipment_items si WHERE si.organization_id=_org AND si.shipment_id=_shipment),'[]'::jsonb));\"\"\"\nnew=\"\"\"     'deduped',true,'movements',coalesce((SELECT jsonb_agg(jsonb_build_object(\n       'sales_order_item_id',sit.sales_order_item_id,'quantity',sit.quantity,\n       'inventory_movement_id',sit.inventory_movement_id))\n       FROM public.shipment_items sit WHERE sit.organization_id=_org AND sit.shipment_id=_shipment),'[]'::jsonb));\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790523510391
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                                                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n ",
+    "is_error": false,
+    "timestamp": 1790523513863
   }
 ]

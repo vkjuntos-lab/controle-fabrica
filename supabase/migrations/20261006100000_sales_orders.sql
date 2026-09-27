@@ -2540,9 +2540,9 @@ BEGIN
   IF _data->>'dispatch_key' IS NULL OR _data->>'dispatch_key'=sh.dispatch_key THEN
    RETURN jsonb_build_object('id',_shipment,'shipment_number',sh.shipment_number,'status',sh.status,
      'deduped',true,'movements',coalesce((SELECT jsonb_agg(jsonb_build_object(
-       'sales_order_item_id',si.sales_order_item_id,'quantity',si.quantity,
-       'inventory_movement_id',si.inventory_movement_id))
-       FROM public.shipment_items si WHERE si.organization_id=_org AND si.shipment_id=_shipment),'[]'::jsonb));
+       'sales_order_item_id',sit.sales_order_item_id,'quantity',sit.quantity,
+       'inventory_movement_id',sit.inventory_movement_id))
+       FROM public.shipment_items sit WHERE sit.organization_id=_org AND sit.shipment_id=_shipment),'[]'::jsonb));
   END IF;
   RAISE EXCEPTION 'Expedição % já despachada; use uma nova expedição para o saldo restante.',sh.shipment_number;
  END IF;
