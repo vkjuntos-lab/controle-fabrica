@@ -192,7 +192,7 @@ CREATE TABLE public.sales_order_items (
   FOREIGN KEY(organization_id,sales_order_id) REFERENCES public.sales_orders(organization_id,id),
  product_variant_id uuid NOT NULL REFERENCES public.product_variants,
  -- Identificacao e descricao como estavam na negociacao. O catalogo muda;
- -- o pedido ja怪异 no precisa mudar.
+ -- o pedido ja registrado nao precisa mudar.
  sku_snapshot text NOT NULL,
  description_snapshot text NOT NULL,
  unit_snapshot text,
