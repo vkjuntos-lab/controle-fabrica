@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '/CREATE TABLE public.sales_orders/,/^);/p' supabase/migrations/20261006100000_sales_orders.sql | grep -n \"status\\|CHECK\" && echo \"=== itens ===\" && sed -n '/CREATE TABLE public.sales_order_items/,/^);/p' supabase/migrations/20261006100000_sales_orders.sql | grep -n \"status\\|sourcing_type\" && echo \"=== fulfillment/shipment status ===\" && sed -n '/CREATE TABLE public.fulfillment_orders/,/^);/p;/CREATE TABLE public.shipments/,/^);/p' supabase/migrations/20261006100000_sales_orders.sql | grep -n \"status\""
-    },
-    "timestamp": 1790521145218
-  },
-  {
-    "role": "tool_result",
-    "content": "13: sales_quote_version integer CHECK(sales_quote_version>0),\n20: source_type text NOT NULL DEFAULT 'MANUAL' CHECK(source_type IN ('QUOTE_CONVERSION','MANUAL')),\n36: subtotal numeric(16,2) NOT NULL DEFAULT 0 CHECK(subtotal>=0),\n37: discount_total numeric(16,2) NOT NULL DEFAULT 0 CHECK(discount_total",
-    "is_error": false,
-    "timestamp": 1790521145251
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '42,50p' supabase/migrations/20261006100000_sales_orders.sql && echo \"--- shipment status full ---\" && sed -n '/CREATE TABLE public.shipments/,/^);/p' supabase/migrations/20261006100000_sales_orders.sql | sed -n '45,50p'"
     },
     "timestamp": 1790521147319
@@ -1512,5 +1498,19 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790522558009
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -14"
+    },
+    "timestamp": 1790522559704
+  },
+  {
+    "role": "tool_result",
+    "content": "           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  COALESCE types text and jsonb cannot be matched\nLINE 5: ...i->>'unit_snapshot',coalesce(i->>'price_snapshot','{}'::json...\n                                                             ^\nQUERY:  INSERT INTO public.sales_order_items(organization_id,s",
+    "is_error": false,
+    "timestamp": 1790522562146
   }
 ]
