@@ -907,9 +907,18 @@ $$;
 -- Guarda de imutabilidade: historico nunca e apagado nem reinterpretado.
 CREATE FUNCTION public.sales_immutable() RETURNS trigger
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
-DECLARE v_status text; j jsonb:=to_jsonb(NEW);
+DECLARE v_status text; j jsonb:=coalesce(to_jsonb(NEW),to_jsonb(OLD));
 BEGIN
- IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Histórico não pode ser excluído.'; END IF;
+ IF TG_OP='DELETE' THEN
+  -- Rascunho e a unica janela legitimamente mutavel: enquanto o pedido nao
+  -- saiu, a edicao substitui a linha de itens. Fora do rascunho, DELETE e
+  -- historico e nunca acontece.
+  IF TG_TABLE_NAME='sales_order_items' THEN
+   SELECT status INTO v_status FROM public.sales_orders WHERE id=(j->>'sales_order_id')::uuid;
+   IF v_status='DRAFT' THEN RETURN OLD; END IF;
+  END IF;
+  RAISE EXCEPTION 'Histórico não pode ser excluído.';
+ END IF;
  IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAISE EXCEPTION 'Organização imutável.'; END IF;
  IF TG_TABLE_NAME IN ('sales_order_status_history','sales_order_operation_keys') THEN
   RAISE EXCEPTION 'Registro histórico é imutável.';

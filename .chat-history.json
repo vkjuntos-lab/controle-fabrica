@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '110,135p' supabase/migrations/20261006100000_sales_orders.sql && echo \"=== uso de settings em part2/3/4 ===\" && grep -n \"credit_exposure_policy\\|price_override_policy\\|receivable_trigger\\|reservation_policy\\|tracking_mode\" /tmp/opencode/sales_part2.sql /tmp/opencode/sales_part3.sql /tmp/opencode/sales_part4.sql /tmp/opencode/sales_part5.sql /tmp/opencode/sales_part6.sql /tmp/opencode/sales_part8.sql"
-    },
-    "timestamp": 1790521294914
-  },
-  {
-    "role": "tool_result",
-    "content": " allow_partial_fulfillment boolean NOT NULL DEFAULT true,\n -- Expedicao exige conferencia integral do que foi separado.\n shipment_requires_full_confirmation boolean NOT NULL DEFAULT true,\n -- Origem da informacao de rastreio. Sem integracao real, MANUAL.\n tracking_mode text NOT NULL DEFAULT 'MANUAL'",
-    "is_error": false,
-    "timestamp": 1790521294929
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/tmp/opencode/sales_part2.sql",
@@ -1512,5 +1498,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql</path>\n<type>file</type>\n<content>\n907: -- Guarda de imutabilidade: historico nunca e apagado nem reinterpretado.\n908: CREATE FUNCTION public.sales_immutable() RETURNS trigger\n909: LANGUAGE plpgsql SEC",
     "is_error": false,
     "timestamp": 1790522608781
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
+      "newString": "DECLARE v_status text; j jsonb:=coalesce(to_jsonb(NEW),to_jsonb(OLD));\nBEGIN\n IF TG_OP='DELETE' THEN\n  -- Rascunho e a unica janela legitimamente mutavel: enquanto o pedido nao\n  -- saiu, a edicao substitui a linha de itens. Fora do rascunho, DELETE e\n  -- historico e nunca acontece.\n  IF TG_TABLE_NAME='sales_order_items' THEN\n   SELECT status INTO v_status FROM public.sales_orders WHERE id=(j->>'sales_order_id')::uuid;\n   IF v_status='DRAFT' THEN RETURN OLD; END IF;\n  END IF;\n  RAISE EXCEPTION 'Histórico não pode ser excluído.';\n END IF;",
+      "oldString": "DECLARE v_status text; j jsonb:=to_jsonb(NEW);\nBEGIN\n IF TG_OP='DELETE' THEN RAISE EXCEPTION 'Histórico não pode ser excluído.'; END IF;"
+    },
+    "timestamp": 1790522617136
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790522617159
   }
 ]
