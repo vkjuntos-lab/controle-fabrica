@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '288,300p' supabase/migrations/20261005100000_crm.sql && echo \"=== sales_quotes cols ===\" && python3 - <<'PY'\nimport re,pathlib\ns=re.sub(r'--[^\\n]*','',pathlib.Path('supabase/migrations/20261005100000_crm.sql').read_text())\nfor t in ['sales_quotes','sales_quote_items','customer_profiles','customer_credit_policies','opportunity_items']:\n    m=re.search(r'CREATE TABLE (?:IF NOT EXISTS )?public\\.'+t+r'\\s*\\(',s)\n    if not m: print('###',t,'NAO EXISTE'); continue\n    i=m.end();d=1\n    while d>0:\n        if s[i]=='(':d+=1\n        elif s[i]==')':d-=1\n        i+=1\n    body=s[m.end():i-1]\n    cols=[l.strip().split()[0] for l in body.split('\\n') if l.strip() and not l.strip().upper().startswith(('UNIQUE','CHECK','FOREIGN'))]\n    print('###',t); print('   ',', '.join(cols))\nPY"
-    },
-    "timestamp": 1790521931540
-  },
-  {
-    "role": "tool_result",
-    "content": "  IF TG_TABLE_NAME='sales_quote_items' THEN RAISE EXCEPTION 'Item versionado imutável.'; END IF;\n  IF TG_TABLE_NAME='customer_portfolio_assignments' AND (to_jsonb(NEW)-'ended_at'-'updated_at')<>(to_jsonb(OLD)-'ended_at'-'updated_at') THEN RAISE EXCEPTION 'Carteira histórica imutável.'; END IF;\n END ",
-    "is_error": false,
-    "timestamp": 1790521931592
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && for t in sales_quotes sales_quote_items customer_profiles customer_credit_policies; do echo \"=== $t ===\"; awk -v t=\"$t\" 'BEGIN{f=0} $0 ~ \"CREATE TABLE (IF NOT EXISTS )?public\\\\.\"t\" ?\\\\(\" {f=1} f{print} f && /^\\);/{exit}' supabase/migrations/20261005100000_crm.sql | grep -oE \"^ *[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; done"
     },
     "timestamp": 1790521935584
@@ -1431,5 +1417,19 @@
     "content": "2202:    format('A variante %s não está neste atendimento.',v_row.sku),\n2204:  RAISE EXCEPTION 'A variante %s não está neste atendimento.',v_row.sku;\n",
     "is_error": false,
     "timestamp": 1790523202619
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2194,2210p' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790523204749
+  },
+  {
+    "role": "tool_result",
+    "content": "    format('Código %s não corresponde a nenhuma variante.',v_code),jsonb_build_object('picking_task_id',_task,'code',v_code));\n  RAISE EXCEPTION 'Código %s não corresponde a nenhuma variante.',v_code;\n END IF;\n SELECT * INTO v_item FROM public.picking_task_items\n  WHERE organization_id=_org AND pick",
+    "is_error": false,
+    "timestamp": 1790523204759
   }
 ]
