@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
-      "limit": 30,
-      "offset": 2055
-    },
-    "timestamp": 1790523127978
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql</path>\n<type>file</type>\n<content>\n2055:  VALUES(_org,ident,_order,v_loc,'PENDING',v_assign,auth.uid()) RETURNING id INTO v_task;\n2056: \n2057:  FOR v_item IN SELECT * FROM jsonb_array_elements(_data->'",
-    "is_error": false,
-    "timestamp": 1790523128016
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"    least(coalesce(nullif(v_item->>'quantity','')::numeric,it.approved_quantity),it.approved_quantity),\n    (SELECT coalesce(sum(r.quantity-r.fulfilled_quantity-r.released_quantity),0)\n      FROM public.inventory_reservations r WHERE r.sales_order_item_id=it.id\n        AND r.status IN ('ACTIVE','PARTIALLY_CONSUMED') AND r.inventory_location_id=v_loc),\n    v_loc,now(),now()\n  FROM jsonb_array_elements(_data->'items') v_item\n  JOIN public.sales_order_items it ON it.id=nullif(v_item->>'sales_order_item_id','')::uuid\n  WHERE it.organization_id=_org AND it.sales_order_id=_order;\"\"\"\nnew=\"\"\"    least(coalesce(nullif(req->>'quantity','')::numeric,it.approved_quantity),it.approved_quantity),\n    (SELECT coalesce(sum(r.quantity-r.fulfilled_quantity-r.released_quantity),0)\n      FROM public.inventory_reservations r WHERE r.sales_order_item_id=it.id\n        AND r.status IN ('ACTIVE','PARTIALLY_CONSUMED') AND r.inventory_location_id=v_loc),\n    v_loc,now(),now()\n  FROM jsonb_array_elements(_data->'items') req\n  JOIN public.sales_order_items it ON it.id=nullif(req->>'sales_order_item_id','')::uuid\n  WHERE it.organization_id=_org AND it.sales_order_id=_order;\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
@@ -1412,5 +1396,19 @@
     "content": "ok\nPASS M: despachar exige permissao de expedicao E de movimentacao de inventario\nPASS N: entrega exige prova; entrega nao mexe no saldo e nao fecha pedido com saldo\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 309, in <module>\n ",
     "is_error": false,
     "timestamp": 1790523882109
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '210,235p' scripts/test-sales-db.py"
+    },
+    "timestamp": 1790523883729
+  },
+  {
+    "role": "tool_result",
+    "content": " # Vendavel volta para o MESMO local de origem da expedicao: o destino nunca e inventado.\n assert balance(variants['SAP-001']['v'],warehouse)==86.0\n assert float(sql(f\"SELECT returned_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\"))==5.0\n assert sql(f\"SELECT financial_action ",
+    "is_error": false,
+    "timestamp": 1790523883757
   }
 ]
