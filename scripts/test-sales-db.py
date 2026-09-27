@@ -94,7 +94,7 @@ def run():
  action(order['id'],'approve',user=approver)
  assert sql(f"SELECT status FROM sales_orders WHERE id={q(order['id'])}")=='APPROVED'
  assert sql(f"SELECT count(*) FROM sales_credit_checks WHERE sales_order_id={q(order['id'])}")=='1'
- assert sql(f"SELECT approved_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}")=='20'
+ assert float(sql(f"SELECT approved_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}"))==20.0
  assert sql(f"SELECT count(*) FROM sales_demands WHERE sales_order_id={q(order['id'])}")=='1'
  save({'id':order['id'],'items':[{'variant_id':variants['SAP-001']['v'],'quantity':1}]},user=approver,fail='rascunho')
  print('PASS F: aprovacao exige outro usuario, preserva a consulta de credito e gera demanda')
@@ -161,7 +161,7 @@ def run():
  assert shipment['status']=='READY', shipment
  dispatched=rpc('sales_shipment_dispatch',org,shipment['id'],{'dispatch_key':'DISP-1'},user=picker)
  assert dispatched['quantity']==20 and balance(variants['SAP-001']['v'],warehouse)==80.0
- assert sql(f"SELECT fulfilled_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}")=='20.000'
+ assert float(sql(f"SELECT fulfilled_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}"))==20.0
  assert sql(f"SELECT status FROM sales_orders WHERE id={q(order['id'])}")=='FULFILLED'
  assert sql(f"SELECT status FROM sales_orders WHERE id={q(order['id'])} AND approved_by={q(approver)}")=='FULFILLED'
  repeat=rpc('sales_shipment_dispatch',org,shipment['id'],{'dispatch_key':'DISP-1'},user=picker)
@@ -186,7 +186,7 @@ def run():
  rpc('sales_shipment_action',org,shipment['id'],'proof',{'proof_type':'SIGNATURE','signature_name':'Recebedor Alfa'},user=commercial)
  delivered=rpc('sales_shipment_action',org,shipment['id'],'deliver',{},user=commercial)
  assert delivered['status']=='DELIVERED', delivered
- assert sql(f"SELECT delivered_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}")=='20.000'
+ assert float(sql(f"SELECT delivered_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}"))==20.0
  assert balance(variants['SAP-001']['v'],warehouse)==80.0
  assert sql(f"SELECT closed_at IS NOT NULL FROM sales_orders WHERE id={q(order['id'])}")=='t'
  print('PASS N: entrega exige prova; entrega nao mexe no saldo (a baixa foi na expedicao)')
@@ -200,7 +200,7 @@ def run():
  rpc('sales_return_action',org,ret['id'],'approve',{},user=approver)
  rpc('sales_return_action',org,ret['id'],'receive',{'quantity':5,'destination':'SELLABLE','financial_action':'CREDIT_NOTE'},user=picker)
  assert balance(variants['SAP-001']['v'],warehouse)==85.0
- assert sql(f"SELECT returned_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}")=='5.000'
+ assert float(sql(f"SELECT returned_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}"))==5.0
  assert sql(f"SELECT financial_action FROM customer_returns WHERE id={q(ret['id'])}")=='CREDIT_NOTE'
  assert sql(f"SELECT count(*) FROM account_receivables WHERE source_type='SALE'")=='0'
  assert sql("SELECT count(*) FROM domain_events WHERE event_type='CUSTOMER_RETURN_FINANCIAL_REQUESTED'")=='1'
