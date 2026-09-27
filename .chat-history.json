@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '20,32p' <(awk 'BEGIN{f=0} /CREATE TABLE public.shipments /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261006100000_sales_orders.sql) && grep -n \"shipping_method\" supabase/migrations/20261006100000_sales_orders.sql | head"
-    },
-    "timestamp": 1790523390631
-  },
-  {
-    "role": "tool_result",
-    "content": " tracking_source text NOT NULL DEFAULT 'MANUAL' CHECK(tracking_source IN ('MANUAL','CARRIER_WEBHOOK')),\n shipping_method text NOT NULL DEFAULT 'STANDARD'\n   CHECK(shipping_method IN ('STANDARD','EXPRESS','RETIRE','OWN_TRANSPORT','OTHER')),\n status text NOT NULL DEFAULT 'DRAFT'\n   CHECK(status IN ('D",
-    "is_error": false,
-    "timestamp": 1790523390664
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
@@ -1400,5 +1386,19 @@
     "content": " IF _kind IN ('segment','source','reason','tag','territory','payment_terms','pipeline','stage','discount_authority','commission_plan','commission_rule') THEN\n  PERFORM public.crm_require(_org,'crm.configure');\n  IF public.crm_external(_org) THEN RAISE EXCEPTION 'Configuração restrita à equipe intern",
     "is_error": false,
     "timestamp": 1790524119056
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\nold=\"\"\" contact=crm('lead',{'name':'Contato Alfa','company_name':'Cliente Alfa','email':'alfa@test'})['id']\"\"\"\nnew=\"\"\" contact=crm('contact',{'company_id':company,'name':'Contato Alfa','email':'alfa@test'})['id']\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790524121282
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                                                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n ",
+    "is_error": false,
+    "timestamp": 1790524125457
   }
 ]
