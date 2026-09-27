@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "[\n  'Generator',\n  'baseConfigSchema',\n  'capitalize',\n  'checkRouteFullPathUniqueness',\n  'cleanPath',\n  'configSchema',\n  'determineInitialRoutePath',\n  'format',\n  'getConfig',\n  'inferFullPath',\n  'multiSortBy',\n  'physicalGetRouteNodes',\n  'removeExt',\n  'removeLeadingSlash',\n  'removeTrailingS",
-    "is_error": false,
-    "timestamp": 1790413356478
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && node -e \"\nconst { Generator, getConfig } = require('@tanstack/router-generator');\n(async () => {\n  const config = await getConfig({ routesDirectory: './src/routes' });\n  const gen = new Generator({ config, root: process.cwd() });\n  await gen.run();\n  console.log('gerado');\n})().catch(e => { console.error('ERRO:', e && e.message, e && e.stack && e.stack.split('\\n').slice(0,4).join('\\n')); process.exit(1); });\n\" 2>&1 | tail -20",
-      "timeout": 180000
-    },
-    "timestamp": 1790413358903
-  },
-  {
-    "role": "tool_result",
     "content": "(node:2598920) Warning: Accessing non-existent property 'replaceRouteChunk' of module exports inside circular dependency\n(Use `node --trace-warnings ...` to show where the warning was created)\ngerado\n",
     "is_error": false,
     "timestamp": 1790413360234
@@ -1586,5 +1571,95 @@
     "content": "44:ALTER TABLE public.inventory_locations ADD COLUMN operational_purpose text NOT NULL DEFAULT 'NORMAL' CHECK(operational_purpose IN ('NORMAL','QUARANTINE','INSPECTION'));\n429:   IF it->>'condition'<>'SELLABLE' AND dst.operational_purpose NOT IN ('QUARANTINE','INSPECTION') THEN RAISE EXCEPTION 'Devo",
     "is_error": false,
     "timestamp": 1790520324193
+  },
+  {
+    "role": "tool",
+    "tool": "todowrite",
+    "input": {
+      "todos": [
+        {
+          "content": "Auditoria inicial: schema CRM/Financeiro/Estoque/Produção/Planejamento/Parceiros/Compras + frontend",
+          "status": "completed",
+          "priority": "high"
+        },
+        {
+          "content": "Migration SQL: tabelas de vendas, reservas, fulfillment, picking, packing, shipments, returns, exceções",
+          "status": "in_progress",
+          "priority": "high"
+        },
+        {
+          "content": "Migration SQL: helpers, settings, numeração, disponibilidade, consulta de crédito",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Migration SQL: RPCs de pedido (save, conversão de proposta, state machine, query)",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Migration SQL: RPCs de reserva, fulfillment, picking, packing, expedição (idempotente)",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Migration SQL: RPCs de devolução de cliente, exceções, transportadoras, dashboard/relatórios",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Migration SQL: eventos de domínio, permissões, RLS, grants",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Frontend: lib/sales (constants, types, functions, lógica pura testável)",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Frontend: rbac.ts, menu AppShell, tipos Supabase",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Frontend: componentes sales (pedidos, painel de expedição, reservas, devoluções, exceções)",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Frontend: rotas + Customer 360 ampliado",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Harness PostgreSQL: scripts/test-sales-db.py + npm run test:sales:db",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Testes unitários (disponibilidade, conferência, state machines)",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Verificação: vitest, typecheck, build, lint do domínio",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Documentação: 6 docs business + ADR + validação + PROJECT-STATE",
+          "status": "pending",
+          "priority": "high"
+        }
+      ]
+    },
+    "timestamp": 1790520331298
+  },
+  {
+    "role": "tool_result",
+    "content": "[\n  {\n    \"content\": \"Auditoria inicial: schema CRM/Financeiro/Estoque/Produção/Planejamento/Parceiros/Compras + frontend\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Migration SQL: tabelas de vendas, reservas, fulfillment, picking, packing, shipments, returns, exceçõ",
+    "is_error": false,
+    "timestamp": 1790520331300
   }
 ]
