@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"shipment_items\" supabase/migrations/20261006100000_sales_orders.sql | grep -nE \"created_at|updated_at\" | head"
-    },
-    "timestamp": 1790523427172
-  },
-  {
-    "role": "tool_result",
-    "content": "32:3316:  'shipment_items',(SELECT coalesce(jsonb_agg(to_jsonb(si) ORDER BY si.created_at),'[]'::jsonb)\n",
-    "is_error": false,
-    "timestamp": 1790523427188
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\ns=s.replace(\"\"\"'shipment_items',(SELECT coalesce(jsonb_agg(to_jsonb(si) ORDER BY si.created_at),'[]'::jsonb)\"\"\",\n\"\"\"'shipment_items',(SELECT coalesce(jsonb_agg(to_jsonb(si) ORDER BY si.sku_snapshot),'[]'::jsonb)\"\"\")\ns=s.replace(\"\"\"   WHERE organization_id=_org AND shipment_id=_shipment AND quantity>0 ORDER BY created_at\"\"\",\n\"\"\"   WHERE organization_id=_org AND shipment_id=_shipment AND quantity>0 ORDER BY sku_snapshot\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
     },
     "timestamp": 1790523429772
@@ -1398,5 +1384,19 @@
     "content": "AssertionError: ERROR:  invalid input syntax for type json\nDETAIL:  Token \"42466ecf\" is invalid.\nCONTEXT:  JSON data, line 1: 42466ecf...\nPL/pgSQL function sales_convert_quote(uuid,uuid,jsonb,uuid) line 67 at SQL statement\n\n",
     "is_error": false,
     "timestamp": 1790524161613
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk '/CREATE TABLE public.sales_quotes /,/^\\);/' supabase/migrations/20261005100000_crm.sql | grep -n \"json\\|snapshot\\|evidence\" "
+    },
+    "timestamp": 1790524169981
+  },
+  {
+    "role": "tool_result",
+    "content": "6: payment_terms_snapshot jsonb NOT NULL DEFAULT '{}', company_snapshot jsonb NOT NULL DEFAULT '{}',\n12: accepted_by uuid REFERENCES public.profiles,acceptance_contact_id uuid REFERENCES public.company_contacts,acceptance_evidence text,\n",
+    "is_error": false,
+    "timestamp": 1790524169995
   }
 ]
