@@ -2659,7 +2659,7 @@ CREATE FUNCTION public.sales_shipment_action(_org uuid,_shipment uuid,_action te
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE sh public.shipments; o public.sales_orders; v_new text; v_now timestamptz:=now();
  v_carrier uuid; v_tracking text; v_notes text; v_proof jsonb; v_qty numeric; v_i jsonb;
- v_del numeric; v_ord_status text; v_pending integer:=0;
+ v_del numeric; v_ord_status text; v_pending integer:=0; v_deliv numeric; v_req numeric;
 BEGIN
  PERFORM public.sales_require(_org,CASE WHEN _action IN ('deliver','partial_delivery')
    THEN 'shipments.confirm_delivery' ELSE 'shipments.dispatch' END);

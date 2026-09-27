@@ -162,13 +162,15 @@ def run():
  shipment=rpc('sales_shipment_create',org,order['id'],{'fulfillment_order_id':fulfillment['id'],
    'tracking_code':'BR123456789BR','expected_delivery_at':(datetime.datetime.now(datetime.timezone.utc)+datetime.timedelta(days=3)).isoformat()},user=picker)
  assert shipment['status']=='READY', shipment
+ # Expediu o que foi CONFERIDO (19), nunca o que foi separado: a divergencia
+ # ja virou excecao e o saldo de 1 fica pendente, nao some.
  dispatched=rpc('sales_shipment_dispatch',org,shipment['id'],{'dispatch_key':'DISP-1'},user=picker)
- assert dispatched['quantity']==20 and balance(variants['SAP-001']['v'],warehouse)==80.0
- assert float(sql(f"SELECT fulfilled_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}"))==20.0
- assert sql(f"SELECT status FROM sales_orders WHERE id={q(order['id'])}")=='FULFILLED'
- assert sql(f"SELECT status FROM sales_orders WHERE id={q(order['id'])} AND approved_by={q(approver)}")=='FULFILLED'
+ assert float(dispatched['quantity'])==19.0 and balance(variants['SAP-001']['v'],warehouse)==81.0
+ assert float(sql(f"SELECT fulfilled_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}"))==19.0
+ assert sql(f"SELECT status FROM sales_orders WHERE id={q(order['id'])}")=='PARTIALLY_FULFILLED'
+ assert sql(f"SELECT status FROM sales_orders WHERE id={q(order['id'])} AND approved_by={q(approver)}")=='PARTIALLY_FULFILLED'
  repeat=rpc('sales_shipment_dispatch',org,shipment['id'],{'dispatch_key':'DISP-1'},user=picker)
- assert repeat['deduped'] is True and balance(variants['SAP-001']['v'],warehouse)==80.0
+ assert repeat['deduped'] is True and balance(variants['SAP-001']['v'],warehouse)==81.0
  assert sql(f"SELECT count(*) FROM inventory_movements WHERE movement_type='SALE' AND direction='OUT'")=='1'
  print('PASS L: expedicao baixa o ledger uma unica vez; reenvio nao duplica a baixa')
 
@@ -189,10 +191,12 @@ def run():
  rpc('sales_shipment_action',org,shipment['id'],'proof',{'proof_type':'SIGNATURE','signature_name':'Recebedor Alfa'},user=commercial)
  delivered=rpc('sales_shipment_action',org,shipment['id'],'deliver',{},user=commercial)
  assert delivered['status']=='DELIVERED', delivered
- assert float(sql(f"SELECT delivered_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}"))==20.0
- assert balance(variants['SAP-001']['v'],warehouse)==80.0
- assert sql(f"SELECT closed_at IS NOT NULL FROM sales_orders WHERE id={q(order['id'])}")=='t'
- print('PASS N: entrega exige prova; entrega nao mexe no saldo (a baixa foi na expedicao)')
+ assert float(sql(f"SELECT delivered_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}"))==19.0
+ assert balance(variants['SAP-001']['v'],warehouse)==81.0
+ # Saldo residual: o pedido nao se fecha sozinho nem some a pendencia.
+ assert sql(f"SELECT status FROM sales_orders WHERE id={q(order['id'])}")=='PARTIALLY_FULFILLED'
+ assert sql(f"SELECT closed_at IS NULL FROM sales_orders WHERE id={q(order['id'])}")=='t'
+ print('PASS N: entrega exige prova; entrega nao mexe no saldo e nao fecha pedido com saldo')
 
  # ------------------------------------------------------------- devolucao
  ret=rpc('sales_return_create',org,order['id'],{'reason':'Produto errado','shipment_id':shipment['id'],
