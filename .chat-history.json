@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1790413870246
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && grep -rlP '[\\x{4e00}-\\x{9fff}\\x{0400}-\\x{04ff}]' docs/business/CRM.md docs/business/LEADS.md docs/business/SALES-PIPELINE.md docs/business/SALES-QUOTES.md docs/business/SALES-REPRESENTATIVES.md docs/business/CUSTOMER-360.md docs/business/COMMERCIAL-POLICIES.md docs/architecture/ADR-010-CRM.md docs/handoff/MASTER-012-VALIDATION.md docs/handoff/PROJECT-STATE.md; echo \"checagem de nao-ASCII завершена\""
-    },
-    "timestamp": 1790413873171
-  },
-  {
-    "role": "tool_result",
     "content": "checagem de nao-ASCII завершена\n",
     "is_error": false,
     "timestamp": 1790413873187
@@ -1590,5 +1576,19 @@
     "content": "ok False\n",
     "is_error": false,
     "timestamp": 1790521399834
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && ls supabase/migrations/ | tail -3 && echo \"=== harness ===\" && head -50 scripts/test-crm-db.py"
+    },
+    "timestamp": 1790521706483
+  },
+  {
+    "role": "tool_result",
+    "content": "20261004100000_planning_fixes.sql\n20261005100000_crm.sql\n20261006100000_sales_orders.sql\n=== harness ===\n#!/usr/bin/env python3\n\"\"\"CRM integration tests in disposable PostgreSQL. Never uses a published database.\"\"\"\nimport importlib.util,json,datetime\nfrom pathlib import Path\nfrom concurrent.futures ",
+    "is_error": false,
+    "timestamp": 1790521706565
   }
 ]
