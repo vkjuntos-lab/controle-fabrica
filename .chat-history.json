@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
-      "offset": 907,
-      "limit": 62
-    },
-    "timestamp": 1790522608748
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql</path>\n<type>file</type>\n<content>\n907: -- Guarda de imutabilidade: historico nunca e apagado nem reinterpretado.\n908: CREATE FUNCTION public.sales_immutable() RETURNS trigger\n909: LANGUAGE plpgsql SEC",
-    "is_error": false,
-    "timestamp": 1790522608781
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
@@ -1420,5 +1404,19 @@
     "content": "$$;\n\n-- BAIXA OFICIAL DO LEDGER. Idempotente por dispatch_key + chave de movimento.\n-- Exige permissao de expedicao E de movimentacao de inventario.\nCREATE FUNCTION public.sales_shipment_dispatch(_org uuid,_shipment uuid,_data jsonb DEFAULT '{}')\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET s",
     "is_error": false,
     "timestamp": 1790523500299
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk 'NR>=2525 && NR<=2660' supabase/migrations/20261006100000_sales_orders.sql | grep -n \"\\bsi\\b\" | head -20"
+    },
+    "timestamp": 1790523506062
+  },
+  {
+    "role": "tool_result",
+    "content": "2:DECLARE sh public.shipments; o public.sales_orders; cfg jsonb; si record; v_now timestamptz:=now();\n19:       'sales_order_item_id',si.sales_order_item_id,'quantity',si.quantity,\n20:       'inventory_movement_id',si.inventory_movement_id))\n21:       FROM public.shipment_items si WHERE si.organizat",
+    "is_error": false,
+    "timestamp": 1790523506093
   }
 ]
