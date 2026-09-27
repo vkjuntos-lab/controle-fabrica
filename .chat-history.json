@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd /tmp/opencode && grep -n \"v_ship\" sales_part9.sql"
-    },
-    "timestamp": 1790521322824
-  },
-  {
-    "role": "tool_result",
-    "content": "14: v_ship uuid; v_reason text; v_i jsonb; v_shi record; v_qty numeric; v_count integer:=0;\n26: v_ship:=nullif(_data->>'shipment_id','')::uuid;\n27: IF v_ship IS NOT NULL AND NOT EXISTS(SELECT 1 FROM public.shipments\n28:    WHERE id=v_ship AND organization_id=_org AND sales_order_id=_order) THEN\n35: ",
-    "is_error": false,
-    "timestamp": 1790521322841
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"ENABLE ROW LEVEL SECURITY\" supabase/migrations/20261005100000_crm.sql | head -5 && echo \"=== exemplo policy ===\" && grep -n -A6 \"CREATE POLICY.*crm_companies\\|CREATE POLICY.*purchasing_orders\" supabase/migrations/20261005100000_crm.sql | head -30 && echo \"=== grants ===\" && grep -n \"GRANT SELECT ON\\|GRANT SELECT,\\|GRANT ALL\" supabase/migrations/20261005100000_crm.sql | head -10"
     },
     "timestamp": 1790521326765
@@ -1512,5 +1498,19 @@
     "content": "1398:CREATE FUNCTION public.sales_validate_order(_org uuid,_order uuid)\n1399-RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\n1400-DECLARE o public.sales_orders; cfg jsonb; i jsonb; issues jsonb:='[]'::jsonb; v_pct numeric;\n1401- v_discount_pct numeric; v_auth nume",
     "is_error": false,
     "timestamp": 1790522638139
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk 'NR>=1399 && NR<=1450 {printf \"%d: %s\\n\", NR-1398, $0}' supabase/migrations/20261006100000_sales_orders.sql | sed -n '14,24p'"
+    },
+    "timestamp": 1790522645324
+  },
+  {
+    "role": "tool_result",
+    "content": "14:  END IF;\n15:  -- Itens: variante valida e quantidade positiva ja garantidas na criacao.\n16:  IF NOT EXISTS(SELECT 1 FROM public.sales_order_items WHERE organization_id=_org AND sales_order_id=_order) THEN\n17:   issues:=issues||jsonb_build_object('code','NO_ITEMS','message','Pedido sem itens.');\n",
+    "is_error": false,
+    "timestamp": 1790522645337
   }
 ]
