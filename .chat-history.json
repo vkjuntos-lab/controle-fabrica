@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/tmp/opencode/sales_part3.sql",
-      "newString": "  IF jsonb_array_length(items)<1 THEN RAISE EXCEPTION 'Proposta aceita não possui itens.'; END IF;\n  v_subtotal:=round(coalesce(q.subtotal,v_subtotal),2);",
-      "oldString": "  IF jsonb_array_length(items)<1 THEN RAISE EXCEPTION 'Proposta aceita não possui itens.'; END IF;\n  IF (items->0->>'sku_snapshot')='' THEN\n   -- Propostas antigas sem snapshot legivel: identifica pelo catálogo atual.\n   UPDATE sales_order_items SET sku_snapshot=it.sku_snapshot, description_snapshot=it.description_snapshot\n    WHERE false;\n  END IF;\n  v_subtotal:=round(coalesce(q.subtotal,v_subtotal),2);"
-    },
-    "timestamp": 1790520816386
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790520816395
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/tmp/opencode/sales_part3.sql",
       "newString": "  FOR it IN SELECT * FROM jsonb_to_recordset(items) AS x(product_variant_id uuid) LOOP NULL; END LOOP;\n  INSERT INTO public.sales_order_items(organization_id,sales_order_id,product_variant_id,",
       "oldString": "  FOR it IN SELECT * FROM jsonb_array_length_items(items) LOOP NULL; END LOOP;\n  INSERT INTO public.sales_order_items(organization_id,sales_order_id,product_variant_id,"
     },
@@ -1520,5 +1504,21 @@
     "content": "supabase/migrations/20260924100000_partners.sql:44:ALTER TABLE public.inventory_locations ADD COLUMN operational_purpose text NOT NULL DEFAULT 'NORMAL' CHECK(operational_purpose IN ('NORMAL','QUARANTINE','INSPECTION'));\nsupabase/migrations/20260924100000_partners.sql:429:   IF it->>'condition'<>'SEL",
     "is_error": false,
     "timestamp": 1790522027477
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py",
+      "newString": " quarantine=sql(f\"INSERT INTO inventory_locations(id,organization_id,code,name,type,operational_purpose) VALUES({q(uid())},{q(org)},'QUAR','Quarentena','OTHER','QUARANTINE') RETURNING id\",a)",
+      "oldString": " quarantine=sql(f\"INSERT INTO inventory_locations(id,organization_id,code,name,type) VALUES({q(uid())},{q(org)},'QUAR','Quarentena','QUARANTINE') RETURNING id\",a)"
+    },
+    "timestamp": 1790522032101
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790522032116
   }
 ]

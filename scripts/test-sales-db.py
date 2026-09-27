@@ -36,7 +36,7 @@ def run():
  company=sql(f"SELECT partner_save_company({q(org)},'{json.dumps({'code':'ACLIENTE','legal_name':'Cliente Alfa','roles':['CUSTOMER']})}')",a)
  crm('customer',{'company_id':company})
  warehouse=sql(f"SELECT id FROM inventory_locations WHERE organization_id={q(org)} AND name='Fábrica'",a) or sql(f"""INSERT INTO inventory_locations(id,organization_id,code,name,type) VALUES({q(uid())},{q(org)},'PRINCIPAL','Fábrica','FACTORY') RETURNING id""",a)
- quarantine=sql(f"INSERT INTO inventory_locations(id,organization_id,code,name,type) VALUES({q(uid())},{q(org)},'QUAR','Quarentena','QUARANTINE') RETURNING id",a)
+ quarantine=sql(f"INSERT INTO inventory_locations(id,organization_id,code,name,type,operational_purpose) VALUES({q(uid())},{q(org)},'QUAR','Quarentena','OTHER','QUARANTINE') RETURNING id",a)
  table=json.loads(call('price_save_table',org,{'code':'VAREJO','name':'Varejo','valid_from':'2020-01-01'}))['id']
  variants={}
  for code,price,bc in [('SAP-001',25.00,'7891000100017'),('SAP-002',10.50,'7891000100024'),('SAP-003',7.25,None)]:
