@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "978:      crm_query: { Args: { _org: string; _kind: string; _filters?: Json; _page?: number; _export?: boolean }; Returns: Json };\n979:      crm_save: { Args: { _org: string; _kind: string; _data: Json }; Returns: Json };\n980:      crm_action: { Args: { _org: string; _kind: string; _id: string; _act",
-    "is_error": false,
-    "timestamp": 1790413528897
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && for t in customer_profiles leads sales_opportunities sales_quotes crm_activities sales_representatives customer_portfolio_assignments commercial_segments company_merge_requests commission_plans; do printf \"%-35s %s\\n\" \"$t\" \"$(grep -c \"^      $t: {\" src/integrations/supabase/types.ts)\"; done"
-    },
-    "timestamp": 1790413532604
-  },
-  {
-    "role": "tool_result",
     "content": "customer_profiles                   0\nleads                               0\nsales_opportunities                 0\nsales_quotes                        0\ncrm_activities                      0\nsales_representatives               0\ncustomer_portfolio_assignments      0\ncommercial_segments               ",
     "is_error": false,
     "timestamp": 1790413532670
@@ -1595,5 +1581,19 @@
     "content": "CREATE TABLE public.financial_categories (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations,\n  code text NOT NULL CHECK(length(trim(code))>0),\n  name text NOT NULL CHECK(length(trim(name))>0),\n  type text NOT NULL DEFAULT 'EXPENSE' CHEC",
     "is_error": false,
     "timestamp": 1790520888048
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport re,pathlib\ns=pathlib.Path('supabase/migrations/20260928100000_finance.sql').read_text()\nm=re.search(r'CREATE TABLE public\\.account_receivables\\s*\\(',s)\ni=m.end();d=1\nwhile d>0: \n    if s[i]=='(':d+=1\n    elif s[i]==')':d-=1\n    i+=1\nbody=s[m.end():i]\ncols=[l.strip().split()[0] for l in body.split('\\n') if l.strip()]\nprint('\\n'.join(c for c in cols if not c.startswith(('UNIQUE','CHECK','FOREIGN'))))\nPY"
+    },
+    "timestamp": 1790520890751
+  },
+  {
+    "role": "tool_result",
+    "content": "id\norganization_id\ncompany_id\nsource_type\nsource_id\nsource_status\ndocument_number\ndescription\nissue_date\ndue_date\ncompetence_date\noriginal_amount\ndiscount_amount\ninterest_amount\npenalty_amount\nadjustment_amount\nopen_amount\ncurrency\nstatus\n('DRAFT','OPEN','PARTIALLY_PAID','PAID','OVERDUE','CANCELED',",
+    "is_error": false,
+    "timestamp": 1790520890796
   }
 ]
