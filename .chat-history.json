@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2194,2210p' supabase/migrations/20261006100000_sales_orders.sql"
-    },
-    "timestamp": 1790523204749
-  },
-  {
-    "role": "tool_result",
-    "content": "    format('Código %s não corresponde a nenhuma variante.',v_code),jsonb_build_object('picking_task_id',_task,'code',v_code));\n  RAISE EXCEPTION 'Código %s não corresponde a nenhuma variante.',v_code;\n END IF;\n SELECT * INTO v_item FROM public.picking_task_items\n  WHERE organization_id=_org AND pick",
-    "is_error": false,
-    "timestamp": 1790523204759
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"%ss\\|%s s\" supabase/migrations/20261006100000_sales_orders.sql | head && grep -n \"v_row.sku\" supabase/migrations/20261006100000_sales_orders.sql | head"
     },
     "timestamp": 1790523209833
@@ -1404,5 +1390,19 @@
     "content": "CREATE OR REPLACE FUNCTION public.inventory_get_balance(\n  _organization_id uuid,\n  _variant_id uuid,\n  _location_id uuid DEFAULT NULL,\n  _batch_id uuid DEFAULT NULL,\n  _user_id uuid DEFAULT auth.uid()\n)\nRETURNS numeric\nLANGUAGE plpgsql\nSTABLE\nSECURITY DEFINER\nSET search_path = public\nAS $$\nBEGIN\n  ",
     "is_error": false,
     "timestamp": 1790523996804
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\nold=\"\"\" assert float(sql(f\"SELECT quantity FROM inventory_get_balance({q(org)},{q(variants['SAP-001']['v'])})\"))==2.0\"\"\"\nnew=\"\"\" assert float(sql(f\"SELECT inventory_get_balance({q(org)},{q(variants['SAP-001']['v'])})\",a))==2.0\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790523999149
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 312, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 229, in run\n    assert float(sql(f\"SELECT inventory_get",
+    "is_error": false,
+    "timestamp": 1790524003234
   }
 ]

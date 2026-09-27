@@ -226,7 +226,7 @@ def run():
  rpc('sales_return_action',org,ret2['id'],'receive',{'quantity':2,'destination':'SELLABLE','destination_location_id':quarantine},user=picker,fail='para estoque')
  rpc('sales_return_action',org,ret2['id'],'receive',{'quantity':2,'destination':'QUARANTINE','destination_location_id':quarantine},user=picker)
  assert balance(variants['SAP-001']['v'],warehouse)==86.0
- assert float(sql(f"SELECT quantity FROM inventory_get_balance({q(org)},{q(variants['SAP-001']['v'])})"))==2.0
+ assert float(sql(f"SELECT inventory_get_balance({q(org)},{q(variants['SAP-001']['v'])})",a))==2.0
  assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],quarantine])),a))==0.0
  print('PASS P: danificado so pode ir para quarentena; saldo em quarentena nao e vendavel')
 
