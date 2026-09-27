@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"Pedido cancelado\" -B6 -A4 supabase/migrations/20261006100000_sales_orders.sql | head -30"
-    },
-    "timestamp": 1790523162093
-  },
-  {
-    "role": "tool_result",
-    "content": "922- END IF;\n923- IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAISE EXCEPTION 'Organização imutável.'; END IF;\n924- IF TG_TABLE_NAME IN ('sales_order_status_history','sales_order_operation_keys') THEN\n925-  RAISE EXCEPTION 'Registro histórico é imutável.';\n926- END IF;\n927- I",
-    "is_error": false,
-    "timestamp": 1790523162108
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '1481,1500p' supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790523166347
@@ -1406,5 +1392,19 @@
     "content": "ok\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 28, in call\n    def call(name, args, user, fail=None): return sql(f\"SEL",
     "is_error": false,
     "timestamp": 1790523940808
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 -c \"import locale;print(locale.getpreferredencoding(False))\" && file scripts/test-sales-db.py supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790523948961
+  },
+  {
+    "role": "tool_result",
+    "content": "UTF-8\n/bin/bash: line 1: file: command not found\n",
+    "is_error": false,
+    "timestamp": 1790523948999
   }
 ]
