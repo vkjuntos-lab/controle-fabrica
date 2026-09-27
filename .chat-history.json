@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\" address=raw('partner_save_address',q(org)+','+q(company)+\",\"+arg({'type':'SHIPPING','postal_code':'01310-100','street':'Av. Paulista','number':'1000','district':'Bela Vista','city':'Sao Paulo','state':'SP','is_primary':True}),a)\"\"\",\n\"\"\" address=raw('partner_save_detail',q(org)+','+q(company)+\",'address',\"+arg({'type':'SHIPPING','postal_code':'01310-100','street':'Av. Paulista','number':'1000','district':'Bela Vista','city':'Sao Paulo','state':'SP','is_primary':True})+',NULL',a)\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
-    },
-    "timestamp": 1790522700720
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 24, in rpc\n    value=call(name,*args,**kw)\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 22, in call\n    return db.call(name,','.join(q(json.dumps(x) if isinstance(x,(dict,list)) el",
-    "is_error": false,
-    "timestamp": 1790522703488
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"v_sep\\|segrega\\|Segrega\" supabase/migrations/20261006100000_sales_orders.sql | head -10 && echo \"=== roles perms ===\" && grep -n \"sales_orders.approve\" supabase/migrations/20261006100000_sales_orders.sql | head"
     },
     "timestamp": 1790522709054
@@ -1414,5 +1400,19 @@
     "content": "2675: IF _action='track' THEN\n2693: ELSIF _action='proof' THEN\n2730:  IF _action='deliver' THEN\n2734:  UPDATE public.shipments SET status=CASE WHEN _action='deliver' THEN 'DELIVERED'\n2764: ELSIF _action='exception' THEN\n2772: ELSIF _action='cancel' THEN\n",
     "is_error": false,
     "timestamp": 1790523620278
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2725,2733p' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790523625163
+  },
+  {
+    "role": "tool_result",
+    "content": "    RAISE EXCEPTION 'Entrega acima do expedido para um item.';\n   END IF;\n   UPDATE public.shipment_items SET delivered_quantity=delivered_quantity+coalesce(nullif(v_i->>'delivered_quantity','')::numeric,v_qty)\n    WHERE organization_id=_org AND shipment_id=_shipment AND sales_order_item_id=nullif(v",
+    "is_error": false,
+    "timestamp": 1790523625189
   }
 ]
