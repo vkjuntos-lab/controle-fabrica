@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -nE \"SET [a-z_]+=[A-Z_]{2,}[, ]\" supabase/migrations/20261006100000_sales_orders.sql | head -20"
-    },
-    "timestamp": 1790523174434
-  },
-  {
-    "role": "tool_result",
-    "content": "2288: UPDATE public.fulfillment_orders f SET status=CASE WHEN f.status IN ('PICKING','PICKED') THEN 'PACKING' ELSE f.status END,\n2629: UPDATE public.sales_orders SET status=CASE WHEN o.status IN ('APPROVED','AWAITING_STOCK','READY_FOR_FULFILLMENT')\n2731:  UPDATE public.shipments SET status=CASE WHEN",
-    "is_error": false,
-    "timestamp": 1790523174457
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
     },
     "timestamp": 1790523177178
@@ -1404,5 +1390,19 @@
     "content": "b\"n\\xc3\\xa3o pode ir para estoque vend\\xc3\\xadvel.',v_i.sku_snapshot,v_i.condition;\\n\"\ndecomposed condi: -1\n",
     "is_error": false,
     "timestamp": 1790523962959
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\nold=\"\"\"destination_location_id':quarantine},user=picker,fail='vendável')\"\"\"\nnew=\"\"\"destination_location_id':quarantine},user=picker,fail='para estoque')\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790523972011
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                                                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n ",
+    "is_error": false,
+    "timestamp": 1790523976097
   }
 ]
