@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\" IF v_map IS NULL THEN RETURN NEW; END IF;\"\"\"\nnew=\"\"\" IF v_map IS NULL THEN RETURN coalesce(NEW,OLD); END IF;\"\"\"\nassert old in s; s=s.replace(old,new)\nold2=\"\"\"  IF v_org IS DISTINCT FROM NEW.organization_id THEN RAISE EXCEPTION 'Referência fora da organização.'; END IF;\n END LOOP;\n RETURN NEW;\"\"\"\nnew2=\"\"\"  IF v_org IS DISTINCT FROM NEW.organization_id THEN RAISE EXCEPTION 'Referência fora da organização.'; END IF;\n END LOOP;\n -- DELETE carrega a linha em OLD: devolver NEW (nulo) cancelaria a operacao.\n RETURN coalesce(NEW,OLD);\"\"\"\nassert old2 in s; s=s.replace(old2,new2)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
-    },
-    "timestamp": 1790522633819
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 28, in call\n    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                                                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
-    "is_error": false,
-    "timestamp": 1790522636399
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"FUNCTION public.sales_validate_order\" -A45 supabase/migrations/20261006100000_sales_orders.sql | sed -n '1,55p'"
     },
     "timestamp": 1790522638123
@@ -1414,5 +1400,19 @@
     "content": "2392- cfg:=public.sales_settings(_org);\n2393- v_need_full:=coalesce((cfg->>'shipment_requires_full_confirmation')::boolean,false);\n2394- v_ful:=nullif(_data->>'fulfillment_order_id','')::uuid;\n2395- v_task:=nullif(_data->>'picking_task_id','')::uuid;\n2396- IF v_ful IS NOT NULL THEN\n2397-  IF NOT EXI",
     "is_error": false,
     "timestamp": 1790523519864
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\" # ------------------------------------------ expedicao: baixa no ledger\n rpc('sales_fulfillment_action',org,fulfillment['id'],'ready',{},user=picker)\"\"\",\n\"\"\" # ------------------------------------------ expedicao: baixa no ledger\n print('DEBUG ff',sql(f\"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"),'packrec',sql(f\"SELECT count(*) FROM packing_records WHERE fulfillment_order_id={q(fulfillment['id'])}\"))\n rpc('sales_fulfillment_action',org,fulfillment['id'],'ready',{},user=picker)\n print('DEBUG ff after ready',sql(f\"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"))\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"DEBUG|Assertion\" | tail -4"
+    },
+    "timestamp": 1790523526735
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nDEBUG ff PACKING packrec 1\nDEBUG ff after ready READY_FOR_SHIPMENT\nAssertionError: ERROR:  Atendimento c68e6ed4-ac56-4389-8d48-4b20bd40f082 não está liberado para expedição.\n",
+    "is_error": false,
+    "timestamp": 1790523530541
   }
 ]
