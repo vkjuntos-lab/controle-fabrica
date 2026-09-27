@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
-      "limit": 96,
-      "offset": 1060
-    },
-    "timestamp": 1790521888491
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql</path>\n<type>file</type>\n<content>\n1060:   RAISE EXCEPTION 'Empresa inativa ou bloqueada.';\n1061:  END IF;\n1062: \n1063:  IF _quote IS NOT NULL THEN\n1064:   SELECT * INTO v_quote FROM public.sales_quote",
-    "is_error": false,
-    "timestamp": 1790521888548
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
@@ -1491,5 +1475,19 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790523171934
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -nE \"SET [a-z_]+=[A-Z_]{2,}[, ]\" supabase/migrations/20261006100000_sales_orders.sql | head -20"
+    },
+    "timestamp": 1790523174434
+  },
+  {
+    "role": "tool_result",
+    "content": "2288: UPDATE public.fulfillment_orders f SET status=CASE WHEN f.status IN ('PICKING','PICKED') THEN 'PACKING' ELSE f.status END,\n2629: UPDATE public.sales_orders SET status=CASE WHEN o.status IN ('APPROVED','AWAITING_STOCK','READY_FOR_FULFILLMENT')\n2731:  UPDATE public.shipments SET status=CASE WHEN",
+    "is_error": false,
+    "timestamp": 1790523174457
   }
 ]
