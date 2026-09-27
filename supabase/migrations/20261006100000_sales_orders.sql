@@ -18,6 +18,19 @@
 BEGIN;
 
 -- =====================================================================
+-- 1a. Chaves de tenant para referencias cross-modulo.
+-- Estas tabelas nao declaravam UNIQUE(organization_id,id) e por isso nao
+-- aceitavam FK composta. Nenhuma coluna e dado existente e alterado: apenas
+-- a chave e declarada, o que ja e verdade para toda linha valida.
+-- =====================================================================
+ALTER TABLE public.inventory_locations
+  ADD CONSTRAINT inventory_locations_organization_id_id_key UNIQUE(organization_id,id);
+ALTER TABLE public.inventory_batches
+  ADD CONSTRAINT inventory_batches_organization_id_id_key UNIQUE(organization_id,id);
+ALTER TABLE public.company_addresses
+  ADD CONSTRAINT company_addresses_organization_id_id_key UNIQUE(organization_id,id);
+
+-- =====================================================================
 -- 1. Permissoes do modulo.
 -- =====================================================================
 INSERT INTO public.role_permissions(role,permission)
