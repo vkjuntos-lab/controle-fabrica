@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "\nSomente declare o MASTER 012 concluído quando:\n\n- Cadastro comercial unificado funcionar.\n- Leads e conversão funcionarem.\n- Contatos funcionarem.\n- Representantes e carteiras funcionarem.\n- Pipeline e oportunidades funcionarem.\n- Histórico de etapas funcionar.\n- Propostas e versionamento funcionar",
-    "is_error": false,
-    "timestamp": 1790413689587
-  },
-  {
-    "role": "tool",
-    "tool": "write",
-    "input": {
-      "content": "# CRM e cadastro comercial unificado\n\nData: 26/09/2026. MASTER 012. Continuação do MASTER 011, reutilizando o catálogo mestre\n(`MASTER 001`), Pricing e Cost Engine (MASTER 007/009), Inventory Ledger (MASTER 002),\nparceiros e customers de aplicação.\n\nEste documento descreve o núcleo cadastral do comercial. O restante do módulo está em\n[LEADS.md](LEADS.md), [SALES-PIPELINE.md](SALES-PIPELINE.md), [SALES-QUOTES.md](SALES-QUOTES.md),\n[SALES-REPRESENTATIVES.md](SALES-REPRESENTATIVES.md), [CUSTOMER-360.md](CUSTOMER-360.md) e\n[COMMERCIAL-POLICIES.md](COMMERCIAL-POLICIES.md).\n\n## Conceito\n\nUm registro em `companies` é a razão social. O comercial não duplica cliente: estende o\nparceiro com `customer_profiles` e, quando aplicável, com `customer_tags`, `customer_territories`\ne `customer_credit_policies`. Contatos são `contacts`, compartilhados entre empresas, e recebem\nvínculo por `customer_contacts`.\n\nA separação segue a mesma casa do resto da plataforma: `companies` e `contacts` são a identidade;\n`customer_profiles` é o comportamento comercial. Isso permite que a mesma razão social exista\ncomo fornecedor, parceiro e cliente sem cadastro duplicado, e permite que um contato atende a\nvárias empresas.\n\n## Tabelas\n\n| Tabela | Papel |\n| --- | --- |\n| `commercial_segments` | Segmento comercial, usado para política de crédito e comissão. |\n| `commercial_sources` | Origem de aquisição (indicação, marketplace, site, campanha). |\n| `commercial_reasons` | Motivo padronizado de recusa, perda e cancelamento. |\n| `commercial_tags` | Etiquetas de segmentação, com vínculo em `customer_tags`. |\n| `commercial_payment_terms` | Prazo de pagamento, com limite de dias e parcelamento. |\n| `sales_territories` | Território comercial, base para carteira e escopo. |\n| `customer_profiles` | Perfil comercial do cliente: status, segmento, representante, obs. |\n| `customer_credit_policies` | Limite de crédito, dias de carência e alçada. |\n| `customer_tags` | Vínculo etiqueta ↔ cliente. |\n| `customer_territories` | Vínculo território ↔ cliente. |\n| `customer_portfolio_assignments` | Responsável, nível (titular/apoio) e vigência da carteira. |\n| `leads` | Contato ainda não convertido, com origem, dono e qualificação. |\n| `sales_pipelines` / `sales_pipeline_stages` | Pipeline e suas etapas ordenadas. |\n| `sales_opportunities` | Oportunidade, valor, etapa, probabilidade e ciclo. |\n| `opportunity_items` | Itens da oportunidade, com variante e quantidade. |\n| `opportunity_stage_history` | Histórico de transições, com motivo e responsável. |\n| `sales_quotes` | Proposta e suas versões, com validade e total calculado no servidor. |\n| `sales_quote_items` | Itens da proposta; preço e desconto resolvidos no servidor. |\n| `quote_approvals` | Aprovações, com alçada exigida e substituto. |\n| `commercial_discount_authorities` | Alçada de desconto por papel, faixa e status. |\n| `crm_activities` | Tarefa, ligação, e-mail, reunião ou follow-up. |\n| `crm_activity_history` | Histórico de execução, reagendamento e conclusão. |\n| `commission_plans` / `commission_rules` | Planos e regras de comissão por gatilho e tipo. |\n| `crm_operation_keys` | Idempotência de ações comerciais. |\n| `company_merge_requests` | Solicitação de mesclagem de cadastros duplicados. |\n\n## Visibilidade e permissões\n\nA leitura exige `crm.read`; a escrita exige a permissão específica do registro\n(`customers.create`, `customers.update`, `leads.create`, `opportunities.create`,\n`quotes.create`, `activities.create`, `representatives.manage`, `crm.configure`).\n\nToda listagem passa por `crm_query`, que aplica RLS, escopo de carteira e as permissões do\nchamador. Um representante sem `crm.sensitive.read` recebe clientes, oportunidades e propostas\n**sem** margem, custo e volume financeiro; a coluna simplesmente não vem na resposta, em vez de\nvir zerada. A UI esconde o campo, mas quem tem acesso à API continua protegido: a omissão é\ndecidida no `crm_query`, não no componente.\n\n`crm_query` também é o caminho de exportação. Com `export = true` a mesma consulta devolve o\nrecorte filtrado, sem需要 o cliente reimplementar a regra.\n\n## Status comercial\n\n`ACTIVE`, `INACTIVE` e `BLOCKED`. `BLOCKED` recusa operação comercial no servidor: nova\noportunidade, nova proposta e novo aceite. Cliente bloqueado continua legível e seu histórico\npermanece auditável — bloqueio é decisão comercial, não apagamento.\n\n## Idempotência\n\n`crm_operation_keys` guarda `(organization_id, key)` com o resultado da primeira execução.\nAções de conversão, aceite de proposta e conclusão de atividade enviam uma chave gerada pelo\ncliente; repetir a chamada devolve o resultado original em vez de duplicar o efeito. Isso\npermite reenvio seguro por retry de rede ou duplo clique.\n\n## Auditoria\n\nToda escrita e toda ação grava em `audit_log` com `organization_id`, `actor_user_id`, `entity`,\n`entity_id`, `action` e `diff`. O histórico de etapa e o de atividade são, além disso, tabelas\npróprias consultáveis, porque o CRM precisa mostrar a linha do tempo, não só o diff.\n\n## Duplicidade\n\n`company_merge_requests` recebe o par de empresas e o motivo. A mesclagem **não** é executada\npela interface: ela é enviada para análise, e a decisão fica registrada. Isso evita que um erro\nde digitação no cadastroozinho apague histórico comercial de uma razão social inteira.\n\n## Integrações\n\nImplementadas neste master: Pricing (tabelas de preço vigentes), Cost Engine (custo e margem),\nInventory Ledger (disponibilidade para consulta, sem reserva), Financeiro (limite de crédito e\ncondição de pagamento), RBAC/RLS e Audit Log.\n\nPendentes para o MASTER 013: motor de pedidos de venda, reserva definitiva de estoque,\nseparação e expedição, faturamento fiscal, NF-e, WhatsApp, campanhas e comissionamento\nfinanceiro. Ver `docs/handoff/MASTER-012-VALIDATION.md`.\n",
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/CRM.md"
-    },
-    "timestamp": 1790413707202
-  },
-  {
-    "role": "tool_result",
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790413707212
@@ -1597,5 +1582,19 @@
     "content": "      SELECT to_jsonb(movements) FROM public.inventory_movements movements\n        WHERE movements.id = v_existing_id INTO v_row;\n      RETURN jsonb_build_object('deduped', true, 'movement', v_row, 'movement_id', v_existing_id);\n    END IF;\n  END IF;\n\n  INSERT INTO public.inventory_movements (\n    o",
     "is_error": false,
     "timestamp": 1790521134378
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -rn \"inventory.move\\|'inventory\\.\" supabase/migrations/*.sql | grep -o \"'inventory\\.[a-z._]*'\" | sort -u"
+    },
+    "timestamp": 1790521138137
+  },
+  {
+    "role": "tool_result",
+    "content": "'inventory.'\n'inventory.adjust'\n'inventory.adjustment'\n'inventory.allow_negative'\n'inventory.count'\n'inventory.count.cancel'\n'inventory.count.complete'\n'inventory.count.create'\n'inventory.ledger.post'\n'inventory.manage_locations'\n'inventory.move'\n'inventory.movement.post'\n'inventory.movements.read'\n",
+    "is_error": false,
+    "timestamp": 1790521138158
   }
 ]
