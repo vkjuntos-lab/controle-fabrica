@@ -1115,7 +1115,7 @@ BEGIN
    _quote,CASE WHEN _quote IS NULL THEN NULL ELSE v_quote.version END,
    coalesce(nullif(_data->>'sales_opportunity_id','')::uuid,v_quote.opportunity_id),v_rep,v_table,
    CASE WHEN _quote IS NULL THEN 'MANUAL' ELSE 'QUOTE_CONVERSION' END,
-   coalesce(nullif(_data->>'order_date','')::date,NULLIF(CASE WHEN _quote IS NOT NULL THEN v_quote.issue_date END,current_date)),
+    coalesce(nullif(_data->>'order_date','')::date,CASE WHEN _quote IS NOT NULL THEN v_quote.issue_date END,current_date),
    nullif(_data->>'expected_delivery_date','')::date,v_terms_id,v_term,v_addr_id,v_bill_id,
    v_addr,
    coalesce(CASE WHEN _quote IS NULL THEN NULL ELSE v_quote.company_snapshot END,
