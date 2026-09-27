@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "[]\n",
-    "is_error": false,
-    "timestamp": 1790413762310
-  },
-  {
-    "role": "tool",
-    "tool": "write",
-    "input": {
-      "content": "# Customer 360\n\nData: 26/09/2026. MASTER 012.\n\nO Customer 360 é a leitura única de um cliente: identificação, perfil comercial, contatos,\ncarteira, crédito, oportunidades, propostas, atividades e linha do tempo. Ele existe para\nresponder \"o que aconteceu com esta conta\" sem abrir cinco telas.\n\n## Composição\n\nA tela reúne, na organização corrente:\n\n- **Identificação**: razão social, documento, cidade, contatos e endereços, vindos do cadastro\n  de empresas e contatos.\n- **Perfil comercial**: status, segmento comercial, origem, etiqueta, território, condição de\n  pagamento, responsável e apoios.\n- **Crédito**: limite, usado, disponível, dias de carência e alçada, de `customer_credit_policies`.\n- **Relacionamento**: oportunidades com etapa e valor, propostas com status e versão vigente.\n- **Atividades**: agenda do cliente, com concluídas, pendentes e reagendadas.\n- **Histórico**: `audit_log` do cliente e das entidades relacionadas, em ordem cronológica.\n\n## Dados sensíveis\n\nMargem, custo, volume financeiro e limite de crédito exigem `crm.sensitive.read`. Sem a\npermissão, a tela é montada sem esses blocos — não com valores ocultos por CSS. O `crm_query`\nomite a coluna, de forma que a informação não chega ao navegador de quem não pode vê-la. Essa é a\ndiferença entre esconder e proteger.\n\n## Escopo\n\nO 360 respeita o escopo de carteira. Representante externo sem atribuição recebe a visão\nreduzida do próprio escopo, e um cliente de outra organização simplesmente não existe para ele.\n\n## Duplicidade\n\nQuando o cadastro aparece duplicado, a tela oferece a solicitação de mesclagem\n(`company_merge_requests`), que registra o par e o motivo para análise. A mesclagem em si não é\nexecutada pela interface: ela apaga histórico comercial de uma razão social inteira, e por isso\nexige decisão fora do fluxo de cadastro.\n\n## Limitações\n\nSem timeline de e-mail e telefone reais, sem score de crédito, sem saturação de mercado e sem\nsugestão de ação. Todos dependem de integrações externas do MASTER 013.\n",
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/CUSTOMER-360.md"
-    },
-    "timestamp": 1790413770908
-  },
-  {
-    "role": "tool_result",
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790413770935
@@ -1592,5 +1577,21 @@
     "content": " allow_partial_fulfillment boolean NOT NULL DEFAULT true,\n -- Expedicao exige conferencia integral do que foi separado.\n shipment_requires_full_confirmation boolean NOT NULL DEFAULT true,\n -- Origem da informacao de rastreio. Sem integracao real, MANUAL.\n tracking_mode text NOT NULL DEFAULT 'MANUAL'",
     "is_error": false,
     "timestamp": 1790521294929
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/tmp/opencode/sales_part2.sql",
+      "offset": 106,
+      "limit": 42
+    },
+    "timestamp": 1790521298900
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/tmp/opencode/sales_part2.sql</path>\n<type>file</type>\n<content>\n106: CREATE FUNCTION public.sales_credit_check(_org uuid,_company uuid,_amount numeric,_order uuid DEFAULT NULL)\n107: RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\n108: DECLARE pos jsonb; cfg",
+    "is_error": false,
+    "timestamp": 1790521298911
   }
 ]
