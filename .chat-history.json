@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
-      "limit": 28,
-      "offset": 1308
-    },
-    "timestamp": 1790521839237
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql</path>\n<type>file</type>\n<content>\n1308:  -- Cliente ativo.\n1309:  IF NOT EXISTS(SELECT 1 FROM public.companies WHERE id=o.company_id AND organization_id=_org AND status='ACTIVE')\n1310:     OR NOT EXIS",
-    "is_error": false,
-    "timestamp": 1790521839275
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\n\n# 1. Criacao de item: so variante ATIVA.\ns=s.replace(\"\"\" IF NOT EXISTS(SELECT 1 FROM public.product_variants\n    WHERE id=v_variant AND organization_id=_org AND status IN ('ACTIVE','DISCONTINUED')) THEN\n  RAISE EXCEPTION 'Variante inexistente ou descontinuada.';\n END IF;\"\"\",\n\"\"\" -- Linha nova exige variante ATIVA. Descontinuada nao entra em pedido novo.\n IF NOT EXISTS(SELECT 1 FROM public.product_variants\n    WHERE id=v_variant AND organization_id=_org AND status='ACTIVE') THEN\n  RAISE EXCEPTION 'Variante inexistente ou descontinuada: % não pode entrar em pedido novo.',coalesce(_item->>'variant_id','');\n END IF;\"\"\")\n\n# 2. Validacao: a variante precisa continuar ATIVA.\ns=s.replace(\"\"\"   IF NOT EXISTS(SELECT 1 FROM public.product_variants\n      WHERE id=i.product_variant_id AND organization_id=_org AND status='DISCONTINUED') THEN\n    issues:=issues||jsonb_build_object('code','VARIANT_INVALID','variant_id',i.product_variant_id,\n      'message',format('A variante %s está descontinuada.',i.sku_snapshot));\n   END IF;\"\"\",\n\"\"\"   -- A variante precisa estar ATIVE na hora da aprovacao. Se foi descontinuada\n   -- depois que o pedido foi criado, a aprovacao e bloqueada.\n   IF NOT EXISTS(SELECT 1 FROM public.product_variants\n      WHERE id=i.product_variant_id AND organization_id=_org AND status='ACTIVE') THEN\n    issues:=issues||jsonb_build_object('code','VARIANT_INVALID','variant_id',i.product_variant_id,\n      'message',format('A variante %s não está mais ativa.',i.sku_snapshot),'blocking',true);\n   END IF;\"\"\")\np.write_text(s); print('ok')\nPY"
@@ -1497,5 +1481,19 @@
     "content": "ok\n   least(coalesce(nullif(v_item->>'quantity','')::numeric,it.approved_quantity),it.approved_quantity),\n   (SELECT coalesce(sum(r.quantity-r.fulfilled_quantity-r.released_quantity),0)\n     FROM public.inventory_reservations r WHERE r.sales_order_item_id=it.id\n       AND r.status IN ('ACTIVE','PART",
     "is_error": false,
     "timestamp": 1790523117610
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"^(ERROR|Assertion)\" | head -3"
+    },
+    "timestamp": 1790523120016
+  },
+  {
+    "role": "tool_result",
+    "content": "AssertionError: ERROR:  column reference \"v_item\" is ambiguous\n",
+    "is_error": false,
+    "timestamp": 1790523122959
   }
 ]
