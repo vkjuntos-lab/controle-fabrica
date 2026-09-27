@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -rn \"location_type\\|\\.type<>'TRANSIT'\\|\\.type IN ('PARTNER'\" supabase/migrations/20261006100000_sales_orders.sql | head -20"
-    },
-    "timestamp": 1790522725951
-  },
-  {
-    "role": "tool_result",
-    "content": "1792:      AND l.location_type<>'TRANSIT' ORDER BY l.name LOOP\n1869:      AND l.partner_id IS NULL AND l.location_type<>'TRANSIT'\n1879:       AND partner_id IS NULL AND location_type<>'TRANSIT') THEN\n2025:      AND operational_purpose='NORMAL' AND partner_id IS NULL AND location_type<>'TRANSIT'\n2030",
-    "is_error": false,
-    "timestamp": 1790522725965
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nn=s.count(\"location_type\")\ns=s.replace(\"l.location_type<>'TRANSIT'\",\"l.type<>'TRANSIT'\").replace(\"location_type<>'TRANSIT'\",\"type<>'TRANSIT'\")\np.write_text(s); print('replaced from',n,'remaining',s.count(\"location_type\"))\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -10"
     },
     "timestamp": 1790522727987
@@ -1414,5 +1400,19 @@
     "content": "ok\nPASS K: peso e dimensao sao os informados; nunca estimados; volumes registrados\nPASS L: expedicao baixa o ledger uma unica vez; reenvio nao duplica a baixa\nPASS M: despachar exige permissao de expedicao E de movimentacao de inventario\nAssertionError: ERROR:  Item de expedição dispatched é imutáve",
     "is_error": false,
     "timestamp": 1790523652366
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '955,975p' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790523658909
+  },
+  {
+    "role": "tool_result",
+    "content": "  RAISE EXCEPTION 'Expedição entregue ou cancelada é imutável.';\n END IF;\n IF TG_TABLE_NAME='shipment_items' THEN\n  SELECT status INTO v_status FROM public.shipments WHERE id=(j->>'shipment_id')::uuid;\n  IF v_status IN ('DISPATCHED','IN_TRANSIT','DELIVERED','PARTIALLY_DELIVERED','CANCELED') THEN\n   ",
+    "is_error": false,
+    "timestamp": 1790523658928
   }
 ]
