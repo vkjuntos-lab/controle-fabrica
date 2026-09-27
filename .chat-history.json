@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport re,pathlib\n# find UNIQUE(organization_id,id) declarations for the tables I FK to\ntargets=['inventory_locations','inventory_batches','company_addresses','price_tables','sales_opportunities','sales_quotes','sales_representatives','customer_profiles','commercial_payment_terms','customer_credit_policies','sales_pipelines']\nfiles=sorted(pathlib.Path('supabase/migrations').glob('*.sql'))\nfound={t:False for t in targets}\nfor f in files:\n    s=f.read_text()\n    for t in targets:\n        # find CREATE TABLE public.<t> ( ... );\n        m=re.search(r'CREATE TABLE (?:IF NOT EXISTS )?public\\.'+t+r'\\s*\\(', s)\n        if not m: continue\n        i=m.end(); depth=1\n        while depth>0 and i<len(s):\n            if s[i]=='(':depth+=1\n            elif s[i]==')':depth-=1\n            i+=1\n        body=s[m.end():i]\n        if re.search(r'UNIQUE\\s*\\(\\s*organization_id\\s*,\\s*id\\s*\\)', body, re.I):\n            found[t]=f.name\nfor t,v in found.items():\n    print(f\"{t:32s} {v or '*** AUSENTE ***'}\")\nPY"
-    },
-    "timestamp": 1790520384064
-  },
-  {
-    "role": "tool_result",
-    "content": "inventory_locations              *** AUSENTE ***\ninventory_batches                *** AUSENTE ***\ncompany_addresses                *** AUSENTE ***\nprice_tables                     20260926100000_partner_reconciliation.sql\nsales_opportunities              20261005100000_crm.sql\nsales_quotes          ",
-    "is_error": false,
-    "timestamp": 1790520384133
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
@@ -1536,5 +1522,19 @@
     "content": "[\n  {\n    \"content\": \"Auditar schemas existentes e padrões do projeto\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Escrever tabelas, permissões e constraints da migration\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Helpers, numeração, ",
     "is_error": false,
     "timestamp": 1790521917820
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"price_tables\\|pricing_resolve_table\" supabase/migrations/*.sql | grep -i \"create table\\|create or replace function\" | head && echo \"=== price table cols ===\" && python3 - <<'PY'\nimport re,pathlib\nfor f in ['20260917110000_catalog_mestre.sql','20261005100000_crm.sql']:\n    s=re.sub(r'--[^\\n]*','',pathlib.Path('supabase/migrations/'+f).read_text())\n    for t in ['price_tables','price_table_items','commercial_payment_terms']:\n        m=re.search(r'CREATE TABLE (?:IF NOT EXISTS )?public\\.'+t+r'\\s*\\(',s)\n        if not m: continue\n        i=m.end();d=1\n        while d>0:\n            if s[i]=='(':d+=1\n            elif s[i]==')':d-=1\n            i+=1\n        body=s[m.end():i-1]\n        cols=[l.strip().split()[0] for l in body.split('\\n') if l.strip() and not l.strip().upper().startswith(('UNIQUE','CHECK','FOREIGN'))]\n        print('###',t,'em',f); print('   ',', '.join(cols))\nPY"
+    },
+    "timestamp": 1790521923315
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260926100000_partner_reconciliation.sql:115:CREATE TABLE public.price_tables (\n=== price table cols ===\n### commercial_payment_terms em 20261005100000_crm.sql\n    id, name, created_at, created_by\n",
+    "is_error": false,
+    "timestamp": 1790521923370
   }
 ]
