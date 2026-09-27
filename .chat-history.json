@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
-    },
-    "timestamp": 1790523402038
-  },
-  {
-    "role": "tool_result",
-    "content": "     (SELECT r.id FROM public.inventory_reservations r\n       WHERE r.organization_id=_org AND r.sales_order_item_id=pti.sales_order_item_id\n         AND r.inventory_location_id=v_loc AND r.status IN ('ACTIVE','PARTIALLY_CONSUMED')\n       ORDER BY r.reserved_at DESC LIMIT 1)\n  FROM public.picking_ta",
-    "is_error": false,
-    "timestamp": 1790523405278
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"ERROR:\" | head -2"
     },
     "timestamp": 1790523407462
@@ -1398,5 +1384,19 @@
     "content": "f132d09 AI: alteracao automatica\nd7441d6 AI: alteracao automatica\nfdb1b66 AI: alteracao automatica\n4084dc5 AI: alteracao automatica\n06a426a AI: alteracao automatica\n M .chat-history.json\n",
     "is_error": false,
     "timestamp": 1790524131588
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && git log --oneline -3 --name-only | head -20 && echo \"=== crm migration tracked?\" && git log --oneline -1 -- supabase/migrations/20261005100000_crm.sql && echo \"=== sales migration tracked?\" && git log --oneline -1 -- supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790524134049
+  },
+  {
+    "role": "tool_result",
+    "content": "dcf0e9b AI: alteracao automatica\n.chat-history.json\nf132d09 AI: alteracao automatica\n.chat-history.json\nscripts/test-sales-db.py\nd7441d6 AI: alteracao automatica\n.chat-history.json\n=== crm migration tracked?\n7ac0942 AI: alteracao automatica\n=== sales migration tracked?\n1ee26df AI: alteracao automati",
+    "is_error": false,
+    "timestamp": 1790524134133
   }
 ]
