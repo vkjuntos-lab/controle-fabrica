@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"ERROR:\" | head -2"
-    },
-    "timestamp": 1790523407462
-  },
-  {
-    "role": "tool_result",
-    "content": "AssertionError: ERROR:  null value in column \"description_snapshot\" of relation \"shipment_items\" violates not-null constraint\n",
-    "is_error": false,
-    "timestamp": 1790523410710
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2470,2500p' supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790523414824
@@ -1398,5 +1384,19 @@
     "content": "dcf0e9b AI: alteracao automatica\n.chat-history.json\nf132d09 AI: alteracao automatica\n.chat-history.json\nscripts/test-sales-db.py\nd7441d6 AI: alteracao automatica\n.chat-history.json\n=== crm migration tracked?\n7ac0942 AI: alteracao automatica\n=== sales migration tracked?\n1ee26df AI: alteracao automati",
     "is_error": false,
     "timestamp": 1790524134133
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261005100000_crm.sql'); s=p.read_text()\nold=\"\"\"     SELECT max_discount_percent INTO authority FROM commercial_discount_authorities WHERE organization_id=_org AND user_id=auth.uid();\n     IF authority IS NULL OR quote.discount_percent>authority THEN RAISE EXCEPTION 'Desconto excede a alçada configurada.'; END IF;\"\"\"\nnew=\"\"\"     -- Alcada so e exigida quando existe desconto. Proposta sem desconto nao\n     -- depende de autoridade: senao nenhuma organizacao sem alcada cadastrada\n     -- conseguiria aprovar proposta alguma.\n     IF quote.discount_percent>0 THEN\n      SELECT max_discount_percent INTO authority FROM commercial_discount_authorities WHERE organization_id=_org AND user_id=auth.uid();\n      IF authority IS NULL OR quote.discount_percent>authority THEN RAISE EXCEPTION 'Desconto excede a alçada configurada.'; END IF;\n     END IF;\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\npython3 - <<'PY'\nimport pathlib\np=pathlib.Path('/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py'); s=p.read_text()\nold=\"\"\" crmact('quote',quote,'submit');crmact('quote',quote,'approve',{'reason':'Comercial'})\"\"\"\nnew=\"\"\" crmact('quote',quote,'submit');crmact('quote',quote,'approve',{'reason':'Comercial'})\n # Com desconto, a alcada do aprovador volta a valer.\n discounted=crmact('quote',None,'create',{'company_id':company,'price_table_id':table,'primary_contact_id':contact,\n   'valid_until':valid,'discount_percent':10,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':1}]})['id']\n crmact('quote',discounted,'submit')\n crmact('quote',discounted,'approve',{'reason':'Sem alcada'},fail='alçada')\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790524142972
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nok\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  invalid input syntax for type json\nDETAIL:  Token \"f90730fd\" is invalid.\nCONTEXT:  JSON data, line 1: f90730",
+    "is_error": false,
+    "timestamp": 1790524147393
   }
 ]

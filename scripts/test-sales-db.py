@@ -247,6 +247,11 @@ def run():
  quote=crmact('quote',None,'create',{'company_id':company,'price_table_id':table,'primary_contact_id':contact,
    'valid_until':valid,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':8,'unit_price':22.00}]})['id']
  crmact('quote',quote,'submit');crmact('quote',quote,'approve',{'reason':'Comercial'})
+ # Com desconto, a alcada do aprovador volta a valer.
+ discounted=crmact('quote',None,'create',{'company_id':company,'price_table_id':table,'primary_contact_id':contact,
+   'valid_until':valid,'discount_percent':10,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':1}]})['id']
+ crmact('quote',discounted,'submit')
+ crmact('quote',discounted,'approve',{'reason':'Sem alcada'},fail='alçada')
  crmact('quote',quote,'send');crmact('quote',quote,'accept',{'contact_id':contact,'evidence':'Aceite'})
  key=uid()
  with ThreadPoolExecutor(2) as pool:

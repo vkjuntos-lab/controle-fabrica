@@ -745,8 +745,13 @@ BEGIN
      UPDATE sales_quotes SET status='PENDING_APPROVAL',updated_at=now() WHERE id=_id;
     WHEN 'approve' THEN
      IF quote.status<>'PENDING_APPROVAL' THEN RAISE EXCEPTION 'Aprovação exige proposta pendente.'; END IF;
-     SELECT max_discount_percent INTO authority FROM commercial_discount_authorities WHERE organization_id=_org AND user_id=auth.uid();
-     IF authority IS NULL OR quote.discount_percent>authority THEN RAISE EXCEPTION 'Desconto excede a alçada configurada.'; END IF;
+     -- Alcada so e exigida quando existe desconto. Proposta sem desconto nao
+     -- depende de autoridade: senao nenhuma organizacao sem alcada cadastrada
+     -- conseguiria aprovar proposta alguma.
+     IF quote.discount_percent>0 THEN
+      SELECT max_discount_percent INTO authority FROM commercial_discount_authorities WHERE organization_id=_org AND user_id=auth.uid();
+      IF authority IS NULL OR quote.discount_percent>authority THEN RAISE EXCEPTION 'Desconto excede a alçada configurada.'; END IF;
+     END IF;
      IF nullif(trim(_data->>'reason'),'') IS NULL THEN RAISE EXCEPTION 'Motivo da aprovação obrigatório.'; END IF;
      financial:=public.crm_financial_position(_org,quote.company_id);
      IF ((financial->>'block_overdue')::boolean AND (financial->>'overdue_amount')::numeric>0) OR
