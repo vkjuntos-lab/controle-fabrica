@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\nold=\"\"\" print('DEBUG task',sql(f\"SELECT status||'|'||(status NOT IN ('IN_PROGRESS','PICKED','PENDING'))::text||'|'||pg_typeof(status)::text FROM picking_tasks WHERE id={q(fulfillment['picking_task_id'])}\"),'ff',sql(f\"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"))\n item_id=sql(f\"SELECT id FROM picking_task_items WHERE picking_task_id={q(fulfillment['picking_task_id'])}\")\n rpc('sales_pick_confirm',org,fulfillment['picking_task_id'],{'items':[{'picking_task_item_id':item_id,'confirmed_quantity':19}]},user=picker)\n assert sql(f\"SELECT count(*) FROM logistics_exceptions WHERE exception_type='PICKING_DIFFERENCE' AND status='OPEN'\")=='1'\n rpc('sales_pick_confirm',org,fulfillment['picking_task_id'],{'items':[{'picking_task_item_id':item_id,'confirmed_quantity':20}]},user=picker)\n assert sql(f\"SELECT confirmed_quantity FROM picking_task_items WHERE id={q(item_id)}\")=='20.000'\n print('PASS J: divergencia entre separado e conferido vira excecao, nunca ajuste silencioso')\"\"\"\nnew=\"\"\" item_id=sql(f\"SELECT id FROM picking_task_items WHERE picking_task_id={q(fulfillment['picking_task_id'])}\")\n rpc('sales_pick_confirm',org,fulfillment['picking_task_id'],{'items':[{'picking_task_item_id':item_id,'confirmed_quantity':19}]},user=picker)\n assert sql(f\"SELECT count(*) FROM logistics_exceptions WHERE exception_type='PICKING_DIFFERENCE' AND status='OPEN'\")=='1'\n assert sql(f\"SELECT status FROM picking_tasks WHERE id={q(fulfillment['picking_task_id'])}\")=='CONFIRMED'\n # Conferido e imutavel: a divergencia vira excecao, nunca ajuste silencioso.\n rpc('sales_pick_confirm',org,fulfillment['picking_task_id'],{'items':[{'picking_task_item_id':item_id,'confirmed_quantity':20}]},user=picker,fail='não está em conferência')\n assert float(sql(f\"SELECT confirmed_quantity FROM picking_task_items WHERE id={q(item_id)}\"))==19.0\n print('PASS J: divergencia entre separado e conferido vira excecao; conferencia e imutavel')\"\"\"\nassert old in s; s=s.replace(old,new)\ns=s.replace(\"\"\"rpc('sales_fulfillment_action',org,fulfillment['id'],'pack',{},user=picker,fail='nao esta em embalagem')\"\"\",\n\"\"\"rpc('sales_fulfillment_action',org,fulfillment['id'],'pack',{},user=picker)\"\"\")\ns=s.replace(\"\"\"rpc('sales_fulfillment_action',org,fulfillment['id'],'start',{},user=picker,fail='nao esta')\"\"\",\n\"\"\"rpc('sales_fulfillment_action',org,fulfillment['id'],'start',{},user=picker,fail='não está pronto para separação')\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
-    },
-    "timestamp": 1790523344355
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n                 ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nA",
-    "is_error": false,
-    "timestamp": 1790523347628
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk 'BEGIN{f=0} /CREATE TABLE public.packing_record_items /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261006100000_sales_orders.sql && echo \"=== packing_records ===\" && awk 'BEGIN{f=0} /CREATE TABLE public.packing_records /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261006100000_sales_orders.sql && echo \"=== volumes ===\" && awk 'BEGIN{f=0} /CREATE TABLE public.packing_record_volumes /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790523350554
@@ -1404,5 +1390,19 @@
     "content": "(no output)",
     "is_error": false,
     "timestamp": 1790524070458
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"Operação inválida\" supabase/migrations/20261005100000_crm.sql"
+    },
+    "timestamp": 1790524072248
+  },
+  {
+    "role": "tool_result",
+    "content": "779: ELSE RAISE EXCEPTION 'Operação inválida.';\n",
+    "is_error": false,
+    "timestamp": 1790524072259
   }
 ]
