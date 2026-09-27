@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && head -70 scripts/test-inventory-db.py"
-    },
-    "timestamp": 1790521709152
-  },
-  {
-    "role": "tool_result",
-    "content": "#!/usr/bin/env python3\n\"\"\"Isolated PostgreSQL integration tests. Never connects to a deployed database.\"\"\"\nimport concurrent.futures\nimport json\nimport os\nfrom pathlib import Path\nimport shutil\nimport subprocess\nimport tempfile\nimport uuid\n\nROOT = Path(__file__).resolve().parents[1]\nBIN = Path(os.en",
-    "is_error": false,
-    "timestamp": 1790521709185
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && cp supabase/migrations/20261006100000_sales_orders.sql /tmp/opencode/part1_backup.sql && for p in 2 3 4 5 6 7 8 9 10; do cat /tmp/opencode/sales_part$p.sql >> supabase/migrations/20261006100000_sales_orders.sql; echo \"\" >> supabase/migrations/20261006100000_sales_orders.sql; done && wc -l supabase/migrations/20261006100000_sales_orders.sql && tail -5 supabase/migrations/20261006100000_sales_orders.sql && grep -c \"COMMIT;\" supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790521712412
@@ -1509,5 +1495,19 @@
     "content": "9\n                                             ~~~~~~~^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 28, in call\n    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                           ",
     "is_error": false,
     "timestamp": 1790522691737
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"CREATE OR REPLACE FUNCTION public.partner_save_contact\" supabase/migrations/20260924100000_partners.sql"
+    },
+    "timestamp": 1790522694039
+  },
+  {
+    "role": "tool_result",
+    "content": "(no output)",
+    "is_error": false,
+    "timestamp": 1790522694045
   }
 ]
