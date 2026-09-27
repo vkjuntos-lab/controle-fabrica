@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '148,166p' scripts/test-sales-db.py"
-    },
-    "timestamp": 1790523517869
-  },
-  {
-    "role": "tool_result",
-    "content": " print('PASS J: divergencia entre separado e conferido vira excecao; conferencia e imutavel')\n\n rpc('sales_fulfillment_action',org,fulfillment['id'],'pack',{},user=picker)\n rpc('sales_fulfillment_action',org,fulfillment['id'],'start',{},user=picker,fail='não está pronto para separação')\n rpc('sales_",
-    "is_error": false,
-    "timestamp": 1790523517886
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"não está liberado para expedição\" -B8 supabase/migrations/20261006100000_sales_orders.sql | head -14"
     },
     "timestamp": 1790523519854
@@ -1398,5 +1384,19 @@
     "content": "3471:CREATE TRIGGER sales_integrity_settings BEFORE INSERT OR UPDATE OR DELETE ON public.sales_order_settings\n3480:CREATE TRIGGER sales_integrity_orders BEFORE INSERT OR UPDATE OR DELETE ON public.sales_orders\n3482:CREATE TRIGGER sales_immutable_orders BEFORE UPDATE OR DELETE ON public.sales_orders\n",
     "is_error": false,
     "timestamp": 1790524307556
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '3478,3484p' supabase/migrations/20261006100000_sales_orders.sql && grep -rn \"BEFORE INSERT OR UPDATE ON public.sales_orders\\|ON public.sales_orders\" supabase/migrations/20261005100000_crm.sql supabase/migrations/2026092*.sql supabase/migrations/2026100*.sql | grep -v 20261006100000 | head"
+    },
+    "timestamp": 1790524310254
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE POLICY sales_read ON public.sales_orders FOR SELECT TO authenticated\n  USING(public.has_permission(organization_id,'sales_orders.read') AND public.is_org_member(organization_id));\nCREATE TRIGGER sales_integrity_orders BEFORE INSERT OR UPDATE OR DELETE ON public.sales_orders\n  FOR EACH ROW EXE",
+    "is_error": false,
+    "timestamp": 1790524310286
   }
 ]
