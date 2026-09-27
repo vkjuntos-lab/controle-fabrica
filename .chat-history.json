@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sed -n '1,60p' supabase/migrations/20261005100000_crm.sql"
-    },
-    "timestamp": 1790520233255
-  },
-  {
-    "role": "tool_result",
-    "content": "-- MASTER 012: CRM uses Company, official Pricing, ledger and domain_events.\nBEGIN;\nALTER TABLE public.company_roles DROP CONSTRAINT company_roles_role_check;\nALTER TABLE public.company_roles ADD CONSTRAINT company_roles_role_check CHECK(role IN ('CUSTOMER','PROSPECT','PARTNER','RESELLER','SUPPLIER'",
-    "is_error": false,
-    "timestamp": 1790520233284
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sed -n '95,180p' supabase/migrations/20261001100000_purchasing.sql"
     },
     "timestamp": 1790520236245
@@ -1536,5 +1522,19 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790521805642
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/_probe-sales.py\" 2>&1 | tail -20"
+    },
+    "timestamp": 1790521807802
+  },
+  {
+    "role": "tool_result",
+    "content": "FALHOU 20261006100000_sales_orders.sql\nERROR:  syntax error at or near \")\"\nLINE 13: ...  nullif(trim(coalesce(_data->>'contact_name',''))),nullif(t...\n                                                              ^\n\n",
+    "is_error": false,
+    "timestamp": 1790521809845
   }
 ]
