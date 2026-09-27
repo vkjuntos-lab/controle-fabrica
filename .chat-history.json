@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"coalesce(i*t\\?\\.\\?approved_quantity\" supabase/migrations/20261006100000_sales_orders.sql"
-    },
-    "timestamp": 1790522773977
-  },
-  {
-    "role": "tool_result",
-    "content": "1782:  v_need:=coalesce(it.approved_quantity,it.ordered_quantity);\n1865:  v_need:=coalesce(it.approved_quantity,it.ordered_quantity);\n1933: SELECT coalesce(sum(greatest(0,coalesce(i.approved_quantity,i.ordered_quantity)\n1941: SELECT coalesce(sum(coalesce(i.approved_quantity,i.ordered_quantity)),0) I",
-    "is_error": false,
-    "timestamp": 1790522773996
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\ns=s.replace(\"\"\"v_need:=coalesce(it.approved_quantity,it.ordered_quantity);\"\"\",\n\"\"\"v_need:=CASE WHEN it.approved_quantity>0 THEN it.approved_quantity ELSE it.ordered_quantity END;\"\"\")\ns=s.replace(\"\"\"SELECT coalesce(sum(greatest(0,coalesce(i.approved_quantity,i.ordered_quantity)\"\"\",\n\"\"\"SELECT coalesce(sum(greatest(0,CASE WHEN i.approved_quantity>0 THEN i.approved_quantity ELSE i.ordered_quantity END)\"\"\")\ns=s.replace(\"\"\"SELECT coalesce(sum(coalesce(i.approved_quantity,i.ordered_quantity)),0) INTO v_qty\"\"\",\n\"\"\"SELECT coalesce(sum(CASE WHEN i.approved_quantity>0 THEN i.approved_quantity ELSE i.ordered_quantity END),0) INTO v_qty\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -10"
     },
     "timestamp": 1790522776719
@@ -1414,5 +1400,19 @@
     "content": "2902-   RAISE EXCEPTION 'Segregação de funções ativa: quem abriu a devolução não pode aprová-la.';\n2903-  END IF;\n2904-  v_new:='APPROVED';\n2905-  UPDATE public.customer_returns SET approved_by=auth.uid(),approved_at=v_now WHERE id=_ret;\n2906- ELSIF _action='reject' THEN\n2907-  IF ret.status NOT IN ",
     "is_error": false,
     "timestamp": 1790523732114
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2911,2975p' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790523738529
+  },
+  {
+    "role": "tool_result",
+    "content": " ELSIF _action='receive' THEN\n  IF ret.status NOT IN ('APPROVED','RECEIVING') THEN\n   RAISE EXCEPTION 'Somente devolução aprovada pode ser recebida (status: %).',ret.status;\n  END IF;\n  v_dest:=nullif(_data->>'destination_location_id','')::uuid;\n  v_fin:=coalesce(nullif(_data->>'financial_action',''",
+    "is_error": false,
+    "timestamp": 1790523738551
   }
 ]
