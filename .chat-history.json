@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
-      "limit": 50,
-      "offset": 1212
-    },
-    "timestamp": 1790522626471
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql</path>\n<type>file</type>\n<content>\n1212:       WHERE id=v_addr_id AND organization_id=_org AND company_id=o.company_id) THEN\n1213:     RAISE EXCEPTION 'Endereço de entrega inválido para esta empresa.';",
-    "is_error": false,
-    "timestamp": 1790522626512
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\" IF v_map IS NULL THEN RETURN NEW; END IF;\"\"\"\nnew=\"\"\" IF v_map IS NULL THEN RETURN coalesce(NEW,OLD); END IF;\"\"\"\nassert old in s; s=s.replace(old,new)\nold2=\"\"\"  IF v_org IS DISTINCT FROM NEW.organization_id THEN RAISE EXCEPTION 'Referência fora da organização.'; END IF;\n END LOOP;\n RETURN NEW;\"\"\"\nnew2=\"\"\"  IF v_org IS DISTINCT FROM NEW.organization_id THEN RAISE EXCEPTION 'Referência fora da organização.'; END IF;\n END LOOP;\n -- DELETE carrega a linha em OLD: devolver NEW (nulo) cancelaria a operacao.\n RETURN coalesce(NEW,OLD);\"\"\"\nassert old2 in s; s=s.replace(old2,new2)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
@@ -1416,5 +1400,19 @@
     "content": " print('PASS J: divergencia entre separado e conferido vira excecao; conferencia e imutavel')\n\n rpc('sales_fulfillment_action',org,fulfillment['id'],'pack',{},user=picker)\n rpc('sales_fulfillment_action',org,fulfillment['id'],'start',{},user=picker,fail='não está pronto para separação')\n rpc('sales_",
     "is_error": false,
     "timestamp": 1790523517886
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"não está liberado para expedição\" -B8 supabase/migrations/20261006100000_sales_orders.sql | head -14"
+    },
+    "timestamp": 1790523519854
+  },
+  {
+    "role": "tool_result",
+    "content": "2392- cfg:=public.sales_settings(_org);\n2393- v_need_full:=coalesce((cfg->>'shipment_requires_full_confirmation')::boolean,false);\n2394- v_ful:=nullif(_data->>'fulfillment_order_id','')::uuid;\n2395- v_task:=nullif(_data->>'picking_task_id','')::uuid;\n2396- IF v_ful IS NOT NULL THEN\n2397-  IF NOT EXI",
+    "is_error": false,
+    "timestamp": 1790523519864
   }
 ]
