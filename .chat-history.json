@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"jsonb_agg(to_jsonb(x) ORDER BY x.created_at\" supabase/migrations/20261006100000_sales_orders.sql | while read -r l; do n=${l%%:*}; echo \"=== $n ===\"; awk -v N=$n 'NR<=N && /CREATE FUNCTION/ {f=$0; fl=NR} END{}' supabase/migrations/20261006100000_sales_orders.sql; awk -v N=$n 'NR<N && /^(CREATE|CREATE OR REPLACE) FUNCTION/ {f=$0; fl=NR} END{print \"  dentro de: \" f \" (linha \" fl \")\"}' supabase/migrations/20261006100000_sales_orders.sql; done"
-    },
-    "timestamp": 1790521770763
-  },
-  {
-    "role": "tool_result",
-    "content": "=== 1625 ===\n  dentro de: CREATE FUNCTION public.sales_company_activity(_org uuid,_company uuid,_limit integer DEFAULT 50) RETURNS jsonb (linha 1622)\n=== 1635 ===\n  dentro de: CREATE FUNCTION public.sales_company_activity(_org uuid,_company uuid,_limit integer DEFAULT 50) RETURNS jsonb (linha 1622)\n",
-    "is_error": false,
-    "timestamp": 1790521770813
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
@@ -1507,5 +1493,19 @@
     "content": "CREATE FUNCTION public.sales_reserve(_org uuid,_order uuid,_data jsonb DEFAULT '{}')\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE o public.sales_orders; it public.sales_order_items; i jsonb; cfg jsonb;\n v_policy text; v_need numeric; v_reserved numeric; v_pend",
     "is_error": false,
     "timestamp": 1790522735053
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\" v_skipped jsonb:='[]'::jsonb; v_key text; v_status text; v_mto boolean;\nBEGIN\n PERFORM public.sales_require(_org,'reservations.create');\"\"\"\nnew=\"\"\" v_skipped jsonb:='[]'::jsonb; v_key text; v_status text; v_mto boolean; v_items jsonb; it2 public.sales_order_items;\nBEGIN\n PERFORM public.sales_require(_org,'reservations.create');\"\"\"\nassert old in s; s=s.replace(old,new)\nold2=\"\"\" FOR i IN SELECT * FROM jsonb_array_elements(coalesce(_data->'items',coalesce(_data->'lines','[]'::jsonb))) LOOP\n  it:=NULL;\n  SELECT * INTO it FROM public.sales_order_items\n   WHERE organization_id=_org AND sales_order_id=_order\n     AND (CASE WHEN i ? 'sales_order_item_id' THEN id=nullif(i->>'sales_order_item_id','')::uuid\n               WHEN i ? 'variant_id' THEN product_variant_id=nullif(i->>'variant_id','')::uuid\n               ELSE false END);\"\"\"\nnew2=\"\"\" -- Sem lista explicita, a reserva cobre tudo que ainda esta pendente no\n -- pedido. Reserver item a item continua sendo possivel.\n v_items:=coalesce(_data->'items',_data->'lines');\n IF v_items IS NULL THEN\n  SELECT coalesce(jsonb_agg(jsonb_build_object('sales_order_item_id',it2.id) ORDER BY it2.created_at),'[]'::jsonb)\n   INTO v_items\n  FROM public.sales_order_items it2\n  WHERE it2.organization_id=_org AND it2.sales_order_id=_order AND it2.status<>'CANCELED'\n   AND it2.approved_quantity>it2.reserved_quantity;\n END IF;\n FOR i IN SELECT * FROM jsonb_array_elements(v_items) LOOP\n  it:=NULL;\n  SELECT * INTO it FROM public.sales_order_items\n   WHERE organization_id=_org AND sales_order_id=_order\n     AND (CASE WHEN i ? 'sales_order_item_id' THEN id=nullif(i->>'sales_order_item_id','')::uuid\n               WHEN i ? 'variant_id' THEN product_variant_id=nullif(i->>'variant_id','')::uuid\n               ELSE false END);\"\"\"\nassert old2 in s; s=s.replace(old2,new2)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -10"
+    },
+    "timestamp": 1790522743143
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nAssertionError: ERROR:  column reference \"it2.id\" is ambiguous\nLINE 1: ...sonb_agg(jsonb_build_object('sales_order_item_id',it2.id) OR...\n                                                             ^\nDETAIL:  It could refer to either a PL/pgSQL variable or a table column.\nQUERY:  SELECT coalesce",
+    "is_error": false,
+    "timestamp": 1790522746018
   }
 ]

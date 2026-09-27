@@ -1832,7 +1832,7 @@ RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE o public.sales_orders; it public.sales_order_items; i jsonb; cfg jsonb;
  v_policy text; v_need numeric; v_reserved numeric; v_pend numeric; v_avail numeric;
  v_qty numeric; v_loc uuid; v_batch uuid; v_res uuid; v_expires timestamptz; v_created integer:=0;
- v_skipped jsonb:='[]'::jsonb; v_key text; v_status text; v_mto boolean;
+ v_skipped jsonb:='[]'::jsonb; v_key text; v_status text; v_mto boolean; v_items jsonb; it2 public.sales_order_items;
 BEGIN
  PERFORM public.sales_require(_org,'reservations.create');
  PERFORM public.inventory_lock(_org);
@@ -1843,7 +1843,17 @@ BEGIN
  END IF;
  cfg:=public.sales_settings(_org); v_policy:=cfg->>'reservation_policy'; v_mto:=coalesce((cfg->>'make_to_order_enabled')::boolean,true);
 
- FOR i IN SELECT * FROM jsonb_array_elements(coalesce(_data->'items',coalesce(_data->'lines','[]'::jsonb))) LOOP
+ -- Sem lista explicita, a reserva cobre tudo que ainda esta pendente no
+ -- pedido. Reserver item a item continua sendo possivel.
+ v_items:=coalesce(_data->'items',_data->'lines');
+ IF v_items IS NULL THEN
+  SELECT coalesce(jsonb_agg(jsonb_build_object('sales_order_item_id',it2.id) ORDER BY it2.created_at),'[]'::jsonb)
+   INTO v_items
+  FROM public.sales_order_items it2
+  WHERE it2.organization_id=_org AND it2.sales_order_id=_order AND it2.status<>'CANCELED'
+   AND it2.approved_quantity>it2.reserved_quantity;
+ END IF;
+ FOR i IN SELECT * FROM jsonb_array_elements(v_items) LOOP
   it:=NULL;
   SELECT * INTO it FROM public.sales_order_items
    WHERE organization_id=_org AND sales_order_id=_order
