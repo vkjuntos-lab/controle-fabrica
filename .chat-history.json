@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\" print('DEBUG ff',sql(f\"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"),'packrec',sql(f\"SELECT count(*) FROM packing_records WHERE fulfillment_order_id={q(fulfillment['id'])}\"))\\n\"\"\",\"\")\ns=s.replace(\"\"\" print('DEBUG ids ff=',fulfillment['id'],'order=',order['id'],'status',sql(f\"SELECT status||'|'||sales_order_id||'|'||organization_id FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"))\\n\"\"\",\"\")\nold=\"\"\" f2=rpc('sales_fulfillment_create',org,second['id'],{'items':[{'sales_order_item_id':sql(f\"SELECT id FROM sales_order_items WHERE sales_order_id={q(second['id'])}\"),'quantity':5}]},user=picker)\n rpc('sales_shipment_create',org,second['id'],{'fulfillment_order_id':f2['id']},user=commercial)\n sh2=sql(f\"SELECT id FROM shipments WHERE sales_order_id={q(second['id'])}\")\"\"\"\nnew=\"\"\" rpc('sales_shipment_create',org,second['id'],{'items':[\n   {'sales_order_item_id':sql(f\"SELECT id FROM sales_order_items WHERE sales_order_id={q(second['id'])}\"),'quantity':5}]},user=commercial)\n sh2=sql(f\"SELECT id FROM shipments WHERE sales_order_id={q(second['id'])}\")\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
-    },
-    "timestamp": 1790523581697
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n   source_location_id,destination_address_id,address_snapshot,carrier_id,tracking_code,tracking_source,\n   shipping_method,status,expected_delivery_at,created_by)\n VALUES(_org,v_number,_order,v_ful,v_task,v_loc,v_addr,v_add,v_carrier,v_tracking,\n   CASE WHEN v_tracking IS NULL THEN NULL ELSE 'MAN",
-    "is_error": false,
-    "timestamp": 1790523585170
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"ERROR:|^PASS\" | tail -4"
     },
     "timestamp": 1790523587738
@@ -1398,5 +1384,19 @@
     "content": "ok\nAssertionError: NOTICE:  PRE INSERT eb5a7aa4-2f79-40de-9952-dcb7d0829fac be62fb9b-8b6b-43f2-b79a-ea29e2940bea 9ca2d1e2-b007-4b67-b2b3-8d711b5fc8c7 1 <NULL> <NULL> da773d57-3e2c-4862-9fd3-b94c7b673db9 2026-09-27 <NULL> <NULL> 46892bde-48b9-4fa3-8045-d8d97269dcec <NULL>\nERROR:  invalid input syntax",
     "is_error": false,
     "timestamp": 1790524391107
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"  RAISE NOTICE 'PRE INSERT % % % % % % % % % % % %',q.company_id,v_profile,q.id,q.version,q.opportunity_id,v_rep,v_table,q.issue_date,v_terms_id,v_term,v_addr_id,v_bill_id;\"\"\"\nnew=\"\"\"  FOR v_dbg IN SELECT string_agg(column_name||':'||data_type,', ' ORDER BY ordinal_position) FROM information_schema.columns WHERE table_name='sales_orders' LOOP\n   RAISE NOTICE 'COLS %',left(v_dbg,2000);\n  END LOOP;\"\"\"\nassert old in s; s=s.replace(old,new)\nold2=\"\"\" v_profile_table uuid; v_terms_id uuid; v_term text; v_rep uuid; v_snapshot jsonb;\"\"\"\nnew2=\"\"\" v_profile_table uuid; v_terms_id uuid; v_term text; v_rep uuid; v_snapshot jsonb; v_dbg text;\"\"\"\nassert old2 in s; s=s.replace(old2,new2)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -o \"COLS .*\" | head -1"
+    },
+    "timestamp": 1790524397698
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nCOLS id:uuid, organization_id:uuid, order_number:text, company_id:uuid, customer_profile_id:uuid, sales_quote_id:uuid, sales_quote_version:integer, sales_opportunity_id:uuid, representative_id:uuid, price_table_id:uuid, source_type:text, order_date:date, expected_delivery_date:date, payment_terms",
+    "is_error": false,
+    "timestamp": 1790524401976
   }
 ]
