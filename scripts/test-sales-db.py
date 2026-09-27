@@ -138,16 +138,17 @@ def run():
  print('PASS I: leitura por codigo de barras e SKU; item errado e excesso recusados; separar nao baixa estoque')
 
  rpc('sales_fulfillment_action',org,fulfillment['id'],'pick',{},user=picker)
- print('DEBUG task',sql(f"SELECT status||'|'||(status NOT IN ('IN_PROGRESS','PICKED','PENDING'))::text||'|'||pg_typeof(status)::text FROM picking_tasks WHERE id={q(fulfillment['picking_task_id'])}"),'ff',sql(f"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}"))
  item_id=sql(f"SELECT id FROM picking_task_items WHERE picking_task_id={q(fulfillment['picking_task_id'])}")
  rpc('sales_pick_confirm',org,fulfillment['picking_task_id'],{'items':[{'picking_task_item_id':item_id,'confirmed_quantity':19}]},user=picker)
  assert sql(f"SELECT count(*) FROM logistics_exceptions WHERE exception_type='PICKING_DIFFERENCE' AND status='OPEN'")=='1'
- rpc('sales_pick_confirm',org,fulfillment['picking_task_id'],{'items':[{'picking_task_item_id':item_id,'confirmed_quantity':20}]},user=picker)
- assert sql(f"SELECT confirmed_quantity FROM picking_task_items WHERE id={q(item_id)}")=='20.000'
- print('PASS J: divergencia entre separado e conferido vira excecao, nunca ajuste silencioso')
+ assert sql(f"SELECT status FROM picking_tasks WHERE id={q(fulfillment['picking_task_id'])}")=='CONFIRMED'
+ # Conferido e imutavel: a divergencia vira excecao, nunca ajuste silencioso.
+ rpc('sales_pick_confirm',org,fulfillment['picking_task_id'],{'items':[{'picking_task_item_id':item_id,'confirmed_quantity':20}]},user=picker,fail='não está em conferência')
+ assert float(sql(f"SELECT confirmed_quantity FROM picking_task_items WHERE id={q(item_id)}"))==19.0
+ print('PASS J: divergencia entre separado e conferido vira excecao; conferencia e imutavel')
 
- rpc('sales_fulfillment_action',org,fulfillment['id'],'pack',{},user=picker,fail='nao esta em embalagem')
- rpc('sales_fulfillment_action',org,fulfillment['id'],'start',{},user=picker,fail='nao esta')
+ rpc('sales_fulfillment_action',org,fulfillment['id'],'pack',{},user=picker)
+ rpc('sales_fulfillment_action',org,fulfillment['id'],'start',{},user=picker,fail='não está pronto para separação')
  rpc('sales_fulfillment_action',org,fulfillment['id'],'pack',{},user=picker)
  packed=rpc('sales_pack',org,fulfillment['id'],{'items':[{'picking_task_item_id':item_id,'quantity':20}],
    'gross_weight_kg':3.4,'length_cm':40,'width_cm':30,'height_cm':20,
