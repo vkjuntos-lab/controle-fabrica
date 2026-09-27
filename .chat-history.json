@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd /tmp/opencode && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('sales_part9.sql'); s=p.read_text()\n\ns=s.replace(\"\"\" IF nullif(_data->>'reservation_policy','') IS NOT NULL\n    AND _data->>'reservation_policy' NOT IN ('ALLOW_NEGATIVE_AVAILABLE','PARTIAL_ONLY','FULL_ONLY') THEN\n  RAISE EXCEPTION 'Política de reserva inválida.';\n END IF;\n IF nullif(_data->>'price_override_policy','') IS NOT NULL\n    AND _data->>'price_override_policy' NOT IN ('BLOCK','ALLOW_WITH_AUTHORIZATION','ALLOW') THEN\n  RAISE EXCEPTION 'Política de preço inválida.';\n END IF;\n IF nullif(_data->>'receivable_trigger','') IS NOT NULL\n    AND _data->>'receivable_trigger' NOT IN ('ON_APPROVAL','ON_DISPATCH') THEN\n  RAISE EXCEPTION 'Gatilho financeiro inválido.';\n END IF;\n IF nullif(_data->>'credit_exposure_policy','') IS NOT NULL\n    AND _data->>'credit_exposure_policy' NOT IN ('BLOCK','ALLOW_WITH_AUTHORIZATION','ALLOW') THEN\n  RAISE EXCEPTION 'Política de exposição inválida.';\n END IF;\n IF nullif(_data->>'tracking_mode','') IS NOT NULL\n    AND _data->>'tracking_mode' NOT IN ('MANUAL','CARRIER_API','DISABLED') THEN\n  RAISE EXCEPTION 'Modo de rastreamento inválido.';\n END IF;\"\"\",\n\"\"\" IF nullif(_data->>'reservation_policy','') IS NOT NULL\n    AND _data->>'reservation_policy' NOT IN ('FULL_ONLY','ALLOW_PARTIAL','ALLOW_NEGATIVE_AVAILABLE') THEN\n  RAISE EXCEPTION 'Política de reserva inválida.';\n END IF;\n IF nullif(_data->>'price_override_policy','') IS NOT NULL\n    AND _data->>'price_override_policy' NOT IN ('BLOCK','ALLOW_WITH_AUTHORIZATION') THEN\n  RAISE EXCEPTION 'Política de preço inválida.';\n END IF;\n IF nullif(_data->>'receivable_trigger','') IS NOT NULL\n    AND _data->>'receivable_trigger' NOT IN ('NONE','ON_APPROVAL','ON_DISPATCH') THEN\n  RAISE EXCEPTION 'Gatilho financeiro inválido.';\n END IF;\n IF nullif(_data->>'credit_exposure_policy','') IS NOT NULL\n    AND _data->>'credit_exposure_policy' NOT IN ('OPEN_RECEIVABLES_ONLY','OPEN_RECEIVABLES_PLUS_OPEN_ORDERS') THEN\n  RAISE EXCEPTION 'Política de exposição inválida.';\n END IF;\n IF nullif(_data->>'tracking_mode','') IS NOT NULL\n    AND _data->>'tracking_mode' NOT IN ('MANUAL','WEBHOOK') THEN\n  RAISE EXCEPTION 'Modo de rastreamento inválido.';\n END IF;\"\"\")\n\ns=s.replace(\"\"\" PERFORM public.sales_require(_org,coalesce(nullif(_data->>'permission',''),\n   CASE WHEN _exception IS NULL THEN 'logistics.read' ELSE 'logistics.read' END));\"\"\",\n\"\"\" -- Ler ocorrencia e livre; tratar ocorrencia exige permissao propria.\n PERFORM public.sales_require(_org,coalesce(nullif(_data->>'permission',''),'logistics.exceptions'));\"\"\")\n\ns=s.replace(\"\"\"   -- Devolucao volta a ser disponivel? SO se o destino for vendavel.\n   IF v_i.destination='SELLABLE' OR v_i.destination='PENDING' THEN\n    -- item do pedido: devolvido e redutor do pendente\n    NULL;\n   END IF;\n   v_ship:=\"\"\",\"\"\"   v_ship:=\"\"\")\n\ns=s.replace(\"\"\"DECLARE ret public.customer_returns; cfg jsonb; v_new text; v_now timestamptz:=now();\n v_i record; v_dest uuid; v_dest_ok boolean; v_fin text; v_mov jsonb; v_mov_id uuid;\n v_qty numeric; v_notes text; v_qty_sum numeric; v_ship jsonb:='[]'::jsonb; v_sep jsonb:='[]'::jsonb;\n v_reserved numeric; v_count integer:=0; v_reject_reason text; v_purpose text;\"\"\",\n\"\"\"DECLARE ret public.customer_returns; cfg jsonb; v_new text; v_now timestamptz:=now();\n v_i record; v_dest uuid; v_dest_ok boolean; v_fin text; v_mov jsonb; v_mov_id uuid;\n v_qty numeric; v_notes text; v_movements jsonb:='[]'::jsonb; v_count integer:=0; v_reject_reason text;\"\"\")\ns=s.replace('v_ship:=v_ship||jsonb_build_object','v_movements:=v_movements||jsonb_build_object')\ns=s.replace(\"'items',v_count,'movements',v_ship,\",\"'items',v_count,'movements',v_movements,\")\ns=s.replace(\"'items',v_count,'movements',v_ship,\\n\",\"'items',v_count,'movements',v_movements,\\n\")\ns=s.replace(\"RETURN jsonb_build_object('id',_ret,'status','RECEIVED','items',v_count,'movements',v_ship,\",\n            \"RETURN jsonb_build_object('id',_ret,'status','RECEIVED','items',v_count,'movements',v_movements,\")\n\n# selecao do item devolvido: sem clausula morta\ns=s.replace(\"\"\"  SELECT * INTO v_shi FROM public.shipment_items shi\n   WHERE shi.organization_id=_org\n     AND (v_ship IS NOT NULL AND shi.shipment_id=v_ship\n          OR v_ship IS NULL AND shi.sales_order_item_id=nullif(v_i->>'sales_order_item_id','')::uuid\n          AND shi.delivered_quantity-shi.returned_quantity>0)\n     AND (v_i->>'shipment_item_id' IS NULL OR true)\n     AND (v_i->>'sales_order_item_id' IS NULL\n          OR shi.sales_order_item_id=nullif(v_i->>'sales_order_item_id','')::uuid)\n   ORDER BY shi.shipment_id LIMIT 1;\"\"\",\n\"\"\"  SELECT * INTO v_shi FROM public.shipment_items shi\n   WHERE shi.organization_id=_org\n     AND (v_ship IS NOT NULL OR shi.sales_order_id=o.id)\n     AND (v_ship IS NULL OR shi.shipment_id=v_ship)\n     AND (v_i->>'sales_order_item_id' IS NULL\n          OR shi.sales_order_item_id=nullif(v_i->>'sales_order_item_id','')::uuid)\n     AND (v_i->>'shipment_item_id' IS NULL OR shi.id=nullif(v_i->>'shipment_item_id','')::uuid)\n   ORDER BY shi.shipment_id DESC LIMIT 1;\"\"\")\np.write_text(s); print('parte 9 ok')\nfor bad in ['v_ship:=','PARTIAL_ONLY','CARRIER_API','DISABLED']:\n    print(bad, s.count(bad))\nPY"
-    },
-    "timestamp": 1790521319117
-  },
-  {
-    "role": "tool_result",
-    "content": "parte 9 ok\nv_ship:= 1\nPARTIAL_ONLY 0\nCARRIER_API 0\nDISABLED 0\n",
-    "is_error": false,
-    "timestamp": 1790521319154
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd /tmp/opencode && grep -n \"v_ship\" sales_part9.sql"
     },
     "timestamp": 1790521322824
@@ -1512,5 +1498,19 @@
     "content": "ok\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 28, in call\n    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                                                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n",
     "is_error": false,
     "timestamp": 1790522636399
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"FUNCTION public.sales_validate_order\" -A45 supabase/migrations/20261006100000_sales_orders.sql | sed -n '1,55p'"
+    },
+    "timestamp": 1790522638123
+  },
+  {
+    "role": "tool_result",
+    "content": "1398:CREATE FUNCTION public.sales_validate_order(_org uuid,_order uuid)\n1399-RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\n1400-DECLARE o public.sales_orders; cfg jsonb; i jsonb; issues jsonb:='[]'::jsonb; v_pct numeric;\n1401- v_discount_pct numeric; v_auth nume",
+    "is_error": false,
+    "timestamp": 1790522638139
   }
 ]
