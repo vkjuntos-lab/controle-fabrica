@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "import { toCsv, downloadCsv } from \"@/lib/csv\";\nimport { columnLabel } from \"@/components/crm/shared\";\nimport { CRM_FILTER_KEYS } from \"@/lib/crm/constants\";\n\n/**\n * Exporta o resultado já filtrado da consulta do CRM.\n *\n * Reusa a infraestrutura de CSV dos demais módulos e neutraliza fórmulas de\n *",
-    "is_error": false,
-    "timestamp": 1790413450542
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sed -n '125,180p' src/lib/crm/constants.ts"
-    },
-    "timestamp": 1790413455738
-  },
-  {
-    "role": "tool_result",
     "content": "export const CRM_LIST_KINDS = [\n  \"customers\",\n  \"companies\",\n  \"contacts\",\n  \"leads\",\n  \"opportunities\",\n  \"opportunity_items\",\n  \"stage_history\",\n  \"quotes\",\n  \"quote_items\",\n  \"approvals\",\n  \"activities\",\n  \"activity_history\",\n  \"representatives\",\n  \"portfolios\",\n  \"segments\",\n  \"sources\",\n  \"rea",
     "is_error": false,
     "timestamp": 1790413455747
@@ -1670,5 +1656,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790520738587
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/tmp/opencode/sales_part2.sql",
+      "newString": "CREATE FUNCTION public.sales_credit_check(_org uuid,_company uuid,_amount numeric,_order uuid DEFAULT NULL)\nRETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\nDECLARE pos jsonb; cfg jsonb; v_limit numeric; v_open numeric; v_overdue numeric;\n v_policy text; v_orders numeric; v_exposure numeric; v_available numeric; v_blocked text[]:='{}'::text[];\n v_decision text;\nBEGIN\n pos:=public.crm_financial_position(_org,_company);\n cfg:=public.sales_settings(_org); v_policy:=cfg->>'credit_exposure_policy';",
+      "oldString": "CREATE FUNCTION public.sales_credit_check(_org uuid,_company uuid,_amount numeric,_order uuid DEFAULT NULL)\nRETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\nDECLARE pos jsonb; cfg public.sales_order_settings; v_limit numeric; v_open numeric; v_overdue numeric;\n v_policy text; v_orders numeric; v_exposure numeric; v_available numeric; v_blocked text[]:='{}'::text[];\n v_decision text; v_override boolean:=false; v_reason text;\nBEGIN\n pos:=public.crm_financial_position(_org,_company);\n cfg:=public.sales_settings(_org); v_policy:=cfg.credit_exposure_policy;"
+    },
+    "timestamp": 1790520741840
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790520741851
   }
 ]
