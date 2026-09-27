@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '25,50p' supabase/migrations/20261006100000_sales_orders.sql && echo \"=== exc cols ===\" && sed -n '/CREATE TABLE public.logistics_exceptions/,/^);/p' supabase/migrations/20261006100000_sales_orders.sql | grep -n \"resolved_at\\|assigned_to\\|resolution\\|updated_at\\|notes\""
-    },
-    "timestamp": 1790521287399
-  },
-  {
-    "role": "tool_result",
-    "content": "-- =====================================================================\nALTER TABLE public.inventory_locations\n  ADD CONSTRAINT inventory_locations_organization_id_id_key UNIQUE(organization_id,id);\nALTER TABLE public.inventory_batches\n  ADD CONSTRAINT inventory_batches_organization_id_id_key UNIQU",
-    "is_error": false,
-    "timestamp": 1790521287450
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '48,110p' supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790521289793
@@ -1510,5 +1496,19 @@
     "content": "ok\nPASS B: pedido nasce com preco oficial da tabela e subtotal correto; nenhum movimento\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 297, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/s",
     "is_error": false,
     "timestamp": 1790522599852
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\" sql(f\"DELETE FROM sales_orders WHERE id={q(below['id'])}\",a,fail='imut')\n\"\"\",\"\"\" sql(f\"DELETE FROM sales_orders WHERE id={q(below['id'])}\",a,fail='permission denied')\n\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
+    },
+    "timestamp": 1790522603102
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 28, in call\n    def call(name, args, user, fail=None): return sql(f\"SEL",
+    "is_error": false,
+    "timestamp": 1790522605581
   }
 ]

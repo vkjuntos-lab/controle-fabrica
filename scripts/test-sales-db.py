@@ -63,7 +63,7 @@ def run():
  # Preco abaixo do minimo e preco Forcado: o servidor decide, nunca o front.
  below=save({'company_id':company,'price_table_id':table,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':1,'unit_price':1.00}]})
  assert float(sql(f"SELECT unit_price FROM sales_order_items WHERE sales_order_id={q(below['id'])}"))==25.0
- sql(f"DELETE FROM sales_orders WHERE id={q(below['id'])}",a,fail='imut')
+ sql(f"DELETE FROM sales_orders WHERE id={q(below['id'])}",a,fail='permission denied')
  print('PASS C: preco enviado pelo cliente e ignorado; a tabela oficial prevalece')
 
  # Variante descontinuada nao entra em pedido novo.
