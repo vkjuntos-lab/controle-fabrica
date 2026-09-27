@@ -3,22 +3,6 @@
     "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
-    "timestamp": 1790413498721
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/components/crm/shared.tsx",
-      "newString": "  activity_type: ACTIVITY_TYPE,\n  representative_type: REPRESENTATIVE_TYPE,\n  kind: REASON_KIND,\n  trigger_event: COMMISSION_TRIGGER,\n  rate_type: COMMISSION_RATE_TYPE,\n  // Campos com opções próprias, fora do conjunto de status. Sem esta entrada o\n  // seletor mostraria \"ACTIVE\" e \"BLOCKED\" crus no cadastro de clientes.\n  commercial_status: COMMERCIAL_STATUS,\n};",
-      "oldString": "  activity_type: ACTIVITY_TYPE,\n  representative_type: REPRESENTATIVE_TYPE,\n  kind: REASON_KIND,\n  trigger_event: COMMISSION_TRIGGER,\n  rate_type: COMMISSION_RATE_TYPE,\n};"
-    },
-    "timestamp": 1790413503917
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
     "timestamp": 1790413503935
   },
   {
@@ -1675,5 +1659,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790520813956
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/tmp/opencode/sales_part3.sql",
+      "newString": "  IF jsonb_array_length(items)<1 THEN RAISE EXCEPTION 'Proposta aceita não possui itens.'; END IF;\n  v_subtotal:=round(coalesce(q.subtotal,v_subtotal),2);",
+      "oldString": "  IF jsonb_array_length(items)<1 THEN RAISE EXCEPTION 'Proposta aceita não possui itens.'; END IF;\n  IF (items->0->>'sku_snapshot')='' THEN\n   -- Propostas antigas sem snapshot legivel: identifica pelo catálogo atual.\n   UPDATE sales_order_items SET sku_snapshot=it.sku_snapshot, description_snapshot=it.description_snapshot\n    WHERE false;\n  END IF;\n  v_subtotal:=round(coalesce(q.subtotal,v_subtotal),2);"
+    },
+    "timestamp": 1790520816386
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790520816395
   }
 ]
