@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sed -n '26,40p' supabase/migrations/20260924100000_partners.sql && echo \"=== ADDRESSES ===\" && sed -n '1,45p' supabase/migrations/20260924100000_partners.sql"
-    },
-    "timestamp": 1790520236426
-  },
-  {
-    "role": "tool_result",
-    "content": "CREATE TABLE public.company_addresses (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(),organization_id uuid NOT NULL REFERENCES public.organizations,\n company_id uuid NOT NULL,type text NOT NULL DEFAULT 'SHIPPING' CHECK(type IN ('HEADQUARTERS','SHIPPING','BILLING','OTHER')),\n postal_code text,street",
-    "is_error": false,
-    "timestamp": 1790520236449
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sed -n '1495,1598p' supabase/migrations/20261001100000_purchasing.sql"
     },
     "timestamp": 1790520240341
@@ -1538,5 +1524,19 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790521814365
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/_probe-sales.py\" 2>&1 | tail -20"
+    },
+    "timestamp": 1790521816991
+  },
+  {
+    "role": "tool_result",
+    "content": "MIGRATION OK\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/_probe-sales.py\", line 24, in <module>\n    if __name__=='__main__':run()\n                            ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/_probe-sales.py\", line 17, in r",
+    "is_error": false,
+    "timestamp": 1790521818938
   }
 ]
