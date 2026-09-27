@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\n\n# 1. Criacao de item: so variante ATIVA.\ns=s.replace(\"\"\" IF NOT EXISTS(SELECT 1 FROM public.product_variants\n    WHERE id=v_variant AND organization_id=_org AND status IN ('ACTIVE','DISCONTINUED')) THEN\n  RAISE EXCEPTION 'Variante inexistente ou descontinuada.';\n END IF;\"\"\",\n\"\"\" -- Linha nova exige variante ATIVA. Descontinuada nao entra em pedido novo.\n IF NOT EXISTS(SELECT 1 FROM public.product_variants\n    WHERE id=v_variant AND organization_id=_org AND status='ACTIVE') THEN\n  RAISE EXCEPTION 'Variante inexistente ou descontinuada: % não pode entrar em pedido novo.',coalesce(_item->>'variant_id','');\n END IF;\"\"\")\n\n# 2. Validacao: a variante precisa continuar ATIVA.\ns=s.replace(\"\"\"   IF NOT EXISTS(SELECT 1 FROM public.product_variants\n      WHERE id=i.product_variant_id AND organization_id=_org AND status='DISCONTINUED') THEN\n    issues:=issues||jsonb_build_object('code','VARIANT_INVALID','variant_id',i.product_variant_id,\n      'message',format('A variante %s está descontinuada.',i.sku_snapshot));\n   END IF;\"\"\",\n\"\"\"   -- A variante precisa estar ATIVE na hora da aprovacao. Se foi descontinuada\n   -- depois que o pedido foi criado, a aprovacao e bloqueada.\n   IF NOT EXISTS(SELECT 1 FROM public.product_variants\n      WHERE id=i.product_variant_id AND organization_id=_org AND status='ACTIVE') THEN\n    issues:=issues||jsonb_build_object('code','VARIANT_INVALID','variant_id',i.product_variant_id,\n      'message',format('A variante %s não está mais ativa.',i.sku_snapshot),'blocking',true);\n   END IF;\"\"\")\np.write_text(s); print('ok')\nPY"
-    },
-    "timestamp": 1790521846236
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n",
-    "is_error": false,
-    "timestamp": 1790521846298
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
@@ -1495,5 +1481,19 @@
     "content": "AssertionError: ERROR:  column reference \"v_item\" is ambiguous\n",
     "is_error": false,
     "timestamp": 1790523122959
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"v_item\" supabase/migrations/20261006100000_sales_orders.sql | head -20"
+    },
+    "timestamp": 1790523125313
+  },
+  {
+    "role": "tool_result",
+    "content": "1485: v_perm text; v_reason text; v_policy jsonb; v_cfg jsonb; v_item jsonb;\n1836: v_skipped jsonb:='[]'::jsonb; v_key text; v_status text; v_mto boolean; v_items jsonb;\n1849: v_items:=coalesce(_data->'items',_data->'lines');\n1850: IF v_items IS NULL THEN\n1852:   INTO v_items\n1857: FOR i IN SELECT *",
+    "is_error": false,
+    "timestamp": 1790523125329
   }
 ]
