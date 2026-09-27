@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "PASS A: supplier gains customer role without duplicate Company\nPASS B: concurrent lead conversion idempotent; contact and history retained\nPASS C: portfolio changes preserve prior assignments and opportunity owner\nPASS D: item quantities sum to 60; stage snapshots; no stock writes\nPASS E/F/G: quote ",
-    "is_error": false,
-    "timestamp": 1790413799550
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && npm run build 2>&1 | tail -12 && npx eslint src/components/crm src/lib/crm src/lib/rbac.test.ts 2>&1 | tail -15",
-      "timeout": 900000
-    },
-    "timestamp": 1790413802900
-  },
-  {
-    "role": "tool_result",
     "content": "    \"workbox-*.js\"\n  ]\n}\n\n[nitro] ℹ Using auto generated worker name: vkjuntos-lab-controle-fabrica\nℹ Generated .output/server/wrangler.json\nℹ Generated .wrangler/deploy/config.json\nℹ Generated .output/public/_headers\nℹ Generated .output/nitro.json\n\n[nitro] ✔ You can preview this build using npx vit",
     "is_error": false,
     "timestamp": 1790413827362
@@ -1592,5 +1577,19 @@
     "content": "309:ALTER TABLE public.commercial_segments ENABLE ROW LEVEL SECURITY;\n316:ALTER TABLE public.commercial_sources ENABLE ROW LEVEL SECURITY;\n323:ALTER TABLE public.commercial_reasons ENABLE ROW LEVEL SECURITY;\n330:ALTER TABLE public.commercial_tags ENABLE ROW LEVEL SECURITY;\n337:ALTER TABLE public.sal",
     "is_error": false,
     "timestamp": 1790521326807
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '305,325p' supabase/migrations/20261005100000_crm.sql && echo \"=== org membership helper ===\" && grep -rn \"FUNCTION public.user_has_org\\|FUNCTION public.has_org\\|is_org_member\\|org_members\" supabase/migrations/*.sql | head -5"
+    },
+    "timestamp": 1790521329460
+  },
+  {
+    "role": "tool_result",
+    "content": " LEFT JOIN LATERAL(SELECT sum(open_amount)open_amount,sum(open_amount)FILTER(WHERE due_date<current_date)overdue_amount FROM account_receivables\n WHERE organization_id=_org AND company_id=_company AND status IN ('OPEN','PARTIALLY_PAID','OVERDUE'))x ON true;\n$$;\n\nALTER TABLE public.commercial_segment",
+    "is_error": false,
+    "timestamp": 1790521329479
   }
 ]
