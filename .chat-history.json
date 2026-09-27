@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "ls -la"
-    },
-    "timestamp": 1790519697737
-  },
-  {
-    "role": "tool_result",
-    "content": "total 1208\ndrwxrwxrwx  23 claude-runner claude-runner   4096 Sep 26 09:10 .\ndrwxr-xr-x  93 claude-runner claude-runner   4096 Sep 22 01:59 ..\n-rw-r--r--   1 root          root          196956 Sep 27 14:34 .chat-history.json\ndrwxrwxrwx   3 claude-runner claude-runner   4096 Sep 17 12:28 .claude\n-rw-r",
-    "is_error": false,
-    "timestamp": 1790519697758
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "ls -la docs/ 2>/dev/null && echo \"---HANDOFF---\" && ls -la docs/handoff/ 2>/dev/null && echo \"---BUSINESS---\" && ls -la docs/business/ 2>/dev/null"
     },
     "timestamp": 1790519698037
@@ -1531,5 +1517,20 @@
     "content": "=== linha 3061 ===\n     AND (v_company IS NULL OR sales_order_id IN (SELECT id FROM public.sales_orders WHERE company_id=v_company));\n  SELECT coalesce(jsonb_agg(to_jsonb(x) ORDER BY x.created_at DESC),'[]'::jsonb) INTO v_rows\n   FROM (SELECT e.*,o.order_number FROM public.logistics_exceptions e\n   ",
     "is_error": false,
     "timestamp": 1790521744234
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "#!/usr/bin/env python3\n\"\"\"Probe: run the migration, then execute each sales_query branch separately.\"\"\"\nimport importlib.util,json,subprocess\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('inventory',Path(__file__).with_name('test-inventory-db.py'))\ndb=importlib.util.module_from_spec(spec);spec.loader.exec_module(db)\nq,sql,uid=db.q,db.sql,db.uid\ndef run():\n db.setup()\n for name in ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql','20261001100000_purchasing.sql','20261002100000_planning.sql','20261003100000_planning_engine.sql','20261004100000_planning_fixes.sql','20261005100000_crm.sql','20261006100000_sales_orders.sql']:\n  try:\n   sql((db.ROOT/'supabase/migrations'/name).read_text())\n  except AssertionError as e:\n   print('FALHOU',name); print(e.args[0][:1500]); return\n print('MIGRATION OK')\n a,org=uid(),uid()\n sql(f\"INSERT INTO auth.users(id,email) VALUES({q(a)},'a@test');INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'S','s',{q(a)});INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(a)},'admin')\")\n for kind in ['orders','exceptions','shipments','returns','reservations','fulfillment','carriers','credits','desconhecido']:\n  try:\n   v=db.call('sales_query',f\"{q(org)},{q(kind)},'{{}}'\",a)\n   print('OK  ',kind, (v or '')[:60])\n  except AssertionError as e:\n   print('ERRO',kind,'::',e.args[0][:400])\nif __name__=='__main__':run()\n",
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/_probe-sales.py"
+    },
+    "timestamp": 1790521759322
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790521759338
   }
 ]
