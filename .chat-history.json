@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "export const QUOTE_STATUS: Record<string, string> = {\n  DRAFT: \"Rascunho\",\n  PENDING_APPROVAL: \"Aguardando aprovação\",\n  APPROVED: \"Aprovada\",\n  SENT: \"Enviada\",\n  ACCEPTED: \"Aceita\",\n  REJECTED: \"Rejeitada\",\n  EXPIRED: \"Vencida\",\n  CANCELED: \"Cancelada\",\n};\n\n/** Transições que o servidor aceita; qu",
-    "is_error": false,
-    "timestamp": 1790413492152
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/crm/constants.ts",
-      "newString": "/**\n * Transições que o servidor aceita; qualquer outra é recusada.\n *\n * `REJECTED`, `CANCELED` e `ACCEPTED` terminam o fluxo: `ACCEPTED` é\n * irreversível porque outra versão não pode ser aceita depois dela. Um status\n * ausente desta lista é terminal por definição — a lista é completa para todos os\n * status de proposta, e um teste cobra isso.\n */\nexport const QUOTE_FLOW: Record<string, string[]> = {\n  DRAFT: [\"PENDING_APPROVAL\"],\n  PENDING_APPROVAL: [\"APPROVED\"],\n  APPROVED: [\"SENT\"],\n  SENT: [\"ACCEPTED\", \"REJECTED\"],\n  ACCEPTED: [],\n  REJECTED: [],\n  EXPIRED: [],\n  CANCELED: [],\n};\n",
-      "oldString": "/** Transições que o servidor aceita; qualquer outra é recusada. */\nexport const QUOTE_FLOW: Record<string, string[]> = {\n  DRAFT: [\"PENDING_APPROVAL\"],\n  PENDING_APPROVAL: [\"APPROVED\"],\n  APPROVED: [\"SENT\"],\n  SENT: [\"ACCEPTED\", \"REJECTED\"],\n};\n"
-    },
-    "timestamp": 1790413498708
-  },
-  {
-    "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790413498721
@@ -1675,5 +1659,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790520810998
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/tmp/opencode/sales_part3.sql",
+      "newString": "-- Criação manual: mesma validacao comercial do fluxo vindo do CRM.",
+      "oldString": "-- Prepara cada item: a versao de proposta usa o preco CONGELADO no aceite.\nCREATE FUNCTION public.preparer_date(i jsonb) RETURNS date LANGUAGE sql IMMUTABLE AS $$\n SELECT nullif(i->>'expected_delivery_date','')::date;\n$$;\n\n-- Criação manual: mesma validacao comercial do fluxo vindo do CRM."
+    },
+    "timestamp": 1790520813943
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790520813956
   }
 ]
