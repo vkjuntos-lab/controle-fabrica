@@ -29,7 +29,7 @@ def run():
  def action(order,verb,data={},**kw):return rpc('sales_order_action',org,order,verb,data,**kw)
  def query(kind,filters={},**kw):return rpc('sales_query',org,kind,filters,**kw)
  def detail(order,**kw):return rpc('sales_order_detail',org,order,**kw)
- def nw(fq):return call('inventory_post_movement',','.join(map(q,[org,fq['v'],fq['l'],'OPENING_BALANCE',100]))+",_reason=>'Saldo inicial'",a)
+ def nw(variant,loc):return call('inventory_post_movement',','.join(map(q,[org,variant,loc,'OPENING_BALANCE',100]))+",_reason=>'Saldo inicial'",a)
  def balance(variant,loc):return float(sql(f"SELECT inventory_get_balance({q(org)},{q(variant)},{q(loc)})",a))
 
  # ---------------------------------------------------------------- cenario
