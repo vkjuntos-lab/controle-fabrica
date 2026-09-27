@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"não está liberado para expedição\" -B8 supabase/migrations/20261006100000_sales_orders.sql | head -14"
-    },
-    "timestamp": 1790523519854
-  },
-  {
-    "role": "tool_result",
-    "content": "2392- cfg:=public.sales_settings(_org);\n2393- v_need_full:=coalesce((cfg->>'shipment_requires_full_confirmation')::boolean,false);\n2394- v_ful:=nullif(_data->>'fulfillment_order_id','')::uuid;\n2395- v_task:=nullif(_data->>'picking_task_id','')::uuid;\n2396- IF v_ful IS NOT NULL THEN\n2397-  IF NOT EXI",
-    "is_error": false,
-    "timestamp": 1790523519864
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\" # ------------------------------------------ expedicao: baixa no ledger\n rpc('sales_fulfillment_action',org,fulfillment['id'],'ready',{},user=picker)\"\"\",\n\"\"\" # ------------------------------------------ expedicao: baixa no ledger\n print('DEBUG ff',sql(f\"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"),'packrec',sql(f\"SELECT count(*) FROM packing_records WHERE fulfillment_order_id={q(fulfillment['id'])}\"))\n rpc('sales_fulfillment_action',org,fulfillment['id'],'ready',{},user=picker)\n print('DEBUG ff after ready',sql(f\"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"))\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"DEBUG|Assertion\" | tail -4"
     },
     "timestamp": 1790523526735
@@ -1398,5 +1384,19 @@
     "content": "CREATE POLICY sales_read ON public.sales_orders FOR SELECT TO authenticated\n  USING(public.has_permission(organization_id,'sales_orders.read') AND public.is_org_member(organization_id));\nCREATE TRIGGER sales_integrity_orders BEFORE INSERT OR UPDATE OR DELETE ON public.sales_orders\n  FOR EACH ROW EXE",
     "is_error": false,
     "timestamp": 1790524310286
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk 'NR>=1293 && NR<=1400 && /jsonb|json/ {print NR\": \"$0}' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790524323564
+  },
+  {
+    "role": "tool_result",
+    "content": "1293: DECLARE prior public.sales_order_operation_keys; q public.sales_quotes; payload jsonb;\n1294:  result jsonb; it public.sales_quote_items; items jsonb:='[]'::jsonb;\n1296:  v_tax numeric:=0; v_freight numeric; v_table uuid; v_addr_id uuid; v_bill_id uuid; v_addr jsonb:='{}'::jsonb;\n1297:  v_profi",
+    "is_error": false,
+    "timestamp": 1790524323574
   }
 ]
