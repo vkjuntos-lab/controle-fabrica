@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
-      "limit": 14,
-      "offset": 1930
-    },
-    "timestamp": 1790522780669
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql</path>\n<type>file</type>\n<content>\n1930:  END LOOP;\n1931: \n1932:  -- Recalcula o estado de estoque do pedido a partir das reservas reais.\n1933:  SELECT coalesce(sum(greatest(0,CASE WHEN i.approved_quan",
-    "is_error": false,
-    "timestamp": 1790522780689
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\nlines=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql').read_text().split('\\n')\nseg='\\n'.join(lines[1931:1937])\nd=0\nfor ch in seg:\n    if ch=='(':d+=1\n    elif ch==')':d-=1\nprint('depth at end:',d)\nprint(seg)\nPY"
@@ -1414,5 +1398,19 @@
     "content": "CREATE TABLE public.customer_returns (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n organization_id uuid NOT NULL REFERENCES public.organizations,\n return_number text NOT NULL,\n company_id uuid NOT NULL,\n  FOREIGN KEY(organization_id,company_id) REFERENCES public.companies(organization_id,id),\n ",
     "is_error": false,
     "timestamp": 1790523743460
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"   v_dest_ok:=v_dest IS NOT NULL AND EXISTS(SELECT 1 FROM public.inventory_locations\n    WHERE id=v_dest AND organization_id=_org AND status='ACTIVE' AND partner_id IS NULL\n      AND type<>'TRANSIT');\n   IF NOT v_dest_ok THEN RAISE EXCEPTION 'Informe uma localização de recebimento válida.'; END IF;\n   IF v_i.destination='PENDING' AND v_i.received_quantity<=0 THEN\n    RAISE EXCEPTION 'Informe o destino de recebimento de cada item.';\n   END IF;\"\"\"\nnew=\"\"\"   -- Destino: sem informacao do operador, a mercadoria vendavel volta para o\n   -- MESMO local de origem da expedicao (fato ja registrado). Mercadoria nao\n   -- vendavel EXIGE destino explicito de quarentena/inspecao: o sistema nunca\n   -- decide por conta propria para onde va material avariado.\n   v_dest:=coalesce(nullif(_data->>'destination_location_id','')::uuid,\n     CASE WHEN v_i.condition IN ('DAMAGED','DEFECTIVE','OTHER') THEN NULL ELSE\n       (SELECT sh.source_location_id FROM public.shipment_items si\n         JOIN public.shipments sh ON sh.id=si.shipment_id AND sh.organization_id=si.organization_id\n        WHERE si.organization_id=_org AND si.id=v_i.shipment_item_id) END);\n   v_dest_ok:=v_dest IS NOT NULL AND EXISTS(SELECT 1 FROM public.inventory_locations\n    WHERE id=v_dest AND organization_id=_org AND status='ACTIVE' AND partner_id IS NULL\n      AND type<>'TRANSIT');\n   IF NOT v_dest_ok THEN RAISE EXCEPTION 'Informe uma localização de recebimento válida.'; END IF;\n   IF v_i.condition IN ('DAMAGED','DEFECTIVE','OTHER')\n      AND NOT EXISTS(SELECT 1 FROM public.inventory_locations\n         WHERE id=v_dest AND operational_purpose IN ('QUARANTINE','INSPECTION')) THEN\n    RAISE EXCEPTION 'Item % em condição % exige destino de quarentena ou inspeção.',v_i.sku_snapshot,v_i.condition;\n   END IF;\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"ERROR:|^PASS|Assertion\" | tail -4"
+    },
+    "timestamp": 1790523753350
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nPASS L: expedicao baixa o ledger uma unica vez; reenvio nao duplica a baixa\nPASS M: despachar exige permissao de expedicao E de movimentacao de inventario\nPASS N: entrega exige prova; entrega nao mexe no saldo e nao fecha pedido com saldo\nAssertionError\n",
+    "is_error": false,
+    "timestamp": 1790523757131
   }
 ]

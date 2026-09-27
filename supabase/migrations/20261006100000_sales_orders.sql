@@ -2918,12 +2918,23 @@ BEGIN
   -- Entrada no estoque. Uma movimentacao por item, chave idempotente.
   FOR v_i IN SELECT * FROM public.customer_return_items
     WHERE organization_id=_org AND customer_return_id=_ret ORDER BY created_at LOOP
+   -- Destino: sem informacao do operador, a mercadoria vendavel volta para o
+   -- MESMO local de origem da expedicao (fato ja registrado). Mercadoria nao
+   -- vendavel EXIGE destino explicito de quarentena/inspecao: o sistema nunca
+   -- decide por conta propria para onde va material avariado.
+   v_dest:=coalesce(nullif(_data->>'destination_location_id','')::uuid,
+     CASE WHEN v_i.condition IN ('DAMAGED','DEFECTIVE','OTHER') THEN NULL ELSE
+       (SELECT sh.source_location_id FROM public.shipment_items si
+         JOIN public.shipments sh ON sh.id=si.shipment_id AND sh.organization_id=si.organization_id
+        WHERE si.organization_id=_org AND si.id=v_i.shipment_item_id) END);
    v_dest_ok:=v_dest IS NOT NULL AND EXISTS(SELECT 1 FROM public.inventory_locations
     WHERE id=v_dest AND organization_id=_org AND status='ACTIVE' AND partner_id IS NULL
       AND type<>'TRANSIT');
    IF NOT v_dest_ok THEN RAISE EXCEPTION 'Informe uma localização de recebimento válida.'; END IF;
-   IF v_i.destination='PENDING' AND v_i.received_quantity<=0 THEN
-    RAISE EXCEPTION 'Informe o destino de recebimento de cada item.';
+   IF v_i.condition IN ('DAMAGED','DEFECTIVE','OTHER')
+      AND NOT EXISTS(SELECT 1 FROM public.inventory_locations
+         WHERE id=v_dest AND operational_purpose IN ('QUARANTINE','INSPECTION')) THEN
+    RAISE EXCEPTION 'Item % em condição % exige destino de quarentena ou inspeção.',v_i.sku_snapshot,v_i.condition;
    END IF;
    v_qty:=coalesce(nullif(_data->>'quantity','')::numeric,0);
    IF v_qty<=0 THEN CONTINUE; END IF;
