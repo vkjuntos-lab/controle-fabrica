@@ -1,106 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabrica\n\nstderr | src/lib/crm/crm.test.ts\n⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://github.com/orgs/su",
-    "is_error": false,
-    "timestamp": 1790413519880
-  },
-  {
-    "role": "tool",
-    "tool": "todowrite",
-    "input": {
-      "todos": [
-        {
-          "content": "Auditar codebase e planejar MASTER 012",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Auditar migration e backend CRM existentes",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Criar e rodar testes de banco do CRM",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Corrigir bug de patch parcial no crm_save",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Adicionar permissões CRM no RBAC e menu",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Criar config/shared/data/list/dashboard do CRM",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Validar typecheck e harness após kind members",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Telas de leads, clientes e Customer 360",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Tela de pipeline, Kanban e histórico de oportunidades",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Tela de propostas, itens, versões e aceite",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Telas de atividades, representantes e carteiras",
-          "priority": "medium",
-          "status": "completed"
-        },
-        {
-          "content": "Tela de relatórios e configurações comerciais",
-          "priority": "medium",
-          "status": "completed"
-        },
-        {
-          "content": "Criar todas as rotas em src/routes/_authenticated/comercial",
-          "priority": "high",
-          "status": "completed"
-        },
-        {
-          "content": "Testes unitários da lógica pura do CRM",
-          "priority": "medium",
-          "status": "completed"
-        },
-        {
-          "content": "Atualizar tipos Supabase das RPCs CRM",
-          "priority": "medium",
-          "status": "in_progress"
-        },
-        {
-          "content": "Documentação, ADR, PROJECT-STATE e MASTER-012-VALIDATION",
-          "priority": "medium",
-          "status": "pending"
-        },
-        {
-          "content": "Validação final: test, typecheck, build, lint, test:crm:db",
-          "priority": "high",
-          "status": "pending"
-        }
-      ]
-    },
-    "timestamp": 1790413526258
-  },
-  {
-    "role": "tool_result",
     "content": "[\n  {\n    \"content\": \"Auditar codebase e planejar MASTER 012\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Auditar migration e backend CRM existentes\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Criar e rodar testes de banco do CRM\",\n   ",
     "is_error": false,
     "timestamp": 1790413526266
@@ -1680,5 +1580,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790520866772
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "\n-- =====================================================================\n-- 11. Obrigação financeira a partir de venda direta.\n--\n-- Um único fato comercial gera o título. A politica da organizacao decide\n-- QUAL evento é elegível (receivable_trigger), de modo que a mesma venda nunca\n-- vira um recebível na aprovação E outro na expedição. O MASTER 013 não emite\n-- documento fiscal: o título é a obrigação comercial, não a nota.\n-- =====================================================================\nCREATE FUNCTION public.sales_receivable_total(_org uuid,_order uuid) RETURNS numeric\nLANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n SELECT coalesce(sum(ar.original_amount),0) FROM public.account_receivables ar\n WHERE ar.organization_id=_org AND ar.source_type='SALE' AND ar.source_id=_order::text;\n$$;\n\nCREATE FUNCTION public.sales_create_receivables(_org uuid,_order uuid,_trigger text) RETURNS integer\nLANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE o public.sales_orders; v_base numeric; v_open numeric; v_existing numeric; v_paid numeric;\n v_company uuid; v_terms text; v_credit jsonb; v_n int; v_i int; v_due date; v_terms_id uuid;\nBEGIN\n IF _trigger NOT IN ('ON_APPROVAL','ON_DISPATCH') THEN RAISE EXCEPTION 'Gatilho financeiro inválido.'; END IF;\n SELECT * INTO o FROM public.sales_orders WHERE id=_order AND organization_id=_org FOR UPDATE;\n IF NOT FOUND THEN RAISE EXCEPTION 'Pedido não encontrado.'; END IF;\n -- Fonte única: source_type='SALE'. Idempotente pela constraint\n -- UNIQUE(organization_id,source_type,source_id,installment_number).\n IF public.sales_receivable_total(_org,_order)>0 THEN RETURN 0; END IF;\n v_company:=o.company_id;\n v_terms_id:=o.payment_terms_id;\n SELECT name INTO v_terms FROM public.commercial_payment_terms WHERE id=v_terms_id AND organization_id=_org;\n v_credit:=o.credit_check_result;\n\n -- Base elegível: o que foi expedido menos o que já foi devolvido e recebido.\n -- Na aprovação, a base é o total aprovado.\n IF _trigger='ON_APPROVAL' THEN\n  v_base:=o.total_amount;\n ELSE\n  v_base:=coalesce((SELECT sum(si.quantity-si.returned_quantity) FROM public.shipment_items si\n    JOIN public.shipments s ON s.id=si.shipment_id\n    WHERE s.organization_id=_org AND s.sales_order_id=_order AND s.status NOT IN ('DRAFT','CANCELED')),0);\n  IF v_base<=0 THEN RETURN 0; END IF;\n END IF;\n -- Já existe título總 total maior que a base? Nada a fazer.\n SELECT coalesce(sum(ar.open_amount),0),coalesce(sum(ar.paid_amount),0) INTO v_open,v_paid\n FROM public.account_receivables ar\n WHERE ar.organization_id=_org AND ar.source_type='SALE' AND ar.source_id=_order::text;\n v_existing:=coalesce(v_open,0)+coalesce(v_paid,0);\n IF v_existing>=v_base THEN RETURN 0; END IF;\n v_base:=round(v_base-v_existing,2);\n IF v_base<=0 THEN RETURN 0; END IF;\n\n v_n:=cardinality(public.purchasing_split_terms(coalesce(v_terms,'30')));\n v_n:=greatest(1,least(v_n,12));\n FOR v_i IN 1..v_n LOOP\n  v_due:=o.order_date+coalesce((public.purchasing_split_terms(coalesce(v_terms,'30')))[v_i],0);\n  INSERT INTO public.account_receivables(organization_id,company_id,source_type,source_id,source_status,\n    document_number,description,issue_date,due_date,competence_date,original_amount,open_amount,\n    currency,status,financial_category_id,cost_center_id,installment_number,total_installments,notes,created_by)\n  VALUES(_org,v_company,'SALE',_order::text,'ACTIVE',\n    'CLI-'||to_char(o.order_date,'YYYY')||'-'||lpad((o.order_number||'-'||v_i::text),24,'0')||'-'||v_i::text,\n    'Pedido '||o.order_number||' — parcela '||v_i||'/'||v_n,\n    o.order_date,v_due,o.order_date,\n    CASE WHEN v_i<v_n THEN round(v_base/v_n,2) ELSE round(v_base-round(v_base/v_n,2)*(v_n-1),2) END,\n    CASE WHEN v_i<v_n THEN round(v_base/v_n,2) ELSE round(v_base-round(v_base/v_n,2)*(v_n-1),2) END,\n    o.currency,'OPEN',\n    (SELECT fc.id FROM public.financial_categories fc WHERE fc.organization_id=_org AND fc.kind='REVENUE' AND fc.status='ACTIVE' ORDER BY fc.name LIMIT 1),\n    null,v_i,v_n,'Origem: venda direta (trigger '||_trigger||')',auth.uid());\n END LOOP;\n PERFORM public.sales_audit(_org,'sales_order.receivable_created','sales_orders',_order,\n   jsonb_build_object('trigger',_trigger,'base',v_base,'installments',v_n));\n RETURN v_n;\nEND;\n$$;\n\n-- Esconde o estado do CUSTOMER 360 sem duplicar dado: devolve o que o MASTER 013\n-- sabe sobre a venda direta, sempre dos dados oficiais.\nCREATE FUNCTION public.sales_company_activity(_org uuid,_company uuid,_limit integer DEFAULT 50) RETURNS jsonb\nLANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n SELECT jsonb_build_object(\n  'orders',coalesce((SELECT jsonb_agg(to_jsonb(x) ORDER BY x.created_at DESC) FROM (\n    SELECT id,order_number,status,stock_status,fulfillment_status,order_date,expected_delivery_date,\n      total_amount,delivered_amount,currency,source_type FROM (\n      SELECT o.id,o.order_number,o.status,o.stock_status,o.fulfillment_status,o.order_date,\n        o.expected_delivery_date,o.total_amount,o.currency,o.source_type,o.created_at,\n        (SELECT coalesce(sum(si.delivered_quantity),0) FROM public.shipment_items si\n         JOIN public.shipments s ON s.id=si.shipment_id\n         WHERE s.organization_id=_org AND s.sales_order_id=o.id) delivered_amount\n      FROM public.sales_orders o WHERE o.organization_id=_org AND o.company_id=_company) x\n    LIMIT _limit) x),'[]'::jsonb),\n  'shipments',coalesce((SELECT jsonb_agg(to_jsonb(x) ORDER BY x.created_at DESC) FROM (\n    SELECT s.id,s.shipment_number,s.status,s.shipping_method,s.tracking_code,s.dispatched_at,\n      s.delivered_at,s.expected_delivery_at,s.created_at\n    FROM public.shipments s JOIN public.sales_orders o ON o.id=s.sales_order_id\n    WHERE s.organization_id=_org AND o.company_id=_company LIMIT _limit) x),'[]'::jsonb),\n  'returns',coalesce((SELECT jsonb_agg(to_jsonb(x) ORDER BY x.created_at DESC) FROM (\n    SELECT r.id,r.return_number,r.status,r.reason,r.requested_at,r.received_at,r.financial_action\n    FROM public.customer_returns r WHERE r.organization_id=_org AND r.company_id=_company LIMIT _limit) x),'[]'::jsonb));\n$$;\n",
+      "filePath": "/tmp/opencode/sales_part5.sql"
+    },
+    "timestamp": 1790520881292
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790520881309
   }
 ]
