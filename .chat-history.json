@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "src/lib/csv.test.ts\nsrc/lib/rbac.test.ts\n./src/lib/middleware/rate-limit.test.ts\n./src/lib/rbac.test.ts\n./src/lib/csv.test.ts\n./src/lib/inventory/ledger.test.ts\n./src/lib/webhook/signature.test.ts\n=== config vitest ===\n",
-    "is_error": false,
-    "timestamp": 1790413447935
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && cat src/lib/crm/export.ts; echo \"=== exemplo de teste ===\"; head -25 src/lib/rbac.test.ts"
-    },
-    "timestamp": 1790413450520
-  },
-  {
-    "role": "tool_result",
     "content": "import { toCsv, downloadCsv } from \"@/lib/csv\";\nimport { columnLabel } from \"@/components/crm/shared\";\nimport { CRM_FILTER_KEYS } from \"@/lib/crm/constants\";\n\n/**\n * Exporta o resultado já filtrado da consulta do CRM.\n *\n * Reusa a infraestrutura de CSV dos demais módulos e neutraliza fórmulas de\n *",
     "is_error": false,
     "timestamp": 1790413450542
@@ -1668,5 +1654,21 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790520429787
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/tmp/opencode/sales_part2.sql",
+      "newString": "-- Le a politica da organizacao, devolvendo o padrao do schema quando a\n-- organizacao ainda nao configurou nada. Nao grava: e uma leitura STABLE.\nCREATE FUNCTION public.sales_settings(_org uuid) RETURNS jsonb\nLANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n SELECT coalesce(\n  (SELECT to_jsonb(s) FROM public.sales_order_settings s WHERE s.organization_id=_org),\n  jsonb_build_object(\n   'reservation_policy','ALLOW_PARTIAL','reservation_expiry_hours',72,\n   'make_to_order_enabled',true,'credit_exposure_policy','OPEN_RECEIVABLES_PLUS_OPEN_ORDERS',\n   'approval_segregation',true,'max_discount_percent',NULL,'price_override_policy','BLOCK',\n   'receivable_trigger','ON_DISPATCH','allow_partial_fulfillment',true,\n   'shipment_requires_full_confirmation',true,'tracking_mode','MANUAL',\n   'require_shipping_address',true,'configured',false));\n$$;",
+      "oldString": "-- Le a politica da organizacao, devolvendo o padrao quando ausente.\nCREATE FUNCTION public.sales_settings(_org uuid) RETURNS public.sales_order_settings\nLANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\nDECLARE s public.sales_order_settings;\nBEGIN\n SELECT * INTO s FROM public.sales_order_settings WHERE organization_id=_org;\n IF NOT FOUND THEN\n  s:=row(NULL,_org,'ALLOW_PARTIAL',72,true,'OPEN_RECEIVABLES_PLUS_OPEN_ORDERS',true,NULL,'BLOCK',\n         'ON_DISPATCH',true,true,'MANUAL',true,auth.uid(),now(),now());\n END IF;\n RETURN s;\nEND;\n$$;"
+    },
+    "timestamp": 1790520738567
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790520738587
   }
 ]
