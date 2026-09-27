@@ -1360,6 +1360,7 @@ BEGIN
       'accepted_at',q.accepted_at,'accepted_by',q.accepted_by,'acceptance_contact_id',q.acceptance_contact_id,
       'contact_name',(SELECT name FROM public.company_contacts WHERE id=q.acceptance_contact_id),
       'payment_terms',q.payment_terms_snapshot,'items',items);
+  RAISE NOTICE 'PRE INSERT % % % % % % % % % % % %',q.company_id,v_profile,q.id,q.version,q.opportunity_id,v_rep,v_table,q.issue_date,v_terms_id,v_term,v_addr_id,v_bill_id;
   INSERT INTO public.sales_orders(organization_id,order_number,company_id,customer_profile_id,
     sales_quote_id,sales_quote_version,sales_opportunity_id,representative_id,price_table_id,
     source_type,order_date,expected_delivery_date,payment_terms_id,payment_terms_snapshot,

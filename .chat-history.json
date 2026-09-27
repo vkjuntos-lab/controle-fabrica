@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '160,180p' scripts/test-sales-db.py"
-    },
-    "timestamp": 1790523560743
-  },
-  {
-    "role": "tool_result",
-    "content": " # ------------------------------------------ expedicao: baixa no ledger\n print('DEBUG ff',sql(f\"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"),'packrec',sql(f\"SELECT count(*) FROM packing_records WHERE fulfillment_order_id={q(fulfillment['id'])}\"))\n rpc('sales_fulfillment_a",
-    "is_error": false,
-    "timestamp": 1790523560760
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2400,2440p' supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790523572233
@@ -1398,5 +1384,19 @@
     "content": "supabase/migrations/20261006100000_sales_orders.sql:126:CREATE TABLE public.sales_orders (\n",
     "is_error": false,
     "timestamp": 1790524370943
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"  INSERT INTO public.sales_orders(organization_id,order_number,company_id,customer_profile_id,\"\"\"\nnew=\"\"\"  RAISE NOTICE 'PRE INSERT % % % % % % % % % % % %',q.company_id,v_profile,q.id,q.version,q.opportunity_id,v_rep,v_table,q.issue_date,v_terms_id,v_term,v_addr_id,v_bill_id;\n  INSERT INTO public.sales_orders(organization_id,order_number,company_id,customer_profile_id,\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"PRE INSERT|ERROR|DETAIL|ITEMS\" | head -4"
+    },
+    "timestamp": 1790524374366
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nAssertionError: NOTICE:  PRE INSERT 5bd2db8f-716c-429a-917c-a59666119b28 f92a374e-996d-4566-beea-9eb07e9eee33 537ad0db-c6d1-4748-9ed5-e4b22d8e3deb 1 <NULL> <NULL> 6f8b3db5-6f6b-440c-a5f7-2b3c75bdc453 2026-09-27 <NULL> <NULL> 4cec353c-4cad-4548-b979-22df4d41e644 <NULL>\nERROR:  invalid input syntax",
+    "is_error": false,
+    "timestamp": 1790524378750
   }
 ]
