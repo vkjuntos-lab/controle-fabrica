@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"%ss\\|%s s\" supabase/migrations/20261006100000_sales_orders.sql | head && grep -n \"v_row.sku\" supabase/migrations/20261006100000_sales_orders.sql | head"
-    },
-    "timestamp": 1790523209833
-  },
-  {
-    "role": "tool_result",
-    "content": "2088:     format('Item %s sem reserva integral para a separação (%s de %s).',v_item->>'sku',\n2208:    format('Excesso de separação em %s: %s separado para %s solicitado.',v_item.sku_snapshot,\n2202:    format('A variante %s não está neste atendimento.',v_row.sku),\n2204:  RAISE EXCEPTION 'A variante %",
-    "is_error": false,
-    "timestamp": 1790523209852
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2177,2196p' supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790523217374
@@ -1404,5 +1390,19 @@
     "content": "ok\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 312, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 229, in run\n    assert float(sql(f\"SELECT inventory_get",
     "is_error": false,
     "timestamp": 1790524003234
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\nold=\"\"\" assert float(sql(f\"SELECT inventory_get_balance({q(org)},{q(variants['SAP-001']['v'])})\",a))==2.0\"\"\"\nnew=\"\"\" # Os 2 aviados ficamfisicos na quarentena, nunca no estoque vendivel.\n assert float(sql(f\"SELECT inventory_get_balance({q(org)},{q(variants['SAP-001']['v'])},{q(quarantine)})\",a))==2.0\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790524006472
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 313, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 231, in run\n    assert float(raw('sales_available',','.",
+    "is_error": false,
+    "timestamp": 1790524010546
   }
 ]
