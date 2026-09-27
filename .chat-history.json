@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\" nw({'v':variants['SAP-001']['v'],'l':warehouse});nw({'v':variants['SAP-002']['v'],'l':warehouse})\",\n            \" nw(variants['SAP-001']['v'],warehouse);nw(variants['SAP-002']['v'],warehouse)\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
-    },
-    "timestamp": 1790522043192
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 28, in call\n    def call(name, args, user, fail=None): return sql(f\"SEL",
-    "is_error": false,
-    "timestamp": 1790522045604
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\" def nw(variant,loc):return call('inventory_post_movement',','.join(map(q,[org,variant,loc,'OPENING_BALANCE',100]))+\",_reason=>'Saldo inicial'\",a)\"\"\",\n\"\"\" def raw(name,args,user,fail=None):return db.call(name,args,user,fail)\n def nw(variant,loc):return raw('inventory_post_movement',','.join(map(q,[org,variant,loc,'OPENING_BALANCE',100]))+\",_reason=>'Saldo inicial'\",a)\"\"\")\ns=s.replace(\"\"\"table=json.loads(call('price_save_table',org,{'code':'VAREJO','name':'Varejo','valid_from':'2020-01-01'}))['id']\"\"\",\n\"\"\"table=json.loads(raw('price_save_table',q(org)+','+json.dumps({'code':'VAREJO','name':'Varejo','valid_from':'2020-01-01'}),a))['id']\"\"\")\ns=s.replace(\"\"\"  call('pricing_publish',org,{'price_table_id':table,'variant_id':v,'unit_price':price,'valid_from':'2020-01-01'})\"\"\",\n\"\"\"  raw('pricing_publish',q(org)+','+json.dumps({'price_table_id':table,'variant_id':v,'unit_price':price,'valid_from':'2020-01-01'}),a)\"\"\")\ns=s.replace(\"\"\" assert float(call('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==80.0\"\"\",\n\"\"\" assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==80.0\"\"\")\ns=s.replace(\"\"\" assert float(call('sales_reserved',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==20.0\"\"\",\n\"\"\" assert float(raw('sales_reserved',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==20.0\"\"\")\ns=s.replace(\"\"\"rpc('sales_available'\"\"\",\"\"\"rpc('sales_available'\"\"\")\ns=s.replace(\"\"\"call('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],quarantine])),a)\"\"\",\n\"\"\"raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],quarantine])),a)\"\"\")\ns=s.replace(\"\"\"call('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a)\"\"\",\n\"\"\"raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a)\"\"\")\ns=s.replace(\"\"\"company=sql(f\"SELECT partner_save_company({q(org)},'{json.dumps({'code':'ACLIENTE','legal_name':'Cliente Alfa','roles':['CUSTOMER']})}')\",a)\"\"\",\n\"\"\"company=raw('partner_save_company',q(org)+','+json.dumps({'code':'ACLIENTE','legal_name':'Cliente Alfa','roles':['CUSTOMER']}),a)\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
     },
     "timestamp": 1790522056669
@@ -1424,5 +1410,19 @@
     "content": "11: IF t.status NOT IN ('IN_PROGRESS','PICKED','PENDING') THEN RAISE EXCEPTION 'Tarefa nM-CM-#o estM-CM-! em conferM-CM-*ncia.'; END IF;$\n",
     "is_error": false,
     "timestamp": 1790523309810
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && cat > /tmp/opencode/proc.py <<'PY'\nimport importlib.util\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('inv',Path('scripts/test-inventory-db.py'))\ndb=importlib.util.module_from_spec(spec);spec.loader.exec_module(db)\nsql,uid=db.sql,db.uid\ndb.setup()\nfor name in ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql','20261001100000_purchasing.sql','20261002100000_planning.sql','20261003100000_planning_engine.sql','20261004100000_planning_fixes.sql','20261005100000_crm.sql','20261006100000_sales_orders.sql']:\n sql((db.ROOT/'supabase/migrations'/name).read_text())\nu=uid()\nprint('count',sql(f\"SELECT count(*) FROM pg_proc WHERE proname='sales_pick_confirm'\"))\nprint(sql(f\"SELECT oid::regprocedure||' => '||left(prosrc,0) FROM pg_proc WHERE proname='sales_pick_confirm'\"))\nsrc=sql(f\"SELECT prosrc FROM pg_proc WHERE proname='sales_pick_confirm'\")\nfor i,l in enumerate(src.split('\\n')[:14],1): print(i,l)\ndb.cleanup()\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 600 python3 /tmp/opencode/proc.py\" 2>&1 | tail -18"
+    },
+    "timestamp": 1790523317100
+  },
+  {
+    "role": "tool_result",
+    "content": "count 1\nsales_pick_confirm(uuid,uuid,jsonb) =>\n1 DECLARE t public.picking_tasks; v_item jsonb; v_diff jsonb:='[]'::jsonb; v_now timestamptz:=now();\n2  v_perm text; v_count integer:=0; v_batch uuid; v_conf numeric;\n3 BEGIN\n4  v_perm:=CASE WHEN _data ? 'items' THEN 'picking.confirm' ELSE 'picking.conf",
+    "is_error": false,
+    "timestamp": 1790523319143
   }
 ]
