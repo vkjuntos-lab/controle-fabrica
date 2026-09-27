@@ -1643,9 +1643,11 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
     FROM public.customer_returns cr WHERE cr.organization_id=_org AND cr.company_id=_company
     ORDER BY cr.requested_at DESC,cr.return_number DESC LIMIT greatest(1,least(_limit,200))) r),'[]'::jsonb),
   'totals',(SELECT jsonb_build_object(
-      'orders',count(*),coalesce(sum(total_amount),0),coalesce(sum((SELECT coalesce(sum(si.delivered_quantity),0)
+      'orders',count(*),
+      'amount',coalesce(sum(total_amount),0),
+      'delivered_amount',coalesce(sum((SELECT coalesce(sum(si.delivered_quantity),0)
         FROM public.shipment_items si JOIN public.shipments s ON s.id=si.shipment_id
-        WHERE s.sales_order_id=so.id)),0) AS delivered_amount
+        WHERE s.sales_order_id=so.id)),0)
     FROM public.sales_orders so
     WHERE so.organization_id=_org AND so.company_id=_company AND so.status NOT IN ('CANCELED'))),
   'note','Dados sempre das tabelas oficiais. Nada é recalculado nem estimado aqui.');
