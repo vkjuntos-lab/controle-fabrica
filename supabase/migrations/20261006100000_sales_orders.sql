@@ -1004,9 +1004,9 @@ BEGIN
     WHERE id=v_variant AND organization_id=_org AND status='ACTIVE') THEN
   RAISE EXCEPTION 'Variante inexistente ou descontinuada: % não pode entrar em pedido novo.',coalesce(_item->>'variant_id','');
  END IF;
- SELECT v.sku,coalesce(v.barcode,''),p.name,coalesce(v.unit,'un')
+ SELECT v.sku,coalesce(v.barcode,''),p.name,coalesce(nullif(v.attributes->>'unit',''),'UN')
  INTO v_sku,v_barcode,v_name,v_unit
- FROM public.product_variants v JOIN public.products p ON p.id=v.product_id
+ FROM public.product_variants v JOIN public.products p ON p.id=v.product_id AND p.organization_id=_org
  WHERE v.id=v_variant AND v.organization_id=_org;
 
  IF _table IS NULL THEN RAISE EXCEPTION 'Tabela de preço é obrigatória.'; END IF;
