@@ -955,9 +955,14 @@ BEGIN
   RAISE EXCEPTION 'Expedição entregue ou cancelada é imutável.';
  END IF;
  IF TG_TABLE_NAME='shipment_items' THEN
-  SELECT status INTO v_status FROM public.shipments WHERE id=(j->>'shipment_id')::uuid;
-  IF v_status IN ('DISPATCHED','IN_TRANSIT','DELIVERED','PARTIALLY_DELIVERED','CANCELED') THEN
-   RAISE EXCEPTION 'Item de expedição dispatched é imutável.';
+  -- Expedido e FATO e nunca muda. O que ainda pode avancar depois do
+  -- despacho e o registro de entrega/retorno, e nada mais.
+  IF (to_jsonb(NEW)-'delivered_quantity'-'returned_quantity'-'updated_at')
+     IS DISTINCT FROM (to_jsonb(OLD)-'delivered_quantity'-'returned_quantity'-'updated_at') THEN
+   SELECT status INTO v_status FROM public.shipments WHERE id=(j->>'shipment_id')::uuid;
+   IF v_status IN ('DISPATCHED','IN_TRANSIT','DELIVERED','PARTIALLY_DELIVERED','CANCELED') THEN
+    RAISE EXCEPTION 'Item de expedição despachado é imutável: só entrega e retorno avançam.';
+   END IF;
   END IF;
  END IF;
  IF TG_TABLE_NAME='customer_returns' AND to_jsonb(OLD)->>'status' IN ('COMPLETED','REJECTED','CANCELED') THEN
