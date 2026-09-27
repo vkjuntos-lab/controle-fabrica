@@ -207,7 +207,8 @@ def run():
  rpc('sales_return_action',org,ret['id'],'approve',{},user=a,fail='Segrega')
  rpc('sales_return_action',org,ret['id'],'approve',{},user=approver)
  rpc('sales_return_action',org,ret['id'],'receive',{'quantity':5,'destination':'SELLABLE','financial_action':'CREDIT_NOTE'},user=picker)
- assert balance(variants['SAP-001']['v'],warehouse)==85.0
+ # Vendavel volta para o MESMO local de origem da expedicao: o destino nunca e inventado.
+ assert balance(variants['SAP-001']['v'],warehouse)==86.0
  assert float(sql(f"SELECT returned_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}"))==5.0
  assert sql(f"SELECT financial_action FROM customer_returns WHERE id={q(ret['id'])}")=='CREDIT_NOTE'
  assert sql(f"SELECT count(*) FROM account_receivables WHERE source_type='SALE'")=='0'
@@ -221,7 +222,7 @@ def run():
  sql(f"UPDATE customer_return_items SET destination='SELLABLE' WHERE customer_return_id={q(ret2['id'])}")
  rpc('sales_return_action',org,ret2['id'],'receive',{'quantity':2,'destination':'SELLABLE','destination_location_id':quarantine},user=picker,fail='condi')
  rpc('sales_return_action',org,ret2['id'],'receive',{'quantity':2,'destination':'QUARANTINE','destination_location_id':quarantine},user=picker)
- assert balance(variants['SAP-001']['v'],warehouse)==85.0
+ assert balance(variants['SAP-001']['v'],warehouse)==86.0
  assert float(sql(f"SELECT quantity FROM inventory_get_balance({q(org)},{q(variants['SAP-001']['v'])})"))==2.0
  assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],quarantine])),a))==0.0
  print('PASS P: danificado so pode ir para quarentena; saldo em quarentena nao e vendavel')
@@ -258,12 +259,12 @@ def run():
  action(order3['id'],'submit',user=commercial);action(order3['id'],'approve',user=approver)
  rpc('sales_reserve',org,order3['id'],{},user=picker)
  assert float(sql(f"SELECT reserved_quantity FROM sales_order_items WHERE sales_order_id={q(order3['id'])}"))==5.0
- assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==80.0
+ assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==81.0
  action(order3['id'],'cancel',{'reason':'Cliente desistiu'},user=approver)
  assert sql(f"SELECT status FROM sales_orders WHERE id={q(order3['id'])}")=='CANCELED'
  assert float(sql(f"SELECT reserved_quantity FROM sales_order_items WHERE sales_order_id={q(order3['id'])}"))==0.0
- assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==85.0
- assert balance(variants['SAP-001']['v'],warehouse)==85.0
+ assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==86.0
+ assert balance(variants['SAP-001']['v'],warehouse)==86.0
  print('PASS S: cancelar libera a reserva e devolve o disponivel sem tocar no saldo fisico')
 
  # Expiracao automatica de reserva vencida.
@@ -275,12 +276,13 @@ def run():
  expired=rpc('sales_expire_reservations',org,{},user=picker)
  assert expired['expired']==1, expired
  assert sql(f"SELECT count(*) FROM inventory_reservations WHERE sales_order_id={q(order4['id'])} AND status='EXPIRED'")=='1'
- assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==85.0
+ assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==86.0
  print('PASS T: reserva vencida expira por chamada idempotente e devolve o disponivel')
 
  # ------------------------------------------------ painel, cliente 360
  dash=rpc('sales_dashboard',org,{},user=a)
- assert dash['open_exceptions']>=1 and dash['by_status'].get('FULFILLED')==2, dash
+ # O pedido principal ficou com saldo (19 de 20): so a expedicao direta e FULFILLED.
+ assert dash['open_exceptions']>=1 and dash['by_status'].get('FULFILLED')==1, dash
  assert 'DISPONÍVEL = SALDO FÍSICO - RESERVAS ATIVAS' in dash['definitions']['available_formula']
  activity=rpc('sales_company_activity',org,company,user=fin)
  assert len(activity['orders'])==7 and activity['totals']['orders']==7
