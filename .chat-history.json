@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "\n**Teste K — RLS**\n\nUsuário da Organização A tenta consultar cliente, oportunidade ou proposta da Organização B.\n\nResultado: acesso negado.\n\n**Teste L — Permissões**\n\nRepresentante sem permissão de visualizar custos tenta consultar margem por chamada direta.\n\nResultado: acesso negado.\n\n### 49. DOCUM",
-    "is_error": false,
-    "timestamp": 1790413687359
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sed -n '1035,1075p' /tmp/opencode/master012.md; echo \"##### TABELAS #####\"; grep -n \"CREATE TABLE\" supabase/migrations/20261005100000_crm.sql"
-    },
-    "timestamp": 1790413689569
-  },
-  {
-    "role": "tool_result",
     "content": "\nSomente declare o MASTER 012 concluído quando:\n\n- Cadastro comercial unificado funcionar.\n- Leads e conversão funcionarem.\n- Contatos funcionarem.\n- Representantes e carteiras funcionarem.\n- Pipeline e oportunidades funcionarem.\n- Histórico de etapas funcionar.\n- Propostas e versionamento funcionar",
     "is_error": false,
     "timestamp": 1790413689587
@@ -1597,5 +1583,19 @@
     "content": "21:RETURNS jsonb\n60:                        'PARTNER_SHIPMENT', 'PARTNER_RETURN') THEN\n69:    WHEN 'SALE_RETURN' THEN 'IN'\n110:      RETURN jsonb_build_object('deduped', true, 'movement', v_row, 'movement_id', v_existing_id);\n125:  RETURNING to_jsonb(inventory_movements.*) INTO v_row;\n152:  RETURN j",
     "is_error": false,
     "timestamp": 1790521131801
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '108,160p' supabase/migrations/20260923100000_inventory_workflows.sql"
+    },
+    "timestamp": 1790521134366
+  },
+  {
+    "role": "tool_result",
+    "content": "      SELECT to_jsonb(movements) FROM public.inventory_movements movements\n        WHERE movements.id = v_existing_id INTO v_row;\n      RETURN jsonb_build_object('deduped', true, 'movement', v_row, 'movement_id', v_existing_id);\n    END IF;\n  END IF;\n\n  INSERT INTO public.inventory_movements (\n    o",
+    "is_error": false,
+    "timestamp": 1790521134378
   }
 ]
