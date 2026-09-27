@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "382:  key: string;\n385:  status: ModuleStatus;\n390:    key: \"dashboard\",\n393:    status: \"available\",\n396:    key: \"comercial\",\n399:    status: \"available\",\n402:    key: \"produtos\",\n405:    status: \"available\",\n408:    key: \"compras\",\n411:    status: \"available\",\n414:    key: \"estoque\",\n417:    stat",
-    "is_error": false,
-    "timestamp": 1790413615104
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/src/lib/rbac.test.ts",
-      "newString": "  it(\"não declara módulo operacional como disponível antes de existir\", () => {\n    const disponiveis = [\n      \"dashboard\",\n      \"administracao\",\n      \"comercial\",\n      \"produtos\",\n      \"estoque\",\n      \"parceiros\",\n      \"financeiro\",\n      \"compras\",\n      \"planejamento\",\n    ];\n    const opcionais = PLATFORM_MODULES.filter((m) => !disponiveis.includes(m.key));\n    for (const mod of opcionais) {\n      expect(mod.status).toBe(\"coming_soon\");\n    }\n  });\n\n  it(\"mantém o módulo comercial disponível, com leitura no RBAC\", () => {\n    // O MASTER 012 entregou as telas de comercial; sem esta afirmação, trocar o\n    // status para `coming_soon` esconderia o módulo já implementado.\n    const comercial = PLATFORM_MODULES.find((m) => m.key === \"comercial\");\n    expect(comercial?.status).toBe(\"available\");\n    expect(PERMISSIONS.crmRead).toBe(\"crm.read\");\n    expect(PERMISSIONS.crmConfigure).toBe(\"crm.configure\");\n  });",
-      "oldString": "  it(\"não declara módulo operacional como disponível antes de existir\", () => {\n    const disponiveis = [\n      \"dashboard\",\n      \"administracao\",\n      \"produtos\",\n      \"estoque\",\n      \"parceiros\",\n      \"financeiro\",\n      \"compras\",\n      \"planejamento\",\n    ];\n    const opcionais = PLATFORM_MODULES.filter((m) => !disponiveis.includes(m.key));\n    for (const mod of opcionais) {\n      expect(mod.status).toBe(\"coming_soon\");\n    }\n  });"
-    },
-    "timestamp": 1790413620788
-  },
-  {
-    "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790413620805
@@ -1598,5 +1582,19 @@
     "content": "### sales_order_settings\n    id, organization_id, reservation_policy, reservation_expiry_hours, make_to_order_enabled, credit_exposure_policy, approval_segregation, max_discount_percent, price_override_policy, receivable_trigger, allow_partial_fulfillment, shipment_requires_full_confirmation, tracki",
     "is_error": false,
     "timestamp": 1790521104541
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"released_at\\|release_reason\\|picked_at\\|confirmed_at\\|coalesce(batch_id\\|shipment_id,sales_order_item_id\\|UNIQUE (organization_id, shipment_id\" supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790521107386
+  },
+  {
+    "role": "tool_result",
+    "content": "343: consumed_at timestamptz, released_at timestamptz,\n344: release_reason text,\n397: started_at timestamptz, picked_at timestamptz,\n398: confirmed_by uuid REFERENCES public.profiles, confirmed_at timestamptz,\n573: UNIQUE(organization_id,shipment_id,sales_order_item_id,coalesce(batch_id,'00000000-00",
+    "is_error": false,
+    "timestamp": 1790521107395
   }
 ]
