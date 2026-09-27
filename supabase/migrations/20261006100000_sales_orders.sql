@@ -1397,7 +1397,7 @@ $$;
 -- tabela, condição de pagamento, endereço e crédito.
 CREATE FUNCTION public.sales_validate_order(_org uuid,_order uuid)
 RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$
-DECLARE o public.sales_orders; cfg jsonb; i jsonb; issues jsonb:='[]'::jsonb; v_pct numeric;
+DECLARE o public.sales_orders; cfg jsonb; i jsonb; it public.sales_order_items; issues jsonb:='[]'::jsonb; v_pct numeric;
  v_discount_pct numeric; v_auth numeric; v_sep boolean; v_credit jsonb; v_contact uuid;
 BEGIN
  SELECT * INTO o FROM public.sales_orders WHERE id=_order AND organization_id=_org;
@@ -1414,23 +1414,23 @@ BEGIN
  IF NOT EXISTS(SELECT 1 FROM public.sales_order_items WHERE organization_id=_org AND sales_order_id=_order) THEN
   issues:=issues||jsonb_build_object('code','NO_ITEMS','message','Pedido sem itens.');
  END IF;
- FOR i IN SELECT * FROM public.sales_order_items WHERE organization_id=_org AND sales_order_id=_order LOOP
+ FOR it IN SELECT * FROM public.sales_order_items WHERE organization_id=_org AND sales_order_id=_order LOOP
   IF NOT EXISTS(SELECT 1 FROM public.product_variants
-     WHERE id=i.product_variant_id AND organization_id=_org AND status='DISCONTINUED') THEN
-   issues:=issues||jsonb_build_object('code','VARIANT_INVALID','variant_id',i.product_variant_id,
-     'message',format('A variante %s está descontinuada.',i.sku_snapshot));
+     WHERE id=it.product_variant_id AND organization_id=_org AND status='DISCONTINUED') THEN
+   issues:=issues||jsonb_build_object('code','VARIANT_INVALID','variant_id',it.product_variant_id,
+     'message',format('A variante %s está descontinuada.',it.sku_snapshot));
   END IF;
-  IF i.unit_price<0 THEN
-   issues:=issues||jsonb_build_object('code','PRICE_INVALID','variant_id',i.product_variant_id,'message','Preço inválido.');
+  IF it.unit_price<0 THEN
+   issues:=issues||jsonb_build_object('code','PRICE_INVALID','variant_id',it.product_variant_id,'message','Preço inválido.');
   END IF;
   -- Preço abaixo do mínimo vigente da tabela exige autorização específica.
-  IF coalesce((i.price_snapshot->>'below_minimum')::boolean,false) THEN
+  IF coalesce((it.price_snapshot->>'below_minimum')::boolean,false) THEN
    IF cfg->>'price_override_policy'='BLOCK' THEN
-    issues:=issues||jsonb_build_object('code','PRICE_BELOW_MINIMUM','variant_id',i.product_variant_id,
-      'message',format('Preço abaixo do mínimo da tabela em %s.',i.sku_snapshot),'blocking',true);
+    issues:=issues||jsonb_build_object('code','PRICE_BELOW_MINIMUM','variant_id',it.product_variant_id,
+      'message',format('Preço abaixo do mínimo da tabela em %s.',it.sku_snapshot),'blocking',true);
    ELSE
-    issues:=issues||jsonb_build_object('code','PRICE_BELOW_MINIMUM','variant_id',i.product_variant_id,
-      'message',format('Preço abaixo do mínimo em %s exige autorização.',i.sku_snapshot),'requires_authorization',true);
+    issues:=issues||jsonb_build_object('code','PRICE_BELOW_MINIMUM','variant_id',it.product_variant_id,
+      'message',format('Preço abaixo do mínimo em %s exige autorização.',it.sku_snapshot),'requires_authorization',true);
    END IF;
   END IF;
  END LOOP;
