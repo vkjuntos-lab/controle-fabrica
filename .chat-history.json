@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
-    },
-    "timestamp": 1790523446198
-  },
-  {
-    "role": "tool_result",
-    "content": "Traceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 302, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 166, in run\n    assert dispatched['quantity']==20 and bala",
-    "is_error": false,
-    "timestamp": 1790523449443
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"PARTIALLY_FULFILLED\\|FULFILLED'\" supabase/migrations/20261006100000_sales_orders.sql | sed -n '1,30p'"
     },
     "timestamp": 1790523460425
@@ -1398,5 +1384,19 @@
     "content": "ok\nok2\nAssertionError: NOTICE:  SNAP {\"items\": [{\"line_total\": 200.00, \"tax_amount\": 0, \"unit_price\": 25.00, \"sku_snapshot\": \"SAP-001\", \"unit_snapshot\": \"un\", \"price_snapshot\": {\"id\": \"c0ad987a-dbfb-4380-b945-9107db0b49f9\", \"status\": \"ACTIVE\", \"valid_to\": null, \"unit_price\": 25.00, \"valid_from\": \"20",
     "is_error": false,
     "timestamp": 1790524188959
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '1376,1400p' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790524192233
+  },
+  {
+    "role": "tool_result",
+    "content": "      'payment_terms',q.payment_terms_snapshot,'items',items),\n    'BRL',q.notes,nullif(trim(coalesce(_data->>'internal_notes','')),''),auth.uid())\n  RETURNING id INTO result;\n\n  INSERT INTO public.sales_order_items(organization_id,sales_order_id,product_variant_id,\n    sku_snapshot,description_snap",
+    "is_error": false,
+    "timestamp": 1790524192248
   }
 ]
