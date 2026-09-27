@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sed -n '420,462p' supabase/migrations/20260918100000_inventory_ledger.sql"
-    },
-    "timestamp": 1790520323855
-  },
-  {
-    "role": "tool_result",
-    "content": "    PERFORM 1 FROM public.inventory_batches\n      WHERE id = _batch_id AND organization_id = _organization_id;\n    IF NOT FOUND THEN RAISE EXCEPTION 'Lote não encontrado nesta organização.'; END IF;\n  END IF;\n\n  -- Idempotência: mesmo evento externo não gera duas movimentações.\n  IF _idempotency_key",
-    "is_error": false,
-    "timestamp": 1790520323865
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"operating_purpose\\|QUARANTINE\\|INSPECTION\" supabase/migrations/20260924100000_partners.sql | head -20 && echo \"=== LOCATION TYPE ===\" && grep -n \"inventory_location_type\" supabase/migrations/20260918100000_inventory_ledger.sql | head -5"
     },
     "timestamp": 1790520324171
@@ -1553,5 +1539,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql</path>\n<type>file</type>\n<content>\n1155: \n1156: -- Criação manual: mesma validacao comercial do fluxo vindo do CRM.\n1157: CREATE FUNCTION public.sales_save(_org uuid,_data jsonb) RETURNS jsonb\n1158: LA",
     "is_error": false,
     "timestamp": 1790521885740
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
+      "limit": 96,
+      "offset": 1060
+    },
+    "timestamp": 1790521888491
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql</path>\n<type>file</type>\n<content>\n1060:   RAISE EXCEPTION 'Empresa inativa ou bloqueada.';\n1061:  END IF;\n1062: \n1063:  IF _quote IS NOT NULL THEN\n1064:   SELECT * INTO v_quote FROM public.sales_quote",
+    "is_error": false,
+    "timestamp": 1790521888548
   }
 ]
