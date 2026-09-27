@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
-      "oldString": "    least(coalesce(nullif(v_item->>'quantity','')::numeric,it.approved_quantity),it.approved_quantity),",
-      "newString": "    least(coalesce(nullif(req->>'quantity','')::numeric,it.approved_quantity),it.approved_quantity),"
-    },
-    "timestamp": 1790523139488
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790523139512
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
       "newString": "  FROM jsonb_array_elements(_data->'items') req\n  JOIN public.sales_order_items it ON it.id=nullif(req->>'sales_order_item_id','')::uuid\n  WHERE it.organization_id=_org AND it.sales_order_id=_order;",
       "oldString": "  FROM jsonb_array_elements(_data->'items') v_item\n  JOIN public.sales_order_items it ON it.id=nullif(v_item->>'sales_order_item_id','')::uuid\n  WHERE it.organization_id=_org AND it.sales_order_id=_order;"
     },
@@ -1410,5 +1394,19 @@
     "content": "ok\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 310, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 215, in run\n    assert sql(\"SELECT count(*) FROM accoun",
     "is_error": false,
     "timestamp": 1790523901895
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" >/tmp/opencode/run.txt 2>&1; grep -n \"PASS_CRM\\|COUNT\\|SELECT count\" /tmp/opencode/run.txt | head -5; PG=$(grep -o \"/tmp/[^ ]*\\.s\\?ock\\|/tmp/[a-z0-9_.-]*\" /tmp/opencode/run.txt | head -1); echo \"---\"; grep -rn \"DSN\\|sock\\|tmp\" scripts/test-inventory-db.py | head -8"
+    },
+    "timestamp": 1790523909675
+  },
+  {
+    "role": "tool_result",
+    "content": "20:    assert sql(\"SELECT count(*) FROM account_receivables\")=='1'\n---\n",
+    "is_error": false,
+    "timestamp": 1790523913535
   }
 ]
