@@ -73,7 +73,7 @@ CREATE TABLE public.sales_order_settings (
  organization_id uuid NOT NULL REFERENCES public.organizations UNIQUE,
  -- FULL_ONLY: reserva exige a quantidade inteira; ALLOW_PARTIAL: reserva o
  -- disponivel e deixa o saldo pendente; ALLOW_NEGATIVE_AVAILABLE: permite
- --書沒 disponivel negativo na reserva (o saldo fisico continua bloqueado).
+ -- disponivel negativo na reserva (o saldo fisico continua bloqueado).
  reservation_policy text NOT NULL DEFAULT 'ALLOW_PARTIAL'
    CHECK(reservation_policy IN ('FULL_ONLY','ALLOW_PARTIAL','ALLOW_NEGATIVE_AVAILABLE')),
  reservation_expiry_hours integer NOT NULL DEFAULT 72 CHECK(reservation_expiry_hours>0),
