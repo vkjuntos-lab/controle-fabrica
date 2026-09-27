@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"_action='\" supabase/migrations/20261006100000_sales_orders.sql | awk -F: '$1>2660 && $1<2800' | head -12"
-    },
-    "timestamp": 1790523620237
-  },
-  {
-    "role": "tool_result",
-    "content": "2675: IF _action='track' THEN\n2693: ELSIF _action='proof' THEN\n2730:  IF _action='deliver' THEN\n2734:  UPDATE public.shipments SET status=CASE WHEN _action='deliver' THEN 'DELIVERED'\n2764: ELSIF _action='exception' THEN\n2772: ELSIF _action='cancel' THEN\n",
-    "is_error": false,
-    "timestamp": 1790523620278
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2725,2733p' supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790523625163
@@ -1398,5 +1384,19 @@
     "content": "3466:CREATE POLICY sales_read ON public.sales_order_settings FOR SELECT TO authenticated\n3475:CREATE POLICY sales_read ON public.sales_orders FOR SELECT TO authenticated\n3487:CREATE POLICY sales_read ON public.sales_order_items FOR SELECT TO authenticated\n3498:CREATE POLICY sales_read ON public.sale",
     "is_error": false,
     "timestamp": 1790524463462
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"  INSERT INTO public.sales_orders(organization_id,order_number,company_id,sales_quote_id,\n    source_type,order_date,address_snapshot,company_snapshot,price_snapshot)\n  VALUES(_org,v_number,q.company_id,q.id,\n    'QUOTE_CONVERSION',q.issue_date,'{}'::jsonb,'{}'::jsonb,'{}'::jsonb)\n  RETURNING id INTO result;\"\"\"\nnew=\"\"\"  BEGIN\n   INSERT INTO public.sales_orders(organization_id,order_number,company_id,sales_quote_id,\n    source_type,order_date,address_snapshot,company_snapshot,price_snapshot)\n   VALUES(_org,v_number,q.company_id,q.id,\n    'QUOTE_CONVERSION',q.issue_date,'{}'::jsonb,'{}'::jsonb,'{}'::jsonb)\n   RETURNING id INTO result;\n  EXCEPTION WHEN OTHERS THEN\n   GET STACKED DIAGNOSTICS v_dbg=PG_CONTEXT;\n   RAISE EXCEPTION 'DBGCTX %',v_dbg;\n  END;\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -A4 \"DBGCTX\" | head -8"
+    },
+    "timestamp": 1790524471589
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nERROR:  DBGCTX PL/pgSQL function sales_convert_quote(uuid,uuid,jsonb,uuid) line 82 at GET STACKED DIAGNOSTICS\nCONTEXT:  PL/pgSQL function sales_convert_quote(uuid,uuid,jsonb,uuid) line 83 at RAISE\n\n",
+    "is_error": false,
+    "timestamp": 1790524475883
   }
 ]

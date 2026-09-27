@@ -1363,11 +1363,16 @@ BEGIN
   FOR v_dbg IN SELECT string_agg(column_name||':'||data_type,', ' ORDER BY ordinal_position) FROM information_schema.columns WHERE table_name='sales_orders' LOOP
    RAISE NOTICE 'COLS %',left(v_dbg,2000);
   END LOOP;
-  INSERT INTO public.sales_orders(organization_id,order_number,company_id,sales_quote_id,
+  BEGIN
+   INSERT INTO public.sales_orders(organization_id,order_number,company_id,sales_quote_id,
     source_type,order_date,address_snapshot,company_snapshot,price_snapshot)
-  VALUES(_org,v_number,q.company_id,q.id,
+   VALUES(_org,v_number,q.company_id,q.id,
     'QUOTE_CONVERSION',q.issue_date,'{}'::jsonb,'{}'::jsonb,'{}'::jsonb)
-  RETURNING id INTO result;
+   RETURNING id INTO result;
+  EXCEPTION WHEN OTHERS THEN
+   GET STACKED DIAGNOSTICS v_dbg=PG_CONTEXT;
+   RAISE EXCEPTION 'DBGCTX %',v_dbg;
+  END;
   RAISE NOTICE 'ITEMS JSON %',items::text;
   INSERT INTO public.sales_order_items(organization_id,sales_order_id,product_variant_id,
     sku_snapshot,description_snapshot,unit_snapshot,price_snapshot,ordered_quantity,
