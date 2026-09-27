@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"PARTIALLY_FULFILLED\\|FULFILLED'\" supabase/migrations/20261006100000_sales_orders.sql | sed -n '1,30p'"
-    },
-    "timestamp": 1790523460425
-  },
-  {
-    "role": "tool_result",
-    "content": "169:                    'PARTIALLY_FULFILLED','FULFILLED','CLOSED','CANCELED')),\n232:   CHECK(status IN ('OPEN','PARTIALLY_FULFILLED','FULFILLED','CANCELED')),\n1604:   WHERE organization_id=_org AND sales_order_id=_order AND status<>'FULFILLED';\n1615:  IF o.status NOT IN ('FULFILLED','PARTIALLY_FULF",
-    "is_error": false,
-    "timestamp": 1790523460460
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2610,2640p' supabase/migrations/20261006100000_sales_orders.sql && echo \"=== deliver 2740-2760 ===\" && sed -n '2740,2760p' supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790523463181
@@ -1398,5 +1384,19 @@
     "content": "      'payment_terms',q.payment_terms_snapshot,'items',items),\n    'BRL',q.notes,nullif(trim(coalesce(_data->>'internal_notes','')),''),auth.uid())\n  RETURNING id INTO result;\n\n  INSERT INTO public.sales_order_items(organization_id,sales_order_id,product_variant_id,\n    sku_snapshot,description_snap",
     "is_error": false,
     "timestamp": 1790524192248
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '1359,1378p' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790524200020
+  },
+  {
+    "role": "tool_result",
+    "content": "      'discount_percent',q.discount_percent,'discount_amount',q.discount_amount,\n      'accepted_at',q.acceptance_evidence,'acceptance_contact_id',q.acceptance_contact_id,\n      'contact_name',(SELECT name FROM public.company_contacts WHERE id=q.acceptance_contact_id),\n      'payment_terms',q.paymen",
+    "is_error": false,
+    "timestamp": 1790524200031
   }
 ]
