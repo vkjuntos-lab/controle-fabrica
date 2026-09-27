@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
-      "newString": " SELECT v.sku,coalesce(v.barcode,''),p.name,coalesce(nullif(v.attributes->>'unit',''),'UN')\n INTO v_sku,v_barcode,v_name,v_unit\n FROM public.product_variants v JOIN public.products p ON p.id=v.product_id AND p.organization_id=_org\n WHERE v.id=v_variant AND v.organization_id=_org;",
-      "oldString": " SELECT v.sku,coalesce(v.barcode,''),p.name,coalesce(v.unit,'un')\n INTO v_sku,v_barcode,v_name,v_unit\n FROM public.product_variants v JOIN public.products p ON p.id=v.product_id\n WHERE v.id=v_variant AND v.organization_id=_org;"
-    },
-    "timestamp": 1790522200091
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790522200123
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
@@ -1424,5 +1408,19 @@
     "content": "ok\n    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                                                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n ",
     "is_error": false,
     "timestamp": 1790523362810
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"FUNCTION public.sales_pack\" -A70 supabase/migrations/20261006100000_sales_orders.sql | grep -nE \"UPDATE public.fulfillment|RETURN jsonb|v_new|status=\" | head -10"
+    },
+    "timestamp": 1790523367733
+  },
+  {
+    "role": "tool_result",
+    "content": "30:2326-     WHERE organization_id=_org AND fulfillment_order_id=_fulfillment AND status='CONFIRMED' ORDER BY confirmed_at DESC LIMIT 1)\n60:2356- UPDATE public.fulfillment_orders SET status='READY_FOR_SHIPMENT',updated_at=v_now\n65:2361- RETURN jsonb_build_object('packing_record_id',ident,'fulfillmen",
+    "is_error": false,
+    "timestamp": 1790523367760
   }
 ]
