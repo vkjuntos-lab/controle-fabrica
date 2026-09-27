@@ -114,7 +114,7 @@ def run():
  print('PASS G: DISPONIVEL = SALDO FISICO - RESERVAS; reserva nao cria movimento e e idempotente')
 
  # Local de quarentena nunca atende venda direta.
- rpc('sales_reserve',org,order['id'],{'items':[{'sales_order_item_id':sql(f"SELECT id FROM sales_order_items WHERE sales_order_id={q(order['id'])}"),'quantity':1,'inventory_location_id':quarantine}]},user=picker,fail='nao autorizada')
+ rpc('sales_reserve',org,order['id'],{'items':[{'sales_order_item_id':sql(f"SELECT id FROM sales_order_items WHERE sales_order_id={q(order['id'])}"),'quantity':1,'inventory_location_id':quarantine}]},user=picker,fail='não é autorizada')
  # Um segundo pedido do mesmo cliente ve o disponibilidade reduzido.
  order2=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':50}]})
  a2=rpc('sales_availability',org,order2['id'],None,user=a)
