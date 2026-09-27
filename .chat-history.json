@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
-    },
-    "timestamp": 1790523177178
-  },
-  {
-    "role": "tool_result",
-    "content": "           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 28, in call\n    def call(name, args, user, fail=None): return sql(f\"SELECT",
-    "is_error": false,
-    "timestamp": 1790523180121
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '1585,1600p' supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790523185692
@@ -1404,5 +1390,19 @@
     "content": "ok\n    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                                                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n ",
     "is_error": false,
     "timestamp": 1790523976097
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"   v_qty:=coalesce(nullif(_data->>'quantity','')::numeric,0);\n   IF v_qty<=0 THEN CONTINUE; END IF;\n   IF v_qty>v_i.quantity-v_i.received_quantity THEN\n    RAISE EXCEPTION 'Quantidade recebida acima do devolvido em %.',v_i.sku_snapshot;\n   END IF;\n   -- Danificada ou defeituosa NUNCA volta a vendavel.\n   IF v_i.condition IN ('DAMAGED','DEFECTIVE','OTHER') AND v_i.destination='SELLABLE' THEN\"\"\"\nnew=\"\"\"   -- Destino efetivo do recebimento: o informado agora ou o ja definido.\n   v_i_destination:=coalesce(nullif(_data->>'destination',''),v_i.destination);\n   v_qty:=coalesce(nullif(_data->>'quantity','')::numeric,0);\n   IF v_qty<=0 THEN CONTINUE; END IF;\n   IF v_qty>v_i.quantity-v_i.received_quantity THEN\n    RAISE EXCEPTION 'Quantidade recebida acima do devolvido em %.',v_i.sku_snapshot;\n   END IF;\n   -- Danificada ou defeituosa NUNCA volta a vendavel.\n   IF v_i.condition IN ('DAMAGED','DEFECTIVE','OTHER') AND v_i_destination='SELLABLE' THEN\"\"\"\nassert old in s; s=s.replace(old,new)\nold2=\"\"\"   UPDATE public.customer_return_items SET received_quantity=received_quantity+v_qty,\n     destination=coalesce(nullif(_data->>'destination',''),destination),updated_at=v_now WHERE id=v_i.id;\"\"\"\nnew2=\"\"\"   UPDATE public.customer_return_items SET received_quantity=received_quantity+v_qty,\n     destination=v_i_destination,updated_at=v_now WHERE id=v_i.id;\"\"\"\nassert old2 in s; s=s.replace(old2,new2)\nold3=\"\"\"     'quantity',v_qty,'destination_location_id',v_dest,'inventory_movement_id',v_mov_id,\n     'condition',v_i.condition,'destination',coalesce(nullif(_data->>'destination',''),v_i.destination));\"\"\"\nnew3=\"\"\"     'quantity',v_qty,'destination_location_id',v_dest,'inventory_movement_id',v_mov_id,\n     'condition',v_i.condition,'destination',v_i_destination);\"\"\"\nassert old3 in s; s=s.replace(old3,new3)\np.write_text(s); print('ok')\nPY\ngrep -n \"v_dest_location\\|DECLARE\" supabase/migrations/20261006100000_sales_orders.sql | awk -F: '$1>2870 && $1<2900'"
+    },
+    "timestamp": 1790523984131
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n2876:DECLARE ret public.customer_returns; cfg jsonb; v_new text; v_now timestamptz:=now();\n",
+    "is_error": false,
+    "timestamp": 1790523984200
   }
 ]

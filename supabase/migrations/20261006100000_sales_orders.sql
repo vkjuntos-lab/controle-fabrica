@@ -2936,13 +2936,15 @@ BEGIN
          WHERE id=v_dest AND operational_purpose IN ('QUARANTINE','INSPECTION')) THEN
     RAISE EXCEPTION 'Item % em condição % exige destino de quarentena ou inspeção.',v_i.sku_snapshot,v_i.condition;
    END IF;
+   -- Destino efetivo do recebimento: o informado agora ou o ja definido.
+   v_i_destination:=coalesce(nullif(_data->>'destination',''),v_i.destination);
    v_qty:=coalesce(nullif(_data->>'quantity','')::numeric,0);
    IF v_qty<=0 THEN CONTINUE; END IF;
    IF v_qty>v_i.quantity-v_i.received_quantity THEN
     RAISE EXCEPTION 'Quantidade recebida acima do devolvido em %.',v_i.sku_snapshot;
    END IF;
    -- Danificada ou defeituosa NUNCA volta a vendavel.
-   IF v_i.condition IN ('DAMAGED','DEFECTIVE','OTHER') AND v_i.destination='SELLABLE' THEN
+   IF v_i.condition IN ('DAMAGED','DEFECTIVE','OTHER') AND v_i_destination='SELLABLE' THEN
     RAISE EXCEPTION 'Item % em condição % não pode ir para estoque vendível.',v_i.sku_snapshot,v_i.condition;
    END IF;
    v_mov:=public.inventory_post_movement(
@@ -2952,10 +2954,10 @@ BEGIN
    v_mov_id:=nullif(v_mov->>'movement_id','')::uuid;
    IF v_mov_id IS NULL THEN RAISE EXCEPTION 'Falha ao receber o item %.',v_i.sku_snapshot; END IF;
    UPDATE public.customer_return_items SET received_quantity=received_quantity+v_qty,
-     destination=coalesce(nullif(_data->>'destination',''),destination),updated_at=v_now WHERE id=v_i.id;
+     destination=v_i_destination,updated_at=v_now WHERE id=v_i.id;
    v_movements:=v_movements||jsonb_build_object('customer_return_item_id',v_i.id,'sku',v_i.sku_snapshot,
      'quantity',v_qty,'destination_location_id',v_dest,'inventory_movement_id',v_mov_id,
-     'condition',v_i.condition,'destination',coalesce(nullif(_data->>'destination',''),v_i.destination));
+     'condition',v_i.condition,'destination',v_i_destination);
    v_count:=v_count+1;
   END LOOP;
   IF v_count=0 THEN RAISE EXCEPTION 'Informe a quantidade recebida.'; END IF;
