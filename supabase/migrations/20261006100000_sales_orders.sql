@@ -999,9 +999,10 @@ BEGIN
  IF v_variant IS NULL OR v_qty IS NULL OR v_qty<=0 THEN
   RAISE EXCEPTION 'Item inválido: variante e quantidade positiva são obrigatórios.';
  END IF;
+ -- Linha nova exige variante ATIVA. Descontinuada nao entra em pedido novo.
  IF NOT EXISTS(SELECT 1 FROM public.product_variants
-    WHERE id=v_variant AND organization_id=_org AND status IN ('ACTIVE','DISCONTINUED')) THEN
-  RAISE EXCEPTION 'Variante inexistente ou descontinuada.';
+    WHERE id=v_variant AND organization_id=_org AND status='ACTIVE') THEN
+  RAISE EXCEPTION 'Variante inexistente ou descontinuada: % não pode entrar em pedido novo.',coalesce(_item->>'variant_id','');
  END IF;
  SELECT v.sku,coalesce(v.barcode,''),p.name,coalesce(v.unit,'un')
  INTO v_sku,v_barcode,v_name,v_unit

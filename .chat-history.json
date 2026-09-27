@@ -1,17 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": " WHEN 'companies' THEN tab:='companies';perm:='customers.read';\n WHEN 'contacts' THEN tab:='company_contacts';perm:='customers.read';\n WHEN 'leads' THEN tab:='leads';perm:='leads.read';\n WHEN 'opportunities' THEN tab:='sales_opportunities';perm:='opportunities.read';\n WHEN 'opportunity_items' THEN t",
-    "is_error": false,
-    "timestamp": 1790520244109
-  },
-  {
-    "role": "tool_result",
-    "content": "  RETURN v;\nEND;\n$$;\n\nCREATE FUNCTION public.po_action(_org uuid,_id uuid,_action text,_data jsonb DEFAULT '{}') RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE r public.purchase_orders; v_seg boolean; v_pending text;\nBEGIN\n  IF _action NOT IN ('submit','approve'",
-    "is_error": false,
-    "timestamp": 1790520244114
-  },
-  {
     "role": "tool",
     "tool": "bash",
     "input": {
@@ -1540,5 +1528,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql</path>\n<type>file</type>\n<content>\n1308:  -- Cliente ativo.\n1309:  IF NOT EXISTS(SELECT 1 FROM public.companies WHERE id=o.company_id AND organization_id=_org AND status='ACTIVE')\n1310:     OR NOT EXIS",
     "is_error": false,
     "timestamp": 1790521839275
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\n\n# 1. Criacao de item: so variante ATIVA.\ns=s.replace(\"\"\" IF NOT EXISTS(SELECT 1 FROM public.product_variants\n    WHERE id=v_variant AND organization_id=_org AND status IN ('ACTIVE','DISCONTINUED')) THEN\n  RAISE EXCEPTION 'Variante inexistente ou descontinuada.';\n END IF;\"\"\",\n\"\"\" -- Linha nova exige variante ATIVA. Descontinuada nao entra em pedido novo.\n IF NOT EXISTS(SELECT 1 FROM public.product_variants\n    WHERE id=v_variant AND organization_id=_org AND status='ACTIVE') THEN\n  RAISE EXCEPTION 'Variante inexistente ou descontinuada: % não pode entrar em pedido novo.',coalesce(_item->>'variant_id','');\n END IF;\"\"\")\n\n# 2. Validacao: a variante precisa continuar ATIVA.\ns=s.replace(\"\"\"   IF NOT EXISTS(SELECT 1 FROM public.product_variants\n      WHERE id=i.product_variant_id AND organization_id=_org AND status='DISCONTINUED') THEN\n    issues:=issues||jsonb_build_object('code','VARIANT_INVALID','variant_id',i.product_variant_id,\n      'message',format('A variante %s está descontinuada.',i.sku_snapshot));\n   END IF;\"\"\",\n\"\"\"   -- A variante precisa estar ATIVE na hora da aprovacao. Se foi descontinuada\n   -- depois que o pedido foi criado, a aprovacao e bloqueada.\n   IF NOT EXISTS(SELECT 1 FROM public.product_variants\n      WHERE id=i.product_variant_id AND organization_id=_org AND status='ACTIVE') THEN\n    issues:=issues||jsonb_build_object('code','VARIANT_INVALID','variant_id',i.product_variant_id,\n      'message',format('A variante %s não está mais ativa.',i.sku_snapshot),'blocking',true);\n   END IF;\"\"\")\np.write_text(s); print('ok')\nPY"
+    },
+    "timestamp": 1790521846236
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n",
+    "is_error": false,
+    "timestamp": 1790521846298
   }
 ]
