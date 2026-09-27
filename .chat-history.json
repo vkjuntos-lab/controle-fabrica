@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk 'BEGIN{f=0} /CREATE TABLE public.products /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20260917110000_catalog_mestre.sql && echo \"=== sales_prepare_item head ===\" && sed -n '995,1045p' supabase/migrations/20261006100000_sales_orders.sql"
-    },
-    "timestamp": 1790522193264
-  },
-  {
-    "role": "tool_result",
-    "content": "CREATE TABLE public.products (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,\n  code text NOT NULL,\n  name text NOT NULL,\n  description text,\n  category_id uuid REFERENCES public.product_categories(id) ON DELETE",
-    "is_error": false,
-    "timestamp": 1790522193281
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"product_snapshot\" -B12 supabase/migrations/20261005100000_crm.sql | sed -n '1,60p'"
     },
     "timestamp": 1790522195932
@@ -1424,5 +1410,19 @@
     "content": "CREATE TABLE public.packing_record_items (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n organization_id uuid NOT NULL REFERENCES public.organizations,\n packing_record_id uuid NOT NULL,\n  FOREIGN KEY(organization_id,packing_record_id) REFERENCES public.packing_records(organization_id,id),\n sales_",
     "is_error": false,
     "timestamp": 1790523350589
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\"assert float(sql(f\"SELECT confirmed_quantity FROM packing_record_items WHERE packing_record_id={q(packed['packing_record_id'])}\"))==20.0\"\"\",\n\"\"\"assert float(sql(f\"SELECT quantity FROM packing_record_items WHERE packing_record_id={q(packed['packing_record_id'])}\"))==19.0\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790523352916
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 302, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 157, in run\n    assert float(sql(f\"SELECT quantity FROM",
+    "is_error": false,
+    "timestamp": 1790523356208
   }
 ]
