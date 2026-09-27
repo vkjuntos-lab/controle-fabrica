@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\nold=\"\"\"order2=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':50}]})\n a2=rpc('sales_availability',org,order2['id'],None,user=a)\n assert a2['items'][0]['available']==80.0 and a2['sufficient'] is False, a2\n assert a2['items'][0]['make_to_order_suggested'] is True\"\"\"\nnew=\"\"\"order2=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':100}]})\n a2=rpc('sales_availability',org,order2['id'],None,user=a)\n assert a2['items'][0]['available']==80.0 and a2['items'][0]['required_quantity']==100.0, a2\n assert a2['sufficient'] is False and a2['make_to_order_quantity']==20, a2\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -10"
-    },
-    "timestamp": 1790523102980
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\nPASS F: aprovacao exige outro usuario, preserva a consulta de credito e gera demanda\nPASS G: DISPONIVEL = SALDO FISICO - RESERVAS; reserva nao cria movimento e e idempotente\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 299, in",
-    "is_error": false,
-    "timestamp": 1790523106054
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"   IF v_mto AND v_avail<=0 AND it.sourcing_type='STOCK' AND v_pend>0 THEN\n    v_mto_total:=v_mto_total+v_pend;\n   END IF;\"\"\"\nnew=\"\"\"   IF v_mto AND it.sourcing_type='STOCK' THEN\n    v_mto_total:=v_mto_total+(v_pend-v_avail);\n   END IF;\"\"\"\nassert old in s; s=s.replace(old,new)\nold2=\"\"\"   'make_to_order_suggested',v_mto AND v_avail<=0 AND v_pend>0);\"\"\"\nnew2=\"\"\"   'make_to_order_suggested',v_mto AND it.sourcing_type='STOCK' AND v_pend>v_avail,\n   'make_to_order_quantity',CASE WHEN v_mto AND it.sourcing_type='STOCK' THEN greatest(0,v_pend-v_avail) ELSE 0 END);\"\"\"\nassert old2 in s; s=s.replace(old2,new2)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -10"
     },
     "timestamp": 1790523114629
@@ -1412,5 +1398,19 @@
     "content": "Traceback (most recent call last):\n  File \"<stdin>\", line 33, in <module>\nAssertionError:  assert float(call('sales_available',','.join(map(q,[org,var\nPASS M: despachar exige permissao de expedicao E de movimentacao de inventario\nPASS N: entrega exige prova; entrega nao mexe no saldo e nao fecha ped",
     "is_error": false,
     "timestamp": 1790523781046
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"sales_available\\|85.0\\|80.0\\|==3'\\|FULFILLED\" scripts/test-sales-db.py | head -30"
+    },
+    "timestamp": 1790523860990
+  },
+  {
+    "role": "tool_result",
+    "content": "109: assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==80.0\n121: assert a2['items'][0]['available']==80.0 and a2['items'][0]['required_quantity']==100.0, a2\n170: assert sql(f\"SELECT status FROM sales_orders WHERE id={q(order['id'])}\")=='PARTIALLY_FULFI",
+    "is_error": false,
+    "timestamp": 1790523861035
   }
 ]
