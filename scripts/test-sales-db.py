@@ -154,7 +154,7 @@ def run():
    'gross_weight_kg':3.4,'length_cm':40,'width_cm':30,'height_cm':20,
    'volumes':[{'volume_number':'CX-1','gross_weight_kg':3.4}]},user=picker)
  assert packed['weight_informed'] is True and packed['volumes']==1
- assert float(sql(f"SELECT quantity FROM packing_record_items WHERE packing_record_id={q(packed['packing_record_id'])}"))==19.0
+ assert float(sql(f"SELECT quantity FROM packing_record_items WHERE packing_record_id={q(packed['packing_record_id'])}"))==20.0
  print('PASS K: peso e dimensao sao os informados; nunca estimados; volumes registrados')
 
  # ------------------------------------------ expedicao: baixa no ledger
