@@ -1377,6 +1377,7 @@ BEGIN
     'BRL',q.notes,nullif(trim(coalesce(_data->>'internal_notes','')),''),auth.uid())
   RETURNING id INTO result;
 
+  RAISE NOTICE 'STEP items insert';
   INSERT INTO public.sales_order_items(organization_id,sales_order_id,product_variant_id,
     sku_snapshot,description_snapshot,unit_snapshot,price_snapshot,ordered_quantity,
     unit_price,discount_amount,tax_amount,line_total,created_by)
@@ -1392,6 +1393,7 @@ BEGIN
   JOIN public.products pr ON pr.id=v.product_id;
   IF NOT FOUND THEN RAISE EXCEPTION 'Itens da proposta não conferem com o catálogo.'; END IF;
 
+  RAISE NOTICE 'STEP totals update';
   UPDATE public.sales_orders SET subtotal=v_subtotal,discount_total=v_discount,tax_amount=v_tax,
    freight_amount=v_freight,total_amount=round(v_subtotal-v_discount+v_tax+v_freight,2)
   WHERE id=v_order_id;

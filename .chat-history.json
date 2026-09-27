@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2610,2640p' supabase/migrations/20261006100000_sales_orders.sql && echo \"=== deliver 2740-2760 ===\" && sed -n '2740,2760p' supabase/migrations/20261006100000_sales_orders.sql"
-    },
-    "timestamp": 1790523463181
-  },
-  {
-    "role": "tool_result",
-    "content": "   WHERE id=v_ful AND status<>'CANCELED';\n END IF;\n -- Item do pedido: expedido e o que saiu do estoque.\n UPDATE public.sales_order_items i SET fulfilled_quantity=fulfilled_quantity+si.quantity,\n   reserved_quantity=greatest(0,reserved_quantity-si.quantity),\n   status=CASE WHEN fulfilled_quantity+si",
-    "is_error": false,
-    "timestamp": 1790523463212
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '1613,1640p' supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790523469707
@@ -1398,5 +1384,19 @@
     "content": "      'discount_percent',q.discount_percent,'discount_amount',q.discount_amount,\n      'accepted_at',q.acceptance_evidence,'acceptance_contact_id',q.acceptance_contact_id,\n      'contact_name',(SELECT name FROM public.company_contacts WHERE id=q.acceptance_contact_id),\n      'payment_terms',q.paymen",
     "is_error": false,
     "timestamp": 1790524200031
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\ns=s.replace(\"\"\"  INSERT INTO public.sales_order_items(organization_id,sales_order_id,product_variant_id,\n    sku_snapshot,description_snapshot,unit_snapshot,price_snapshot,ordered_quantity,\"\"\",\n\"\"\"  RAISE NOTICE 'STEP items insert';\n  INSERT INTO public.sales_order_items(organization_id,sales_order_id,product_variant_id,\n    sku_snapshot,description_snapshot,unit_snapshot,price_snapshot,ordered_quantity,\"\"\")\ns=s.replace(\"\"\"  UPDATE public.sales_orders SET subtotal=v_subtotal,discount_total=v_discount,tax_amount=v_tax,\n   freight_amount=v_freight,total_amount=round(v_subtotal-v_discount+v_tax+v_freight,2)\n  WHERE id=v_order_id;\"\"\",\n\"\"\"  RAISE NOTICE 'STEP totals update';\n  UPDATE public.sales_orders SET subtotal=v_subtotal,discount_total=v_discount,tax_amount=v_tax,\n   freight_amount=v_freight,total_amount=round(v_subtotal-v_discount+v_tax+v_freight,2)\n  WHERE id=v_order_id;\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"NOTICE|ERROR\" | head -6"
+    },
+    "timestamp": 1790524213596
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nAssertionError: NOTICE:  SNAP {\"items\": [{\"line_total\": 200.00, \"tax_amount\": 0, \"unit_price\": 25.00, \"sku_snapshot\": \"SAP-001\", \"unit_snapshot\": \"un\", \"price_snapshot\": {\"id\": \"1375ca38-e3c1-4c6c-8596-4dd5f2dc84ee\", \"status\": \"ACTIVE\", \"valid_to\": null, \"unit_price\": 25.00, \"valid_from\": \"2020-0",
+    "is_error": false,
+    "timestamp": 1790524218088
   }
 ]
