@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk 'BEGIN{f=0} /CREATE TABLE public.company_addresses /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261005100000_crm.sql && grep -n \"company_addresses\" supabase/migrations/20261005100000_crm.sql | grep -i \"insert\\|save\" | head -5"
-    },
-    "timestamp": 1790522678458
-  },
-  {
-    "role": "tool_result",
-    "content": "(no output)",
-    "is_error": false,
-    "timestamp": 1790522678471
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -rn \"company_addresses\" supabase/migrations/*.sql | grep -v 20261006 | head -8 && echo \"=== ddl ===\" && awk 'BEGIN{f=0} /CREATE TABLE public.company_addresses /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20260925100000_base.sql 2>/dev/null | head -20"
     },
     "timestamp": 1790522681056
@@ -1414,5 +1400,19 @@
     "content": "   RAISE EXCEPTION 'Atendimento % não está liberado para expedição.',v_ful;\n  END IF;\n  SELECT id INTO v_task FROM public.picking_tasks\n   WHERE organization_id=_org AND fulfillment_order_id=v_ful AND status='CONFIRMED' ORDER BY confirmed_at DESC LIMIT 1;\n  SELECT source_location_id INTO v_loc FROM ",
     "is_error": false,
     "timestamp": 1790523572256
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\" print('DEBUG ff',sql(f\"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"),'packrec',sql(f\"SELECT count(*) FROM packing_records WHERE fulfillment_order_id={q(fulfillment['id'])}\"))\\n\"\"\",\"\")\ns=s.replace(\"\"\" print('DEBUG ids ff=',fulfillment['id'],'order=',order['id'],'status',sql(f\"SELECT status||'|'||sales_order_id||'|'||organization_id FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"))\\n\"\"\",\"\")\nold=\"\"\" f2=rpc('sales_fulfillment_create',org,second['id'],{'items':[{'sales_order_item_id':sql(f\"SELECT id FROM sales_order_items WHERE sales_order_id={q(second['id'])}\"),'quantity':5}]},user=picker)\n rpc('sales_shipment_create',org,second['id'],{'fulfillment_order_id':f2['id']},user=commercial)\n sh2=sql(f\"SELECT id FROM shipments WHERE sales_order_id={q(second['id'])}\")\"\"\"\nnew=\"\"\" rpc('sales_shipment_create',org,second['id'],{'items':[\n   {'sales_order_item_id':sql(f\"SELECT id FROM sales_order_items WHERE sales_order_id={q(second['id'])}\"),'quantity':5}]},user=commercial)\n sh2=sql(f\"SELECT id FROM shipments WHERE sales_order_id={q(second['id'])}\")\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790523581697
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n   source_location_id,destination_address_id,address_snapshot,carrier_id,tracking_code,tracking_source,\n   shipping_method,status,expected_delivery_at,created_by)\n VALUES(_org,v_number,_order,v_ful,v_task,v_loc,v_addr,v_add,v_carrier,v_tracking,\n   CASE WHEN v_tracking IS NULL THEN NULL ELSE 'MAN",
+    "is_error": false,
+    "timestamp": 1790523585170
   }
 ]

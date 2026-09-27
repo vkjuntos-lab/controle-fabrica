@@ -158,9 +158,7 @@ def run():
  print('PASS K: peso e dimensao sao os informados; nunca estimados; volumes registrados')
 
  # ------------------------------------------ expedicao: baixa no ledger
- print('DEBUG ff',sql(f"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}"),'packrec',sql(f"SELECT count(*) FROM packing_records WHERE fulfillment_order_id={q(fulfillment['id'])}"))
  rpc('sales_fulfillment_action',org,fulfillment['id'],'ready',{},user=picker)
- print('DEBUG ids ff=',fulfillment['id'],'order=',order['id'],'status',sql(f"SELECT status||'|'||sales_order_id||'|'||organization_id FROM fulfillment_orders WHERE id={q(fulfillment['id'])}"))
  shipment=rpc('sales_shipment_create',org,order['id'],{'fulfillment_order_id':fulfillment['id'],
    'tracking_code':'BR123456789BR','expected_delivery_at':(datetime.datetime.now(datetime.timezone.utc)+datetime.timedelta(days=3)).isoformat()},user=picker)
  assert shipment['status']=='READY', shipment
@@ -180,8 +178,8 @@ def run():
  second=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[{'variant_id':variants['SAP-002']['v'],'quantity':5}]})
  action(second['id'],'submit',user=commercial);action(second['id'],'approve',user=approver)
  rpc('sales_reserve',org,second['id'],{},user=picker)
- f2=rpc('sales_fulfillment_create',org,second['id'],{'items':[{'sales_order_item_id':sql(f"SELECT id FROM sales_order_items WHERE sales_order_id={q(second['id'])}"),'quantity':5}]},user=picker)
- rpc('sales_shipment_create',org,second['id'],{'fulfillment_order_id':f2['id']},user=commercial)
+ rpc('sales_shipment_create',org,second['id'],{'items':[
+   {'sales_order_item_id':sql(f"SELECT id FROM sales_order_items WHERE sales_order_id={q(second['id'])}"),'quantity':5}]},user=commercial)
  sh2=sql(f"SELECT id FROM shipments WHERE sales_order_id={q(second['id'])}")
  rpc('sales_shipment_dispatch',org,sh2,{},user=commercial,fail='Sem permiss')
  rpc('sales_shipment_dispatch',org,sh2,{},user=picker)
