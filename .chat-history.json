@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "docs/:\narchitecture\nbusiness\nhandoff\n\ndocs/architecture/:\nADR-001-initial-architecture.md\nADR-006-PARTNER-SHIPMENTS.md\nADR-007-PARTNER-RECONCILIATION.md\nADR-008-PLANNING-ENGINE.md\nADR-009-COSTING.md\n\ndocs/business/:\nCORE-BUSINESS.md\nCOSTING.md\nDEMAND-FORECAST.md\nGOODS-RECEIPT.md\nINVENTORY.md\nMRP.md\n",
-    "is_error": false,
-    "timestamp": 1790413631378
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && head -60 docs/handoff/MASTER-011-VALIDATION.md; echo \"############ ADR 009 head ############\"; head -35 docs/architecture/ADR-009-COSTING.md"
-    },
-    "timestamp": 1790413635542
-  },
-  {
-    "role": "tool_result",
     "content": "# MASTER 011 — Planejamento, Forecast, MRP e Conversão Assistida\n\nData: 26/09/2026. Continuação do MASTER 010 (Compras), reutilizando catálogo mestre, Inventory\nLedger, Produção e BOM, Reconciliação de Parceiros, fornecedores e Cost Engine. Preserva as\nmesmas decisões da casa: `organization_id` em t",
     "is_error": false,
     "timestamp": 1790413635582
@@ -1595,5 +1581,21 @@
     "content": "CREATE OR REPLACE FUNCTION public.inventory_post_movement(\n  _organization_id uuid,\n  _variant_id uuid,\n  _location_id uuid,\n  _movement_type public.inventory_movement_type,\n  _quantity numeric,\n  _reason text DEFAULT NULL,\n  _occurred_at timestamptz DEFAULT now(),\n  _unit text DEFAULT 'un',\n  _refe",
     "is_error": false,
     "timestamp": 1790521121093
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
+      "oldString": " UNIQUE(organization_id,id),\n UNIQUE(organization_id,shipment_id,sales_order_item_id,coalesce(batch_id,'00000000-0000-0000-0000-000000000000'::uuid)),\n CHECK(delivered_quantity<=quantity)\n);\nCREATE INDEX shipment_items_shipment ON public.shipment_items(organization_id,shipment_id);",
+      "newString": " UNIQUE(organization_id,id),\n CHECK(delivered_quantity<=quantity)\n);\n-- Sem repeticao do mesmo item/lote na mesma expedicao. UNIQUE com expressao\n-- so e permitido como indice; dentro de CREATE TABLE seria invalido.\nCREATE UNIQUE INDEX shipment_items_natural ON public.shipment_items\n (organization_id,shipment_id,sales_order_item_id,coalesce(batch_id,'00000000-0000-0000-0000-000000000000'::uuid));\nCREATE INDEX shipment_items_shipment ON public.shipment_items(organization_id,shipment_id);"
+    },
+    "timestamp": 1790521125283
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790521125306
   }
 ]

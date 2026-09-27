@@ -570,9 +570,12 @@ CREATE TABLE public.shipment_items (
  reservation_id uuid,
   FOREIGN KEY(organization_id,reservation_id) REFERENCES public.inventory_reservations(organization_id,id),
  UNIQUE(organization_id,id),
- UNIQUE(organization_id,shipment_id,sales_order_item_id,coalesce(batch_id,'00000000-0000-0000-0000-000000000000'::uuid)),
  CHECK(delivered_quantity<=quantity)
 );
+-- Sem repeticao do mesmo item/lote na mesma expedicao. UNIQUE com expressao
+-- so e permitido como indice; dentro de CREATE TABLE seria invalido.
+CREATE UNIQUE INDEX shipment_items_natural ON public.shipment_items
+ (organization_id,shipment_id,sales_order_item_id,coalesce(batch_id,'00000000-0000-0000-0000-000000000000'::uuid));
 CREATE INDEX shipment_items_shipment ON public.shipment_items(organization_id,shipment_id);
 
 CREATE TABLE public.shipment_volumes (
