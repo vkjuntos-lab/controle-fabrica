@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1790413730816
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"docs/business/SALES-PIPELINE.md\"); s = p.read_text()\ns = s.replace(\"Corrigir a看板 não\", \"Corrigir o quadro não\")\ns = s.replace(\"na看板 de desempenho\", \"no quadro de desempenho\")\ns = s.replace(\"O ciclo previsto é comparado\\no realizado na看板 de desempenho.\", \"O ciclo previsto é comparado ao realizado.\")\ns = s.replace(\"sem forecast de receitaurry\", \"sem forecast de receita\")\np.write_text(s)\nbad = [c for c in s if ord(c) > 0x2FFF and c not in \"—’“”…\"]\nprint(\"suspeitos:\", bad)\nPY"
-    },
-    "timestamp": 1790413734057
-  },
-  {
-    "role": "tool_result",
     "content": "suspeitos: ['看', '板']\n",
     "is_error": false,
     "timestamp": 1790413734122
@@ -1595,5 +1581,19 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790521211823
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd /tmp/opencode && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('sales_part8.sql'); s=p.read_text()\n\ns=s.replace(\"\"\"  v_count:=get_diagnostics; -- placeholder substituido abaixo\n  SELECT count(*) INTO v_count FROM public.shipment_items WHERE organization_id=_org AND shipment_id=ident;\"\"\",\n\"\"\"  SELECT count(*) INTO v_count FROM public.shipment_items WHERE organization_id=_org AND shipment_id=ident;\"\"\")\n\ns=s.replace(\"\"\" v_loc:=coalesce(v_loc,nullif(_data->>'source_location_id','')::uuid,\n   o.shipping_address_id IS NOT NULL THEN NULL ELSE NULL,\n   (SELECT r.inventory_location_id FROM public.inventory_reservations r\"\"\",\n\"\"\" v_loc:=coalesce(v_loc,nullif(_data->>'source_location_id','')::uuid,\n   (SELECT r.inventory_location_id FROM public.inventory_reservations r\"\"\")\n\ns=s.replace(\"\"\" v_ord_status text; v_ord_ful text; v_pend numeric; v_req numeric; v_fulfilled numeric;\n v_carrier uuid; v_tracking text; v_expected timestamptz; v_ship_count integer;\"\"\",\n\"\"\" v_ord_status text; v_ord_ful text; v_req numeric; v_fulfilled numeric; v_ful uuid;\n v_carrier uuid; v_tracking text; v_expected timestamptz;\"\"\")\n\ns=s.replace(\"\"\" v_key:=coalesce(nullif(_data->>'dispatch_key','')::text,'sales:dispatch:'||_shipment);\n cfg:=public.sales_settings(_org);\"\"\",\n\"\"\" v_key:=coalesce(nullif(_data->>'dispatch_key','')::text,'sales:dispatch:'||_shipment);\n v_ful:=sh.fulfillment_order_id;\n cfg:=public.sales_settings(_org);\"\"\")\n\ns=s.replace(\"\"\"  IF v_res IS NOT NULL THEN\n   SELECT * INTO si FROM public.shipment_items WHERE id=si.id;\n   UPDATE public.inventory_reservations\"\"\",\n\"\"\"  IF v_res IS NOT NULL THEN\n   UPDATE public.inventory_reservations\"\"\")\n\ns=s.replace(\"\"\" FROM public.shipment_items si\n WHERE si.organization_id=_org AND si.shipment_id=_shipment AND si.sales_order_item_id=i.id;\"\"\",\n\"\"\" FROM public.shipment_items shi\n WHERE shi.organization_id=_org AND shi.shipment_id=_shipment AND shi.sales_order_item_id=i.id;\"\"\")\n\ns=s.replace(\"\"\"   FROM public.shipment_items shi\n WHERE shi.organization_id\"\"\",\"\"\"   FROM public.shipment_items shi\n WHERE shi.organization_id\"\"\")\ns=s.replace(\"\"\"    status=CASE WHEN fulfilled_quantity+si.quantity>=coalesce(NULLIF(approved_quantity,0),ordered_quantity)\n     THEN 'FULFILLED' ELSE 'PARTIALLY_FULFILLED' END,\"\"\",\n\"\"\"    status=CASE WHEN fulfilled_quantity+shi.quantity>=coalesce(NULLIF(approved_quantity,0),ordered_quantity)\n     THEN 'FULFILLED' ELSE 'PARTIALLY_FULFILLED' END,\"\"\")\n\ns=s.replace(\"\"\" v_need integer; v_delivered integer; v_ord_status text; v_pending integer:=0; v_code text;\"\"\",\n\"\"\" v_del numeric; v_ord_status text; v_pending integer:=0;\"\"\")\n\ns=s.replace(\"\"\"   SELECT quantity,delivered_quantity INTO v_qty,v_need FROM public.shipment_items\n    WHERE organization_id=_org AND shipment_id=_shipment AND sales_order_item_id=nullif(v_i->>'sales_order_item_id','')::uuid;\n   IF NOT FOUND THEN RAISE EXCEPTION 'Item da expedição não encontrado.'; END IF;\n   IF coalesce(nullif(v_i->>'delivered_quantity','')::numeric,v_qty)+v_need>v_qty THEN\"\"\",\n\"\"\"   SELECT quantity,delivered_quantity INTO v_qty,v_del FROM public.shipment_items\n    WHERE organization_id=_org AND shipment_id=_shipment AND sales_order_item_id=nullif(v_i->>'sales_order_item_id','')::uuid;\n   IF NOT FOUND THEN RAISE EXCEPTION 'Item da expedição não encontrado.'; END IF;\n   IF coalesce(nullif(v_i->>'delivered_quantity','')::numeric,v_qty)+v_del>v_qty THEN\"\"\")\n\ns=s.replace(\"\"\"  SELECT count(*) INTO v_delivered FROM public.shipment_items si\n   JOIN public.shipments s ON s.id=si.shipment_id\n   WHERE s.organization_id=_org AND s.sales_order_id=o.id AND s.status='DELIVERED';\n  v_ord_status\"\"\",\"\"\"  v_ord_status\"\"\")\n\np.write_text(s)\nprint(\"ok\")\nfor bad in ['get_diagnostics','v_need','v_delivered','v_ship_count','THEN NULL ELSE NULL']:\n    print(bad, s.count(bad))\nPY"
+    },
+    "timestamp": 1790521228272
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nget_diagnostics 0\nv_need 3\nv_delivered 0\nv_ship_count 0\nTHEN NULL ELSE NULL 0\n",
+    "is_error": false,
+    "timestamp": 1790521228334
   }
 ]
