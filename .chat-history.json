@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790413620805
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && npx vitest run 2>&1 | tail -20",
-      "timeout": 600000
-    },
-    "timestamp": 1790413624552
-  },
-  {
-    "role": "tool_result",
     "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabrica\n\n ✓ src/lib/rbac.test.ts (15 tests) 22ms\nstderr | src/lib/crm/crm.test.ts\n⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more inform",
     "is_error": false,
     "timestamp": 1790413628222
@@ -1596,5 +1581,19 @@
     "content": "343: consumed_at timestamptz, released_at timestamptz,\n344: release_reason text,\n397: started_at timestamptz, picked_at timestamptz,\n398: confirmed_by uuid REFERENCES public.profiles, confirmed_at timestamptz,\n573: UNIQUE(organization_id,shipment_id,sales_order_item_id,coalesce(batch_id,'00000000-00",
     "is_error": false,
     "timestamp": 1790521107395
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '560,580p' supabase/migrations/20261006100000_sales_orders.sql && echo \"=== helpers parte2 ===\" && grep -n \"^CREATE FUNCTION public\\.\\|^CREATE OR REPLACE FUNCTION public\\.\" /tmp/opencode/sales_part2.sql /tmp/opencode/sales_part3.sql /tmp/opencode/sales_part4.sql /tmp/opencode/sales_part5.sql && echo \"=== ledger ===\" && grep -n \"FUNCTION public.inventory_post_movement\\|FUNCTION public.purchasing_split_terms\" supabase/migrations/*.sql"
+    },
+    "timestamp": 1790521112942
+  },
+  {
+    "role": "tool_result",
+    "content": " variant_id uuid NOT NULL REFERENCES public.product_variants,\n sku_snapshot text NOT NULL, description_snapshot text NOT NULL,\n -- Quantidade efetivamente expedida (nao a confirmada, nao a entregue).\n quantity numeric(14,3) NOT NULL CHECK(quantity>0),\n delivered_quantity numeric(14,3) NOT NULL DEFAU",
+    "is_error": false,
+    "timestamp": 1790521112984
   }
 ]
