@@ -42,8 +42,8 @@ SELECT r,p FROM unnest(ARRAY['admin','gestor']::public.app_role[]) r CROSS JOIN 
  'packing.manage',
  'shipments.read','shipments.create','shipments.dispatch','shipments.confirm_delivery',
  'returns.read','returns.create','returns.approve','returns.receive',
- 'logistics.export',
- 'sales.configure','carriers.manage','sales_credit.read']) p ON CONFLICT DO NOTHING;
+ 'logistics.read','logistics.export',
+ 'sales.configure','carriers.manage','sales_credit.read','sales.dashboard']) p ON CONFLICT DO NOTHING;
 
 -- Comercial: opera a cadeia comercial e a expedicao, mas nao aprova sozinho
 -- quando a segregacao de funcoes esta ativa (o servidor decide).

@@ -3,21 +3,6 @@
     "role": "tool_result",
     "content": "Wrote file successfully.",
     "is_error": false,
-    "timestamp": 1790413770935
-  },
-  {
-    "role": "tool",
-    "tool": "write",
-    "input": {
-      "content": "# Políticas comerciais\n\nData: 26/09/2026. MASTER 012. As políticas são configuráveis por organização e aplicadas no\nservidor; a interface apenas as apresenta e envia a intenção.\n\n## Crédito\n\n`customer_credit_policies` define limite, dias de carência e alçada por cliente. O servidor\nrecusa operação acima do limite disponível e considera o carveiro de valores já comprometidos.\nCliente `BLOCKED` é recusado em qualquer operação comercial, mesmo dentro do limite.\n\nCrédito é limite de política, não表皮 de财务: nada aqui emite título, não registra recebimento e\nnão substitui o financeiro do MASTER 013.\n\n## Desconto e alçada\n\n`commercial_discount_authorities` define, por papel, a faixa de desconto e o percentual máximo\nque a pessoa pode aprovar, e o status daauthority (ativa, expirada, revogada). Um desconto acima\nda alçada exige aprovação de quem a tem, registrada em `quote_approvals`, com aprovador, momento\ne limite. Tentativa negada também gera auditoria.\n\n## Condição de pagamento\n\n`commercial_payment_terms` define prazo em dias e número de parcelas. A condição escolhida na\nproposta precisa estar habilitada e dentro da alçada do cliente; prazo maior que o permitido é\nrecusado pelo servidor.\n\n## Carteira e território\n\nAtribuição de cliente, apoio e território são configuráveis e têm vigência, conforme\n[SALES-REPRESENTATIVES.md](SALES-REPRESENTATIVES.md). Troca de titular é transacional e\nencontra o histórico preservado.\n\n## Motivos e padronização\n\nPerda de oportunidade, recusa de proposta, desqualificação de lead e cancelamento exigem motivo\nde `commercial_reasons`. A padronização não é burocracia: sem motivo estruturado não há análise\nde causa, e análise de causa é o que separa um pipeline que aprende de um que só acumula.\n\n## Comissionamento\n\nRegras são cadastradas e simuladas; a apuração financeira é do MASTER 013. Ver\n[SALES-REPRESENTATIVES.md](SALES-REPRESENTATIVES.md).\n\n## Imutabilidade\n\nConfiguração comercial salva por `crm_save` exige `crm.configure`. Identificadores e\n`organization_id` não são editáveis, e uma configuração referenciada por registro existente não\npode ser apagada — a referência é preservada e o registro continua legível.\n",
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/docs/business/COMMERCIAL-POLICIES.md"
-    },
-    "timestamp": 1790413778422
-  },
-  {
-    "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
     "timestamp": 1790413778437
   },
   {
@@ -1593,5 +1578,21 @@
     "content": "<path>/tmp/opencode/sales_part2.sql</path>\n<type>file</type>\n<content>\n106: CREATE FUNCTION public.sales_credit_check(_org uuid,_company uuid,_amount numeric,_order uuid DEFAULT NULL)\n107: RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\n108: DECLARE pos jsonb; cfg",
     "is_error": false,
     "timestamp": 1790521298911
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
+      "newString": " 'returns.read','returns.create','returns.approve','returns.receive',\n 'logistics.read','logistics.export',\n 'sales.configure','carriers.manage','sales_credit.read','sales.dashboard']) p ON CONFLICT DO NOTHING;",
+      "oldString": " 'returns.read','returns.create','returns.approve','returns.receive',\n 'logistics.export',\n 'sales.configure','carriers.manage','sales_credit.read']) p ON CONFLICT DO NOTHING;"
+    },
+    "timestamp": 1790521301992
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790521302006
   }
 ]
