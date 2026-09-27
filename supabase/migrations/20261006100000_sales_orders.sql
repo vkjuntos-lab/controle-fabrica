@@ -2836,15 +2836,18 @@ BEGIN
   RAISE EXCEPTION 'Informe os itens a devolver.';
  END IF;
  FOR v_i IN SELECT * FROM jsonb_array_elements(_data->'items') LOOP
-  -- Devolucao sempre aponta para a expedicao original: e o unico caminho valido.
+  -- Devolucao sempre aponta para a expedicao original: e o unico caminho
+  -- valido. Sem expedicao informada, a linha entregue mais recente do item
+  -- e a referencia -- nunca o item do catalogo.
   SELECT * INTO v_shi FROM public.shipment_items shi
+   JOIN public.shipments sh ON sh.id=shi.shipment_id AND sh.organization_id=shi.organization_id
    WHERE shi.organization_id=_org
-     AND (v_ship IS NOT NULL OR shi.sales_order_id=o.id)
+     AND sh.sales_order_id=o.id
      AND (v_ship IS NULL OR shi.shipment_id=v_ship)
      AND (v_i->>'sales_order_item_id' IS NULL
           OR shi.sales_order_item_id=nullif(v_i->>'sales_order_item_id','')::uuid)
      AND (v_i->>'shipment_item_id' IS NULL OR shi.id=nullif(v_i->>'shipment_item_id','')::uuid)
-   ORDER BY shi.shipment_id DESC LIMIT 1;
+   ORDER BY sh.delivered_at DESC NULLS LAST,shi.shipment_id DESC LIMIT 1;
   IF v_shi.id IS NULL THEN RAISE EXCEPTION 'Item devolvido não encontrado em expedição entregue.'; END IF;
   v_qty:=coalesce(nullif(v_i->>'quantity','')::numeric,1);
   v_batch:=coalesce(nullif(v_i->>'batch_id','')::uuid,v_shi.batch_id);
