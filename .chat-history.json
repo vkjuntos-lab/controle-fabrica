@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/tmp/opencode/sales_part2.sql",
-      "newString": "-- Le a politica da organizacao, devolvendo o padrao do schema quando a\n-- organizacao ainda nao configurou nada. Nao grava: e uma leitura STABLE.\nCREATE FUNCTION public.sales_settings(_org uuid) RETURNS jsonb\nLANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n SELECT coalesce(\n  (SELECT to_jsonb(s) FROM public.sales_order_settings s WHERE s.organization_id=_org),\n  jsonb_build_object(\n   'reservation_policy','ALLOW_PARTIAL','reservation_expiry_hours',72,\n   'make_to_order_enabled',true,'credit_exposure_policy','OPEN_RECEIVABLES_PLUS_OPEN_ORDERS',\n   'approval_segregation',true,'max_discount_percent',NULL,'price_override_policy','BLOCK',\n   'receivable_trigger','ON_DISPATCH','allow_partial_fulfillment',true,\n   'shipment_requires_full_confirmation',true,'tracking_mode','MANUAL',\n   'require_shipping_address',true,'configured',false));\n$$;",
-      "oldString": "-- Le a politica da organizacao, devolvendo o padrao quando ausente.\nCREATE FUNCTION public.sales_settings(_org uuid) RETURNS public.sales_order_settings\nLANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\nDECLARE s public.sales_order_settings;\nBEGIN\n SELECT * INTO s FROM public.sales_order_settings WHERE organization_id=_org;\n IF NOT FOUND THEN\n  s:=row(NULL,_org,'ALLOW_PARTIAL',72,true,'OPEN_RECEIVABLES_PLUS_OPEN_ORDERS',true,NULL,'BLOCK',\n         'ON_DISPATCH',true,true,'MANUAL',true,auth.uid(),now(),now());\n END IF;\n RETURN s;\nEND;\n$$;"
-    },
-    "timestamp": 1790520738567
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790520738587
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/tmp/opencode/sales_part2.sql",
       "newString": "CREATE FUNCTION public.sales_credit_check(_org uuid,_company uuid,_amount numeric,_order uuid DEFAULT NULL)\nRETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\nDECLARE pos jsonb; cfg jsonb; v_limit numeric; v_open numeric; v_overdue numeric;\n v_policy text; v_orders numeric; v_exposure numeric; v_available numeric; v_blocked text[]:='{}'::text[];\n v_decision text;\nBEGIN\n pos:=public.crm_financial_position(_org,_company);\n cfg:=public.sales_settings(_org); v_policy:=cfg->>'credit_exposure_policy';",
       "oldString": "CREATE FUNCTION public.sales_credit_check(_org uuid,_company uuid,_amount numeric,_order uuid DEFAULT NULL)\nRETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\nDECLARE pos jsonb; cfg public.sales_order_settings; v_limit numeric; v_open numeric; v_overdue numeric;\n v_policy text; v_orders numeric; v_exposure numeric; v_available numeric; v_blocked text[]:='{}'::text[];\n v_decision text; v_override boolean:=false; v_reason text;\nBEGIN\n pos:=public.crm_financial_position(_org,_company);\n cfg:=public.sales_settings(_org); v_policy:=cfg.credit_exposure_policy;"
     },
@@ -1529,5 +1513,19 @@
     "content": "CREATE TABLE public.sales_quotes (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES public.organizations,\n company_id uuid NOT NULL, FOREIGN KEY(organization_id,company_id) REFERENCES public.companies(organization_id,id),representative_id uuid , FOREIGN KEY(or",
     "is_error": false,
     "timestamp": 1790521938695
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '50,110p' scripts/test-crm-db.py"
+    },
+    "timestamp": 1790521947109
+  },
+  {
+    "role": "tool_result",
+    "content": "  variants.append(v)\n items=[{'variant_id':v,'quantity':n+1,'unit_price':10} for n,v in enumerate(variants)]\n opp=save('opportunity',{'company_id':company,'title':'3 variantes','stage_id':stage,'items':items})['id']\n assert sql(f\"SELECT estimated_value FROM sales_opportunities WHERE id={q(opp)}\")=='",
+    "is_error": false,
+    "timestamp": 1790521947120
   }
 ]
