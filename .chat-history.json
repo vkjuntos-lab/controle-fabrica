@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk 'NR>=2525 && NR<=2660' supabase/migrations/20261006100000_sales_orders.sql | grep -n \"\\bsi\\b\" | head -20"
-    },
-    "timestamp": 1790523506062
-  },
-  {
-    "role": "tool_result",
-    "content": "2:DECLARE sh public.shipments; o public.sales_orders; cfg jsonb; si record; v_now timestamptz:=now();\n19:       'sales_order_item_id',si.sales_order_item_id,'quantity',si.quantity,\n20:       'inventory_movement_id',si.inventory_movement_id))\n21:       FROM public.shipment_items si WHERE si.organizat",
-    "is_error": false,
-    "timestamp": 1790523506093
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"     'deduped',true,'movements',coalesce((SELECT jsonb_agg(jsonb_build_object(\n       'sales_order_item_id',si.sales_order_item_id,'quantity',si.quantity,\n       'inventory_movement_id',si.inventory_movement_id))\n       FROM public.shipment_items si WHERE si.organization_id=_org AND si.shipment_id=_shipment),'[]'::jsonb));\"\"\"\nnew=\"\"\"     'deduped',true,'movements',coalesce((SELECT jsonb_agg(jsonb_build_object(\n       'sales_order_item_id',sit.sales_order_item_id,'quantity',sit.quantity,\n       'inventory_movement_id',sit.inventory_movement_id))\n       FROM public.shipment_items sit WHERE sit.organization_id=_org AND sit.shipment_id=_shipment),'[]'::jsonb));\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
     },
     "timestamp": 1790523510391
@@ -1398,5 +1384,19 @@
     "content": "1291: CREATE FUNCTION public.sales_convert_quote(_org uuid,_quote uuid,_data jsonb DEFAULT '{}',_key uuid DEFAULT NULL)\n1292: RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n1293: DECLARE prior public.sales_order_operation_keys; q public.sales_quotes; payload jsonb;\n1294",
     "is_error": false,
     "timestamp": 1790524301154
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"::json\\b\\|::json,\" supabase/migrations/20261006100000_sales_orders.sql | head -20"
+    },
+    "timestamp": 1790524305517
+  },
+  {
+    "role": "tool_result",
+    "content": "(no output)",
+    "is_error": false,
+    "timestamp": 1790524305535
   }
 ]
