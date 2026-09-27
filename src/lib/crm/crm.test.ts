@@ -39,9 +39,13 @@ function queryPermissions(): Record<string, string> {
     ),
   );
   const found: Record<string, string> = {};
-  for (const match of block.matchAll(
-    /WHEN '([a-z_]+)' THEN tab:='([a-z_]+)';perm:='([a-z_.]+)'/g,
-  )) {
+  for (const match of (
+    block +
+    readFileSync(
+      resolve(import.meta.dirname, "../../../supabase/migrations/20261007100000_crm_documents.sql"),
+      "utf8",
+    )
+  ).matchAll(/WHEN '([a-z_]+)' THEN tab:='([a-z_]+)';perm:='([a-z_.]+)'/g)) {
     found[match[1]] = match[3];
   }
   return found;
@@ -161,6 +165,8 @@ describe("permissões do CRM", () => {
 
 describe("rótulos das opções fixas", () => {
   const labelSets: [string, Record<string, string>][] = [
+    ["block_over_limit", optionLabels.block_over_limit],
+    ["block_overdue", optionLabels.block_overdue],
     ["status", optionLabels.status],
     ["activity_type", ACTIVITY_TYPE],
     ["representative_type", REPRESENTATIVE_TYPE],
@@ -248,4 +254,16 @@ describe("gravações em etapas", () => {
       }
     }
   });
+});
+
+describe("rotas de detalhe do CRM", () => {
+  for (const section of ["clientes", "propostas", "oportunidades", "representantes"]) {
+    it(`abre ${section} como rota autenticada independente da listagem`, () => {
+      const route = readFileSync(
+        resolve(import.meta.dirname, `../../routes/_authenticated/comercial/${section}_.$id.tsx`),
+        "utf8",
+      );
+      expect(route).toContain(`/_authenticated/comercial/${section}_/$id`);
+    });
+  }
 });

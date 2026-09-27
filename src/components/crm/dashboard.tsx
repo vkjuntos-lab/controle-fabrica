@@ -7,8 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { queryCrm, type CrmRow } from "@/lib/crm/crm.functions";
 import { exportCrmCsv } from "@/lib/crm/export";
-import { asNumber, asRecord, useCrmDetail, useCrmQuery } from "./data";
-import { Metric, ResultState, Shell, money, percent } from "./shared";
+import { asNumber, asRecord, asRows, useCrmDetail } from "./data";
+import { Metric, ResultState, Shell, money, percent, Picker } from "./shared";
 
 /**
  * Indicadores do CRM. Todos os números vêm de `crm_query` com `kind=dashboard`,
@@ -27,14 +27,17 @@ function Dashboard({ org }: { org: string }) {
   const api = useServerFn(queryCrm);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
+  const [responsible, setResponsible] = useState("");
   const [exporting, setExporting] = useState(false);
 
-  const filters = { ...(from ? { from } : {}), ...(to ? { to } : {}) };
+  const filters = {
+    ...(from ? { from } : {}),
+    ...(to ? { to } : {}),
+    ...(responsible ? { assigned_user_id: responsible } : {}),
+  };
   const summary = useCrmDetail(org, "dashboard", filters);
-  const open = useCrmQuery(org, "opportunities", { status: "OPEN" });
 
   const data = asRecord(summary.data);
-  const openRows = (open.data?.rows ?? []) as CrmRow[];
 
   async function exportRows() {
     setExporting(true);
@@ -63,7 +66,14 @@ function Dashboard({ org }: { org: string }) {
   return (
     <>
       <div className="flex flex-wrap items-end justify-between gap-3">
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-3">
+          <Picker
+            org={org}
+            kind="members"
+            value={responsible}
+            onChange={setResponsible}
+            label="Responsável"
+          />
           <div className="space-y-1">
             <Label htmlFor="crm-from">De</Label>
             <Input
@@ -140,7 +150,11 @@ function Dashboard({ org }: { org: string }) {
             <h3 className="mb-3 font-heading text-base font-semibold">
               Oportunidades abertas por etapa
             </h3>
-            <Breakdown rows={openRows} groupBy="stage_id" empty="Nenhuma oportunidade em aberto." />
+            <Breakdown
+              rows={asRows(data.stage_breakdown)}
+              groupBy="stage_id"
+              empty="Nenhuma oportunidade em aberto."
+            />
           </CardContent>
         </Card>
         <Card>
@@ -149,7 +163,7 @@ function Dashboard({ org }: { org: string }) {
               Oportunidades abertas por representante
             </h3>
             <Breakdown
-              rows={openRows}
+              rows={asRows(data.representative_breakdown)}
               groupBy="representative_id"
               empty="Nenhuma oportunidade em aberto."
             />
@@ -169,15 +183,7 @@ function Breakdown({
   groupBy: "stage_id" | "representative_id";
   empty: string;
 }) {
-  const totals = new Map<string, { count: number; value: number }>();
-  rows.forEach((row) => {
-    const id = String(row[groupBy] ?? "—");
-    const current = totals.get(id) ?? { count: 0, value: 0 };
-    current.count += 1;
-    current.value += Number(row.estimated_value ?? 0);
-    totals.set(id, current);
-  });
-  if (!totals.size) return <p className="text-sm text-muted-foreground">{empty}</p>;
+  if (!rows.length) return <p className="text-sm text-muted-foreground">{empty}</p>;
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
@@ -189,11 +195,11 @@ function Breakdown({
           </tr>
         </thead>
         <tbody>
-          {[...totals.entries()].map(([id, total]) => (
-            <tr key={id} className="border-b hover:bg-muted/40">
-              <td className="py-2 pr-4 font-mono text-xs">{id}</td>
-              <td className="py-2 pr-4 text-right">{total.count}</td>
-              <td className="py-2 text-right">{money(total.value)}</td>
+          {rows.map((row, index) => (
+            <tr key={row.id ?? index} className="border-b hover:bg-muted/40">
+              <td className="py-2 pr-4 font-mono text-xs">{String(row.name)}</td>
+              <td className="py-2 pr-4 text-right">{asNumber(row.count)}</td>
+              <td className="py-2 text-right">{money(row.value)}</td>
             </tr>
           ))}
         </tbody>

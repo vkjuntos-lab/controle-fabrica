@@ -1,3 +1,9 @@
+import {
+  CompanyChoice,
+  companyChoicePayload,
+  companyChoiceReady,
+  type CompanyChoiceValue,
+} from "./company-choice";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -64,7 +70,15 @@ function ConvertDialog({ org, lead, onClose }: { org: string; lead: CrmRow; onCl
   const client = useQueryClient();
   const [stage, setStage] = useState("");
   const [title, setTitle] = useState("");
-  const [operationKey, setOperationKey] = useState(() => newOperationKey());
+  const [operationKey] = useState(() => newOperationKey());
+  const [companyChoice, setCompanyChoice] = useState<CompanyChoiceValue>({
+    id: String(lead.company_id || ""),
+    create: false,
+    code: "",
+    name: String(lead.company_name || ""),
+    documentType: "",
+    documentNumber: "",
+  });
 
   const convert = useMutation({
     mutationFn: async () => {
@@ -77,7 +91,7 @@ function ConvertDialog({ org, lead, onClose }: { org: string; lead: CrmRow; onCl
           values: {
             stage_id: stage,
             title: title || undefined,
-            company_id: lead.company_id || undefined,
+            ...companyChoicePayload(companyChoice),
           },
           key: operationKey,
         },
@@ -91,7 +105,7 @@ function ConvertDialog({ org, lead, onClose }: { org: string; lead: CrmRow; onCl
     onError: (error: Error) => {
       // Uma nova chave só é sorteada quando a tentativa falha: repetir a mesma
       // requisição devolve o mesmo resultado, uma falha pode ser corrigida.
-      setOperationKey(newOperationKey());
+
       toast.error(error.message);
     },
   });
@@ -111,6 +125,12 @@ function ConvertDialog({ org, lead, onClose }: { org: string; lead: CrmRow; onCl
             telefone na empresa, ele será reaproveitado em vez de duplicado.
           </DialogDescription>
         </DialogHeader>
+        <CompanyChoice
+          org={org}
+          value={companyChoice}
+          onChange={setCompanyChoice}
+          search={String(lead.company_name || "")}
+        />
         <div className="grid gap-4 sm:grid-cols-2">
           <Picker org={org} kind="stages" value={stage} onChange={setStage} label="Etapa inicial" />
           <div className="space-y-1">
@@ -132,7 +152,10 @@ function ConvertDialog({ org, lead, onClose }: { org: string; lead: CrmRow; onCl
           <Button variant="outline" onClick={onClose}>
             Cancelar
           </Button>
-          <Button disabled={convert.isPending || !stage} onClick={() => convert.mutate()}>
+          <Button
+            disabled={convert.isPending || !stage || !companyChoiceReady(companyChoice)}
+            onClick={() => convert.mutate()}
+          >
             {convert.isPending ? "Convertendo..." : "Converter"}
           </Button>
         </DialogFooter>

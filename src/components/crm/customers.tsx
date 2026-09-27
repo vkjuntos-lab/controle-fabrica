@@ -1,3 +1,10 @@
+import {
+  CompanyChoice,
+  companyChoicePayload,
+  companyChoiceReady,
+  type CompanyChoiceValue,
+} from "./company-choice";
+import { CustomerDocuments } from "./documents";
 import { useState, type ReactNode } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -17,9 +24,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { saveCrm, type CrmRow } from "@/lib/crm/crm.functions";
 import { commercialStatusLabel } from "@/lib/crm/constants";
 import { useOrganization } from "@/lib/org/org-context";
-import { areas } from "./config";
+import { areas, type Area } from "./config";
 import { asRecord, useCrmDetail, useCrmQuery } from "./data";
-import { CrmListPage } from "./list";
+import { CrmListPage, RecordDialog } from "./list";
 import { Picker, ResultState, Shell, StatusBadge, money, selectClass, str } from "./shared";
 
 const area = areas.clientes;
@@ -37,6 +44,7 @@ export function CustomersPage() {
       area={area}
       title="Comercial · Clientes"
       intro="Cadastro comercial sobre a empresa única do ERP. Um fornecedor ou parceiro que passa a comprar recebe o papel correspondente, nunca uma segunda empresa."
+      extraActions={<NewCompanyCustomer />}
       rowHref={(row) => `/comercial/clientes/${String(row.company_id ?? row.id)}`}
     />
   );
@@ -61,13 +69,17 @@ export function Customer360Page({ id }: { id: string }) {
 function Customer360({ org, companyId }: { org: string; companyId: string }) {
   const { hasPermission } = useOrganization();
   const [merging, setMerging] = useState(false);
+  const [classifying, setClassifying] = useState<"tag" | "territory" | null>(null);
+  const [editingContact, setEditingContact] = useState<CrmRow | null | undefined>();
+  const [historyPage, setHistoryPage] = useState(1);
+  const client = useQueryClient();
   const company = useCrmQuery(org, "companies", { id: companyId });
   const profile = useCrmQuery(org, "customers", { company_id: companyId });
   const contacts = useCrmQuery(org, "contacts", { company_id: companyId });
   const opportunities = useCrmQuery(org, "opportunities", { company_id: companyId });
   const quotes = useCrmQuery(org, "quotes", { company_id: companyId });
   const activities = useCrmQuery(org, "activities", { company_id: companyId });
-  const history = useCrmQuery(org, "leads", { company_id: companyId });
+  const history = useCrmQuery(org, "timeline", { company_id: companyId }, historyPage);
   const portfolios = useCrmQuery(org, "portfolios", { company_id: companyId });
   // A posição financeira só é consultada com a permissão: pedi-la sem permissão
   // só produziria um erro do servidor para algo que o usuário não pode ver.
@@ -75,7 +87,7 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
     org,
     "finance",
     { company_id: companyId },
-    hasPermission("commercial_sensitive.read"),
+    hasPermission("commercial_sensitive.read") && hasPermission("receivables.read"),
   );
 
   const companyRow = (company.data?.rows ?? [])[0] as CrmRow | undefined;
@@ -91,6 +103,16 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
         </h2>
         <div className="flex flex-wrap items-center gap-2">
           <StatusBadge value={profileRow?.commercial_status ?? companyRow?.status} kind="status" />
+          {hasPermission("customers.update") && (
+            <>
+              <Button variant="outline" onClick={() => setClassifying("tag")}>
+                Vincular etiqueta
+              </Button>
+              <Button variant="outline" onClick={() => setClassifying("territory")}>
+                Vincular território
+              </Button>
+            </>
+          )}
           {hasPermission("customers.merge") ? (
             <Button variant="outline" onClick={() => setMerging(true)}>
               Solicitar mesclagem
@@ -170,6 +192,9 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
         </TabsContent>
 
         <TabsContent value="contacts">
+          {hasPermission("customers.update") && (
+            <Button onClick={() => setEditingContact(null)}>Novo contato</Button>
+          )}
           <RowList
             rows={contacts.data?.rows as CrmRow[] | undefined}
             loading={contacts.isLoading}
@@ -178,6 +203,11 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
             render={(row) => (
               <>
                 <strong>{str(row.name)}</strong>
+                {hasPermission("customers.update") && (
+                  <Button variant="outline" onClick={() => setEditingContact(row)}>
+                    Editar contato
+                  </Button>
+                )}
                 <span className="text-sm text-muted-foreground">
                   {str(row.position ?? row.job_title)} · {str(row.email)} · {str(row.phone)}
                 </span>
@@ -253,21 +283,35 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
             rows={history.data?.rows as CrmRow[] | undefined}
             loading={history.isLoading}
             error={history.error}
-            empty="Nenhum lead convertido para esta empresa."
+            empty="Nenhum fato comercial registrado."
             render={(row) => (
               <>
-                <strong>{str(row.name)}</strong>
+                <a className="font-semibold underline" href={str(row.href)}>
+                  {str(row.title)}
+                </a>
                 <span className="text-sm text-muted-foreground">
-                  Convertido em {str(row.converted_at ?? row.created_at)}
+                  {str(row.kind)} · {str(row.created_at)}
                 </span>
-                <StatusBadge value={row.status} kind="status" />
               </>
             )}
           />
+          {(history.data?.total || 0) > 50 && (
+            <div className="flex gap-3">
+              <Button disabled={historyPage === 1} onClick={() => setHistoryPage(historyPage - 1)}>
+                Anterior
+              </Button>
+              <Button
+                disabled={historyPage * 50 >= (history.data?.total || 0)}
+                onClick={() => setHistoryPage(historyPage + 1)}
+              >
+                Próxima
+              </Button>
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="finance">
-          {hasPermission("commercial_sensitive.read") ? (
+          {hasPermission("commercial_sensitive.read") && hasPermission("receivables.read") ? (
             <ResultState
               loading={finance.isLoading}
               error={finance.error}
@@ -283,14 +327,38 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
         </TabsContent>
 
         <TabsContent value="documents">
-          <p className="text-sm text-muted-foreground">
-            O armazenamento privado de documentos comerciais (propostas, contratos, briefings,
-            autorizações) não está implementado neste Master. Nenhum botão de anexo é exibido para
-            não sugerir uma capacidade inexistente.
-          </p>
+          <CustomerDocuments org={org} companyId={companyId} />
         </TabsContent>
       </Tabs>
 
+      {editingContact !== undefined && (
+        <RecordDialog
+          org={org}
+          area={contactArea}
+          record={editingContact}
+          initialValues={{ company_id: companyId }}
+          fields={contactArea.fields.filter((f) => f.key !== "company_id")}
+          onClose={() => setEditingContact(undefined)}
+          onSaved={() => {
+            setEditingContact(undefined);
+            void client.invalidateQueries({ queryKey: ["crm", org] });
+          }}
+        />
+      )}
+      {classifying && (
+        <RecordDialog
+          org={org}
+          area={classificationArea(classifying)}
+          record={null}
+          initialValues={{ company_id: companyId }}
+          fields={classificationArea(classifying).fields.filter((f) => f.key !== "company_id")}
+          onClose={() => setClassifying(null)}
+          onSaved={() => {
+            setClassifying(null);
+            void client.invalidateQueries({ queryKey: ["crm", org] });
+          }}
+        />
+      )}
       {merging ? (
         <MergeDialog org={org} companyId={companyId} onClose={() => setMerging(false)} />
       ) : null}
@@ -472,4 +540,106 @@ function MergeDialog({
       </DialogContent>
     </Dialog>
   );
+}
+
+const contactArea: Area = {
+  title: "Contato",
+  query: "contacts",
+  save: "contact",
+  permission: "customers.read",
+  write: "customers.update",
+  columns: ["name", "email", "status"],
+  fields: [
+    { key: "company_id", label: "Empresa" },
+    { key: "name", label: "Nome", required: true },
+    { key: "title", label: "Cargo" },
+    { key: "department", label: "Departamento" },
+    { key: "email", label: "E-mail", type: "email" },
+    { key: "phone", label: "Telefone" },
+    { key: "preferred_channel", label: "Canal preferencial" },
+    { key: "processing_purpose", label: "Finalidade do tratamento" },
+    { key: "status", label: "Status", type: "options", options: ["ACTIVE", "INACTIVE"] },
+    { key: "notes", label: "Observações" },
+  ],
+};
+function NewCompanyCustomer() {
+  const { currentOrganization, hasPermission } = useOrganization();
+  const api = useServerFn(saveCrm);
+  const cache = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [choice, setChoice] = useState<CompanyChoiceValue>({
+    id: "",
+    create: false,
+    code: "",
+    name: "",
+    documentType: "",
+    documentNumber: "",
+  });
+  const mutation = useMutation({
+    mutationFn: () =>
+      api({
+        data: {
+          organizationId: currentOrganization!.organization_id,
+          kind: "customer",
+          values: companyChoicePayload(choice),
+        },
+      }),
+    onSuccess: () => {
+      toast.success("Cliente vinculado ao cadastro unificado.");
+      setOpen(false);
+      void cache.invalidateQueries({ queryKey: ["crm"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  if (!hasPermission("customers.create") || !currentOrganization) return null;
+  return (
+    <>
+      <Button onClick={() => setOpen(true)}>Cadastrar empresa / cliente</Button>
+      {open && (
+        <Dialog open onOpenChange={setOpen}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Cadastro unificado de cliente</DialogTitle>
+              <DialogDescription>
+                Localize uma empresa existente ou cadastre os dados necessários.
+              </DialogDescription>
+            </DialogHeader>
+            <CompanyChoice
+              org={currentOrganization.organization_id}
+              value={choice}
+              onChange={setChoice}
+            />
+            <DialogFooter>
+              <Button
+                disabled={mutation.isPending || !companyChoiceReady(choice)}
+                onClick={() => mutation.mutate()}
+              >
+                Salvar cliente
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
+  );
+}
+
+function classificationArea(kind: "tag" | "territory"): Area {
+  return {
+    title: kind === "tag" ? "Etiqueta do cliente" : "Território do cliente",
+    query: "customers",
+    save: kind === "tag" ? "customer_tag" : "customer_territory",
+    permission: "customers.read",
+    write: "customers.update",
+    columns: [],
+    fields: [
+      { key: "company_id", label: "Empresa" },
+      {
+        key: kind === "tag" ? "tag_id" : "territory_id",
+        label: kind === "tag" ? "Etiqueta" : "Território",
+        lookup: kind === "tag" ? "tags" : "territories",
+        required: true,
+      },
+    ],
+  };
 }

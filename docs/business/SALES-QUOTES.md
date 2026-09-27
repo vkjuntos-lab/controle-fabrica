@@ -1,60 +1,23 @@
-# Propostas, versionamento e aprovação
+# Propostas comerciais versionadas
+SalesQuote é proposta comercial, não pedido. Cada versão congela Company, condição de pagamento, produtos, preços oficiais e totais. Mesmo DRAFT não pode ter seus valores sobrescritos: mudanças geram nova versão. Não há exclusão empresarial.
 
-Data: 26/09/2026. MASTER 012.
+## Preço e total
+O serviço Pricing resolve PriceTableItem vigente na data de emissão, da tabela e variante indicadas. Não há tabela paralela. Ausência de preço bloqueia criação. Quantidade deve ser positiva e produto/variante ativo.
+Subtotal = soma de round(quantidade × preço, 2).
+Desconto = round(subtotal × discount_percent / 100, 2).
+Total = subtotal − desconto + frete informado + tributos informados.
+O percentual de desconto é informado pelo usuário e validado por alçada; não é calculado arbitrariamente. Frete/tributos não são motor fiscal.
 
-Proposta é o compromisso formal com preço. Uma oportunidade pode ter várias propostas e cada
-proposta pode ter várias versões, mas apenas uma versão vigente.
+Revisão recebe itens explicitamente, recalcula com preço vigente e cria nova versão do mesmo número; não copia silenciosamente itens nem reescreve a anterior. Não se assume uma única versão em negociação; somente uma versão por número pode ser aceita.
 
-## Proposta e versões
+## Aprovação e aceite
+DRAFT → PENDING_APPROVAL → APPROVED → SENT → ACCEPTED ou REJECTED. Cancelamento preserva histórico. Validade vencida bloqueia aprovação/envio/aceite, mas não existe job para marcar EXPIRED automaticamente.
 
-`sales_quotes` guarda a proposta (oportunidade, cliente, responsável, condição de pagamento,
-validade, status) e `sales_quote_items` guarda os itens. O total, o desconto e a margem **não**
-são informados pelo usuário: o servidor os calcula a partir dos itens, da tabela de preço
-vigente e do Cost Engine, e os persiste como snapshot da versão.
+Aprovar exige quotes.approve, alçada explícita por usuário e motivo. Nenhuma alçada é presumida mesmo para administrador. Bloqueios configurados de vencidos/exposição são aplicados na aprovação; cliente inativo/bloqueado impede aprovação/envio/aceite. Não há regra automática de margem mínima ou prazo especial.
 
-Versionar copia os itens da versão anterior para uma nova, que nasce `DRAFT`. A versão anterior
-vira histórica e continua auditável. Isso é o que permite responder "por que o cliente recebeu
-aquele preço em março" depois de a tabela de preço ter mudado.
+SENT registra envio feito fora do sistema; não envia e-mail/WhatsApp. Aceite exige contato ativo da empresa, registra usuário/data/evidência textual e publica uma única linha PENDING de domain_events: SALES_QUOTE_ACCEPTED, event_key sales_quote_accepted:<quote_id>, payload com quote_id, version, company_id, total, currency e schema_version. O consumidor MASTER 013 deverá buscar os itens imutáveis e deduplicar por quote_id/event_key; ainda não há entrega externa de evento ou SalesOrder.
 
-## Status e transições
+## Consulta
+Estoque usa inventory_get_balance; projeções consultam o último PlanningRun base concluído e mostram data/origem. On hand, recebimento programado e planejado são separados. Nada reserva estoque ou promete entrega.
 
-`DRAFT` → `PENDING_APPROVAL` → `APPROVED` → `SENT` → `ACCEPTED` ou `REJECTED`, com
-`EXPIRED` e `CANCELED` como saídas.
-
-- `DRAFT` é editável e deletável.
-- `PENDING_APPROVAL` bloqueia edição de itens e total; a proposta já está sob decisão de
-  alçada.
-- `APPROVED` exige ter passado por aprovação dentro da alçada. Uma proposta sem aprovação
-  registrada não chega a `APPROVED`, mesmo com a permissão de edição.
-- `SENT` é o estado em que o cliente tem a proposta. `ACCEPTED` é irreversível: Versions
-  posteriores não podem ser aceitas depois de um aceite, porque o aceite é o compromisso.
-- `EXPIRED` é automático por validade, no servidor.
-
-As transições são `crm_action` com chave de idempotência. Repetir aceite devolve o mesmo
-resultado, sem duplicar a versão.
-
-## Aprovação e alçada
-
-`quote_approvals` registra cada decisão: aprovador, alçada exigida, decisão, motivo e momento.
-A alçada vem de `commercial_discount_authorities`, que define por papel, faixa de desconto e
-percentual máximo aprovado. Um aprovador sem alçada suficiente não aprova, e a tentativa fica
-registrada em auditoria.
-
-Isso substitui o controle informal de "o gerente olhou e mandou aprovar": a aprovação é um
-registro com pessoa, hora e limite.
-
-## Integração com preços e estoque
-
-O preço vem da tabela vigente (MASTER 007) e a margem do Cost Engine (MASTER 009). O item
-carrega a variante e a quantidade; qualquer divergência de preço é resolvida pelo servidor no
-momento da leitura e da aprovação.
-
-A consulta de estoque de cada item é informativa, via Inventory Ledger. **Não há reserva**: a
-proposta aprovada não bloqueia estoque, porque reserva operacional definitiva pertence ao motor
-de pedidos do MASTER 013. A tela deixa isso explícito em vez de sugerir disponibilidade
-garantida.
-
-## Limitações
-
-Sem assinatura eletrônica, sem envio real por e-mail ou WhatsApp, sem PDF gerado, sem
-comissionamento financeiro e sem faturamento. Todos esses itens estão no MASTER 013.
+Consulta de margem exige commercial_sensitive.read + costs.read. É estimativa do custo histórico aplicável à emissão, não COGS de venda ou snapshot definitivo de margem. Propostas não persistem margem. CSV é implementado; PDF próprio e assinatura eletrônica não.

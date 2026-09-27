@@ -1,106 +1,84 @@
-# MASTER 012 — CRM, cadastro comercial, pipeline e propostas
+# MASTER 012 — Relatório de validação
+Revisão: 27/09/2026. Estado global: PARTIAL. Implementação local; implantação e aceitação visual publicada não verificadas.
 
-Data: 26/09/2026. Continuação do MASTER 011, reutilizando catálogo mestre, Pricing e Cost Engine,
-Inventory Ledger, empresas e contatos. Preserva a mesma casa: `organization_id` em tudo, RLS,
-RBAC central, Audit Log, idempotência e estado explícito com imutabilidade após conclusão.
+## 1. Diagnóstico
+O checkout já tinha Company, contatos, preços versionados, financeiro, ledger, planejamento, eventos e uma primeira implementação CRM. A revisão encontrou falhas não cobertas pelos testes: responsável alterado em patches, acesso externo indevido a atividades, conversão visual sem seleção de empresa, rotas de detalhe sob listagens sem Outlet, agregações limitadas à primeira página, filtros incompatíveis e ausência de anexos/consulta futura. Documentos descreviam recursos inexistentes; foram corrigidos.
 
-Regra mestra preservada e verificada por teste: **PREÇO, DESCONTO, TOTAL E MARGEM SÃO DO
-SERVIDOR**. O navegador envia variante e quantidade; a tabela de preço vigente, o custo e o total
-são resolvidos em `crm_query`/`crm_save`. Um `crm_save` completo de proposta nunca cria
-`accounts_receivable` nem `inventory_movements` — a proposta não é pedido, não reserva estoque e
-não fatura.
+## 2. Implementado
+Cadastro empresarial unificado; lead e conversão transacional; contatos; representantes e carteiras históricas; segmentação; pipeline e histórico; propostas versionadas com preço oficial; alçada e bloqueio de crédito; aceite idempotente; atividades; consultas de estoque/planejamento; dashboard server-side; CSV; documentos privados; RLS e auditoria.
 
-## Implementado
-
-- **Schema e funções**: 29 tabelas do CRM em `20261005100000_crm.sql`, com leitura por
-  `crm_query`, escrita por `crm_save` e efeitos por `crm_action`. Nenhuma tabela gravável por
-  `authenticated`.
-- **Correção**: `crm_save` sobrescrevia colunas omitidas no payload com o default do schema em
-  update parcial, apagando dado já gravado. Corrigido e coberto por teste.
-- **Kind `members`**: a lista de responsáveis passou a ser resolvida por `crm_query`, sem exigir
-  `users.read`, que é permissão de administração.
-- **RBAC**: 27 permissões `crm.*`, `leads.*`, `customers.*`, `opportunities.*`, `quotes.*`,
-  `activities.*`, `representatives.*`, `crm.sensitive.read` e `crm.configure`; módulo
-  `comercial` como `available` e item no menu.
-- **Interface** em `src/components/crm/*` — `constants.ts`, `export.ts`, `config.ts`,
-  `shared.tsx`, `data.ts`, `list.tsx`, `dashboard.tsx`, `leads.tsx`, `customers.tsx`,
-  `opportunities.tsx`, `quotes.tsx`, `activities.tsx`, `team.tsx`, `reports.tsx` — e 15 rotas em
-  `src/routes/_authenticated/comercial/`.
-
-## Critérios de aceite
-
-| Item | Situação | Evidência |
+## 3. Critérios de aceite
+| Critério | Estado | Evidência / limite |
 | --- | --- | --- |
-| Cadastro comercial unificado | IMPLEMENTED | `crm_query`/`crm_save`; teste A |
-| Leads e conversão | IMPLEMENTED | Teste B: conversão concorrente idempotente |
-| Contatos | IMPLEMENTED | Testes A e B: contato criado ou reutilizado, sem duplicar |
-| Representantes e carteiras | IMPLEMENTED | Teste C: troca de titular preserva histórico |
-| Pipeline e oportunidades | IMPLEMENTED | Teste D: itens somam 60, snapshot de etapa |
-| Histórico de etapas | IMPLEMENTED | Teste D: `opportunity_stage_history` |
-| Propostas e versionamento | IMPLEMENTED | Teste E: versão nova preserva preço anterior |
-| Integração com preços | IMPLEMENTED | Teste E/F/G: preço vigente resolvido no servidor |
-| Aprovações comerciais | IMPLEMENTED | Teste G: alçada configurada é exigida |
-| Consulta de estoque | IMPLEMENTED | Teste D: consulta por RPC oficial, sem escrita |
-| Atividades e agenda | IMPLEMENTED | Teste de atividades: reagendar com histórico |
-| Customer 360 | IMPLEMENTED | `customers.tsx`; escopo no teste K |
-| Dashboard com dados reais | IMPLEMENTED | Teste de dashboard: agregados oficiais |
-| RLS e permissões | IMPLEMENTED | Testes K e L |
-| Auditoria | IMPLEMENTED | Teste I/J: aceite gera um evento, sem ledger nem receivable |
-| Testes críticos | IMPLEMENTED | `npm run test:crm:db`, 19 testes unitários |
-| TypeScript e build | IMPLEMENTED | `npm run typecheck`, `npm run build` |
+| Cadastro comercial unificado | IMPLEMENTED | A: fornecedor recebe CUSTOMER sem duplicação; criação por usuário comercial |
+| Leads e conversão | IMPLEMENTED | B: conversão concorrente, contato reutilizado, seleção de empresa na interface |
+| Contatos | IMPLEMENTED | Serviço compartilhado e formulário no 360; patch preserva campos |
+| Representantes e carteiras | IMPLEMENTED | C: histórico e responsável da oportunidade preservados |
+| Pipeline e oportunidades | IMPLEMENTED | D: três variantes somam 60 sem estoque; edição geral posterior não disponível |
+| Histórico de etapas | IMPLEMENTED | Snapshot anterior/novo |
+| Propostas/versionamento/preços | IMPLEMENTED | E/F: preço histórico permanece após nova tabela/versão |
+| Aprovação comercial | IMPLEMENTED | G/H: alçada, vencidos, limite e cliente bloqueado; sem política automática de margem mínima |
+| Consulta de estoque | IMPLEMENTED | Balance oficial e PlanningRun real; sem reserva |
+| Atividades e agenda | IMPLEMENTED | Reagendamento com histórico; sem conclusão automática |
+| Customer 360 | PARTIAL | Contatos/comercial/financeiro/timeline/documentos; sem reconciliações/ocorrências na timeline; algumas abas com primeira página |
+| Dashboard real | IMPLEMENTED | Teste com mais de 50 oportunidades e filtro por responsável |
+| Integrações testadas | PARTIAL | Banco real isolado; Storage publicado e navegação autenticada não testados |
+| RLS/permissões | IMPLEMENTED | K/L: isolamento, escopo externo, escrita direta e RPC ampla do ERP bloqueadas |
+| Auditoria | IMPLEMENTED | Eventos crm.*; rejeições com rollback não têm log independente |
+| Testes críticos | IMPLEMENTED | A–L e regressões, 14 grupos PostgreSQL |
+| TypeScript/build | IMPLEMENTED | Verificações locais |
+| Comissão | PARTIAL | Configuração/simulação por regra; sem apuração financeira ou precedência automática |
+| Mesclagem | PARTIAL | Solicitação deduplicada para revisão; sem execução de fusão |
+| LGPD | PARTIAL | Finalidade/preferências/acesso; sem retenção automatizada ou workflow de titular |
 
-## Verificado
+## 4. Não implementado
+SalesOrder, reserva definitiva, expedição B2B, fiscal/NF-e, envio real de mensagens/campanhas, comissão financeira, integração automática de oportunidade ao MRP, expiração automática de propostas, PDF próprio e assinatura eletrônica. Nenhum deles é apresentado como funcionando.
 
-`npm run test:crm:db` — PostgreSQL real descartável, sem tocar em dado de organização real:
+## 5. Arquivos
+Criados nesta revisão:
+- supabase/migrations/20261006100000_crm_integrity.sql
+- supabase/migrations/20261007100000_crm_documents.sql
+- supabase/migrations/20261008100000_crm_company_services.sql
+- src/components/crm/availability.tsx
+- src/components/crm/company-choice.tsx
+- src/components/crm/documents.tsx
 
-1. **A**: fornecedor vira cliente sem duplicar `companies`.
-2. **B**: duas conversões simultâneas do mesmo lead produzem um único cliente, uma oportunidade e
-   um contato, com histórico preservado.
-3. **C**: troca de carteira encerra a atribuição anterior e mantém o responsável da oportunidade.
-4. **D**: itens somam 60; transição grava snapshot; nenhuma escrita de estoque.
-5. **E/F/G**: versões preservam preços; aprovação do servidor exige a alçada configurada.
-6. **I/J**: aceite produz um evento e não cria ledger nem conta a receber.
-7. **K/L**: escopo entre tenants e entre carteiras; permissão sensível exigida por RPC.
-8. **Atividades**: reagendamento com histórico, sem conclusão automática.
-9. **Dashboard**: agregados e saldo oficial.
+Modificados: componentes CRM de configuração/clientes/dashboard/leads/oportunidades/propostas/shared/carteiras; funções, constantes e testes CRM; scripts/test-crm-db.py; tipos Supabase; árvore de rotas; sete documentos de negócio, ADR-010-CRM e handoff.
+Quatro arquivos de detalhes passaram a usar *_.$id.tsx, preservando URLs e removendo o aninhamento incorreto sob listagens.
 
-`npx vitest run` — 59 testes em 6 arquivos, incluindo `src/lib/crm/crm.test.ts` (19), que amarra a
-configuração da interface ao SQL e ao RBAC. Dois defeitos foram encontrados por esse teste e
-corrigidos: `commercial_status` sem rótulo em `optionLabels` (apareceria como `ACTIVE` cru no
-cadastro) e `QUOTE_FLOW` sem os status terminais (`ACCEPTED`, `REJECTED`, `EXPIRED`, `CANCELED`).
+## 6. Migrations e tabelas
+A migration original 20261005100000_crm.sql foi preservada (28 tabelas). Três migrations novas acrescentam integridade, escopo externo, documentos, consultas e extração dos serviços empresariais compartilhados. Total: 29 tabelas:
+commercial_segments, commercial_sources, commercial_reasons, commercial_tags, sales_territories, sales_representatives, commercial_payment_terms, customer_profiles, customer_credit_policies, customer_tags, customer_territories, customer_portfolio_assignments, leads, sales_pipelines, sales_pipeline_stages, sales_opportunities, opportunity_stage_history, opportunity_items, sales_quotes, sales_quote_items, quote_approvals, commercial_discount_authorities, crm_activities, crm_activity_history, commission_plans, commission_rules, crm_operation_keys, company_merge_requests, crm_documents.
 
-`npm run typecheck` e `npm run build` passam. Lint do escopo CRM sem erros; permanecem warnings
-`react-refresh/only-export-components`, que não afetam o bundle.
+Bucket crm-documents privado, PDF/JPEG/PNG até 10 MB. Conferir histórico do banco de destino antes de aplicar; aplicação publicada não foi verificada.
 
-## Defeitos encontrados na validação
+## 7. Serviços e eventos
+RPCs crm_save, crm_action, crm_query e crm_document. Preparação/conclusão/download de documento usam servidor autenticado. company_save_core e company_detail_core são privados; wrappers de Parceiros mantêm suas autorizações originais.
+SALES_QUOTE_ACCEPTED é inserido em domain_events com chave única por proposta, versão e cliente, na mesma transação. PENDING não significa entrega externa. Não há consumidor SalesOrder.
 
-`crm_save` tratava todo update como insert completo: campo ausente do payload recebia o default do
-schema. Na edição de um cliente, por exemplo, salvar sem informar o limite de crédito zerava o
-limite. O mesmo padrão apagava preferências, etiquetas e vínculos. Corrigido para patch parcial e
-coberto pelo harness.
+## 8. Rotas
+/comercial; leads; clientes e detalhe; oportunidades e detalhe; propostas e detalhe; atividades; agenda; representantes e detalhe; carteiras; relatórios; configurações por seção. Todas sob /comercial, autenticadas. URLs de detalhe preservadas após correção.
 
-Também corrigidos: `commercial_status` sem rótulo, exibindo valor cru; `QUOTE_FLOW` incompleto;
-`_id` de `crm_action` tipado como não nulo, embora a criação de proposta envie `null`; `members`
-dependente de `users.read`; `config.ts` gravando cliente em chamada única quando a operação
-exige duas (`customer` + `customer_profile`) e permitindo editar `company_id`; `Picker` chamando
-kind inexistente e com `required` inválido; colunas de referência sem rótulo em listas; e teste de
-RBAC que tratava o módulo comercial como `coming_soon` depois de ele ter sido entregue.
+## 9. Integrações
+Company/Contact compartilhados; ProductVariant; PriceTableItem oficial; Cost Engine para estimativa autorizada; recebíveis para crédito; inventory_get_balance; PlanningRun; domain_events. PartnerProfile/MarketplaceStore não foram duplicados. Não há reconciliação automática de venda ou demanda confirmada.
 
-## Não implementado (por escopo ou dependência do MASTER 013)
+## 10. Permissões/RLS
+Matriz existente: crm.read/dashboard/export/configure, leads.read/create/update/convert, customers.read/create/update/merge, opportunities.read/create/update/close, quotes.read/create/update/approve/send/accept, activities.read/manage, representatives.read/manage, portfolios.manage, commercial_sensitive.read.
+Financeiro exige também receivables.read; margem costs.read; projeções planning.read e inventory.read.
+Identidades externas vinculadas a representante têm acesso por carteira e não herdam leitura ampla do ERP. Company/Contact têm política restritiva. Escrita direta CRM negada. Documento exige empresa autorizada; download assinado por 60 segundos.
 
-Motor de pedidos de venda; reserva definitiva de estoque; separação e expedição; faturamento
-fiscal; NF-e; integração WhatsApp sem configuração real; disparo de campanhas; comissionamento
-financeiro liquidado — o plano e as regras são cadastrados e simulados, mas a apuração depende de
-faturamento e recebimento; previsão comercial apresentada como garantia.
+## 11. Testes
+- 14 grupos em PostgreSQL descartável: A–L, concorrência, patch, crédito, bloqueio, RLS, helpers privados, auditoria, metadados/políticas Storage, timeline, filtros, dashboard completo e projeção real.
+- 63 testes Vitest em seis arquivos, incluindo quatro regressões de rotas.
+- TypeScript (tsc --noEmit), build Vite/Nitro e lint CRM.
+- Lint: zero erros; 14 avisos Fast Refresh.
+Nenhum dado demo foi inserido na organização real. Teste local de Storage não comprova transporte de arquivos no ambiente publicado. Não houve teste de navegador autenticado ou carga.
 
-## Pendências honestas
+## 12. Problemas conhecidos
+Algumas abas do 360/referências ainda limitadas à primeira página. Exposição de crédito = recebíveis abertos + proposta examinada, sem reservar limite nem somar outras propostas. Taxa de aceite conta versões. Comissão trata regras como cenários independentes, não aditivos. Margem é estimativa, não snapshot definitivo de COGS. Regenerar tipos de Tables após migração publicada. Não houve commit/push/deploy nesta revisão.
 
-A aplicação da migration no Lovable Cloud e o funcionamento em navegador publicado não foram
-verificados: não houve smoke test autenticado. `src/integrations/supabase/types.ts` tem as três
-RPCs do CRM, mas as 29 tabelas não constam do bloco `Tables`, que é gerado; a aplicação não as
-consulta diretamente, e a regeneração contra um banco com a migration aplicada as inclui. Os
-tipos de `crm_action` e `crm_query` aceitam `_kind` e `_filters` como texto livre, porque o `kind`
-depende do resultado do `CASE` do servidor; o `crm.test.ts` é o que amarra esse texto ao SQL.
+## 13. Decisões de configuração
+Nenhuma confirmação é necessária para revisar o código local. Operação requer configurar pipelines, etapas, motivos, preços, condições, alçadas por usuário e crédito. Política de retenção e fato gerador contratual de comissão precisam ser definidos antes da automação. Não foram inventados limites, taxas ou consentimentos.
 
-Dívida de formatação pré-existente permanece em arquivos de outros módulos (`auth-middleware`,
-`csv`, `logger`, entre outros).
+## 14. MASTER 013
+Consumir SALES_QUOTE_ACCEPTED idempotentemente, criar SalesOrder com a versão e os snapshots aceitos, deduplicar por quote_id/event_key. Só então implementar demanda confirmada, reserva e efeitos operacionais/financeiros.

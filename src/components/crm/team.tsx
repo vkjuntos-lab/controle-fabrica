@@ -79,7 +79,7 @@ function AssignDialog({ org, onClose }: { org: string; onClose: () => void }) {
   const [companyId, setCompanyId] = useState("");
   const [representativeId, setRepresentativeId] = useState("");
   const [reason, setReason] = useState("");
-  const [key, setKey] = useState(() => crypto.randomUUID());
+  const [key] = useState(() => crypto.randomUUID());
 
   const assign = useMutation({
     mutationFn: async () => {
@@ -100,7 +100,6 @@ function AssignDialog({ org, onClose }: { org: string; onClose: () => void }) {
       void client.invalidateQueries({ queryKey: ["crm"] });
     },
     onError: (error: Error) => {
-      setKey(crypto.randomUUID());
       toast.error(error.message);
     },
   });

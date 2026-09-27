@@ -1,39 +1,27 @@
 # Estado do projeto — handoff contínuo
 
-## Revisão de continuidade — 26/09/2026 (MASTER 012)
+## Revisão de continuidade — 27/09/2026 (MASTER 012)
 
-O checkout já continha o schema e as funções do CRM em `20261005100000_crm.sql`. Esta revisão
-implementou a interface sobre esse contrato, corrigiu um defeito de escrita e fechou a lacuna de
-documentação. Nenhuma migration publicada foi reescrita e nenhum outro módulo foi alterado, exceto
-permissões e menu necessários para o comercial existir.
+CRM corrigido localmente sobre Company, contatos, preços, ledger, financeiro, planejamento e
+eventos existentes. Estado integral: PARTIAL. Ainda há pendências de Customer 360, mesclagem,
+governança de dados e validação publicada; não declarar conclusão integral.
 
-O defeito corrigido: `crm_save` sobrescrevia colunas ausentes do payload com o default do schema,
-apagando dado já gravado em um update parcial. Preservar campo omitido é o que permite, por
-exemplo, editar o responsável de um cliente sem tocar no limite de crédito. Também foi adicionado o
-kind `members` ao `crm_query`, para que a lista de responsáveis não dependa de `users.read` — um
-comercial não precisa de permissão de administration para atribuir um cliente.
+Correções: rotas de detalhe independentes; seleção/criação de Company na conversão; núcleo
+empresarial compartilhado; contatos no 360; patches preservando responsáveis; carteira externa
+protegida inclusive contra APIs amplas; crédito vencido/limite e cliente bloqueado; documentos
+privados; timeline autorizada; projeções MRP; filtros; dashboard agregado; retries com chave estável.
 
-Interface entregue em `src/components/crm/*`: cadastro comercial unificado, leads e conversão,
-contatos, clientes e Customer 360, representantes e carteiras, pipeline com kanban, detalhe e
-histórico de etapas, propostas com itens, versões, aprovação e aceite, atividades e agenda,
-relatórios e configurações comerciais, com 15 rotas em `src/routes/_authenticated/comercial/`. A
-configuração é declarativa em `config.ts`, e `crm.test.ts` amarra essa configuração ao SQL: todo
-`kind` usado por área, lookup, filtro ou coluna precisa existir no `crm_query`/`crm_save`, e toda
-permissão precisa bater com a exigida pelo servidor. Esse teste já encontrou duas falhas reais —
-`commercial_status` sem rótulo, que apareceria como `ACTIVE` cru no cadastro de clientes, e
-`QUOTE_FLOW` sem os status terminais.
+Migrations novas: 20261006100000_crm_integrity.sql, 20261007100000_crm_documents.sql e
+20261008100000_crm_company_services.sql. Original preservada. Total de 29 tabelas CRM.
+Aplicação no banco publicado e entrega real no Storage não verificadas.
 
-Documentação criada: [CRM](../business/CRM.md), [LEADS](../business/LEADS.md),
-[SALES-PIPELINE](../business/SALES-PIPELINE.md), [SALES-REPRESENTATIVES](../business/SALES-REPRESENTATIVES.md),
-[SALES-QUOTES](../business/SALES-QUOTES.md), [CUSTOMER-360](../business/CUSTOMER-360.md),
-[COMMERCIAL-POLICIES](../business/COMMERCIAL-POLICIES.md) e
-[ADR 010](../architecture/ADR-010-CRM.md). Relatório: [MASTER-012-VALIDATION](MASTER-012-VALIDATION.md).
+Validação local: 14 grupos PostgreSQL; 63 testes unitários; TypeScript/build; lint CRM sem erros
+(14 avisos Fast Refresh). Documentos revisados para remover afirmações incorretas sobre expiração
+automática, margem persistida, fusão e comissões apuradas.
+[Relatório e critérios IMPLEMENTED/PARTIAL/NOT_IMPLEMENTED](MASTER-012-VALIDATION.md).
 
-Não implementado por decisão de escopo e por depender de integração futura: motor de pedidos de
-venda, reserva definitiva de estoque, separação e expedição, faturamento fiscal, NF-e, WhatsApp,
-campanhas, comissionamento financeiro liquidado e previsão comercial apresentada como garantia.
-São do MASTER 013. Também não houve smoke test autenticado no Lovable Cloud: a aplicação da
-migration e o funcionamento em navegador publicado continuam não verificados.
+SALES_QUOTE_ACCEPTED prepara o MASTER 013; não cria pedido, reserva, venda ou recebível.
+Nenhum novo domínio, commit/push ou deploy foi realizado nesta revisão.
 
 ## Revisão de continuidade — 26/09/2026 (MASTER 011)
 

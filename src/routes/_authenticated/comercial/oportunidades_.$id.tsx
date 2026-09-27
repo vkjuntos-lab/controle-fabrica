@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { OpportunityDetailPage } from "@/components/crm/opportunities";
 
-export const Route = createFileRoute("/_authenticated/comercial/oportunidades/$id")({
+export const Route = createFileRoute("/_authenticated/comercial/oportunidades_/$id")({
   head: () => ({
     meta: [{ name: "robots", content: "noindex" }, { title: "Oportunidade — Estratégia" }],
   }),

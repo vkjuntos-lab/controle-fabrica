@@ -432,7 +432,7 @@ function StageDialog({
   const api = useServerFn(actCrm);
   const [stageId, setStageId] = useState("");
   const [reason, setReason] = useState("");
-  const [key, setKey] = useState(() => crypto.randomUUID());
+  const [key] = useState(() => crypto.randomUUID());
 
   const move = useMutation({
     mutationFn: async () => {
@@ -452,7 +452,6 @@ function StageDialog({
       onSaved();
     },
     onError: (error: Error) => {
-      setKey(crypto.randomUUID());
       toast.error(error.message);
     },
   });
@@ -527,7 +526,7 @@ function CloseDialog({
   const api = useServerFn(actCrm);
   const [outcome, setOutcome] = useState<"WON" | "LOST" | "CANCELED">("WON");
   const [lossReason, setLossReason] = useState("");
-  const [key, setKey] = useState(() => crypto.randomUUID());
+  const [key] = useState(() => crypto.randomUUID());
 
   const close = useMutation({
     mutationFn: async () => {
@@ -547,7 +546,6 @@ function CloseDialog({
       onSaved();
     },
     onError: (error: Error) => {
-      setKey(crypto.randomUUID());
       toast.error(error.message);
     },
   });

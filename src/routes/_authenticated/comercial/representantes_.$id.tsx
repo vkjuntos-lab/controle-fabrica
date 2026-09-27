@@ -2,9 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { RepresentativePortfolioPage } from "@/components/crm/team";
 
-export const Route = createFileRoute("/_authenticated/comercial/representantes/$id")({
+export const Route = createFileRoute("/_authenticated/comercial/representantes_/$id")({
   head: () => ({
-    meta: [{ name: "robots", content: "noindex" }, { title: "Carteira do representante — Estratégia" }],
+    meta: [
+      { name: "robots", content: "noindex" },
+      { title: "Carteira do representante — Estratégia" },
+    ],
   }),
   component: RepresentativeRoute,
 });

@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 
 import { Customer360Page } from "@/components/crm/customers";
 
-export const Route = createFileRoute("/_authenticated/comercial/clientes/$id")({
+export const Route = createFileRoute("/_authenticated/comercial/clientes_/$id")({
   head: () => ({
     meta: [{ name: "robots", content: "noindex" }, { title: "Cliente — Estratégia" }],
   }),

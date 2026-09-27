@@ -153,6 +153,19 @@ export const areas: Record<string, Area> = {
     columns: ["customer_code", "company_id", "commercial_status", "commercial_segment_id"],
     refColumns: { company_id: "companies" },
     filters: [
+      {
+        key: "representative_id",
+        label: "Representante",
+        kind: "representatives",
+        permission: "representatives.read",
+      },
+      { key: "tag_id", label: "Etiqueta", kind: "tags", permission: "customers.read" },
+      {
+        key: "territory_id",
+        label: "Território",
+        kind: "territories",
+        permission: "representatives.read",
+      },
       { key: "status", label: "Status", kind: "", permission: "customers.read" },
       {
         key: "commercial_segment_id",
@@ -309,6 +322,29 @@ export const areas: Record<string, Area> = {
 
 /** Cadastros da própria organização, configuráveis por `crm.configure`. */
 export const configurations: Record<string, Area> = {
+  credito: {
+    title: "Políticas de crédito",
+    query: "credit_policies",
+    save: "credit",
+    permission: "commercial_sensitive.read",
+    write: "crm.configure",
+    fields: [
+      companyField,
+      field("credit_limit", "Limite de crédito (R$)", { type: "number" }),
+      field("block_over_limit", "Bloquear acima do limite", {
+        type: "options",
+        options: ["true", "false"],
+      }),
+      field("block_overdue", "Bloquear com vencidos", {
+        type: "options",
+        options: ["true", "false"],
+      }),
+      field("reason", "Motivo", { required: true }),
+    ],
+    columns: ["company_id", "credit_limit", "block_over_limit", "block_overdue"],
+    refColumns: { company_id: "companies" },
+    immutableOnEdit: ["company_id"],
+  },
   segmentos: {
     title: "Segmentos",
     query: "segments",
@@ -532,6 +568,7 @@ export const areaOrder = [
 ] as const;
 
 export const configurationOrder = [
+  "credito",
   "segmentos",
   "origens",
   "motivos",

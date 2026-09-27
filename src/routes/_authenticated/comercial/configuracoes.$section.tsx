@@ -4,7 +4,10 @@ import { ConfigurationPage } from "@/components/crm/list";
 
 export const Route = createFileRoute("/_authenticated/comercial/configuracoes/$section")({
   head: () => ({
-    meta: [{ name: "robots", content: "noindex" }, { title: "Configurações comerciais — Estratégia" }],
+    meta: [
+      { name: "robots", content: "noindex" },
+      { title: "Configurações comerciais — Estratégia" },
+    ],
   }),
   component: ConfigurationRoute,
 });

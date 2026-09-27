@@ -88,11 +88,11 @@ import { Route as AuthenticatedReconciliacaoVendasRouteImport } from './routes/_
 import { Route as AuthenticatedRelatoriosRentabilidadeRouteImport } from './routes/_authenticated/relatorios/rentabilidade'
 import { Route as ApiCronHealthRouteImport } from './routes/api/cron.health'
 import { Route as ApiWebhooksReceiverRouteImport } from './routes/api/webhooks.receiver'
-import { Route as AuthenticatedComercialClientesIdRouteImport } from './routes/_authenticated/comercial/clientes.$id'
+import { Route as AuthenticatedComercialClientesIdRouteImport } from './routes/_authenticated/comercial/clientes_.$id'
 import { Route as AuthenticatedComercialConfiguracoesSectionRouteImport } from './routes/_authenticated/comercial/configuracoes.$section'
-import { Route as AuthenticatedComercialOportunidadesIdRouteImport } from './routes/_authenticated/comercial/oportunidades.$id'
-import { Route as AuthenticatedComercialPropostasIdRouteImport } from './routes/_authenticated/comercial/propostas.$id'
-import { Route as AuthenticatedComercialRepresentantesIdRouteImport } from './routes/_authenticated/comercial/representantes.$id'
+import { Route as AuthenticatedComercialOportunidadesIdRouteImport } from './routes/_authenticated/comercial/oportunidades_.$id'
+import { Route as AuthenticatedComercialPropostasIdRouteImport } from './routes/_authenticated/comercial/propostas_.$id'
+import { Route as AuthenticatedComercialRepresentantesIdRouteImport } from './routes/_authenticated/comercial/representantes_.$id'
 import { Route as AuthenticatedComprasCotacoesIdRouteImport } from './routes/_authenticated/compras/cotacoes.$id'
 import { Route as AuthenticatedComprasPedidosIdRouteImport } from './routes/_authenticated/compras/pedidos.$id'
 import { Route as AuthenticatedComprasRecebimentosIdRouteImport } from './routes/_authenticated/compras/recebimentos.$id'
@@ -570,9 +570,9 @@ const ApiWebhooksReceiverRoute = ApiWebhooksReceiverRouteImport.update({
 } as any)
 const AuthenticatedComercialClientesIdRoute =
   AuthenticatedComercialClientesIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedComercialClientesRoute,
+    id: '/comercial/clientes_/$id',
+    path: '/comercial/clientes/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedComercialConfiguracoesSectionRoute =
   AuthenticatedComercialConfiguracoesSectionRouteImport.update({
@@ -582,21 +582,21 @@ const AuthenticatedComercialConfiguracoesSectionRoute =
   } as any)
 const AuthenticatedComercialOportunidadesIdRoute =
   AuthenticatedComercialOportunidadesIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedComercialOportunidadesRoute,
+    id: '/comercial/oportunidades_/$id',
+    path: '/comercial/oportunidades/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedComercialPropostasIdRoute =
   AuthenticatedComercialPropostasIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedComercialPropostasRoute,
+    id: '/comercial/propostas_/$id',
+    path: '/comercial/propostas/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedComercialRepresentantesIdRoute =
   AuthenticatedComercialRepresentantesIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedComercialRepresentantesRoute,
+    id: '/comercial/representantes_/$id',
+    path: '/comercial/representantes/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedComprasCotacoesIdRoute =
   AuthenticatedComprasCotacoesIdRouteImport.update({
@@ -694,12 +694,12 @@ export interface FileRoutesByFullPath {
   '/comercial/agenda': typeof AuthenticatedComercialAgendaRoute
   '/comercial/atividades': typeof AuthenticatedComercialAtividadesRoute
   '/comercial/carteiras': typeof AuthenticatedComercialCarteirasRoute
-  '/comercial/clientes': typeof AuthenticatedComercialClientesRouteWithChildren
+  '/comercial/clientes': typeof AuthenticatedComercialClientesRoute
   '/comercial/leads': typeof AuthenticatedComercialLeadsRoute
-  '/comercial/oportunidades': typeof AuthenticatedComercialOportunidadesRouteWithChildren
-  '/comercial/propostas': typeof AuthenticatedComercialPropostasRouteWithChildren
+  '/comercial/oportunidades': typeof AuthenticatedComercialOportunidadesRoute
+  '/comercial/propostas': typeof AuthenticatedComercialPropostasRoute
   '/comercial/relatorios': typeof AuthenticatedComercialRelatoriosRoute
-  '/comercial/representantes': typeof AuthenticatedComercialRepresentantesRouteWithChildren
+  '/comercial/representantes': typeof AuthenticatedComercialRepresentantesRoute
   '/compras/configuracoes': typeof AuthenticatedComprasConfiguracoesRoute
   '/compras/cotacoes': typeof AuthenticatedComprasCotacoesRouteWithChildren
   '/compras/devolucoes': typeof AuthenticatedComprasDevolucoesRoute
@@ -792,12 +792,12 @@ export interface FileRoutesByTo {
   '/comercial/agenda': typeof AuthenticatedComercialAgendaRoute
   '/comercial/atividades': typeof AuthenticatedComercialAtividadesRoute
   '/comercial/carteiras': typeof AuthenticatedComercialCarteirasRoute
-  '/comercial/clientes': typeof AuthenticatedComercialClientesRouteWithChildren
+  '/comercial/clientes': typeof AuthenticatedComercialClientesRoute
   '/comercial/leads': typeof AuthenticatedComercialLeadsRoute
-  '/comercial/oportunidades': typeof AuthenticatedComercialOportunidadesRouteWithChildren
-  '/comercial/propostas': typeof AuthenticatedComercialPropostasRouteWithChildren
+  '/comercial/oportunidades': typeof AuthenticatedComercialOportunidadesRoute
+  '/comercial/propostas': typeof AuthenticatedComercialPropostasRoute
   '/comercial/relatorios': typeof AuthenticatedComercialRelatoriosRoute
-  '/comercial/representantes': typeof AuthenticatedComercialRepresentantesRouteWithChildren
+  '/comercial/representantes': typeof AuthenticatedComercialRepresentantesRoute
   '/compras/configuracoes': typeof AuthenticatedComprasConfiguracoesRoute
   '/compras/cotacoes': typeof AuthenticatedComprasCotacoesRouteWithChildren
   '/compras/devolucoes': typeof AuthenticatedComprasDevolucoesRoute
@@ -892,12 +892,12 @@ export interface FileRoutesById {
   '/_authenticated/comercial/agenda': typeof AuthenticatedComercialAgendaRoute
   '/_authenticated/comercial/atividades': typeof AuthenticatedComercialAtividadesRoute
   '/_authenticated/comercial/carteiras': typeof AuthenticatedComercialCarteirasRoute
-  '/_authenticated/comercial/clientes': typeof AuthenticatedComercialClientesRouteWithChildren
+  '/_authenticated/comercial/clientes': typeof AuthenticatedComercialClientesRoute
   '/_authenticated/comercial/leads': typeof AuthenticatedComercialLeadsRoute
-  '/_authenticated/comercial/oportunidades': typeof AuthenticatedComercialOportunidadesRouteWithChildren
-  '/_authenticated/comercial/propostas': typeof AuthenticatedComercialPropostasRouteWithChildren
+  '/_authenticated/comercial/oportunidades': typeof AuthenticatedComercialOportunidadesRoute
+  '/_authenticated/comercial/propostas': typeof AuthenticatedComercialPropostasRoute
   '/_authenticated/comercial/relatorios': typeof AuthenticatedComercialRelatoriosRoute
-  '/_authenticated/comercial/representantes': typeof AuthenticatedComercialRepresentantesRouteWithChildren
+  '/_authenticated/comercial/representantes': typeof AuthenticatedComercialRepresentantesRoute
   '/_authenticated/compras/configuracoes': typeof AuthenticatedComprasConfiguracoesRoute
   '/_authenticated/compras/cotacoes': typeof AuthenticatedComprasCotacoesRouteWithChildren
   '/_authenticated/compras/devolucoes': typeof AuthenticatedComprasDevolucoesRoute
@@ -954,11 +954,11 @@ export interface FileRoutesById {
   '/_authenticated/planejamento/': typeof AuthenticatedPlanejamentoIndexRoute
   '/_authenticated/precificacao/': typeof AuthenticatedPrecificacaoIndexRoute
   '/_authenticated/reconciliacao/': typeof AuthenticatedReconciliacaoIndexRoute
-  '/_authenticated/comercial/clientes/$id': typeof AuthenticatedComercialClientesIdRoute
+  '/_authenticated/comercial/clientes_/$id': typeof AuthenticatedComercialClientesIdRoute
   '/_authenticated/comercial/configuracoes/$section': typeof AuthenticatedComercialConfiguracoesSectionRoute
-  '/_authenticated/comercial/oportunidades/$id': typeof AuthenticatedComercialOportunidadesIdRoute
-  '/_authenticated/comercial/propostas/$id': typeof AuthenticatedComercialPropostasIdRoute
-  '/_authenticated/comercial/representantes/$id': typeof AuthenticatedComercialRepresentantesIdRoute
+  '/_authenticated/comercial/oportunidades_/$id': typeof AuthenticatedComercialOportunidadesIdRoute
+  '/_authenticated/comercial/propostas_/$id': typeof AuthenticatedComercialPropostasIdRoute
+  '/_authenticated/comercial/representantes_/$id': typeof AuthenticatedComercialRepresentantesIdRoute
   '/_authenticated/compras/cotacoes/$id': typeof AuthenticatedComprasCotacoesIdRoute
   '/_authenticated/compras/pedidos/$id': typeof AuthenticatedComprasPedidosIdRoute
   '/_authenticated/compras/recebimentos/$id': typeof AuthenticatedComprasRecebimentosIdRoute
@@ -1251,11 +1251,11 @@ export interface FileRouteTypes {
     | '/_authenticated/planejamento/'
     | '/_authenticated/precificacao/'
     | '/_authenticated/reconciliacao/'
-    | '/_authenticated/comercial/clientes/$id'
+    | '/_authenticated/comercial/clientes_/$id'
     | '/_authenticated/comercial/configuracoes/$section'
-    | '/_authenticated/comercial/oportunidades/$id'
-    | '/_authenticated/comercial/propostas/$id'
-    | '/_authenticated/comercial/representantes/$id'
+    | '/_authenticated/comercial/oportunidades_/$id'
+    | '/_authenticated/comercial/propostas_/$id'
+    | '/_authenticated/comercial/representantes_/$id'
     | '/_authenticated/compras/cotacoes/$id'
     | '/_authenticated/compras/pedidos/$id'
     | '/_authenticated/compras/recebimentos/$id'
@@ -1836,12 +1836,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiWebhooksReceiverRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/comercial/clientes/$id': {
-      id: '/_authenticated/comercial/clientes/$id'
-      path: '/$id'
+    '/_authenticated/comercial/clientes_/$id': {
+      id: '/_authenticated/comercial/clientes_/$id'
+      path: '/comercial/clientes/$id'
       fullPath: '/comercial/clientes/$id'
       preLoaderRoute: typeof AuthenticatedComercialClientesIdRouteImport
-      parentRoute: typeof AuthenticatedComercialClientesRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/comercial/configuracoes/$section': {
       id: '/_authenticated/comercial/configuracoes/$section'
@@ -1850,26 +1850,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedComercialConfiguracoesSectionRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/comercial/oportunidades/$id': {
-      id: '/_authenticated/comercial/oportunidades/$id'
-      path: '/$id'
+    '/_authenticated/comercial/oportunidades_/$id': {
+      id: '/_authenticated/comercial/oportunidades_/$id'
+      path: '/comercial/oportunidades/$id'
       fullPath: '/comercial/oportunidades/$id'
       preLoaderRoute: typeof AuthenticatedComercialOportunidadesIdRouteImport
-      parentRoute: typeof AuthenticatedComercialOportunidadesRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/comercial/propostas/$id': {
-      id: '/_authenticated/comercial/propostas/$id'
-      path: '/$id'
+    '/_authenticated/comercial/propostas_/$id': {
+      id: '/_authenticated/comercial/propostas_/$id'
+      path: '/comercial/propostas/$id'
       fullPath: '/comercial/propostas/$id'
       preLoaderRoute: typeof AuthenticatedComercialPropostasIdRouteImport
-      parentRoute: typeof AuthenticatedComercialPropostasRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/comercial/representantes/$id': {
-      id: '/_authenticated/comercial/representantes/$id'
-      path: '/$id'
+    '/_authenticated/comercial/representantes_/$id': {
+      id: '/_authenticated/comercial/representantes_/$id'
+      path: '/comercial/representantes/$id'
       fullPath: '/comercial/representantes/$id'
       preLoaderRoute: typeof AuthenticatedComercialRepresentantesIdRouteImport
-      parentRoute: typeof AuthenticatedComercialRepresentantesRoute
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/compras/cotacoes/$id': {
       id: '/_authenticated/compras/cotacoes/$id'
@@ -1992,66 +1992,6 @@ const AuthenticatedProdutosRouteWithChildren =
     AuthenticatedProdutosRouteChildren,
   )
 
-interface AuthenticatedComercialClientesRouteChildren {
-  AuthenticatedComercialClientesIdRoute: typeof AuthenticatedComercialClientesIdRoute
-}
-
-const AuthenticatedComercialClientesRouteChildren: AuthenticatedComercialClientesRouteChildren =
-  {
-    AuthenticatedComercialClientesIdRoute:
-      AuthenticatedComercialClientesIdRoute,
-  }
-
-const AuthenticatedComercialClientesRouteWithChildren =
-  AuthenticatedComercialClientesRoute._addFileChildren(
-    AuthenticatedComercialClientesRouteChildren,
-  )
-
-interface AuthenticatedComercialOportunidadesRouteChildren {
-  AuthenticatedComercialOportunidadesIdRoute: typeof AuthenticatedComercialOportunidadesIdRoute
-}
-
-const AuthenticatedComercialOportunidadesRouteChildren: AuthenticatedComercialOportunidadesRouteChildren =
-  {
-    AuthenticatedComercialOportunidadesIdRoute:
-      AuthenticatedComercialOportunidadesIdRoute,
-  }
-
-const AuthenticatedComercialOportunidadesRouteWithChildren =
-  AuthenticatedComercialOportunidadesRoute._addFileChildren(
-    AuthenticatedComercialOportunidadesRouteChildren,
-  )
-
-interface AuthenticatedComercialPropostasRouteChildren {
-  AuthenticatedComercialPropostasIdRoute: typeof AuthenticatedComercialPropostasIdRoute
-}
-
-const AuthenticatedComercialPropostasRouteChildren: AuthenticatedComercialPropostasRouteChildren =
-  {
-    AuthenticatedComercialPropostasIdRoute:
-      AuthenticatedComercialPropostasIdRoute,
-  }
-
-const AuthenticatedComercialPropostasRouteWithChildren =
-  AuthenticatedComercialPropostasRoute._addFileChildren(
-    AuthenticatedComercialPropostasRouteChildren,
-  )
-
-interface AuthenticatedComercialRepresentantesRouteChildren {
-  AuthenticatedComercialRepresentantesIdRoute: typeof AuthenticatedComercialRepresentantesIdRoute
-}
-
-const AuthenticatedComercialRepresentantesRouteChildren: AuthenticatedComercialRepresentantesRouteChildren =
-  {
-    AuthenticatedComercialRepresentantesIdRoute:
-      AuthenticatedComercialRepresentantesIdRoute,
-  }
-
-const AuthenticatedComercialRepresentantesRouteWithChildren =
-  AuthenticatedComercialRepresentantesRoute._addFileChildren(
-    AuthenticatedComercialRepresentantesRouteChildren,
-  )
-
 interface AuthenticatedComprasCotacoesRouteChildren {
   AuthenticatedComprasCotacoesIdRoute: typeof AuthenticatedComprasCotacoesIdRoute
 }
@@ -2138,12 +2078,12 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedComercialAgendaRoute: typeof AuthenticatedComercialAgendaRoute
   AuthenticatedComercialAtividadesRoute: typeof AuthenticatedComercialAtividadesRoute
   AuthenticatedComercialCarteirasRoute: typeof AuthenticatedComercialCarteirasRoute
-  AuthenticatedComercialClientesRoute: typeof AuthenticatedComercialClientesRouteWithChildren
+  AuthenticatedComercialClientesRoute: typeof AuthenticatedComercialClientesRoute
   AuthenticatedComercialLeadsRoute: typeof AuthenticatedComercialLeadsRoute
-  AuthenticatedComercialOportunidadesRoute: typeof AuthenticatedComercialOportunidadesRouteWithChildren
-  AuthenticatedComercialPropostasRoute: typeof AuthenticatedComercialPropostasRouteWithChildren
+  AuthenticatedComercialOportunidadesRoute: typeof AuthenticatedComercialOportunidadesRoute
+  AuthenticatedComercialPropostasRoute: typeof AuthenticatedComercialPropostasRoute
   AuthenticatedComercialRelatoriosRoute: typeof AuthenticatedComercialRelatoriosRoute
-  AuthenticatedComercialRepresentantesRoute: typeof AuthenticatedComercialRepresentantesRouteWithChildren
+  AuthenticatedComercialRepresentantesRoute: typeof AuthenticatedComercialRepresentantesRoute
   AuthenticatedComprasConfiguracoesRoute: typeof AuthenticatedComprasConfiguracoesRoute
   AuthenticatedComprasCotacoesRoute: typeof AuthenticatedComprasCotacoesRouteWithChildren
   AuthenticatedComprasDevolucoesRoute: typeof AuthenticatedComprasDevolucoesRoute
@@ -2196,7 +2136,11 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPlanejamentoIndexRoute: typeof AuthenticatedPlanejamentoIndexRoute
   AuthenticatedPrecificacaoIndexRoute: typeof AuthenticatedPrecificacaoIndexRoute
   AuthenticatedReconciliacaoIndexRoute: typeof AuthenticatedReconciliacaoIndexRoute
+  AuthenticatedComercialClientesIdRoute: typeof AuthenticatedComercialClientesIdRoute
   AuthenticatedComercialConfiguracoesSectionRoute: typeof AuthenticatedComercialConfiguracoesSectionRoute
+  AuthenticatedComercialOportunidadesIdRoute: typeof AuthenticatedComercialOportunidadesIdRoute
+  AuthenticatedComercialPropostasIdRoute: typeof AuthenticatedComercialPropostasIdRoute
+  AuthenticatedComercialRepresentantesIdRoute: typeof AuthenticatedComercialRepresentantesIdRoute
   AuthenticatedFinanceiroPagarIdRoute: typeof AuthenticatedFinanceiroPagarIdRoute
   AuthenticatedFinanceiroReceberIdRoute: typeof AuthenticatedFinanceiroReceberIdRoute
   AuthenticatedParceirosDevolucoesIdRoute: typeof AuthenticatedParceirosDevolucoesIdRoute
@@ -2220,16 +2164,14 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedComercialAgendaRoute: AuthenticatedComercialAgendaRoute,
   AuthenticatedComercialAtividadesRoute: AuthenticatedComercialAtividadesRoute,
   AuthenticatedComercialCarteirasRoute: AuthenticatedComercialCarteirasRoute,
-  AuthenticatedComercialClientesRoute:
-    AuthenticatedComercialClientesRouteWithChildren,
+  AuthenticatedComercialClientesRoute: AuthenticatedComercialClientesRoute,
   AuthenticatedComercialLeadsRoute: AuthenticatedComercialLeadsRoute,
   AuthenticatedComercialOportunidadesRoute:
-    AuthenticatedComercialOportunidadesRouteWithChildren,
-  AuthenticatedComercialPropostasRoute:
-    AuthenticatedComercialPropostasRouteWithChildren,
+    AuthenticatedComercialOportunidadesRoute,
+  AuthenticatedComercialPropostasRoute: AuthenticatedComercialPropostasRoute,
   AuthenticatedComercialRelatoriosRoute: AuthenticatedComercialRelatoriosRoute,
   AuthenticatedComercialRepresentantesRoute:
-    AuthenticatedComercialRepresentantesRouteWithChildren,
+    AuthenticatedComercialRepresentantesRoute,
   AuthenticatedComprasConfiguracoesRoute:
     AuthenticatedComprasConfiguracoesRoute,
   AuthenticatedComprasCotacoesRoute:
@@ -2302,8 +2244,15 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPlanejamentoIndexRoute: AuthenticatedPlanejamentoIndexRoute,
   AuthenticatedPrecificacaoIndexRoute: AuthenticatedPrecificacaoIndexRoute,
   AuthenticatedReconciliacaoIndexRoute: AuthenticatedReconciliacaoIndexRoute,
+  AuthenticatedComercialClientesIdRoute: AuthenticatedComercialClientesIdRoute,
   AuthenticatedComercialConfiguracoesSectionRoute:
     AuthenticatedComercialConfiguracoesSectionRoute,
+  AuthenticatedComercialOportunidadesIdRoute:
+    AuthenticatedComercialOportunidadesIdRoute,
+  AuthenticatedComercialPropostasIdRoute:
+    AuthenticatedComercialPropostasIdRoute,
+  AuthenticatedComercialRepresentantesIdRoute:
+    AuthenticatedComercialRepresentantesIdRoute,
   AuthenticatedFinanceiroPagarIdRoute: AuthenticatedFinanceiroPagarIdRoute,
   AuthenticatedFinanceiroReceberIdRoute: AuthenticatedFinanceiroReceberIdRoute,
   AuthenticatedParceirosDevolucoesIdRoute:

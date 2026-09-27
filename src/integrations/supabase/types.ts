@@ -975,6 +975,7 @@ export type Database = {
       };
     };
     Functions: {
+      crm_document: { Args: { _org: string; _action: string; _data: Json }; Returns: Json };
       crm_query: { Args: { _org: string; _kind: string; _filters?: Json; _page?: number; _export?: boolean }; Returns: Json };
       crm_save: { Args: { _org: string; _kind: string; _data: Json }; Returns: Json };
       // `_id` é nulo na criação de proposta: `crm_action` gera o id no servidor.

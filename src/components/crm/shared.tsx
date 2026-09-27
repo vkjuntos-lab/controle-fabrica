@@ -38,6 +38,8 @@ import { areaOrder, areas, configurationOrder, configurations, labels, type Fiel
 
 /** Rótulos pt-BR das opções fixas de formulário e de coluna. */
 export const optionLabels: Record<string, Record<string, string>> = {
+  block_over_limit: { true: "Sim", false: "Não" },
+  block_overdue: { true: "Sim", false: "Não" },
   status: {
     ...LEAD_STATUS,
     ...OPPORTUNITY_STATUS,

@@ -1,3 +1,4 @@
+import { QuoteAvailability } from "./availability";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -87,7 +88,7 @@ function QuoteDialog({
   const [contactId, setContactId] = useState("");
   const [opportunityId, setOpportunityId] = useState("");
   const [items, setItems] = useState<DraftItem[]>([{ variantId: "", quantity: "1" }]);
-  const [key, setKey] = useState(() => crypto.randomUUID());
+  const [key] = useState(() => crypto.randomUUID());
 
   const submit = useMutation({
     mutationFn: async () => {
@@ -124,7 +125,6 @@ function QuoteDialog({
       void client.invalidateQueries({ queryKey: ["crm"] });
     },
     onError: (error: Error) => {
-      setKey(crypto.randomUUID());
       toast.error(error.message);
     },
   });
@@ -197,6 +197,7 @@ function QuoteDialog({
         </div>
 
         <ItemsEditor items={items} setItems={setItems} org={org} />
+        <QuoteAvailability org={org} />
 
         <div className="grid gap-4 sm:grid-cols-4">
           <Text
@@ -350,17 +351,18 @@ function QuoteDetail({ org, id }: { org: string; id: string }) {
   const quote = (rows.data?.rows ?? [])[0] as CrmRow | undefined;
   const items = useCrmQuery(org, "quote_items", { quote_id: id });
   const approvals = useCrmQuery(org, "approvals", { quote_id: id });
+  const approvers = useCrmQuery(org, "approvers", { id }, 1, quote?.status === "PENDING_APPROVAL");
   const versions = useCrmQuery(
     org,
     "quotes",
-    quote ? { company_id: String(quote.company_id) } : {},
+    quote ? { quote_number: String(quote.quote_number) } : {},
     1,
   );
   const [revising, setRevising] = useState(false);
   const [action, setAction] = useState<"approve" | "accept" | null>(null);
 
   const sensitive = hasPermission("commercial_sensitive.read");
-  const margin = useCrmDetail(org, "margin", { id }, sensitive);
+  const margin = useCrmDetail(org, "margin", { id }, sensitive && hasPermission("costs.read"));
   const commission = useCrmDetail(org, "commission", { id }, sensitive);
 
   const refresh = () => void client.invalidateQueries({ queryKey: ["crm"] });
@@ -404,6 +406,17 @@ function QuoteDetail({ org, id }: { org: string; id: string }) {
           />
           <Stat label="Total" value={money(quote?.total)} />
         </div>
+        {quote?.status === "PENDING_APPROVAL" && (
+          <p className="text-sm">
+            Aprovadores com alçada suficiente:{" "}
+            {approvers.isLoading
+              ? "consultando…"
+              : approvers.error
+                ? approvers.error.message
+                : approvers.data?.rows?.map((r) => str(r.name)).join(", ") ||
+                  "Nenhum configurado. Solicite configuração à gestão."}
+          </p>
+        )}
         <QuoteActions
           org={org}
           quote={quote!}
@@ -566,7 +579,7 @@ function QuoteActions({
 }) {
   const { hasPermission } = useOrganization();
   const api = useServerFn(actCrm);
-  const [key, setKey] = useState(() => crypto.randomUUID());
+  const [key] = useState(() => crypto.randomUUID());
   const [pending, setPending] = useState<string | null>(null);
 
   const transition = useMutation({
@@ -580,7 +593,6 @@ function QuoteActions({
       onDone();
     },
     onError: (error: Error) => {
-      setKey(crypto.randomUUID());
       toast.error(error.message);
     },
     onMutate: (action) => setPending(action),
@@ -657,7 +669,7 @@ function ReasonDialog({
 }) {
   const api = useServerFn(actCrm);
   const [reason, setReason] = useState("");
-  const [key, setKey] = useState(() => crypto.randomUUID());
+  const [key] = useState(() => crypto.randomUUID());
 
   const send = useMutation({
     mutationFn: async () => {
@@ -671,7 +683,6 @@ function ReasonDialog({
       onDone();
     },
     onError: (error: Error) => {
-      setKey(crypto.randomUUID());
       toast.error(error.message);
     },
   });
@@ -732,7 +743,7 @@ function AcceptDialog({
   const api = useServerFn(actCrm);
   const [contactId, setContactId] = useState("");
   const [evidence, setEvidence] = useState("");
-  const [key, setKey] = useState(() => crypto.randomUUID());
+  const [key] = useState(() => crypto.randomUUID());
 
   const accept = useMutation({
     mutationFn: async () => {
@@ -753,7 +764,6 @@ function AcceptDialog({
       onDone();
     },
     onError: (error: Error) => {
-      setKey(crypto.randomUUID());
       toast.error(error.message);
     },
   });

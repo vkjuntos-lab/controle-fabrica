@@ -1,56 +1,18 @@
-# Leads, qualificação e conversão
+# Leads e conversão
+Status reais: NEW, CONTACT_ATTEMPTED, CONTACTED, QUALIFIED, UNQUALIFIED, CONVERTED, ARCHIVED. Motivo configurado do tipo LEAD é obrigatório ao desqualificar. Não existe score automático, NURTURE ou previsão de perda por origem.
 
-Data: 26/09/2026. MASTER 012.
-
-Um lead é um contato ainda não convertido. Ele existe em `leads`, com origem, responsável,
-qualificação e consentimento de contato, e vira cliente e oportunidade por uma única ação
-idempotente.
-
-## Ciclo de vida
-
-`NEW` → `CONTACTED` → `QUALIFIED` → `CONVERTED`, com `DISQUALIFIED` como saída de qualificação
-e `NURTURE` como espera.
-
-A conversão não apaga o lead: o registro vira `CONVERTED` e guarda `converted_customer_id` e
-`converted_opportunity_id`. O histórico de como a conta foi conquistada é tão comercial quanto a
-conta, e perder esse vínculo inviabilisa a leitura de marketing sobre origem de receita.
-
-## Qualificação
-
-Faixa (`score`) e campos estruturados definem priorização. A tela de lead mostra a perda
-esperada de cada oportunidade já convertida a partir daquela origem, porque a qualificação é
-melhorada por evidência histórica e não por intuição.
-
-Motivo de desqualificação é obrigatório ao sair para `DISQUALIFIED` e grava em
-`crm_operation_keys` junto da ação, o que impede que o mesmo lead seja desqualificado com
-motivos contraditórios sem deixar rastro.
+O lead pode preceder o cadastro completo. Nome, empresa informada, contatos, origem, segmento, responsável, finalidade e notas são preservados. Comunicação de marketing não é autorizada pela mera existência do registro; marketing_opt_in começa falso.
 
 ## Conversão
+A interface apresenta busca e possíveis correspondências, permitindo selecionar Company existente ou informar dados de nova empresa. CPF/CNPJ seguem normalização e validação de formato do serviço empresarial existente. Não há mesclagem por semelhança de nome.
 
-A conversão é uma **única** ação de `crm_action` com a chave de idempotência, e executa em
-transação:
+A conversão exige QUALIFIED e permissões dos passos envolvidos. A transação serializada por organização:
+1. Vincula CUSTOMER à Company existente ou cria Company por serviço compartilhado.
+2. Cria/reutiliza CustomerProfile.
+3. Reutiliza contato por e-mail ou telefone na mesma empresa, ou cria CompanyContact.
+4. Cria oportunidade na etapa escolhida, com source_type=LEAD e source_id do lead.
+5. Marca o lead CONVERTED, com company_id e converted_at.
 
-1. cria ou reutiliza a empresa, a partir do nome e documento informados;
-2. cria o contato, ou reutiliza o existente pelo e-mail dentro da organização;
-3. cria o `customer_profile` com o segmento e a condição de pagamento herdados do lead;
-4. cria a oportunidade no pipeline padrão, na primeira etapa, com o valor e a itens informados;
-5. atribui o responsável e registra a atividade de conversão;
-6. marca o lead como `CONVERTED` com os ids gerados.
+Chave de operação e resultado ficam em crm_operation_keys. Retentativas concorrentes não duplicam empresa, contato ou oportunidade. O lead convertido não é reeditado. Não há colunas converted_customer_id ou converted_opportunity_id: a ligação da oportunidade usa sua origem.
 
-Reenviar a mesma chave devolve o resultado original. A conversão parcial é impossível: ou os
-seis passos acontecem, ou nenhum.
-
-A conversão exige `leads.convert`, permissão separada de `leads.create`. Um usuário pode
-capturar e qualificar sem poder criar oportunidade comercial — a segregação de funções não
-depende só do RBAC do papel, mas da permissão da ação.
-
-## Origem
-
-`commercial_sources` registra o canal. A origem acompanha lead, cliente e oportunidade, o que
-permite comparar conversão e margem por canal sem planilha paralela.
-
-## Limitações
-
-Sem verificação de e-mail, sem score automático, sem enriquecimento de dados e sem disparo de
-campanha. O consentimento é registrado, mas nada é enviado automaticamente: isso depende do
-MASTER 013.
+Representante externo só consulta/altera leads atribuídos a ele; nova empresa exige equipe interna. Patches omissos preservam responsável. Testes cobrem conversão concorrente e criação por usuário comercial interno.

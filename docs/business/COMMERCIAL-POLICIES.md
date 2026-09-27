@@ -1,49 +1,25 @@
 # Políticas comerciais
-
-Data: 26/09/2026. MASTER 012. As políticas são configuráveis por organização e aplicadas no
-servidor; a interface apenas as apresenta e envia a intenção.
+Configuração explícita por organização; nenhuma taxa, limite ou autorização é presumida.
 
 ## Crédito
+CustomerCreditPolicy separa dados sensíveis do perfil comercial. Para leitura são necessárias commercial_sensitive.read e receivables.read; escrita também exige crm.configure e equipe interna.
 
-`customer_credit_policies` define limite, dias de carência e alçada por cliente. O servidor
-recusa operação acima do limite disponível e considera o valor já comprometido por propostas aprovadas.
-Cliente `BLOCKED` é recusado em qualquer operação comercial, mesmo dentro do limite.
+Posição financeira:
+- aberto = soma de open_amount dos recebíveis OPEN, PARTIALLY_PAID e OVERDUE;
+- vencido = parcela desses saldos com due_date anterior à data atual;
+- disponível = credit_limit − aberto, ou não configurado quando não há limite.
 
-Crédito aqui é limite de política, não operação financeira: nada deste master emite título, não registra recebimento e
-não substitui o financeiro do MASTER 013.
+Na aprovação, exposição = aberto + total da proposta examinada. Não soma oportunidades nem outras propostas e não é reserva de crédito. block_overdue e block_over_limit são flags configuráveis. Sem flags, não há bloqueio automático. Não se promete controle concorrente de limite entre vários pedidos futuros; essa política precisa ser ampliada no MASTER 013.
 
-## Desconto e alçada
+## Desconto e pagamento
+Alçada é por usuário, com percentual máximo e motivo; não por papel/faixa/vigência. Tentativas rejeitadas levantam erro e transação reverte: não há audit log persistente separado de todas as rejeições. Aprovação realizada grava autor, motivo, valores e alçada em quote_approvals/audit_log.
 
-`commercial_discount_authorities` define, por papel, a faixa de desconto e o percentual máximo
-que a pessoa pode aprovar, e o status da authority (ativa, expirada, revogada). Um desconto acima
-da alçada exige aprovação de quem a tem, registrada em `quote_approvals`, com aprovador, momento
-e limite. Tentativa negada também gera auditoria.
+PaymentTerms guarda nome e descrição de condição, copiados da configuração do cliente para a proposta. Não é calendário de parcelas nem validação automática de condições especiais. Regras de margem mínima não foram implementadas.
 
-## Condição de pagamento
+## Dados pessoais
+Finalidade e canal preferencial são separados do cadastro empresarial; marketing_opt_in começa falso e communication_restricted pode registrar restrição. Patches preservam preferências existentes. O sistema não envia marketing nem presume consentimento irrestrito.
 
-`commercial_payment_terms` define prazo em dias e número de parcelas. A condição escolhida na
-proposta precisa estar habilitada e dentro da alçada do cliente; prazo maior que o permitido é
-recusado pelo servidor.
+Retenção automatizada, solicitação de titular, anonimização e gestão completa de consentimentos são NOT_IMPLEMENTED. Definir política organizacional de retenção antes de automatizar descarte; não remover históricos fiscais/comerciais indiscriminadamente.
 
-## Carteira e território
-
-Atribuição de cliente, apoio e território são configuráveis e têm vigência, conforme
-[SALES-REPRESENTATIVES.md](SALES-REPRESENTATIVES.md). Troca de titular é transacional e
-encontra o histórico preservado.
-
-## Motivos e padronização
-
-Perda de oportunidade, recusa de proposta, desqualificação de lead e cancelamento exigem motivo
-de `commercial_reasons`. A padronização não é burocracia: sem motivo estruturado não há análise
-de causa, e análise de causa é o que separa um pipeline que aprende de um que só acumula.
-
-## Comissionamento
-
-Regras são cadastradas e simuladas; a apuração financeira é do MASTER 013. Ver
-[SALES-REPRESENTATIVES.md](SALES-REPRESENTATIVES.md).
-
-## Imutabilidade
-
-Configuração comercial salva por `crm_save` exige `crm.configure`. Identificadores e
-`organization_id` não são editáveis, e uma configuração referenciada por registro existente não
-pode ser apagada — a referência é preservada e o registro continua legível.
+## Auditoria e correções
+Cadastro, conversão, carteira, etapa, versão, aprovação, aceite, documentos e solicitações de mesclagem são auditados com usuário e contexto. Históricos consolidados não são excluídos. Chaves de operação protegem conversão/ações; retries de interface mantêm a mesma chave. Revisão de proposta é nova versão.

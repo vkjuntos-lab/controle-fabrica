@@ -134,6 +134,7 @@ export const representativeTypeLabel = (type: string | null | undefined) =>
 
 /** Kinds aceitos por `crm_query` para listagem tabular. */
 export const CRM_LIST_KINDS = [
+  "credit_policies",
   "customers",
   "companies",
   "contacts",
@@ -171,6 +172,9 @@ export const CRM_LIST_KINDS = [
  * este conjunto para não prometer um filtro que não acontece.
  */
 export const CRM_FILTER_KEYS = [
+  "quote_number",
+  "tag_id",
+  "territory_id",
   "id",
   "company_id",
   "status",
