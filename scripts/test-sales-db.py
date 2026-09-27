@@ -203,7 +203,8 @@ def run():
    'items':[{'sales_order_item_id':sql(f"SELECT id FROM sales_order_items WHERE sales_order_id={q(order['id'])}"),'quantity':5,'condition':'RESELLABLE'}]},user=commercial)
  assert ret['status']=='DRAFT'
  rpc('sales_return_action',org,ret['id'],'submit',{},user=commercial)
- rpc('sales_return_action',org,ret['id'],'approve',{},user=commercial,fail='Segrega')
+ rpc('sales_return_action',org,ret['id'],'approve',{},user=commercial,fail='returns.approve')
+ rpc('sales_return_action',org,ret['id'],'approve',{},user=fin,fail='Segrega')
  rpc('sales_return_action',org,ret['id'],'approve',{},user=approver)
  rpc('sales_return_action',org,ret['id'],'receive',{'quantity':5,'destination':'SELLABLE','financial_action':'CREDIT_NOTE'},user=picker)
  assert balance(variants['SAP-001']['v'],warehouse)==85.0
