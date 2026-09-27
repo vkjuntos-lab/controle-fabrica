@@ -16,8 +16,8 @@ def run():
   ({q(picker)},'estoque@test'),({q(fin)},'financeiro@test'),({q(outsider)},'externo@test');
   INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'Vendas','vendas',{q(a)}),({q(other)},'Outra','outra',{q(outsider)});
   INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(a)},'admin'),({q(org)},{q(commercial)},'comercial'),
-  ({q(org)},{q(approver)},'gestor'),({q(org)},{q(picker)},'estoque'),({q(org)},{q(fin)},'financeiro');
-  INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(other)},{q(outsider)},'comercial')""")
+  ({q(org)},{q(approver)},'gestor'),({q(org)},{q(picker)},'estoque'),({q(org)},{q(fin)},'financeiro') ON CONFLICT DO NOTHING;
+  INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(other)},{q(outsider)},'comercial') ON CONFLICT DO NOTHING""")
  def call(name,*args,user=a,fail=None):
   return db.call(name,','.join(q(json.dumps(x) if isinstance(x,(dict,list)) else x) if x is not None else 'NULL' for x in args),user,fail)
  def rpc(name,*args,**kw):
