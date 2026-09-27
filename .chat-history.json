@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '38,75p' supabase/migrations/20261006100000_sales_orders.sql"
-    },
-    "timestamp": 1790523613671
-  },
-  {
-    "role": "tool_result",
-    "content": " 'sales_orders.read','sales_orders.create','sales_orders.update','sales_orders.approve','sales_orders.cancel',\n 'reservations.read','reservations.create','reservations.release',\n 'fulfillment.read','fulfillment.manage',\n 'picking.execute','picking.confirm',\n 'packing.manage',\n 'shipments.read','ship",
-    "is_error": false,
-    "timestamp": 1790523613687
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"_action='\" supabase/migrations/20261006100000_sales_orders.sql | awk -F: '$1>2660 && $1<2800' | head -12"
     },
     "timestamp": 1790523620237
@@ -1398,5 +1384,19 @@
     "content": "ok\nERROR:  invalid input syntax for type json\nDETAIL:  Token \"78b22575\" is invalid.\n",
     "is_error": false,
     "timestamp": 1790524456572
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -rn \"CREATE POLICY\" supabase/migrations/20261006100000_sales_orders.sql | head -20 && grep -rn \"ON public.sales_orders\" supabase/migrations/*.sql | grep -v \"20261006100000\" | head"
+    },
+    "timestamp": 1790524463432
+  },
+  {
+    "role": "tool_result",
+    "content": "3466:CREATE POLICY sales_read ON public.sales_order_settings FOR SELECT TO authenticated\n3475:CREATE POLICY sales_read ON public.sales_orders FOR SELECT TO authenticated\n3487:CREATE POLICY sales_read ON public.sales_order_items FOR SELECT TO authenticated\n3498:CREATE POLICY sales_read ON public.sale",
+    "is_error": false,
+    "timestamp": 1790524463462
   }
 ]
