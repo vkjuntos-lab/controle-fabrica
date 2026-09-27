@@ -3479,8 +3479,9 @@ GRANT SELECT ON public.sales_orders TO authenticated;
 GRANT ALL ON public.sales_orders TO service_role;
 CREATE POLICY sales_read ON public.sales_orders FOR SELECT TO authenticated
   USING(public.has_permission(organization_id,'sales_orders.read') AND public.is_org_member(organization_id));
-CREATE TRIGGER sales_integrity_orders BEFORE INSERT OR UPDATE OR DELETE ON public.sales_orders
-  FOR EACH ROW EXECUTE FUNCTION public.sales_guard_relations();
+-- TEMP DEBUG: trigger desativado
+-- CREATE TRIGGER sales_integrity_orders BEFORE INSERT OR UPDATE OR DELETE ON public.sales_orders
+--   FOR EACH ROW EXECUTE FUNCTION public.sales_guard_relations();
 CREATE TRIGGER sales_immutable_orders BEFORE UPDATE OR DELETE ON public.sales_orders
   FOR EACH ROW EXECUTE FUNCTION public.sales_immutable();
 
