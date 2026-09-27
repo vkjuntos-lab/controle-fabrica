@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"ERROR:\" | head -3 && awk 'BEGIN{f=0} /CREATE TABLE public.shipments /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261006100000_sales_orders.sql | head -20"
-    },
-    "timestamp": 1790523384484
-  },
-  {
-    "role": "tool_result",
-    "content": "AssertionError: ERROR:  null value in column \"shipping_method\" of relation \"shipments\" violates not-null constraint\nCREATE TABLE public.shipments (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n organization_id uuid NOT NULL REFERENCES public.organizations,\n shipment_number text NOT NULL,\n sales_o",
-    "is_error": false,
-    "timestamp": 1790523387836
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '20,32p' <(awk 'BEGIN{f=0} /CREATE TABLE public.shipments /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261006100000_sales_orders.sql) && grep -n \"shipping_method\" supabase/migrations/20261006100000_sales_orders.sql | head"
     },
     "timestamp": 1790523390631
@@ -1400,5 +1386,19 @@
     "content": "31: lead=save('lead',{'name':'Contato','company_name':'Unified','email':'contact@test','status':'QUALIFIED'})['id']\n36: assert sql(f\"SELECT count(*) FROM company_contacts WHERE company_id={q(company)}\")=='1'\n37: contact=converted[0]['contact_id']\n38: print('PASS B: concurrent lead conversion idempot",
     "is_error": false,
     "timestamp": 1790524116668
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '519,530p' supabase/migrations/20261005100000_crm.sql && grep -n \"'contact'\" supabase/migrations/20261005100000_crm.sql | head"
+    },
+    "timestamp": 1790524119033
+  },
+  {
+    "role": "tool_result",
+    "content": " IF _kind IN ('segment','source','reason','tag','territory','payment_terms','pipeline','stage','discount_authority','commission_plan','commission_rule') THEN\n  PERFORM public.crm_require(_org,'crm.configure');\n  IF public.crm_external(_org) THEN RAISE EXCEPTION 'Configuração restrita à equipe intern",
+    "is_error": false,
+    "timestamp": 1790524119056
   }
 ]
