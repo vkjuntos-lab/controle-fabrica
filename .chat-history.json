@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/tmp/opencode/sales_part3.sql",
-      "newString": "-- Criação manual: mesma validacao comercial do fluxo vindo do CRM.",
-      "oldString": "-- Prepara cada item: a versao de proposta usa o preco CONGELADO no aceite.\nCREATE FUNCTION public.preparer_date(i jsonb) RETURNS date LANGUAGE sql IMMUTABLE AS $$\n SELECT nullif(i->>'expected_delivery_date','')::date;\n$$;\n\n-- Criação manual: mesma validacao comercial do fluxo vindo do CRM."
-    },
-    "timestamp": 1790520813943
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790520813956
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/tmp/opencode/sales_part3.sql",
       "newString": "  IF jsonb_array_length(items)<1 THEN RAISE EXCEPTION 'Proposta aceita não possui itens.'; END IF;\n  v_subtotal:=round(coalesce(q.subtotal,v_subtotal),2);",
       "oldString": "  IF jsonb_array_length(items)<1 THEN RAISE EXCEPTION 'Proposta aceita não possui itens.'; END IF;\n  IF (items->0->>'sku_snapshot')='' THEN\n   -- Propostas antigas sem snapshot legivel: identifica pelo catálogo atual.\n   UPDATE sales_order_items SET sku_snapshot=it.sku_snapshot, description_snapshot=it.description_snapshot\n    WHERE false;\n  END IF;\n  v_subtotal:=round(coalesce(q.subtotal,v_subtotal),2);"
     },
@@ -1522,5 +1506,19 @@
     "content": "supabase/migrations/20260918100000_inventory_ledger.sql:22:CREATE TYPE public.inventory_location_type AS ENUM (\nsupabase/migrations/20260918100000_inventory_ledger.sql-23-  'FACTORY', 'WAREHOUSE', 'OWN_STORE', 'MARKETPLACE', 'PARTNER', 'TRANSIT', 'OTHER'\nsupabase/migrations/20260918100000_inventory_",
     "is_error": false,
     "timestamp": 1790522025126
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -rn \"operational_purpose\" supabase/migrations/*.sql | head -5 && echo \"--- def ---\" && grep -rn \"operational_purpose\" -B2 -A4 supabase/migrations/20260924100000_partners.sql | head -20"
+    },
+    "timestamp": 1790522027450
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260924100000_partners.sql:44:ALTER TABLE public.inventory_locations ADD COLUMN operational_purpose text NOT NULL DEFAULT 'NORMAL' CHECK(operational_purpose IN ('NORMAL','QUARANTINE','INSPECTION'));\nsupabase/migrations/20260924100000_partners.sql:429:   IF it->>'condition'<>'SEL",
+    "is_error": false,
+    "timestamp": 1790522027477
   }
 ]
