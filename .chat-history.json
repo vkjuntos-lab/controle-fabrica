@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && for l in 3061 3074 3123; do echo \"=== linha $l ===\"; awk -v L=$l 'NR>=L-1 && NR<=L+6' supabase/migrations/20261006100000_sales_orders.sql; done"
-    },
-    "timestamp": 1790521744196
-  },
-  {
-    "role": "tool_result",
-    "content": "=== linha 3061 ===\n     AND (v_company IS NULL OR sales_order_id IN (SELECT id FROM public.sales_orders WHERE company_id=v_company));\n  SELECT coalesce(jsonb_agg(to_jsonb(x) ORDER BY x.created_at DESC),'[]'::jsonb) INTO v_rows\n   FROM (SELECT e.*,o.order_number FROM public.logistics_exceptions e\n   ",
-    "is_error": false,
-    "timestamp": 1790521744234
-  },
-  {
-    "role": "tool",
     "tool": "write",
     "input": {
       "content": "#!/usr/bin/env python3\n\"\"\"Probe: run the migration, then execute each sales_query branch separately.\"\"\"\nimport importlib.util,json,subprocess\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('inventory',Path(__file__).with_name('test-inventory-db.py'))\ndb=importlib.util.module_from_spec(spec);spec.loader.exec_module(db)\nq,sql,uid=db.q,db.sql,db.uid\ndef run():\n db.setup()\n for name in ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql','20261001100000_purchasing.sql','20261002100000_planning.sql','20261003100000_planning_engine.sql','20261004100000_planning_fixes.sql','20261005100000_crm.sql','20261006100000_sales_orders.sql']:\n  try:\n   sql((db.ROOT/'supabase/migrations'/name).read_text())\n  except AssertionError as e:\n   print('FALHOU',name); print(e.args[0][:1500]); return\n print('MIGRATION OK')\n a,org=uid(),uid()\n sql(f\"INSERT INTO auth.users(id,email) VALUES({q(a)},'a@test');INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'S','s',{q(a)});INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(a)},'admin')\")\n for kind in ['orders','exceptions','shipments','returns','reservations','fulfillment','carriers','credits','desconhecido']:\n  try:\n   v=db.call('sales_query',f\"{q(org)},{q(kind)},'{{}}'\",a)\n   print('OK  ',kind, (v or '')[:60])\n  except AssertionError as e:\n   print('ERRO',kind,'::',e.args[0][:400])\nif __name__=='__main__':run()\n",
@@ -1508,5 +1494,19 @@
     "content": "1792:      AND l.location_type<>'TRANSIT' ORDER BY l.name LOOP\n1869:      AND l.partner_id IS NULL AND l.location_type<>'TRANSIT'\n1879:       AND partner_id IS NULL AND location_type<>'TRANSIT') THEN\n2025:      AND operational_purpose='NORMAL' AND partner_id IS NULL AND location_type<>'TRANSIT'\n2030",
     "is_error": false,
     "timestamp": 1790522725965
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nn=s.count(\"location_type\")\ns=s.replace(\"l.location_type<>'TRANSIT'\",\"l.type<>'TRANSIT'\").replace(\"location_type<>'TRANSIT'\",\"type<>'TRANSIT'\")\np.write_text(s); print('replaced from',n,'remaining',s.count(\"location_type\"))\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -10"
+    },
+    "timestamp": 1790522727987
+  },
+  {
+    "role": "tool_result",
+    "content": "replaced from 7 remaining 0\nPASS E: edicao substitui itens e recalcula total; rascunho permanece editavel\nPASS F: aprovacao exige outro usuario, preserva a consulta de credito e gera demanda\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\"",
+    "is_error": false,
+    "timestamp": 1790522730763
   }
 ]

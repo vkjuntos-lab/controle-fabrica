@@ -1789,7 +1789,7 @@ BEGIN
   FOR loc IN SELECT l.id FROM public.inventory_locations l
     WHERE l.organization_id=_org AND l.status='ACTIVE' AND l.operational_purpose='NORMAL'
       AND l.partner_id IS NULL AND (_location IS NULL OR l.id=_location)
-      AND l.location_type<>'TRANSIT' ORDER BY l.name LOOP
+      AND l.type<>'TRANSIT' ORDER BY l.name LOOP
    v_here:=public.sales_available(_org,it.product_variant_id,loc.id,NULL);
    IF v_here>v_best_qty THEN v_best_qty:=v_here; v_best:=loc.id; END IF;
   END LOOP;
@@ -1866,7 +1866,7 @@ BEGIN
    -- Escolhe a localização autorizada com maior disponível do item.
    SELECT l.id INTO v_loc FROM public.inventory_locations l
     WHERE l.organization_id=_org AND l.status='ACTIVE' AND l.operational_purpose='NORMAL'
-      AND l.partner_id IS NULL AND l.location_type<>'TRANSIT'
+      AND l.partner_id IS NULL AND l.type<>'TRANSIT'
       AND public.sales_available(_org,it.product_variant_id,l.id,v_batch)>0
     ORDER BY public.sales_available(_org,it.product_variant_id,l.id,v_batch) DESC,l.name LIMIT 1;
   END IF;
@@ -1876,7 +1876,7 @@ BEGIN
   END IF;
   IF NOT EXISTS(SELECT 1 FROM public.inventory_locations
      WHERE id=v_loc AND organization_id=_org AND status='ACTIVE' AND operational_purpose='NORMAL'
-       AND partner_id IS NULL AND location_type<>'TRANSIT') THEN
+       AND partner_id IS NULL AND type<>'TRANSIT') THEN
    RAISE EXCEPTION 'Localização % não é autorizada para venda direta.',v_loc;
   END IF;
   IF v_batch IS NOT NULL AND NOT EXISTS(SELECT 1 FROM public.inventory_batches
@@ -2022,12 +2022,12 @@ BEGIN
  IF v_loc IS NULL THEN
   v_loc:=coalesce(nullif(_data->>'source_location_id','')::uuid,
    (SELECT id FROM public.inventory_locations WHERE organization_id=_org AND status='ACTIVE'
-      AND operational_purpose='NORMAL' AND partner_id IS NULL AND location_type<>'TRANSIT'
+      AND operational_purpose='NORMAL' AND partner_id IS NULL AND type<>'TRANSIT'
     ORDER BY name LIMIT 1));
  END IF;
  IF v_loc IS NULL THEN RAISE EXCEPTION 'Nenhuma localização autorizada para atendimento.'; END IF;
  IF NOT EXISTS(SELECT 1 FROM public.inventory_locations WHERE id=v_loc AND organization_id=_org
-    AND status='ACTIVE' AND operational_purpose='NORMAL' AND partner_id IS NULL AND location_type<>'TRANSIT') THEN
+    AND status='ACTIVE' AND operational_purpose='NORMAL' AND partner_id IS NULL AND type<>'TRANSIT') THEN
   RAISE EXCEPTION 'Localização % não pode atender venda direta (parceiro, trânsito ou quarentena).',v_loc;
  END IF;
  v_prio:=coalesce(nullif(_data->>'priority',''),'NORMAL');
@@ -2398,7 +2398,7 @@ BEGIN
   RAISE EXCEPTION 'Informe a localização de origem da expedição.';
  END IF;
  IF NOT EXISTS(SELECT 1 FROM public.inventory_locations WHERE id=v_loc AND organization_id=_org
-    AND status='ACTIVE' AND operational_purpose='NORMAL' AND partner_id IS NULL AND location_type<>'TRANSIT') THEN
+    AND status='ACTIVE' AND operational_purpose='NORMAL' AND partner_id IS NULL AND type<>'TRANSIT') THEN
   RAISE EXCEPTION 'A expedição direta não pode sair de local de parceiro, trânsito ou quarentena.';
  END IF;
  v_addr:=coalesce(nullif(_data->>'destination_address_id','')::uuid,o.shipping_address_id);
@@ -2886,7 +2886,7 @@ BEGIN
     WHERE organization_id=_org AND customer_return_id=_ret ORDER BY created_at LOOP
    v_dest_ok:=v_dest IS NOT NULL AND EXISTS(SELECT 1 FROM public.inventory_locations
     WHERE id=v_dest AND organization_id=_org AND status='ACTIVE' AND partner_id IS NULL
-      AND location_type<>'TRANSIT');
+      AND type<>'TRANSIT');
    IF NOT v_dest_ok THEN RAISE EXCEPTION 'Informe uma localização de recebimento válida.'; END IF;
    IF v_i.destination='PENDING' AND v_i.received_quantity<=0 THEN
     RAISE EXCEPTION 'Informe o destino de recebimento de cada item.';
