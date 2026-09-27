@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2107,2170p' supabase/migrations/20261006100000_sales_orders.sql && echo \"=== confirm guard ===\" && sed -n '2234,2250p' supabase/migrations/20261006100000_sales_orders.sql"
-    },
-    "timestamp": 1790523241918
-  },
-  {
-    "role": "tool_result",
-    "content": "DECLARE f public.fulfillment_orders; v_new text; v_reason text; v_task uuid; v_now timestamptz:=now();\n v_open integer; v_conf numeric; v_ship uuid;\nBEGIN\n PERFORM public.sales_require(_org,'fulfillment.manage');\n PERFORM public.inventory_lock(_org);\n SELECT * INTO f FROM public.fulfillment_orders W",
-    "is_error": false,
-    "timestamp": 1790523241940
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"^PASS|^Assertion\" | tail -6 && sed -n '124,150p' scripts/test-sales-db.py"
     },
     "timestamp": 1790523253930
@@ -1404,5 +1390,19 @@
     "content": " print('PASS P: danificado so pode ir para quarentena; saldo em quarentena nao e vendavel')\n\n # ------------------------------------------- titulo financeiro unico\n assert sql(f\"SELECT count(*) FROM account_receivables WHERE source_type='SALE' AND source_id={q(order['id'])}\")=='1'\n sql(\"UPDATE accou",
     "is_error": false,
     "timestamp": 1790524029281
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"FUNCTION public.sales_create_receivables\" -A34 supabase/migrations/20261006100000_sales_orders.sql | head -40"
+    },
+    "timestamp": 1790524035105
+  },
+  {
+    "role": "tool_result",
+    "content": "1671:CREATE FUNCTION public.sales_create_receivables(_org uuid,_order uuid,_trigger text) RETURNS integer\n1672-LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n1673-DECLARE o public.sales_orders; v_base numeric; v_existing numeric; v_company uuid; v_terms text;\n1674- v_credit jsonb; v_",
+    "is_error": false,
+    "timestamp": 1790524035145
   }
 ]
