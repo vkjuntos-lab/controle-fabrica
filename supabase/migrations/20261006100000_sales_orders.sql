@@ -2353,8 +2353,10 @@ BEGIN
     nullif(trim(coalesce(v_vol->>'notes','')),''));
   v_volumes:=v_volumes+1;
  END LOOP;
- UPDATE public.fulfillment_orders SET status='READY_FOR_SHIPMENT',updated_at=v_now
-  WHERE id=_fulfillment AND status IN ('PICKED','PACKING');
+ -- Registrar o embalagem NAO libera a expedicao: a liberacao e um passo
+ -- explicito do operador (sales_fulfillment_action 'ready').
+ UPDATE public.fulfillment_orders SET updated_at=v_now
+  WHERE id=_fulfillment AND status='PACKING';
  PERFORM public.sales_audit(_org,'packing.recorded','packing_records',ident,
    jsonb_build_object('fulfillment_order_id',_fulfillment,'items',v_count,'volumes',v_volumes,
      'weight_informed',v_informed,'differences',v_mismatch));
