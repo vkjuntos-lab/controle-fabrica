@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabrica\n\n ✓ src/lib/rbac.test.ts (15 tests) 22ms\nstderr | src/lib/crm/crm.test.ts\n⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more inform",
-    "is_error": false,
-    "timestamp": 1790413628222
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && ls docs/ docs/business/ docs/architecture/ docs/handoff/ 2>/dev/null | head -60"
-    },
-    "timestamp": 1790413631358
-  },
-  {
-    "role": "tool_result",
     "content": "docs/:\narchitecture\nbusiness\nhandoff\n\ndocs/architecture/:\nADR-001-initial-architecture.md\nADR-006-PARTNER-SHIPMENTS.md\nADR-007-PARTNER-RECONCILIATION.md\nADR-008-PLANNING-ENGINE.md\nADR-009-COSTING.md\n\ndocs/business/:\nCORE-BUSINESS.md\nCOSTING.md\nDEMAND-FORECAST.md\nGOODS-RECEIPT.md\nINVENTORY.md\nMRP.md\n",
     "is_error": false,
     "timestamp": 1790413631378
@@ -1595,5 +1581,19 @@
     "content": " variant_id uuid NOT NULL REFERENCES public.product_variants,\n sku_snapshot text NOT NULL, description_snapshot text NOT NULL,\n -- Quantidade efetivamente expedida (nao a confirmada, nao a entregue).\n quantity numeric(14,3) NOT NULL CHECK(quantity>0),\n delivered_quantity numeric(14,3) NOT NULL DEFAU",
     "is_error": false,
     "timestamp": 1790521112984
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '161,192p' supabase/migrations/20260923100000_inventory_workflows.sql"
+    },
+    "timestamp": 1790521121057
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE OR REPLACE FUNCTION public.inventory_post_movement(\n  _organization_id uuid,\n  _variant_id uuid,\n  _location_id uuid,\n  _movement_type public.inventory_movement_type,\n  _quantity numeric,\n  _reason text DEFAULT NULL,\n  _occurred_at timestamptz DEFAULT now(),\n  _unit text DEFAULT 'un',\n  _refe",
+    "is_error": false,
+    "timestamp": 1790521121093
   }
 ]
