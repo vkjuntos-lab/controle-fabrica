@@ -1136,7 +1136,7 @@ BEGIN
      sku_snapshot,description_snapshot,unit_snapshot,price_snapshot,ordered_quantity,
      unit_price,discount_amount,tax_amount,line_total,expected_delivery_date,created_by)
   VALUES(_org,ident,(i->>'product_variant_id')::uuid,i->>'sku_snapshot',i->>'description_snapshot',
-   i->>'unit_snapshot',coalesce(i->>'price_snapshot','{}'::jsonb),(i->>'ordered_quantity')::numeric,
+   i->>'unit_snapshot',coalesce(i->'price_snapshot','{}'::jsonb),(i->>'ordered_quantity')::numeric,
    (i->>'unit_price')::numeric,(i->>'discount_amount')::numeric,(i->>'tax_amount')::numeric,
    (i->>'line_total')::numeric,nullif(i->>'expected_delivery_date','')::date,auth.uid());
  END LOOP;
@@ -1223,7 +1223,7 @@ BEGIN
       sku_snapshot,description_snapshot,unit_snapshot,price_snapshot,ordered_quantity,
       unit_price,discount_amount,tax_amount,line_total,expected_delivery_date,created_by)
     VALUES(_org,v_id,(i->>'product_variant_id')::uuid,i->>'sku_snapshot',i->>'description_snapshot',
-     i->>'unit_snapshot',coalesce(i->>'price_snapshot','{}'::jsonb),(i->>'ordered_quantity')::numeric,
+     i->>'unit_snapshot',coalesce(i->'price_snapshot','{}'::jsonb),(i->>'ordered_quantity')::numeric,
      (i->>'unit_price')::numeric,(i->>'discount_amount')::numeric,(i->>'tax_amount')::numeric,
      (i->>'line_total')::numeric,nullif(i->>'expected_delivery_date','')::date,auth.uid());
    END LOOP;
