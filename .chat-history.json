@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"violates|not-null|invalid\" | head -5"
-    },
-    "timestamp": 1790522539110
-  },
-  {
-    "role": "tool_result",
-    "content": "AssertionError: ERROR:  null value in column \"order_date\" of relation \"sales_orders\" violates not-null constraint\n",
-    "is_error": false,
-    "timestamp": 1790522541595
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"order_date\" supabase/migrations/20261006100000_sales_orders.sql | head -20"
     },
     "timestamp": 1790522543435
@@ -1426,5 +1412,19 @@
     "content": "     (SELECT r.id FROM public.inventory_reservations r\n       WHERE r.organization_id=_org AND r.sales_order_item_id=pti.sales_order_item_id\n         AND r.inventory_location_id=v_loc AND r.status IN ('ACTIVE','PARTIALLY_CONSUMED')\n       ORDER BY r.reserved_at DESC LIMIT 1)\n  FROM public.picking_ta",
     "is_error": false,
     "timestamp": 1790523405278
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"ERROR:\" | head -2"
+    },
+    "timestamp": 1790523407462
+  },
+  {
+    "role": "tool_result",
+    "content": "AssertionError: ERROR:  null value in column \"description_snapshot\" of relation \"shipment_items\" violates not-null constraint\n",
+    "is_error": false,
+    "timestamp": 1790523410710
   }
 ]
