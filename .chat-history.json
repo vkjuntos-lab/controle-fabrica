@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"price_tables\\|pricing_resolve_table\" supabase/migrations/*.sql | grep -i \"create table\\|create or replace function\" | head && echo \"=== price table cols ===\" && python3 - <<'PY'\nimport re,pathlib\nfor f in ['20260917110000_catalog_mestre.sql','20261005100000_crm.sql']:\n    s=re.sub(r'--[^\\n]*','',pathlib.Path('supabase/migrations/'+f).read_text())\n    for t in ['price_tables','price_table_items','commercial_payment_terms']:\n        m=re.search(r'CREATE TABLE (?:IF NOT EXISTS )?public\\.'+t+r'\\s*\\(',s)\n        if not m: continue\n        i=m.end();d=1\n        while d>0:\n            if s[i]=='(':d+=1\n            elif s[i]==')':d-=1\n            i+=1\n        body=s[m.end():i-1]\n        cols=[l.strip().split()[0] for l in body.split('\\n') if l.strip() and not l.strip().upper().startswith(('UNIQUE','CHECK','FOREIGN'))]\n        print('###',t,'em',f); print('   ',', '.join(cols))\nPY"
-    },
-    "timestamp": 1790521923315
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20260926100000_partner_reconciliation.sql:115:CREATE TABLE public.price_tables (\n=== price table cols ===\n### commercial_payment_terms em 20261005100000_crm.sql\n    id, name, created_at, created_by\n",
-    "is_error": false,
-    "timestamp": 1790521923370
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport re,pathlib\ns=re.sub(r'--[^\\n]*','',pathlib.Path('supabase/migrations/20260926100000_partner_reconciliation.sql').read_text())\nfor t in ['price_tables','price_table_items','price_list_entries']:\n    m=re.search(r'CREATE TABLE (?:IF NOT EXISTS )?public\\.'+t+r'\\s*\\(',s)\n    if not m: print('###',t,'NAO EXISTE'); continue\n    i=m.end();d=1\n    while d>0:\n        if s[i]=='(':d+=1\n        elif s[i]==')':d-=1\n        i+=1\n    body=s[m.end():i-1]\n    print('###',t)\n    print(body[:1400])\nprint('=== pricing_resolve_table ===')\nm=re.search(r'CREATE OR REPLACE FUNCTION public\\.pricing_resolve_table[\\s\\S]*?\\$\\$;',s)\nprint(m.group(0)[:1800] if m else 'nao encontrado no arquivo')\nPY\ngrep -rn \"CREATE OR REPLACE FUNCTION public.pricing_resolve_table\\|CREATE FUNCTION public.pricing_resolve_table\" supabase/migrations/*.sql"
     },
     "timestamp": 1790521927322
@@ -1431,5 +1417,19 @@
     "content": "ok\ncleaned\n127-   {'sales_order_item_id':sql(f\"SELECT id FROM sales_order_items WHERE sales_order_id={q(order['id'])}\"),'quantity':20}]},user=picker)\n128- assert fulfillment['status']=='READY_FOR_PICKING', fulfillment\n129: action(order2['id'],'cancel',{'reason':'Rascunho'},user=approver)\n130- assert",
     "is_error": false,
     "timestamp": 1790523190371
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\nold=\"\"\" action(order2['id'],'cancel',{'reason':'Rascunho'},user=approver)\n assert sql(f\"SELECT status FROM sales_orders WHERE id={q(order2['id'])}\")=='CANCELED'\"\"\"\nnew=\"\"\" action(below['id'],'cancel',{},user=approver,fail='Motivo')\n action(below['id'],'cancel',{'reason':'Preco invalido'},user=approver)\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790523196593
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 28, in call\n    def call(name, args, user, fail=None): return sql(f\"SEL",
+    "is_error": false,
+    "timestamp": 1790523199562
   }
 ]
