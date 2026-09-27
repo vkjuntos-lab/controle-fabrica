@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
-      "newString": " -- Identificacao e descricao como estavam na negociacao. O catalogo muda;\n -- o pedido ja registrado nao precisa mudar.",
-      "oldString": " -- Identificacao e descricao como estavam na negociacao. O catalogo muda;\n -- o pedido ja怪异 no precisa mudar."
-    },
-    "timestamp": 1790520391069
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790520391082
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
       "newString": "BEGIN;\n\n-- =====================================================================\n-- 1a. Chaves de tenant para referencias cross-modulo.\n-- Estas tabelas nao declaravam UNIQUE(organization_id,id) e por isso nao\n-- aceitavam FK composta. Nenhuma coluna e dado existente e alterado: apenas\n-- a chave e declarada, o que ja e verdade para toda linha valida.\n-- =====================================================================\nALTER TABLE public.inventory_locations\n  ADD CONSTRAINT inventory_locations_organization_id_id_key UNIQUE(organization_id,id);\nALTER TABLE public.inventory_batches\n  ADD CONSTRAINT inventory_batches_organization_id_id_key UNIQUE(organization_id,id);\nALTER TABLE public.company_addresses\n  ADD CONSTRAINT company_addresses_organization_id_id_key UNIQUE(organization_id,id);\n\n-- =====================================================================\n-- 1. Permissoes do modulo.\n-- =====================================================================",
       "oldString": "BEGIN;\n\n-- =====================================================================\n-- 1. Permissoes do modulo.\n-- ====================================================================="
     },
@@ -1534,5 +1518,19 @@
     "content": "### price_tables\n\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations,\n  code text NOT NULL CHECK(length(trim(code))>0),\n  name text NOT NULL CHECK(length(trim(name))>0),\n  status text NOT NULL DEFAULT 'ACTIVE' CHECK(status IN ('ACTIVE','I",
     "is_error": false,
     "timestamp": 1790521927374
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '288,300p' supabase/migrations/20261005100000_crm.sql && echo \"=== sales_quotes cols ===\" && python3 - <<'PY'\nimport re,pathlib\ns=re.sub(r'--[^\\n]*','',pathlib.Path('supabase/migrations/20261005100000_crm.sql').read_text())\nfor t in ['sales_quotes','sales_quote_items','customer_profiles','customer_credit_policies','opportunity_items']:\n    m=re.search(r'CREATE TABLE (?:IF NOT EXISTS )?public\\.'+t+r'\\s*\\(',s)\n    if not m: print('###',t,'NAO EXISTE'); continue\n    i=m.end();d=1\n    while d>0:\n        if s[i]=='(':d+=1\n        elif s[i]==')':d-=1\n        i+=1\n    body=s[m.end():i-1]\n    cols=[l.strip().split()[0] for l in body.split('\\n') if l.strip() and not l.strip().upper().startswith(('UNIQUE','CHECK','FOREIGN'))]\n    print('###',t); print('   ',', '.join(cols))\nPY"
+    },
+    "timestamp": 1790521931540
+  },
+  {
+    "role": "tool_result",
+    "content": "  IF TG_TABLE_NAME='sales_quote_items' THEN RAISE EXCEPTION 'Item versionado imutável.'; END IF;\n  IF TG_TABLE_NAME='customer_portfolio_assignments' AND (to_jsonb(NEW)-'ended_at'-'updated_at')<>(to_jsonb(OLD)-'ended_at'-'updated_at') THEN RAISE EXCEPTION 'Carteira histórica imutável.'; END IF;\n END ",
+    "is_error": false,
+    "timestamp": 1790521931592
   }
 ]
