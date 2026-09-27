@@ -1204,10 +1204,10 @@ BEGIN
  IF q.status<>'ACCEPTED' THEN RAISE EXCEPTION 'Somente proposta aceita pode virar pedido.'; END IF;
 
  -- Conversao repetida devolve o MESMO pedido. Nunca um segundo.
- SELECT id,order_number,status INTO v_out FROM public.sales_orders
+ SELECT id,order_number,status INTO v_order_id,v_number,v_status FROM public.sales_orders
   WHERE organization_id=_org AND sales_quote_id=_quote;
- IF v_out.id IS NOT NULL THEN
-  result:=jsonb_build_object('id',v_out.id,'order_number',v_out.order_number,'status',v_out.status,'deduped',true);
+ IF v_order_id IS NOT NULL THEN
+  result:=jsonb_build_object('id',v_order_id,'order_number',v_number,'status',v_status,'deduped',true);
  ELSE
   SELECT p.id,p.commercial_status,p.price_table_id,p.payment_terms_id
    INTO v_profile,v_status,v_profile_table,v_terms_id
