@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && for t in sales_quotes sales_quote_items customer_profiles customer_credit_policies; do echo \"=== $t ===\"; awk -v t=\"$t\" 'BEGIN{f=0} $0 ~ \"CREATE TABLE (IF NOT EXISTS )?public\\\\.\"t\" ?\\\\(\" {f=1} f{print} f && /^\\);/{exit}' supabase/migrations/20261005100000_crm.sql | grep -oE \"^ *[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; done"
-    },
-    "timestamp": 1790521935584
-  },
-  {
-    "role": "tool_result",
-    "content": "=== sales_quotes ===\nid company_id primary_contact_id issue_date payment_terms_snapshot status subtotal discount_amount tax_amount notes accepted_by created_at created_by \n=== sales_quote_items ===\nid quote_id created_at created_by \n=== customer_profiles ===\nid company_id created_at created_by \n=== ",
-    "is_error": false,
-    "timestamp": 1790521935645
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk 'BEGIN{f=0} /CREATE TABLE public.sales_quotes /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261005100000_crm.sql && echo \"@@@@\" && awk 'BEGIN{f=0} /CREATE TABLE public.sales_quote_items /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261005100000_crm.sql"
     },
     "timestamp": 1790521938681
@@ -1431,5 +1417,19 @@
     "content": "    format('Código %s não corresponde a nenhuma variante.',v_code),jsonb_build_object('picking_task_id',_task,'code',v_code));\n  RAISE EXCEPTION 'Código %s não corresponde a nenhuma variante.',v_code;\n END IF;\n SELECT * INTO v_item FROM public.picking_task_items\n  WHERE organization_id=_org AND pick",
     "is_error": false,
     "timestamp": 1790523204759
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"%ss\\|%s s\" supabase/migrations/20261006100000_sales_orders.sql | head && grep -n \"v_row.sku\" supabase/migrations/20261006100000_sales_orders.sql | head"
+    },
+    "timestamp": 1790523209833
+  },
+  {
+    "role": "tool_result",
+    "content": "2088:     format('Item %s sem reserva integral para a separação (%s de %s).',v_item->>'sku',\n2208:    format('Excesso de separação em %s: %s separado para %s solicitado.',v_item.sku_snapshot,\n2202:    format('A variante %s não está neste atendimento.',v_row.sku),\n2204:  RAISE EXCEPTION 'A variante %",
+    "is_error": false,
+    "timestamp": 1790523209852
   }
 ]
