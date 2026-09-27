@@ -129,7 +129,7 @@ def run():
  action(below['id'],'cancel',{},user=approver,fail='Motivo')
  action(below['id'],'cancel',{'reason':'Preco invalido'},user=approver)
  rpc('sales_fulfillment_action',org,fulfillment['id'],'start',{},user=picker)
- rpc('sales_pick_scan',org,fulfillment['picking_task_id'],{'code':variants['SAP-002']['barcode'],'quantity':1},user=picker,fail='nao esta neste')
+ rpc('sales_pick_scan',org,fulfillment['picking_task_id'],{'code':variants['SAP-002']['barcode'],'quantity':1},user=picker,fail='não está neste')
  scanned=rpc('sales_pick_scan',org,fulfillment['picking_task_id'],{'code':variants['SAP-001']['barcode'],'quantity':12},user=picker)
  assert scanned['remaining']==8
  rpc('sales_pick_scan',org,fulfillment['picking_task_id'],{'code':'SAP-001','quantity':8},user=picker)
