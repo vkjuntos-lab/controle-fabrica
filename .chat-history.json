@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\"assert sql(f\"SELECT unit_price FROM sales_order_items WHERE sales_order_id={q(order['id'])} AND sku_snapshot='SAP-001'\")=='25.00'\"\"\",\n\"\"\"assert float(sql(f\"SELECT unit_price FROM sales_order_items WHERE sales_order_id={q(order['id'])} AND sku_snapshot='SAP-001'\"))==25.0\"\"\")\ns=s.replace(\"\"\"assert sql(f\"SELECT unit_price FROM sales_order_items WHERE sales_order_id={q(below['id'])}\")=='25.00'\"\"\",\n\"\"\"assert float(sql(f\"SELECT unit_price FROM sales_order_items WHERE sales_order_id={q(below['id'])}\"))==25.0\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
-    },
-    "timestamp": 1790522589414
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 298, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 66, in run\n    sql(f\"DELETE FROM sales_order_items WHERE sales_order_id={q(below['id'])}\",",
-    "is_error": false,
-    "timestamp": 1790522591881
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\" sql(f\"DELETE FROM sales_order_items WHERE sales_order_id={q(below['id'])}\",fail=None)\n sql(f\"DELETE FROM sales_orders WHERE id={q(below['id'])}\",fail=None)\n\"\"\",\"\"\" sql(f\"DELETE FROM sales_orders WHERE id={q(below['id'])}\",a,fail='imut')\n\"\"\")\ns=s.replace(\"\"\"assert len(activity['orders'])==5 and activity['totals']['orders']==5\"\"\",\"\"\"assert len(activity['orders'])==7 and activity['totals']['orders']==7\"\"\")\ns=s.replace(\"\"\"assert sql(f\"SELECT count(*) FROM sales_orders WHERE organization_id={q(org)}\",fin)=='5'\"\"\",\"\"\"assert sql(f\"SELECT count(*) FROM sales_orders WHERE organization_id={q(org)}\",fin)=='7'\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
     },
     "timestamp": 1790522597483
@@ -1420,5 +1406,19 @@
     "content": "   jsonb_build_object('sales_order_id',o.id,'status',v_ord_status,'fulfillment_status',v_ord_ful));\n PERFORM public.sales_audit(_org,'shipment.dispatched','shipments',_shipment,\n   jsonb_build_object('sales_order_id',o.id,'dispatch_key',v_key,'movements',v_out,\n     'tracking_code',v_tracking,'carri",
     "is_error": false,
     "timestamp": 1790523488387
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"deduped',true\" -B12 supabase/migrations/20261006100000_sales_orders.sql | head -22"
+    },
+    "timestamp": 1790523491978
+  },
+  {
+    "role": "tool_result",
+    "content": "1296-  END IF;\n1297-  RETURN prior.result;\n1298- END IF;\n1299-\n1300- SELECT * INTO q FROM public.sales_quotes WHERE id=_quote AND organization_id=_org FOR UPDATE;\n1301- IF NOT FOUND THEN RAISE EXCEPTION 'Proposta não encontrada.'; END IF;\n1302- IF q.status<>'ACCEPTED' THEN RAISE EXCEPTION 'Somente p",
+    "is_error": false,
+    "timestamp": 1790523492014
   }
 ]
