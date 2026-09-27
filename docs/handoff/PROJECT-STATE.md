@@ -3,19 +3,19 @@
 ## Revisão de continuidade — 27/09/2026 (MASTER 012)
 
 CRM corrigido localmente sobre Company, contatos, preços, ledger, financeiro, planejamento e
-eventos existentes. Estado integral: PARTIAL. Ainda há pendências de Customer 360, mesclagem,
+eventos existentes. Estado integral: PARTIAL. Ainda há pendências de mesclagem,
 governança de dados e validação publicada; não declarar conclusão integral.
 
 Correções: rotas de detalhe independentes; seleção/criação de Company na conversão; núcleo
 empresarial compartilhado; contatos no 360; patches preservando responsáveis; carteira externa
 protegida inclusive contra APIs amplas; crédito vencido/limite e cliente bloqueado; documentos
-privados; timeline autorizada; projeções MRP; filtros; dashboard agregado; retries com chave estável.
+privados; Customer 360 paginado com reconciliações autorizadas e links de origem; projeções MRP; filtros; dashboard agregado; retries com chave estável.
 
 Migrations novas: 20261006100000_crm_integrity.sql, 20261007100000_crm_documents.sql e
-20261008100000_crm_company_services.sql. Original preservada. Total de 29 tabelas CRM.
+20261008100000_crm_company_services.sql e 20261009100000_crm_customer_history.sql. Original preservada. Total de 29 tabelas CRM.
 Aplicação no banco publicado e entrega real no Storage não verificadas.
 
-Validação local: 14 grupos PostgreSQL; 63 testes unitários; TypeScript/build; lint CRM sem erros
+Validação local: 15 grupos PostgreSQL; 63 testes unitários; TypeScript/build; lint CRM sem erros
 (14 avisos Fast Refresh). Documentos revisados para remover afirmações incorretas sobre expiração
 automática, margem persistida, fusão e comissões apuradas.
 [Relatório e critérios IMPLEMENTED/PARTIAL/NOT_IMPLEMENTED](MASTER-012-VALIDATION.md).

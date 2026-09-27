@@ -8,7 +8,7 @@ db=importlib.util.module_from_spec(spec);spec.loader.exec_module(db)
 q,sql,uid=db.q,db.sql,db.uid
 def run():
  db.setup()
- for name in ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql','20261001100000_purchasing.sql','20261002100000_planning.sql','20261003100000_planning_engine.sql','20261004100000_planning_fixes.sql','20261005100000_crm.sql','20261006100000_crm_integrity.sql','20261007100000_crm_documents.sql','20261008100000_crm_company_services.sql']:
+ for name in ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql','20261001100000_purchasing.sql','20261002100000_planning.sql','20261003100000_planning_engine.sql','20261004100000_planning_fixes.sql','20261005100000_crm.sql','20261006100000_crm_integrity.sql','20261007100000_crm_documents.sql','20261008100000_crm_company_services.sql','20261009100000_crm_customer_history.sql']:
   sql((db.ROOT/'supabase/migrations'/name).read_text())
 
  a,b,c,org,other,ext=[uid() for _ in range(6)]
@@ -180,6 +180,19 @@ def run():
  availability=query('availability',{'id':variants[0]})
  assert len(availability['rows'])>0 and availability['promise_of_delivery']==False
  print('PASS: commercial Company/contact service; filters; full dashboard; planning snapshots')
+
+ # Multi-role history integrates reconciliation without leaking it to basic commercial users.
+ call('partner_save_company',org,{'code':'UNIFIED','legal_name':'Unified company','roles':['PARTNER']},company)
+ partner=sql(f"SELECT id FROM partner_profiles WHERE company_id={q(company)}")
+ reconciliation=uid()
+ sql(f"INSERT INTO partner_reconciliations(id,organization_id,partner_id,period_start,period_end) VALUES({q(reconciliation)},{q(org)},{q(partner)},current_date,current_date)")
+ timeline=query('timeline',{'company_id':company})['rows']
+ assert any(r['kind']=='RECONCILIATION' and r['id']==reconciliation for r in timeline)
+ assert not any(r['kind']=='RECONCILIATION' for r in query('timeline',{'company_id':company},user=b)['rows'])
+ first=rpc('crm_query',org,'opportunities',{'company_id':company},1)['rows']
+ secondpage=rpc('crm_query',org,'opportunities',{'company_id':company},2)['rows']
+ assert len(first)==50 and secondpage and not(set(r['id'] for r in first)&set(r['id'] for r in secondpage))
+ print('PASS: Customer 360 reconciliation permission and distinct pages beyond 50 facts')
 
 if __name__=='__main__':
  try:run()

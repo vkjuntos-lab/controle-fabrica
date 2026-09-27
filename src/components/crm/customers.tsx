@@ -27,7 +27,7 @@ import { useOrganization } from "@/lib/org/org-context";
 import { areas, type Area } from "./config";
 import { asRecord, useCrmDetail, useCrmQuery } from "./data";
 import { CrmListPage, RecordDialog } from "./list";
-import { Picker, ResultState, Shell, StatusBadge, money, selectClass, str } from "./shared";
+import { Pager, Picker, ResultState, Shell, StatusBadge, money, selectClass, str } from "./shared";
 
 const area = areas.clientes;
 
@@ -61,7 +61,7 @@ export function CustomersPage() {
 export function Customer360Page({ id }: { id: string }) {
   return (
     <Shell title="Comercial · Cliente" permission="customers.read">
-      {(org) => <Customer360 org={org} companyId={id} />}
+      {(org) => <Customer360 key={id} org={org} companyId={id} />}
     </Shell>
   );
 }
@@ -72,15 +72,27 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
   const [classifying, setClassifying] = useState<"tag" | "territory" | null>(null);
   const [editingContact, setEditingContact] = useState<CrmRow | null | undefined>();
   const [historyPage, setHistoryPage] = useState(1);
+  const [pages, setPages] = useState({
+    contacts: 1,
+    opportunities: 1,
+    quotes: 1,
+    activities: 1,
+    portfolios: 1,
+  });
   const client = useQueryClient();
   const company = useCrmQuery(org, "companies", { id: companyId });
   const profile = useCrmQuery(org, "customers", { company_id: companyId });
-  const contacts = useCrmQuery(org, "contacts", { company_id: companyId });
-  const opportunities = useCrmQuery(org, "opportunities", { company_id: companyId });
-  const quotes = useCrmQuery(org, "quotes", { company_id: companyId });
-  const activities = useCrmQuery(org, "activities", { company_id: companyId });
+  const contacts = useCrmQuery(org, "contacts", { company_id: companyId }, pages.contacts);
+  const opportunities = useCrmQuery(
+    org,
+    "opportunities",
+    { company_id: companyId },
+    pages.opportunities,
+  );
+  const quotes = useCrmQuery(org, "quotes", { company_id: companyId }, pages.quotes);
+  const activities = useCrmQuery(org, "activities", { company_id: companyId }, pages.activities);
   const history = useCrmQuery(org, "timeline", { company_id: companyId }, historyPage);
-  const portfolios = useCrmQuery(org, "portfolios", { company_id: companyId });
+  const portfolios = useCrmQuery(org, "portfolios", { company_id: companyId }, pages.portfolios);
   // A posição financeira só é consultada com a permissão: pedi-la sem permissão
   // só produziria um erro do servidor para algo que o usuário não pode ver.
   const finance = useCrmDetail(
@@ -178,10 +190,16 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
                         </span>
                       </li>
                     ))}
+
                     {!(portfolios.data?.rows ?? []).length ? (
                       <li className="text-muted-foreground">Sem atribuição de carteira.</li>
                     ) : null}
                   </ul>
+                  <Pager
+                    page={pages.portfolios}
+                    total={portfolios.data?.total || 0}
+                    setPage={(page) => setPages({ ...pages, portfolios: page })}
+                  />
                   <p className="mt-3 text-xs text-muted-foreground">
                     Transferir carteira não reescreve o responsável de negociações antigas.
                   </p>
@@ -197,6 +215,9 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
           )}
           <RowList
             rows={contacts.data?.rows as CrmRow[] | undefined}
+            page={pages.contacts}
+            total={contacts.data?.total || 0}
+            onPage={(page) => setPages({ ...pages, contacts: page })}
             loading={contacts.isLoading}
             error={contacts.error}
             empty="Nenhum contato cadastrado nesta empresa."
@@ -225,12 +246,17 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
         <TabsContent value="opportunities">
           <RowList
             rows={opportunities.data?.rows as CrmRow[] | undefined}
+            page={pages.opportunities}
+            total={opportunities.data?.total || 0}
+            onPage={(page) => setPages({ ...pages, opportunities: page })}
             loading={opportunities.isLoading}
             error={opportunities.error}
             empty="Nenhuma oportunidade registrada."
             render={(row) => (
               <>
-                <strong>{str(row.title)}</strong>
+                <a className="font-semibold underline" href={`/comercial/oportunidades/${row.id}`}>
+                  {str(row.title)}
+                </a>
                 <span className="text-sm text-muted-foreground">
                   {str(row.estimated_value)} · probabilidade {str(row.probability)}% · fecha{" "}
                   {str(row.expected_close_date)}
@@ -243,14 +269,17 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
         <TabsContent value="quotes">
           <RowList
             rows={quotes.data?.rows as CrmRow[] | undefined}
+            page={pages.quotes}
+            total={quotes.data?.total || 0}
+            onPage={(page) => setPages({ ...pages, quotes: page })}
             loading={quotes.isLoading}
             error={quotes.error}
             empty="Nenhuma proposta emitida."
             render={(row) => (
               <>
-                <strong>
+                <a className="font-semibold underline" href={`/comercial/propostas/${row.id}`}>
                   Proposta {str(row.quote_number)} · v{str(row.version)}
-                </strong>
+                </a>
                 <span className="text-sm text-muted-foreground">
                   {money(row.total)} · válida até {str(row.valid_until)}
                 </span>
@@ -263,6 +292,9 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
         <TabsContent value="activities">
           <RowList
             rows={activities.data?.rows as CrmRow[] | undefined}
+            page={pages.activities}
+            total={activities.data?.total || 0}
+            onPage={(page) => setPages({ ...pages, activities: page })}
             loading={activities.isLoading}
             error={activities.error}
             empty="Nenhuma atividade registrada."
@@ -381,8 +413,14 @@ function RowList({
   error,
   empty,
   render,
+  page = 1,
+  total = 0,
+  onPage,
 }: {
   rows?: CrmRow[];
+  page?: number;
+  total?: number;
+  onPage?: (page: number) => void;
   loading: boolean;
   error: Error | null;
   empty: string;
@@ -397,6 +435,7 @@ function RowList({
           </div>
         ))}
       </div>
+      {onPage && <Pager page={page} total={total} setPage={onPage} />}
     </ResultState>
   );
 }
