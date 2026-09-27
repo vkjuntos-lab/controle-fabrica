@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"fail='nao esta neste'\",\"fail='não está neste'\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
-    },
-    "timestamp": 1790523226134
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  column \"v_now\" does not exist\nLINE 1: ...atus='IN_PROGRESS',started_at=coalesce(started_at,v_now),upd...\n                                                             ^\nQUERY:  UPDATE public.picking_tasks SET",
-    "is_error": false,
-    "timestamp": 1790523229125
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"v_now\" supabase/migrations/20261006100000_sales_orders.sql | sed -n '1,40p'"
     },
     "timestamp": 1790523231279
@@ -1404,5 +1390,19 @@
     "content": "819:CREATE FUNCTION public.sales_available(_org uuid,_variant uuid,_location uuid DEFAULT NULL,_batch uuid DEFAULT NULL) RETURNS numeric\n820-LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n821- SELECT public.sales_on_hand(_org,_variant,_location,_batch) - public.sales_reserved(_org",
     "is_error": false,
     "timestamp": 1790524013010
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"FUNCTION public.sales_on_hand\" -A18 supabase/migrations/20261006100000_sales_orders.sql | head -22"
+    },
+    "timestamp": 1790524014729
+  },
+  {
+    "role": "tool_result",
+    "content": "792:CREATE FUNCTION public.sales_on_hand(_org uuid,_variant uuid,_location uuid DEFAULT NULL,_batch uuid DEFAULT NULL) RETURNS numeric\n793-LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n794- SELECT coalesce(sum(CASE WHEN m.direction='IN' THEN m.quantity ELSE -m.quantity END),0)\n79",
+    "is_error": false,
+    "timestamp": 1790524014743
   }
 ]
