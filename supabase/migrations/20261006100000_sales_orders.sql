@@ -1933,7 +1933,7 @@ BEGIN
  SELECT coalesce(sum(greatest(0,CASE WHEN i.approved_quantity>0 THEN i.approved_quantity ELSE i.ordered_quantity END)
    -coalesce((SELECT sum(r.quantity-r.fulfilled_quantity-r.released_quantity)
       FROM public.inventory_reservations r WHERE r.sales_order_item_id=i.id
-        AND r.status IN ('ACTIVE','PARTIALLY_CONSUMED')),0))),0) INTO v_pend
+        AND r.status IN ('ACTIVE','PARTIALLY_CONSUMED')),0)),0) INTO v_pend
  FROM public.sales_order_items i WHERE i.organization_id=_org AND i.sales_order_id=_order AND i.status<>'CANCELED';
  SELECT coalesce(sum(r.quantity-r.fulfilled_quantity-r.released_quantity),0)
   INTO v_reserved FROM public.inventory_reservations r
