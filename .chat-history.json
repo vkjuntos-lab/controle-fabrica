@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"v_now\" supabase/migrations/20261006100000_sales_orders.sql | sed -n '1,40p'"
-    },
-    "timestamp": 1790523231279
-  },
-  {
-    "role": "tool_result",
-    "content": "1179: v_profile uuid; v_status text; v_table_old uuid; v_bill jsonb; v_now timestamptz:=now();\n1256:   total_amount=round(v_subtotal-v_discount+v_tax+v_freight,2),updated_at=v_now WHERE id=v_id;\n1484:DECLARE o public.sales_orders; v_new text; v_check jsonb; v_now timestamptz:=now();\n1561:  UPDATE pu",
-    "is_error": false,
-    "timestamp": 1790523231291
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"DECLARE t public.picking_tasks; v_code text; v_row record; v_item public.picking_task_items;\n v_qty numeric; v_here numeric;\"\"\"\nnew=\"\"\"DECLARE t public.picking_tasks; v_code text; v_row record; v_item public.picking_task_items;\n v_qty numeric; v_here numeric; v_now timestamptz:=now();\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
     },
     "timestamp": 1790523234278
@@ -1404,5 +1390,19 @@
     "content": "792:CREATE FUNCTION public.sales_on_hand(_org uuid,_variant uuid,_location uuid DEFAULT NULL,_batch uuid DEFAULT NULL) RETURNS numeric\n793-LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n794- SELECT coalesce(sum(CASE WHEN m.direction='IN' THEN m.quantity ELSE -m.quantity END),0)\n79",
     "is_error": false,
     "timestamp": 1790524014743
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"CREATE FUNCTION public.sales_on_hand(_org uuid,_variant uuid,_location uuid DEFAULT NULL,_batch uuid DEFAULT NULL) RETURNS numeric\nLANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n SELECT coalesce(sum(CASE WHEN m.direction='IN' THEN m.quantity ELSE -m.quantity END),0)\n FROM public.inventory_movements m\n WHERE m.organization_id=_org AND m.variant_id=_variant AND m.status='POSTED'\n AND (_location IS NULL OR m.location_id=_location)\n AND (_batch IS NULL OR m.batch_id=_batch);\n$$;\"\"\"\nnew=\"\"\"CREATE FUNCTION public.sales_on_hand(_org uuid,_variant uuid,_location uuid DEFAULT NULL,_batch uuid DEFAULT NULL) RETURNS numeric\nLANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n -- Saldo VENDIVEL: mesma regra de local da reserva. Quarentena, inspecao e\n -- estoque de parceiro existem no ledger, mas nao sao estoque a vender. Para o\n -- saldo fisico de um local especifico use public.inventory_get_balance.\n SELECT coalesce(sum(CASE WHEN m.direction='IN' THEN m.quantity ELSE -m.quantity END),0)\n FROM public.inventory_movements m\n JOIN public.inventory_locations l ON l.id=m.location_id AND l.organization_id=m.organization_id\n WHERE m.organization_id=_org AND m.variant_id=_variant AND m.status='POSTED'\n AND l.status='ACTIVE' AND l.partner_id IS NULL AND l.type<>'TRANSIT'\n AND coalesce(l.operational_purpose,'NORMAL')='NORMAL'\n AND (_location IS NULL OR m.location_id=_location)\n AND (_batch IS NULL OR m.batch_id=_batch);\n$$;\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790524022998
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 313, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 240, in run\n    assert sql(f\"SELECT open_amount FROM ac",
+    "is_error": false,
+    "timestamp": 1790524027092
   }
 ]

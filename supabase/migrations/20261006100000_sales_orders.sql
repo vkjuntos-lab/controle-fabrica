@@ -791,9 +791,15 @@ $$;
 -- mesma: somente POSTED soma; PENDING/REVERSED/CANCELED nunca.
 CREATE FUNCTION public.sales_on_hand(_org uuid,_variant uuid,_location uuid DEFAULT NULL,_batch uuid DEFAULT NULL) RETURNS numeric
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
+ -- Saldo VENDIVEL: mesma regra de local da reserva. Quarentena, inspecao e
+ -- estoque de parceiro existem no ledger, mas nao sao estoque a vender. Para o
+ -- saldo fisico de um local especifico use public.inventory_get_balance.
  SELECT coalesce(sum(CASE WHEN m.direction='IN' THEN m.quantity ELSE -m.quantity END),0)
  FROM public.inventory_movements m
+ JOIN public.inventory_locations l ON l.id=m.location_id AND l.organization_id=m.organization_id
  WHERE m.organization_id=_org AND m.variant_id=_variant AND m.status='POSTED'
+ AND l.status='ACTIVE' AND l.partner_id IS NULL AND l.type<>'TRANSIT'
+ AND coalesce(l.operational_purpose,'NORMAL')='NORMAL'
  AND (_location IS NULL OR m.location_id=_location)
  AND (_batch IS NULL OR m.batch_id=_batch);
 $$;
