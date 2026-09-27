@@ -4,22 +4,6 @@
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
-      "limit": 32,
-      "offset": 996
-    },
-    "timestamp": 1790521835862
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql</path>\n<type>file</type>\n<content>\n996: BEGIN\n997:  v_variant:=nullif(_item->>'variant_id','')::uuid;\n998:  v_qty:=coalesce(nullif(_item->>'quantity','')::numeric,nullif(_item->>'ordered_quantity',''):",
-    "is_error": false,
-    "timestamp": 1790521835896
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
       "limit": 28,
       "offset": 1308
     },
@@ -1499,5 +1483,19 @@
     "content": "ok\nPASS F: aprovacao exige outro usuario, preserva a consulta de credito e gera demanda\nPASS G: DISPONIVEL = SALDO FISICO - RESERVAS; reserva nao cria movimento e e idempotente\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 299, in",
     "is_error": false,
     "timestamp": 1790523106054
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"   IF v_mto AND v_avail<=0 AND it.sourcing_type='STOCK' AND v_pend>0 THEN\n    v_mto_total:=v_mto_total+v_pend;\n   END IF;\"\"\"\nnew=\"\"\"   IF v_mto AND it.sourcing_type='STOCK' THEN\n    v_mto_total:=v_mto_total+(v_pend-v_avail);\n   END IF;\"\"\"\nassert old in s; s=s.replace(old,new)\nold2=\"\"\"   'make_to_order_suggested',v_mto AND v_avail<=0 AND v_pend>0);\"\"\"\nnew2=\"\"\"   'make_to_order_suggested',v_mto AND it.sourcing_type='STOCK' AND v_pend>v_avail,\n   'make_to_order_quantity',CASE WHEN v_mto AND it.sourcing_type='STOCK' THEN greatest(0,v_pend-v_avail) ELSE 0 END);\"\"\"\nassert old2 in s; s=s.replace(old2,new2)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -10"
+    },
+    "timestamp": 1790523114629
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n   least(coalesce(nullif(v_item->>'quantity','')::numeric,it.approved_quantity),it.approved_quantity),\n   (SELECT coalesce(sum(r.quantity-r.fulfilled_quantity-r.released_quantity),0)\n     FROM public.inventory_reservations r WHERE r.sales_order_item_id=it.id\n       AND r.status IN ('ACTIVE','PART",
+    "is_error": false,
+    "timestamp": 1790523117610
   }
 ]

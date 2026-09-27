@@ -1802,8 +1802,8 @@ BEGIN
   IF v_pend>v_avail THEN
    v_sufficient:=false;
    -- Sem estoque e sem ordem de produção: a necessidade pode virar MTO.
-   IF v_mto AND v_avail<=0 AND it.sourcing_type='STOCK' AND v_pend>0 THEN
-    v_mto_total:=v_mto_total+v_pend;
+   IF v_mto AND it.sourcing_type='STOCK' THEN
+    v_mto_total:=v_mto_total+(v_pend-v_avail);
    END IF;
   END IF;
   v_json:=v_json||jsonb_build_object('sales_order_item_id',it.id,'variant_id',it.product_variant_id,
@@ -1811,7 +1811,8 @@ BEGIN
    'required_quantity',v_need,'reserved_quantity',v_reserved,'pending_quantity',v_pend,
    'suggested_location_id',v_best,'on_hand',v_onhand,'available',v_avail,
    'sufficient',v_pend<=v_avail,'sourcing_type',it.sourcing_type,
-   'make_to_order_suggested',v_mto AND v_avail<=0 AND v_pend>0);
+   'make_to_order_suggested',v_mto AND it.sourcing_type='STOCK' AND v_pend>v_avail,
+   'make_to_order_quantity',CASE WHEN v_mto AND it.sourcing_type='STOCK' THEN greatest(0,v_pend-v_avail) ELSE 0 END);
  END LOOP;
  RETURN jsonb_build_object('sales_order_id',_order,'items',v_json,
   'required_quantity',v_total_need,'reserved_quantity',v_total_reserved,
