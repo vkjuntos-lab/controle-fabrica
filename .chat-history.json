@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/_probe-sales.py\" 2>&1 | tail -20"
-    },
-    "timestamp": 1790521796524
-  },
-  {
-    "role": "tool_result",
-    "content": "FALHOU 20261006100000_sales_orders.sql\nERROR:  syntax error at or near \"FROM\"\nLINE 30:     FROM public.sales_orders so\n             ^\n\n",
-    "is_error": false,
-    "timestamp": 1790521798364
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
@@ -1501,5 +1487,19 @@
     "content": "  v_total_reserved:=v_total_reserved+v_reserved;\n  -- Melhor localizacao autorizada: maior disponivel.\n  v_best:=NULL; v_best_qty:=0;\n  FOR loc IN SELECT l.id FROM public.inventory_locations l\n    WHERE l.organization_id=_org AND l.status='ACTIVE' AND l.operational_purpose='NORMAL'\n      AND l.partn",
     "is_error": false,
     "timestamp": 1790522768964
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '1760,1790p' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790522770699
+  },
+  {
+    "role": "tool_result",
+    "content": "--\n-- DISPONIVEL = SALDO FISICO - RESERVAS ATIVAS.\n-- A reserva afeta o disponivel e NUNCA o saldo fisico: nenhuma linha de\n-- inventory_movements e criada aqui.\n-- =====================================================================\n\n-- Consulta de disponibilidade por item do pedido, por localizac",
+    "is_error": false,
+    "timestamp": 1790522770708
   }
 ]
