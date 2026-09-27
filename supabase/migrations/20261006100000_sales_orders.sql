@@ -2603,8 +2603,8 @@ BEGIN
  END LOOP;
 
  UPDATE public.shipments SET status='DISPATCHED',dispatch_key=v_key,dispatched_at=coalesce(dispatched_at,v_now),
-   carrier_id=v_carrier,tracking_code=v_tracking,tracking_source=CASE WHEN v_tracking IS NULL THEN NULL
-     WHEN sh.tracking_source IS NULL THEN 'MANUAL' ELSE sh.tracking_source END,
+   carrier_id=v_carrier,tracking_code=v_tracking,
+   tracking_source=coalesce(nullif(_data->>'tracking_source',''),sh.tracking_source,'MANUAL'),
    expected_delivery_at=v_expected,updated_at=v_now WHERE id=_shipment;
  IF v_ful IS NOT NULL THEN
   UPDATE public.fulfillment_orders SET status='SHIPPED',completed_at=coalesce(completed_at,v_now),updated_at=v_now

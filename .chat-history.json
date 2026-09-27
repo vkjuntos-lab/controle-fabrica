@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"CREATE OR REPLACE FUNCTION public.partner_save_contact\" supabase/migrations/20260924100000_partners.sql"
-    },
-    "timestamp": 1790522694039
-  },
-  {
-    "role": "tool_result",
-    "content": "(no output)",
-    "is_error": false,
-    "timestamp": 1790522694045
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '188,194p' supabase/migrations/20260924100000_partners.sql"
     },
     "timestamp": 1790522696190
@@ -1414,5 +1400,19 @@
     "content": "531: tracking_source text NOT NULL DEFAULT 'MANUAL' CHECK(tracking_source IN ('MANUAL','CARRIER_WEBHOOK')),\n2441:   source_location_id,destination_address_id,address_snapshot,carrier_id,tracking_code,tracking_source,\n2606:   carrier_id=v_carrier,tracking_code=v_tracking,tracking_source=CASE WHEN v_t",
     "is_error": false,
     "timestamp": 1790523601007
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"   carrier_id=v_carrier,tracking_code=v_tracking,tracking_source=CASE WHEN v_tracking IS NULL THEN NULL\n     WHEN sh.tracking_source IS NULL THEN 'MANUAL' ELSE sh.tracking_source END,\"\"\"\nnew=\"\"\"   carrier_id=v_carrier,tracking_code=v_tracking,\n   tracking_source=coalesce(nullif(_data->>'tracking_source',''),sh.tracking_source,'MANUAL'),\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"ERROR:|^PASS|Assertion\" | tail -4"
+    },
+    "timestamp": 1790523604597
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nPASS K: peso e dimensao sao os informados; nunca estimados; volumes registrados\nPASS L: expedicao baixa o ledger uma unica vez; reenvio nao duplica a baixa\nPASS M: despachar exige permissao de expedicao E de movimentacao de inventario\nAssertionError: ERROR:  Sem permissão: shipments.dispatch\n",
+    "is_error": false,
+    "timestamp": 1790523608174
   }
 ]
