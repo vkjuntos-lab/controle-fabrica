@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '1760,1790p' supabase/migrations/20261006100000_sales_orders.sql"
-    },
-    "timestamp": 1790522770699
-  },
-  {
-    "role": "tool_result",
-    "content": "--\n-- DISPONIVEL = SALDO FISICO - RESERVAS ATIVAS.\n-- A reserva afeta o disponivel e NUNCA o saldo fisico: nenhuma linha de\n-- inventory_movements e criada aqui.\n-- =====================================================================\n\n-- Consulta de disponibilidade por item do pedido, por localizac",
-    "is_error": false,
-    "timestamp": 1790522770708
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"coalesce(i*t\\?\\.\\?approved_quantity\" supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790522773977
@@ -1414,5 +1400,19 @@
     "content": "ok\nPASS L: expedicao baixa o ledger uma unica vez; reenvio nao duplica a baixa\nPASS M: despachar exige permissao de expedicao E de movimentacao de inventario\nPASS N: entrega exige prova; entrega nao mexe no saldo e nao fecha pedido com saldo\nAssertionError: ERROR:  Informe uma localização de recebim",
     "is_error": false,
     "timestamp": 1790523729836
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"Informe uma localização de recebimento\" -B22 supabase/migrations/20261006100000_sales_orders.sql | head -34"
+    },
+    "timestamp": 1790523732101
+  },
+  {
+    "role": "tool_result",
+    "content": "2902-   RAISE EXCEPTION 'Segregação de funções ativa: quem abriu a devolução não pode aprová-la.';\n2903-  END IF;\n2904-  v_new:='APPROVED';\n2905-  UPDATE public.customer_returns SET approved_by=auth.uid(),approved_at=v_now WHERE id=_ret;\n2906- ELSIF _action='reject' THEN\n2907-  IF ret.status NOT IN ",
+    "is_error": false,
+    "timestamp": 1790523732114
   }
 ]
