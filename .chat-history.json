@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/_probe-sales.py\" 2>&1 | tail -20"
-    },
-    "timestamp": 1790521816991
-  },
-  {
-    "role": "tool_result",
-    "content": "MIGRATION OK\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/_probe-sales.py\", line 24, in <module>\n    if __name__=='__main__':run()\n                            ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/_probe-sales.py\", line 17, in r",
-    "is_error": false,
-    "timestamp": 1790521818938
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/_probe-sales.py'); s=p.read_text()\ns=s.replace(\"INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(a)},'admin')\",\n            \"INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(a)},'admin') ON CONFLICT DO NOTHING\")\ns=s.replace(\"INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'S','s',{q(a)})\",\n            \"INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'S','s',{q(a)}) ON CONFLICT DO NOTHING\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/_probe-sales.py\" 2>&1 | tail -20"
     },
     "timestamp": 1790521827591
@@ -1499,5 +1485,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql</path>\n<type>file</type>\n<content>\n1930:  END LOOP;\n1931: \n1932:  -- Recalcula o estado de estoque do pedido a partir das reservas reais.\n1933:  SELECT coalesce(sum(greatest(0,CASE WHEN i.approved_quan",
     "is_error": false,
     "timestamp": 1790522780689
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\nlines=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql').read_text().split('\\n')\nseg='\\n'.join(lines[1931:1937])\nd=0\nfor ch in seg:\n    if ch=='(':d+=1\n    elif ch==')':d-=1\nprint('depth at end:',d)\nprint(seg)\nPY"
+    },
+    "timestamp": 1790522785268
+  },
+  {
+    "role": "tool_result",
+    "content": "depth at end: -1\n -- Recalcula o estado de estoque do pedido a partir das reservas reais.\n SELECT coalesce(sum(greatest(0,CASE WHEN i.approved_quantity>0 THEN i.approved_quantity ELSE i.ordered_quantity END)\n   -coalesce((SELECT sum(r.quantity-r.fulfilled_quantity-r.released_quantity)\n      FROM pub",
+    "is_error": false,
+    "timestamp": 1790522785327
   }
 ]
