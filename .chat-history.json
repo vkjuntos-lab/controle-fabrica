@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"FOR i IN SELECT \\* FROM\" supabase/migrations/20261006100000_sales_orders.sql"
-    },
-    "timestamp": 1790522667047
-  },
-  {
-    "role": "tool_result",
-    "content": "1141: FOR i IN SELECT * FROM jsonb_array_elements(_items) LOOP\n1221:   FOR i IN SELECT * FROM jsonb_array_elements(coalesce(_data->'items','[]'::jsonb)) LOOP\n1228:   FOR i IN SELECT * FROM jsonb_array_elements(items) LOOP\n1267: FOR i IN SELECT * FROM jsonb_array_elements(coalesce(_data->'items','[]'",
-    "is_error": false,
-    "timestamp": 1790522667060
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"DECLARE o public.sales_orders; cfg jsonb; i jsonb; issues jsonb:='[]'::jsonb; v_pct numeric;\"\"\"\nnew=\"\"\"DECLARE o public.sales_orders; cfg jsonb; i jsonb; it public.sales_order_items; issues jsonb:='[]'::jsonb; v_pct numeric;\"\"\"\nassert old in s; s=s.replace(old,new)\nold2=\"\"\" FOR i IN SELECT * FROM public.sales_order_items WHERE organization_id=_org AND sales_order_id=_order LOOP\n  IF NOT EXISTS(SELECT 1 FROM public.product_variants\n     WHERE id=i.product_variant_id AND organization_id=_org AND status='DISCONTINUED') THEN\n   issues:=issues||jsonb_build_object('code','VARIANT_INVALID','variant_id',i.product_variant_id,\n     'message',format('A variante %s está descontinuada.',i.sku_snapshot));\n  END IF;\n  IF i.unit_price<0 THEN\n   issues:=issues||jsonb_build_object('code','PRICE_INVALID','variant_id',i.product_variant_id,'message','Preço inválido.');\n  END IF;\n  -- Preço abaixo do mínimo vigente da tabela exige autorização específica.\n  IF coalesce((i.price_snapshot->>'below_minimum')::boolean,false) THEN\n   IF cfg->>'price_override_policy'='BLOCK' THEN\n    issues:=issues||jsonb_build_object('code','PRICE_BELOW_MINIMUM','variant_id',i.product_variant_id,\n      'message',format('Preço abaixo do mínimo da tabela em %s.',i.sku_snapshot),'blocking',true);\n   ELSE\n    issues:=issues||jsonb_build_object('code','PRICE_BELOW_MINIMUM','variant_id',i.product_variant_id,\n      'message',format('Preço abaixo do mínimo em %s exige autorização.',i.sku_snapshot),'requires_authorization',true);\n   END IF;\n  END IF;\n END LOOP;\"\"\"\nnew2=\"\"\" FOR it IN SELECT * FROM public.sales_order_items WHERE organization_id=_org AND sales_order_id=_order LOOP\n  IF NOT EXISTS(SELECT 1 FROM public.product_variants\n     WHERE id=it.product_variant_id AND organization_id=_org AND status='DISCONTINUED') THEN\n   issues:=issues||jsonb_build_object('code','VARIANT_INVALID','variant_id',it.product_variant_id,\n     'message',format('A variante %s está descontinuada.',it.sku_snapshot));\n  END IF;\n  IF it.unit_price<0 THEN\n   issues:=issues||jsonb_build_object('code','PRICE_INVALID','variant_id',it.product_variant_id,'message','Preço inválido.');\n  END IF;\n  -- Preço abaixo do mínimo vigente da tabela exige autorização específica.\n  IF coalesce((it.price_snapshot->>'below_minimum')::boolean,false) THEN\n   IF cfg->>'price_override_policy'='BLOCK' THEN\n    issues:=issues||jsonb_build_object('code','PRICE_BELOW_MINIMUM','variant_id',it.product_variant_id,\n      'message',format('Preço abaixo do mínimo da tabela em %s.',it.sku_snapshot),'blocking',true);\n   ELSE\n    issues:=issues||jsonb_build_object('code','PRICE_BELOW_MINIMUM','variant_id',it.product_variant_id,\n      'message',format('Preço abaixo do mínimo em %s exige autorização.',it.sku_snapshot),'requires_authorization',true);\n   END IF;\n  END IF;\n END LOOP;\"\"\"\nassert old2 in s; s=s.replace(old2,new2)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
     },
     "timestamp": 1790522672447
@@ -1414,5 +1400,19 @@
     "content": "ok\nDEBUG ids ff= 52fce422-0159-4523-b69a-5d1efec52e28 order= cc99cc58-04e2-4c76-9c47-000cab3e09a5 status READY_FOR_SHIPMENT|cc99cc58-04e2-4c76-9c47-000cab3e09a5|f9d44454-7d8a-479a-8bee-9e33236c44a9\nAssertionError: ERROR:  Atendimento b51a1895-2044-45e4-adb2-e19e192170a9 não está liberado para expedi",
     "is_error": false,
     "timestamp": 1790523552462
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '160,180p' scripts/test-sales-db.py"
+    },
+    "timestamp": 1790523560743
+  },
+  {
+    "role": "tool_result",
+    "content": " # ------------------------------------------ expedicao: baixa no ledger\n print('DEBUG ff',sql(f\"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"),'packrec',sql(f\"SELECT count(*) FROM packing_records WHERE fulfillment_order_id={q(fulfillment['id'])}\"))\n rpc('sales_fulfillment_a",
+    "is_error": false,
+    "timestamp": 1790523560760
   }
 ]
