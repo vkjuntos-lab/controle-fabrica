@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 npm run test:crm:db\" 2>&1 | tail -30",
-      "timeout": 960000
-    },
-    "timestamp": 1790520263379
-  },
-  {
-    "role": "tool_result",
-    "content": "\n> test:crm:db\n> python3 scripts/test-crm-db.py\n\nPASS A: supplier gains customer role without duplicate Company\nPASS B: concurrent lead conversion idempotent; contact and history retained\nPASS C: portfolio changes preserve prior assignments and opportunity owner\nPASS D: item quantities sum to 60; st",
-    "is_error": false,
-    "timestamp": 1790520266554
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sed -n '120,215p' supabase/migrations/20260923100000_inventory_workflows.sql"
     },
     "timestamp": 1790520314662
@@ -1546,5 +1531,19 @@
     "content": "ok\n1207: SELECT id,order_number,status INTO v_out FROM public.sales_orders\n1209: IF v_out.id IS NOT NULL THEN\n1210:  result:=jsonb_build_object('id',v_out.id,'order_number',v_out.order_number,'status',v_out.status,'deduped',true);\n2416: v_key text; v_mov jsonb; v_mov_id uuid; v_res uuid; v_consumed ",
     "is_error": false,
     "timestamp": 1790521858405
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '1205,1212p' supabase/migrations/20261006100000_sales_orders.sql | cat -A | sed 's/\\$$//' | head -10"
+    },
+    "timestamp": 1790521861488
+  },
+  {
+    "role": "tool_result",
+    "content": "\n -- Conversao repetida devolve o MESMO pedido. Nunca um segundo.\n SELECT id,order_number,status INTO v_out FROM public.sales_orders\n  WHERE organization_id=_org AND sales_quote_id=_quote;\n IF v_out.id IS NOT NULL THEN\n  result:=jsonb_build_object('id',v_out.id,'order_number',v_out.order_number,'sta",
+    "is_error": false,
+    "timestamp": 1790521861502
   }
 ]
