@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"   carrier_id=v_carrier,tracking_code=v_tracking,tracking_source=CASE WHEN v_tracking IS NULL THEN NULL\n     WHEN sh.tracking_source IS NULL THEN 'MANUAL' ELSE sh.tracking_source END,\"\"\"\nnew=\"\"\"   carrier_id=v_carrier,tracking_code=v_tracking,\n   tracking_source=coalesce(nullif(_data->>'tracking_source',''),sh.tracking_source,'MANUAL'),\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"ERROR:|^PASS|Assertion\" | tail -4"
-    },
-    "timestamp": 1790523604597
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\nPASS K: peso e dimensao sao os informados; nunca estimados; volumes registrados\nPASS L: expedicao baixa o ledger uma unica vez; reenvio nao duplica a baixa\nPASS M: despachar exige permissao de expedicao E de movimentacao de inventario\nAssertionError: ERROR:  Sem permissão: shipments.dispatch\n",
-    "is_error": false,
-    "timestamp": 1790523608174
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '38,75p' supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790523613671
@@ -1398,5 +1384,19 @@
     "content": "ok\nPASS A: cenario montado; saldo fisico oficial em 100\nPASS B: pedido nasce com preco oficial da tabela e subtotal correto; nenhum movimento\nPASS C: preco enviado pelo cliente e ignorado; a tabela oficial prevalece\n",
     "is_error": false,
     "timestamp": 1790524433904
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"  RETURNING id INTO result;\n  RETURN result;\n  RAISE NOTICE 'ITEMS JSON %',items::text;\"\"\"\nnew=\"\"\"  RETURNING id INTO result;\n  RAISE NOTICE 'ITEMS JSON %',items::text;\"\"\"\nassert old in s; s=s.replace(old,new)\nold2=\"\"\"  INSERT INTO public.sales_orders(organization_id,order_number,company_id,customer_profile_id,\n    sales_quote_id,sales_quote_version,sales_opportunity_id,representative_id,price_table_id,\n    source_type,order_date,expected_delivery_date,payment_terms_id,payment_terms_snapshot,\n    shipping_address_id,billing_address_id,address_snapshot,company_snapshot,price_snapshot,\n    currency,commercial_notes,internal_notes,created_by)\n  VALUES(_org,v_number,q.company_id,v_profile,q.id,q.version,q.opportunity_id,v_rep,v_table,\n    'QUOTE_CONVERSION',q.issue_date,nullif(_data->>'expected_delivery_date','')::date,\n    v_terms_id,v_term,v_addr_id,v_bill_id,'{}'::jsonb,'{}'::jsonb,\n    '{}'::jsonb,\n    'BRL',q.notes,nullif(trim(coalesce(_data->>'internal_notes','')),''),auth.uid())\n  RETURNING id INTO result;\"\"\"\nnew2=\"\"\"  INSERT INTO public.sales_orders(organization_id,order_number,company_id,sales_quote_id,\n    source_type,order_date,address_snapshot,company_snapshot,price_snapshot)\n  VALUES(_org,v_number,q.company_id,q.id,\n    'QUOTE_CONVERSION',q.issue_date,'{}'::jsonb,'{}'::jsonb,'{}'::jsonb)\n  RETURNING id INTO result;\"\"\"\nassert old2 in s; s=s.replace(old2,new2)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"^ERROR|DETAIL|ITEMS\" | head -3"
+    },
+    "timestamp": 1790524452186
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nERROR:  invalid input syntax for type json\nDETAIL:  Token \"78b22575\" is invalid.\n",
+    "is_error": false,
+    "timestamp": 1790524456572
   }
 ]

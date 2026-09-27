@@ -1363,18 +1363,11 @@ BEGIN
   FOR v_dbg IN SELECT string_agg(column_name||':'||data_type,', ' ORDER BY ordinal_position) FROM information_schema.columns WHERE table_name='sales_orders' LOOP
    RAISE NOTICE 'COLS %',left(v_dbg,2000);
   END LOOP;
-  INSERT INTO public.sales_orders(organization_id,order_number,company_id,customer_profile_id,
-    sales_quote_id,sales_quote_version,sales_opportunity_id,representative_id,price_table_id,
-    source_type,order_date,expected_delivery_date,payment_terms_id,payment_terms_snapshot,
-    shipping_address_id,billing_address_id,address_snapshot,company_snapshot,price_snapshot,
-    currency,commercial_notes,internal_notes,created_by)
-  VALUES(_org,v_number,q.company_id,v_profile,q.id,q.version,q.opportunity_id,v_rep,v_table,
-    'QUOTE_CONVERSION',q.issue_date,nullif(_data->>'expected_delivery_date','')::date,
-    v_terms_id,v_term,v_addr_id,v_bill_id,'{}'::jsonb,'{}'::jsonb,
-    '{}'::jsonb,
-    'BRL',q.notes,nullif(trim(coalesce(_data->>'internal_notes','')),''),auth.uid())
+  INSERT INTO public.sales_orders(organization_id,order_number,company_id,sales_quote_id,
+    source_type,order_date,address_snapshot,company_snapshot,price_snapshot)
+  VALUES(_org,v_number,q.company_id,q.id,
+    'QUOTE_CONVERSION',q.issue_date,'{}'::jsonb,'{}'::jsonb,'{}'::jsonb)
   RETURNING id INTO result;
-  RETURN result;
   RAISE NOTICE 'ITEMS JSON %',items::text;
   INSERT INTO public.sales_order_items(organization_id,sales_order_id,product_variant_id,
     sku_snapshot,description_snapshot,unit_snapshot,price_snapshot,ordered_quantity,
