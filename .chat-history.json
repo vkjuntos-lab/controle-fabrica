@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"v_sep\\|segrega\\|Segrega\" supabase/migrations/20261006100000_sales_orders.sql | head -10 && echo \"=== roles perms ===\" && grep -n \"sales_orders.approve\" supabase/migrations/20261006100000_sales_orders.sql | head"
-    },
-    "timestamp": 1790522709054
-  },
-  {
-    "role": "tool_result",
-    "content": "49:-- quando a segregacao de funcoes esta ativa (o servidor decide).\n100: approval_segregation boolean NOT NULL DEFAULT true,\n758:   'approval_segregation',true,'max_discount_percent',NULL,'price_override_policy','BLOCK',\n1401: v_discount_pct numeric; v_auth numeric; v_sep boolean; v_credit jsonb; v",
-    "is_error": false,
-    "timestamp": 1790522709094
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '30,48p' supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790522711495
@@ -1414,5 +1400,19 @@
     "content": "    RAISE EXCEPTION 'Entrega acima do expedido para um item.';\n   END IF;\n   UPDATE public.shipment_items SET delivered_quantity=delivered_quantity+coalesce(nullif(v_i->>'delivered_quantity','')::numeric,v_qty)\n    WHERE organization_id=_org AND shipment_id=_shipment AND sales_order_item_id=nullif(v",
     "is_error": false,
     "timestamp": 1790523625189
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\" PERFORM public.sales_require(_org,CASE WHEN _action IN ('deliver','partial_delivery')\n   THEN 'shipments.confirm_delivery' ELSE 'shipments.dispatch' END);\"\"\"\nnew=\"\"\" -- Prova de entrega faz parte da confirmacao: exige a mesma permissao da\n -- entrega. Somente rastreio e cancelamento exigem permissao de despacho.\n PERFORM public.sales_require(_org,CASE WHEN _action IN ('deliver','partial_delivery','proof')\n   THEN 'shipments.confirm_delivery' ELSE 'shipments.dispatch' END);\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"ERROR:|^PASS|Assertion\" | tail -4"
+    },
+    "timestamp": 1790523629440
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nPASS K: peso e dimensao sao os informados; nunca estimados; volumes registrados\nPASS L: expedicao baixa o ledger uma unica vez; reenvio nao duplica a baixa\nPASS M: despachar exige permissao de expedicao E de movimentacao de inventario\nAssertionError: ERROR:  invalid input syntax for type json\n",
+    "is_error": false,
+    "timestamp": 1790523633012
   }
 ]

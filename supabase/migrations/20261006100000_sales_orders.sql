@@ -2662,7 +2662,9 @@ DECLARE sh public.shipments; o public.sales_orders; v_new text; v_now timestampt
  v_carrier uuid; v_tracking text; v_notes text; v_proof jsonb; v_qty numeric; v_i jsonb;
  v_del numeric; v_ord_status text; v_pending integer:=0; v_deliv numeric; v_req numeric;
 BEGIN
- PERFORM public.sales_require(_org,CASE WHEN _action IN ('deliver','partial_delivery')
+ -- Prova de entrega faz parte da confirmacao: exige a mesma permissao da
+ -- entrega. Somente rastreio e cancelamento exigem permissao de despacho.
+ PERFORM public.sales_require(_org,CASE WHEN _action IN ('deliver','partial_delivery','proof')
    THEN 'shipments.confirm_delivery' ELSE 'shipments.dispatch' END);
  PERFORM public.inventory_lock(_org);
  SELECT * INTO sh FROM public.shipments WHERE id=_shipment AND organization_id=_org FOR UPDATE;
