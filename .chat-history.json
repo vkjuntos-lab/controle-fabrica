@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -rn \"company_addresses\" supabase/migrations/*.sql | grep -v 20261006 | head -8 && echo \"=== ddl ===\" && awk 'BEGIN{f=0} /CREATE TABLE public.company_addresses /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20260925100000_base.sql 2>/dev/null | head -20"
-    },
-    "timestamp": 1790522681056
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20260924100000_partners.sql:26:CREATE TABLE public.company_addresses (\nsupabase/migrations/20260924100000_partners.sql:33:CREATE UNIQUE INDEX company_primary_address ON public.company_addresses(company_id,type) WHERE is_primary;\nsupabase/migrations/20260924100000_partners.sql:79:",
-    "is_error": false,
-    "timestamp": 1790522681109
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '195,215p' supabase/migrations/20260924100000_partners.sql"
     },
     "timestamp": 1790522683158
@@ -1414,5 +1400,19 @@
     "content": "ok\n   source_location_id,destination_address_id,address_snapshot,carrier_id,tracking_code,tracking_source,\n   shipping_method,status,expected_delivery_at,created_by)\n VALUES(_org,v_number,_order,v_ful,v_task,v_loc,v_addr,v_add,v_carrier,v_tracking,\n   CASE WHEN v_tracking IS NULL THEN NULL ELSE 'MAN",
     "is_error": false,
     "timestamp": 1790523585170
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"ERROR:|^PASS\" | tail -4"
+    },
+    "timestamp": 1790523587738
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS J: divergencia entre separado e conferido vira excecao; conferencia e imutavel\nPASS K: peso e dimensao sao os informados; nunca estimados; volumes registrados\nPASS L: expedicao baixa o ledger uma unica vez; reenvio nao duplica a baixa\nAssertionError: ERROR:  null value in column \"tracking_sourc",
+    "is_error": false,
+    "timestamp": 1790523591284
   }
 ]
