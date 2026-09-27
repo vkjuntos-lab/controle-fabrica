@@ -889,7 +889,7 @@ BEGIN
   WHEN 'customer_returns' THEN ARRAY[ARRAY['company_id','companies'],ARRAY['sales_order_id','sales_orders'],ARRAY['shipment_id','shipments'],ARRAY['destination_location_id','inventory_locations']]
   WHEN 'customer_return_items' THEN ARRAY[ARRAY['customer_return_id','customer_returns'],ARRAY['sales_order_item_id','sales_order_items'],ARRAY['shipment_item_id','shipment_items'],ARRAY['variant_id','product_variants'],ARRAY['batch_id','inventory_batches']]
   WHEN 'logistics_exceptions' THEN ARRAY[ARRAY['sales_order_id','sales_orders'],ARRAY['sales_order_item_id','sales_order_items'],ARRAY['fulfillment_order_id','fulfillment_orders'],ARRAY['shipment_id','shipments'],ARRAY['customer_return_id','customer_returns'],ARRAY['picking_task_id','picking_tasks'],ARRAY['reservation_id','inventory_reservations'],ARRAY['variant_id','product_variants']]
-  ELSE ARRAY[ARRAY[]::text[]]
+  ELSE NULL::text[][]
  END
  LOOP
   v_id:=(v_data->>v_pair[1])::uuid;
