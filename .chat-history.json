@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '42,50p' supabase/migrations/20261006100000_sales_orders.sql && echo \"--- shipment status full ---\" && sed -n '/CREATE TABLE public.shipments/,/^);/p' supabase/migrations/20261006100000_sales_orders.sql | sed -n '45,50p'"
-    },
-    "timestamp": 1790521147319
-  },
-  {
-    "role": "tool_result",
-    "content": " 'packing.manage',\n 'shipments.read','shipments.create','shipments.dispatch','shipments.confirm_delivery',\n 'returns.read','returns.create','returns.approve','returns.receive',\n 'logistics.export',\n 'sales.configure','carriers.manage','sales_credit.read']) p ON CONFLICT DO NOTHING;\n\n-- Comercial: op",
-    "is_error": false,
-    "timestamp": 1790521147333
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport re,pathlib\ns=re.sub(r'--[^\\n]*','',pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql').read_text())\nfor t in ['sales_orders','shipments','customer_returns']:\n    m=re.search(r'CREATE TABLE public\\.'+t+r'\\s*\\(',s)\n    i=m.end();d=1\n    while d>0:\n        if s[i]=='(':d+=1\n        elif s[i]==')':d-=1\n        i+=1\n    body=s[m.end():i-1]\n    for l in body.split('\\n'):\n        if 'status text NOT NULL' in l or (\"CHECK(status IN\" in l) or (l.strip().startswith(\"'\") and 'CHECK' not in l and 'status' in body):\n            pass\n    st=re.search(r'status text[^\\n]*\\n(?:\\s+[^\\n]*\\n)*?\\s*CHECK\\(status IN \\(([^)]*)\\)\\)',body)\n    print('###',t)\n    print(st.group(1).replace('\\n',' ') if st else 'n/a')\nPY"
     },
     "timestamp": 1790521152023
@@ -1512,5 +1498,19 @@
     "content": "           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  COALESCE types text and jsonb cannot be matched\nLINE 5: ...i->>'unit_snapshot',coalesce(i->>'price_snapshot','{}'::json...\n                                                             ^\nQUERY:  INSERT INTO public.sales_order_items(organization_id,s",
     "is_error": false,
     "timestamp": 1790522562146
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"price_snapshot'\" supabase/migrations/20261006100000_sales_orders.sql | grep \"coalesce(i->>\""
+    },
+    "timestamp": 1790522565203
+  },
+  {
+    "role": "tool_result",
+    "content": "1139:   i->>'unit_snapshot',coalesce(i->>'price_snapshot','{}'::jsonb),(i->>'ordered_quantity')::numeric,\n1226:     i->>'unit_snapshot',coalesce(i->>'price_snapshot','{}'::jsonb),(i->>'ordered_quantity')::numeric,\n",
+    "is_error": false,
+    "timestamp": 1790522565213
   }
 ]
