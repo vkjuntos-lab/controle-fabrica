@@ -88,7 +88,8 @@ def run():
  # ------------------------------------------------------- aprovacao e credito
  action(order['id'],'submit',user=commercial)
  action(order['id'],'submit',user=commercial,fail='rascunho')
- action(order['id'],'approve',user=commercial,fail='Segrega')
+ action(order['id'],'approve',user=commercial,fail='sales_orders.approve')
+ action(order['id'],'approve',user=a,fail='Segrega')
  assert sql(f"SELECT count(*) FROM sales_credit_checks WHERE sales_order_id={q(order['id'])}")=='0'
  action(order['id'],'approve',user=approver)
  assert sql(f"SELECT status FROM sales_orders WHERE id={q(order['id'])}")=='APPROVED'

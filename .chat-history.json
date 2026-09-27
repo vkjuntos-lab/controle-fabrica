@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '/CREATE TABLE public.logistics_exceptions/,/^);/p' supabase/migrations/20261006100000_sales_orders.sql | grep -n \"created_at\\|updated_at\\|resolved_at\""
-    },
-    "timestamp": 1790521732459
-  },
-  {
-    "role": "tool_result",
-    "content": "27: resolution text, resolved_at timestamptz, resolved_by uuid REFERENCES public.profiles,\n29: created_at timestamptz NOT NULL DEFAULT now(),\n30: updated_at timestamptz NOT NULL DEFAULT now(),\n",
-    "is_error": false,
-    "timestamp": 1790521732469
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\ns=s.replace(\"\"\"   FROM (SELECT s.id,s.shipment_number,s.status,s.tracking_code,s.dispatched_at,s.expected_delivery_at,\n     s.delivered_quantity,s.shipping_method,o.order_number,o.id AS sales_order_id,o.company_id,\"\"\",\n\"\"\"   FROM (SELECT s.id,s.shipment_number,s.status,s.tracking_code,s.dispatched_at,s.expected_delivery_at,\n     s.delivered_quantity,s.shipping_method,s.created_at,s.updated_at,\n     o.order_number,o.id AS sales_order_id,o.company_id,\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/_check-sales-migration.py\" 2>&1 | tail -8"
     },
     "timestamp": 1790521736634
@@ -1508,5 +1494,19 @@
     "content": "ALTER TABLE public.company_addresses\n  ADD CONSTRAINT company_addresses_organization_id_id_key UNIQUE(organization_id,id);\n\n-- =====================================================================\n-- 1. Permissoes do modulo.\n-- =====================================================================\nIN",
     "is_error": false,
     "timestamp": 1790522711503
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\nold=\"\"\" action(order['id'],'submit',user=commercial)\n action(order['id'],'submit',user=commercial,fail='rascunho')\n action(order['id'],'approve',user=commercial,fail='Segrega')\n assert sql(f\"SELECT count(*) FROM sales_credit_checks WHERE sales_order_id={q(order['id'])}\")=='0'\n action(order['id'],'approve',user=approver)\"\"\"\nnew=\"\"\" action(order['id'],'submit',user=commercial)\n action(order['id'],'submit',user=commercial,fail='rascunho')\n action(order['id'],'approve',user=commercial,fail='sales_orders.approve')\n action(order['id'],'approve',user=a,fail='Segrega')\n assert sql(f\"SELECT count(*) FROM sales_credit_checks WHERE sales_order_id={q(order['id'])}\")=='0'\n action(order['id'],'approve',user=approver)\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -10"
+    },
+    "timestamp": 1790522714234
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nPASS D: variante descontinuada bloqueada e permissao aplicada no servidor\nPASS E: edicao substitui itens e recalcula total; rascunho permanece editavel\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 299, in <module>\n    try:run(",
+    "is_error": false,
+    "timestamp": 1790522716999
   }
 ]
