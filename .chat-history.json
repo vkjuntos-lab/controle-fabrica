@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "write",
-    "input": {
-      "content": "#!/usr/bin/env python3\n\"\"\"MASTER 013 integration tests in disposable PostgreSQL. Never uses a published database.\"\"\"\nimport importlib.util,json\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('inventory',Path(__file__).with_name('test-inventory-db.py'))\ndb=importlib.util.module_from_spec(spec);spec.loader.exec_module(db)\nq,sql,uid=db.q,db.sql,db.uid\ndef run():\n db.setup()\n for name in ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql','20261001100000_purchasing.sql','20261002100000_planning.sql','20261003100000_planning_engine.sql','20261004100000_planning_fixes.sql','20261005100000_crm.sql','20261006100000_sales_orders.sql']:\n  sql((db.ROOT/'supabase/migrations'/name).read_text())\n print('MIGRATION OK')\nif __name__=='__main__':run()\n",
-      "filePath": "/tmp/opencode/check-migration.py"
-    },
-    "timestamp": 1790521715272
-  },
-  {
-    "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1790521715278
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && cp /tmp/opencode/check-migration.py scripts/_check-sales-migration.py && timeout 900 python3 scripts/_check-sales-migration.py 2>&1 | tail -30"
@@ -1509,5 +1494,19 @@
     "content": "DECLARE v uuid:=coalesce(_id,gen_random_uuid());\nBEGIN\n IF _kind NOT IN ('contact','address') THEN RAISE EXCEPTION 'Tipo inválido.'; END IF;\n PERFORM public.partner_require(_org,CASE _kind WHEN 'contact' THEN 'partner_contacts.manage' ELSE 'partner_addresses.manage' END);\n PERFORM public.inventory_l",
     "is_error": false,
     "timestamp": 1790522696198
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '184,188p' supabase/migrations/20260924100000_partners.sql"
+    },
+    "timestamp": 1790522698395
+  },
+  {
+    "role": "tool_result",
+    "content": " RETURN c;\nEND;\n$$;\nCREATE FUNCTION public.partner_save_detail(_org uuid,_company uuid,_kind text,_data jsonb,_id uuid DEFAULT NULL) RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE v uuid:=coalesce(_id,gen_random_uuid());\n",
+    "is_error": false,
+    "timestamp": 1790522698408
   }
 ]
