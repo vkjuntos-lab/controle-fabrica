@@ -2068,7 +2068,7 @@ BEGIN
    location_id,created_at,updated_at)
  SELECT _org,v_task,it.id,it.product_variant_id,it.sku_snapshot,it.description_snapshot,
    it.price_snapshot->>'barcode_snapshot',
-   least(coalesce(nullif(v_item->>'quantity','')::numeric,it.approved_quantity),it.approved_quantity),
+    least(coalesce(nullif(req->>'quantity','')::numeric,it.approved_quantity),it.approved_quantity),
    (SELECT coalesce(sum(r.quantity-r.fulfilled_quantity-r.released_quantity),0)
      FROM public.inventory_reservations r WHERE r.sales_order_item_id=it.id
        AND r.status IN ('ACTIVE','PARTIALLY_CONSUMED') AND r.inventory_location_id=v_loc),
