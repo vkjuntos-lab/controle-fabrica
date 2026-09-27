@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py",
-      "newString": " def nw(variant,loc):return call('inventory_post_movement',','.join(map(q,[org,variant,loc,'OPENING_BALANCE',100]))+\",_reason=>'Saldo inicial'\",a)",
-      "oldString": " def nw(fq):return call('inventory_post_movement',','.join(map(q,[org,fq['v'],fq['l'],'OPENING_BALANCE',100]))+\",_reason=>'Saldo inicial'\",a)"
-    },
-    "timestamp": 1790522039312
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790522039324
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\" nw({'v':variants['SAP-001']['v'],'l':warehouse});nw({'v':variants['SAP-002']['v'],'l':warehouse})\",\n            \" nw(variants['SAP-001']['v'],warehouse);nw(variants['SAP-002']['v'],warehouse)\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
@@ -1426,5 +1410,19 @@
     "content": "supabase/migrations/20261006100000_sales_orders.sql:2242: IF t.status NOT IN ('IN_PROGRESS','PICKED','PENDING') THEN RAISE EXCEPTION 'Tarefa não está em conferência.'; END IF;\n",
     "is_error": false,
     "timestamp": 1790523307184
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2232,2245p' supabase/migrations/20261006100000_sales_orders.sql | cat -A | grep -n \"IN_PROGRESS\" | head -3"
+    },
+    "timestamp": 1790523309795
+  },
+  {
+    "role": "tool_result",
+    "content": "11: IF t.status NOT IN ('IN_PROGRESS','PICKED','PENDING') THEN RAISE EXCEPTION 'Tarefa nM-CM-#o estM-CM-! em conferM-CM-*ncia.'; END IF;$\n",
+    "is_error": false,
+    "timestamp": 1790523309810
   }
 ]
