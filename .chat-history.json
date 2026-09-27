@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/tmp/opencode/sales_part3.sql",
-      "newString": "   (i->>'line_total')::numeric,nullif(i->>'expected_delivery_date','')::date,auth.uid());\n END LOOP;",
-      "oldString": "   (i->>'line_total')::numeric,preparer_date(i),auth.uid());\n END LOOP;"
-    },
-    "timestamp": 1790520810991
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790520810998
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/tmp/opencode/sales_part3.sql",
       "newString": "-- Criação manual: mesma validacao comercial do fluxo vindo do CRM.",
       "oldString": "-- Prepara cada item: a versao de proposta usa o preco CONGELADO no aceite.\nCREATE FUNCTION public.preparer_date(i jsonb) RETURNS date LANGUAGE sql IMMUTABLE AS $$\n SELECT nullif(i->>'expected_delivery_date','')::date;\n$$;\n\n-- Criação manual: mesma validacao comercial do fluxo vindo do CRM."
     },
@@ -1524,5 +1508,19 @@
     "content": "  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 295, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 39, in run\n    quarantine=sql(f\"INSERT INTO inventory_locations(id,organization_id,code,name,",
     "is_error": false,
     "timestamp": 1790522022606
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -rn \"inventory_location_type AS ENUM\" -A12 supabase/migrations/*.sql | head -20 && echo \"=== operational_purpose ===\" && grep -rn \"operational_purpose\" supabase/migrations/20260917110000_catalog_mestre.sql | head -3"
+    },
+    "timestamp": 1790522025079
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260918100000_inventory_ledger.sql:22:CREATE TYPE public.inventory_location_type AS ENUM (\nsupabase/migrations/20260918100000_inventory_ledger.sql-23-  'FACTORY', 'WAREHOUSE', 'OWN_STORE', 'MARKETPLACE', 'PARTNER', 'TRANSIT', 'OTHER'\nsupabase/migrations/20260918100000_inventory_",
+    "is_error": false,
+    "timestamp": 1790522025126
   }
 ]
