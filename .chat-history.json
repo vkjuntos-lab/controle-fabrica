@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '108,160p' supabase/migrations/20260923100000_inventory_workflows.sql"
-    },
-    "timestamp": 1790521134366
-  },
-  {
-    "role": "tool_result",
-    "content": "      SELECT to_jsonb(movements) FROM public.inventory_movements movements\n        WHERE movements.id = v_existing_id INTO v_row;\n      RETURN jsonb_build_object('deduped', true, 'movement', v_row, 'movement_id', v_existing_id);\n    END IF;\n  END IF;\n\n  INSERT INTO public.inventory_movements (\n    o",
-    "is_error": false,
-    "timestamp": 1790521134378
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -rn \"inventory.move\\|'inventory\\.\" supabase/migrations/*.sql | grep -o \"'inventory\\.[a-z._]*'\" | sort -u"
     },
     "timestamp": 1790521138137
@@ -1510,5 +1496,19 @@
     "content": " -- Condicao comercial congelada: o texto vigente na negociacao.\n payment_terms_snapshot text,\n shipping_address_id uuid,\n  FOREIGN KEY(organization_id,shipping_address_id) REFERENCES public.company_addresses(organization_id,id),\n billing_address_id uuid,\n  FOREIGN KEY(organization_id,billing_addres",
     "is_error": false,
     "timestamp": 1790522553855
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '201,240p' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790522555811
+  },
+  {
+    "role": "tool_result",
+    "content": "\nCREATE TABLE public.sales_order_items (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n organization_id uuid NOT NULL REFERENCES public.organizations,\n sales_order_id uuid NOT NULL,\n  FOREIGN KEY(organization_id,sales_order_id) REFERENCES public.sales_orders(organization_id,id),\n product_variant_i",
+    "is_error": false,
+    "timestamp": 1790522555818
   }
 ]
