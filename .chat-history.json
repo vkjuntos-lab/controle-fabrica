@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "[]\n",
-    "is_error": false,
-    "timestamp": 1790413793499
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 3000 python3 scripts/test-crm-db.py\" 2>&1 | tail -35",
-      "timeout": 3000000
-    },
-    "timestamp": 1790413796359
-  },
-  {
-    "role": "tool_result",
     "content": "PASS A: supplier gains customer role without duplicate Company\nPASS B: concurrent lead conversion idempotent; contact and history retained\nPASS C: portfolio changes preserve prior assignments and opportunity owner\nPASS D: item quantities sum to 60; stage snapshots; no stock writes\nPASS E/F/G: quote ",
     "is_error": false,
     "timestamp": 1790413799550
@@ -1593,5 +1578,19 @@
     "content": "14: v_ship uuid; v_reason text; v_i jsonb; v_shi record; v_qty numeric; v_count integer:=0;\n26: v_ship:=nullif(_data->>'shipment_id','')::uuid;\n27: IF v_ship IS NOT NULL AND NOT EXISTS(SELECT 1 FROM public.shipments\n28:    WHERE id=v_ship AND organization_id=_org AND sales_order_id=_order) THEN\n35: ",
     "is_error": false,
     "timestamp": 1790521322841
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"ENABLE ROW LEVEL SECURITY\" supabase/migrations/20261005100000_crm.sql | head -5 && echo \"=== exemplo policy ===\" && grep -n -A6 \"CREATE POLICY.*crm_companies\\|CREATE POLICY.*purchasing_orders\" supabase/migrations/20261005100000_crm.sql | head -30 && echo \"=== grants ===\" && grep -n \"GRANT SELECT ON\\|GRANT SELECT,\\|GRANT ALL\" supabase/migrations/20261005100000_crm.sql | head -10"
+    },
+    "timestamp": 1790521326765
+  },
+  {
+    "role": "tool_result",
+    "content": "309:ALTER TABLE public.commercial_segments ENABLE ROW LEVEL SECURITY;\n316:ALTER TABLE public.commercial_sources ENABLE ROW LEVEL SECURITY;\n323:ALTER TABLE public.commercial_reasons ENABLE ROW LEVEL SECURITY;\n330:ALTER TABLE public.commercial_tags ENABLE ROW LEVEL SECURITY;\n337:ALTER TABLE public.sal",
+    "is_error": false,
+    "timestamp": 1790521326807
   }
 ]
