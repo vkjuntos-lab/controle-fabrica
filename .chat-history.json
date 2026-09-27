@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '4,60p' supabase/migrations/20260923100000_inventory_workflows.sql | grep -n \"RETURN jsonb\\|jsonb_build_object\" && echo \"--- interno returns ---\" && awk 'NR>=4 && NR<=160' supabase/migrations/20260923100000_inventory_workflows.sql | grep -n \"RETURN jsonb_build_object\\|'id'\" | head -20"
-    },
-    "timestamp": 1790521129706
-  },
-  {
-    "role": "tool_result",
-    "content": "(no output)",
-    "is_error": false,
-    "timestamp": 1790521129715
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"RETURN\" supabase/migrations/20260923100000_inventory_workflows.sql | head -20 && echo \"=== integrity 122 returns ===\" && sed -n '122,260p' supabase/migrations/20260921100000_inventory_integrity.sql | grep -n \"RETURN\\|jsonb_build_object\" | head"
     },
     "timestamp": 1790521131766
@@ -1510,5 +1496,19 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790522547782
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -14"
+    },
+    "timestamp": 1790522549919
+  },
+  {
+    "role": "tool_result",
+    "content": "           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  column \"created_by\" of relation \"sales_order_items\" does not exist\nLINE 3: ...ount,tax_amount,line_total,expected_delivery_date,created_by...\n                                                             ^\nQUERY:  INSERT INTO public.sales_order_item",
+    "is_error": false,
+    "timestamp": 1790522552259
   }
 ]
