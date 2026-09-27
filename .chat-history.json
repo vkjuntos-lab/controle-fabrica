@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && chmod 755 scripts/_check-sales-migration.py && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/_check-sales-migration.py\" 2>&1 | tail -30"
-    },
-    "timestamp": 1790521719543
-  },
-  {
-    "role": "tool_result",
-    "content": "Traceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/_check-sales-migration.py\", line 13, in <module>\n    if __name__=='__main__':run()\n                            ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/_check-sales-migration.py\", line 1",
-    "is_error": false,
-    "timestamp": 1790521721639
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\ns=s.replace(\"CREATE FUNCTION public.sales_convert_quote(_org uuid,_quote uuid,_data jsonb DEFAULT '{}',_key uuid)\",\n            \"CREATE FUNCTION public.sales_convert_quote(_org uuid,_quote uuid,_data jsonb DEFAULT '{}',_key uuid DEFAULT NULL)\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/_check-sales-migration.py\" 2>&1 | tail -8"
     },
     "timestamp": 1790521724673
@@ -1508,5 +1494,19 @@
     "content": "ok\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 24, in rpc\n    value=call(name,*args,**kw)\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 22, in call\n    return db.call(name,','.join(q(json.dumps(x) if isinstance(x,(dict,list)) el",
     "is_error": false,
     "timestamp": 1790522703488
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"v_sep\\|segrega\\|Segrega\" supabase/migrations/20261006100000_sales_orders.sql | head -10 && echo \"=== roles perms ===\" && grep -n \"sales_orders.approve\" supabase/migrations/20261006100000_sales_orders.sql | head"
+    },
+    "timestamp": 1790522709054
+  },
+  {
+    "role": "tool_result",
+    "content": "49:-- quando a segregacao de funcoes esta ativa (o servidor decide).\n100: approval_segregation boolean NOT NULL DEFAULT true,\n758:   'approval_segregation',true,'max_discount_percent',NULL,'price_override_policy','BLOCK',\n1401: v_discount_pct numeric; v_auth numeric; v_sep boolean; v_credit jsonb; v",
+    "is_error": false,
+    "timestamp": 1790522709094
   }
 ]
