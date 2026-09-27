@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1790413791396
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"docs/architecture/ADR-010-CRM.md\"); s = p.read_text()\ns = s.replace(\"a RPC genérica não é_graph API\", \"a RPC genérica não é uma API de\")\ns = s.replace(\"não é_graph API de leitura em cache\", \"leitura em cache\")\ns = s.replace(\"a quem opened a API\", \"a quem abriu a API\")\np.write_text(s)\nprint([c for c in s if ord(c) > 0x2FFF and c not in \"—’“”…\"])\nPY"
-    },
-    "timestamp": 1790413793441
-  },
-  {
-    "role": "tool_result",
     "content": "[]\n",
     "is_error": false,
     "timestamp": 1790413793499
@@ -1593,5 +1579,19 @@
     "content": "parte 9 ok\nv_ship:= 1\nPARTIAL_ONLY 0\nCARRIER_API 0\nDISABLED 0\n",
     "is_error": false,
     "timestamp": 1790521319154
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd /tmp/opencode && grep -n \"v_ship\" sales_part9.sql"
+    },
+    "timestamp": 1790521322824
+  },
+  {
+    "role": "tool_result",
+    "content": "14: v_ship uuid; v_reason text; v_i jsonb; v_shi record; v_qty numeric; v_count integer:=0;\n26: v_ship:=nullif(_data->>'shipment_id','')::uuid;\n27: IF v_ship IS NOT NULL AND NOT EXISTS(SELECT 1 FROM public.shipments\n28:    WHERE id=v_ship AND organization_id=_org AND sales_order_id=_order) THEN\n35: ",
+    "is_error": false,
+    "timestamp": 1790521322841
   }
 ]
