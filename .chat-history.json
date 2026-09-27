@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"  v_ord_status:=CASE WHEN v_pending=0 THEN 'FULFILLED' ELSE o.status END;\n  UPDATE public.sales_orders SET status=v_ord_status,closed_at=CASE WHEN v_pending=0 THEN coalesce(closed_at,v_now) ELSE closed_at END,\n   updated_at=v_now WHERE id=o.id;\"\"\"\nnew=\"\"\"  -- O pedido so fecha sozinho quando TUDO aprovado foi entregue. Saldo\n  -- residual e decisao do operador: nao vira encerramento automatico.\n  SELECT coalesce(sum(i.delivered_quantity),0),\n    coalesce(sum(coalesce(NULLIF(i.approved_quantity,0),i.ordered_quantity)),0)\n   INTO v_deliv,v_req FROM public.sales_order_items i\n  WHERE i.organization_id=_org AND i.sales_order_id=o.id AND i.status<>'CANCELED';\n  IF v_pending=0 AND v_deliv>=v_req THEN\n   v_ord_status:='FULFILLED';\n  END IF;\n  UPDATE public.sales_orders SET status=v_ord_status,\n   closed_at=CASE WHEN v_ord_status='FULFILLED' AND v_pending=0 THEN coalesce(closed_at,v_now) ELSE closed_at END,\n   updated_at=v_now WHERE id=o.id;\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\ngrep -n \"v_deliv numeric\\|v_req numeric\\|v_pending integer\" supabase/migrations/20261006100000_sales_orders.sql | head"
-    },
-    "timestamp": 1790523473545
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n2529: v_ord_status text; v_ord_ful text; v_req numeric; v_fulfilled numeric; v_ful uuid;\n2662: v_del numeric; v_ord_status text; v_pending integer:=0;\n",
-    "is_error": false,
-    "timestamp": 1790523473601
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\ns=s.replace(\"\"\" v_del numeric; v_ord_status text; v_pending integer:=0;\"\"\",\"\"\" v_del numeric; v_ord_status text; v_pending integer:=0; v_deliv numeric; v_req numeric;\"\"\")\np.write_text(s); print('ok')\nPY\npython3 - <<'PY'\nimport pathlib\np=pathlib.Path('/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py'); s=p.read_text()\nold=\"\"\" dispatched=rpc('sales_shipment_dispatch',org,shipment['id'],{'dispatch_key':'DISP-1'},user=picker)\n assert dispatched['quantity']==20 and balance(variants['SAP-001']['v'],warehouse)==80.0\n assert float(sql(f\"SELECT fulfilled_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\"))==20.0\n assert sql(f\"SELECT status FROM sales_orders WHERE id={q(order['id'])}\")=='FULFILLED'\n assert sql(f\"SELECT status FROM sales_orders WHERE id={q(order['id'])} AND approved_by={q(approver)}\")=='FULFILLED'\n repeat=rpc('sales_shipment_dispatch',org,shipment['id'],{'dispatch_key':'DISP-1'},user=picker)\n assert repeat['deduped'] is True and balance(variants['SAP-001']['v'],warehouse)==80.0\n assert sql(f\"SELECT count(*) FROM inventory_movements WHERE movement_type='SALE' AND direction='OUT'\")=='1'\n print('PASS L: expedicao baixa o ledger uma unica vez; reenvio nao duplica a baixa')\"\"\"\nnew=\"\"\" # Expediu o que foi CONFERIDO (19), nunca o que foi separado: a divergencia\n # ja virou excecao e o saldo de 1 fica pendente, nao some.\n dispatched=rpc('sales_shipment_dispatch',org,shipment['id'],{'dispatch_key':'DISP-1'},user=picker)\n assert float(dispatched['quantity'])==19.0 and balance(variants['SAP-001']['v'],warehouse)==81.0\n assert float(sql(f\"SELECT fulfilled_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\"))==19.0\n assert sql(f\"SELECT status FROM sales_orders WHERE id={q(order['id'])}\")=='PARTIALLY_FULFILLED'\n assert sql(f\"SELECT status FROM sales_orders WHERE id={q(order['id'])} AND approved_by={q(approver)}\")=='PARTIALLY_FULFILLED'\n repeat=rpc('sales_shipment_dispatch',org,shipment['id'],{'dispatch_key':'DISP-1'},user=picker)\n assert repeat['deduped'] is True and balance(variants['SAP-001']['v'],warehouse)==81.0\n assert sql(f\"SELECT count(*) FROM inventory_movements WHERE movement_type='SALE' AND direction='OUT'\")=='1'\n print('PASS L: expedicao baixa o ledger uma unica vez; reenvio nao duplica a baixa')\"\"\"\nassert old in s; s=s.replace(old,new)\nold2=\"\"\" delivered=rpc('sales_shipment_action',org,shipment['id'],'deliver',{},user=commercial)\n assert delivered['status']=='DELIVERED', delivered\n assert float(sql(f\"SELECT delivered_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\"))==20.0\n assert balance(variants['SAP-001']['v'],warehouse)==80.0\n assert sql(f\"SELECT closed_at IS NOT NULL FROM sales_orders WHERE id={q(order['id'])}\")=='t'\n print('PASS N: entrega exige prova; entrega nao mexe no saldo (a baixa foi na expedicao)')\"\"\"\nnew2=\"\"\" delivered=rpc('sales_shipment_action',org,shipment['id'],'deliver',{},user=commercial)\n assert delivered['status']=='DELIVERED', delivered\n assert float(sql(f\"SELECT delivered_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\"))==19.0\n assert balance(variants['SAP-001']['v'],warehouse)==81.0\n # Saldo residual: o pedido nao se fecha sozinho nem some a pendencia.\n assert sql(f\"SELECT status FROM sales_orders WHERE id={q(order['id'])}\")=='PARTIALLY_FULFILLED'\n assert sql(f\"SELECT closed_at IS NULL FROM sales_orders WHERE id={q(order['id'])}\")=='t'\n print('PASS N: entrega exige prova; entrega nao mexe no saldo e nao fecha pedido com saldo')\"\"\"\nassert old2 in s; s=s.replace(old2,new2)\np.write_text(s); print('test updated')\nPY\ncd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
     },
     "timestamp": 1790523482333
@@ -1398,5 +1384,19 @@
     "content": "CREATE TABLE public.sales_orders (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n organization_id uuid NOT NULL REFERENCES public.organizations,\n order_number text NOT NULL,\n company_id uuid NOT NULL,\n  FOREIGN KEY(organization_id,company_id) REFERENCES public.companies(organization_id,id),\n custo",
     "is_error": false,
     "timestamp": 1790524230025
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -A8 \"^ERROR\" | head -14"
+    },
+    "timestamp": 1790524237072
+  },
+  {
+    "role": "tool_result",
+    "content": "ERROR:  invalid input syntax for type json\nDETAIL:  Token \"bd19af4e\" is invalid.\nCONTEXT:  JSON data, line 1: bd19af4e...\nPL/pgSQL function sales_convert_quote(uuid,uuid,jsonb,uuid) line 73 at SQL statement\n\n",
+    "is_error": false,
+    "timestamp": 1790524241314
   }
 ]
