@@ -200,11 +200,11 @@ def run():
 
  # ------------------------------------------------------------- devolucao
  ret=rpc('sales_return_create',org,order['id'],{'reason':'Produto errado','shipment_id':shipment['id'],
-   'items':[{'sales_order_item_id':sql(f"SELECT id FROM sales_order_items WHERE sales_order_id={q(order['id'])}"),'quantity':5,'condition':'RESELLABLE'}]},user=commercial)
+   'items':[{'sales_order_item_id':sql(f"SELECT id FROM sales_order_items WHERE sales_order_id={q(order['id'])}"),'quantity':5,'condition':'RESELLABLE'}]},user=a)
  assert ret['status']=='DRAFT'
- rpc('sales_return_action',org,ret['id'],'submit',{},user=commercial)
- rpc('sales_return_action',org,ret['id'],'approve',{},user=commercial,fail='returns.approve')
- rpc('sales_return_action',org,ret['id'],'approve',{},user=fin,fail='Segrega')
+ rpc('sales_return_action',org,ret['id'],'submit',{},user=a)
+ # Quem abriu a devolucao nao pode aprovar: a segregacao vale para devolucao.
+ rpc('sales_return_action',org,ret['id'],'approve',{},user=a,fail='Segrega')
  rpc('sales_return_action',org,ret['id'],'approve',{},user=approver)
  rpc('sales_return_action',org,ret['id'],'receive',{'quantity':5,'destination':'SELLABLE','financial_action':'CREDIT_NOTE'},user=picker)
  assert balance(variants['SAP-001']['v'],warehouse)==85.0
