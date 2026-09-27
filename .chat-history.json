@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
-    },
-    "timestamp": 1790522523614
-  },
-  {
-    "role": "tool_result",
-    "content": "    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                                                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n    ",
-    "is_error": false,
-    "timestamp": 1790522525959
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"DECLARE v_data jsonb:=to_jsonb(NEW); v_pair text[]; v_id uuid; v_org uuid;\nBEGIN\n IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAISE EXCEPTION 'Organização imutável.'; END IF;\n FOREACH v_pair SLICE 1 IN ARRAY CASE TG_TABLE_NAME\"\"\"\nnew=\"\"\"DECLARE v_data jsonb:=to_jsonb(NEW); v_pair text[]; v_id uuid; v_org uuid; v_map text[][];\nBEGIN\n IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAISE EXCEPTION 'Organização imutável.'; END IF;\n v_map:=CASE TG_TABLE_NAME\"\"\"\nassert old in s; s=s.replace(old,new)\nold2=\"\"\"  ELSE NULL::text[][]\n END\n LOOP\n  v_id:=(v_data->>v_pair[1])::uuid;\"\"\"\nnew2=\"\"\"  ELSE NULL::text[][]\n END;\n IF v_map IS NULL THEN RETURN NEW; END IF;\n FOREACH v_pair SLICE 1 IN ARRAY v_map\n LOOP\n  v_id:=(v_data->>v_pair[1])::uuid;\"\"\"\nassert old2 in s; s=s.replace(old2,new2)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
     },
     "timestamp": 1790522530306
@@ -1424,5 +1410,19 @@
     "content": "AssertionError: ERROR:  null value in column \"shipping_method\" of relation \"shipments\" violates not-null constraint\nCREATE TABLE public.shipments (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n organization_id uuid NOT NULL REFERENCES public.organizations,\n shipment_number text NOT NULL,\n sales_o",
     "is_error": false,
     "timestamp": 1790523387836
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '20,32p' <(awk 'BEGIN{f=0} /CREATE TABLE public.shipments /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261006100000_sales_orders.sql) && grep -n \"shipping_method\" supabase/migrations/20261006100000_sales_orders.sql | head"
+    },
+    "timestamp": 1790523390631
+  },
+  {
+    "role": "tool_result",
+    "content": " tracking_source text NOT NULL DEFAULT 'MANUAL' CHECK(tracking_source IN ('MANUAL','CARRIER_WEBHOOK')),\n shipping_method text NOT NULL DEFAULT 'STANDARD'\n   CHECK(shipping_method IN ('STANDARD','EXPRESS','RETIRE','OWN_TRANSPORT','OTHER')),\n status text NOT NULL DEFAULT 'DRAFT'\n   CHECK(status IN ('D",
+    "is_error": false,
+    "timestamp": 1790523390664
   }
 ]
