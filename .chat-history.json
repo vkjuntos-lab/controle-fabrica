@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"released_at\\|release_reason\\|picked_at\\|confirmed_at\\|coalesce(batch_id\\|shipment_id,sales_order_item_id\\|UNIQUE (organization_id, shipment_id\" supabase/migrations/20261006100000_sales_orders.sql"
-    },
-    "timestamp": 1790521107386
-  },
-  {
-    "role": "tool_result",
-    "content": "343: consumed_at timestamptz, released_at timestamptz,\n344: release_reason text,\n397: started_at timestamptz, picked_at timestamptz,\n398: confirmed_by uuid REFERENCES public.profiles, confirmed_at timestamptz,\n573: UNIQUE(organization_id,shipment_id,sales_order_item_id,coalesce(batch_id,'00000000-00",
-    "is_error": false,
-    "timestamp": 1790521107395
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '560,580p' supabase/migrations/20261006100000_sales_orders.sql && echo \"=== helpers parte2 ===\" && grep -n \"^CREATE FUNCTION public\\.\\|^CREATE OR REPLACE FUNCTION public\\.\" /tmp/opencode/sales_part2.sql /tmp/opencode/sales_part3.sql /tmp/opencode/sales_part4.sql /tmp/opencode/sales_part5.sql && echo \"=== ledger ===\" && grep -n \"FUNCTION public.inventory_post_movement\\|FUNCTION public.purchasing_split_terms\" supabase/migrations/*.sql"
     },
     "timestamp": 1790521112942
@@ -1508,5 +1494,19 @@
     "content": "DETAIL:  Failing row contains (4ce56eed-ab12-461f-a6e1-c91644dfefca, 59d963ed-5680-418f-bd98-6ea43a824152, PV-2026-000001, 95233fc5-2b13-4880-8f19-6d893533a3d7, 256f1a23-342c-456b-acd2-ef912cb530fc, null, null, null, null, eb39701f-a64a-48df-ae17-56e15345085e, MANUAL, null, null, null, null, null, n",
     "is_error": false,
     "timestamp": 1790522537217
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"violates|not-null|invalid\" | head -5"
+    },
+    "timestamp": 1790522539110
+  },
+  {
+    "role": "tool_result",
+    "content": "AssertionError: ERROR:  null value in column \"order_date\" of relation \"sales_orders\" violates not-null constraint\n",
+    "is_error": false,
+    "timestamp": 1790522541595
   }
 ]
