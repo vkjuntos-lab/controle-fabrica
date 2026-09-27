@@ -1153,16 +1153,101 @@ BEGIN
 END;
 $$;
 
--- Criação manual: mesma validacao comercial do fluxo vindo do CRM.
+-- Criação e edicao manual: mesma validacao comercial do fluxo vindo do CRM.
+--
+-- Edicao so existe em RASCUNHO. Proposta convertida mantem os itens e os
+-- precos CONGELADOS da versao aceita: mudar preco negociado e um ato
+-- comercial diferente, e nao uma edicao de rascunho.
 CREATE FUNCTION public.sales_save(_org uuid,_data jsonb) RETURNS jsonb
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE i jsonb; v_table uuid; v_company uuid; out jsonb; items jsonb:='[]'::jsonb;
+ o public.sales_orders; v_id uuid; v_subtotal numeric:=0; v_discount numeric:=0; v_tax numeric:=0;
+ v_freight numeric; v_order_date date; v_addr_id uuid; v_bill_id uuid; v_addr jsonb:='{}'::jsonb;
+ v_profile uuid; v_status text; v_table_old uuid; v_bill jsonb; v_now timestamptz:=now();
 BEGIN
- PERFORM public.sales_require(_org,'sales_orders.create');
+ v_id:=nullif(_data->>'id','')::uuid;
+ IF v_id IS NULL THEN PERFORM public.sales_require(_org,'sales_orders.create');
+ ELSE PERFORM public.sales_require(_org,'sales_orders.update'); END IF;
  IF nullif(_data->>'sales_quote_id','') IS NOT NULL THEN
   RAISE EXCEPTION 'Pedido com proposta deve ser criado pela conversão da proposta.';
  END IF;
  PERFORM public.inventory_lock(_org);
+
+ IF v_id IS NOT NULL THEN
+  SELECT * INTO o FROM public.sales_orders WHERE id=v_id AND organization_id=_org FOR UPDATE;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Pedido não encontrado.'; END IF;
+  IF o.status<>'DRAFT' THEN
+   RAISE EXCEPTION 'Somente pedido em rascunho pode ser editado (status atual: %).',o.status;
+  END IF;
+  IF o.sales_quote_id IS NOT NULL AND _data ? 'items' THEN
+   RAISE EXCEPTION 'Os itens deste pedido vêm da proposta aceita e não podem ser alterados.';
+  END IF;
+  v_company:=o.company_id; v_profile:=o.customer_profile_id; v_table_old:=o.price_table_id;
+  v_order_date:=coalesce(nullif(_data->>'order_date','')::date,o.order_date);
+  v_freight:=round(coalesce(nullif(_data->>'freight_amount','')::numeric,o.freight_amount),2);
+  v_addr_id:=coalesce(nullif(_data->>'shipping_address_id','')::uuid,o.shipping_address_id);
+  v_bill_id:=coalesce(nullif(_data->>'billing_address_id','')::uuid,o.billing_address_id);
+  IF nullif(_data->>'company_id','')::uuid IS NOT NULL AND nullif(_data->>'company_id','')::uuid<>o.company_id THEN
+   RAISE EXCEPTION 'Não é possível trocar a empresa de um pedido existente.';
+  END IF;
+  -- Endereco de cobranca precisa pertencer a mesma empresa.
+  IF v_bill_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM public.company_addresses
+     WHERE id=v_bill_id AND organization_id=_org AND company_id=o.company_id) THEN
+   RAISE EXCEPTION 'Endereço de cobrança inválido para esta empresa.';
+  END IF;
+  IF v_addr_id IS NOT NULL THEN
+   IF NOT EXISTS(SELECT 1 FROM public.company_addresses
+      WHERE id=v_addr_id AND organization_id=_org AND company_id=o.company_id) THEN
+    RAISE EXCEPTION 'Endereço de entrega inválido para esta empresa.';
+   END IF;
+   SELECT to_jsonb(a) INTO v_addr FROM public.company_addresses a WHERE a.id=v_addr_id;
+  END IF;
+
+  IF _data ? 'items' THEN
+   v_table:=coalesce(nullif(_data->>'price_table_id','')::uuid,v_table_old);
+   FOR i IN SELECT * FROM jsonb_array_elements(coalesce(_data->'items','[]'::jsonb)) LOOP
+    items:=items||public.sales_prepare_item(_org,i,v_table,v_order_date);
+   END LOOP;
+   IF jsonb_array_length(items)=0 THEN RAISE EXCEPTION 'O pedido precisa de ao menos um item.'; END IF;
+   -- Rascunho nao tem reserva, expedicao nem baixa: as linhas podem ser
+   -- substituidas inteiras sem deixar residuo.
+   DELETE FROM public.sales_order_items WHERE organization_id=_org AND sales_order_id=v_id;
+   FOR i IN SELECT * FROM jsonb_array_elements(items) LOOP
+    v_subtotal:=v_subtotal+round((i->>'unit_price')::numeric*(i->>'ordered_quantity')::numeric,2);
+    v_discount:=v_discount+coalesce((i->>'discount_amount')::numeric,0);
+    v_tax:=v_tax+coalesce((i->>'tax_amount')::numeric,0);
+    INSERT INTO public.sales_order_items(organization_id,sales_order_id,product_variant_id,
+      sku_snapshot,description_snapshot,unit_snapshot,price_snapshot,ordered_quantity,
+      unit_price,discount_amount,tax_amount,line_total,expected_delivery_date,created_by)
+    VALUES(_org,v_id,(i->>'product_variant_id')::uuid,i->>'sku_snapshot',i->>'description_snapshot',
+     i->>'unit_snapshot',coalesce(i->>'price_snapshot','{}'::jsonb),(i->>'ordered_quantity')::numeric,
+     (i->>'unit_price')::numeric,(i->>'discount_amount')::numeric,(i->>'tax_amount')::numeric,
+     (i->>'line_total')::numeric,nullif(i->>'expected_delivery_date','')::date,auth.uid());
+   END LOOP;
+  ELSE
+   SELECT coalesce(sum(ordered_quantity*unit_price),0),coalesce(sum(discount_amount),0),
+     coalesce(sum(tax_amount),0) INTO v_subtotal,v_discount,v_tax
+    FROM public.sales_order_items WHERE organization_id=_org AND sales_order_id=v_id;
+  END IF;
+  v_subtotal:=round(v_subtotal,2); v_discount:=round(v_discount,2); v_tax:=round(v_tax,2);
+  UPDATE public.sales_orders SET order_date=v_order_date,
+   expected_delivery_date=coalesce(nullif(_data->>'expected_delivery_date','')::date,expected_delivery_date),
+   price_table_id=coalesce(nullif(_data->>'price_table_id','')::uuid,price_table_id),
+   representative_id=coalesce(nullif(_data->>'representative_id','')::uuid,representative_id),
+   payment_terms_id=coalesce(nullif(_data->>'payment_terms_id','')::uuid,payment_terms_id),
+   shipping_address_id=v_addr_id,billing_address_id=v_bill_id,
+   address_snapshot=coalesce(nullif(v_addr,'{}'::jsonb),address_snapshot),
+   commercial_notes=coalesce(nullif(trim(coalesce(_data->>'commercial_notes','')),''),commercial_notes),
+   internal_notes=coalesce(nullif(trim(coalesce(_data->>'internal_notes','')),''),internal_notes),
+   subtotal=v_subtotal,discount_total=v_discount,tax_amount=v_tax,freight_amount=v_freight,
+   total_amount=round(v_subtotal-v_discount+v_tax+v_freight,2),updated_at=v_now WHERE id=v_id;
+  SELECT * INTO o FROM public.sales_orders WHERE id=v_id;
+  PERFORM public.sales_audit(_org,'sales_order.updated','sales_orders',v_id,
+   jsonb_build_object('total',o.total_amount,'items_replaced',_data ? 'items'));
+  RETURN jsonb_build_object('id',v_id,'order_number',o.order_number,'status',o.status,
+   'total_amount',o.total_amount,'deduped',false);
+ END IF;
+
  v_company:=nullif(_data->>'company_id','')::uuid;
  v_table:=coalesce(nullif(_data->>'price_table_id','')::uuid,
    (SELECT price_table_id FROM public.customer_profiles WHERE organization_id=_org AND company_id=v_company));
