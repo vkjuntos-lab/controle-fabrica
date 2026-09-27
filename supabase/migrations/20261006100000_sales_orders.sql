@@ -1597,7 +1597,7 @@ BEGIN
   END IF;
   v_new:='CANCELED';
   -- Reserva liberada: reserva cancelada nao volta a ser disponibilidad.
-  UPDATE public.inventory_reservations SET status=CANCELED,released_quantity=quantity,
+  UPDATE public.inventory_reservations SET status='CANCELED',released_quantity=quantity,
    released_at=v_now,release_reason=coalesce(v_reason,'Pedido cancelado'),updated_at=v_now
    WHERE organization_id=_org AND sales_order_id=_order AND status IN ('ACTIVE','PARTIALLY_CONSUMED');
   UPDATE public.sales_order_items SET status='CANCELED',updated_at=v_now

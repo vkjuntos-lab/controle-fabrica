@@ -4,22 +4,6 @@
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
-      "limit": 32,
-      "offset": 1155
-    },
-    "timestamp": 1790521885702
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql</path>\n<type>file</type>\n<content>\n1155: \n1156: -- Criação manual: mesma validacao comercial do fluxo vindo do CRM.\n1157: CREATE FUNCTION public.sales_save(_org uuid,_data jsonb) RETURNS jsonb\n1158: LA",
-    "is_error": false,
-    "timestamp": 1790521885740
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
       "limit": 96,
       "offset": 1060
     },
@@ -1491,5 +1475,21 @@
     "content": "-- Máquina de estados do pedido. Nenhuma transição arbitrária é aceita.\nCREATE FUNCTION public.sales_order_action(_org uuid,_order uuid,_action text,_data jsonb DEFAULT '{}')\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE o public.sales_orders; v_new text; v_che",
     "is_error": false,
     "timestamp": 1790523166381
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
+      "newString": "  UPDATE public.inventory_reservations SET status='CANCELED',released_quantity=quantity,",
+      "oldString": "  UPDATE public.inventory_reservations SET status=CANCELED,released_quantity=quantity,"
+    },
+    "timestamp": 1790523171904
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790523171934
   }
 ]
