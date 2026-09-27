@@ -63,8 +63,7 @@ def run():
  # Preco abaixo do minimo e preco Forcado: o servidor decide, nunca o front.
  below=save({'company_id':company,'price_table_id':table,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':1,'unit_price':1.00}]})
  assert float(sql(f"SELECT unit_price FROM sales_order_items WHERE sales_order_id={q(below['id'])}"))==25.0
- sql(f"DELETE FROM sales_order_items WHERE sales_order_id={q(below['id'])}",fail=None)
- sql(f"DELETE FROM sales_orders WHERE id={q(below['id'])}",fail=None)
+ sql(f"DELETE FROM sales_orders WHERE id={q(below['id'])}",a,fail='imut')
  print('PASS C: preco enviado pelo cliente e ignorado; a tabela oficial prevalece')
 
  # Variante descontinuada nao entra em pedido novo.
@@ -274,7 +273,7 @@ def run():
  assert dash['open_exceptions']>=1 and dash['by_status'].get('FULFILLED')==2, dash
  assert 'DISPONÍVEL = SALDO FÍSICO - RESERVAS ATIVAS' in dash['definitions']['available_formula']
  activity=rpc('sales_company_activity',org,company,user=fin)
- assert len(activity['orders'])==5 and activity['totals']['orders']==5
+ assert len(activity['orders'])==7 and activity['totals']['orders']==7
  assert len(activity['shipments'])==2 and len(activity['returns'])==2
  full=detail(order['id'])
  assert len(full['items'])==1 and len(full['shipments'])==1 and len(full['returns'])==2
@@ -285,7 +284,7 @@ def run():
  # ------------------------------------------------------------- isolamento
  assert query('orders',user=outsider)['total']==0
  assert sql(f"SELECT count(*) FROM sales_orders WHERE organization_id={q(org)}",outsider)=='0'
- assert sql(f"SELECT count(*) FROM sales_orders WHERE organization_id={q(org)}",fin)=='5'
+ assert sql(f"SELECT count(*) FROM sales_orders WHERE organization_id={q(org)}",fin)=='7'
  sql(f"UPDATE sales_orders SET status='CANCELED' WHERE id={q(order['id'])}",fin,fail='permissao de linha')
  sql(f"DELETE FROM sales_orders WHERE id={q(order['id'])}",approver,fail='imut')
  print('PASS V: isolamento por organizacao; escrita direta bloqueada; rascunho terminal e imutavel')
