@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/tmp/opencode/sales_part2.sql",
-      "limit": 30,
-      "offset": 1
-    },
-    "timestamp": 1790521393316
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/tmp/opencode/sales_part2.sql</path>\n<type>file</type>\n<content>\n1: \n2: -- =====================================================================\n3: -- 9. Helpers do modulo.\n4: -- =====================================================================\n5: CREATE FUNCTION public.sales_require(_org ",
-    "is_error": false,
-    "timestamp": 1790521393331
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd /tmp/opencode && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('sales_part10.sql'); s=p.read_text()\n\ns=s.replace(\"\"\"DECLARE v_limit int; v_off int; v_q text; v_status text; v_company uuid; v_from date; v_to date;\"\"\",\n\"\"\"DECLARE v_limit int; v_off int; v_status text; v_company uuid; v_from date; v_to date;\"\"\")\n\ns=s.replace(\"\"\"DECLARE r public.inventory_reservations; v_n integer:=0; v_now timestamptz:=now();\nBEGIN\n PERFORM public.sales_require(_org,'reservations.release');\n PERFORM public.inventory_lock(_org);\n FOR r IN SELECT * FROM public.inventory_reservations\n   WHERE organization_id=_org AND status IN ('ACTIVE','PARTIALLY_CONSUMED')\n     AND expires_at<now()\n     AND (r.shipment_item_id IS NULL OR true)\n   FOR UPDATE SKIP LOCKED LOOP\n  UPDATE public.inventory_reservations SET status='EXPIRED',\n   released_quantity=released_quantity+(quantity-fulfilled_quantity-released_quantity),\n   released_at=v_now,release_reason='Expiração automática por prazo',updated_at=v_now WHERE id=r.id;\n  UPDATE public.sales_order_items i SET reserved_quantity=coalesce((\n     SELECT sum(greatest(0,x.quantity-x.fulfilled_quantity-x.released_quantity))\n     FROM public.inventory_reservations x WHERE x.sales_order_item_id=i.id\n       AND x.status IN ('ACTIVE','PARTIALLY_CONSUMED')),0),updated_at=v_now\n   WHERE i.id=r.sales_order_item_id;\n  v_n:=v_n+1;\n END LOOP;\n IF v_n>0 THEN\n  PERFORM public.sales_audit(_org,'inventory_reservation.expired_batch','inventory_reservations',NULL,\n   jsonb_build_object('expired',v_n));\n END IF;\n RETURN jsonb_build_object('expired',v_n);\nEND;\n$$;\"\"\",\n\"\"\"DECLARE r public.inventory_reservations; v_n integer:=0; v_now timestamptz:=now();\n v_orders uuid[]:='{}'::uuid[];\nBEGIN\n PERFORM public.sales_require(_org,'reservations.release');\n PERFORM public.inventory_lock(_org);\n FOR r IN SELECT * FROM public.inventory_reservations\n   WHERE organization_id=_org AND status IN ('ACTIVE','PARTIALLY_CONSUMED')\n     AND expires_at<now()\n   FOR UPDATE SKIP LOCKED LOOP\n  UPDATE public.inventory_reservations SET status='EXPIRED',\n   released_quantity=released_quantity+(quantity-fulfilled_quantity-released_quantity),\n   released_at=v_now,release_reason='Expiração automática por prazo',updated_at=v_now WHERE id=r.id;\n  v_orders:=v_orders||r.sales_order_id;\n  v_n:=v_n+1;\n END LOOP;\n IF v_n=0 THEN RETURN jsonb_build_object('expired',0); END IF;\n -- Reservado do item e situacao de estoque do pedido voltam a ser o real.\n UPDATE public.sales_order_items i SET reserved_quantity=coalesce((\n    SELECT sum(greatest(0,x.quantity-x.fulfilled_quantity-x.released_quantity))\n    FROM public.inventory_reservations x WHERE x.sales_order_item_id=i.id\n      AND x.status IN ('ACTIVE','PARTIALLY_CONSUMED')),0),updated_at=v_now\n  WHERE i.organization_id=_org AND i.sales_order_id=ANY(v_orders);\n UPDATE public.sales_orders o SET stock_status=CASE\n    WHEN NOT EXISTS(SELECT 1 FROM public.inventory_reservations r\n        WHERE r.organization_id=_org AND r.sales_order_id=o.id\n          AND r.status IN ('ACTIVE','PARTIALLY_CONSUMED')\n          AND r.quantity-r.fulfilled_quantity-r.released_quantity>0) THEN 'INSUFFICIENT'\n    ELSE o.stock_status END,availability_checked_at=v_now,updated_at=v_now\n  WHERE o.organization_id=_org AND o.id=ANY(v_orders)\n    AND o.status NOT IN ('CANCELED','CLOSED','FULFILLED');\n PERFORM public.sales_audit(_org,'inventory_reservation.expired_batch','sales_orders',v_orders[1],\n   jsonb_build_object('expired',v_n,'sales_order_ids',to_jsonb(v_orders)));\n RETURN jsonb_build_object('expired',v_n,'sales_order_ids',to_jsonb(v_orders));\nEND;\n$$;\"\"\")\np.write_text(s); print('ok', 'shipment_item_id' in s)\nPY"
@@ -1511,5 +1495,19 @@
     "content": "(no output)",
     "is_error": false,
     "timestamp": 1790522678471
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -rn \"company_addresses\" supabase/migrations/*.sql | grep -v 20261006 | head -8 && echo \"=== ddl ===\" && awk 'BEGIN{f=0} /CREATE TABLE public.company_addresses /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20260925100000_base.sql 2>/dev/null | head -20"
+    },
+    "timestamp": 1790522681056
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260924100000_partners.sql:26:CREATE TABLE public.company_addresses (\nsupabase/migrations/20260924100000_partners.sql:33:CREATE UNIQUE INDEX company_primary_address ON public.company_addresses(company_id,type) WHERE is_primary;\nsupabase/migrations/20260924100000_partners.sql:79:",
+    "is_error": false,
+    "timestamp": 1790522681109
   }
 ]
