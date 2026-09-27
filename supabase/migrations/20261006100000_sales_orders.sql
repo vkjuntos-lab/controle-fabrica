@@ -1622,24 +1622,33 @@ $$;
 CREATE FUNCTION public.sales_company_activity(_org uuid,_company uuid,_limit integer DEFAULT 50) RETURNS jsonb
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
  SELECT jsonb_build_object(
-  'orders',coalesce((SELECT jsonb_agg(to_jsonb(x) ORDER BY x.created_at DESC) FROM (
-    SELECT id,order_number,status,stock_status,fulfillment_status,order_date,expected_delivery_date,
-      total_amount,delivered_amount,currency,source_type FROM (
-      SELECT o.id,o.order_number,o.status,o.stock_status,o.fulfillment_status,o.order_date,
-        o.expected_delivery_date,o.total_amount,o.currency,o.source_type,o.created_at,
-        (SELECT coalesce(sum(si.delivered_quantity),0) FROM public.shipment_items si
-         JOIN public.shipments s ON s.id=si.shipment_id
-         WHERE s.organization_id=_org AND s.sales_order_id=o.id) delivered_amount
-      FROM public.sales_orders o WHERE o.organization_id=_org AND o.company_id=_company) x
-    LIMIT _limit) x),'[]'::jsonb),
-  'shipments',coalesce((SELECT jsonb_agg(to_jsonb(x) ORDER BY x.created_at DESC) FROM (
-    SELECT s.id,s.shipment_number,s.status,s.shipping_method,s.tracking_code,s.dispatched_at,
-      s.delivered_at,s.expected_delivery_at,s.created_at
-    FROM public.shipments s JOIN public.sales_orders o ON o.id=s.sales_order_id
-    WHERE s.organization_id=_org AND o.company_id=_company LIMIT _limit) x),'[]'::jsonb),
-  'returns',coalesce((SELECT jsonb_agg(to_jsonb(x) ORDER BY x.created_at DESC) FROM (
-    SELECT r.id,r.return_number,r.status,r.reason,r.requested_at,r.received_at,r.financial_action
-    FROM public.customer_returns r WHERE r.organization_id=_org AND r.company_id=_company LIMIT _limit) x),'[]'::jsonb));
+  'orders',coalesce((SELECT jsonb_agg(to_jsonb(o) ORDER BY o.created_at DESC,o.order_number DESC)
+    FROM (SELECT so.id,so.order_number,so.status,so.stock_status,so.fulfillment_status,so.order_date,
+      so.expected_delivery_date,so.total_amount,so.currency,so.source_type,so.created_at,
+      (SELECT coalesce(sum(si.delivered_quantity),0) FROM public.shipment_items si
+       JOIN public.shipments s ON s.id=si.shipment_id
+       WHERE s.organization_id=_org AND s.sales_order_id=so.id) AS delivered_amount
+    FROM public.sales_orders so
+    WHERE so.organization_id=_org AND so.company_id=_company
+    ORDER BY so.created_at DESC,so.order_number DESC LIMIT greatest(1,least(_limit,200))) o),'[]'::jsonb),
+  'shipments',coalesce((SELECT jsonb_agg(to_jsonb(s) ORDER BY s.created_at DESC,s.shipment_number DESC)
+    FROM (SELECT sh.id,sh.shipment_number,sh.status,sh.shipping_method,sh.tracking_code,sh.dispatched_at,
+      sh.expected_delivery_at,sh.delivered_quantity,sh.exception_notes,sh.created_at
+    FROM public.shipments sh JOIN public.sales_orders o ON o.id=sh.sales_order_id
+    WHERE sh.organization_id=_org AND o.company_id=_company
+    ORDER BY sh.created_at DESC,sh.shipment_number DESC LIMIT greatest(1,least(_limit,200))) s),'[]'::jsonb),
+  'returns',coalesce((SELECT jsonb_agg(to_jsonb(r) ORDER BY r.requested_at DESC,r.return_number DESC)
+    FROM (SELECT cr.id,cr.return_number,cr.status,cr.reason,cr.requested_at,cr.received_at,
+      cr.financial_action,cr.financial_requested_at,cr.created_at
+    FROM public.customer_returns cr WHERE cr.organization_id=_org AND cr.company_id=_company
+    ORDER BY cr.requested_at DESC,cr.return_number DESC LIMIT greatest(1,least(_limit,200))) r),'[]'::jsonb),
+  'totals',(SELECT jsonb_build_object(
+      'orders',count(*),coalesce(sum(total_amount),0),coalesce(sum((SELECT coalesce(sum(si.delivered_quantity),0)
+        FROM public.shipment_items si JOIN public.shipments s ON s.id=si.shipment_id
+        WHERE s.sales_order_id=so.id)),0) AS delivered_amount
+    FROM public.sales_orders so
+    WHERE so.organization_id=_org AND so.company_id=_company AND so.status NOT IN ('CANCELED'))),
+  'note','Dados sempre das tabelas oficiais. Nada é recalculado nem estimado aqui.');
 $$;
 
 

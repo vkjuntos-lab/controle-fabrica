@@ -1,17 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "src/:\ncomponents\nhooks\nintegrations\nlib\nrouteTree.gen.ts\nrouter.tsx\nroutes\nserver.ts\nstart.ts\nstyles.css\nutils\n\nsrc/components:\ncosts\ncrm\nfinance\nicons.tsx\ninventory\nlayout\npartners\nplanning\npurchasing\nreconciliation\nstates\nui\n\nsrc/components/costs:\ncommercial.tsx\npages.tsx\nshared.tsx\n\nsrc/component",
-    "is_error": false,
-    "timestamp": 1790519706439
-  },
-  {
-    "role": "tool_result",
-    "content": "total 1448\ndrwxrwxrwx 2 claude-runner claude-runner  12288 Sep 26 01:44 .\ndrwxrwxrwx 3 claude-runner claude-runner   4096 Sep 26 08:58 ..\n-rw-rw-rw- 1 claude-runner claude-runner   2043 Sep 17 12:28 20240808143900_batch_persistence.sql\n-rw-rw-rw- 1 claude-runner claude-runner   7655 Sep 17 12:28 202",
-    "is_error": false,
-    "timestamp": 1790519706461
-  },
-  {
     "role": "tool",
     "tool": "task",
     "input": {
@@ -1532,5 +1520,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql</path>\n<type>file</type>\n<content>\n1616:  RETURN v_n;\n1617: END;\n1618: $$;\n1619: \n1620: -- Esconde o estado do CUSTOMER 360 sem duplicar dado: devolve o que o MASTER 013\n1621: -- sabe sobre a venda dir",
     "is_error": false,
     "timestamp": 1790521773388
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
+      "newString": "CREATE FUNCTION public.sales_company_activity(_org uuid,_company uuid,_limit integer DEFAULT 50) RETURNS jsonb\nLANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n SELECT jsonb_build_object(\n  'orders',coalesce((SELECT jsonb_agg(to_jsonb(o) ORDER BY o.created_at DESC,o.order_number DESC)\n    FROM (SELECT so.id,so.order_number,so.status,so.stock_status,so.fulfillment_status,so.order_date,\n      so.expected_delivery_date,so.total_amount,so.currency,so.source_type,so.created_at,\n      (SELECT coalesce(sum(si.delivered_quantity),0) FROM public.shipment_items si\n       JOIN public.shipments s ON s.id=si.shipment_id\n       WHERE s.organization_id=_org AND s.sales_order_id=so.id) AS delivered_amount\n    FROM public.sales_orders so\n    WHERE so.organization_id=_org AND so.company_id=_company\n    ORDER BY so.created_at DESC,so.order_number DESC LIMIT greatest(1,least(_limit,200))) o),'[]'::jsonb),\n  'shipments',coalesce((SELECT jsonb_agg(to_jsonb(s) ORDER BY s.created_at DESC,s.shipment_number DESC)\n    FROM (SELECT sh.id,sh.shipment_number,sh.status,sh.shipping_method,sh.tracking_code,sh.dispatched_at,\n      sh.expected_delivery_at,sh.delivered_quantity,sh.exception_notes,sh.created_at\n    FROM public.shipments sh JOIN public.sales_orders o ON o.id=sh.sales_order_id\n    WHERE sh.organization_id=_org AND o.company_id=_company\n    ORDER BY sh.created_at DESC,sh.shipment_number DESC LIMIT greatest(1,least(_limit,200))) s),'[]'::jsonb),\n  'returns',coalesce((SELECT jsonb_agg(to_jsonb(r) ORDER BY r.requested_at DESC,r.return_number DESC)\n    FROM (SELECT cr.id,cr.return_number,cr.status,cr.reason,cr.requested_at,cr.received_at,\n      cr.financial_action,cr.financial_requested_at,cr.created_at\n    FROM public.customer_returns cr WHERE cr.organization_id=_org AND cr.company_id=_company\n    ORDER BY cr.requested_at DESC,cr.return_number DESC LIMIT greatest(1,least(_limit,200))) r),'[]'::jsonb),\n  'totals',(SELECT jsonb_build_object(\n      'orders',count(*),coalesce(sum(total_amount),0),coalesce(sum((SELECT coalesce(sum(si.delivered_quantity),0)\n        FROM public.shipment_items si JOIN public.shipments s ON s.id=si.shipment_id\n        WHERE s.sales_order_id=so.id)),0) AS delivered_amount\n    FROM public.sales_orders so\n    WHERE so.organization_id=_org AND so.company_id=_company AND so.status NOT IN ('CANCELED'))),\n  'note','Dados sempre das tabelas oficiais. Nada é recalculado nem estimado aqui.');\n$$;",
+      "oldString": "CREATE FUNCTION public.sales_company_activity(_org uuid,_company uuid,_limit integer DEFAULT 50) RETURNS jsonb\nLANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n SELECT jsonb_build_object(\n  'orders',coalesce((SELECT jsonb_agg(to_jsonb(x) ORDER BY x.created_at DESC) FROM (\n    SELECT id,order_number,status,stock_status,fulfillment_status,order_date,expected_delivery_date,\n      total_amount,delivered_amount,currency,source_type FROM (\n      SELECT o.id,o.order_number,o.status,o.stock_status,o.fulfillment_status,o.order_date,\n        o.expected_delivery_date,o.total_amount,o.currency,o.source_type,o.created_at,\n        (SELECT coalesce(sum(si.delivered_quantity),0) FROM public.shipment_items si\n         JOIN public.shipments s ON s.id=si.shipment_id\n         WHERE s.organization_id=_org AND s.sales_order_id=o.id) delivered_amount\n      FROM public.sales_orders o WHERE o.organization_id=_org AND o.company_id=_company) x\n    LIMIT _limit) x),'[]'::jsonb),\n  'shipments',coalesce((SELECT jsonb_agg(to_jsonb(x) ORDER BY x.created_at DESC) FROM (\n    SELECT s.id,s.shipment_number,s.status,s.shipping_method,s.tracking_code,s.dispatched_at,\n      s.delivered_at,s.expected_delivery_at,s.created_at\n    FROM public.shipments s JOIN public.sales_orders o ON o.id=s.sales_order_id\n    WHERE s.organization_id=_org AND o.company_id=_company LIMIT _limit) x),'[]'::jsonb),\n  'returns',coalesce((SELECT jsonb_agg(to_jsonb(x) ORDER BY x.created_at DESC) FROM (\n    SELECT r.id,r.return_number,r.status,r.reason,r.requested_at,r.received_at,r.financial_action\n    FROM public.customer_returns r WHERE r.organization_id=_org AND r.company_id=_company LIMIT _limit) x),'[]'::jsonb));\n$$;"
+    },
+    "timestamp": 1790521786340
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790521786372
   }
 ]
