@@ -44,7 +44,7 @@ def run():
   sql(f"INSERT INTO products(id,organization_id,code,name,status) VALUES({q(p)},{q(org)},'P-{code}','Produto {code}','ACTIVE');INSERT INTO product_variants(id,organization_id,product_id,sku,status,barcode) VALUES({q(v)},{q(org)},{q(p)},{q(code)},'ACTIVE',{q(bc) if bc else 'NULL'})")
   call('pricing_publish',org,{'price_table_id':table,'variant_id':v,'unit_price':price,'valid_from':'2020-01-01'})
   variants[code]={'v':v,'price':price,'barcode':bc}
- nw({'v':variants['SAP-001']['v'],'l':warehouse});nw({'v':variants['SAP-002']['v'],'l':warehouse})
+ nw(variants['SAP-001']['v'],warehouse);nw(variants['SAP-002']['v'],warehouse)
  assert balance(variants['SAP-001']['v'],warehouse)==100.0
  print('PASS A: cenario montado; saldo fisico oficial em 100')
 
