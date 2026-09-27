@@ -29,20 +29,21 @@ def run():
  def action(order,verb,data={},**kw):return rpc('sales_order_action',org,order,verb,data,**kw)
  def query(kind,filters={},**kw):return rpc('sales_query',org,kind,filters,**kw)
  def detail(order,**kw):return rpc('sales_order_detail',org,order,**kw)
- def nw(variant,loc):return call('inventory_post_movement',','.join(map(q,[org,variant,loc,'OPENING_BALANCE',100]))+",_reason=>'Saldo inicial'",a)
+ def raw(name,args,user,fail=None):return db.call(name,args,user,fail)
+ def nw(variant,loc):return raw('inventory_post_movement',','.join(map(q,[org,variant,loc,'OPENING_BALANCE',100]))+",_reason=>'Saldo inicial'",a)
  def balance(variant,loc):return float(sql(f"SELECT inventory_get_balance({q(org)},{q(variant)},{q(loc)})",a))
 
  # ---------------------------------------------------------------- cenario
- company=sql(f"SELECT partner_save_company({q(org)},'{json.dumps({'code':'ACLIENTE','legal_name':'Cliente Alfa','roles':['CUSTOMER']})}')",a)
+ company=raw('partner_save_company',q(org)+','+json.dumps({'code':'ACLIENTE','legal_name':'Cliente Alfa','roles':['CUSTOMER']}),a)
  crm('customer',{'company_id':company})
  warehouse=sql(f"SELECT id FROM inventory_locations WHERE organization_id={q(org)} AND name='Fábrica'",a) or sql(f"""INSERT INTO inventory_locations(id,organization_id,code,name,type) VALUES({q(uid())},{q(org)},'PRINCIPAL','Fábrica','FACTORY') RETURNING id""",a)
  quarantine=sql(f"INSERT INTO inventory_locations(id,organization_id,code,name,type,operational_purpose) VALUES({q(uid())},{q(org)},'QUAR','Quarentena','OTHER','QUARANTINE') RETURNING id",a)
- table=json.loads(call('price_save_table',org,{'code':'VAREJO','name':'Varejo','valid_from':'2020-01-01'}))['id']
+ table=json.loads(raw('price_save_table',q(org)+','+json.dumps({'code':'VAREJO','name':'Varejo','valid_from':'2020-01-01'}),a))['id']
  variants={}
  for code,price,bc in [('SAP-001',25.00,'7891000100017'),('SAP-002',10.50,'7891000100024'),('SAP-003',7.25,None)]:
   p,v=uid(),uid()
   sql(f"INSERT INTO products(id,organization_id,code,name,status) VALUES({q(p)},{q(org)},'P-{code}','Produto {code}','ACTIVE');INSERT INTO product_variants(id,organization_id,product_id,sku,status,barcode) VALUES({q(v)},{q(org)},{q(p)},{q(code)},'ACTIVE',{q(bc) if bc else 'NULL'})")
-  call('pricing_publish',org,{'price_table_id':table,'variant_id':v,'unit_price':price,'valid_from':'2020-01-01'})
+  raw('pricing_publish',q(org)+','+json.dumps({'price_table_id':table,'variant_id':v,'unit_price':price,'valid_from':'2020-01-01'}),a)
   variants[code]={'v':v,'price':price,'barcode':bc}
  nw(variants['SAP-001']['v'],warehouse);nw(variants['SAP-002']['v'],warehouse)
  assert balance(variants['SAP-001']['v'],warehouse)==100.0
@@ -102,8 +103,8 @@ def run():
  assert reserved['reserved_total']==20, reserved
  assert balance(variants['SAP-001']['v'],warehouse)==100.0
  assert float(sql(f"SELECT inventory_get_balance({q(org)},{q(variants['SAP-001']['v'])})",a))==110.5
- assert float(call('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==80.0
- assert float(call('sales_reserved',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==20.0
+ assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==80.0
+ assert float(raw('sales_reserved',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==20.0
  assert sql(f"SELECT count(*) FROM inventory_movements WHERE movement_type='SALE'")=='0'
  again=rpc('sales_reserve',org,order['id'],{},user=picker)
  assert again['created']==0, again
@@ -211,7 +212,7 @@ def run():
  rpc('sales_return_action',org,ret2['id'],'receive',{'quantity':2,'destination':'QUARANTINE','destination_location_id':quarantine},user=picker)
  assert balance(variants['SAP-001']['v'],warehouse)==85.0
  assert float(sql(f"SELECT quantity FROM inventory_get_balance({q(org)},{q(variants['SAP-001']['v'])})"))==2.0
- assert float(call('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],quarantine])),a))==0.0
+ assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],quarantine])),a))==0.0
  print('PASS P: danificado so pode ir para quarentena; saldo em quarentena nao e vendavel')
 
  # ------------------------------------------- titulo financeiro unico
@@ -246,11 +247,11 @@ def run():
  action(order3['id'],'submit',user=commercial);action(order3['id'],'approve',user=approver)
  rpc('sales_reserve',org,order3['id'],{},user=picker)
  assert float(sql(f"SELECT reserved_quantity FROM sales_order_items WHERE sales_order_id={q(order3['id'])}"))==5.0
- assert float(call('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==80.0
+ assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==80.0
  action(order3['id'],'cancel',{'reason':'Cliente desistiu'},user=approver)
  assert sql(f"SELECT status FROM sales_orders WHERE id={q(order3['id'])}")=='CANCELED'
  assert float(sql(f"SELECT reserved_quantity FROM sales_order_items WHERE sales_order_id={q(order3['id'])}"))==0.0
- assert float(call('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==85.0
+ assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==85.0
  assert balance(variants['SAP-001']['v'],warehouse)==85.0
  print('PASS S: cancelar libera a reserva e devolve o disponivel sem tocar no saldo fisico')
 
@@ -263,7 +264,7 @@ def run():
  expired=rpc('sales_expire_reservations',org,{},user=picker)
  assert expired['expired']==1, expired
  assert sql(f"SELECT count(*) FROM inventory_reservations WHERE sales_order_id={q(order4['id'])} AND status='EXPIRED'")=='1'
- assert float(call('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==85.0
+ assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==85.0
  print('PASS T: reserva vencida expira por chamada idempotente e devolve o disponivel')
 
  # ------------------------------------------------ painel, cliente 360
