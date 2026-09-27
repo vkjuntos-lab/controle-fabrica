@@ -14,7 +14,7 @@ def run():
    print('FALHOU',name); print(e.args[0][:1500]); return
  print('MIGRATION OK')
  a,org=uid(),uid()
- sql(f"INSERT INTO auth.users(id,email) VALUES({q(a)},'a@test');INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'S','s',{q(a)});INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(a)},'admin')")
+ sql(f"INSERT INTO auth.users(id,email) VALUES({q(a)},'a@test');INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'S','s',{q(a)}) ON CONFLICT DO NOTHING;INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(a)},'admin') ON CONFLICT DO NOTHING")
  for kind in ['orders','exceptions','shipments','returns','reservations','fulfillment','carriers','credits','desconhecido']:
   try:
    v=db.call('sales_query',f"{q(org)},{q(kind)},'{{}}'",a)

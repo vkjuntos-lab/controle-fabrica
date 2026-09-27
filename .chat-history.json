@@ -1,21 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sed -n '1495,1598p' supabase/migrations/20261001100000_purchasing.sql"
-    },
-    "timestamp": 1790520240341
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sed -n '296,360p' supabase/migrations/20261005100000_crm.sql"
-    },
-    "timestamp": 1790520240344
-  },
-  {
     "role": "tool_result",
     "content": "DECLARE result jsonb; v_months int:=greatest(1,coalesce((nullif(_filters->>'months',''))::int,3));\nBEGIN\n  PERFORM public.purchasing_require(_org,'purchase_requests.read');\n  WITH cfg AS MATERIALIZED(\n    SELECT v.id variant_id,v.sku,pr.name product_name,v.minimum_stock,v.reorder_point,v.target_stoc",
     "is_error": false,
@@ -1538,5 +1522,19 @@
     "content": "MIGRATION OK\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/_probe-sales.py\", line 24, in <module>\n    if __name__=='__main__':run()\n                            ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/_probe-sales.py\", line 17, in r",
     "is_error": false,
     "timestamp": 1790521818938
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/_probe-sales.py'); s=p.read_text()\ns=s.replace(\"INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(a)},'admin')\",\n            \"INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(a)},'admin') ON CONFLICT DO NOTHING\")\ns=s.replace(\"INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'S','s',{q(a)})\",\n            \"INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'S','s',{q(a)}) ON CONFLICT DO NOTHING\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/_probe-sales.py\" 2>&1 | tail -20"
+    },
+    "timestamp": 1790521827591
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nMIGRATION OK\nOK   orders {\"kind\": \"orders\", \"rows\": [], \"limit\": 50, \"total\": 0, \"off\nOK   exceptions {\"kind\": \"exceptions\", \"rows\": [], \"limit\": 50, \"total\": 0, \nOK   shipments {\"kind\": \"shipments\", \"rows\": [], \"limit\": 50, \"total\": 0, \"\nOK   returns {\"kind\": \"returns\", \"rows\": [], \"limit\": 50, ",
+    "is_error": false,
+    "timestamp": 1790521829569
   }
 ]
