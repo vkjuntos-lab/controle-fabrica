@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
-    },
-    "timestamp": 1790523144319
-  },
-  {
-    "role": "tool_result",
-    "content": "           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 28, in call\n    def call(name, args, user, fail=None): return sql(f\"SELECT",
-    "is_error": false,
-    "timestamp": 1790523147271
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"ERROR|CONTEXT|PL/pgSQL\" | head -8"
     },
     "timestamp": 1790523152543
@@ -1406,5 +1392,19 @@
     "content": "#!/usr/bin/env python3\n\"\"\"Isolated PostgreSQL integration tests. Never connects to a deployed database.\"\"\"\nimport concurrent.futures\nimport json\nimport os\nfrom pathlib import Path\nimport shutil\nimport subprocess\nimport tempfile\nimport uuid\n\nROOT = Path(__file__).resolve().parents[1]\nBIN = Path(os.en",
     "is_error": false,
     "timestamp": 1790523915269
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\nold=\"\"\" # A devolucao pede ajuste, mas nao cria titulo: continua exatamente o da venda.\n assert sql(\"SELECT count(*) FROM account_receivables\")=='1'\"\"\"\nnew=\"\"\" # A devolucao pede ajuste, mas nao cria titulo: nenhum titulo aponta para a\n # devolucao e os dois pedidos expedidos seguem com exatamente um cada.\n assert sql(\"SELECT count(*) FROM account_receivables\")=='2'\n assert sql(f\"SELECT count(*) FROM account_receivables WHERE source_id={q(ret['id'])}\")=='0'\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790523921148
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                                                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n ",
+    "is_error": false,
+    "timestamp": 1790523925231
   }
 ]
