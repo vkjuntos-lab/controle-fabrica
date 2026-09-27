@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && cat > /tmp/opencode/dbg.py <<'PY'\nimport importlib.util,json,datetime\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('inv',Path('scripts/test-inventory-db.py'))\ndb=importlib.util.module_from_spec(spec);spec.loader.exec_module(db)\nq,sql,uid=db.q,db.sql,db.uid\ndb.setup()\nfor name in ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql','20261001100000_purchasing.sql','20261002100000_planning.sql','20261003100000_planning_engine.sql','20261004100000_planning_fixes.sql','20261005100000_crm.sql','20261006100000_sales_orders.sql']:\n sql((db.ROOT/'supabase/migrations'/name).read_text())\na,org=uid(),uid()\nsql(f\"INSERT INTO auth.users(id,email) VALUES({q(a)},'a@t'),({q(uid())},'b@t');INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'V','v',{q(a)})\")\ndef call(name,args,user,fail=None):return db.call(name,args,user,fail)\ncompany=call('partner_save_company',q(org)+\",\"+q(json.dumps({'code':'C1','legal_name':'C1','roles':['CUSTOMER']})),a)\ncall('crm_save',q(org)+\",'customer',\"+q(json.dumps({'company_id':company})),a)\nloc=sql(f\"SELECT id FROM inventory_locations WHERE organization_id={q(org)} LIMIT 1\",a)\np,v=uid(),uid()\nsql(f\"INSERT INTO products(id,organization_id,code,name,status) VALUES({q(p)},{q(org)},'P1','P','ACTIVE');INSERT INTO product_variants(id,organization_id,product_id,sku,status) VALUES({q(v)},{q(org)},{q(p)},'SKU1','ACTIVE')\")\ntbl=json.loads(call('price_save_table',q(org)+\",\"+q(json.dumps({'code':'T','name':'T','valid_from':'2020-01-01'})),a))['id']\ncall('pricing_publish',q(org)+\",\"+q(json.dumps({'price_table_id':tbl,'variant_id':v,'unit_price':10,'valid_from':'2020-01-01'})),a)\norder=json.loads(call('sales_save',q(org)+\",\"+q(json.dumps({'company_id':company,'price_table_id':tbl,'items':[{'variant_id':v,'quantity':2}]})),a))\nprint('order',order)\nprint('rows:',sql(f\"SELECT count(*) FROM public.sales_order_items WHERE organization_id={q(org)}\",a))\ntry:\n print(sql(f\"SELECT * FROM public.sales_order_items WHERE organization_id={q(org)}\",a)[:200])\nexcept AssertionError as e: print('SELECT * FAILED:',e)\nfor col in ['sku_snapshot','price_snapshot','product_variant_id','ordered_quantity','line_total','created_by','sourcing_type','status']:\n try: sql(f\"SELECT {col} FROM public.sales_order_items WHERE organization_id={q(org)}\",a); print(col,'ok')\n except AssertionError as e: print(col,'FAIL',str(e)[:200])\ndb.cleanup()\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 600 python3 /tmp/opencode/dbg.py\" 2>&1 | tail -22"
-    },
-    "timestamp": 1790522657608
-  },
-  {
-    "role": "tool_result",
-    "content": "order {'id': '97250686-dd5b-4229-bda9-3cf0a0bf7e38', 'status': 'DRAFT', 'order_number': 'PV-2026-000001', 'total_amount': 20.0}\nrows: 1\nef601fac-f5b0-4131-8487-fa402bc005c2|73eead3c-634a-4082-b7e7-1969a406f444|97250686-dd5b-4229-bda9-3cf0a0bf7e38|59510cf6-8024-4f76-b9e9-0861cd4ee525|SKU1|P — SKU1|UN",
-    "is_error": false,
-    "timestamp": 1790522659965
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"FOR i IN SELECT \\* FROM\" supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790522667047
@@ -1414,5 +1400,19 @@
     "content": " PERFORM public.sales_require(_org,'shipments.create');\n PERFORM public.inventory_lock(_org);\n SELECT * INTO o FROM public.sales_orders WHERE id=_order AND organization_id=_org FOR UPDATE;\n IF NOT FOUND THEN RAISE EXCEPTION 'Pedido não encontrado.'; END IF;\n IF o.status NOT IN ('APPROVED','AWAITING_",
     "is_error": false,
     "timestamp": 1790523542615
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\" print('DEBUG ff after ready',sql(f\"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"))\"\"\",\n\"\"\" print('DEBUG ids ff=',fulfillment['id'],'order=',order['id'],'status',sql(f\"SELECT status||'|'||sales_order_id||'|'||organization_id FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"))\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"DEBUG ids|Assertion\" | tail -3"
+    },
+    "timestamp": 1790523548879
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nDEBUG ids ff= 52fce422-0159-4523-b69a-5d1efec52e28 order= cc99cc58-04e2-4c76-9c47-000cab3e09a5 status READY_FOR_SHIPMENT|cc99cc58-04e2-4c76-9c47-000cab3e09a5|f9d44454-7d8a-479a-8bee-9e33236c44a9\nAssertionError: ERROR:  Atendimento b51a1895-2044-45e4-adb2-e19e192170a9 não está liberado para expedi",
+    "is_error": false,
+    "timestamp": 1790523552462
   }
 ]

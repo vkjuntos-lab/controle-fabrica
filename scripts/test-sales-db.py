@@ -160,7 +160,7 @@ def run():
  # ------------------------------------------ expedicao: baixa no ledger
  print('DEBUG ff',sql(f"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}"),'packrec',sql(f"SELECT count(*) FROM packing_records WHERE fulfillment_order_id={q(fulfillment['id'])}"))
  rpc('sales_fulfillment_action',org,fulfillment['id'],'ready',{},user=picker)
- print('DEBUG ff after ready',sql(f"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}"))
+ print('DEBUG ids ff=',fulfillment['id'],'order=',order['id'],'status',sql(f"SELECT status||'|'||sales_order_id||'|'||organization_id FROM fulfillment_orders WHERE id={q(fulfillment['id'])}"))
  shipment=rpc('sales_shipment_create',org,order['id'],{'fulfillment_order_id':fulfillment['id'],
    'tracking_code':'BR123456789BR','expected_delivery_at':(datetime.datetime.now(datetime.timezone.utc)+datetime.timedelta(days=3)).isoformat()},user=picker)
  assert shipment['status']=='READY', shipment
