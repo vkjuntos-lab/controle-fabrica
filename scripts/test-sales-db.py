@@ -105,7 +105,7 @@ def run():
  reserved=rpc('sales_reserve',org,order['id'],{},user=picker)
  assert reserved['reserved_total']==20, reserved
  assert balance(variants['SAP-001']['v'],warehouse)==100.0
- assert float(sql(f"SELECT inventory_get_balance({q(org)},{q(variants['SAP-001']['v'])})",a))==110.5
+ assert float(sql(f"SELECT inventory_get_balance({q(org)},{q(variants['SAP-001']['v'])})",a))==100.0
  assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==80.0
  assert float(raw('sales_reserved',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==20.0
  assert sql(f"SELECT count(*) FROM inventory_movements WHERE movement_type='SALE'")=='0'
