@@ -2876,6 +2876,7 @@ RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE ret public.customer_returns; cfg jsonb; v_new text; v_now timestamptz:=now();
  v_i record; v_dest uuid; v_dest_ok boolean; v_fin text; v_mov jsonb; v_mov_id uuid;
  v_qty numeric; v_notes text; v_movements jsonb:='[]'::jsonb; v_count integer:=0; v_reject_reason text;
+ v_i_destination text;
 BEGIN
  PERFORM public.sales_require(_org,CASE WHEN _action IN ('approve','reject') THEN 'returns.approve'
    WHEN _action='receive' THEN 'returns.receive' ELSE 'returns.create' END);

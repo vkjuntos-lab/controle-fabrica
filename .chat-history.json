@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\nold=\"\"\" action(order['id'],'cancel',{'reason':'Teste'},user=approver,fail='nao pode ser cancelado')\n\"\"\"\nnew=\"\"\" action(order2['id'],'cancel',{'reason':'Rascunho'},user=approver)\n assert sql(f\"SELECT status FROM sales_orders WHERE id={q(order2['id'])}\")=='CANCELED'\n\"\"\"\nassert old in s; s=s.replace(old,new)\n# DRAFT cancel must demand a reason and must work; assert the reason requirement instead\nold2=\"\"\" action(order['id'],'submit',user=commercial)\"\"\"\nnew2=\"\"\" action(order3_probe['id'],'cancel',{},user=approver) if False else None\n action(order['id'],'submit',user=commercial)\"\"\"\ns=s.replace(old2,new2)\np.write_text(s); print('ok')\nPY\npython3 - <<'PY'\nimport pathlib\np=pathlib.Path('/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\" action(order3_probe['id'],'cancel',{},user=approver) if False else None\\n\"\"\",\"\")\np.write_text(s); print('cleaned')\nPY\ncd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"order2\\['id'\\],'cancel'\" -B2 -A2 scripts/test-sales-db.py"
-    },
-    "timestamp": 1790523190263
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\ncleaned\n127-   {'sales_order_item_id':sql(f\"SELECT id FROM sales_order_items WHERE sales_order_id={q(order['id'])}\"),'quantity':20}]},user=picker)\n128- assert fulfillment['status']=='READY_FOR_PICKING', fulfillment\n129: action(order2['id'],'cancel',{'reason':'Rascunho'},user=approver)\n130- assert",
-    "is_error": false,
-    "timestamp": 1790523190371
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\nold=\"\"\" action(order2['id'],'cancel',{'reason':'Rascunho'},user=approver)\n assert sql(f\"SELECT status FROM sales_orders WHERE id={q(order2['id'])}\")=='CANCELED'\"\"\"\nnew=\"\"\" action(below['id'],'cancel',{},user=approver,fail='Motivo')\n action(below['id'],'cancel',{'reason':'Preco invalido'},user=approver)\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
     },
     "timestamp": 1790523196593
@@ -1404,5 +1390,19 @@
     "content": "DECLARE ret public.customer_returns; cfg jsonb; v_new text; v_now timestamptz:=now();\n v_i record; v_dest uuid; v_dest_ok boolean; v_fin text; v_mov jsonb; v_mov_id uuid;\n v_qty numeric; v_notes text; v_movements jsonb:='[]'::jsonb; v_count integer:=0; v_reject_reason text;\nBEGIN\n PERFORM public.sal",
     "is_error": false,
     "timestamp": 1790523986353
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\" v_qty numeric; v_notes text; v_movements jsonb:='[]'::jsonb; v_count integer:=0; v_reject_reason text;\"\"\"\nnew=\"\"\" v_qty numeric; v_notes text; v_movements jsonb:='[]'::jsonb; v_count integer:=0; v_reject_reason text;\n v_i_destination text;\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790523988825
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n                 ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  col",
+    "is_error": false,
+    "timestamp": 1790523992905
   }
 ]
