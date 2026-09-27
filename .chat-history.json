@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\ns=s.replace(\"CREATE FUNCTION public.sales_convert_quote(_org uuid,_quote uuid,_data jsonb DEFAULT '{}',_key uuid)\",\n            \"CREATE FUNCTION public.sales_convert_quote(_org uuid,_quote uuid,_data jsonb DEFAULT '{}',_key uuid DEFAULT NULL)\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/_check-sales-migration.py\" 2>&1 | tail -8"
-    },
-    "timestamp": 1790521724673
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  column x.created_at does not exist\nLINE 4: ...',coale",
-    "is_error": false,
-    "timestamp": 1790521726547
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '/CREATE TABLE public.logistics_exceptions/,/^);/p' supabase/migrations/20261006100000_sales_orders.sql | grep -n \"created_at\\|updated_at\\|resolved_at\""
     },
     "timestamp": 1790521732459
@@ -1508,5 +1494,19 @@
     "content": "49:-- quando a segregacao de funcoes esta ativa (o servidor decide).\n100: approval_segregation boolean NOT NULL DEFAULT true,\n758:   'approval_segregation',true,'max_discount_percent',NULL,'price_override_policy','BLOCK',\n1401: v_discount_pct numeric; v_auth numeric; v_sep boolean; v_credit jsonb; v",
     "is_error": false,
     "timestamp": 1790522709094
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '30,48p' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790522711495
+  },
+  {
+    "role": "tool_result",
+    "content": "ALTER TABLE public.company_addresses\n  ADD CONSTRAINT company_addresses_organization_id_id_key UNIQUE(organization_id,id);\n\n-- =====================================================================\n-- 1. Permissoes do modulo.\n-- =====================================================================\nIN",
+    "is_error": false,
+    "timestamp": 1790522711503
   }
 ]
