@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -rn \"inventory.move\\|'inventory\\.\" supabase/migrations/*.sql | grep -o \"'inventory\\.[a-z._]*'\" | sort -u"
-    },
-    "timestamp": 1790521138137
-  },
-  {
-    "role": "tool_result",
-    "content": "'inventory.'\n'inventory.adjust'\n'inventory.adjustment'\n'inventory.allow_negative'\n'inventory.count'\n'inventory.count.cancel'\n'inventory.count.complete'\n'inventory.count.create'\n'inventory.ledger.post'\n'inventory.manage_locations'\n'inventory.move'\n'inventory.movement.post'\n'inventory.movements.read'\n",
-    "is_error": false,
-    "timestamp": 1790521138158
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '/CREATE TABLE public.sales_orders/,/^);/p' supabase/migrations/20261006100000_sales_orders.sql | grep -n \"status\\|CHECK\" && echo \"=== itens ===\" && sed -n '/CREATE TABLE public.sales_order_items/,/^);/p' supabase/migrations/20261006100000_sales_orders.sql | grep -n \"status\\|sourcing_type\" && echo \"=== fulfillment/shipment status ===\" && sed -n '/CREATE TABLE public.fulfillment_orders/,/^);/p;/CREATE TABLE public.shipments/,/^);/p' supabase/migrations/20261006100000_sales_orders.sql | grep -n \"status\""
     },
     "timestamp": 1790521145218
@@ -1510,5 +1496,21 @@
     "content": "\nCREATE TABLE public.sales_order_items (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n organization_id uuid NOT NULL REFERENCES public.organizations,\n sales_order_id uuid NOT NULL,\n  FOREIGN KEY(organization_id,sales_order_id) REFERENCES public.sales_orders(organization_id,id),\n product_variant_i",
     "is_error": false,
     "timestamp": 1790522555818
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
+      "newString": " expected_delivery_date date,\n created_by uuid REFERENCES public.profiles DEFAULT auth.uid(),\n -- STOCK: atende de estoque existente. MAKE_TO_ORDER: depende de producao",
+      "oldString": " expected_delivery_date date,\n -- STOCK: atende de estoque existente. MAKE_TO_ORDER: depende de producao"
+    },
+    "timestamp": 1790522557985
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790522558009
   }
 ]

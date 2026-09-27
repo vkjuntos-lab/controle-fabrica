@@ -223,6 +223,7 @@ CREATE TABLE public.sales_order_items (
  tax_amount numeric(16,2) NOT NULL DEFAULT 0 CHECK(tax_amount>=0),
  line_total numeric(16,2) NOT NULL CHECK(line_total>=0),
  expected_delivery_date date,
+ created_by uuid REFERENCES public.profiles DEFAULT auth.uid(),
  -- STOCK: atende de estoque existente. MAKE_TO_ORDER: depende de producao
  -- (MASTER 011) e NAO cria ordem de producao sozinho.
  sourcing_type text NOT NULL DEFAULT 'STOCK' CHECK(sourcing_type IN ('STOCK','MAKE_TO_ORDER')),
