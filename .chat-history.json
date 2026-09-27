@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '150,200p' supabase/migrations/20261006100000_sales_orders.sql"
-    },
-    "timestamp": 1790522553847
-  },
-  {
-    "role": "tool_result",
-    "content": " -- Condicao comercial congelada: o texto vigente na negociacao.\n payment_terms_snapshot text,\n shipping_address_id uuid,\n  FOREIGN KEY(organization_id,shipping_address_id) REFERENCES public.company_addresses(organization_id,id),\n billing_address_id uuid,\n  FOREIGN KEY(organization_id,billing_addres",
-    "is_error": false,
-    "timestamp": 1790522553855
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '201,240p' supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790522555811
@@ -1422,5 +1408,19 @@
     "content": "32:3316:  'shipment_items',(SELECT coalesce(jsonb_agg(to_jsonb(si) ORDER BY si.created_at),'[]'::jsonb)\n",
     "is_error": false,
     "timestamp": 1790523427188
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\ns=s.replace(\"\"\"'shipment_items',(SELECT coalesce(jsonb_agg(to_jsonb(si) ORDER BY si.created_at),'[]'::jsonb)\"\"\",\n\"\"\"'shipment_items',(SELECT coalesce(jsonb_agg(to_jsonb(si) ORDER BY si.sku_snapshot),'[]'::jsonb)\"\"\")\ns=s.replace(\"\"\"   WHERE organization_id=_org AND shipment_id=_shipment AND quantity>0 ORDER BY created_at\"\"\",\n\"\"\"   WHERE organization_id=_org AND shipment_id=_shipment AND quantity>0 ORDER BY sku_snapshot\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790523429772
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  record \"old\" has no field \"status\"\nCONTEXT:  PL/pgSQL expression \"TG_TABLE_NAME='sales_orders' AND OLD.status IN ('CANCELED','CLOSED')\"\nPL/pgSQL function sales_immutable() line 18 at IF\nSQL statement \"UPDATE",
+    "is_error": false,
+    "timestamp": 1790523433252
   }
 ]

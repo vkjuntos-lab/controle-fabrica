@@ -2567,7 +2567,7 @@ BEGIN
  -- Uma baixa por item. A chave do movimento e derivada da expedicao, do item
  -- e do lote: repetir a chamada NUNCA cria uma segunda baixa.
  FOR si IN SELECT * FROM public.shipment_items
-   WHERE organization_id=_org AND shipment_id=_shipment AND quantity>0 ORDER BY created_at LOOP
+   WHERE organization_id=_org AND shipment_id=_shipment AND quantity>0 ORDER BY sku_snapshot LOOP
   v_mov:=public.inventory_post_movement(
     _org,si.variant_id,sh.source_location_id,'SALE',si.quantity,
     'Venda direta '||sh.shipment_number,now(),'un','SALE_SHIPMENT',_shipment,si.batch_id,
@@ -3313,7 +3313,7 @@ BEGIN
      FROM public.packing_records p WHERE p.sales_order_id=o.id),
   'shipments',(SELECT coalesce(jsonb_agg(to_jsonb(s) ORDER BY s.created_at),'[]'::jsonb)
      FROM public.shipments s WHERE s.sales_order_id=o.id),
-  'shipment_items',(SELECT coalesce(jsonb_agg(to_jsonb(si) ORDER BY si.created_at),'[]'::jsonb)
+  'shipment_items',(SELECT coalesce(jsonb_agg(to_jsonb(si) ORDER BY si.sku_snapshot),'[]'::jsonb)
      FROM public.shipment_items si WHERE si.organization_id=_org
        AND si.shipment_id IN (SELECT id FROM public.shipments WHERE sales_order_id=o.id)),
   'delivery_proofs',(SELECT coalesce(jsonb_agg(to_jsonb(p) ORDER BY p.occurred_at),'[]'::jsonb)
