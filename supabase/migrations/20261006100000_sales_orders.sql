@@ -892,7 +892,7 @@ BEGIN
   WHEN 'logistics_exceptions' THEN ARRAY[ARRAY['sales_order_id','sales_orders'],ARRAY['sales_order_item_id','sales_order_items'],ARRAY['fulfillment_order_id','fulfillment_orders'],ARRAY['shipment_id','shipments'],ARRAY['customer_return_id','customer_returns'],ARRAY['picking_task_id','picking_tasks'],ARRAY['reservation_id','inventory_reservations'],ARRAY['variant_id','product_variants']]
   ELSE NULL::text[][]
  END;
- IF v_map IS NULL THEN RETURN NEW; END IF;
+ IF v_map IS NULL THEN RETURN coalesce(NEW,OLD); END IF;
  FOREACH v_pair SLICE 1 IN ARRAY v_map
  LOOP
   v_id:=(v_data->>v_pair[1])::uuid;
@@ -900,7 +900,8 @@ BEGIN
   EXECUTE format('SELECT organization_id FROM public.%I WHERE id=$1',v_pair[2]) INTO v_org USING v_id;
   IF v_org IS DISTINCT FROM NEW.organization_id THEN RAISE EXCEPTION 'Referência fora da organização.'; END IF;
  END LOOP;
- RETURN NEW;
+ -- DELETE carrega a linha em OLD: devolver NEW (nulo) cancelaria a operacao.
+ RETURN coalesce(NEW,OLD);
 END;
 $$;
 
