@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\ns=s.replace(\"\"\"v_need:=coalesce(it.approved_quantity,it.ordered_quantity);\"\"\",\n\"\"\"v_need:=CASE WHEN it.approved_quantity>0 THEN it.approved_quantity ELSE it.ordered_quantity END;\"\"\")\ns=s.replace(\"\"\"SELECT coalesce(sum(greatest(0,coalesce(i.approved_quantity,i.ordered_quantity)\"\"\",\n\"\"\"SELECT coalesce(sum(greatest(0,CASE WHEN i.approved_quantity>0 THEN i.approved_quantity ELSE i.ordered_quantity END)\"\"\")\ns=s.replace(\"\"\"SELECT coalesce(sum(coalesce(i.approved_quantity,i.ordered_quantity)),0) INTO v_qty\"\"\",\n\"\"\"SELECT coalesce(sum(CASE WHEN i.approved_quantity>0 THEN i.approved_quantity ELSE i.ordered_quantity END),0) INTO v_qty\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -10"
-    },
-    "timestamp": 1790522776719
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 12, in run\n    sql((db.ROOT/'supabase/migrations'/name).read_text())\n    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, ",
-    "is_error": false,
-    "timestamp": 1790522778799
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
@@ -1414,5 +1400,19 @@
     "content": " ELSIF _action='receive' THEN\n  IF ret.status NOT IN ('APPROVED','RECEIVING') THEN\n   RAISE EXCEPTION 'Somente devolução aprovada pode ser recebida (status: %).',ret.status;\n  END IF;\n  v_dest:=nullif(_data->>'destination_location_id','')::uuid;\n  v_fin:=coalesce(nullif(_data->>'financial_action',''",
     "is_error": false,
     "timestamp": 1790523738551
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk 'BEGIN{f=0} /CREATE TABLE public.customer_returns /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790523743444
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE TABLE public.customer_returns (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n organization_id uuid NOT NULL REFERENCES public.organizations,\n return_number text NOT NULL,\n company_id uuid NOT NULL,\n  FOREIGN KEY(organization_id,company_id) REFERENCES public.companies(organization_id,id),\n ",
+    "is_error": false,
+    "timestamp": 1790523743460
   }
 ]
