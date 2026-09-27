@@ -37,7 +37,7 @@ def run():
  # ---------------------------------------------------------------- cenario
  company=raw('partner_save_company',q(org)+','+arg({'code':'ACLIENTE','legal_name':'Cliente Alfa','roles':['CUSTOMER']}),a)
  crm('customer',{'company_id':company})
- address=raw('partner_save_address',q(org)+','+q(company)+","+arg({'type':'SHIPPING','postal_code':'01310-100','street':'Av. Paulista','number':'1000','district':'Bela Vista','city':'Sao Paulo','state':'SP','is_primary':True}),a)
+ address=raw('partner_save_detail',q(org)+','+q(company)+",'address',"+arg({'type':'SHIPPING','postal_code':'01310-100','street':'Av. Paulista','number':'1000','district':'Bela Vista','city':'Sao Paulo','state':'SP','is_primary':True})+',NULL',a)
  warehouse=sql(f"SELECT id FROM inventory_locations WHERE organization_id={q(org)} AND name='Fábrica'",a) or sql(f"""INSERT INTO inventory_locations(id,organization_id,code,name,type) VALUES({q(uid())},{q(org)},'PRINCIPAL','Fábrica','FACTORY') RETURNING id""",a)
  quarantine=sql(f"INSERT INTO inventory_locations(id,organization_id,code,name,type,operational_purpose) VALUES({q(uid())},{q(org)},'QUAR','Quarentena','OTHER','QUARANTINE') RETURNING id",a)
  table=json.loads(raw('price_save_table',q(org)+','+arg({'code':'VAREJO','name':'Varejo','valid_from':'2020-01-01'}),a))['id']
