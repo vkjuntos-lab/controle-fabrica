@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\" print('DEBUG task',sql(f\"SELECT status FROM picking_tasks WHERE id={q(fulfillment['picking_task_id'])}\"),'ff',sql(f\"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"))\"\"\",\n\"\"\" print('DEBUG task',sql(f\"SELECT status||'|'||(status NOT IN ('IN_PROGRESS','PICKED','PENDING'))::text||'|'||pg_typeof(status)::text FROM picking_tasks WHERE id={q(fulfillment['picking_task_id'])}\"),'ff',sql(f\"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"))\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"DEBUG|Assertion\" | tail -3"
-    },
-    "timestamp": 1790523288567
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\nDEBUG task PICKED|false|text ff PICKED\nAssertionError: ERROR:  Tarefa não está em conferência.\n",
-    "is_error": false,
-    "timestamp": 1790523291744
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -rn \"não está em conferência\" supabase/migrations/*.sql"
     },
     "timestamp": 1790523307133
@@ -1404,5 +1390,19 @@
     "content": "27: def crmact(kind,i,verb,data={},key=None,**kw):return rpc('crm_action',org,kind,i,verb,data,key or uid(),**kw)\n245: contact=crmact('lead',None,'create',{'name':'Contato Alfa','company_name':'Cliente Alfa','email':'alfa@test'})['contact_id']\n247: quote=crmact('quote',None,'create',{'company_id':co",
     "is_error": false,
     "timestamp": 1790524053370
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '745,760p' supabase/migrations/20261005100000_crm.sql"
+    },
+    "timestamp": 1790524055208
+  },
+  {
+    "role": "tool_result",
+    "content": "     UPDATE sales_quotes SET status='PENDING_APPROVAL',updated_at=now() WHERE id=_id;\n    WHEN 'approve' THEN\n     IF quote.status<>'PENDING_APPROVAL' THEN RAISE EXCEPTION 'Aprovação exige proposta pendente.'; END IF;\n     SELECT max_discount_percent INTO authority FROM commercial_discount_authoriti",
+    "is_error": false,
+    "timestamp": 1790524055218
   }
 ]
