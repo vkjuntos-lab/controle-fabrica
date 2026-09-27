@@ -1178,7 +1178,7 @@ $$;
 -- Idempotente por construcao: a chave unica parcial em sales_orders
 -- (sales_quote_id) impede dois pedidos, e sales_order_operation_keys devolve
 -- o mesmo resultado quando a mesma chave e repetida.
-CREATE FUNCTION public.sales_convert_quote(_org uuid,_quote uuid,_data jsonb DEFAULT '{}',_key uuid)
+CREATE FUNCTION public.sales_convert_quote(_org uuid,_quote uuid,_data jsonb DEFAULT '{}',_key uuid DEFAULT NULL)
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE prior public.sales_order_operation_keys; q public.sales_quotes; payload jsonb;
  result jsonb; it public.sales_quote_items; items jsonb:='[]'::jsonb;
