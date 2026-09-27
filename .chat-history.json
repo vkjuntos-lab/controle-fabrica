@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/tmp/opencode/sales_part6.sql",
-      "newString": "  v_need:=coalesce(it.approved_quantity,it.ordered_quantity);",
-      "oldString": "  v_need:=it.approved_quantity-it.ordered_quantity+it.ordered_quantity; -- = approved (0 em rascunho)\n  v_need:=coalesce(it.approved_quantity,it.ordered_quantity);"
-    },
-    "timestamp": 1790520934072
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790520934131
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/tmp/opencode/sales_part6.sql",
       "newString": " v_status:=CASE WHEN v_reserved<=0 THEN 'NOT_EVALUATED'\n  WHEN v_pend<=0 THEN 'RESERVED' WHEN v_reserved>0 THEN 'PARTIAL' ELSE 'INSUFFICIENT' END;",
       "oldString": " v_status:=CASE\n  WHEN v_reserved<=0 THEN CASE WHEN v_qty>0 THEN 'NOT_EVALUATED' ELSE 'NOT_EVALUATED' END\n  WHEN v_pend<=0 THEN 'RESERVED'\n  WHEN v_reserved>0 THEN 'PARTIAL'\n  ELSE 'INSUFFICIENT' END;"
     },
@@ -1511,5 +1495,19 @@
     "content": "    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                                                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n    ",
     "is_error": false,
     "timestamp": 1790522204140
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"FUNCTION public.sales_guard_relations\" -A22 supabase/migrations/20261006100000_sales_orders.sql && echo \"=== ensure_settings ===\" && grep -n \"FUNCTION public.sales_ensure_settings\" -A20 supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790522206503
+  },
+  {
+    "role": "tool_result",
+    "content": "868:CREATE FUNCTION public.sales_guard_relations() RETURNS trigger\n869-LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n870-DECLARE v_data jsonb:=to_jsonb(NEW); v_pair text[]; v_id uuid; v_org uuid;\n871-BEGIN\n872- IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAIS",
+    "is_error": false,
+    "timestamp": 1790522206536
   }
 ]
