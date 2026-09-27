@@ -1695,9 +1695,15 @@ BEGIN
  IF _trigger='ON_APPROVAL' THEN
   v_base:=o.total_amount;
  ELSE
-  v_base:=coalesce((SELECT sum(si.quantity-si.returned_quantity) FROM public.shipment_items si
-    JOIN public.shipments s ON s.id=si.shipment_id
-    WHERE s.organization_id=_org AND s.sales_order_id=_order AND s.status NOT IN ('DRAFT','CANCELED')),0);
+  -- Base em DINHEIRO, nunca em unidades: o proporcional expedido do valor
+  -- aprovado da linha. Pedido parcial gera titulo parcial.
+  v_base:=coalesce((
+   SELECT sum(round((si.quantity-si.returned_quantity)/nullif(i.approved_quantity,0)*i.line_total,2))
+   FROM public.shipment_items si
+   JOIN public.shipments s ON s.id=si.shipment_id AND s.organization_id=si.organization_id
+   JOIN public.sales_order_items i ON i.id=si.sales_order_item_id AND i.organization_id=si.organization_id
+   WHERE si.organization_id=_org AND s.sales_order_id=_order
+     AND s.status NOT IN ('DRAFT','CANCELED')),0);
   IF v_base<=0 THEN RETURN 0; END IF;
  END IF;
  v_base:=round(v_base-coalesce(v_existing,0),2);

@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"^PASS|^Assertion\" | tail -6 && sed -n '124,150p' scripts/test-sales-db.py"
-    },
-    "timestamp": 1790523253930
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS E: edicao substitui itens e recalcula total; rascunho permanece editavel\nPASS F: aprovacao exige outro usuario, preserva a consulta de credito e gera demanda\nPASS G: DISPONIVEL = SALDO FISICO - RESERVAS; reserva nao cria movimento e e idempotente\nPASS H: reserva de um pedido reduz o disponivel ",
-    "is_error": false,
-    "timestamp": 1790523257102
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\" item_id=sql(f\"SELECT id FROM picking_task_items WHERE picking_task_id={q(fulfillment['picking_task_id'])}\")\"\"\",\n\"\"\" print('DEBUG task',sql(f\"SELECT status FROM picking_tasks WHERE id={q(fulfillment['picking_task_id'])}\"),'ff',sql(f\"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"))\n item_id=sql(f\"SELECT id FROM picking_task_items WHERE picking_task_id={q(fulfillment['picking_task_id'])}\")\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"DEBUG|Assertion\" | tail -3"
     },
     "timestamp": 1790523268452
@@ -1404,5 +1390,19 @@
     "content": "1671:CREATE FUNCTION public.sales_create_receivables(_org uuid,_order uuid,_trigger text) RETURNS integer\n1672-LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n1673-DECLARE o public.sales_orders; v_base numeric; v_existing numeric; v_company uuid; v_terms text;\n1674- v_credit jsonb; v_",
     "is_error": false,
     "timestamp": 1790524035145
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"  v_base:=coalesce((SELECT sum(si.quantity-si.returned_quantity) FROM public.shipment_items si\n    JOIN public.shipments s ON s.id=si.shipment_id\n    WHERE s.organization_id=_org AND s.sales_order_id=_order AND s.status NOT IN ('DRAFT','CANCELED')),0);\"\"\"\nnew=\"\"\"  -- Base em DINHEIRO, nunca em unidades: o proporcional expedido do valor\n  -- aprovado da linha. Pedido parcial gera titulo parcial.\n  v_base:=coalesce((\n   SELECT sum(round((si.quantity-si.returned_quantity)/nullif(i.approved_quantity,0)*i.line_total,2))\n   FROM public.shipment_items si\n   JOIN public.shipments s ON s.id=si.shipment_id AND s.organization_id=si.organization_id\n   JOIN public.sales_order_items i ON i.id=si.sales_order_item_id AND i.organization_id=si.organization_id\n   WHERE si.organization_id=_org AND s.sales_order_id=_order\n     AND s.status NOT IN ('DRAFT','CANCELED')),0);\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\npython3 - <<'PY'\nimport pathlib\np=pathlib.Path('/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py'); s=p.read_text()\nold=\"\"\" assert sql(f\"SELECT open_amount FROM account_receivables WHERE source_id={q(order['id'])} LIMIT 1\")=='500.00'\n print('PASS Q: gatilho ON_DISPATCH gera UM titulo por pedido; repetir a chamada nao duplica')\"\"\"\nnew=\"\"\" # Titulo proporcional ao que saiu: 19 de 20 unidades aprovadas de 500,00.\n assert sql(f\"SELECT open_amount FROM account_receivables WHERE source_id={q(order['id'])} LIMIT 1\")=='475.00'\n print('PASS Q: gatilho ON_DISPATCH gera UM titulo por pedido, proporcional ao expedido; repetir nao duplica')\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790524044681
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nok\n    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                                                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sq",
+    "is_error": false,
+    "timestamp": 1790524048878
   }
 ]

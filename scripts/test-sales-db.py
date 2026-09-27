@@ -237,8 +237,9 @@ def run():
  duplicate=rpc('sales_create_receivables',org,order['id'],'ON_DISPATCH',user=fin)
  assert duplicate==0, duplicate
  assert sql(f"SELECT count(*) FROM account_receivables WHERE source_type='SALE' AND source_id={q(order['id'])}")=='1'
- assert sql(f"SELECT open_amount FROM account_receivables WHERE source_id={q(order['id'])} LIMIT 1")=='500.00'
- print('PASS Q: gatilho ON_DISPATCH gera UM titulo por pedido; repetir a chamada nao duplica')
+ # Titulo proporcional ao que saiu: 19 de 20 unidades aprovadas de 500,00.
+ assert sql(f"SELECT open_amount FROM account_receivables WHERE source_id={q(order['id'])} LIMIT 1")=='475.00'
+ print('PASS Q: gatilho ON_DISPATCH gera UM titulo por pedido, proporcional ao expedido; repetir nao duplica')
 
  # ------------------------------------------ proposta -> conversao unica
  contact=crmact('lead',None,'create',{'name':'Contato Alfa','company_name':'Cliente Alfa','email':'alfa@test'})['contact_id']
