@@ -54,7 +54,8 @@ def run():
  order=save({'company_id':company,'price_table_id':table,'items':[
    {'variant_id':variants['SAP-001']['v'],'quantity':10},
    {'variant_id':variants['SAP-002']['v'],'quantity':4,'discount_amount':2.00}]})
- assert order['status']=='DRAFT' and float(order['total_amount'])==265.0, order
+ assert order['status']=='DRAFT' and float(order['total_amount'])==290.0, order
+ assert float(order['subtotal_amount'])==292.0 and float(order['discount_total'])==2.0, order
  assert sql(f"SELECT unit_price FROM sales_order_items WHERE sales_order_id={q(order['id'])} AND sku_snapshot='SAP-001'")=='25.00'
  sql(f"SELECT count(*) FROM inventory_movements",fail=None)=='0'
  print('PASS B: pedido nasce com preco oficial da tabela e subtotal correto; nenhum movimento')
