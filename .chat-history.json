@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -3 && echo \"=== numeric scale check ===\" && grep -n \"unit_price numeric\" supabase/migrations/20261005100000_crm.sql | head -5"
-    },
-    "timestamp": 1790522583600
-  },
-  {
-    "role": "tool_result",
-    "content": "    assert sql(f\"SELECT unit_price FROM sales_order_items WHERE sales_order_id={q(order['id'])} AND sku_snapshot='SAP-001'\")=='25.00'\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n=== numeric scale",
-    "is_error": false,
-    "timestamp": 1790522585846
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\"assert sql(f\"SELECT unit_price FROM sales_order_items WHERE sales_order_id={q(order['id'])} AND sku_snapshot='SAP-001'\")=='25.00'\"\"\",\n\"\"\"assert float(sql(f\"SELECT unit_price FROM sales_order_items WHERE sales_order_id={q(order['id'])} AND sku_snapshot='SAP-001'\"))==25.0\"\"\")\ns=s.replace(\"\"\"assert sql(f\"SELECT unit_price FROM sales_order_items WHERE sales_order_id={q(below['id'])}\")=='25.00'\"\"\",\n\"\"\"assert float(sql(f\"SELECT unit_price FROM sales_order_items WHERE sales_order_id={q(below['id'])}\"))==25.0\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
     },
     "timestamp": 1790522589414
@@ -1420,5 +1406,19 @@
     "content": "ok\ntest updated\nDETAIL:  The tuple structure of a not-yet-assigned record is indeterminate.\nCONTEXT:  PL/pgSQL expression \"jsonb_build_object('id',_shipment,'shipment_number',sh.shipment_number,'status',sh.status,\n     'deduped',true,'movements',coalesce((SELECT jsonb_agg(jsonb_build_object(\n       ",
     "is_error": false,
     "timestamp": 1790523485927
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2645,2680p' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790523488376
+  },
+  {
+    "role": "tool_result",
+    "content": "   jsonb_build_object('sales_order_id',o.id,'status',v_ord_status,'fulfillment_status',v_ord_ful));\n PERFORM public.sales_audit(_org,'shipment.dispatched','shipments',_shipment,\n   jsonb_build_object('sales_order_id',o.id,'dispatch_key',v_key,'movements',v_out,\n     'tracking_code',v_tracking,'carri",
+    "is_error": false,
+    "timestamp": 1790523488387
   }
 ]
