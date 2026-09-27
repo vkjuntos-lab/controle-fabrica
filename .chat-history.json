@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd /tmp/opencode && grep -n \"v_need\" sales_part8.sql"
-    },
-    "timestamp": 1790521229969
-  },
-  {
-    "role": "tool_result",
-    "content": "15: v_need_full boolean; v_confirmed integer:=0; v_packed integer; v_vol jsonb; v_volumes integer:=0;\n25: v_need_full:=coalesce((cfg->>'shipment_requires_full_confirmation')::boolean,false);\n120: IF v_need_full AND v_ful IS NOT NULL THEN\n",
-    "is_error": false,
-    "timestamp": 1790521229979
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '/CREATE TABLE public.customer_return_items/,/^);/p' supabase/migrations/20261006100000_sales_orders.sql && echo \"=== returns ===\" && sed -n '/CREATE TABLE public.customer_returns/,/^);/p' supabase/migrations/20261006100000_sales_orders.sql && echo \"=== exceptions ===\" && sed -n '/CREATE TABLE public.logistics_exceptions/,/^);/p' supabase/migrations/20261006100000_sales_orders.sql | grep -n \"status\\|severity\""
     },
     "timestamp": 1790521234102
@@ -1511,5 +1497,19 @@
     "content": "ok\nPASS A: cenario montado; saldo fisico oficial em 100\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 298, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 59",
     "is_error": false,
     "timestamp": 1790522581686
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -3 && echo \"=== numeric scale check ===\" && grep -n \"unit_price numeric\" supabase/migrations/20261005100000_crm.sql | head -5"
+    },
+    "timestamp": 1790522583600
+  },
+  {
+    "role": "tool_result",
+    "content": "    assert sql(f\"SELECT unit_price FROM sales_order_items WHERE sales_order_id={q(order['id'])} AND sku_snapshot='SAP-001'\")=='25.00'\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n=== numeric scale",
+    "is_error": false,
+    "timestamp": 1790522585846
   }
 ]
