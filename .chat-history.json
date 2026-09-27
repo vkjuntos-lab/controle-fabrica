@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"FUNCTION public.sales_validate_order\" -A45 supabase/migrations/20261006100000_sales_orders.sql | sed -n '1,55p'"
-    },
-    "timestamp": 1790522638123
-  },
-  {
-    "role": "tool_result",
-    "content": "1398:CREATE FUNCTION public.sales_validate_order(_org uuid,_order uuid)\n1399-RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\n1400-DECLARE o public.sales_orders; cfg jsonb; i jsonb; issues jsonb:='[]'::jsonb; v_pct numeric;\n1401- v_discount_pct numeric; v_auth nume",
-    "is_error": false,
-    "timestamp": 1790522638139
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk 'NR>=1399 && NR<=1450 {printf \"%d: %s\\n\", NR-1398, $0}' supabase/migrations/20261006100000_sales_orders.sql | sed -n '14,24p'"
     },
     "timestamp": 1790522645324
@@ -1414,5 +1400,19 @@
     "content": "ok\nDEBUG ff PACKING packrec 1\nDEBUG ff after ready READY_FOR_SHIPMENT\nAssertionError: ERROR:  Atendimento c68e6ed4-ac56-4389-8d48-4b20bd40f082 não está liberado para expedição.\n",
     "is_error": false,
     "timestamp": 1790523530541
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk 'BEGIN{f=0} /CREATE TABLE public.fulfillment_orders /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261006100000_sales_orders.sql | grep -n \"status\" -A4"
+    },
+    "timestamp": 1790523539672
+  },
+  {
+    "role": "tool_result",
+    "content": "10: status text NOT NULL DEFAULT 'DRAFT'\n11:   CHECK(status IN ('DRAFT','READY_FOR_PICKING','PICKING','PICKED','PACKING','READY_FOR_SHIPMENT','SHIPPED','CANCELED')),\n12- priority text NOT NULL DEFAULT 'NORMAL' CHECK(priority IN ('LOW','NORMAL','HIGH','URGENT')),\n13- planned_date date,\n14- assigned_u",
+    "is_error": false,
+    "timestamp": 1790523539694
   }
 ]
