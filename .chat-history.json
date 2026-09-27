@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\n# a ordem de declaracao da data tem current_date no meio: nunca chega a 3o argumento\ns=s.replace(\"coalesce(nullif(_data->>'order_date','')::date,current_date,CASE WHEN _quote IS NOT NULL THEN v_quote.issue_date END),\",\n            \"coalesce(nullif(_data->>'order_date','')::date,NULLIF(CASE WHEN _quote IS NOT NULL THEN v_quote.issue_date END,current_date)),\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/_probe-sales.py\" 2>&1 | tail -12"
-    },
-    "timestamp": 1790521909427
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\nMIGRATION OK\nOK   orders {\"kind\": \"orders\", \"rows\": [], \"limit\": 50, \"total\": 0, \"off\nOK   exceptions {\"kind\": \"exceptions\", \"rows\": [], \"limit\": 50, \"total\": 0, \nOK   shipments {\"kind\": \"shipments\", \"rows\": [], \"limit\": 50, \"total\": 0, \"\nOK   returns {\"kind\": \"returns\", \"rows\": [], \"limit\": 50, ",
-    "is_error": false,
-    "timestamp": 1790521911523
-  },
-  {
-    "role": "tool",
     "tool": "todowrite",
     "input": {
       "todos": [
@@ -1487,5 +1473,19 @@
     "content": "           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 28, in call\n    def call(name, args, user, fail=None): return sql(f\"SELECT",
     "is_error": false,
     "timestamp": 1790523180121
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '1585,1600p' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790523185692
+  },
+  {
+    "role": "tool_result",
+    "content": "  END IF;\n  PERFORM public.sales_emit(_org,'SALES_ORDER_APPROVED','sales_order_approved:'||_order,\n   jsonb_build_object('sales_order_id',_order,'order_number',o.order_number,'company_id',o.company_id,\n     'total',o.total_amount,'currency',o.currency,'approved_by',auth.uid(),'credit',v_check->'cred",
+    "is_error": false,
+    "timestamp": 1790523185715
   }
 ]
