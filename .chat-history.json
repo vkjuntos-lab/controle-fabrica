@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && chmod 755 scripts/_probe-sales.py && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/_probe-sales.py\" 2>&1 | tail -20"
-    },
-    "timestamp": 1790521761973
-  },
-  {
-    "role": "tool_result",
-    "content": "FALHOU 20261006100000_sales_orders.sql\nERROR:  column x.created_at does not exist\nLINE 4: ...',coalesce((SELECT jsonb_agg(to_jsonb(x) ORDER BY x.created_...\n                                                             ^\n\n",
-    "is_error": false,
-    "timestamp": 1790521763815
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"jsonb_agg(to_jsonb(x) ORDER BY x.created_at\" supabase/migrations/20261006100000_sales_orders.sql | while read -r l; do n=${l%%:*}; echo \"=== $n ===\"; awk -v N=$n 'NR<=N && /CREATE FUNCTION/ {f=$0; fl=NR} END{}' supabase/migrations/20261006100000_sales_orders.sql; awk -v N=$n 'NR<N && /^(CREATE|CREATE OR REPLACE) FUNCTION/ {f=$0; fl=NR} END{print \"  dentro de: \" f \" (linha \" fl \")\"}' supabase/migrations/20261006100000_sales_orders.sql; done"
     },
     "timestamp": 1790521770763
@@ -1507,5 +1493,19 @@
     "content": "806:CREATE FUNCTION public.sales_reserved(_org uuid,_variant uuid,_location uuid DEFAULT NULL,_batch uuid DEFAULT NULL) RETURNS numeric\n807-LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n808- SELECT coalesce(sum(r.quantity-r.fulfilled_quantity-r.released_quantity),0)\n809- FROM pub",
     "is_error": false,
     "timestamp": 1790522732541
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '1830,1935p' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790522735040
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE FUNCTION public.sales_reserve(_org uuid,_order uuid,_data jsonb DEFAULT '{}')\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE o public.sales_orders; it public.sales_order_items; i jsonb; cfg jsonb;\n v_policy text; v_need numeric; v_reserved numeric; v_pend",
+    "is_error": false,
+    "timestamp": 1790522735053
   }
 ]
