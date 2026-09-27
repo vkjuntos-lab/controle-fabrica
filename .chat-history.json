@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport re,pathlib\ndef strip(s):\n    s=re.sub(r'--[^\\n]*','',s)\n    return re.sub(r'/\\*.*?\\*/','',s,flags=re.S)\ns=strip(pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql').read_text())\nwant={'sales_orders','sales_order_items','inventory_reservations','picking_tasks','sales_order_settings','sales_demands','sales_order_status_history'}\nfor m in re.finditer(r'CREATE TABLE (public\\.\\w+)\\s*\\(',s):\n    name=m.group(1).split('.')[1]\n    if name not in want: continue\n    i=m.end(); d=1\n    while d>0:\n        c=s[i]\n        if c=='(':d+=1\n        elif c==')':d-=1\n        i+=1\n    body=s[m.end():i-1]\n    cols=[]\n    for l in body.split('\\n'):\n        l=l.strip()\n        if not l or l.upper().startswith(('UNIQUE','CHECK','FOREIGN')): continue\n        mm=re.match(r'^([a-z_]+)\\s',l)\n        if mm: cols.append(mm.group(1))\n    print('###',name); print('   ',', '.join(cols)); print()\nPY"
-    },
-    "timestamp": 1790521104509
-  },
-  {
-    "role": "tool_result",
-    "content": "### sales_order_settings\n    id, organization_id, reservation_policy, reservation_expiry_hours, make_to_order_enabled, credit_exposure_policy, approval_segregation, max_discount_percent, price_override_policy, receivable_trigger, allow_partial_fulfillment, shipment_requires_full_confirmation, tracki",
-    "is_error": false,
-    "timestamp": 1790521104541
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"released_at\\|release_reason\\|picked_at\\|confirmed_at\\|coalesce(batch_id\\|shipment_id,sales_order_item_id\\|UNIQUE (organization_id, shipment_id\" supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790521107386
@@ -1508,5 +1494,19 @@
     "content": "ok\n   nullif(_data->>'expected_delivery_date','')::date,v_terms_id,v_term,v_addr_id,v_bill_id,\n   v_addr,\n   coalesce(CASE WHEN _quote IS NULL THEN NULL ELSE v_quote.company_snapshot END,\n     jsonb_build_object('company_id',v_company::text,'captured_at',now())),\n   coalesce(CASE WHEN _quote IS NULL",
     "is_error": false,
     "timestamp": 1790522532575
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"^(ERROR|DETAIL|QUERY|LINE|CONTEXT|HINT)\" | head -20"
+    },
+    "timestamp": 1790522534770
+  },
+  {
+    "role": "tool_result",
+    "content": "DETAIL:  Failing row contains (4ce56eed-ab12-461f-a6e1-c91644dfefca, 59d963ed-5680-418f-bd98-6ea43a824152, PV-2026-000001, 95233fc5-2b13-4880-8f19-6d893533a3d7, 256f1a23-342c-456b-acd2-ef912cb530fc, null, null, null, null, eb39701f-a64a-48df-ae17-56e15345085e, MANUAL, null, null, null, null, null, n",
+    "is_error": false,
+    "timestamp": 1790522537217
   }
 ]
