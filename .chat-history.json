@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2645,2680p' supabase/migrations/20261006100000_sales_orders.sql"
-    },
-    "timestamp": 1790523488376
-  },
-  {
-    "role": "tool_result",
-    "content": "   jsonb_build_object('sales_order_id',o.id,'status',v_ord_status,'fulfillment_status',v_ord_ful));\n PERFORM public.sales_audit(_org,'shipment.dispatched','shipments',_shipment,\n   jsonb_build_object('sales_order_id',o.id,'dispatch_key',v_key,'movements',v_out,\n     'tracking_code',v_tracking,'carri",
-    "is_error": false,
-    "timestamp": 1790523488387
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"deduped',true\" -B12 supabase/migrations/20261006100000_sales_orders.sql | head -22"
     },
     "timestamp": 1790523491978
@@ -1398,5 +1384,19 @@
     "content": "     1\t      'accepted_at',q.acceptance_evidence,'acceptance_contact_id',q.acceptance_contact_id,\n     2\t      'contact_name',(SELECT name FROM public.company_contacts WHERE id=q.acceptance_contact_id),\n     3\t      'payment_terms',q.payment_terms_snapshot,'items',items);\n     4\t  RAISE NOTICE 'SNAP",
     "is_error": false,
     "timestamp": 1790524246224
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"FUNCTION public.sales_guard_relations\" -A40 supabase/migrations/20261006100000_sales_orders.sql | head -46"
+    },
+    "timestamp": 1790524258891
+  },
+  {
+    "role": "tool_result",
+    "content": "875:CREATE FUNCTION public.sales_guard_relations() RETURNS trigger\n876-LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n877-DECLARE v_data jsonb:=to_jsonb(NEW); v_pair text[]; v_id uuid; v_org uuid; v_map text[][];\n878-BEGIN\n879- IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organizat",
+    "is_error": false,
+    "timestamp": 1790524258929
   }
 ]
