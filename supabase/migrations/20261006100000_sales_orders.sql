@@ -867,10 +867,10 @@ $$;
 -- Guarda de relacoes intra-tenant. Mesmo padrao do MASTER 010.
 CREATE FUNCTION public.sales_guard_relations() RETURNS trigger
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
-DECLARE v_data jsonb:=to_jsonb(NEW); v_pair text[]; v_id uuid; v_org uuid;
+DECLARE v_data jsonb:=to_jsonb(NEW); v_pair text[]; v_id uuid; v_org uuid; v_map text[][];
 BEGIN
  IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAISE EXCEPTION 'Organização imutável.'; END IF;
- FOREACH v_pair SLICE 1 IN ARRAY CASE TG_TABLE_NAME
+ v_map:=CASE TG_TABLE_NAME
   WHEN 'sales_orders' THEN ARRAY[ARRAY['company_id','companies'],ARRAY['customer_profile_id','customer_profiles'],ARRAY['sales_quote_id','sales_quotes'],ARRAY['sales_opportunity_id','sales_opportunities'],ARRAY['representative_id','sales_representatives'],ARRAY['price_table_id','price_tables'],ARRAY['payment_terms_id','commercial_payment_terms'],ARRAY['shipping_address_id','company_addresses'],ARRAY['billing_address_id','company_addresses']]
   WHEN 'sales_order_items' THEN ARRAY[ARRAY['sales_order_id','sales_orders'],ARRAY['product_variant_id','product_variants']]
   WHEN 'sales_credit_checks' THEN ARRAY[ARRAY['sales_order_id','sales_orders'],ARRAY['company_id','companies']]
@@ -890,7 +890,9 @@ BEGIN
   WHEN 'customer_return_items' THEN ARRAY[ARRAY['customer_return_id','customer_returns'],ARRAY['sales_order_item_id','sales_order_items'],ARRAY['shipment_item_id','shipment_items'],ARRAY['variant_id','product_variants'],ARRAY['batch_id','inventory_batches']]
   WHEN 'logistics_exceptions' THEN ARRAY[ARRAY['sales_order_id','sales_orders'],ARRAY['sales_order_item_id','sales_order_items'],ARRAY['fulfillment_order_id','fulfillment_orders'],ARRAY['shipment_id','shipments'],ARRAY['customer_return_id','customer_returns'],ARRAY['picking_task_id','picking_tasks'],ARRAY['reservation_id','inventory_reservations'],ARRAY['variant_id','product_variants']]
   ELSE NULL::text[][]
- END
+ END;
+ IF v_map IS NULL THEN RETURN NEW; END IF;
+ FOREACH v_pair SLICE 1 IN ARRAY v_map
  LOOP
   v_id:=(v_data->>v_pair[1])::uuid;
   IF v_id IS NULL THEN CONTINUE; END IF;
