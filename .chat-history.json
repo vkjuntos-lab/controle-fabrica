@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"    least(coalesce(nullif(v_item->>'quantity','')::numeric,it.approved_quantity),it.approved_quantity),\n    (SELECT coalesce(sum(r.quantity-r.fulfilled_quantity-r.released_quantity),0)\n      FROM public.inventory_reservations r WHERE r.sales_order_item_id=it.id\n        AND r.status IN ('ACTIVE','PARTIALLY_CONSUMED') AND r.inventory_location_id=v_loc),\n    v_loc,now(),now()\n  FROM jsonb_array_elements(_data->'items') v_item\n  JOIN public.sales_order_items it ON it.id=nullif(v_item->>'sales_order_item_id','')::uuid\n  WHERE it.organization_id=_org AND it.sales_order_id=_order;\"\"\"\nnew=\"\"\"    least(coalesce(nullif(req->>'quantity','')::numeric,it.approved_quantity),it.approved_quantity),\n    (SELECT coalesce(sum(r.quantity-r.fulfilled_quantity-r.released_quantity),0)\n      FROM public.inventory_reservations r WHERE r.sales_order_item_id=it.id\n        AND r.status IN ('ACTIVE','PARTIALLY_CONSUMED') AND r.inventory_location_id=v_loc),\n    v_loc,now(),now()\n  FROM jsonb_array_elements(_data->'items') req\n  JOIN public.sales_order_items it ON it.id=nullif(req->>'sales_order_item_id','')::uuid\n  WHERE it.organization_id=_org AND it.sales_order_id=_order;\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
-    },
-    "timestamp": 1790523132291
-  },
-  {
-    "role": "tool_result",
-    "content": "Traceback (most recent call last):\n  File \"<stdin>\", line 19, in <module>\nAssertionError\n     FROM public.inventory_reservations r WHERE r.sales_order_item_id=it.id\n       AND r.status IN ('ACTIVE','PARTIALLY_CONSUMED') AND r.inventory_location_id=v_loc),\n   v_loc,now(),now()\n FROM jsonb_array_eleme",
-    "is_error": false,
-    "timestamp": 1790523135287
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
@@ -1410,5 +1396,19 @@
     "content": " # Vendavel volta para o MESMO local de origem da expedicao: o destino nunca e inventado.\n assert balance(variants['SAP-001']['v'],warehouse)==86.0\n assert float(sql(f\"SELECT returned_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\"))==5.0\n assert sql(f\"SELECT financial_action ",
     "is_error": false,
     "timestamp": 1790523883757
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\nold=\"\"\" assert sql(f\"SELECT count(*) FROM account_receivables WHERE source_type='SALE'\")=='0'\"\"\"\nnew=\"\"\" # A devolucao pede ajuste, mas nao cria titulo: continua exatamente o da venda.\n assert sql(\"SELECT count(*) FROM account_receivables\")=='1'\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790523897921
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 310, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 215, in run\n    assert sql(\"SELECT count(*) FROM accoun",
+    "is_error": false,
+    "timestamp": 1790523901895
   }
 ]

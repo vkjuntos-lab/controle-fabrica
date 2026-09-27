@@ -211,7 +211,8 @@ def run():
  assert balance(variants['SAP-001']['v'],warehouse)==86.0
  assert float(sql(f"SELECT returned_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}"))==5.0
  assert sql(f"SELECT financial_action FROM customer_returns WHERE id={q(ret['id'])}")=='CREDIT_NOTE'
- assert sql(f"SELECT count(*) FROM account_receivables WHERE source_type='SALE'")=='0'
+ # A devolucao pede ajuste, mas nao cria titulo: continua exatamente o da venda.
+ assert sql("SELECT count(*) FROM account_receivables")=='1'
  assert sql("SELECT count(*) FROM domain_events WHERE event_type='CUSTOMER_RETURN_FINANCIAL_REQUESTED'")=='1'
  print('PASS O: recebimento da devolucao devolve estoque; ajuste financeiro fica como SOLICITACAO, sem execucao')
 
