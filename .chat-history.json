@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && chmod 755 scripts/test-sales-db.py && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -20"
-    },
-    "timestamp": 1790522009215
-  },
-  {
-    "role": "tool_result",
-    "content": "Traceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 295, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 15, in run\n    sql(f\"\"\"INSERT INTO auth.users(id,email) VA",
-    "is_error": false,
-    "timestamp": 1790522011262
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py",
@@ -1430,5 +1416,19 @@
     "content": "1179: v_profile uuid; v_status text; v_table_old uuid; v_bill jsonb; v_now timestamptz:=now();\n1256:   total_amount=round(v_subtotal-v_discount+v_tax+v_freight,2),updated_at=v_now WHERE id=v_id;\n1484:DECLARE o public.sales_orders; v_new text; v_check jsonb; v_now timestamptz:=now();\n1561:  UPDATE pu",
     "is_error": false,
     "timestamp": 1790523231291
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"DECLARE t public.picking_tasks; v_code text; v_row record; v_item public.picking_task_items;\n v_qty numeric; v_here numeric;\"\"\"\nnew=\"\"\"DECLARE t public.picking_tasks; v_code text; v_row record; v_item public.picking_task_items;\n v_qty numeric; v_here numeric; v_now timestamptz:=now();\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790523234278
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                                                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n ",
+    "is_error": false,
+    "timestamp": 1790523237559
   }
 ]

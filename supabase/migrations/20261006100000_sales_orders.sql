@@ -2175,7 +2175,7 @@ $$;
 CREATE FUNCTION public.sales_pick_scan(_org uuid,_task uuid,_data jsonb DEFAULT '{}')
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE t public.picking_tasks; v_code text; v_row record; v_item public.picking_task_items;
- v_qty numeric; v_here numeric;
+ v_qty numeric; v_here numeric; v_now timestamptz:=now();
 BEGIN
  PERFORM public.sales_require(_org,'picking.execute');
  PERFORM public.inventory_lock(_org);
