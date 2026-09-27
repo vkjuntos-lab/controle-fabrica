@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "\n> typecheck\n> tsc --noEmit\n\n",
-    "is_error": false,
-    "timestamp": 1790413573035
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && sed -n '50,80p' src/lib/crm/crm.functions.ts"
-    },
-    "timestamp": 1790413576174
-  },
-  {
-    "role": "tool_result",
     "content": "  });\nexport const actCrm = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((i) =>\n    z\n      .object({\n        organizationId: uuid,\n        kind: z.enum([\"lead\", \"portfolio\", \"opportunity\", \"quote\"]),\n        id: uuid.nullable(),\n        action: z.string(",
     "is_error": false,
     "timestamp": 1790413576185
@@ -1600,5 +1586,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790520934131
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/tmp/opencode/sales_part6.sql",
+      "newString": " v_status:=CASE WHEN v_reserved<=0 THEN 'NOT_EVALUATED'\n  WHEN v_pend<=0 THEN 'RESERVED' WHEN v_reserved>0 THEN 'PARTIAL' ELSE 'INSUFFICIENT' END;",
+      "oldString": " v_status:=CASE\n  WHEN v_reserved<=0 THEN CASE WHEN v_qty>0 THEN 'NOT_EVALUATED' ELSE 'NOT_EVALUATED' END\n  WHEN v_pend<=0 THEN 'RESERVED'\n  WHEN v_reserved>0 THEN 'PARTIAL'\n  ELSE 'INSUFFICIENT' END;"
+    },
+    "timestamp": 1790520936898
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790520936906
   }
 ]
