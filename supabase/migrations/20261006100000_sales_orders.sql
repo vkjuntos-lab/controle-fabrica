@@ -1357,10 +1357,9 @@ BEGIN
   v_number:=public.sales_next_number(_org,'order');
   v_snapshot:=jsonb_build_object('quote_number',q.quote_number,'quote_version',q.version,'quote_total',q.total,
       'discount_percent',q.discount_percent,'discount_amount',q.discount_amount,
-      'accepted_at',q.acceptance_evidence,'acceptance_contact_id',q.acceptance_contact_id,
+      'accepted_at',q.accepted_at,'accepted_by',q.accepted_by,'acceptance_contact_id',q.acceptance_contact_id,
       'contact_name',(SELECT name FROM public.company_contacts WHERE id=q.acceptance_contact_id),
       'payment_terms',q.payment_terms_snapshot,'items',items);
-  RAISE NOTICE 'SNAP %',left(v_snapshot::text,300);
   INSERT INTO public.sales_orders(organization_id,order_number,company_id,customer_profile_id,
     sales_quote_id,sales_quote_version,sales_opportunity_id,representative_id,price_table_id,
     source_type,order_date,expected_delivery_date,payment_terms_id,payment_terms_snapshot,
@@ -1369,15 +1368,10 @@ BEGIN
   VALUES(_org,v_number,q.company_id,v_profile,q.id,q.version,q.opportunity_id,v_rep,v_table,
     'QUOTE_CONVERSION',q.issue_date,nullif(_data->>'expected_delivery_date','')::date,
     v_terms_id,v_term,v_addr_id,v_bill_id,v_addr,q.company_snapshot,
-    jsonb_build_object('quote_number',q.quote_number,'quote_version',q.version,'quote_total',q.total,
-      'discount_percent',q.discount_percent,'discount_amount',q.discount_amount,
-      'accepted_at',q.accepted_at,'acceptance_contact_id',q.acceptance_contact_id,
-      'contact_name',(SELECT name FROM public.company_contacts WHERE id=q.acceptance_contact_id),
-      'payment_terms',q.payment_terms_snapshot,'items',items),
+    v_snapshot,
     'BRL',q.notes,nullif(trim(coalesce(_data->>'internal_notes','')),''),auth.uid())
   RETURNING id INTO result;
 
-  RAISE NOTICE 'STEP items insert';
   INSERT INTO public.sales_order_items(organization_id,sales_order_id,product_variant_id,
     sku_snapshot,description_snapshot,unit_snapshot,price_snapshot,ordered_quantity,
     unit_price,discount_amount,tax_amount,line_total,created_by)
@@ -1393,7 +1387,6 @@ BEGIN
   JOIN public.products pr ON pr.id=v.product_id;
   IF NOT FOUND THEN RAISE EXCEPTION 'Itens da proposta não conferem com o catálogo.'; END IF;
 
-  RAISE NOTICE 'STEP totals update';
   UPDATE public.sales_orders SET subtotal=v_subtotal,discount_total=v_discount,tax_amount=v_tax,
    freight_amount=v_freight,total_amount=round(v_subtotal-v_discount+v_tax+v_freight,2)
   WHERE id=v_order_id;

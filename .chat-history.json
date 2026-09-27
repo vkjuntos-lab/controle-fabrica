@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"deduped',true\" -B12 supabase/migrations/20261006100000_sales_orders.sql | head -22"
-    },
-    "timestamp": 1790523491978
-  },
-  {
-    "role": "tool_result",
-    "content": "1296-  END IF;\n1297-  RETURN prior.result;\n1298- END IF;\n1299-\n1300- SELECT * INTO q FROM public.sales_quotes WHERE id=_quote AND organization_id=_org FOR UPDATE;\n1301- IF NOT FOUND THEN RAISE EXCEPTION 'Proposta não encontrada.'; END IF;\n1302- IF q.status<>'ACCEPTED' THEN RAISE EXCEPTION 'Somente p",
-    "is_error": false,
-    "timestamp": 1790523492014
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2529,2560p' supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790523494447
@@ -1398,5 +1384,19 @@
     "content": "875:CREATE FUNCTION public.sales_guard_relations() RETURNS trigger\n876-LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n877-DECLARE v_data jsonb:=to_jsonb(NEW); v_pair text[]; v_id uuid; v_org uuid; v_map text[][];\n878-BEGIN\n879- IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organizat",
     "is_error": false,
     "timestamp": 1790524258929
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"  v_snapshot:=jsonb_build_object('quote_number',q.quote_number,'quote_version',q.version,'quote_total',q.total,\n      'discount_percent',q.discount_percent,'discount_amount',q.discount_amount,\n      'accepted_at',q.acceptance_evidence,'acceptance_contact_id',q.acceptance_contact_id,\n      'contact_name',(SELECT name FROM public.company_contacts WHERE id=q.acceptance_contact_id),\n      'payment_terms',q.payment_terms_snapshot,'items',items);\n  RAISE NOTICE 'SNAP %',left(v_snapshot::text,300);\n\"\"\"\nnew=\"\"\"  v_snapshot:=jsonb_build_object('quote_number',q.quote_number,'quote_version',q.version,'quote_total',q.total,\n      'discount_percent',q.discount_percent,'discount_amount',q.discount_amount,\n      'accepted_at',q.accepted_at,'accepted_by',q.accepted_by,'acceptance_contact_id',q.acceptance_contact_id,\n      'contact_name',(SELECT name FROM public.company_contacts WHERE id=q.acceptance_contact_id),\n      'payment_terms',q.payment_terms_snapshot,'items',items);\n\"\"\"\nassert old in s; s=s.replace(old,new)\nold2=\"\"\"    jsonb_build_object('quote_number',q.quote_number,'quote_version',q.version,'quote_total',q.total,\n      'discount_percent',q.discount_percent,'discount_amount',q.discount_amount,\n      'accepted_at',q.accepted_at,'acceptance_contact_id',q.acceptance_contact_id,\n      'contact_name',(SELECT name FROM public.company_contacts WHERE id=q.acceptance_contact_id),\n      'payment_terms',q.payment_terms_snapshot,'items',items),\n    'BRL',q.notes\"\"\"\nnew2=\"\"\"    v_snapshot,\n    'BRL',q.notes\"\"\"\nassert old2 in s; s=s.replace(old2,new2)\ns=s.replace(\"\"\"  RAISE NOTICE 'STEP items insert';\\n\"\"\",\"\").replace(\"\"\"  RAISE NOTICE 'STEP totals update';\\n\"\"\",\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -6"
+    },
+    "timestamp": 1790524274411
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  invalid input syntax for type json\nDETAIL:  Token \"f6b6b993\" is invalid.\nCONTEXT:  JSON data, line 1: f6b6b993...\nPL/pgSQL function sales_convert_quote(uuid,uuid,jsonb,uuid) line 72 at SQL statement\n\n",
+    "is_error": false,
+    "timestamp": 1790524278598
   }
 ]
