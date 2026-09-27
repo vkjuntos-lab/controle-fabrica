@@ -2696,7 +2696,7 @@ BEGIN
   IF sh.status NOT IN ('DISPATCHED','IN_TRANSIT','DELIVERY_EXCEPTION','PARTIALLY_DELIVERED') THEN
    RAISE EXCEPTION 'Prova de entrega exige expedição despachada.';
   END IF;
-  v_proof:=coalesce(_data->'proof','_data'::jsonb);
+  v_proof:=coalesce(_data->'proof',_data);
   IF nullif(trim(coalesce(v_proof->>'proof_type','')),'') IS NULL THEN RAISE EXCEPTION 'Informe o tipo da prova.'; END IF;
   IF nullif(trim(coalesce(v_proof->>'file_path','')),'') IS NULL
      AND nullif(trim(coalesce(v_proof->>'signature_name','')),'') IS NULL THEN

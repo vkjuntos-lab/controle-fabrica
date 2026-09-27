@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\nfor a,b in [(\"\"\"assert sql(f\"SELECT approved_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\")=='20'\"\"\",\"\"\"assert float(sql(f\"SELECT approved_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\"))==20.0\"\"\"),\n            (\"\"\"assert sql(f\"SELECT fulfilled_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\")=='20.000'\"\"\",\"\"\"assert float(sql(f\"SELECT fulfilled_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\"))==20.0\"\"\"),\n            (\"\"\"assert sql(f\"SELECT delivered_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\")=='20.000'\"\"\",\"\"\"assert float(sql(f\"SELECT delivered_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\"))==20.0\"\"\"),\n            (\"\"\"assert sql(f\"SELECT returned_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\")=='5.000'\"\"\",\"\"\"assert float(sql(f\"SELECT returned_quantity FROM sales_order_items WHERE sales_order_id={q(order['id'])}\"))==5.0\"\"\")]:\n    s=s.replace(a,b)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -10"
-    },
-    "timestamp": 1790522721240
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  column l.location_type does not exist\nLINE 4:       AND l.location_type<>'TRANSIT' ORDER BY l.name\n                  ^\nQUERY:  SELECT l.id FROM public.inventory_locations l\n    WHERE l.organization_id=_org AND l.status='ACTIVE' AND l.operational",
-    "is_error": false,
-    "timestamp": 1790522724012
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -rn \"location_type\\|\\.type<>'TRANSIT'\\|\\.type IN ('PARTNER'\" supabase/migrations/20261006100000_sales_orders.sql | head -20"
     },
     "timestamp": 1790522725951
@@ -1414,5 +1400,19 @@
     "content": "AssertionError: ERROR:  invalid input syntax for type json\nLINE 1: v_proof:=coalesce(_data->'proof','_data'::jsonb)\n                                         ^\nDETAIL:  Token \"_data\" is invalid.\nQUERY:  v_proof:=coalesce(_data->'proof','_data'::jsonb)\nCONTEXT:  JSON data, line 1: _data\nPL/pgSQL funct",
     "is_error": false,
     "timestamp": 1790523645608
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\" v_proof:=coalesce(_data->'proof','_data'::jsonb)\"\"\"\nnew=\"\"\" v_proof:=coalesce(_data->'proof',_data)\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"ERROR:|^PASS|Assertion\" | tail -4"
+    },
+    "timestamp": 1790523648779
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nPASS K: peso e dimensao sao os informados; nunca estimados; volumes registrados\nPASS L: expedicao baixa o ledger uma unica vez; reenvio nao duplica a baixa\nPASS M: despachar exige permissao de expedicao E de movimentacao de inventario\nAssertionError: ERROR:  Item de expedição dispatched é imutáve",
+    "is_error": false,
+    "timestamp": 1790523652366
   }
 ]
