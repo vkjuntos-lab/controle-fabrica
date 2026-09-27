@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk 'NR>=1399 && NR<=1450 {printf \"%d: %s\\n\", NR-1398, $0}' supabase/migrations/20261006100000_sales_orders.sql | sed -n '14,24p'"
-    },
-    "timestamp": 1790522645324
-  },
-  {
-    "role": "tool_result",
-    "content": "14:  END IF;\n15:  -- Itens: variante valida e quantidade positiva ja garantidas na criacao.\n16:  IF NOT EXISTS(SELECT 1 FROM public.sales_order_items WHERE organization_id=_org AND sales_order_id=_order) THEN\n17:   issues:=issues||jsonb_build_object('code','NO_ITEMS','message','Pedido sem itens.');\n",
-    "is_error": false,
-    "timestamp": 1790522645337
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && cat > /tmp/opencode/dbg.py <<'PY'\nimport importlib.util,json,datetime\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('inv',Path('scripts/test-inventory-db.py'))\ndb=importlib.util.module_from_spec(spec);spec.loader.exec_module(db)\nq,sql,uid=db.q,db.sql,db.uid\ndb.setup()\nfor name in ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql','20261001100000_purchasing.sql','20261002100000_planning.sql','20261003100000_planning_engine.sql','20261004100000_planning_fixes.sql','20261005100000_crm.sql','20261006100000_sales_orders.sql']:\n sql((db.ROOT/'supabase/migrations'/name).read_text())\na,org=uid(),uid()\nsql(f\"INSERT INTO auth.users(id,email) VALUES({q(a)},'a@t'),({q(uid())},'b@t');INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'V','v',{q(a)})\")\ndef call(name,args,user,fail=None):return db.call(name,args,user,fail)\ncompany=call('partner_save_company',q(org)+\",\"+q(json.dumps({'code':'C1','legal_name':'C1','roles':['CUSTOMER']})),a)\ncall('crm_save',q(org)+\",'customer',\"+q(json.dumps({'company_id':company})),a)\nloc=sql(f\"SELECT id FROM inventory_locations WHERE organization_id={q(org)} LIMIT 1\",a)\np,v=uid(),uid()\nsql(f\"INSERT INTO products(id,organization_id,code,name,status) VALUES({q(p)},{q(org)},'P1','P','ACTIVE');INSERT INTO product_variants(id,organization_id,product_id,sku,status) VALUES({q(v)},{q(org)},{q(p)},'SKU1','ACTIVE')\")\ntbl=json.loads(call('price_save_table',q(org)+\",\"+q(json.dumps({'code':'T','name':'T','valid_from':'2020-01-01'})),a))['id']\ncall('pricing_publish',q(org)+\",\"+q(json.dumps({'price_table_id':tbl,'variant_id':v,'unit_price':10,'valid_from':'2020-01-01'})),a)\norder=json.loads(call('sales_save',q(org)+\",\"+q(json.dumps({'company_id':company,'price_table_id':tbl,'items':[{'variant_id':v,'quantity':2}]})),a))\nprint('order',order)\nprint('rows:',sql(f\"SELECT count(*) FROM public.sales_order_items WHERE organization_id={q(org)}\",a))\ntry:\n print(sql(f\"SELECT * FROM public.sales_order_items WHERE organization_id={q(org)}\",a)[:200])\nexcept AssertionError as e: print('SELECT * FAILED:',e)\nfor col in ['sku_snapshot','price_snapshot','product_variant_id','ordered_quantity','line_total','created_by','sourcing_type','status']:\n try: sql(f\"SELECT {col} FROM public.sales_order_items WHERE organization_id={q(org)}\",a); print(col,'ok')\n except AssertionError as e: print(col,'FAIL',str(e)[:200])\ndb.cleanup()\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 600 python3 /tmp/opencode/dbg.py\" 2>&1 | tail -22"
     },
     "timestamp": 1790522657608
@@ -1414,5 +1400,19 @@
     "content": "10: status text NOT NULL DEFAULT 'DRAFT'\n11:   CHECK(status IN ('DRAFT','READY_FOR_PICKING','PICKING','PICKED','PACKING','READY_FOR_SHIPMENT','SHIPPED','CANCELED')),\n12- priority text NOT NULL DEFAULT 'NORMAL' CHECK(priority IN ('LOW','NORMAL','HIGH','URGENT')),\n13- planned_date date,\n14- assigned_u",
     "is_error": false,
     "timestamp": 1790523539694
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2385,2400p' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790523542599
+  },
+  {
+    "role": "tool_result",
+    "content": " PERFORM public.sales_require(_org,'shipments.create');\n PERFORM public.inventory_lock(_org);\n SELECT * INTO o FROM public.sales_orders WHERE id=_order AND organization_id=_org FOR UPDATE;\n IF NOT FOUND THEN RAISE EXCEPTION 'Pedido não encontrado.'; END IF;\n IF o.status NOT IN ('APPROVED','AWAITING_",
+    "is_error": false,
+    "timestamp": 1790523542615
   }
 ]
