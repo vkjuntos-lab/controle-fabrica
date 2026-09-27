@@ -1183,7 +1183,7 @@ CREATE FUNCTION public.sales_convert_quote(_org uuid,_quote uuid,_data jsonb DEF
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE prior public.sales_order_operation_keys; q public.sales_quotes; payload jsonb;
  result jsonb; it public.sales_quote_items; items jsonb:='[]'::jsonb;
- v_profile uuid; v_status text; v_out jsonb; v_number text; v_subtotal numeric:=0; v_discount numeric:=0;
+ v_profile uuid; v_status text; v_order_id uuid; v_number text; v_subtotal numeric:=0; v_discount numeric:=0;
  v_tax numeric:=0; v_freight numeric; v_table uuid; v_addr_id uuid; v_bill_id uuid; v_addr jsonb:='{}'::jsonb;
  v_profile_table uuid; v_terms_id uuid; v_term text; v_rep uuid;
 BEGIN
@@ -1265,7 +1265,7 @@ BEGIN
   INSERT INTO public.sales_order_items(organization_id,sales_order_id,product_variant_id,
     sku_snapshot,description_snapshot,unit_snapshot,price_snapshot,ordered_quantity,
     unit_price,discount_amount,tax_amount,line_total,created_by)
-  SELECT _org,(result->>'id')::uuid,x.product_variant_id,
+  SELECT _org,v_order_id,x.product_variant_id,
     coalesce(nullif(x.sku_snapshot,''),v.sku),
     coalesce(nullif(x.description_snapshot,''),pr.name||' — '||v.sku),
     x.unit_snapshot,coalesce(x.price_snapshot,'{}'::jsonb),x.ordered_quantity,x.unit_price,
@@ -1279,12 +1279,12 @@ BEGIN
 
   UPDATE public.sales_orders SET subtotal=v_subtotal,discount_total=v_discount,tax_amount=v_tax,
    freight_amount=v_freight,total_amount=round(v_subtotal-v_discount+v_tax+v_freight,2)
-  WHERE id=(result->>'id')::uuid;
-  result:=jsonb_build_object('id',(result->>'id')::uuid,'order_number',v_number,'status','DRAFT','deduped',false);
-  PERFORM public.sales_audit(_org,'sales_order.quote_converted','sales_orders',(result->>'id')::uuid,
+  WHERE id=v_order_id;
+  result:=jsonb_build_object('id',v_order_id,'order_number',v_number,'status','DRAFT','deduped',false);
+  PERFORM public.sales_audit(_org,'sales_order.quote_converted','sales_orders',v_order_id,
     jsonb_build_object('sales_quote_id',q.id,'version',q.version,'total',q.total,'order_number',v_number));
-  PERFORM public.sales_emit(_org,'SALES_ORDER_CREATED','sales_order_created:'||(result->>'id')::uuid,
-    jsonb_build_object('sales_order_id',(result->>'id')::uuid,'order_number',v_number,
+  PERFORM public.sales_emit(_org,'SALES_ORDER_CREATED','sales_order_created:'||v_order_id,
+    jsonb_build_object('sales_order_id',v_order_id,'order_number',v_number,
       'company_id',q.company_id,'source_type','QUOTE_CONVERSION','sales_quote_id',q.id));
  END IF;
  INSERT INTO public.sales_order_operation_keys(organization_id,operation_key,operation,payload,result,created_by)
