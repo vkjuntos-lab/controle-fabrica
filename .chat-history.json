@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
-      "newString": "  'totals',(SELECT jsonb_build_object(\n      'orders',count(*),\n      'amount',coalesce(sum(total_amount),0),\n      'delivered_amount',coalesce(sum((SELECT coalesce(sum(si.delivered_quantity),0)\n        FROM public.shipment_items si JOIN public.shipments s ON s.id=si.shipment_id\n        WHERE s.sales_order_id=so.id)),0)\n    FROM public.sales_orders so\n    WHERE so.organization_id=_org AND so.company_id=_company AND so.status NOT IN ('CANCELED'))),",
-      "oldString": "  'totals',(SELECT jsonb_build_object(\n      'orders',count(*),coalesce(sum(total_amount),0),coalesce(sum((SELECT coalesce(sum(si.delivered_quantity),0)\n        FROM public.shipment_items si JOIN public.shipments s ON s.id=si.shipment_id\n        WHERE s.sales_order_id=so.id)),0) AS delivered_amount\n    FROM public.sales_orders so\n    WHERE so.organization_id=_org AND so.company_id=_company AND so.status NOT IN ('CANCELED'))),"
-    },
-    "timestamp": 1790521793862
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790521793886
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/_probe-sales.py\" 2>&1 | tail -20"
@@ -1503,5 +1487,19 @@
     "content": "ok\nPASS F: aprovacao exige outro usuario, preserva a consulta de credito e gera demanda\nPASS G: DISPONIVEL = SALDO FISICO - RESERVAS; reserva nao cria movimento e e idempotente\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 299, in",
     "is_error": false,
     "timestamp": 1790522764532
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '1786,1830p' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790522768944
+  },
+  {
+    "role": "tool_result",
+    "content": "  v_total_reserved:=v_total_reserved+v_reserved;\n  -- Melhor localizacao autorizada: maior disponivel.\n  v_best:=NULL; v_best_qty:=0;\n  FOR loc IN SELECT l.id FROM public.inventory_locations l\n    WHERE l.organization_id=_org AND l.status='ACTIVE' AND l.operational_purpose='NORMAL'\n      AND l.partn",
+    "is_error": false,
+    "timestamp": 1790522768964
   }
 ]
