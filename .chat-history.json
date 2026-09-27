@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '305,325p' supabase/migrations/20261005100000_crm.sql && echo \"=== org membership helper ===\" && grep -rn \"FUNCTION public.user_has_org\\|FUNCTION public.has_org\\|is_org_member\\|org_members\" supabase/migrations/*.sql | head -5"
-    },
-    "timestamp": 1790521329460
-  },
-  {
-    "role": "tool_result",
-    "content": " LEFT JOIN LATERAL(SELECT sum(open_amount)open_amount,sum(open_amount)FILTER(WHERE due_date<current_date)overdue_amount FROM account_receivables\n WHERE organization_id=_org AND company_id=_company AND status IN ('OPEN','PARTIALLY_PAID','OVERDUE'))x ON true;\n$$;\n\nALTER TABLE public.commercial_segment",
-    "is_error": false,
-    "timestamp": 1790521329479
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -rn \"RETURNS jsonb\" supabase/migrations/20261001100000_purchasing.sql | head -20 && echo \"=== alguma listagem ===\" && grep -rn \"_limit integer DEFAULT\\|_limit int DEFAULT\" supabase/migrations/*.sql | head -5"
     },
     "timestamp": 1790521334248
@@ -1512,5 +1498,19 @@
     "content": "order {'id': '97250686-dd5b-4229-bda9-3cf0a0bf7e38', 'status': 'DRAFT', 'order_number': 'PV-2026-000001', 'total_amount': 20.0}\nrows: 1\nef601fac-f5b0-4131-8487-fa402bc005c2|73eead3c-634a-4082-b7e7-1969a406f444|97250686-dd5b-4229-bda9-3cf0a0bf7e38|59510cf6-8024-4f76-b9e9-0861cd4ee525|SKU1|P — SKU1|UN",
     "is_error": false,
     "timestamp": 1790522659965
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"FOR i IN SELECT \\* FROM\" supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790522667047
+  },
+  {
+    "role": "tool_result",
+    "content": "1141: FOR i IN SELECT * FROM jsonb_array_elements(_items) LOOP\n1221:   FOR i IN SELECT * FROM jsonb_array_elements(coalesce(_data->'items','[]'::jsonb)) LOOP\n1228:   FOR i IN SELECT * FROM jsonb_array_elements(items) LOOP\n1267: FOR i IN SELECT * FROM jsonb_array_elements(coalesce(_data->'items','[]'",
+    "is_error": false,
+    "timestamp": 1790522667060
   }
 ]
