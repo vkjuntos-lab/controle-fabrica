@@ -3073,7 +3073,8 @@ BEGIN
      AND (v_company IS NULL OR sales_order_id IN (SELECT id FROM public.sales_orders WHERE company_id=v_company));
   SELECT coalesce(jsonb_agg(to_jsonb(x) ORDER BY x.created_at DESC),'[]'::jsonb) INTO v_rows
    FROM (SELECT s.id,s.shipment_number,s.status,s.tracking_code,s.dispatched_at,s.expected_delivery_at,
-     s.delivered_quantity,s.shipping_method,o.order_number,o.id AS sales_order_id,o.company_id,
+     s.delivered_quantity,s.shipping_method,s.created_at,s.updated_at,
+     o.order_number,o.id AS sales_order_id,o.company_id,
      c.trade_name AS company_name,ca.name AS carrier_name,
      (SELECT count(*) FROM public.shipment_items si WHERE si.shipment_id=s.id) AS item_count,
      (SELECT count(*) FROM public.shipment_delivery_proofs p WHERE p.shipment_id=s.id) AS proof_count,
