@@ -1294,7 +1294,7 @@ DECLARE prior public.sales_order_operation_keys; q public.sales_quotes; payload 
  result jsonb; it public.sales_quote_items; items jsonb:='[]'::jsonb;
  v_profile uuid; v_status text; v_order_id uuid; v_number text; v_subtotal numeric:=0; v_discount numeric:=0;
  v_tax numeric:=0; v_freight numeric; v_table uuid; v_addr_id uuid; v_bill_id uuid; v_addr jsonb:='{}'::jsonb;
- v_profile_table uuid; v_terms_id uuid; v_term text; v_rep uuid;
+ v_profile_table uuid; v_terms_id uuid; v_term text; v_rep uuid; v_snapshot jsonb;
 BEGIN
  PERFORM public.sales_require(_org,'sales_orders.create');
  IF _key IS NULL THEN RAISE EXCEPTION 'Chave de operação é obrigatória.'; END IF;
@@ -1355,6 +1355,12 @@ BEGIN
   v_discount:=round(coalesce(q.discount_amount,0),2); v_tax:=round(coalesce(q.tax_amount,0),2);
 
   v_number:=public.sales_next_number(_org,'order');
+  v_snapshot:=jsonb_build_object('quote_number',q.quote_number,'quote_version',q.version,'quote_total',q.total,
+      'discount_percent',q.discount_percent,'discount_amount',q.discount_amount,
+      'accepted_at',q.acceptance_evidence,'acceptance_contact_id',q.acceptance_contact_id,
+      'contact_name',(SELECT name FROM public.company_contacts WHERE id=q.acceptance_contact_id),
+      'payment_terms',q.payment_terms_snapshot,'items',items);
+  RAISE NOTICE 'SNAP %',left(v_snapshot::text,300);
   INSERT INTO public.sales_orders(organization_id,order_number,company_id,customer_profile_id,
     sales_quote_id,sales_quote_version,sales_opportunity_id,representative_id,price_table_id,
     source_type,order_date,expected_delivery_date,payment_terms_id,payment_terms_snapshot,

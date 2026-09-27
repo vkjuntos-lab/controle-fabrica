@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib,re\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nstart=s.index(\"CREATE FUNCTION public.sales_immutable()\")\nend=s.index(\"$$;\",start)+3\nbody=s[start:end]\nnew=body\n# Trigger function runs on tables with different shapes: field access must go\n# through the jsonb snapshot, never through OLD/NEW field resolution.\nnew=new.replace(\"IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN\",\"IF TG_OP='UPDATE' AND j->>'organization_id'<>to_jsonb(OLD)->>'organization_id' THEN\")\nnew=new.replace(\"OLD.status IN ('CANCELED','CLOSED')\",\"to_jsonb(OLD)->>'status' IN ('CANCELED','CLOSED')\")\nnew=new.replace(\"OLD.status IN ('CONSUMED','RELEASED','CANCELED')\",\"to_jsonb(OLD)->>'status' IN ('CONSUMED','RELEASED','CANCELED')\")\nnew=new.replace(\"OLD.status IN ('SHIPPED','CANCELED')\",\"to_jsonb(OLD)->>'status' IN ('SHIPPED','CANCELED')\")\nnew=new.replace(\"IF v_status='CONFIRMED' THEN\",\"IF v_status='CONFIRMED' THEN\")\nnew=new.replace(\"OLD.status IN ('DELIVERED','CANCELED')\",\"to_jsonb(OLD)->>'status' IN ('DELIVERED','CANCELED')\")\nnew=new.replace(\"OLD.status IN ('COMPLETED','REJECTED','CANCELED')\",\"to_jsonb(OLD)->>'status' IN ('COMPLETED','REJECTED','CANCELED')\")\nnew=new.replace(\"OLD.status IN ('RESOLVED','IGNORED')\",\"to_jsonb(OLD)->>'status' IN ('RESOLVED','IGNORED')\")\nnew=new.replace(\"AND to_jsonb(OLD)->>'sales_quote_id' IS NOT NULL\\n    AND (to_jsonb(OLD)->>'sales_quote_version') IS DISTINCT FROM (to_jsonb(NEW)->>'sales_quote_version') THEN\",\"AND to_jsonb(OLD)->>'sales_quote_id' IS NOT NULL\\n    AND (to_jsonb(OLD)->>'sales_quote_version') IS DISTINCT FROM (j->>'sales_quote_version') THEN\")\nnew=new.replace(\"\"\"   IF v_status='DRAFT' THEN RETURN OLD; END IF;\"\"\",\"\"\"   IF v_status='DRAFT' THEN RETURN OLD; END IF;\"\"\")\ns=s[:start]+new+s[end:]\np.write_text(s); print('OLD.status left:',new.count('OLD.status'),'NEW. left:',new.count('NEW.'))\nPY\ngrep -n \"OLD\\.\\|NEW\\.\" supabase/migrations/20261006100000_sales_orders.sql | sed -n '1,20p'"
-    },
-    "timestamp": 1790523442573
-  },
-  {
-    "role": "tool_result",
-    "content": "OLD.status left: 0 NEW. left: 0\n873: IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAISE EXCEPTION 'Organização imutável.'; END IF;\n901:  IF v_org IS DISTINCT FROM NEW.organization_id THEN RAISE EXCEPTION 'Referência fora da organização.'; END IF;\n",
-    "is_error": false,
-    "timestamp": 1790523442632
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
     },
     "timestamp": 1790523446198
@@ -1398,5 +1384,19 @@
     "content": "1: SELECT * INTO q FROM public.sales_quotes WHERE id=_quote AND organization_id=_org FOR UPDATE;\n6: SELECT id,order_number,status INTO v_order_id,v_number,v_status FROM public.sales_orders\n11:  SELECT p.id,p.commercial_status,p.price_table_id,p.payment_terms_id\n12:   INTO v_profile,v_status,v_profil",
     "is_error": false,
     "timestamp": 1790524172384
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"  v_number:=public.sales_next_number(_org,'order');\n  INSERT INTO public.sales_orders(organization_id,order_number,company_id,customer_profile_id,\"\"\"\nnew=\"\"\"  v_number:=public.sales_next_number(_org,'order');\n  v_snapshot:=jsonb_build_object('quote_number',q.quote_number,'quote_version',q.version,'quote_total',q.total,\n      'discount_percent',q.discount_percent,'discount_amount',q.discount_amount,\n      'accepted_at',q.acceptance_evidence,'acceptance_contact_id',q.acceptance_contact_id,\n      'contact_name',(SELECT name FROM public.company_contacts WHERE id=q.acceptance_contact_id),\n      'payment_terms',q.payment_terms_snapshot,'items',items);\n  RAISE NOTICE 'SNAP %',left(v_snapshot::text,300);\n  INSERT INTO public.sales_orders(organization_id,order_number,company_id,customer_profile_id,\"\"\"\nassert old in s; s=s.replace(old,new)\nold2=\"\"\"    'BRL',q.notes,nullif(trim(coalesce(_data->>'internal_notes','')),''),auth.uid())\"\"\"\nnew2=\"\"\"    'BRL',q.notes,nullif(trim(coalesce(_data->>'internal_notes','')),''),auth.uid())\"\"\"\np.write_text(s); print('ok')\nPY\npython3 - <<'PY'\nimport pathlib\np=pathlib.Path('/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\ns=s.replace(\"\"\" v_profile_table uuid; v_terms_id uuid; v_term text; v_rep uuid;\"\"\",\n\"\"\" v_profile_table uuid; v_terms_id uuid; v_term text; v_rep uuid; v_snapshot jsonb;\"\"\")\ns=s.replace(\"\"\"    jsonb_build_object('quote_number',q.quote_number,'quote_version',q.version,'quote_total',q.total,\n      'discount_percent',q.discount_percent,'discount_amount',q.discount_amount,\n      'accepted_at',q.acceptance_evidence,'acceptance_contact_id',q.acceptance_contact_id,\n      'contact_name',(SELECT name FROM public.company_contacts WHERE id=q.acceptance_contact_id),\n      'payment_terms',q.payment_terms_snapshot,'items',items),\n    'BRL',q.notes\"\"\",\"\"\"    v_snapshot,\n    'BRL',q.notes\"\"\")\np.write_text(s); print('ok2')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -A3 \"SNAP\" | head -8"
+    },
+    "timestamp": 1790524184644
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nok2\nAssertionError: NOTICE:  SNAP {\"items\": [{\"line_total\": 200.00, \"tax_amount\": 0, \"unit_price\": 25.00, \"sku_snapshot\": \"SAP-001\", \"unit_snapshot\": \"un\", \"price_snapshot\": {\"id\": \"c0ad987a-dbfb-4380-b945-9107db0b49f9\", \"status\": \"ACTIVE\", \"valid_to\": null, \"unit_price\": 25.00, \"valid_from\": \"20",
+    "is_error": false,
+    "timestamp": 1790524188959
   }
 ]
