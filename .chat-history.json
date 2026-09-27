@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport re,pathlib\ns=re.sub(r'--[^\\n]*','',pathlib.Path('supabase/migrations/20260926100000_partner_reconciliation.sql').read_text())\nfor t in ['price_tables','price_table_items','price_list_entries']:\n    m=re.search(r'CREATE TABLE (?:IF NOT EXISTS )?public\\.'+t+r'\\s*\\(',s)\n    if not m: print('###',t,'NAO EXISTE'); continue\n    i=m.end();d=1\n    while d>0:\n        if s[i]=='(':d+=1\n        elif s[i]==')':d-=1\n        i+=1\n    body=s[m.end():i-1]\n    print('###',t)\n    print(body[:1400])\nprint('=== pricing_resolve_table ===')\nm=re.search(r'CREATE OR REPLACE FUNCTION public\\.pricing_resolve_table[\\s\\S]*?\\$\\$;',s)\nprint(m.group(0)[:1800] if m else 'nao encontrado no arquivo')\nPY\ngrep -rn \"CREATE OR REPLACE FUNCTION public.pricing_resolve_table\\|CREATE FUNCTION public.pricing_resolve_table\" supabase/migrations/*.sql"
-    },
-    "timestamp": 1790521927322
-  },
-  {
-    "role": "tool_result",
-    "content": "### price_tables\n\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations,\n  code text NOT NULL CHECK(length(trim(code))>0),\n  name text NOT NULL CHECK(length(trim(name))>0),\n  status text NOT NULL DEFAULT 'ACTIVE' CHECK(status IN ('ACTIVE','I",
-    "is_error": false,
-    "timestamp": 1790521927374
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '288,300p' supabase/migrations/20261005100000_crm.sql && echo \"=== sales_quotes cols ===\" && python3 - <<'PY'\nimport re,pathlib\ns=re.sub(r'--[^\\n]*','',pathlib.Path('supabase/migrations/20261005100000_crm.sql').read_text())\nfor t in ['sales_quotes','sales_quote_items','customer_profiles','customer_credit_policies','opportunity_items']:\n    m=re.search(r'CREATE TABLE (?:IF NOT EXISTS )?public\\.'+t+r'\\s*\\(',s)\n    if not m: print('###',t,'NAO EXISTE'); continue\n    i=m.end();d=1\n    while d>0:\n        if s[i]=='(':d+=1\n        elif s[i]==')':d-=1\n        i+=1\n    body=s[m.end():i-1]\n    cols=[l.strip().split()[0] for l in body.split('\\n') if l.strip() and not l.strip().upper().startswith(('UNIQUE','CHECK','FOREIGN'))]\n    print('###',t); print('   ',', '.join(cols))\nPY"
     },
     "timestamp": 1790521931540
@@ -1431,5 +1417,19 @@
     "content": "ok\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 28, in call\n    def call(name, args, user, fail=None): return sql(f\"SEL",
     "is_error": false,
     "timestamp": 1790523199562
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"não está neste atendimento\" supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790523202607
+  },
+  {
+    "role": "tool_result",
+    "content": "2202:    format('A variante %s não está neste atendimento.',v_row.sku),\n2204:  RAISE EXCEPTION 'A variante %s não está neste atendimento.',v_row.sku;\n",
+    "is_error": false,
+    "timestamp": 1790523202619
   }
 ]
