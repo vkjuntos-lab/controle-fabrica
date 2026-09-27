@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/_probe-sales.py\" 2>&1 | tail -20"
-    },
-    "timestamp": 1790521807802
-  },
-  {
-    "role": "tool_result",
-    "content": "FALHOU 20261006100000_sales_orders.sql\nERROR:  syntax error at or near \")\"\nLINE 13: ...  nullif(trim(coalesce(_data->>'contact_name',''))),nullif(t...\n                                                              ^\n\n",
-    "is_error": false,
-    "timestamp": 1790521809845
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
@@ -1499,5 +1485,19 @@
     "content": "1782:  v_need:=coalesce(it.approved_quantity,it.ordered_quantity);\n1865:  v_need:=coalesce(it.approved_quantity,it.ordered_quantity);\n1933: SELECT coalesce(sum(greatest(0,coalesce(i.approved_quantity,i.ordered_quantity)\n1941: SELECT coalesce(sum(coalesce(i.approved_quantity,i.ordered_quantity)),0) I",
     "is_error": false,
     "timestamp": 1790522773996
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\ns=s.replace(\"\"\"v_need:=coalesce(it.approved_quantity,it.ordered_quantity);\"\"\",\n\"\"\"v_need:=CASE WHEN it.approved_quantity>0 THEN it.approved_quantity ELSE it.ordered_quantity END;\"\"\")\ns=s.replace(\"\"\"SELECT coalesce(sum(greatest(0,coalesce(i.approved_quantity,i.ordered_quantity)\"\"\",\n\"\"\"SELECT coalesce(sum(greatest(0,CASE WHEN i.approved_quantity>0 THEN i.approved_quantity ELSE i.ordered_quantity END)\"\"\")\ns=s.replace(\"\"\"SELECT coalesce(sum(coalesce(i.approved_quantity,i.ordered_quantity)),0) INTO v_qty\"\"\",\n\"\"\"SELECT coalesce(sum(CASE WHEN i.approved_quantity>0 THEN i.approved_quantity ELSE i.ordered_quantity END),0) INTO v_qty\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -10"
+    },
+    "timestamp": 1790522776719
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 12, in run\n    sql((db.ROOT/'supabase/migrations'/name).read_text())\n    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, ",
+    "is_error": false,
+    "timestamp": 1790522778799
   }
 ]

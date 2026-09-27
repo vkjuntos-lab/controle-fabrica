@@ -1779,7 +1779,7 @@ BEGIN
  v_mto:=coalesce((public.sales_settings(_org)->>'make_to_order_enabled')::boolean,true);
  FOR it IN SELECT * FROM public.sales_order_items
    WHERE organization_id=_org AND sales_order_id=_order AND status<>'CANCELED' ORDER BY created_at LOOP
-  v_need:=coalesce(it.approved_quantity,it.ordered_quantity);
+  v_need:=CASE WHEN it.approved_quantity>0 THEN it.approved_quantity ELSE it.ordered_quantity END;
   v_reserved:=it.reserved_quantity;
   v_pend:=greatest(0,v_need-v_reserved);
   v_total_need:=v_total_need+v_need;
@@ -1862,7 +1862,7 @@ BEGIN
                ELSE false END);
   IF it.id IS NULL THEN RAISE EXCEPTION 'Item do pedido não encontrado.'; END IF;
   IF it.status='CANCELED' THEN RAISE EXCEPTION 'Item cancelado não pode ser reservado.'; END IF;
-  v_need:=coalesce(it.approved_quantity,it.ordered_quantity);
+  v_need:=CASE WHEN it.approved_quantity>0 THEN it.approved_quantity ELSE it.ordered_quantity END;
   v_reserved:=it.reserved_quantity-it.fulfilled_quantity;
   v_reserved:=greatest(0,v_reserved);
   v_pend:=greatest(0,v_need-v_reserved);
@@ -1930,7 +1930,7 @@ BEGIN
  END LOOP;
 
  -- Recalcula o estado de estoque do pedido a partir das reservas reais.
- SELECT coalesce(sum(greatest(0,coalesce(i.approved_quantity,i.ordered_quantity)
+ SELECT coalesce(sum(greatest(0,CASE WHEN i.approved_quantity>0 THEN i.approved_quantity ELSE i.ordered_quantity END)
    -coalesce((SELECT sum(r.quantity-r.fulfilled_quantity-r.released_quantity)
       FROM public.inventory_reservations r WHERE r.sales_order_item_id=i.id
         AND r.status IN ('ACTIVE','PARTIALLY_CONSUMED')),0))),0) INTO v_pend
@@ -1938,7 +1938,7 @@ BEGIN
  SELECT coalesce(sum(r.quantity-r.fulfilled_quantity-r.released_quantity),0)
   INTO v_reserved FROM public.inventory_reservations r
  WHERE r.organization_id=_org AND r.sales_order_id=_order AND r.status IN ('ACTIVE','PARTIALLY_CONSUMED');
- SELECT coalesce(sum(coalesce(i.approved_quantity,i.ordered_quantity)),0) INTO v_qty
+ SELECT coalesce(sum(CASE WHEN i.approved_quantity>0 THEN i.approved_quantity ELSE i.ordered_quantity END),0) INTO v_qty
   FROM public.sales_order_items i WHERE i.organization_id=_org AND i.sales_order_id=_order AND i.status<>'CANCELED';
  SELECT stock_status INTO v_status FROM public.sales_orders WHERE id=_order;
  v_status:=CASE WHEN v_reserved<=0 THEN 'NOT_EVALUATED'
