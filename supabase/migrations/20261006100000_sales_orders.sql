@@ -1642,14 +1642,16 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
       cr.financial_action,cr.financial_requested_at,cr.created_at
     FROM public.customer_returns cr WHERE cr.organization_id=_org AND cr.company_id=_company
     ORDER BY cr.requested_at DESC,cr.return_number DESC LIMIT greatest(1,least(_limit,200))) r),'[]'::jsonb),
-  'totals',(SELECT jsonb_build_object(
-      'orders',count(*),
-      'amount',coalesce(sum(total_amount),0),
-      'delivered_amount',coalesce(sum((SELECT coalesce(sum(si.delivered_quantity),0)
-        FROM public.shipment_items si JOIN public.shipments s ON s.id=si.shipment_id
-        WHERE s.sales_order_id=so.id)),0)
-    FROM public.sales_orders so
-    WHERE so.organization_id=_org AND so.company_id=_company AND so.status NOT IN ('CANCELED'))),
+  'totals',jsonb_build_object(
+      'orders',(SELECT count(*) FROM public.sales_orders so
+        WHERE so.organization_id=_org AND so.company_id=_company AND so.status NOT IN ('CANCELED')),
+      'amount',(SELECT coalesce(sum(so.total_amount),0) FROM public.sales_orders so
+        WHERE so.organization_id=_org AND so.company_id=_company AND so.status NOT IN ('CANCELED')),
+      'delivered_amount',(SELECT coalesce(sum(si.delivered_quantity),0)
+        FROM public.shipment_items si JOIN public.shipments sh ON sh.id=si.shipment_id
+        JOIN public.sales_orders so ON so.id=sh.sales_order_id
+        WHERE si.organization_id=_org AND so.company_id=_company
+          AND sh.status IN ('DELIVERED','PARTIALLY_DELIVERED'))),
   'note','Dados sempre das tabelas oficiais. Nada é recalculado nem estimado aqui.');
 $$;
 

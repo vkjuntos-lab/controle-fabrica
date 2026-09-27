@@ -1,17 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": " opportunity_id uuid NOT NULL, FOREIGN KEY(organization_id,opportunity_id) REFERENCES public.sales_opportunities(organization_id,id), variant_id uuid NOT NULL REFERENCES public.product_variants, estimated_quantity numeric(14,3) NOT NULL CHECK(estimated_quantity>0), estimated_unit_price numeric(14,2)",
-    "is_error": false,
-    "timestamp": 1790520233121
-  },
-  {
-    "role": "tool_result",
-    "content": " created_by uuid REFERENCES public.profiles DEFAULT auth.uid(), UNIQUE(organization_id,id)\n);\nCREATE INDEX sales_representatives_tenant ON public.sales_representatives(organization_id,created_at DESC);\n\nCREATE TABLE public.commercial_payment_terms (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(), or",
-    "is_error": false,
-    "timestamp": 1790520233129
-  },
-  {
     "role": "tool",
     "tool": "bash",
     "input": {
@@ -1532,5 +1520,21 @@
     "content": "FALHOU 20261006100000_sales_orders.sql\nERROR:  syntax error at or near \"FROM\"\nLINE 30:     FROM public.sales_orders so\n             ^\n\n",
     "is_error": false,
     "timestamp": 1790521798364
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
+      "newString": "  'totals',jsonb_build_object(\n      'orders',(SELECT count(*) FROM public.sales_orders so\n        WHERE so.organization_id=_org AND so.company_id=_company AND so.status NOT IN ('CANCELED')),\n      'amount',(SELECT coalesce(sum(so.total_amount),0) FROM public.sales_orders so\n        WHERE so.organization_id=_org AND so.company_id=_company AND so.status NOT IN ('CANCELED')),\n      'delivered_amount',(SELECT coalesce(sum(si.delivered_quantity),0)\n        FROM public.shipment_items si JOIN public.shipments sh ON sh.id=si.shipment_id\n        JOIN public.sales_orders so ON so.id=sh.sales_order_id\n        WHERE si.organization_id=_org AND so.company_id=_company\n          AND sh.status IN ('DELIVERED','PARTIALLY_DELIVERED'))),",
+      "oldString": "  'totals',(SELECT jsonb_build_object(\n      'orders',count(*),\n      'amount',coalesce(sum(total_amount),0),\n      'delivered_amount',coalesce(sum((SELECT coalesce(sum(si.delivered_quantity),0)\n        FROM public.shipment_items si JOIN public.shipments s ON s.id=si.shipment_id\n        WHERE s.sales_order_id=so.id)),0)\n    FROM public.sales_orders so\n    WHERE so.organization_id=_org AND so.company_id=_company AND so.status NOT IN ('CANCELED'))),"
+    },
+    "timestamp": 1790521805606
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790521805642
   }
 ]
