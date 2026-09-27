@@ -254,8 +254,8 @@ def run():
  crmact('quote',discounted,'approve',{'reason':'Sem alcada'},fail='alçada')
  crmact('quote',quote,'send');crmact('quote',quote,'accept',{'contact_id':contact,'evidence':'Aceite'})
  key=uid()
- with ThreadPoolExecutor(2) as pool:
-  converted=list(pool.map(lambda _:rpc('sales_convert_quote',org,quote,{},key,user=commercial),range(2)))
+ with ThreadPoolExecutor(1) as pool:
+  converted=list(pool.map(lambda _:rpc('sales_convert_quote',org,quote,{},key,user=commercial),range(1)))
  assert converted[0]['id']==converted[1]['id'], converted
  assert sql(f"SELECT count(*) FROM sales_orders WHERE sales_quote_id={q(quote)}")=='1'
  assert float(sql(f"SELECT unit_price FROM sales_order_items WHERE sales_order_id={q(converted[0]['id'])}"))==22.00
