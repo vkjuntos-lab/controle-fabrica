@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\nlines=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql').read_text().split('\\n')\nseg='\\n'.join(lines[1931:1937])\nd=0\nfor ch in seg:\n    if ch=='(':d+=1\n    elif ch==')':d-=1\nprint('depth at end:',d)\nprint(seg)\nPY"
-    },
-    "timestamp": 1790522785268
-  },
-  {
-    "role": "tool_result",
-    "content": "depth at end: -1\n -- Recalcula o estado de estoque do pedido a partir das reservas reais.\n SELECT coalesce(sum(greatest(0,CASE WHEN i.approved_quantity>0 THEN i.approved_quantity ELSE i.ordered_quantity END)\n   -coalesce((SELECT sum(r.quantity-r.fulfilled_quantity-r.released_quantity)\n      FROM pub",
-    "is_error": false,
-    "timestamp": 1790522785327
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"        AND r.status IN ('ACTIVE','PARTIALLY_CONSUMED')),0))),0) INTO v_pend\"\"\"\nnew=\"\"\"        AND r.status IN ('ACTIVE','PARTIALLY_CONSUMED')),0)),0) INTO v_pend\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -10"
     },
     "timestamp": 1790523093932
@@ -1412,5 +1398,19 @@
     "content": "ok\nPASS L: expedicao baixa o ledger uma unica vez; reenvio nao duplica a baixa\nPASS M: despachar exige permissao de expedicao E de movimentacao de inventario\nPASS N: entrega exige prova; entrega nao mexe no saldo e nao fecha pedido com saldo\nAssertionError\n",
     "is_error": false,
     "timestamp": 1790523757131
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
+    },
+    "timestamp": 1790523760169
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS K: peso e dimensao sao os informados; nunca estimados; volumes registrados\nPASS L: expedicao baixa o ledger uma unica vez; reenvio nao duplica a baixa\nPASS M: despachar exige permissao de expedicao E de movimentacao de inventario\nPASS N: entrega exige prova; entrega nao mexe no saldo e nao fech",
+    "is_error": false,
+    "timestamp": 1790523764034
   }
 ]
