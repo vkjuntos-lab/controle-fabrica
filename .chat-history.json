@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -rn \"operational_purpose\" supabase/migrations/*.sql | head -5 && echo \"--- def ---\" && grep -rn \"operational_purpose\" -B2 -A4 supabase/migrations/20260924100000_partners.sql | head -20"
-    },
-    "timestamp": 1790522027450
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20260924100000_partners.sql:44:ALTER TABLE public.inventory_locations ADD COLUMN operational_purpose text NOT NULL DEFAULT 'NORMAL' CHECK(operational_purpose IN ('NORMAL','QUARANTINE','INSPECTION'));\nsupabase/migrations/20260924100000_partners.sql:429:   IF it->>'condition'<>'SEL",
-    "is_error": false,
-    "timestamp": 1790522027477
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py",
@@ -1428,5 +1414,19 @@
     "content": "ok\nDEBUG task PICKED ff PICKED\nAssertionError: ERROR:  Tarefa não está em conferência.\n",
     "is_error": false,
     "timestamp": 1790523271637
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"em conferência\" supabase/migrations/20261006100000_sales_orders.sql && grep -n \"FUNCTION public.sales_pick_confirm\" supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790523275808
+  },
+  {
+    "role": "tool_result",
+    "content": "2242: IF t.status NOT IN ('IN_PROGRESS','PICKED','PENDING') THEN RAISE EXCEPTION 'Tarefa não está em conferência.'; END IF;\n2232:CREATE FUNCTION public.sales_pick_confirm(_org uuid,_task uuid,_data jsonb DEFAULT '{}')\n3633:GRANT EXECUTE ON FUNCTION public.sales_pick_confirm(uuid,uuid,jsonb) TO authe",
+    "is_error": false,
+    "timestamp": 1790523275841
   }
 ]
