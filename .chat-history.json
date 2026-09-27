@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"^(ERROR|DETAIL|QUERY|LINE|CONTEXT|HINT)\" | head -20"
-    },
-    "timestamp": 1790522534770
-  },
-  {
-    "role": "tool_result",
-    "content": "DETAIL:  Failing row contains (4ce56eed-ab12-461f-a6e1-c91644dfefca, 59d963ed-5680-418f-bd98-6ea43a824152, PV-2026-000001, 95233fc5-2b13-4880-8f19-6d893533a3d7, 256f1a23-342c-456b-acd2-ef912cb530fc, null, null, null, null, eb39701f-a64a-48df-ae17-56e15345085e, MANUAL, null, null, null, null, null, n",
-    "is_error": false,
-    "timestamp": 1790522537217
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"violates|not-null|invalid\" | head -5"
     },
     "timestamp": 1790522539110
@@ -1426,5 +1412,19 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790523393282
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790523402038
+  },
+  {
+    "role": "tool_result",
+    "content": "     (SELECT r.id FROM public.inventory_reservations r\n       WHERE r.organization_id=_org AND r.sales_order_item_id=pti.sales_order_item_id\n         AND r.inventory_location_id=v_loc AND r.status IN ('ACTIVE','PARTIALLY_CONSUMED')\n       ORDER BY r.reserved_at DESC LIMIT 1)\n  FROM public.picking_ta",
+    "is_error": false,
+    "timestamp": 1790523405278
   }
 ]
