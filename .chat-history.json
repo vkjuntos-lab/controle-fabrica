@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '1613,1640p' supabase/migrations/20261006100000_sales_orders.sql"
-    },
-    "timestamp": 1790523469707
-  },
-  {
-    "role": "tool_result",
-    "content": "\n ELSIF _action='close' THEN\n  IF o.status NOT IN ('FULFILLED','PARTIALLY_FULFILLED') THEN\n   RAISE EXCEPTION 'Somente pedido com expedição pode ser fechado.';\n  END IF;\n  IF EXISTS(SELECT 1 FROM public.shipments WHERE organization_id=_org AND sales_order_id=_order\n      AND status IN ('DISPATCHED',",
-    "is_error": false,
-    "timestamp": 1790523469718
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"  v_ord_status:=CASE WHEN v_pending=0 THEN 'FULFILLED' ELSE o.status END;\n  UPDATE public.sales_orders SET status=v_ord_status,closed_at=CASE WHEN v_pending=0 THEN coalesce(closed_at,v_now) ELSE closed_at END,\n   updated_at=v_now WHERE id=o.id;\"\"\"\nnew=\"\"\"  -- O pedido so fecha sozinho quando TUDO aprovado foi entregue. Saldo\n  -- residual e decisao do operador: nao vira encerramento automatico.\n  SELECT coalesce(sum(i.delivered_quantity),0),\n    coalesce(sum(coalesce(NULLIF(i.approved_quantity,0),i.ordered_quantity)),0)\n   INTO v_deliv,v_req FROM public.sales_order_items i\n  WHERE i.organization_id=_org AND i.sales_order_id=o.id AND i.status<>'CANCELED';\n  IF v_pending=0 AND v_deliv>=v_req THEN\n   v_ord_status:='FULFILLED';\n  END IF;\n  UPDATE public.sales_orders SET status=v_ord_status,\n   closed_at=CASE WHEN v_ord_status='FULFILLED' AND v_pending=0 THEN coalesce(closed_at,v_now) ELSE closed_at END,\n   updated_at=v_now WHERE id=o.id;\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\ngrep -n \"v_deliv numeric\\|v_req numeric\\|v_pending integer\" supabase/migrations/20261006100000_sales_orders.sql | head"
     },
     "timestamp": 1790523473545
@@ -1398,5 +1384,19 @@
     "content": "ok\nAssertionError: NOTICE:  SNAP {\"items\": [{\"line_total\": 200.00, \"tax_amount\": 0, \"unit_price\": 25.00, \"sku_snapshot\": \"SAP-001\", \"unit_snapshot\": \"un\", \"price_snapshot\": {\"id\": \"1375ca38-e3c1-4c6c-8596-4dd5f2dc84ee\", \"status\": \"ACTIVE\", \"valid_to\": null, \"unit_price\": 25.00, \"valid_from\": \"2020-0",
     "is_error": false,
     "timestamp": 1790524218088
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk '/CREATE TABLE public.sales_orders /,/^\\);/' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790524229997
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE TABLE public.sales_orders (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n organization_id uuid NOT NULL REFERENCES public.organizations,\n order_number text NOT NULL,\n company_id uuid NOT NULL,\n  FOREIGN KEY(organization_id,company_id) REFERENCES public.companies(organization_id,id),\n custo",
+    "is_error": false,
+    "timestamp": 1790524230025
   }
 ]
