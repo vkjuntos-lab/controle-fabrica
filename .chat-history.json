@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1790413778437
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"docs/business/COMMERCIAL-POLICIES.md\"); s = p.read_text()\ns = s.replace(\"e considera o carveiro de valores já comprometidos\", \"e considera o valor já comprometido por propostas aprovadas\")\ns = s.replace(\"Crédito é limite de política, não表皮 de财务: nada aqui emite título\", \"Crédito aqui é limite de política, não operação financeira: nada deste master emite título\")\ns = s.replace(\"não表皮 de财务\", \"não operação financeira\")\ns = s.replace(\"o status daauthority (ativa, expirada, revogada)\", \"o status da authority (ativa, expirada, revogada)\")\np.write_text(s)\nprint([c for c in s if ord(c) > 0x2FFF and c not in \"—’“”…\"])\nPY"
-    },
-    "timestamp": 1790413782300
-  },
-  {
-    "role": "tool_result",
     "content": "[]\n",
     "is_error": false,
     "timestamp": 1790413782350
@@ -1594,5 +1580,19 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790521302006
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\ns=s.replace(\"\"\" 'shipments.read','shipments.create','shipments.dispatch',\n 'returns.read','returns.receive',\n 'logistics.export']) p ON CONFLICT DO NOTHING;\"\"\",\n\"\"\" 'shipments.read','shipments.create','shipments.dispatch',\n 'returns.read','returns.receive','logistics.exceptions',\n 'logistics.export']) p ON CONFLICT DO NOTHING;\"\"\")\ns=s.replace(\"\"\" 'sales_orders.read','sales_credit.read',\n 'shipments.read','returns.read','returns.approve']) p ON CONFLICT DO NOTHING;\"\"\",\n\"\"\" 'sales_orders.read','sales_credit.read',\n 'shipments.read','returns.read','returns.approve',\n 'logistics.read','logistics.export']) p ON CONFLICT DO NOTHING;\"\"\")\ns=s.replace(\"\"\" 'sales_credit.read','carriers.manage']) p ON CONFLICT DO NOTHING;\"\"\",\n\"\"\" 'sales_credit.read','carriers.manage','logistics.read','logistics.exceptions']) p ON CONFLICT DO NOTHING;\"\"\")\ns=s.replace(\"\"\"INSERT INTO public.role_permissions(role,permission)\nSELECT 'producao','sales_orders.read' ON CONFLICT DO NOTHING;\"\"\",\n\"\"\"INSERT INTO public.role_permissions(role,permission)\nSELECT 'producao',p FROM unnest(ARRAY['sales_orders.read','sales.dashboard']) p ON CONFLICT DO NOTHING;\"\"\")\np.write_text(s); print('parte 1 ok')\n\n# parte 5: gatilho NONE nao gera titulo\np=pathlib.Path('/tmp/opencode/sales_part5.sql'); s=p.read_text()\ns=s.replace(\"\"\" IF _trigger NOT IN ('ON_APPROVAL','ON_DISPATCH') THEN RAISE EXCEPTION 'Gatilho financeiro inválido.'; END IF;\"\"\",\n\"\"\" -- NONE e uma configuracao valida: a organizacao optou por nao gerar titulo.\n IF _trigger='NONE' THEN RETURN 0; END IF;\n IF _trigger NOT IN ('ON_APPROVAL','ON_DISPATCH') THEN RAISE EXCEPTION 'Gatilho financeiro inválido.'; END IF;\"\"\")\np.write_text(s); print('parte 5 ok')\n\n# parte 8: padrao correto do gatilho\np=pathlib.Path('/tmp/opencode/sales_part8.sql'); s=p.read_text()\ns=s.replace(\"v_fin_trigger:=coalesce(cfg->>'receivable_trigger','ON_APPROVAL');\",\n            \"v_fin_trigger:=coalesce(cfg->>'receivable_trigger','ON_DISPATCH');\")\np.write_text(s); print('parte 8 ok')\nPY"
+    },
+    "timestamp": 1790521306973
+  },
+  {
+    "role": "tool_result",
+    "content": "parte 1 ok\nparte 5 ok\nparte 8 ok\n",
+    "is_error": false,
+    "timestamp": 1790521307025
   }
 ]

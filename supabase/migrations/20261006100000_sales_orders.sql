@@ -54,7 +54,7 @@ SELECT 'comercial',p FROM unnest(ARRAY[
  'fulfillment.read','picking.execute',
  'shipments.read','shipments.create','shipments.confirm_delivery',
  'returns.read','returns.create',
- 'sales_credit.read','carriers.manage']) p ON CONFLICT DO NOTHING;
+ 'sales_credit.read','carriers.manage','logistics.read','logistics.exceptions']) p ON CONFLICT DO NOTHING;
 
 -- Estoque: executa o fisico (reserva, separacao, embalagem, expedicao) e
 -- pode ajustar estoque, necessario para a baixa oficial de SALE.
@@ -65,18 +65,19 @@ SELECT 'estoque',p FROM unnest(ARRAY[
  'fulfillment.read','fulfillment.manage',
  'picking.execute','picking.confirm','packing.manage',
  'shipments.read','shipments.create','shipments.dispatch',
- 'returns.read','returns.receive',
+ 'returns.read','returns.receive','logistics.exceptions',
  'logistics.export']) p ON CONFLICT DO NOTHING;
 
 -- Financeiro: leitura da cadeia comercial e das devolucoes para estorno.
 INSERT INTO public.role_permissions(role,permission)
 SELECT 'financeiro',p FROM unnest(ARRAY[
  'sales_orders.read','sales_credit.read',
- 'shipments.read','returns.read','returns.approve']) p ON CONFLICT DO NOTHING;
+ 'shipments.read','returns.read','returns.approve',
+ 'logistics.read','logistics.export']) p ON CONFLICT DO NOTHING;
 
 -- Producao: le pedidos aprovados para reconhecer demanda sob encomenda.
 INSERT INTO public.role_permissions(role,permission)
-SELECT 'producao','sales_orders.read' ON CONFLICT DO NOTHING;
+SELECT 'producao',p FROM unnest(ARRAY['sales_orders.read','sales.dashboard']) p ON CONFLICT DO NOTHING;
 
 -- =====================================================================
 -- 2. Politicas operacionais por organizacao.
