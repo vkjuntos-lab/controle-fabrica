@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"DISCONTINUED\\|v_out\\|result jsonb\\|RETURNING id INTO\" supabase/migrations/20261006100000_sales_orders.sql | head -30"
-    },
-    "timestamp": 1790521833704
-  },
-  {
-    "role": "tool_result",
-    "content": "178: credit_check_result jsonb,\n261: result jsonb NOT NULL, created_by uuid REFERENCES public.profiles DEFAULT auth.uid(),\n284: result jsonb NOT NULL DEFAULT '{}',\n980: RETURNING id INTO ident;\n1003:    WHERE id=v_variant AND organization_id=_org AND status IN ('ACTIVE','DISCONTINUED')) THEN\n1184: r",
-    "is_error": false,
-    "timestamp": 1790521833721
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
@@ -1499,5 +1485,19 @@
     "content": "ok\nPASS F: aprovacao exige outro usuario, preserva a consulta de credito e gera demanda\nPASS G: DISPONIVEL = SALDO FISICO - RESERVAS; reserva nao cria movimento e e idempotente\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 299, in",
     "is_error": false,
     "timestamp": 1790523096929
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\nold=\"\"\"order2=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':50}]})\n a2=rpc('sales_availability',org,order2['id'],None,user=a)\n assert a2['items'][0]['available']==80.0 and a2['sufficient'] is False, a2\n assert a2['items'][0]['make_to_order_suggested'] is True\"\"\"\nnew=\"\"\"order2=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':100}]})\n a2=rpc('sales_availability',org,order2['id'],None,user=a)\n assert a2['items'][0]['available']==80.0 and a2['items'][0]['required_quantity']==100.0, a2\n assert a2['sufficient'] is False and a2['make_to_order_quantity']==20, a2\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -10"
+    },
+    "timestamp": 1790523102980
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nPASS F: aprovacao exige outro usuario, preserva a consulta de credito e gera demanda\nPASS G: DISPONIVEL = SALDO FISICO - RESERVAS; reserva nao cria movimento e e idempotente\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 299, in",
+    "is_error": false,
+    "timestamp": 1790523106054
   }
 ]

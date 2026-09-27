@@ -116,10 +116,10 @@ def run():
  # Local de quarentena nunca atende venda direta.
  rpc('sales_reserve',org,order['id'],{'items':[{'sales_order_item_id':sql(f"SELECT id FROM sales_order_items WHERE sales_order_id={q(order['id'])}"),'quantity':1,'inventory_location_id':quarantine}]},user=picker,fail='não é autorizada')
  # Um segundo pedido do mesmo cliente ve o disponibilidade reduzido.
- order2=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':50}]})
+ order2=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'items':[{'variant_id':variants['SAP-001']['v'],'quantity':100}]})
  a2=rpc('sales_availability',org,order2['id'],None,user=a)
- assert a2['items'][0]['available']==80.0 and a2['sufficient'] is False, a2
- assert a2['items'][0]['make_to_order_suggested'] is True
+ assert a2['items'][0]['available']==80.0 and a2['items'][0]['required_quantity']==100.0, a2
+ assert a2['sufficient'] is False and a2['make_to_order_quantity']==20, a2
  print('PASS H: reserva de um pedido reduz o disponivel do outro; quarentena nao atende venda direta')
 
  # ------------------------------------------------- atendimento e picking
