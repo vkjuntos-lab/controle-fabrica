@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\" # ------------------------------------------ expedicao: baixa no ledger\n rpc('sales_fulfillment_action',org,fulfillment['id'],'ready',{},user=picker)\"\"\",\n\"\"\" # ------------------------------------------ expedicao: baixa no ledger\n print('DEBUG ff',sql(f\"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"),'packrec',sql(f\"SELECT count(*) FROM packing_records WHERE fulfillment_order_id={q(fulfillment['id'])}\"))\n rpc('sales_fulfillment_action',org,fulfillment['id'],'ready',{},user=picker)\n print('DEBUG ff after ready',sql(f\"SELECT status FROM fulfillment_orders WHERE id={q(fulfillment['id'])}\"))\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"DEBUG|Assertion\" | tail -4"
-    },
-    "timestamp": 1790523526735
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\nDEBUG ff PACKING packrec 1\nDEBUG ff after ready READY_FOR_SHIPMENT\nAssertionError: ERROR:  Atendimento c68e6ed4-ac56-4389-8d48-4b20bd40f082 não está liberado para expedição.\n",
-    "is_error": false,
-    "timestamp": 1790523530541
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk 'BEGIN{f=0} /CREATE TABLE public.fulfillment_orders /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261006100000_sales_orders.sql | grep -n \"status\" -A4"
     },
     "timestamp": 1790523539672
@@ -1398,5 +1384,19 @@
     "content": "1293: DECLARE prior public.sales_order_operation_keys; q public.sales_quotes; payload jsonb;\n1294:  result jsonb; it public.sales_quote_items; items jsonb:='[]'::jsonb;\n1296:  v_tax numeric:=0; v_freight numeric; v_table uuid; v_addr_id uuid; v_bill_id uuid; v_addr jsonb:='{}'::jsonb;\n1297:  v_profi",
     "is_error": false,
     "timestamp": 1790524323574
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"  INSERT INTO public.sales_order_items(organization_id,sales_order_id,product_variant_id,\n    sku_snapshot,description_snapshot,unit_snapshot,price_snapshot,ordered_quantity,\n    unit_price,discount_amount,tax_amount,line_total,created_by)\n  SELECT _org,v_order_id,x.product_variant_id,\n    coalesce(nullif(x.sku_snapshot,''),v.sku),\n    coalesce(nullif(x.description_snapshot,''),pr.name||' — '||v.sku),\n    x.unit_snapshot,coalesce(x.price_snapshot,'{}'::jsonb),x.ordered_quantity,x.unit_price,\n    x.discount_amount,x.tax_amount,x.line_total,auth.uid()\n  FROM jsonb_to_recordset(items) AS x(product_variant_id uuid,sku_snapshot text,description_snapshot text,\n    unit_snapshot text,price_snapshot jsonb,ordered_quantity numeric,unit_price numeric,\n    discount_amount numeric,tax_amount numeric,line_total numeric)\n  JOIN public.product_variants v ON v.id=x.product_variant_id\n  JOIN public.products pr ON pr.id=v.product_id;\"\"\"\nnew=\"\"\"  RAISE NOTICE 'ITEMS JSON %',items::text;\n  INSERT INTO public.sales_order_items(organization_id,sales_order_id,product_variant_id,\n    sku_snapshot,description_snapshot,unit_snapshot,price_snapshot,ordered_quantity,\n    unit_price,discount_amount,tax_amount,line_total,created_by)\n  SELECT _org,v_order_id,x.product_variant_id,\n    coalesce(nullif(x.sku_snapshot,''),v.sku),\n    coalesce(nullif(x.description_snapshot,''),pr.name||' — '||v.sku),\n    x.unit_snapshot,coalesce(x.price_snapshot,'{}'::jsonb),x.ordered_quantity,x.unit_price,\n    x.discount_amount,x.tax_amount,x.line_total,auth.uid()\n  FROM jsonb_to_recordset(items) AS x(product_variant_id uuid,sku_snapshot text,description_snapshot text,\n    unit_snapshot text,price_snapshot jsonb,ordered_quantity numeric,unit_price numeric,\n    discount_amount numeric,tax_amount numeric,line_total numeric)\n  JOIN public.product_variants v ON v.id=x.product_variant_id\n  JOIN public.products pr ON pr.id=v.product_id;\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"ITEMS JSON|ERROR|DETAIL\" | head -4"
+    },
+    "timestamp": 1790524334505
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nAssertionError: ERROR:  invalid input syntax for type json\nDETAIL:  Token \"37e4749a\" is invalid.\n",
+    "is_error": false,
+    "timestamp": 1790524338789
   }
 ]

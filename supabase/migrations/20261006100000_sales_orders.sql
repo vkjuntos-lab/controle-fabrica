@@ -1372,6 +1372,7 @@ BEGIN
     'BRL',q.notes,nullif(trim(coalesce(_data->>'internal_notes','')),''),auth.uid())
   RETURNING id INTO result;
 
+  RAISE NOTICE 'ITEMS JSON %',items::text;
   INSERT INTO public.sales_order_items(organization_id,sales_order_id,product_variant_id,
     sku_snapshot,description_snapshot,unit_snapshot,price_snapshot,ordered_quantity,
     unit_price,discount_amount,tax_amount,line_total,created_by)
