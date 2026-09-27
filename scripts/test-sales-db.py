@@ -223,7 +223,7 @@ def run():
    'items':[{'sales_order_item_id':sql(f"SELECT id FROM sales_order_items WHERE sales_order_id={q(order['id'])}"),'quantity':2,'condition':'DAMAGED'}]},user=commercial)
  rpc('sales_return_action',org,ret2['id'],'submit',{},user=commercial);rpc('sales_return_action',org,ret2['id'],'approve',{},user=approver)
  sql(f"UPDATE customer_return_items SET destination='SELLABLE' WHERE customer_return_id={q(ret2['id'])}")
- rpc('sales_return_action',org,ret2['id'],'receive',{'quantity':2,'destination':'SELLABLE','destination_location_id':quarantine},user=picker,fail='condi')
+ rpc('sales_return_action',org,ret2['id'],'receive',{'quantity':2,'destination':'SELLABLE','destination_location_id':quarantine},user=picker,fail='vendável')
  rpc('sales_return_action',org,ret2['id'],'receive',{'quantity':2,'destination':'QUARANTINE','destination_location_id':quarantine},user=picker)
  assert balance(variants['SAP-001']['v'],warehouse)==86.0
  assert float(sql(f"SELECT quantity FROM inventory_get_balance({q(org)},{q(variants['SAP-001']['v'])})"))==2.0
