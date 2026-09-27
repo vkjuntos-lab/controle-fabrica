@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk 'BEGIN{f=0} /CREATE TABLE public.packing_record_items /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261006100000_sales_orders.sql && echo \"=== packing_records ===\" && awk 'BEGIN{f=0} /CREATE TABLE public.packing_records /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261006100000_sales_orders.sql && echo \"=== volumes ===\" && awk 'BEGIN{f=0} /CREATE TABLE public.packing_record_volumes /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261006100000_sales_orders.sql"
-    },
-    "timestamp": 1790523350554
-  },
-  {
-    "role": "tool_result",
-    "content": "CREATE TABLE public.packing_record_items (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n organization_id uuid NOT NULL REFERENCES public.organizations,\n packing_record_id uuid NOT NULL,\n  FOREIGN KEY(organization_id,packing_record_id) REFERENCES public.packing_records(organization_id,id),\n sales_",
-    "is_error": false,
-    "timestamp": 1790523350589
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\"assert float(sql(f\"SELECT confirmed_quantity FROM packing_record_items WHERE packing_record_id={q(packed['packing_record_id'])}\"))==20.0\"\"\",\n\"\"\"assert float(sql(f\"SELECT quantity FROM packing_record_items WHERE packing_record_id={q(packed['packing_record_id'])}\"))==19.0\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
     },
     "timestamp": 1790523352916
@@ -1404,5 +1390,19 @@
     "content": "779: ELSE RAISE EXCEPTION 'Operação inválida.';\n",
     "is_error": false,
     "timestamp": 1790524072259
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '714,732p' supabase/migrations/20261005100000_crm.sql"
+    },
+    "timestamp": 1790524074413
+  },
+  {
+    "role": "tool_result",
+    "content": "   IF jsonb_array_length(coalesce(_data->'items','[]'))=0 THEN RAISE EXCEPTION 'Informe itens.'; END IF;\n   SELECT representative_id INTO rep FROM customer_portfolio_assignments WHERE organization_id=_org AND company_id=company AND ended_at IS NULL;\n   SELECT to_jsonb(p) INTO terms FROM commercial_p",
+    "is_error": false,
+    "timestamp": 1790524074438
   }
 ]
