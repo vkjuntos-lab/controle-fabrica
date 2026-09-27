@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '201,240p' supabase/migrations/20261006100000_sales_orders.sql"
-    },
-    "timestamp": 1790522555811
-  },
-  {
-    "role": "tool_result",
-    "content": "\nCREATE TABLE public.sales_order_items (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n organization_id uuid NOT NULL REFERENCES public.organizations,\n sales_order_id uuid NOT NULL,\n  FOREIGN KEY(organization_id,sales_order_id) REFERENCES public.sales_orders(organization_id,id),\n product_variant_i",
-    "is_error": false,
-    "timestamp": 1790522555818
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
@@ -1422,5 +1408,19 @@
     "content": "ok\n    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  record \"old\" has no field \"status\"\nCONTEXT:  PL/pgSQL expression \"TG_TABLE_NAME='sales_orders' AND OLD.status IN ('CANCELED','CLOSED')\"\nPL/pgSQL function sales_immutable() line 18 at IF\nSQL statement \"UPDATE",
     "is_error": false,
     "timestamp": 1790523433252
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib,re\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nstart=s.index(\"CREATE FUNCTION public.sales_immutable()\")\nend=s.index(\"$$;\",start)+3\nbody=s[start:end]\nnew=body\n# Trigger function runs on tables with different shapes: field access must go\n# through the jsonb snapshot, never through OLD/NEW field resolution.\nnew=new.replace(\"IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN\",\"IF TG_OP='UPDATE' AND j->>'organization_id'<>to_jsonb(OLD)->>'organization_id' THEN\")\nnew=new.replace(\"OLD.status IN ('CANCELED','CLOSED')\",\"to_jsonb(OLD)->>'status' IN ('CANCELED','CLOSED')\")\nnew=new.replace(\"OLD.status IN ('CONSUMED','RELEASED','CANCELED')\",\"to_jsonb(OLD)->>'status' IN ('CONSUMED','RELEASED','CANCELED')\")\nnew=new.replace(\"OLD.status IN ('SHIPPED','CANCELED')\",\"to_jsonb(OLD)->>'status' IN ('SHIPPED','CANCELED')\")\nnew=new.replace(\"IF v_status='CONFIRMED' THEN\",\"IF v_status='CONFIRMED' THEN\")\nnew=new.replace(\"OLD.status IN ('DELIVERED','CANCELED')\",\"to_jsonb(OLD)->>'status' IN ('DELIVERED','CANCELED')\")\nnew=new.replace(\"OLD.status IN ('COMPLETED','REJECTED','CANCELED')\",\"to_jsonb(OLD)->>'status' IN ('COMPLETED','REJECTED','CANCELED')\")\nnew=new.replace(\"OLD.status IN ('RESOLVED','IGNORED')\",\"to_jsonb(OLD)->>'status' IN ('RESOLVED','IGNORED')\")\nnew=new.replace(\"AND to_jsonb(OLD)->>'sales_quote_id' IS NOT NULL\\n    AND (to_jsonb(OLD)->>'sales_quote_version') IS DISTINCT FROM (to_jsonb(NEW)->>'sales_quote_version') THEN\",\"AND to_jsonb(OLD)->>'sales_quote_id' IS NOT NULL\\n    AND (to_jsonb(OLD)->>'sales_quote_version') IS DISTINCT FROM (j->>'sales_quote_version') THEN\")\nnew=new.replace(\"\"\"   IF v_status='DRAFT' THEN RETURN OLD; END IF;\"\"\",\"\"\"   IF v_status='DRAFT' THEN RETURN OLD; END IF;\"\"\")\ns=s[:start]+new+s[end:]\np.write_text(s); print('OLD.status left:',new.count('OLD.status'),'NEW. left:',new.count('NEW.'))\nPY\ngrep -n \"OLD\\.\\|NEW\\.\" supabase/migrations/20261006100000_sales_orders.sql | sed -n '1,20p'"
+    },
+    "timestamp": 1790523442573
+  },
+  {
+    "role": "tool_result",
+    "content": "OLD.status left: 0 NEW. left: 0\n873: IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAISE EXCEPTION 'Organização imutável.'; END IF;\n901:  IF v_org IS DISTINCT FROM NEW.organization_id THEN RAISE EXCEPTION 'Referência fora da organização.'; END IF;\n",
+    "is_error": false,
+    "timestamp": 1790523442632
   }
 ]

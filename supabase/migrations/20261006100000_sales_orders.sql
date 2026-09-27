@@ -920,27 +920,27 @@ BEGIN
   END IF;
   RAISE EXCEPTION 'Histórico não pode ser excluído.';
  END IF;
- IF TG_OP='UPDATE' AND NEW.organization_id<>OLD.organization_id THEN RAISE EXCEPTION 'Organização imutável.'; END IF;
+ IF TG_OP='UPDATE' AND j->>'organization_id'<>to_jsonb(OLD)->>'organization_id' THEN RAISE EXCEPTION 'Organização imutável.'; END IF;
  IF TG_TABLE_NAME IN ('sales_order_status_history','sales_order_operation_keys') THEN
   RAISE EXCEPTION 'Registro histórico é imutável.';
  END IF;
- IF TG_TABLE_NAME='sales_orders' AND OLD.status IN ('CANCELED','CLOSED') THEN
+ IF TG_TABLE_NAME='sales_orders' AND to_jsonb(OLD)->>'status' IN ('CANCELED','CLOSED') THEN
   RAISE EXCEPTION 'Pedido cancelado ou fechado é imutável.';
  END IF;
  -- A versao aceita da proposta nunca muda depois do pedido criado.
  IF TG_TABLE_NAME='sales_orders' AND to_jsonb(OLD)->>'sales_quote_id' IS NOT DISTINCT FROM to_jsonb(NEW)->>'sales_quote_id'
     AND to_jsonb(OLD)->>'sales_quote_id' IS NOT NULL
-    AND (to_jsonb(OLD)->>'sales_quote_version') IS DISTINCT FROM (to_jsonb(NEW)->>'sales_quote_version') THEN
+    AND (to_jsonb(OLD)->>'sales_quote_version') IS DISTINCT FROM (j->>'sales_quote_version') THEN
   RAISE EXCEPTION 'Versão aceita da proposta é imutável.';
  END IF;
  IF TG_TABLE_NAME='sales_order_items' THEN
   SELECT status INTO v_status FROM public.sales_orders WHERE id=(j->>'sales_order_id')::uuid;
   IF v_status IN ('CANCELED','CLOSED') THEN RAISE EXCEPTION 'Item de pedido encerrado é imutável.'; END IF;
  END IF;
- IF TG_TABLE_NAME='inventory_reservations' AND OLD.status IN ('CONSUMED','RELEASED','CANCELED') THEN
+ IF TG_TABLE_NAME='inventory_reservations' AND to_jsonb(OLD)->>'status' IN ('CONSUMED','RELEASED','CANCELED') THEN
   RAISE EXCEPTION 'Reserva encerrada é imutável.';
  END IF;
- IF TG_TABLE_NAME='fulfillment_orders' AND OLD.status IN ('SHIPPED','CANCELED') THEN
+ IF TG_TABLE_NAME='fulfillment_orders' AND to_jsonb(OLD)->>'status' IN ('SHIPPED','CANCELED') THEN
   RAISE EXCEPTION 'Atendimento expedido ou cancelado é imutável.';
  END IF;
  IF TG_TABLE_NAME='picking_tasks' THEN
@@ -951,7 +951,7 @@ BEGIN
   SELECT pt.status INTO v_status FROM public.picking_tasks pt WHERE pt.id=(j->>'picking_task_id')::uuid;
   IF v_status='CONFIRMED' THEN RAISE EXCEPTION 'Item conferido é imutável.'; END IF;
  END IF;
- IF TG_TABLE_NAME='shipments' AND OLD.status IN ('DELIVERED','CANCELED') THEN
+ IF TG_TABLE_NAME='shipments' AND to_jsonb(OLD)->>'status' IN ('DELIVERED','CANCELED') THEN
   RAISE EXCEPTION 'Expedição entregue ou cancelada é imutável.';
  END IF;
  IF TG_TABLE_NAME='shipment_items' THEN
@@ -960,7 +960,7 @@ BEGIN
    RAISE EXCEPTION 'Item de expedição dispatched é imutável.';
   END IF;
  END IF;
- IF TG_TABLE_NAME='customer_returns' AND OLD.status IN ('COMPLETED','REJECTED','CANCELED') THEN
+ IF TG_TABLE_NAME='customer_returns' AND to_jsonb(OLD)->>'status' IN ('COMPLETED','REJECTED','CANCELED') THEN
   RAISE EXCEPTION 'Devolução encerrada é imutável.';
  END IF;
  IF TG_TABLE_NAME='customer_return_items' THEN
@@ -969,7 +969,7 @@ BEGIN
    RAISE EXCEPTION 'Item de devolução recebida é imutável.';
   END IF;
  END IF;
- IF TG_TABLE_NAME='logistics_exceptions' AND OLD.status IN ('RESOLVED','IGNORED') THEN
+ IF TG_TABLE_NAME='logistics_exceptions' AND to_jsonb(OLD)->>'status' IN ('RESOLVED','IGNORED') THEN
   RAISE EXCEPTION 'Exceção resolvida é imutável.';
  END IF;
  RETURN NEW;
