@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"price_snapshot'\" supabase/migrations/20261006100000_sales_orders.sql | grep \"coalesce(i->>\""
-    },
-    "timestamp": 1790522565203
-  },
-  {
-    "role": "tool_result",
-    "content": "1139:   i->>'unit_snapshot',coalesce(i->>'price_snapshot','{}'::jsonb),(i->>'ordered_quantity')::numeric,\n1226:     i->>'unit_snapshot',coalesce(i->>'price_snapshot','{}'::jsonb),(i->>'ordered_quantity')::numeric,\n",
-    "is_error": false,
-    "timestamp": 1790522565213
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nn=s.count(\"coalesce(i->>'price_snapshot','{}'::jsonb)\")\ns=s.replace(\"coalesce(i->>'price_snapshot','{}'::jsonb)\",\"coalesce(i->'price_snapshot','{}'::jsonb)\")\np.write_text(s); print('replaced',n)\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -14"
     },
     "timestamp": 1790522568014
@@ -1420,5 +1406,19 @@
     "content": "169:                    'PARTIALLY_FULFILLED','FULFILLED','CLOSED','CANCELED')),\n232:   CHECK(status IN ('OPEN','PARTIALLY_FULFILLED','FULFILLED','CANCELED')),\n1604:   WHERE organization_id=_org AND sales_order_id=_order AND status<>'FULFILLED';\n1615:  IF o.status NOT IN ('FULFILLED','PARTIALLY_FULF",
     "is_error": false,
     "timestamp": 1790523460460
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '2610,2640p' supabase/migrations/20261006100000_sales_orders.sql && echo \"=== deliver 2740-2760 ===\" && sed -n '2740,2760p' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790523463181
+  },
+  {
+    "role": "tool_result",
+    "content": "   WHERE id=v_ful AND status<>'CANCELED';\n END IF;\n -- Item do pedido: expedido e o que saiu do estoque.\n UPDATE public.sales_order_items i SET fulfilled_quantity=fulfilled_quantity+si.quantity,\n   reserved_quantity=greatest(0,reserved_quantity-si.quantity),\n   status=CASE WHEN fulfilled_quantity+si",
+    "is_error": false,
+    "timestamp": 1790523463212
   }
 ]
