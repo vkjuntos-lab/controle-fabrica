@@ -1,21 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sed -n '155,200p' supabase/migrations/20261005100000_crm.sql"
-    },
-    "timestamp": 1790520233101
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sed -n '55,110p' supabase/migrations/20261005100000_crm.sql"
-    },
-    "timestamp": 1790520233106
-  },
-  {
     "role": "tool_result",
     "content": " opportunity_id uuid NOT NULL, FOREIGN KEY(organization_id,opportunity_id) REFERENCES public.sales_opportunities(organization_id,id), variant_id uuid NOT NULL REFERENCES public.product_variants, estimated_quantity numeric(14,3) NOT NULL CHECK(estimated_quantity>0), estimated_unit_price numeric(14,2)",
     "is_error": false,
@@ -1534,5 +1518,19 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790521793886
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/_probe-sales.py\" 2>&1 | tail -20"
+    },
+    "timestamp": 1790521796524
+  },
+  {
+    "role": "tool_result",
+    "content": "FALHOU 20261006100000_sales_orders.sql\nERROR:  syntax error at or near \"FROM\"\nLINE 30:     FROM public.sales_orders so\n             ^\n\n",
+    "is_error": false,
+    "timestamp": 1790521798364
   }
 ]
