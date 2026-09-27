@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -8"
-    },
-    "timestamp": 1790523377890
-  },
-  {
-    "role": "tool_result",
-    "content": "   source_location_id,destination_address_id,address_snapshot,carrier_id,tracking_code,tracking_source,\n   shipping_method,status,expected_delivery_at,created_by)\n VALUES(_org,v_number,_order,v_ful,v_task,v_loc,v_addr,v_add,v_carrier,v_tracking,\n   CASE WHEN v_tracking IS NULL THEN NULL ELSE 'MANUAL",
-    "is_error": false,
-    "timestamp": 1790523381234
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -E \"ERROR:\" | head -3 && awk 'BEGIN{f=0} /CREATE TABLE public.shipments /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261006100000_sales_orders.sql | head -20"
     },
     "timestamp": 1790523384484
@@ -1400,5 +1386,19 @@
     "content": "ok\n    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  Referência fora da organização.\nCONTEXT:  PL/pgSQL function crm_guard() line 9 at RAISE\nSQL statement \"INSERT INTO sales_quotes(id,organization_id,company_id,representative_id,opportunity_id,price_table_id,p",
     "is_error": false,
     "timestamp": 1790524107950
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && grep -n \"contact\" scripts/test-crm-db.py | head -10"
+    },
+    "timestamp": 1790524116655
+  },
+  {
+    "role": "tool_result",
+    "content": "31: lead=save('lead',{'name':'Contato','company_name':'Unified','email':'contact@test','status':'QUALIFIED'})['id']\n36: assert sql(f\"SELECT count(*) FROM company_contacts WHERE company_id={q(company)}\")=='1'\n37: contact=converted[0]['contact_id']\n38: print('PASS B: concurrent lead conversion idempot",
+    "is_error": false,
+    "timestamp": 1790524116668
   }
 ]
