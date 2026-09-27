@@ -2441,7 +2441,8 @@ BEGIN
    source_location_id,destination_address_id,address_snapshot,carrier_id,tracking_code,tracking_source,
    shipping_method,status,expected_delivery_at,created_by)
  VALUES(_org,v_number,_order,v_ful,v_task,v_loc,v_addr,v_add,v_carrier,v_tracking,
-   CASE WHEN v_tracking IS NULL THEN NULL ELSE 'MANUAL' END,
+   -- Sem provedor real de rastreio, a origem e sempre MANUAL.
+   'MANUAL',
    coalesce(nullif(_data->>'shipping_method',''),'STANDARD'),'DRAFT',nullif(_data->>'expected_delivery_at','')::timestamptz,auth.uid())
  RETURNING * INTO sh;
  ident:=sh.id;
