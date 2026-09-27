@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk 'BEGIN{f=0} /CREATE TABLE public.product_variants /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20260917110000_catalog_mestre.sql && echo \"=== uses of v.unit / variants.unit in migration ===\" && grep -n \"v\\.unit\\|i\\.unit\\|variant\\.unit\\|coalesce(v\\.unit\" supabase/migrations/20261006100000_sales_orders.sql"
-    },
-    "timestamp": 1790522190718
-  },
-  {
-    "role": "tool_result",
-    "content": "CREATE TABLE public.product_variants (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,\n  product_id uuid NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,\n  sku text NOT NULL,\n  barcode text,\n  size text",
-    "is_error": false,
-    "timestamp": 1790522190737
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk 'BEGIN{f=0} /CREATE TABLE public.products /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20260917110000_catalog_mestre.sql && echo \"=== sales_prepare_item head ===\" && sed -n '995,1045p' supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790522193264
@@ -1424,5 +1410,19 @@
     "content": "ok\n                 ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nA",
     "is_error": false,
     "timestamp": 1790523347628
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk 'BEGIN{f=0} /CREATE TABLE public.packing_record_items /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261006100000_sales_orders.sql && echo \"=== packing_records ===\" && awk 'BEGIN{f=0} /CREATE TABLE public.packing_records /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261006100000_sales_orders.sql && echo \"=== volumes ===\" && awk 'BEGIN{f=0} /CREATE TABLE public.packing_record_volumes /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790523350554
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE TABLE public.packing_record_items (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n organization_id uuid NOT NULL REFERENCES public.organizations,\n packing_record_id uuid NOT NULL,\n  FOREIGN KEY(organization_id,packing_record_id) REFERENCES public.packing_records(organization_id,id),\n sales_",
+    "is_error": false,
+    "timestamp": 1790523350589
   }
 ]
