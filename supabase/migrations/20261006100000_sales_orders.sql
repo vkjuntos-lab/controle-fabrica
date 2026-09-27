@@ -2758,6 +2758,7 @@ BEGIN
     coalesce(sum(coalesce(NULLIF(i.approved_quantity,0),i.ordered_quantity)),0)
    INTO v_deliv,v_req FROM public.sales_order_items i
   WHERE i.organization_id=_org AND i.sales_order_id=o.id AND i.status<>'CANCELED';
+  v_ord_status:=o.status;
   IF v_pending=0 AND v_deliv>=v_req THEN
    v_ord_status:='FULFILLED';
   END IF;
