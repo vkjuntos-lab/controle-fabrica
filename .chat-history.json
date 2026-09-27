@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\" assert order['status']=='DRAFT' and float(order['total_amount'])==265.0, order\"\"\",\n\"\"\" assert order['status']=='DRAFT' and float(order['total_amount'])==290.0, order\n assert float(order['subtotal_amount'])==292.0 and float(order['discount_total'])==2.0, order\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
-    },
-    "timestamp": 1790522574629
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\nPASS A: cenario montado; saldo fisico oficial em 100\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 298, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 58",
-    "is_error": false,
-    "timestamp": 1790522576897
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/test-sales-db.py'); s=p.read_text()\ns=s.replace(\"\"\"assert float(order['subtotal_amount'])==292.0 and float(order['discount_total'])==2.0, order\"\"\",\"\"\"assert sql(f\"SELECT subtotal||'/'||discount_total||'/'||total_amount FROM sales_orders WHERE id={q(order['id'])}\")=='292.00/2.00/290.00'\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | tail -12"
     },
     "timestamp": 1790522579181
@@ -1420,5 +1406,19 @@
     "content": "\n ELSIF _action='close' THEN\n  IF o.status NOT IN ('FULFILLED','PARTIALLY_FULFILLED') THEN\n   RAISE EXCEPTION 'Somente pedido com expedição pode ser fechado.';\n  END IF;\n  IF EXISTS(SELECT 1 FROM public.shipments WHERE organization_id=_org AND sales_order_id=_order\n      AND status IN ('DISPATCHED',",
     "is_error": false,
     "timestamp": 1790523469718
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\nold=\"\"\"  v_ord_status:=CASE WHEN v_pending=0 THEN 'FULFILLED' ELSE o.status END;\n  UPDATE public.sales_orders SET status=v_ord_status,closed_at=CASE WHEN v_pending=0 THEN coalesce(closed_at,v_now) ELSE closed_at END,\n   updated_at=v_now WHERE id=o.id;\"\"\"\nnew=\"\"\"  -- O pedido so fecha sozinho quando TUDO aprovado foi entregue. Saldo\n  -- residual e decisao do operador: nao vira encerramento automatico.\n  SELECT coalesce(sum(i.delivered_quantity),0),\n    coalesce(sum(coalesce(NULLIF(i.approved_quantity,0),i.ordered_quantity)),0)\n   INTO v_deliv,v_req FROM public.sales_order_items i\n  WHERE i.organization_id=_org AND i.sales_order_id=o.id AND i.status<>'CANCELED';\n  IF v_pending=0 AND v_deliv>=v_req THEN\n   v_ord_status:='FULFILLED';\n  END IF;\n  UPDATE public.sales_orders SET status=v_ord_status,\n   closed_at=CASE WHEN v_ord_status='FULFILLED' AND v_pending=0 THEN coalesce(closed_at,v_now) ELSE closed_at END,\n   updated_at=v_now WHERE id=o.id;\"\"\"\nassert old in s; s=s.replace(old,new)\np.write_text(s); print('ok')\nPY\ngrep -n \"v_deliv numeric\\|v_req numeric\\|v_pending integer\" supabase/migrations/20261006100000_sales_orders.sql | head"
+    },
+    "timestamp": 1790523473545
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n2529: v_ord_status text; v_ord_ful text; v_req numeric; v_fulfilled numeric; v_ful uuid;\n2662: v_del numeric; v_ord_status text; v_pending integer:=0;\n",
+    "is_error": false,
+    "timestamp": 1790523473601
   }
 ]

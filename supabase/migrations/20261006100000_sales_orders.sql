@@ -2744,8 +2744,17 @@ BEGIN
   SELECT count(*) INTO v_pending FROM public.shipments s
    WHERE s.organization_id=_org AND s.sales_order_id=o.id
      AND s.status NOT IN ('DELIVERED','CANCELED','RETURNED');
-  v_ord_status:=CASE WHEN v_pending=0 THEN 'FULFILLED' ELSE o.status END;
-  UPDATE public.sales_orders SET status=v_ord_status,closed_at=CASE WHEN v_pending=0 THEN coalesce(closed_at,v_now) ELSE closed_at END,
+  -- O pedido so fecha sozinho quando TUDO aprovado foi entregue. Saldo
+  -- residual e decisao do operador: nao vira encerramento automatico.
+  SELECT coalesce(sum(i.delivered_quantity),0),
+    coalesce(sum(coalesce(NULLIF(i.approved_quantity,0),i.ordered_quantity)),0)
+   INTO v_deliv,v_req FROM public.sales_order_items i
+  WHERE i.organization_id=_org AND i.sales_order_id=o.id AND i.status<>'CANCELED';
+  IF v_pending=0 AND v_deliv>=v_req THEN
+   v_ord_status:='FULFILLED';
+  END IF;
+  UPDATE public.sales_orders SET status=v_ord_status,
+   closed_at=CASE WHEN v_ord_status='FULFILLED' AND v_pending=0 THEN coalesce(closed_at,v_now) ELSE closed_at END,
    updated_at=v_now WHERE id=o.id;
   PERFORM public.sales_emit(_org,'SHIPMENT_DELIVERED','shipment:'||_shipment,
    jsonb_build_object('shipment_id',_shipment,'shipment_number',sh.shipment_number,'sales_order_id',o.id,
