@@ -1832,7 +1832,7 @@ RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE o public.sales_orders; it public.sales_order_items; i jsonb; cfg jsonb;
  v_policy text; v_need numeric; v_reserved numeric; v_pend numeric; v_avail numeric;
  v_qty numeric; v_loc uuid; v_batch uuid; v_res uuid; v_expires timestamptz; v_created integer:=0;
- v_skipped jsonb:='[]'::jsonb; v_key text; v_status text; v_mto boolean; v_items jsonb; it2 public.sales_order_items;
+ v_skipped jsonb:='[]'::jsonb; v_key text; v_status text; v_mto boolean; v_items jsonb;
 BEGIN
  PERFORM public.sales_require(_org,'reservations.create');
  PERFORM public.inventory_lock(_org);
