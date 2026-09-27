@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"has_permission\" supabase/migrations/20260923100000_inventory_workflows.sql | head -20 && echo \"=== REVOKE/GRANT inventory ===\" && sed -n '215,260p' supabase/migrations/20260923100000_inventory_workflows.sql"
-    },
-    "timestamp": 1790520317815
-  },
-  {
-    "role": "tool_result",
-    "content": "49:  IF NOT public.has_permission(_organization_id, v_expected_permission, _user_id) THEN\n217:  IF NOT public.has_permission(_organization_id, 'inventory.count', _user_id) THEN\n222:  IF NOT public.has_permission(_organization_id,'inventory.adjust') THEN RAISE EXCEPTION 'Sem permissão para ajustar es",
-    "is_error": false,
-    "timestamp": 1790520317836
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sed -n '20,80p' supabase/migrations/20260923100000_inventory_workflows.sql"
     },
     "timestamp": 1790520320303
@@ -1551,5 +1537,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql</path>\n<type>file</type>\n<content>\n1504:    WHERE organization_id=_org AND sales_order_id=_order AND status IN ('ACTIVE','PARTIALLY_CONSUMED');\n1505:   UPDATE public.sales_order_items SET status='CANCE",
     "is_error": false,
     "timestamp": 1790521871118
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport pathlib\np=pathlib.Path('supabase/migrations/20261006100000_sales_orders.sql'); s=p.read_text()\n\n# 1. Segregacao e um bloqueio rigido, nao uma excecao sobresvivivel.\ns=s.replace(\"\"\"   -- Excecoes exigem autorizacao especifica e motivo registrado.\n   IF EXISTS(SELECT 1 FROM jsonb_array_elements(v_check->'issues') x\n       WHERE x->>'requires_authorization'='true' OR x->>'blocking'='true') THEN\n    IF v_reason IS NULL THEN\n     RAISE EXCEPTION 'A aprovação exige motivo: %',(SELECT string_agg(x->>'message','; ')\n      FROM jsonb_array_elements(v_check->'issues') x\n      WHERE x->>'requires_authorization'='true' OR x->>'blocking'='true');\n    END IF;\n    IF NOT public.has_permission(_org,'commercial_sensitive.read') THEN\n     RAISE EXCEPTION 'Exceção comercial exige autorização de alçada (commercial_sensitive.read).';\n    END IF;\n    v_policy:=v_policy||jsonb_build_object('decision','OVERRIDDEN','overrides',v_check->'issues','reason',v_reason);\n   END IF;\"\"\",\n\"\"\"   -- SEGREGACAO DE FUNCOES: bloqueio rigido, nao excecao sobrescrivivel.\n   -- Se a organizacao cobra, quem abriu o pedido nao o aprova, por mais\n   -- permissao de alcada que tenha. Nao existe \"override\" para isso.\n   IF coalesce((v_cfg->>'approval_segregation')::boolean,false) AND o.created_by=auth.uid() THEN\n    RAISE EXCEPTION 'Segregação de funções ativa: quem criou o pedido % não pode aprová-lo.',o.order_number;\n   END IF;\n   -- Bloqueios duros (variante inativa, cliente inativo, preco invalido) nunca\n   -- sao sobrescritos. Nenhuma alcada autoriza aprovar o que o sistema proibe.\n   IF EXISTS(SELECT 1 FROM jsonb_array_elements(v_check->'issues') x WHERE x->>'blocking'='true') THEN\n    RAISE EXCEPTION 'Pedido não pode ser aprovado: %',(SELECT string_agg(x->>'message','; ')\n      FROM jsonb_array_elements(v_check->'issues') x WHERE x->>'blocking'='true');\n   END IF;\n   -- Demais excecoes exigem alcada especifica e motivo registrado.\n   IF EXISTS(SELECT 1 FROM jsonb_array_elements(v_check->'issues') x\n       WHERE x->>'requires_authorization'='true') THEN\n    IF v_reason IS NULL THEN\n     RAISE EXCEPTION 'A aprovação exige motivo: %',(SELECT string_agg(x->>'message','; ')\n      FROM jsonb_array_elements(v_check->'issues') x WHERE x->>'requires_authorization'='true');\n    END IF;\n    IF NOT public.has_permission(_org,'commercial_sensitive.read') THEN\n     RAISE EXCEPTION 'Exceção comercial exige autorização de alçada (commercial_sensitive.read).';\n    END IF;\n    v_policy:=v_policy||jsonb_build_object('decision','OVERRIDDEN','overrides',\n      (SELECT jsonb_agg(x) FROM jsonb_array_elements(v_check->'issues') x\n        WHERE x->>'requires_authorization'='true'),'reason',v_reason);\n   END IF;\"\"\")\n\n# 2. Cancelamento recalcula o reservado e zera o saldo de reserva por item.\ns=s.replace(\"\"\"   UPDATE public.sales_order_items SET status='CANCELED',updated_at=v_now\n    WHERE organization_id=_org AND sales_order_id=_order AND status<>'FULFILLED';\"\"\",\n\"\"\"   -- Reservado volta a zero: o reservado e sempre derivado das reservas reais.\n   UPDATE public.sales_order_items SET status='CANCELED',reserved_quantity=0,updated_at=v_now\n    WHERE organization_id=_org AND sales_order_id=_order AND status<>'FULFILLED';\"\"\")\n\n# 3. Remove a acao 'reopen' do mapa de permissoes: nao existe no fluxo.\ns=s.replace(\"\"\"   WHEN 'cancel' THEN 'sales_orders.cancel' WHEN 'close' THEN 'sales_orders.update'\n   WHEN 'reopen' THEN 'sales_orders.update' ELSE NULL END;\"\"\",\n\"\"\"   WHEN 'cancel' THEN 'sales_orders.cancel' WHEN 'close' THEN 'sales_orders.update'\n   ELSE NULL END;\"\"\")\np.write_text(s); print('ok')\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/_probe-sales.py\" 2>&1 | tail -12"
+    },
+    "timestamp": 1790521880878
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nMIGRATION OK\nOK   orders {\"kind\": \"orders\", \"rows\": [], \"limit\": 50, \"total\": 0, \"off\nOK   exceptions {\"kind\": \"exceptions\", \"rows\": [], \"limit\": 50, \"total\": 0, \nOK   shipments {\"kind\": \"shipments\", \"rows\": [], \"limit\": 50, \"total\": 0, \"\nOK   returns {\"kind\": \"returns\", \"rows\": [], \"limit\": 50, ",
+    "is_error": false,
+    "timestamp": 1790521882964
   }
 ]
