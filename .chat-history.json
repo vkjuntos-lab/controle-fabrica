@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1790413748539
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabrica\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"docs/business/SALES-QUOTES.md\"); s = p.read_text()\ns = s.replace(\"sem duplicar版本.\", \"sem duplicar a versão.\")\ns = s.replace(\"Repetir aceite devolve o mesmo\\nresultado, sem duplicar版本.\", \"Repetir aceite devolve o mesmo\\nresultado, sem duplicar a versão.\")\ns = s.replace(\"sem duplicar版本\", \"sem duplicar a versão\")\np.write_text(s)\nprint([c for c in s if ord(c) > 0x2FFF and c not in \"—’“”…\"])\nPY"
-    },
-    "timestamp": 1790413751102
-  },
-  {
-    "role": "tool_result",
     "content": "[]\n",
     "is_error": false,
     "timestamp": 1790413751164
@@ -1593,5 +1579,19 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790521278557
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '25,50p' supabase/migrations/20261006100000_sales_orders.sql && echo \"=== exc cols ===\" && sed -n '/CREATE TABLE public.logistics_exceptions/,/^);/p' supabase/migrations/20261006100000_sales_orders.sql | grep -n \"resolved_at\\|assigned_to\\|resolution\\|updated_at\\|notes\""
+    },
+    "timestamp": 1790521287399
+  },
+  {
+    "role": "tool_result",
+    "content": "-- =====================================================================\nALTER TABLE public.inventory_locations\n  ADD CONSTRAINT inventory_locations_organization_id_id_key UNIQUE(organization_id,id);\nALTER TABLE public.inventory_batches\n  ADD CONSTRAINT inventory_batches_organization_id_id_key UNIQU",
+    "is_error": false,
+    "timestamp": 1790521287450
   }
 ]
