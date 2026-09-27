@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '17,45p' supabase/migrations/20260928100000_finance.sql && echo \"=== AR cols ===\" && sed -n '115,155p' supabase/migrations/20260928100000_finance.sql | grep -o '^[a-z_]* ' | tr -d ' '"
-    },
-    "timestamp": 1790520888031
-  },
-  {
-    "role": "tool_result",
-    "content": "CREATE TABLE public.financial_categories (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations,\n  code text NOT NULL CHECK(length(trim(code))>0),\n  name text NOT NULL CHECK(length(trim(name))>0),\n  type text NOT NULL DEFAULT 'EXPENSE' CHEC",
-    "is_error": false,
-    "timestamp": 1790520888048
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && python3 - <<'PY'\nimport re,pathlib\ns=pathlib.Path('supabase/migrations/20260928100000_finance.sql').read_text()\nm=re.search(r'CREATE TABLE public\\.account_receivables\\s*\\(',s)\ni=m.end();d=1\nwhile d>0: \n    if s[i]=='(':d+=1\n    elif s[i]==')':d-=1\n    i+=1\nbody=s[m.end():i]\ncols=[l.strip().split()[0] for l in body.split('\\n') if l.strip()]\nprint('\\n'.join(c for c in cols if not c.startswith(('UNIQUE','CHECK','FOREIGN'))))\nPY"
     },
     "timestamp": 1790520890751
@@ -1514,5 +1500,19 @@
     "content": "ok\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  column v.unit does not exist\nLINE 1: ...LECT v.sku,coalesce(v.barcode,''),p.name,coalesce(v.unit,'un...\n       ",
     "is_error": false,
     "timestamp": 1790522070646
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && awk 'BEGIN{f=0} /CREATE TABLE public.product_variants /{f=1} f{print} f&&/^\\);/{exit}' supabase/migrations/20260917110000_catalog_mestre.sql && echo \"=== uses of v.unit / variants.unit in migration ===\" && grep -n \"v\\.unit\\|i\\.unit\\|variant\\.unit\\|coalesce(v\\.unit\" supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790522190718
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE TABLE public.product_variants (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,\n  product_id uuid NOT NULL REFERENCES public.products(id) ON DELETE CASCADE,\n  sku text NOT NULL,\n  barcode text,\n  size text",
+    "is_error": false,
+    "timestamp": 1790522190737
   }
 ]
