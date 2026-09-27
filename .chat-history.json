@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && cat > /tmp/opencode/proc.py <<'PY'\nimport importlib.util\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('inv',Path('scripts/test-inventory-db.py'))\ndb=importlib.util.module_from_spec(spec);spec.loader.exec_module(db)\nsql,uid=db.sql,db.uid\ndb.setup()\nfor name in ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql','20261001100000_purchasing.sql','20261002100000_planning.sql','20261003100000_planning_engine.sql','20261004100000_planning_fixes.sql','20261005100000_crm.sql','20261006100000_sales_orders.sql']:\n sql((db.ROOT/'supabase/migrations'/name).read_text())\nu=uid()\nprint('count',sql(f\"SELECT count(*) FROM pg_proc WHERE proname='sales_pick_confirm'\"))\nprint(sql(f\"SELECT oid::regprocedure||' => '||left(prosrc,0) FROM pg_proc WHERE proname='sales_pick_confirm'\"))\nsrc=sql(f\"SELECT prosrc FROM pg_proc WHERE proname='sales_pick_confirm'\")\nfor i,l in enumerate(src.split('\\n')[:14],1): print(i,l)\ndb.cleanup()\nPY\nsu claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 600 python3 /tmp/opencode/proc.py\" 2>&1 | tail -18"
-    },
-    "timestamp": 1790523317100
-  },
-  {
-    "role": "tool_result",
-    "content": "count 1\nsales_pick_confirm(uuid,uuid,jsonb) =>\n1 DECLARE t public.picking_tasks; v_item jsonb; v_diff jsonb:='[]'::jsonb; v_now timestamptz:=now();\n2  v_perm text; v_count integer:=0; v_batch uuid; v_conf numeric;\n3 BEGIN\n4  v_perm:=CASE WHEN _data ? 'items' THEN 'picking.confirm' ELSE 'picking.conf",
-    "is_error": false,
-    "timestamp": 1790523319143
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabrica' && su claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabrica' && timeout 900 python3 scripts/test-sales-db.py\" 2>&1 | grep -A3 \"line 1[3-6][0-9], in run\" | head -8"
     },
     "timestamp": 1790523331549
@@ -1404,5 +1390,19 @@
     "content": "  INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(a)},'admin'),({q(org)},{q(commercial)},'comercial'),\n  ({q(org)},{q(approver)},'gestor'),({q(org)},{q(picker)},'estoque'),({q(org)},{q(fin)},'financeiro') ON CONFLICT DO NOTHING;\n  INSERT INTO organization_members(or",
     "is_error": false,
     "timestamp": 1790524065045
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabrica' && sed -n '96,140p' supabase/migrations/20261005100000_crm.sql"
+    },
+    "timestamp": 1790524068161
+  },
+  {
+    "role": "tool_result",
+    "content": ");\nCREATE INDEX customer_territories_tenant ON public.customer_territories(organization_id,created_at DESC);\n\nCREATE TABLE public.customer_portfolio_assignments (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES public.organizations,\n company_id uuid NOT NULL,",
+    "is_error": false,
+    "timestamp": 1790524068203
   }
 ]
