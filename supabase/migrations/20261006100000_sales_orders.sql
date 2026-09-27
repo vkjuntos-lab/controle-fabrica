@@ -2454,8 +2454,8 @@ BEGIN
     RAISE EXCEPTION 'Item do pedido inválido.';
    END IF;
    INSERT INTO public.shipment_items(organization_id,shipment_id,sales_order_item_id,variant_id,sku_snapshot,
-     quantity,batch_id,reservation_id)
-   SELECT _org,ident,i.id,i.product_variant_id,i.sku_snapshot,
+     description_snapshot,quantity,batch_id,reservation_id)
+   SELECT _org,ident,i.id,i.product_variant_id,i.sku_snapshot,i.description_snapshot,
      coalesce(nullif(v_item->>'quantity','')::numeric,0),nullif(v_item->>'batch_id','')::uuid,
      (SELECT r.id FROM public.inventory_reservations r
        WHERE r.organization_id=_org AND r.sales_order_item_id=i.id
@@ -2467,8 +2467,8 @@ BEGIN
   END LOOP;
  ELSIF v_task IS NOT NULL THEN
   INSERT INTO public.shipment_items(organization_id,shipment_id,sales_order_item_id,variant_id,sku_snapshot,
-     quantity,batch_id,reservation_id)
-  SELECT _org,ident,pti.sales_order_item_id,pti.variant_id,pti.sku_snapshot,
+     description_snapshot,quantity,batch_id,reservation_id)
+  SELECT _org,ident,pti.sales_order_item_id,pti.variant_id,pti.sku_snapshot,pti.description_snapshot,
      pti.confirmed_quantity,pti.batch_id,
      (SELECT r.id FROM public.inventory_reservations r
        WHERE r.organization_id=_org AND r.sales_order_item_id=pti.sales_order_item_id
