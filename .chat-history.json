@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sed -n '95,180p' supabase/migrations/20261001100000_purchasing.sql"
-    },
-    "timestamp": 1790520236245
-  },
-  {
-    "role": "tool_result",
-    "content": "SELECT r,p FROM unnest(ARRAY['producao','marketplace']::public.app_role[]) r CROSS JOIN unnest(ARRAY[\n  'purchasing.read','purchasing.dashboard','suppliers.read','purchase_requests.read',\n  'purchase_orders.read','goods_receipts.read']) p ON CONFLICT DO NOTHING;\n\n-- =================================",
-    "is_error": false,
-    "timestamp": 1790520236257
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sed -n '26,40p' supabase/migrations/20260924100000_partners.sql && echo \"=== ADDRESSES ===\" && sed -n '1,45p' supabase/migrations/20260924100000_partners.sql"
     },
     "timestamp": 1790520236426
@@ -1536,5 +1522,21 @@
     "content": "FALHOU 20261006100000_sales_orders.sql\nERROR:  syntax error at or near \")\"\nLINE 13: ...  nullif(trim(coalesce(_data->>'contact_name',''))),nullif(t...\n                                                              ^\n\n",
     "is_error": false,
     "timestamp": 1790521809845
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabrica/supabase/migrations/20261006100000_sales_orders.sql",
+      "newString": "  VALUES(_org,v_name,nullif(_data->>'document_type',''),nullif(_data->>'document_number',''),\n    nullif(trim(coalesce(_data->>'contact_name','')),''),nullif(trim(coalesce(_data->>'modality','')),''),\n    v_status,nullif(trim(coalesce(_data->>'notes','')),''))",
+      "oldString": "  VALUES(_org,v_name,nullif(_data->>'document_type',''),nullif(_data->>'document_number',''),\n    nullif(trim(coalesce(_data->>'contact_name',''))),nullif(trim(coalesce(_data->>'modality',''))),\n    v_status,nullif(trim(coalesce(_data->>'notes',''))))"
+    },
+    "timestamp": 1790521814336
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790521814365
   }
 ]

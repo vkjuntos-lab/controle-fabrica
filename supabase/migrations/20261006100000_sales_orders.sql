@@ -2936,8 +2936,8 @@ BEGIN
  IF _id IS NULL THEN
   INSERT INTO public.carriers(organization_id,name,document_type,document_number,contact_name,modality,status,notes)
   VALUES(_org,v_name,nullif(_data->>'document_type',''),nullif(_data->>'document_number',''),
-    nullif(trim(coalesce(_data->>'contact_name',''))),nullif(trim(coalesce(_data->>'modality',''))),
-    v_status,nullif(trim(coalesce(_data->>'notes',''))))
+    nullif(trim(coalesce(_data->>'contact_name','')),''),nullif(trim(coalesce(_data->>'modality','')),''),
+    v_status,nullif(trim(coalesce(_data->>'notes','')),''))
   RETURNING * INTO c;
  ELSE
   SELECT * INTO c FROM public.carriers WHERE id=_id AND organization_id=_org FOR UPDATE;
