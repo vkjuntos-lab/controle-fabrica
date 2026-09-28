@@ -19,31 +19,31 @@ BEGIN
  PERFORM public.sales_require(_org,'sales.configure');
  PERFORM public.sales_ensure_settings(_org);
  SELECT * INTO cur FROM public.sales_order_settings WHERE organization_id=_org FOR UPDATE;
- IF NOT FOUND THEN RAISE EXCEPTION 'Politicas de vendas nao encontradas.'; END IF;
+ IF NOT FOUND THEN RAISE EXCEPTION 'Políticas de vendas não encontradas.'; END IF;
  v_key:=cur.id;
  IF nullif(_data->>'reservation_policy','') IS NOT NULL
     AND _data->>'reservation_policy' NOT IN ('FULL_ONLY','ALLOW_PARTIAL','ALLOW_NEGATIVE_AVAILABLE') THEN
-  RAISE EXCEPTION 'Politica de reserva invalida.';
+  RAISE EXCEPTION 'Política de reserva inválida.';
  END IF;
  IF nullif(_data->>'price_override_policy','') IS NOT NULL
     AND _data->>'price_override_policy' NOT IN ('BLOCK','ALLOW_WITH_AUTHORIZATION') THEN
-  RAISE EXCEPTION 'Politica de preco invalida.';
+  RAISE EXCEPTION 'Política de preço inválida.';
  END IF;
  IF nullif(_data->>'receivable_trigger','') IS NOT NULL
     AND _data->>'receivable_trigger' NOT IN ('NONE','ON_APPROVAL','ON_DISPATCH') THEN
-  RAISE EXCEPTION 'Gatilho financeiro invalido.';
+  RAISE EXCEPTION 'Gatilho financeiro inválido.';
  END IF;
  IF nullif(_data->>'credit_exposure_policy','') IS NOT NULL
     AND _data->>'credit_exposure_policy' NOT IN ('OPEN_RECEIVABLES_ONLY','OPEN_RECEIVABLES_PLUS_OPEN_ORDERS') THEN
-  RAISE EXCEPTION 'Politica de exposicao invalida.';
+  RAISE EXCEPTION 'Política de exposição inválida.';
  END IF;
  IF nullif(_data->>'tracking_mode','') IS NOT NULL
     AND _data->>'tracking_mode' NOT IN ('MANUAL','WEBHOOK') THEN
-  RAISE EXCEPTION 'Modo de rastreamento invalido.';
+  RAISE EXCEPTION 'Modo de rastreamento inválido.';
  END IF;
  IF nullif(_data->>'max_discount_percent','') IS NOT NULL
     AND (nullif(_data->>'max_discount_percent','')::numeric<0 OR nullif(_data->>'max_discount_percent','')::numeric>100) THEN
-  RAISE EXCEPTION 'Desconto maximo deve estar entre 0 e 100.';
+  RAISE EXCEPTION 'Desconto máximo deve estar entre 0 e 100.';
  END IF;
  IF nullif(_data->>'reservation_expiry_hours','') IS NOT NULL
     AND (nullif(_data->>'reservation_expiry_hours','')::int<1 OR nullif(_data->>'reservation_expiry_hours','')::int>8760) THEN
@@ -62,7 +62,7 @@ BEGIN
  LOOP
   IF v_value IS NOT NULL AND nullif(v_value,'') IS NOT NULL
      AND lower(v_value) NOT IN ('true','false') THEN
-   RAISE EXCEPTION 'Valor booleano invalido em %.',v_field;
+   RAISE EXCEPTION 'Valor booleano inválido em %.',v_field;
   END IF;
  END LOOP;
  UPDATE public.sales_order_settings SET
