@@ -56,9 +56,19 @@ export const Route = createFileRoute("/api/public/migrations-bootstrap")({
         const client = postgres(dbUrl, { max: 1, idle_timeout: 5, connect_timeout: 10 });
         const results: Array<Record<string, unknown>> = [];
         try {
+          const diag = await client`select current_user as user, has_schema_privilege('public', 'CREATE') as can_create`;
+          results.push({ file: "_diag", ...diag[0] });
           for (const [version, file] of FILES) {
-            const done = await client`select 1 from supabase_migrations.schema_migrations where version = ${version} limit 1`;
-            if (done.length > 0) {
+            let applied = false;
+            try {
+              const done = await client`select 1 from supabase_migrations.schema_migrations where version = ${version} limit 1`;
+              applied = done.length > 0;
+            } catch {
+              // Fallback when supabase_migrations is not readable by this role.
+              const marker = await client`select 1 from public._bootstrap_migrations where version = ${version} limit 1`.catch(() => []);
+              applied = marker.length > 0;
+            }
+            if (applied) {
               results.push({ file, status: "skipped" });
               continue;
             }
