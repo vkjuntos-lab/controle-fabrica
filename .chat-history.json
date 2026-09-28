@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "    coalesce(nullif(_data->>'order_date','')::date,current_date));\n END LOOP;\n out:=public.sales_insert_order(_org,_data,items,NULL);\n RETURN out;\nEND;\n$$;\n\n-- PROPOSTA ACEITA -> CONVERSÃO -> SALES ORDER.\n-- Idempotente por construcao: a chave unica parcial em sales_orders\n-- (sales_quote_id) impede",
-    "is_error": false,
-    "timestamp": 1790593973293
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"head -n 80 docs/handoff/PROJECT-STATE.md; ls docs/architecture; sed -n '126,205p' supabase/migrations/20261006100000_sales_orders.sql; sed -n '1,110p' supabase/migrations/20261006100000_sales_orders.sql; tail -n 130 scripts/test-sales-db.py\""
-    },
-    "timestamp": 1790593979322
-  },
-  {
-    "role": "tool_result",
     "content": "# Estado do projeto — handoff contínuo\n\n## Revisão de continuidade — 27/09/2026 (MASTER 012)\n\nCRM corrigido localmente sobre Company, contatos, preços, ledger, financeiro, planejamento e\neventos existentes. Estado integral: PARTIAL. Ainda há pendências de mesclagem,\ngovernança de dados e validação p",
     "is_error": false,
     "timestamp": 1790593979334
@@ -1425,5 +1411,19 @@
     "content": "CREATE OR REPLACE FUNCTION public.sales_query(_org uuid,_kind text DEFAULT 'orders',_filters jsonb DEFAULT '{}')\nRETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\nDECLARE v_limit int; v_off int; v_status text; v_company uuid; v_from date; v_to date;\n v_search text; ",
     "is_error": false,
     "timestamp": 1790618290675
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261010100000_sales_integrity.sql').read_text()\nm=re.search(r'CREATE OR REPLACE FUNCTION public\\.sales_query\\(.*?\\n\\$\\$;', t, re.S)\nbody=m.group(0)\nfor k in re.finditer(r\"ELSIF _kind='([a-z_]+)' THEN\", body):\n    print('KIND:', k.group(1))\nprint('---- detail keys ----')\nd=re.search(r'CREATE OR REPLACE FUNCTION public\\.sales_order_detail\\(.*?\\n\\$\\$;', t, re.S).group(0)\nprint(re.findall(r\"'([a-z_]+)',\", d))\nPY"
+    },
+    "timestamp": 1790618293751
+  },
+  {
+    "role": "tool_result",
+    "content": "KIND: locations\nKIND: addresses\nKIND: orders\nKIND: exceptions\nKIND: shipments\nKIND: returns\nKIND: reservations\nKIND: fulfillment\nKIND: carriers\nKIND: credits\n---- detail keys ----\n['order', 'approval_policy', 'company', 'customer_profile', 'quote', 'id', 'number', 'version', 'status', 'representativ",
+    "is_error": false,
+    "timestamp": 1790618293790
   }
 ]
