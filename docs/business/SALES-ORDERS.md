@@ -150,7 +150,7 @@ conferência integral ligada, a diferença separada vira ocorrência.
 
 Estes itens **não** existem e não devem ser apresentados como existentes:
 
-- **Nota fiscal e integração fiscal.** Não há NF-e, nem emissão, nem传输 de documento fiscal.
+- **Nota fiscal e integração fiscal.** Não há NF-e, nem emissão, nem transmissão de documento fiscal.
 - **Transportadora externa.** Nenhuma consulta de rastreio, nenhuma integração de coleta.
 - **Cobrança e recebimento.** A obrigação financeira existe; o recebimento é feito no módulo
   financeiro, não aqui.
