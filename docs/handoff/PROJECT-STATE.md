@@ -158,14 +158,13 @@ foram preservados. MarketplaceStore já existe; a pendência MASTER 005 é o imp
 Publicação e smoke test autenticado continuam sem verificação.
 
 
-Última atualização: LOVABLE MASTER 009 — Cost Engine, formação de preço, margens e rentabilidade,
-sobre o MASTER 008 (Financeiro), 007 (reconciliação/tabelas de preço), 006 (parceiros),
+Última atualização: LOVABLE MASTER 013 — Vendas e logística, sobre o MASTER 012 (CRM), 010 (Compras),
+011 (Planejamento), 009 (Custos), 007 (reconciliação/tabelas de preço), 006 (parceiros),
 003 (Inventory Ledger), 002 (Catálogo) e a fundação do MASTER 001. O MASTER 005 (importador
 marketplace automático) não está no checkout — o registro de vendas é manual com o mesmo contrato.
-Etapa atual: cost/preço/rentabilidade validados localmente
-(`20260930100000_cost_engine.sql`, telas `/custos`, `/precificacao`, `/relatorios/rentabilidade`,
-RBAC e harness PostgreSQL reproduzível via `npm run test:costs:db`).
-Validação local; publicação não verificada.
+Etapa atual: vendas e logística validadas localmente (quatro migrations, telas `/vendas` e
+`/vendas/pedidos/$id`, RBAC e harness PostgreSQL reproduzível via `npm run test:sales:db` com 32
+grupos A–AF). Validação local; publicação não verificada.
 
 ## IMPLEMENTED
 
