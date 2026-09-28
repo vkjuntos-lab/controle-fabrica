@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "echo \"=== CHECK na tabela ===\"; grep -rn \"credit_exposure_policy\" supabase/migrations/20261006100000_sales_orders.sql | grep -iE \"check|IN \\(\" ; echo \"=== todos os valores citados em qualquer migration ===\"; grep -rhoE \"OPEN_RECEIVABLES_[A-Z_]*\" supabase/migrations/ | sort | uniq -c",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790621161598
-  },
-  {
-    "role": "tool_result",
-    "content": "=== CHECK na tabela ===\n98:   CHECK(credit_exposure_policy IN ('OPEN_RECEIVABLES_ONLY','OPEN_RECEIVABLES_PLUS_OPEN_ORDERS')),\n3144:    AND _data->>'credit_exposure_policy' NOT IN ('OPEN_RECEIVABLES_ONLY','OPEN_RECEIVABLES_PLUS_OPEN_ORDERS') THEN\n=== todos os valores citados em qualquer migration ===",
-    "is_error": false,
-    "timestamp": 1790621161635
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "for f in supabase/migrations/20261006100000_sales_orders.sql supabase/migrations/20261010100000_sales_integrity.sql supabase/migrations/20261011100000_sales_planning.sql; do echo \"=== $f ===\"; grep -nE \"credit_exposure_policy\" \"$f\" | grep -E \"IN \\(\" | sed 's/^ *//' | cut -c1-150; done",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1634,5 +1619,19 @@
     "content": "EXIT=0\nMIGRATIONS OK\n",
     "is_error": false,
     "timestamp": 1790622488630
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py"
+    },
+    "timestamp": 1790622495248
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py</path>\n<type>file</type>\n<content>\n1: #!/usr/bin/env python3\n2: \"\"\"MASTER 014 integration tests in disposable PostgreSQL. Never uses a published database.\"\"\"\n3: import importlib.util, json, datetime\n4: from pathlib import Path",
+    "is_error": false,
+    "timestamp": 1790622495262
   }
 ]
