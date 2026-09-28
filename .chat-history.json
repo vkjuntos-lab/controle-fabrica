@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sed -n '95,120p' src/lib/inventory/constants.ts; echo \"=== MovementType ===\"; grep -n \"MovementType\" src/lib/inventory/constants.ts | head -4",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620831957
-  },
-  {
-    "role": "tool_result",
-    "content": "    value: \"REVERSAL\",\n    label: \"Reversão/estorno\",\n    direction: \"FLEX\",\n    permission: \"inventory.reverse\",\n  },\n];\n\nexport function movementTypeLabel(type: MovementType): string {\n  return MOVEMENT_TYPES.find((m) => m.value === type)?.label ?? type;\n}\n\n/** Direção esperada de um tipo de movim",
-    "is_error": false,
-    "timestamp": 1790620831975
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
@@ -1594,5 +1579,20 @@
     "content": "=== company_addresses ===\nCREATE TABLE public.company_addresses (\nid uuid PRIMARY KEY DEFAULT gen_random_uuid(),organization_id uuid NOT NULL REFERENCES public.organizations,\ncompany_id uuid NOT NULL,type text NOT NULL DEFAULT 'SHIPPING' CHECK(type IN ('HEADQUARTERS','SHIPPING','BILLING','OTHER')),\n",
     "is_error": false,
     "timestamp": 1790622070232
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "echo \"=== companies tem own_company / emissor? ===\"; grep -rn \"legal_entity\\|own_company\\|issuer\\|emissor\\|establishment\\|estabelecimento\" supabase/migrations/*.sql | head -10; echo \"=== como a org guarda a propria identidade fiscal? ===\"; grep -rn \"document\" supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql | head -8",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622074738
+  },
+  {
+    "role": "tool_result",
+    "content": "=== companies tem own_company / emissor? ===\n=== como a org guarda a propria identidade fiscal? ===\n22:  document text,\n",
+    "is_error": false,
+    "timestamp": 1790622074773
   }
 ]
