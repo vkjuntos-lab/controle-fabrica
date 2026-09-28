@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx",
-      "newString": "import { readSales, mutateSales, type SalesOperation } from \"@/lib/sales/sales.functions\";\nimport { keyForPayload } from \"@/lib/sales/idempotency\";",
-      "oldString": "import { readSales, mutateSales, type SalesOperation } from \"@/lib/sales/sales.functions\";"
-    },
-    "timestamp": 1790619545996
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619546005
-  },
-  {
-    "role": "tool",
     "tool": "write",
     "input": {
       "content": "import { describe, expect, it } from \"vitest\";\nimport { z } from \"zod\";\n\nimport { keyForPayload, payloadDigest } from \"@/lib/sales/idempotency\";\nimport { SETTING_OPTIONS, SETTING_FLAGS, ORDER_ACTIONS, ORDER_STATUS, ORDER_ACTIONS as ACTIONS } from \"@/lib/sales/constants\";\n\n/**\n * O mesmo validador usado por `mutateSales`: `sales_execute` recebe a chave como\n * `uuid`, e um formato inválido faria toda escrita de vendas falhar.\n */\nconst uuid = z.string().uuid();\n\nconst ATTEMPT = \"3f2504e0-4f89-41d3-9a0c-0305e82c3301\";\n\ndescribe(\"chave de idempotência de vendas\", () => {\n  it(\"gera uma chave no formato UUID exigido pelo gateway\", () => {\n    const key = keyForPayload(ATTEMPT, { operation: \"save\", values: { company_id: \"a\" } });\n    expect(uuid.parse(key)).toBe(key);\n  });\n\n  it(\"mantém o formato UUID para qualquer tentativa\", () => {\n    for (let index = 0; index < 200; index += 1) {\n      const attempt = crypto.randomUUID();\n      for (const payload of [null, {}, { a: 1 }, { nested: { b: [1, 2, 3] } }, \"texto\"]) {\n        expect(() => uuid.parse(keyForPayload(attempt, payload))).not.toThrow();\n      }\n    }\n  });\n\n  it(\"repetir o mesmo conteúdo reenvia a mesma chave\", () => {\n    const payload = { operation: \"save\", values: { company_id: \"a\", quantity: 2 } };\n    expect(keyForPayload(ATTEMPT, payload)).toBe(keyForPayload(ATTEMPT, payload));\n  });\n\n  it(\"conteúdo diferente produz chave diferente\", () => {\n    const base = { operation: \"save\", values: { company_id: \"a\" } };\n    const other = { operation: \"save\", values: { company_id: \"b\" } };\n    expect(keyForPayload(ATTEMPT, base)).not.toBe(keyForPayload(ATTEMPT, other));\n  });\n\n  it(\"a ordem das chaves do payload não muda a chave\", () => {\n    // O gateway compara o conteúdo do payload: a mesma informação serializada de\n    // outra ordem precisa cair na mesma chave, sob pena de recusar o reenvio.\n    expect(keyForPayload(ATTEMPT, { a: 1, b: 2 })).toBe(keyForPayload(ATTEMPT, { b: 2, a: 1 }));\n  });\n\n  it(\"uma tentativa nova não repete a chave da tentativa anterior\", () => {\n    const payload = { operation: \"save\", values: {} };\n    const first = keyForPayload(ATTEMPT, payload);\n    const second = keyForPayload(crypto.randomUUID(), payload);\n    expect(first).not.toBe(second);\n  });\n\n  it(\"resume conteúdos diferentes em resumos diferentes\", () => {\n    expect(payloadDigest(\"a\")).not.toBe(payloadDigest(\"b\"));\n    expect(payloadDigest(\"\")).toHaveLength(8);\n    expect(payloadDigest(\"conteúdo com acento: ação\")).toHaveLength(8);\n  });\n});\n\ndescribe(\"constantes de vendas\", () => {\n  it(\"cobre todas as doze políticas validadas pelo servidor\", () => {\n    // `sales_settings_save` valida cinco opções, cinco booleanos, a validade da\n    // reserva e o desconto máximo: doze políticas editáveis.\n    const options = Object.keys(SETTING_OPTIONS).length;\n    const flags = Object.keys(SETTING_FLAGS).length;\n    expect(options + flags + 2).toBe(12);\n  });\n\n  it(\"não repete códigos dentro de uma política com opções\", () => {\n    for (const [key, option] of Object.entries(SETTING_OPTIONS)) {\n      expect(new Set(option.options).size, key).toBe(option.options.length);\n      for (const value of option.options) {\n        expect(option.labels[value as keyof typeof option.labels], `${key}.${value}`).toBeTruthy();\n      }\n    }\n  });\n\n  it(\"tem ação declarada para todo status de pedido\", () => {\n    for (const status of Object.keys(ORDER_STATUS)) {\n      expect(ACTIONS[status], status).toBeDefined();\n    }\n  });\n\n  it(\"não oferece ação em status terminal\", () => {\n    expect(ORDER_ACTIONS.CLOSED).toEqual([]);\n    expect(ORDER_ACTIONS.CANCELED).toEqual([]);\n  });\n});\n",
@@ -1541,5 +1525,20 @@
     "content": "(no output)",
     "is_error": false,
     "timestamp": 1790620732075
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -oE \"data\\.[a-z_]+\" src/components/sales/order-detail.tsx | sort -u | tr '\\n' ' '",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620740457
+  },
+  {
+    "role": "tool_result",
+    "content": "data.availability data.company data.fulfillments data.history data.items data.length data.map data.movements data.order data.picking_items data.picking_tasks data.receivables data.reservations data.return_items data.returns data.shipment_items data.shipments ",
+    "is_error": false,
+    "timestamp": 1790620740490
   }
 ]
