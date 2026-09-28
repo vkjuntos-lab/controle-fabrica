@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc 'git status --short; head -n 12 docs/handoff/PROJECT-STATE.md; tail -n 10 docs/handoff/MASTER-012-VALIDATION.md; ls supabase/migrations/*crm*; id; ls -ld .output node_modules/.nitro'"
-    },
-    "timestamp": 1790535589960
-  },
-  {
-    "role": "tool_result",
-    "content": " M .chat-history.json\n M docs/architecture/ADR-010-CRM.md\n M docs/business/COMMERCIAL-POLICIES.md\n M docs/business/CRM.md\n M docs/business/CUSTOMER-360.md\n M docs/business/LEADS.md\n M docs/business/SALES-PIPELINE.md\n M docs/business/SALES-QUOTES.md\n M docs/business/SALES-REPRESENTATIVES.md\n M script",
-    "is_error": false,
-    "timestamp": 1790535589968
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc 'npm run typecheck > .git/crm-typecheck.log 2>&1\nnpm test > .git/crm-unit.log 2>&1\nnpx eslint src/components/crm src/lib/crm src/routes/_authenticated/comercial > .git/crm-lint.log 2>&1'"
     },
     "timestamp": 1790535598365
@@ -1402,5 +1388,19 @@
     "content": "\n> typecheck\n> tsc --noEmit\n\n",
     "is_error": false,
     "timestamp": 1790618157175
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "whoami; id; echo \"---\"; head -60 scripts/test-sales-db.py"
+    },
+    "timestamp": 1790618159191
+  },
+  {
+    "role": "tool_result",
+    "content": "root\nuid=0(root) gid=0(root) groups=0(root)\n---\n#!/usr/bin/env python3\n\"\"\"MASTER 013 integration tests in disposable PostgreSQL. Never uses a published database.\"\"\"\nimport importlib.util,json,datetime\nfrom pathlib import Path\nfrom concurrent.futures import ThreadPoolExecutor\nspec=importlib.util.spec",
+    "is_error": false,
+    "timestamp": 1790618159252
   }
 ]
