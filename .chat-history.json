@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
-      "newString": "  stockStatusLabel,\n} from \"@/lib/sales/constants\";",
-      "oldString": "  stockStatusLabel,\n} from \"@/lib/sales/constants\";\n"
-    },
-    "timestamp": 1790620978385
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790620978400
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -n \"exceptionSeverityLabel\\|exceptionTypeLabel\\|exceptionStatusLabel\\|proofTypeLabel\" src/components/sales/order-detail.tsx | head",
@@ -1581,5 +1565,21 @@
     "content": "(no output)",
     "is_error": false,
     "timestamp": 1790622225476
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && timeout 300 python3 scripts/test-fiscal-db.py 2>&1 | tail -25\" 2>&1 | tail -30",
+      "timeout": 400000,
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622228226
+  },
+  {
+    "role": "tool_result",
+    "content": "(no output)",
+    "is_error": false,
+    "timestamp": 1790622228380
   }
 ]
