@@ -1,19 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790528031168
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20261008100000_crm_company_services.sql');s=p.read_text()\nbase=Path('supabase/migrations/20261005100000_crm.sql').read_text()\na=base.index('CREATE FUNCTION public.crm_action(');b=base.index('END \"'$$;'\"',a)+len('END \"'$$;'\"')\nfn=base[a:b].replace('CREATE FUNCTION','CREATE OR REPLACE FUNCTION',1)\nfn=fn.replace(\\\"    CASE _action\\\\n    WHEN 'submit'\\\", \\\"\\\"\\\"    IF _action IN ('approve','send','accept') AND (NOT EXISTS(SELECT 1 FROM companies WHERE id=quote.company_id AND organization_id=_org AND status='ACTIVE') OR NOT EXISTS(SELECT 1 FROM customer_profiles WHERE company_id=quote.company_id AND organization_id=_org AND commercial_status='ACTIVE')) THEN RAISE EXCEPTION 'Cliente inativo ou bloqueado.'; END IF;\n    CASE _action\n    WHEN 'submit'\\\"\\\"\\\")\ns=s.replace('COMMIT;\\\\n',fn+'\\\\nCOMMIT;\\\\n');p.write_text(s)\n# Test terminal company blocking and legacy service isolation too.\np=Path('scripts/test-crm-db.py');s=p.read_text().replace(\\\" print('PASS H: overdue and credit exposure blocks; sensitive financial reads protected')\\\",\\\"\\\"\\\" sql(f\\\"UPDATE companies SET status='BLOCKED' WHERE id={q(company)}\\\")\n action('quote',q2,'send',fail='bloqueado')\n sql(f\\\"UPDATE companies SET status='ACTIVE' WHERE id={q(company)}\\\")\n print('PASS H: overdue/credit and blocked-company rules; sensitive financial reads protected')\\\"\\\"\\\")\np.write_text(s)\n# Meaningful routing regression: list views have no Outlet and cannot parent the detail routes.\np=Path('src/lib/crm/crm.test.ts');s=p.read_text()+\\\"\\\"\\\"\ndescribe(\\\"rotas de detalhe do CRM\\\", () => {\n  for (const section of [\\\"clientes\\\",\\\"propostas\\\",\\\"oportunidades\\\",\\\"representantes\\\"]) {\n    it(\"'`abre ${section} como rota autenticada independente da listagem`, () => {\n      const route = readFileSync(resolve(import.meta.dirname, `../../routes/_authenticated/comercial/${section}_.$id.tsx`),\"utf8\");\n      expect(route).toContain(`/_authenticated/comercial/${section}_/$id`);\n    });\n  }\n});\n\"\"\"\np.write_text(s)\nPY\nnpm run test:crm:db > /tmp/crm-final-db.log 2>&1'"
-    },
-    "timestamp": 1790528058086
-  },
-  {
     "role": "tool",
     "tool": "Bash",
     "input": {
@@ -1365,5 +1351,19 @@
     "content": " M .chat-history.json\n--- COUNT ---\n1\n",
     "is_error": false,
     "timestamp": 1790618089877
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "git log --oneline -15; echo \"--- reflog ---\"; git reflog -10 2>/dev/null | head -20; echo \"--- branch ---\"; git branch -vv"
+    },
+    "timestamp": 1790618095980
+  },
+  {
+    "role": "tool_result",
+    "content": "91325f3 AI: alteracao automatica\n8471969 AI: alteracao automatica\nf41d07c AI: alteracao automatica\ncd4b237 AI: alteracao automatica\n0efc414 AI: alteracao automatica\na2516f0 AI: alteracao automatica\nc507b49 AI: alteracao automatica\ndcbcd2a Criou 163 tabelas no banco\nc27ce0c Changes\n5de7f98 Changes\n7d",
+    "is_error": false,
+    "timestamp": 1790618096019
   }
 ]
