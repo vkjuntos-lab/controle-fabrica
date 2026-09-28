@@ -532,7 +532,7 @@ DECLARE v_row public.fiscal_taxes;
 BEGIN
   PERFORM public.fiscal_require(_org,'fiscal.configure');
   IF _id IS NULL THEN
-    INSERT INTO public.fiscal_taxes(organization_id,code,label,description,calculation_base,
+    INSERT INTO public.fiscal_taxes(organization_id,code,label,calculation_base,
       is_tax,is_recoverable_default,applies_to,is_active,created_by)
     VALUES(_org,_data->>'code',_data->>'label',_data->>'description',
       coalesce(_data->>'calculation_base','BASE_CALCULO'),
@@ -556,7 +556,6 @@ BEGIN
     UPDATE public.fiscal_taxes SET
       code=coalesce(nullif(_data->>'code',''),code),
       label=coalesce(_data->>'label',label),
-      description=_data->>'description',
       calculation_base=coalesce(_data->>'calculation_base',calculation_base),
       is_tax=coalesce((_data->>'is_tax')::boolean,is_tax),
       is_recoverable_default=coalesce((_data->>'is_recoverable_default')::boolean,is_recoverable_default),
