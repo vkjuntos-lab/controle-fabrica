@@ -1,16 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "",
-    "is_error": true,
-    "timestamp": 1790594511154
-  },
-  {
-    "role": "assistant",
-    "content": "As telas de pedidos, reservas, separação, expedições e devoluções já estão conectadas às funções do servidor, e o TypeScript passou. A revisão de segurança também encontrou funções internas acessíveis por chamada direta; esse acesso foi bloqueado, preservando as operações autorizadas.\n",
-    "timestamp": 1790594514590
-  },
-  {
     "role": "tool",
     "tool": "Bash",
     "input": {
@@ -1485,5 +1474,19 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790618380979
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261010100000_sales_integrity.sql').read_text()\nt+=Path('supabase/migrations/20261006100000_sales_orders.sql').read_text()\nfor fn in ['sales_pick_confirm','sales_pack','sales_return_create','sales_shipment_create','sales_fulfillment_create']:\n    b=list(re.finditer(r'CREATE(?: OR REPLACE)? FUNCTION public\\.'+fn+r'\\(.*?\\n\\$\\$;', t, re.S))[-1].group(0)\n    print('#'*12, fn)\n    for ln in b.split('\\n'):\n        s=ln.strip()\n        if 'items' in s and ('->' in s or 'jsonb_array' in s or 'quantity' in s):\n            print('   ', s[:190])\nPY"
+    },
+    "timestamp": 1790618387549
+  },
+  {
+    "role": "tool_result",
+    "content": "############ sales_pick_confirm\n    IF jsonb_array_length(coalesce(_data->'items','[]'::jsonb))=0 THEN\n    FOR v_item IN SELECT * FROM jsonb_array_elements(_data->'items') LOOP\n    IF v_conf<>(SELECT pti.picked_quantity FROM public.picking_task_items pti\n    'picked',(SELECT pti.picked_quantity FROM",
+    "is_error": false,
+    "timestamp": 1790618387608
   }
 ]
