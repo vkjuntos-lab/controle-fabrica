@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/crm/shared.tsx",
-      "limit": 90,
-      "offset": 240
-    },
-    "timestamp": 1790618307345
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/crm/shared.tsx</path>\n<type>file</type>\n<content>\n240:  * organização ativa — a organização nunca é adivinhada. Membros também são um\n241:  * `kind` do CRM (`members`), então seguem a mesma permissão e o mesmo isolamento,\n242:  * em vez ",
-    "is_error": false,
-    "timestamp": 1790618307355
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -n \"_kind IN\\|_kind=\" supabase/migrations/20261005100000_crm.sql | head -40"
@@ -1533,5 +1517,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790619047894
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx",
+      "newString": "export function useSalesWrite(\n  organizationId: string,\n  options: { alsoCrm?: boolean; onSuccess?: () => void; onError?: () => void } = {},\n): UseMutationResult<unknown, Error, SalesWriteInput> {\n  const api = useServerFn(mutateSales);\n  const client = useQueryClient();\n  const { keyFor, renew } = useIdempotencyKey();\n  const { alsoCrm = false, onSuccess, onError } = options;\n  return useMutation({\n    mutationFn: async (input: SalesWriteInput) =>\n      api({\n        data: {\n          organizationId,\n          operation: input.operation,\n          id: input.id,\n          action: input.action ?? \"\",\n          values: input.values,\n          key: keyFor(input),\n        },\n      }),\n    onSuccess: (data) => {\n      void client.invalidateQueries({ queryKey: [\"sales\", organizationId] });\n      if (alsoCrm) void client.invalidateQueries({ queryKey: [\"crm\", organizationId] });\n      renew();\n      onSuccess?.(data);\n    },\n    onError: () => {\n      // A tentativa não vira tentativa nova aqui: a chave continua a mesma para\n      // que o reenvio do mesmo conteúdo seja deduplicado pelo gateway.\n      onError?.();\n    },\n  });\n}",
+      "oldString": "export function useSalesWrite(\n  organizationId: string,\n  options: { alsoCrm?: boolean; onSuccess?: () => void; onError?: () => void } = {},\n): UseMutationResult<unknown, Error, SalesWriteInput> {\n  const api = useServerFn(mutateSales);\n  const client = useQueryClient();\n  const { key, renew } = useIdempotencyKey();\n  const { alsoCrm = false, onSuccess, onError } = options;\n  return useMutation({\n    mutationFn: async (input: SalesWriteInput) =>\n      api({\n        data: {\n          organizationId,\n          operation: input.operation,\n          id: input.id,\n          action: input.action ?? \"\",\n          values: input.values,\n          key,\n        },\n      }),\n    onSuccess: (data) => {\n      void client.invalidateQueries({ queryKey: [\"sales\", organizationId] });\n      if (alsoCrm) void client.invalidateQueries({ queryKey: [\"crm\", organizationId] });\n      renew();\n      onSuccess?.(data);\n    },\n    onError: () => {\n      renew();\n      onError?.();\n    },\n  });\n}"
+    },
+    "timestamp": 1790619057305
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790619057319
   }
 ]

@@ -104,7 +104,7 @@ export function useSalesWrite(
 ): UseMutationResult<unknown, Error, SalesWriteInput> {
   const api = useServerFn(mutateSales);
   const client = useQueryClient();
-  const { key, renew } = useIdempotencyKey();
+  const { keyFor, renew } = useIdempotencyKey();
   const { alsoCrm = false, onSuccess, onError } = options;
   return useMutation({
     mutationFn: async (input: SalesWriteInput) =>
@@ -115,7 +115,7 @@ export function useSalesWrite(
           id: input.id,
           action: input.action ?? "",
           values: input.values,
-          key,
+          key: keyFor(input),
         },
       }),
     onSuccess: (data) => {
@@ -125,7 +125,8 @@ export function useSalesWrite(
       onSuccess?.(data);
     },
     onError: () => {
-      renew();
+      // A tentativa não vira tentativa nova aqui: a chave continua a mesma para
+      // que o reenvio do mesmo conteúdo seja deduplicado pelo gateway.
       onError?.();
     },
   });
