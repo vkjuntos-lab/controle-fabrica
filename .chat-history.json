@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/rbac.test.ts",
-      "newString": "  it(\"não declara módulo operacional como disponível antes de existir\", () => {\n    const disponiveis = [\n      \"dashboard\",\n      \"administracao\",\n      \"comercial\",\n      \"produtos\",\n      \"estoque\",\n      \"parceiros\",\n      \"financeiro\",\n      \"compras\",\n      \"planejamento\",\n      \"vendas\",\n    ];\n    const opcionais = PLATFORM_MODULES.filter((m) => !disponiveis.includes(m.key));\n    for (const mod of opcionais) {\n      expect(mod.status).toBe(\"coming_soon\");\n    }\n  });\n\n  it(\"mantém o módulo comercial disponível, com leitura no RBAC\", () => {\n    // O MASTER 012 entregou as telas de comercial; sem esta afirmação, trocar o\n    // status para `coming_soon` esconderia o módulo já implementado.\n    const comercial = PLATFORM_MODULES.find((m) => m.key === \"comercial\");\n    expect(comercial?.status).toBe(\"available\");\n    expect(PERMISSIONS.crmRead).toBe(\"crm.read\");\n    expect(PERMISSIONS.crmConfigure).toBe(\"crm.configure\");\n  });\n\n  it(\"mantém o módulo de vendas disponível, com leitura no RBAC\", () => {\n    // O MASTER 013 entregou as telas de vendas e logística; o status evita que o\n    // módulo implemented seja escondido como \"em breve\".\n    const vendas = PLATFORM_MODULES.find((m) => m.key === \"vendas\");\n    expect(vendas?.status).toBe(\"available\");\n    expect(PERMISSIONS.salesOrdersRead).toBe(\"sales_orders.read\");\n    expect(PERMISSIONS.salesConfigure).toBe(\"sales.configure\");\n  });",
-      "oldString": "  it(\"não declara módulo operacional como disponível antes de existir\", () => {\n    const disponiveis = [\n      \"dashboard\",\n      \"administracao\",\n      \"comercial\",\n      \"produtos\",\n      \"estoque\",\n      \"parceiros\",\n      \"financeiro\",\n      \"compras\",\n      \"planejamento\",\n    ];\n    const opcionais = PLATFORM_MODULES.filter((m) => !disponiveis.includes(m.key));\n    for (const mod of opcionais) {\n      expect(mod.status).toBe(\"coming_soon\");\n    }\n  });\n\n  it(\"mantém o módulo comercial disponível, com leitura no RBAC\", () => {\n    // O MASTER 012 entregou as telas de comercial; sem esta afirmação, trocar o\n    // status para `coming_soon` esconderia o módulo já implementado.\n    const comercial = PLATFORM_MODULES.find((m) => m.key === \"comercial\");\n    expect(comercial?.status).toBe(\"available\");\n    expect(PERMISSIONS.crmRead).toBe(\"crm.read\");\n    expect(PERMISSIONS.crmConfigure).toBe(\"crm.configure\");\n  });"
-    },
-    "timestamp": 1790619438212
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619438231
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/rbac.test.ts",
       "newString": "  it(\"reconhece as permissões do domínio de vendas e logística\", () => {\n    expect(PERMISSIONS.salesOrdersRead).toBe(\"sales_orders.read\");\n    expect(PERMISSIONS.salesOrdersCreate).toBe(\"sales_orders.create\");\n    expect(PERMISSIONS.salesOrdersUpdate).toBe(\"sales_orders.update\");\n    expect(PERMISSIONS.salesOrdersApprove).toBe(\"sales_orders.approve\");\n    expect(PERMISSIONS.salesOrdersCancel).toBe(\"sales_orders.cancel\");\n    expect(PERMISSIONS.reservationsRead).toBe(\"reservations.read\");\n    expect(PERMISSIONS.reservationsCreate).toBe(\"reservations.create\");\n    expect(PERMISSIONS.reservationsRelease).toBe(\"reservations.release\");\n    expect(PERMISSIONS.fulfillmentRead).toBe(\"fulfillment.read\");\n    expect(PERMISSIONS.fulfillmentManage).toBe(\"fulfillment.manage\");\n    expect(PERMISSIONS.pickingExecute).toBe(\"picking.execute\");\n    expect(PERMISSIONS.pickingConfirm).toBe(\"picking.confirm\");\n    expect(PERMISSIONS.packingManage).toBe(\"packing.manage\");\n    expect(PERMISSIONS.shipmentsRead).toBe(\"shipments.read\");\n    expect(PERMISSIONS.shipmentsCreate).toBe(\"shipments.create\");\n    expect(PERMISSIONS.shipmentsDispatch).toBe(\"shipments.dispatch\");\n    expect(PERMISSIONS.shipmentsConfirmDelivery).toBe(\"shipments.confirm_delivery\");\n    expect(PERMISSIONS.returnsRead).toBe(\"returns.read\");\n    expect(PERMISSIONS.returnsCreate).toBe(\"returns.create\");\n    expect(PERMISSIONS.returnsApprove).toBe(\"returns.approve\");\n    expect(PERMISSIONS.returnsReceive).toBe(\"returns.receive\");\n    expect(PERMISSIONS.logisticsRead).toBe(\"logistics.read\");\n    expect(PERMISSIONS.logisticsExport).toBe(\"logistics.export\");\n    expect(PERMISSIONS.logisticsExceptions).toBe(\"logistics.exceptions\");\n    expect(PERMISSIONS.salesConfigure).toBe(\"sales.configure\");\n    expect(PERMISSIONS.carriersManage).toBe(\"carriers.manage\");\n    expect(PERMISSIONS.salesCreditRead).toBe(\"sales_credit.read\");\n    expect(PERMISSIONS.salesDashboard).toBe(\"sales.dashboard\");\n  });\n\n  it(\"declara rótulo para todas as chaves reconhecidas\", () => {",
       "oldString": "  it(\"declara rótulo para todas as chaves reconhecidas\", () => {"
     },
@@ -1543,5 +1527,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/areas.tsx</path>\n<type>file</type>\n<content>\n163:   area,\n164:   children,\n165: }: {\n166:   data: Row[];\n167:   columns: string[];\n168:   area: string;\n169:   children?: (row: Row) => ReactNode;\n170: }) {\n171:   if (data.length ===",
     "is_error": false,
     "timestamp": 1790620620801
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"COLUMN_LABELS\" -A 30 src/components/sales/areas.tsx | head -40; echo \"=== isMoneyColumn ===\"; grep -rn \"isMoneyColumn\" -A 8 src/components/sales/shared.tsx | head -20",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620629839
+  },
+  {
+    "role": "tool_result",
+    "content": "135:const COLUMN_LABELS: Record<string, string> = {\n136-  order_number: \"Pedido\",\n137-  shipment_number: \"Expedição\",\n138-  return_number: \"Devolução\",\n139-  fulfillment_number: \"Atendimento\",\n140-  company_name: \"Cliente\",\n141-  order_date: \"Data do pedido\",\n142-  status: \"Status\",\n143-  stock_stat",
+    "is_error": false,
+    "timestamp": 1790620629861
   }
 ]
