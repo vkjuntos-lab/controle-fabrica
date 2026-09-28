@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "awk '/FUNCTION public.sales_order_detail/,/^\\$\\$/' supabase/migrations/20261010100000_sales_integrity.sql | sed -n '45,60p'",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620353353
-  },
-  {
-    "role": "tool_result",
-    "content": "  'receivables',CASE WHEN public.has_permission(_org,'receivables.read') AND public.has_permission(_org,'sales_credit.read') THEN (SELECT coalesce(jsonb_agg(to_jsonb(ar) ORDER BY ar.installment_number),'[]'::jsonb)\n     FROM public.account_receivables ar WHERE ar.organization_id=_org\n       AND ar.s",
-    "is_error": false,
-    "timestamp": 1790620353365
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "awk '/FUNCTION public.sales_availability/,/^\\$\\$/' supabase/migrations/20261010100000_sales_integrity.sql | grep -oE \"'(sku|available|reserved|on_hand|items|variant_id|location)'\" | sort -u | tr '\\n' ' '; echo; echo \"=== harness ja cobre? ===\"; grep -n \"availability\" scripts/test-sales-db.py | head -5",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1541,5 +1526,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790621222049
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "npx vitest run src/lib/sales/constants.test.ts 2>&1 | tail -45",
+      "timeout": 180000,
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790621224699
+  },
+  {
+    "role": "tool_result",
+    "content": "\n FAIL  src/lib/sales/constants.test.ts > políticas editáveis na tela de configurações > sete chaves correspondem a colunas de sales_order_settings\nAssertionError: reservation_policy: expected false to be true // Object.is equality\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- true\u001b[39m\n\u001b[31m+ ",
+    "is_error": false,
+    "timestamp": 1790621226032
   }
 ]
