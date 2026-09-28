@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"exceptionSeverityLabel\\|exceptionTypeLabel\\|exceptionStatusLabel\\|proofTypeLabel\" src/components/sales/order-detail.tsx | head",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620981069
-  },
-  {
-    "role": "tool_result",
-    "content": "230:            proof_type: (row) => proofTypeLabel(row.proof_type),\n272:            exception_type: (row) => exceptionTypeLabel(row.exception_type),\n273:            severity: (row) => exceptionSeverityLabel(row.severity),\n274:            status: (row) => exceptionStatusLabel(row.status),\n",
-    "is_error": false,
-    "timestamp": 1790620981106
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
@@ -1581,5 +1566,20 @@
     "content": "(no output)",
     "is_error": false,
     "timestamp": 1790622228380
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabricas' && su claude-runner -c \"python3 scripts/test-fiscal-db.py > /tmp/opencode/fiscal.log 2>&1; echo EXIT=\\$?\"; echo \"--- log ---\"; tail -25 /tmp/opencode/fiscal.log",
+      "timeout": 400000
+    },
+    "timestamp": 1790622231346
+  },
+  {
+    "role": "tool_result",
+    "content": "EXIT=0\n--- log ---\n",
+    "is_error": false,
+    "timestamp": 1790622231469
   }
 ]
