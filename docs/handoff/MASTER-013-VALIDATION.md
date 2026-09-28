@@ -6,7 +6,7 @@ visual em navegador autenticado não verificadas.
 
 O banco já tinha o ciclo de vendas implementado em três migrations
 (`20261006100000_sales_orders.sql`, `20261010100000_sales_integrity.sql`,
-`20261011100000_sales_planning.sql`), com 22 tabelas e 41 funções `sales_*`. O que não existia era a
+`20261011100000_sales_planning.sql`), com 23 tabelas e funções `sales_*`. O que não existia era a
 parte que transforma banco em produto:
 
 - **Nenhuma tela.** O módulo de vendas não tinha componente, rota nem gateway TypeScript.

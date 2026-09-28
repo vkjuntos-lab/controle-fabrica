@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx",
-      "newString": "/**\n * Chave de idempotência derivada do conteúdo.\n *\n * O gateway recusa a mesma chave com conteúdo diferente e devolve o mesmo\n * resultado para a mesma chave com conteúdo igual. A chave enviada é, portanto,\n * a combinação de um identificador de tentativa (renovado quando a tentativa é\n * concluída com sucesso) com o resumo do payload:\n *\n * - reenviar exatamente o mesmo conteúdo deduplica — protege contra duplo\n *   clique e contra resposta perdida depois da gravação;\n * - alterar o conteúdo gera outra chave — o usuário corrige o formulário e a\n *   tentativa nova executa de fato, sem ser barrada pela chave antiga.\n *\n * Renovar a chave no erro seria o caminho perigoso: se o servidor gravou e a\n * resposta não chegou, uma chave nova executaria a operação uma segunda vez.\n */\nfunction payloadDigest(input: string): string {\n  let hash = 0x811c9dc5;\n  for (let index = 0; index < input.length; index += 1) {\n    hash ^= input.charCodeAt(index);\n    hash = Math.imul(hash, 0x01000193) >>> 0;\n  }\n  return hash.toString(16).padStart(8, \"0\");\n}\n\nexport function useIdempotencyKey() {\n  const [attempt, setAttempt] = useState(() => crypto.randomUUID());\n  const renew = useCallback(() => setAttempt(crypto.randomUUID()), []);\n  const keyFor = useCallback(\n    (payload: unknown) => `${attempt}:${payloadDigest(JSON.stringify(payload ?? null))}`,\n    [attempt],\n  );\n  return { keyFor, renew };\n}",
-      "oldString": "/**\n * Chave de idempotência por tentativa.\n *\n * O gateway recusa a mesma chave com conteúdo diferente. A chave é renovada\n * quando a tentativa termina — inclusive quando ela falha — e quando o diálogo é\n * reaberto. Reutilizar a chave depois de um erro deixaria a tela\n * Unable para sempre com um conteúdo que o servidor já recusou.\n */\nexport function useIdempotencyKey() {\n  const [key, setKey] = useState(() => crypto.randomUUID());\n  const renew = useCallback(() => setKey(crypto.randomUUID()), []);\n  return { key, renew };\n}"
-    },
-    "timestamp": 1790619047854
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619047894
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx",
       "newString": "export function useSalesWrite(\n  organizationId: string,\n  options: { alsoCrm?: boolean; onSuccess?: () => void; onError?: () => void } = {},\n): UseMutationResult<unknown, Error, SalesWriteInput> {\n  const api = useServerFn(mutateSales);\n  const client = useQueryClient();\n  const { keyFor, renew } = useIdempotencyKey();\n  const { alsoCrm = false, onSuccess, onError } = options;\n  return useMutation({\n    mutationFn: async (input: SalesWriteInput) =>\n      api({\n        data: {\n          organizationId,\n          operation: input.operation,\n          id: input.id,\n          action: input.action ?? \"\",\n          values: input.values,\n          key: keyFor(input),\n        },\n      }),\n    onSuccess: (data) => {\n      void client.invalidateQueries({ queryKey: [\"sales\", organizationId] });\n      if (alsoCrm) void client.invalidateQueries({ queryKey: [\"crm\", organizationId] });\n      renew();\n      onSuccess?.(data);\n    },\n    onError: () => {\n      // A tentativa não vira tentativa nova aqui: a chave continua a mesma para\n      // que o reenvio do mesmo conteúdo seja deduplicado pelo gateway.\n      onError?.();\n    },\n  });\n}",
       "oldString": "export function useSalesWrite(\n  organizationId: string,\n  options: { alsoCrm?: boolean; onSuccess?: () => void; onError?: () => void } = {},\n): UseMutationResult<unknown, Error, SalesWriteInput> {\n  const api = useServerFn(mutateSales);\n  const client = useQueryClient();\n  const { key, renew } = useIdempotencyKey();\n  const { alsoCrm = false, onSuccess, onError } = options;\n  return useMutation({\n    mutationFn: async (input: SalesWriteInput) =>\n      api({\n        data: {\n          organizationId,\n          operation: input.operation,\n          id: input.id,\n          action: input.action ?? \"\",\n          values: input.values,\n          key,\n        },\n      }),\n    onSuccess: (data) => {\n      void client.invalidateQueries({ queryKey: [\"sales\", organizationId] });\n      if (alsoCrm) void client.invalidateQueries({ queryKey: [\"crm\", organizationId] });\n      renew();\n      onSuccess?.(data);\n    },\n    onError: () => {\n      renew();\n      onError?.();\n    },\n  });\n}"
     },
@@ -1556,5 +1540,21 @@
     "content": "575:DO $permissions$ DECLARE f record; BEGIN FOR f IN SELECT oid::regprocedure signature,proname FROM pg_proc WHERE pronamespace='public'::regnamespace AND proname LIKE 'sales_%' LOOP EXECUTE format('REVOKE ALL ON FUNCTION %s FROM PUBLIC, anon',f.signature); IF f.proname=ANY(ARRAY['sales_audit','sal",
     "is_error": false,
     "timestamp": 1790620165657
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/MASTER-013-VALIDATION.md",
+      "newString": "O banco já tinha o ciclo de vendas implementado em três migrations\n(`20261006100000_sales_orders.sql`, `20261010100000_sales_integrity.sql`,\n`20261011100000_sales_planning.sql`), com 23 tabelas e funções `sales_*`. O que não existia era a\nparte que transforma banco em produto:",
+      "oldString": "O banco já tinha o ciclo de vendas implementado em três migrations\n(`20261006100000_sales_orders.sql`, `20261010100000_sales_integrity.sql`,\n`20261011100000_sales_planning.sql`), com 22 tabelas e 41 funções `sales_*`. O que não existia era a\nparte que transforma banco em produto:"
+    },
+    "timestamp": 1790620168620
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790620168632
   }
 ]
