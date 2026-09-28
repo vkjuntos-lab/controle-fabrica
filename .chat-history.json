@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -ohE \"FUNCTION public\\.sales_[a-z_]+\" supabase/migrations/*.sql | awk '{print $NF}' | sort -u | wc -l; echo \"--- lista sem grant (15 internas) ---\"; grep -oE \"IF p.proname=ANY\\(ARRAY\\[[^]]*\\]\" supabase/migrations/20261010100000_sales_integrity.sql | head -c 600",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620160356
-  },
-  {
-    "role": "tool_result",
-    "content": "45\n--- lista sem grant (15 internas) ---\n",
-    "is_error": false,
-    "timestamp": 1790620160416
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"proname=ANY\\|proname IN\" supabase/migrations/20261010100000_sales_integrity.sql | tail -3",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1546,5 +1531,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790620975759
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
+      "newString": "  stockStatusLabel,\n} from \"@/lib/sales/constants\";",
+      "oldString": "  stockStatusLabel,\n} from \"@/lib/sales/constants\";\n"
+    },
+    "timestamp": 1790620978385
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790620978400
   }
 ]
