@@ -191,7 +191,7 @@ export const listInventoryLocations = createServerFn({ method: "GET" })
       status: row.status,
       on_hand_total: totals.get(row.id) ?? 0,
       partner_id: row.partner_id,
-      operational_purpose: row.operational_purpose,
+      operational_purpose: row.operational_purpose as InventoryLocationRow["operational_purpose"],
       created_at: row.created_at,
     }));
   });
