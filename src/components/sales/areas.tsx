@@ -493,7 +493,7 @@ export function SalesCredits({ organizationId }: { organizationId: string }) {
   // que o servidor já calculou: nenhum valor é derivado nesta tela.
   const rows = list.rows.map((row) => ({ ...row, ...object(row.position) }));
   return (
-    <section className space-y-4>
+    <section className="space-y-4">
       <header>
         <h1 className="text-xl font-semibold">Crédito do cliente</h1>
         <p className="text-sm text-muted-foreground">
