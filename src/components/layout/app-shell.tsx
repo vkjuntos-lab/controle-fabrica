@@ -57,7 +57,12 @@ type NavItem = {
 };
 
 const OPERATION_ITEMS: NavItem[] = [
-  { label: "Vendas e logística", to: "/vendas", icon: ShoppingCart, permission: "sales_orders.read" },
+  {
+    label: "Vendas e logística",
+    to: "/vendas",
+    icon: ShoppingCart,
+    permission: PERMISSIONS.salesOrdersRead,
+  },
   { label: "Comercial", to: "/comercial", icon: Users, permission: PERMISSIONS.crmRead },
   { label: "Planejamento", to: "/planejamento", icon: ClipboardList, permission: "planning.read" },
   { label: "Custos", to: "/custos", icon: Scale, permission: "costs.read" },
