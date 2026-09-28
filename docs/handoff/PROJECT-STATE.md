@@ -382,6 +382,53 @@ Validação local; publicação não verificada.
     `/fornecedores` (+ `/$id` Fornecedor 360). Menu Operação do `AppShell` com item Compras e
     sub-itens. Server functions em `src/lib/purchasing/*`, tipos manuais atualizados no
     `src/integrations/supabase/types.ts`.
+- Domínio Vendas e Logística (LOVABLE MASTER 013):
+  - O ciclo já existia no banco (23 tabelas, `sales_orders` a `carriers` e
+    `logistics_exceptions`); a entrega desta revisão foi a interface, o gateway, o RBAC e a
+    documentação, mais a correção de duas funções que não conseguiam gravar.
+  - Regra central: **pedido de venda não é venda recebida**. Rascunho é pedido comercial sem valor,
+    sem estoque e sem obrigação. Reserva prende disponibilidade e **não** movimenta estoque;
+    separar e conferir **não** baixam estoque; só a expedição dá baixa oficial, uma única vez.
+    Entregar não mexe no saldo e não fecha pedido. Receber devolução devolve mercadoria e deixa o
+    ajuste financeiro como solicitação, sem execução automática.
+  - `DISPONÍVEL = SALDO FÍSICO − RESERVAS`, com quarentena e inspeção fora do vendável. Reserva
+    vence por validade configurável; liberar, cancelar e expirar devolvem o disponível sem tocar no
+    saldo físico.
+  - Preço nunca é digitado: vem da tabela oficial vigente na data do pedido, e preço enviado pelo
+    cliente é ignorado pelo servidor. Conversão de proposta preserva o preço aceito e é idempotente
+    por chave e por vínculo.
+  - Obrigação financeira configurável (`NONE`, `ON_APPROVAL`, `ON_DISPATCH`), reusando
+    `account_receivables` do módulo financeiro com `source_type = 'SALE'` — não há tabela própria,
+    e cancelar pedido com recebível em aberto é recusado. Com `ON_DISPATCH` o título é proporcional
+    ao expedido e um pedido gera **um** título.
+  - Separação por código de barras/SKU; a divergência entre separado e conferido vira ocorrência, e
+    nunca aumento de estoque; conferência é imutável. Peso e dimensão são os medidos e registrados,
+    nunca estimados. Expedir exige `shipments.dispatch` **e** permissão de movimentar inventário.
+  - Doze políticas por organização, todas editáveis na tela e validadas pelo servidor: reserva,
+    validade da reserva, sob encomenda, alteração de preço, exposição de crédito, segregação na
+    aprovação, desconto máximo, expedição parcial, conferência integral, endereço obrigatório,
+    rastreamento e gatilho financeiro.
+  - Segurança: `sales_execute` como porta única de escrita, idempotente por chave/payload/resultado;
+    catorze funções `sales_*` internas sem `GRANT` a `authenticated`; RLS e isolamento por
+    organização testados, inclusive empresa do cliente; escrita direta e colunas financeiras
+    bloqueadas; aprovação exige outro usuário quando a segregação está ativa; crédito avaliado na
+    aprovação com o valor avaliado preservado; aprovação publica `SALES_DEMAND` para o MRP na
+    mesma transação.
+  - Gateway TypeScript `readSales`/`mutateSales` com `requireSupabaseAuth`, `kind` e `operation` em
+    listas fechadas e validação Zod; chave de idempotência derivada do conteúdo em
+    `src/lib/sales/idempotency.ts`, com serialização canônica e UUID válido, testada isoladamente.
+  - Rótulos e fluxo em `src/lib/sales/constants.ts`; telas em `src/components/sales/`
+    (`shared`, `reference-picker`, `action`, `new-order`, `areas`, `order-detail`, `settings` e
+    `workspace`, que preserva os exports `SalesPage`, `SalesOrderPage`, `QuoteToOrder` e
+    `CustomerOrders` usados pelas rotas e pelo CRM).
+  - 28 permissões `sales_orders.*`, `reservations.*`, `fulfillment.*`, `picking.*`, `packing.*`,
+    `shipments.*`, `returns.*`, `logistics.*`, `carriers.manage`, `sales_credit.read`,
+    `sales.dashboard` e `sales.configure`; módulo `vendas` disponível em `src/lib/rbac.ts` e item no
+    menu do `AppShell`.
+  - Telas: `/vendas` (pedidos, dashboard, reservas, separação, expedições, devoluções, ocorrências,
+    transportadoras, crédito, configurações) e `/vendas/pedidos/$id`. Aba de pedidos na ficha do
+    cliente e conversão a partir da proposta aceita, ambas no CRM.
+  - Harness `npm run test:sales:db` com 32 grupos (A–AF) em PostgreSQL descartável.
 - Documentação: ADR-001/ADR-006/ADR-007, CORE-BUSINESS, INVENTORY, PARTNERS, PARTNER-SHIPMENTS,
   PARTNER-RECONCILIATION, PARTNER-PRICING, este handoff.
 
