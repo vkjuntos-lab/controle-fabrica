@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "awk '/FUNCTION public.sales_order_detail/,/^\\$\\$/' supabase/migrations/20261010100000_sales_integrity.sql | grep -nE \"availability|movement|result:=|result||=|RETURN\" | head -20",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620339857
-  },
-  {
-    "role": "tool_result",
-    "content": "1:CREATE OR REPLACE FUNCTION public.sales_order_detail(_org uuid,_order uuid)\n2:RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\n3:DECLARE o public.sales_orders; v_json jsonb; v_perm text;\n4:BEGIN\n5: SELECT * INTO o FROM public.sales_orders WHERE id=_order AND orga",
-    "is_error": false,
-    "timestamp": 1790620339873
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "awk '/FUNCTION public.sales_order_detail/,/^\\$\\$/' supabase/migrations/20261010100000_sales_integrity.sql | sed -n '20,45p'",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1539,5 +1524,21 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790621213846
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "npx vitest run src/lib/sales/constants.test.ts 2>&1 | tail -40",
+      "timeout": 180000,
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790621216907
+  },
+  {
+    "role": "tool_result",
+    "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n\n⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  src/lib/sales/constants.test.ts [ src/lib/sales/constants.test.ts ]\nError: ENOENT: no such file or directory, open '/root/Zheus AI Projects/controle-fabricas/src/supabase/migrations/20261006100000_sales_",
+    "is_error": false,
+    "timestamp": 1790621218191
   }
 ]
