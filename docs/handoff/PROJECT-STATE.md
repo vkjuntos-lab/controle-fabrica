@@ -594,6 +594,6 @@ Relatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-V
 `docs/handoff/MASTER-007-VALIDATION.md`, `docs/handoff/MASTER-009-VALIDATION.md`,
 `docs/handoff/MASTER-010-VALIDATION.md`, `docs/handoff/MASTER-011-VALIDATION.md` e
 `docs/handoff/MASTER-013-VALIDATION.md`.
-MASTER 013: 32 grupos PostgreSQL de vendas (`npm run test:sales:db`, A–AF), 77 testes unitários em
-7 arquivos, TypeScript, build e lint do domínio verificados. A implantação no banco publicado não faz
+MASTER 013: 32 grupos PostgreSQL de vendas (`npm run test:sales:db`, A–AF), 87 testes unitários em
+8 arquivos, TypeScript, build e lint do domínio verificados. A implantação no banco publicado não faz
 parte da evidência local e permanece pendente.
