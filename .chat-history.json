@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/new-order.tsx",
-      "newString": "import { useIdempotencyKey, useSalesRead, useSalesWrite, object, rows } from \"@/components/sales/shared\";",
-      "oldString": "import { useIdempotencyKey, useSalesRead, useSalesWrite, rows } from \"@/components/sales/shared\";"
-    },
-    "timestamp": 1790619069538
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619069549
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/new-order.tsx",
       "newString": "import { useSalesRead, useSalesWrite, object, rows } from \"@/components/sales/shared\";",
       "oldString": "import { useIdempotencyKey, useSalesRead, useSalesWrite, object, rows } from \"@/components/sales/shared\";"
     },
@@ -1554,5 +1538,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md</path>\n<type>file</type>\n<content>\n1: # Estado do projeto — handoff contínuo\n2: \n3: ## Revisão de continuidade — 27/09/2026 (MASTER 012)\n4: \n5: CRM corrigido localmente sobre Company, contatos, preços, ledger, financeiro, ",
     "is_error": false,
     "timestamp": 1790620178649
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md",
+      "newString": "# Estado do projeto — handoff contínuo\n\n## Revisão de continuidade — 28/09/2026 (MASTER 013)\n\nVendas e logística. O ciclo físico já existia no banco desde três migrations, mas não havia nenhuma\ntela, o RBAC do domínio não existia e duas funções do servidor eram incapazes de gravar. Esta revisão\nentregou a interface, o gateway, as permissões e a documentação. Estado global: PARTIAL. Não declarar\nconclusão integral: nenhuma migration foi aplicada no banco publicado e não houve navegação em\nnavegador autenticado.\n\nDois bugs de servidor que impediam o uso real foram corrigidos em migration nova, preservando as\ntrês originais: `sales_settings_save` convertia a chave de auditoria de `text` para `uuid`, o que\nfazia **toda** gravação de política falhar; e `sales_carrier_save` inseria `modality = NULL`, o que\nfazia **toda** gravação de transportadora falhar.\n\nInterface: `/vendas` com nove áreas e `/vendas/pedidos/$id`. Listagens, dashboard, crédito, as doze\npolíticas e todo o ciclo físico — reserva, separação por código de barras, conferência, embalagem,\nexpedição, entrega e devolução. Seletor próprio de referência: o `Picker` do CRM mostrava\n`name`/`legal_name`/`sku`, e uma proposta não tem nenhum deles, então todas as opções apareciam como\n\"—\". A conversão de proposta ficou disponível tanto na tela de vendas quanto no CRM, com a assinatura\npública preservada.\n\nIdempotência: a chave passou a ser derivada do conteúdo da operação, com serialização canônica e\nmontagem de UUID válido. Reenviar o mesmo conteúdo deduplica; corrigir o conteúdo gera chave nova.\nA chave não é renovada em caso de erro — se o servidor gravou e a resposta se perdeu, uma chave nova\nrepetiria a operação. Isso está isolado em módulo puro e coberto por teste.\n\nRBAC: 28 permissões com rótulo, teste de contrato contra as migrations e módulo `vendas` marcado\ncomo disponível. O teste que impede declarar módulo inexistente como disponível foi atualizado com a\nentrada de vendas e ganhou uma afirmação própria.\n\nMigrations novas: `20261012100000_sales_screen_fixes.sql`, que substitui duas funções e não altera\ntabela. Documentação criada: [SALES-ORDERS](../business/SALES-ORDERS.md) e\n[ADR 011](../architecture/ADR-011-SALES.md).\n\nValidação local: 32 grupos PostgreSQL (A–AF), 77 testes unitários, TypeScript e build sem erro,\nlint do domínio sem erros. Relatório e critérios\nIMPLEMENTED/PARTIAL/NOT_IMPLEMENTED: [MASTER-013-VALIDATION](MASTER-013-VALIDATION.md).\n\nO MASTER 014 não foi iniciado.\n\n## Revisão de continuidade — 27/09/2026 (MASTER 012)",
+      "oldString": "# Estado do projeto — handoff contínuo\n\n## Revisão de continuidade — 27/09/2026 (MASTER 012)"
+    },
+    "timestamp": 1790620190269
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790620190286
   }
 ]

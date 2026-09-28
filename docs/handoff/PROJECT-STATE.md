@@ -1,5 +1,44 @@
 # Estado do projeto — handoff contínuo
 
+## Revisão de continuidade — 28/09/2026 (MASTER 013)
+
+Vendas e logística. O ciclo físico já existia no banco desde três migrations, mas não havia nenhuma
+tela, o RBAC do domínio não existia e duas funções do servidor eram incapazes de gravar. Esta revisão
+entregou a interface, o gateway, as permissões e a documentação. Estado global: PARTIAL. Não declarar
+conclusão integral: nenhuma migration foi aplicada no banco publicado e não houve navegação em
+navegador autenticado.
+
+Dois bugs de servidor que impediam o uso real foram corrigidos em migration nova, preservando as
+três originais: `sales_settings_save` convertia a chave de auditoria de `text` para `uuid`, o que
+fazia **toda** gravação de política falhar; e `sales_carrier_save` inseria `modality = NULL`, o que
+fazia **toda** gravação de transportadora falhar.
+
+Interface: `/vendas` com nove áreas e `/vendas/pedidos/$id`. Listagens, dashboard, crédito, as doze
+políticas e todo o ciclo físico — reserva, separação por código de barras, conferência, embalagem,
+expedição, entrega e devolução. Seletor próprio de referência: o `Picker` do CRM mostrava
+`name`/`legal_name`/`sku`, e uma proposta não tem nenhum deles, então todas as opções apareciam como
+"—". A conversão de proposta ficou disponível tanto na tela de vendas quanto no CRM, com a assinatura
+pública preservada.
+
+Idempotência: a chave passou a ser derivada do conteúdo da operação, com serialização canônica e
+montagem de UUID válido. Reenviar o mesmo conteúdo deduplica; corrigir o conteúdo gera chave nova.
+A chave não é renovada em caso de erro — se o servidor gravou e a resposta se perdeu, uma chave nova
+repetiria a operação. Isso está isolado em módulo puro e coberto por teste.
+
+RBAC: 28 permissões com rótulo, teste de contrato contra as migrations e módulo `vendas` marcado
+como disponível. O teste que impede declarar módulo inexistente como disponível foi atualizado com a
+entrada de vendas e ganhou uma afirmação própria.
+
+Migrations novas: `20261012100000_sales_screen_fixes.sql`, que substitui duas funções e não altera
+tabela. Documentação criada: [SALES-ORDERS](../business/SALES-ORDERS.md) e
+[ADR 011](../architecture/ADR-011-SALES.md).
+
+Validação local: 32 grupos PostgreSQL (A–AF), 77 testes unitários, TypeScript e build sem erro,
+lint do domínio sem erros. Relatório e critérios
+IMPLEMENTED/PARTIAL/NOT_IMPLEMENTED: [MASTER-013-VALIDATION](MASTER-013-VALIDATION.md).
+
+O MASTER 014 não foi iniciado.
+
 ## Revisão de continuidade — 27/09/2026 (MASTER 012)
 
 CRM corrigido localmente sobre Company, contatos, preços, ledger, financeiro, planejamento e
