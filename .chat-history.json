@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "npm test 2>&1 | tail -30",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas",
-      "timeout": 300000
-    },
-    "timestamp": 1790619424149
-  },
-  {
-    "role": "tool_result",
-    "content": "   ✓ alinha as permissões de compras ao contrato do banco 2ms\n ✓ src/lib/inventory/ledger.test.ts (12 tests) 8ms\n ✓ src/lib/csv.test.ts (5 tests) 5ms\n ✓ src/lib/middleware/rate-limit.test.ts (3 tests) 7ms\n ✓ src/lib/webhook/signature.test.ts (5 tests) 5ms\n\n⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  src/",
-    "is_error": false,
-    "timestamp": 1790619427593
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/rbac.test.ts"
@@ -1542,5 +1526,20 @@
     "content": "      <header>\n        <h1 className=\"text-xl font-semibold\">Crédito do cliente</h1>\n        <p className=\"text-sm text-muted-foreground\">\n          Limite, uso e decisão de bloqueio. O servidor reavalia o crédito no momento da aprovação;\n          a tela apenas mostra o que foi avaliado.\n        </",
     "is_error": false,
     "timestamp": 1790620606062
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "awk '/FUNCTION public.crm_financial_position/,/^\\$\\$/' supabase/migrations/*.sql | sed -n '1,40p' | sed 's/^ *//'",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620612442
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE FUNCTION public.crm_financial_position(_org uuid,_company uuid) RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\nSELECT jsonb_build_object('credit_limit',p.credit_limit,'open_amount',coalesce(x.open_amount,0),'overdue_amount',coalesce(x.overdue_amount,0),\n'credi",
+    "is_error": false,
+    "timestamp": 1790620612482
   }
 ]
