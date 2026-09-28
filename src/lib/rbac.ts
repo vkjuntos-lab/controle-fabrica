@@ -456,6 +456,12 @@ export const PLATFORM_MODULES: ModuleDefinition[] = [
     status: "available",
   },
   {
+    key: "vendas",
+    label: "Vendas e logística",
+    description: "Pedidos, reservas, separação, expedição, entregas e devoluções.",
+    status: "available",
+  },
+  {
     key: "produtos",
     label: "Produtos",
     description: "Produtos, variantes e SKUs.",

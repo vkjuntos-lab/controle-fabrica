@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && npm run test:sales:db\" 2>&1 | tail -40",
-      "timeout": 900000
-    },
-    "timestamp": 1790618161908
-  },
-  {
-    "role": "tool_result",
-    "content": "\n> test:sales:db\n> python3 scripts/test-sales-db.py\n\nPASS A: cenario montado; saldo fisico oficial em 100\nPASS B: pedido nasce com preco oficial da tabela e subtotal correto; nenhum movimento\nPASS C: preco enviado pelo cliente e ignorado; a tabela oficial prevalece\nPASS D: variante descontinuada blo",
-    "is_error": false,
-    "timestamp": 1790618168420
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "npm test 2>&1 | tail -20",
       "timeout": 600000
     },
@@ -1511,5 +1496,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790618709273
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/rbac.ts",
+      "newString": "  {\n    key: \"comercial\",\n    label: \"Comercial\",\n    description: \"Clientes, pedidos e vendas B2B.\",\n    status: \"available\",\n  },\n  {\n    key: \"vendas\",\n    label: \"Vendas e logística\",\n    description: \"Pedidos, reservas, separação, expedição, entregas e devoluções.\",\n    status: \"available\",\n  },",
+      "oldString": "  {\n    key: \"comercial\",\n    label: \"Comercial\",\n    description: \"Clientes, pedidos e vendas B2B.\",\n    status: \"available\",\n  },"
+    },
+    "timestamp": 1790618712677
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790618712696
   }
 ]
