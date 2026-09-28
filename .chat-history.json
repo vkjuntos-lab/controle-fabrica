@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "echo \"=== domain_events ===\"; awk \"/CREATE TABLE.*public.domain_events \\(/,/^\\);/\" supabase/migrations/20260926100000_partner_reconciliation.sql | sed 's/^ *//' | head -20; echo \"=== outbox? ===\"; grep -rn \"outbox\" supabase/migrations/*.sql | head -5",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790622048216
-  },
-  {
-    "role": "tool_result",
-    "content": "=== domain_events ===\nCREATE TABLE public.domain_events (\nid uuid PRIMARY KEY DEFAULT gen_random_uuid(),\norganization_id uuid NOT NULL REFERENCES public.organizations,\nevent_type text NOT NULL CHECK(length(trim(event_type))>0),\nevent_source text NOT NULL DEFAULT 'RECONCILIATION',\nevent_key text NOT ",
-    "is_error": false,
-    "timestamp": 1790622048254
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "echo \"=== sales_execute: como o gateway valida operação ===\"; grep -n \"v_op IN\\|v_op\\s*=\" supabase/migrations/20261010100000_sales_integrity.sql | head -20",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1579,5 +1564,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py</path>\n<type>file</type>\n<content>\n96:     assert any('classificação fiscal' in w['message'] for w in sim['warnings'])\n97:     print('PASS AH: classificacao em DRAFT nao entra no calculo; falta de regra nomeia a pendencia')\n98",
     "is_error": false,
     "timestamp": 1790622914284
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py",
+      "newString": "    # --- AJ: segregacao de funcoes ----------------------------------------\n    args = ','.join([q(org), q('product_fiscal_profiles'), q(prof), q('approve'), q('NCM conferida')])\n    db.call('fiscal_profile_action', args, contador, 'Sem permissão')\n    db.call('fiscal_profile_action', args, fiscal, 'Sem permissão')\n    db.call('fiscal_profile_action', args, admin, 'não pode aprová-lo')\n    # O admin criou a classificação, então também não pode aprová-la.\n    # A segregação é real: precisa de outro usuário com a permissão.\n    assert sql(f\"SELECT count(*) FROM product_fiscal_profiles \"\n               f\"WHERE organization_id={q(org)} AND id={q(prof)} AND status='DRAFT'\") == '1'\n    j('fiscal_profile_action', args, aprovador)\n    db.call('fiscal_profile_action', ','.join([q(org), q('nao_existe'), q(prof), q('approve'), q('x')]),\n            aprovador, 'Tabela de perfil fiscal inválida')\n    # Aprovado, o perfil é imutável: corrigir exige versão nova.\n    save('fiscal_save_product_profile', {\n        'product_variant_id': variant, 'ncm': '6403.99.99', 'justification': 'tentativa'},\n        rid=prof, fail='só é alterável')\n    db.call('fiscal_profile_action', args, aprovador, 'já pode')\n    assert sql(f\"SELECT count(*) FROM product_fiscal_profiles \"\n               f\"WHERE organization_id={q(org)} AND id={q(prof)} AND ncm='6403.99.99'\") == '0'\n    print('PASS AI: autor nao aprova a propria classificacao; perfil aprovado fica imutavel')",
+      "oldString": "    # --- AJ: segregacao de funcoes ----------------------------------------\n    args = ','.join([q(org), q('product_fiscal_profiles'), q(prof), q('approve'), q('NCM conferida')])\n    db.call('fiscal_profile_action', args, contador, 'Sem permissão')\n    db.call('fiscal_profile_action', args, fiscal, 'Sem permissão')\n    db.call('fiscal_profile_action', args, admin, 'não pode aprová-lo')\n    save('fiscal_save_product_profile', {\n        'product_variant_id': variant, 'ncm': '6403.99.99', 'justification': 'tentativa'},\n        rid=prof, fail='só é alterável')\n    # O admin criou a classificação, então também não pode aprová-la.\n    # A segregação é real: precisa de outro usuário com a permissão.\n    assert sql(f\"SELECT count(*) FROM product_fiscal_profiles \"\n               f\"WHERE organization_id={q(org)} AND id={q(prof)} AND status='DRAFT'\") == '1'\n    j('fiscal_profile_action', args, aprovador)\n    db.call('fiscal_profile_action', ','.join([q(org), q('nao_existe'), q(prof), q('approve'), q('x')]),\n            aprovador, 'Tabela de perfil fiscal inválida')\n    print('PASS AI: autor nao aprova a propria classificacao; perfil aprovado fica imutavel')"
+    },
+    "timestamp": 1790622923258
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790622923277
   }
 ]

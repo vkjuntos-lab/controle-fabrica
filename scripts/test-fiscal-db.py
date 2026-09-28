@@ -101,9 +101,6 @@ def run():
     db.call('fiscal_profile_action', args, contador, 'Sem permissão')
     db.call('fiscal_profile_action', args, fiscal, 'Sem permissão')
     db.call('fiscal_profile_action', args, admin, 'não pode aprová-lo')
-    save('fiscal_save_product_profile', {
-        'product_variant_id': variant, 'ncm': '6403.99.99', 'justification': 'tentativa'},
-        rid=prof, fail='só é alterável')
     # O admin criou a classificação, então também não pode aprová-la.
     # A segregação é real: precisa de outro usuário com a permissão.
     assert sql(f"SELECT count(*) FROM product_fiscal_profiles "
@@ -111,6 +108,13 @@ def run():
     j('fiscal_profile_action', args, aprovador)
     db.call('fiscal_profile_action', ','.join([q(org), q('nao_existe'), q(prof), q('approve'), q('x')]),
             aprovador, 'Tabela de perfil fiscal inválida')
+    # Aprovado, o perfil é imutável: corrigir exige versão nova.
+    save('fiscal_save_product_profile', {
+        'product_variant_id': variant, 'ncm': '6403.99.99', 'justification': 'tentativa'},
+        rid=prof, fail='só é alterável')
+    db.call('fiscal_profile_action', args, aprovador, 'já pode')
+    assert sql(f"SELECT count(*) FROM product_fiscal_profiles "
+               f"WHERE organization_id={q(org)} AND id={q(prof)} AND ncm='6403.99.99'") == '0'
     print('PASS AI: autor nao aprova a propria classificacao; perfil aprovado fica imutavel')
 
     # --- AK: ciclo de vida da regra e aprovacao com justificativa ----------
