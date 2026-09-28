@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx",
-      "oldString": " * O gateway recusa a mesma chave com conteúdo diferente. Por isso a chave é\n * renovada quando a tentativa termina — inclusive quando ela falha — e quando o\n * diálogo é reaberto. Reutilizar a chave depois de um erro deixaria a tela\n * Unable para sempre com um conteúdo que o servidor já recusou.\n */",
-      "newString": " * O gateway recusa a mesma chave com conteúdo diferente. A chave vale por\n * tentativa: nasce nova quando o diálogo abre e é renovada quando a tentativa\n * termina. Uma tentativa que falhou antes de gravar não consumou a chave, e\n * outra que gravou precisa de uma chave nova para não ser tratada como repetição.\n */"
-    },
-    "timestamp": 1790619020506
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619020542
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx",
       "newString": "/**\n * Chave de idempotência derivada do conteúdo.\n *\n * O gateway recusa a mesma chave com conteúdo diferente e devolve o mesmo\n * resultado para a mesma chave com conteúdo igual. A chave enviada é, portanto,\n * a combinação de um identificador de tentativa (renovado quando a tentativa é\n * concluída com sucesso) com o resumo do payload:\n *\n * - reenviar exatamente o mesmo conteúdo deduplica — protege contra duplo\n *   clique e contra resposta perdida depois da gravação;\n * - alterar o conteúdo gera outra chave — o usuário corrige o formulário e a\n *   tentativa nova executa de fato, sem ser barrada pela chave antiga.\n *\n * Renovar a chave no erro seria o caminho perigoso: se o servidor gravou e a\n * resposta não chegou, uma chave nova executaria a operação uma segunda vez.\n */\nfunction payloadDigest(input: string): string {\n  let hash = 0x811c9dc5;\n  for (let index = 0; index < input.length; index += 1) {\n    hash ^= input.charCodeAt(index);\n    hash = Math.imul(hash, 0x01000193) >>> 0;\n  }\n  return hash.toString(16).padStart(8, \"0\");\n}\n\nexport function useIdempotencyKey() {\n  const [attempt, setAttempt] = useState(() => crypto.randomUUID());\n  const renew = useCallback(() => setAttempt(crypto.randomUUID()), []);\n  const keyFor = useCallback(\n    (payload: unknown) => `${attempt}:${payloadDigest(JSON.stringify(payload ?? null))}`,\n    [attempt],\n  );\n  return { keyFor, renew };\n}",
       "oldString": "/**\n * Chave de idempotência por tentativa.\n *\n * O gateway recusa a mesma chave com conteúdo diferente. A chave é renovada\n * quando a tentativa termina — inclusive quando ela falha — e quando o diálogo é\n * reaberto. Reutilizar a chave depois de um erro deixaria a tela\n * Unable para sempre com um conteúdo que o servidor já recusou.\n */\nexport function useIdempotencyKey() {\n  const [key, setKey] = useState(() => crypto.randomUUID());\n  const renew = useCallback(() => setKey(crypto.randomUUID()), []);\n  return { key, renew };\n}"
     },
@@ -1557,5 +1541,20 @@
     "content": "45\n--- lista sem grant (15 internas) ---\n",
     "is_error": false,
     "timestamp": 1790620160416
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"proname=ANY\\|proname IN\" supabase/migrations/20261010100000_sales_integrity.sql | tail -3",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620165636
+  },
+  {
+    "role": "tool_result",
+    "content": "575:DO $permissions$ DECLARE f record; BEGIN FOR f IN SELECT oid::regprocedure signature,proname FROM pg_proc WHERE pronamespace='public'::regnamespace AND proname LIKE 'sales_%' LOOP EXECUTE format('REVOKE ALL ON FUNCTION %s FROM PUBLIC, anon',f.signature); IF f.proname=ANY(ARRAY['sales_audit','sal",
+    "is_error": false,
+    "timestamp": 1790620165657
   }
 ]
