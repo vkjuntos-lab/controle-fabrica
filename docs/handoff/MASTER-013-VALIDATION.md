@@ -188,7 +188,7 @@ Os 32 grupos do harness de vendas:
 
 ## 10. Defeitos corrigidos na revisão de tela
 
-O typecheck e o build não_foundam nada nesta rodada, porque os defeitos abaixo só existem contra o
+O typecheck e o build não encontraram nada nesta rodada, porque os defeitos abaixo só existem contra o
 banco: campos lidos pela tela que o retorno da RPC não traz, ou trazem com outro nome ou em outro
 nível. Nenhum deles falharia em teste de unidade — aparecia como "—" na tela.
 
