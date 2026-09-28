@@ -1,17 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "<class 'list'>\n",
-    "is_error": false,
-    "timestamp": 1790618072720
-  },
-  {
-    "role": "tool_result",
-    "content": "Found 64 matches\n/root/Zheus AI Projects/controle-fabricas/.chat-history.json:\n  Line 162:       \"command\": \"/bin/bash -lc \\\"cat > /tmp/crm_docs.py <<'PY'\\nfrom pathlib import Path\\ndef save(path,text):\\n p=Path(path)\\n try:p.write_text(text)\\n except PermissionError:\\n  p.rename(Path('.git')/(p.nam",
-    "is_error": false,
-    "timestamp": 1790618072785
-  },
-  {
     "role": "tool",
     "tool": "bash",
     "input": {
@@ -1516,5 +1504,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261012100000_sales_settings_fixes.sql</path>\n<type>file</type>\n<content>\n78:    shipment_requires_full_confirmation=coalesce(nullif(_data->>'shipment_requires_full_confirmation','')::boolean,shipment_requires_full_confirmation),\n7",
     "is_error": false,
     "timestamp": 1790618556014
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261012100000_sales_settings_fixes.sql",
+      "newString": " PERFORM public.sales_audit(_org,'sales_settings.updated','sales_order_settings',cur.id,_data);\n RETURN public.sales_settings(_org);\nEND;\n$$;\n\n-- ---------------------------------------------------------------------\n-- 2. Transportadora: o INSERT passava `modality` como NULL explicito e\n-- quebrava a coluna NOT NULL sempre que a tela nao informava a modalidade.\n-- O botao \"Nova transportadora\" da interface falhava em 100% dos casos.\n-- ---------------------------------------------------------------------\nCREATE OR REPLACE FUNCTION public.sales_carrier_save(_org uuid,_data jsonb,_id uuid DEFAULT NULL)\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE c public.carriers; ident uuid; v_name text; v_status text; v_doc jsonb;\n v_modality text; v_doc_type text; v_doc_number text;\nBEGIN\n PERFORM public.sales_require(_org,'carriers.manage');\n v_name:=nullif(trim(coalesce(_data->>'name','')),'');\n IF v_name IS NULL THEN RAISE EXCEPTION 'Informe o nome da transportadora.'; END IF;\n v_status:=coalesce(nullif(_data->>'status',''),'ACTIVE');\n IF v_status NOT IN ('ACTIVE','INACTIVE') THEN RAISE EXCEPTION 'Situação inválida.'; END IF;\n v_modality:=coalesce(nullif(upper(trim(coalesce(_data->>'modality',''))),''),'COURIER');\n IF v_modality NOT IN ('ROAD','AIR','SEA','COURIER','OWN_FLEET','OTHER') THEN\n  RAISE EXCEPTION 'Modalidade de transporte inválida.';\n END IF;\n v_doc_type:=nullif(_data->>'document_type','');\n IF v_doc_type IS NOT NULL AND v_doc_type NOT IN ('CNPJ','CPF','OTHER') THEN\n  RAISE EXCEPTION 'Tipo de documento inválido.';\n END IF;\n v_doc_number:=nullif(trim(coalesce(_data->>'document_number','')),'');\n IF v_doc_type='CNPJ' AND v_doc_number IS NOT NULL AND v_doc_number !~ '^[0-9]{14}$' THEN\n  RAISE EXCEPTION 'CNPJ inválido.';\n END IF;\n IF v_doc_type='CPF' AND v_doc_number IS NOT NULL AND v_doc_number !~ '^[0-9]{11}$' THEN\n  RAISE EXCEPTION 'CPF inválido.';\n END IF;\n IF _id IS NULL THEN\n  INSERT INTO public.carriers(organization_id,name,document_type,document_number,contact_name,contact_phone,modality,status,notes)\n  VALUES(_org,v_name,v_doc_type,v_doc_number,\n    nullif(trim(coalesce(_data->>'contact_name','')),''),\n    nullif(trim(coalesce(_data->>'contact_phone',_data->>'phone','')),''),v_modality,v_status,\n    nullif(trim(coalesce(_data->>'notes','')),''))\n  RETURNING * INTO c;\n ELSE\n  SELECT * INTO c FROM public.carriers WHERE id=_id AND organization_id=_org FOR UPDATE;\n  IF NOT FOUND THEN RAISE EXCEPTION 'Transportadora não encontrada.'; END IF;\n  UPDATE public.carriers SET name=v_name,document_type=coalesce(v_doc_type,document_type),\n   document_number=coalesce(v_doc_number,document_number),\n   contact_name=coalesce(nullif(trim(coalesce(_data->>'contact_name','')),''),contact_name),\n   contact_phone=coalesce(nullif(trim(coalesce(_data->>'contact_phone',_data->>'phone','')),''),contact_phone),\n   modality=coalesce(nullif(upper(trim(coalesce(_data->>'modality',''))),''),modality),\n   status=v_status,\n   notes=coalesce(nullif(trim(coalesce(_data->>'notes','')),''),notes),updated_at=now() WHERE id=_id;\n  SELECT * INTO c FROM public.carriers WHERE id=_id;\n END IF;\n PERFORM public.sales_audit(_org,coalesce(CASE WHEN _id IS NULL THEN 'carrier.created' ELSE 'carrier.updated' END),\n   'carriers',c.id,jsonb_build_object('name',c.name,'status',c.status,'modality',c.modality));\n SELECT to_jsonb(c) INTO v_doc;\n RETURN v_doc;\nEND;\n$$;",
+      "oldString": " PERFORM public.sales_audit(_org,'sales_settings.updated','sales_order_settings',cur.id,_data);\n RETURN public.sales_settings(_org);\nEND;\n$$;"
+    },
+    "timestamp": 1790618564972
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790618565018
   }
 ]

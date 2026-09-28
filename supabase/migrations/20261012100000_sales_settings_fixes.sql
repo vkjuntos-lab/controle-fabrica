@@ -84,3 +84,59 @@ BEGIN
  RETURN public.sales_settings(_org);
 END;
 $$;
+
+-- ---------------------------------------------------------------------
+-- 2. Transportadora: o INSERT passava `modality` como NULL explicito e
+-- quebrava a coluna NOT NULL sempre que a tela nao informava a modalidade.
+-- O botao "Nova transportadora" da interface falhava em 100% dos casos.
+-- ---------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.sales_carrier_save(_org uuid,_data jsonb,_id uuid DEFAULT NULL)
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE c public.carriers; ident uuid; v_name text; v_status text; v_doc jsonb;
+ v_modality text; v_doc_type text; v_doc_number text;
+BEGIN
+ PERFORM public.sales_require(_org,'carriers.manage');
+ v_name:=nullif(trim(coalesce(_data->>'name','')),'');
+ IF v_name IS NULL THEN RAISE EXCEPTION 'Informe o nome da transportadora.'; END IF;
+ v_status:=coalesce(nullif(_data->>'status',''),'ACTIVE');
+ IF v_status NOT IN ('ACTIVE','INACTIVE') THEN RAISE EXCEPTION 'Situação inválida.'; END IF;
+ v_modality:=coalesce(nullif(upper(trim(coalesce(_data->>'modality',''))),''),'COURIER');
+ IF v_modality NOT IN ('ROAD','AIR','SEA','COURIER','OWN_FLEET','OTHER') THEN
+  RAISE EXCEPTION 'Modalidade de transporte inválida.';
+ END IF;
+ v_doc_type:=nullif(_data->>'document_type','');
+ IF v_doc_type IS NOT NULL AND v_doc_type NOT IN ('CNPJ','CPF','OTHER') THEN
+  RAISE EXCEPTION 'Tipo de documento inválido.';
+ END IF;
+ v_doc_number:=nullif(trim(coalesce(_data->>'document_number','')),'');
+ IF v_doc_type='CNPJ' AND v_doc_number IS NOT NULL AND v_doc_number !~ '^[0-9]{14}$' THEN
+  RAISE EXCEPTION 'CNPJ inválido.';
+ END IF;
+ IF v_doc_type='CPF' AND v_doc_number IS NOT NULL AND v_doc_number !~ '^[0-9]{11}$' THEN
+  RAISE EXCEPTION 'CPF inválido.';
+ END IF;
+ IF _id IS NULL THEN
+  INSERT INTO public.carriers(organization_id,name,document_type,document_number,contact_name,contact_phone,modality,status,notes)
+  VALUES(_org,v_name,v_doc_type,v_doc_number,
+    nullif(trim(coalesce(_data->>'contact_name','')),''),
+    nullif(trim(coalesce(_data->>'contact_phone',_data->>'phone','')),''),v_modality,v_status,
+    nullif(trim(coalesce(_data->>'notes','')),''))
+  RETURNING * INTO c;
+ ELSE
+  SELECT * INTO c FROM public.carriers WHERE id=_id AND organization_id=_org FOR UPDATE;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Transportadora não encontrada.'; END IF;
+  UPDATE public.carriers SET name=v_name,document_type=coalesce(v_doc_type,document_type),
+   document_number=coalesce(v_doc_number,document_number),
+   contact_name=coalesce(nullif(trim(coalesce(_data->>'contact_name','')),''),contact_name),
+   contact_phone=coalesce(nullif(trim(coalesce(_data->>'contact_phone',_data->>'phone','')),''),contact_phone),
+   modality=coalesce(nullif(upper(trim(coalesce(_data->>'modality',''))),''),modality),
+   status=v_status,
+   notes=coalesce(nullif(trim(coalesce(_data->>'notes','')),''),notes),updated_at=now() WHERE id=_id;
+  SELECT * INTO c FROM public.carriers WHERE id=_id;
+ END IF;
+ PERFORM public.sales_audit(_org,coalesce(CASE WHEN _id IS NULL THEN 'carrier.created' ELSE 'carrier.updated' END),
+   'carriers',c.id,jsonb_build_object('name',c.name,'status',c.status,'modality',c.modality));
+ SELECT to_jsonb(c) INTO v_doc;
+ RETURN v_doc;
+END;
+$$;
