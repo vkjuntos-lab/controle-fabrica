@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md",
-      "newString": "- Nova migration validada localmente, não aplicada ao Lovable Cloud nesta execução. Falta smoke\n  test autenticado publicado. Ver relatórios `docs/handoff/MASTER-003-VALIDATION.md`,\n  `docs/handoff/MASTER-006-VALIDATION.md`, `docs/handoff/MASTER-007-VALIDATION.md`,\n  `docs/handoff/MASTER-009-VALIDATION.md`, `docs/handoff/MASTER-010-VALIDATION.md`,\n  `docs/handoff/MASTER-011-VALIDATION.md` e `docs/handoff/MASTER-013-VALIDATION.md`.\n- O MASTER 013 é o caso mais advanced de cobertura de interface: a cobertura é banco real isolado,\n  testes unitários e build, sem navegação em navegador autenticado. Ficam sem verificação prática o\n  agrupamento dos campos nas telas, o seletor com muitas opções e a leitura de erro do gateway na\n  interface.",
-      "oldString": "- Nova migration validada localmente, não aplicada ao Lovable Cloud nesta execução. Falta smoke\n  test autenticado publicado. Ver relatórios `docs/handoff/MASTER-003-VALIDATION.md`,\n  `docs/handoff/MASTER-006-VALIDATION.md`, `docs/handoff/MASTER-007-VALIDATION.md`,\n  `docs/handoff/MASTER-009-VALIDATION.md` e `docs/handoff/MASTER-010-VALIDATION.md`."
-    },
-    "timestamp": 1790620224558
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790620224568
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md",
       "newString": "Erros de lint pré-existentes em arquivos fora do escopo desta fundação (439 erros de\n  formatação em arquivos não editados nesta fase) — não introduzidos por esta sessão. O total\n  global chegou a cerca de 12 mil problemas de Prettier, concentrados em módulos compactados de\n  outros masters; os arquivos de vendas desta revisão estão limpos.",
       "oldString": "Erros de lint pré-existentes em arquivos fora do escopo desta fundação (439 erros de\n  formatação em arquivos não editados nesta fase) — não introduzidos por esta sessão."
     },
@@ -1546,5 +1530,20 @@
     "content": "constants.ts\nidempotency.test.ts\nidempotency.ts\nsales.functions.ts\n=== teste de contrato de migrations no rbac ===\n1:import { readFileSync } from \"node:fs\";\n177:  const migration = readFileSync(\n194:  const migration = readFileSync(\n207:  const migration = readFileSync(\n242:  ].map((path) => readFil",
     "is_error": false,
     "timestamp": 1790621130261
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '170,215p' src/lib/rbac.test.ts; echo \"=== imports de constants no teste de idempotência ===\"; sed -n '1,20p' src/lib/sales/idempotency.test.ts",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790621132949
+  },
+  {
+    "role": "tool_result",
+    "content": "      expect(typeof PERMISSION_LABELS[key]).toBe(\"string\");\n      expect(PERMISSION_LABELS[key].length).toBeGreaterThan(0);\n    }\n  });\n});\n\nit(\"alinha as permissões de reconciliação ao contrato do banco\", () => {\n  const migration = readFileSync(\n    new URL(\"../../supabase/migrations/2026092610000",
+    "is_error": false,
+    "timestamp": 1790621132963
   }
 ]
