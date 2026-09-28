@@ -1,3 +1,4 @@
+import { QuoteToOrder } from "@/components/sales/workspace";
 import { QuoteAvailability } from "./availability";
 import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -383,6 +384,7 @@ function QuoteDetail({ org, id }: { org: string; id: string }) {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+      {status === "ACCEPTED" && <QuoteToOrder org={org} quoteId={quote.id}/>}
           <StatusBadge value={quote?.status} kind="status" />
           {quote && quote.status !== "ACCEPTED" && hasPermission("quotes.update") ? (
             <Button variant="outline" onClick={() => setRevising(true)}>
@@ -602,6 +604,7 @@ function QuoteActions({
   const status = String(quote.status);
   return (
     <div className="flex flex-wrap items-center gap-2">
+      {status === "ACCEPTED" && <QuoteToOrder org={org} quoteId={quote.id}/>}
       {status === "DRAFT" && hasPermission("quotes.update") ? (
         <Button
           variant="outline"

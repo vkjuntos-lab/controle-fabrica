@@ -642,6 +642,7 @@ function Settings({ org }: { org: string }) {
                 : {}),
               demand_sources: [
                 ...(f.historical ? ["HISTORICAL_SALES"] : []),
+                ...(f.confirmed ? ["CONFIRMED_ORDER"] : []),
                 "MANUAL_FORECAST",
                 ...(f.minimum ? ["MINIMUM_STOCK"] : []),
               ],
@@ -765,6 +766,7 @@ function Settings({ org }: { org: string }) {
           />
           Reposição por mínimos/alvo já cadastrados
         </Label>
+        <Label className="flex min-h-11 items-center gap-2"><input name="confirmed" type="checkbox" defaultChecked={Array.isArray(cfg.demand_sources) && cfg.demand_sources.includes("CONFIRMED_ORDER")}/>Pedidos de venda aprovados (consomem forecast; reservas são descontadas uma vez)</Label>
         <Button disabled={mutation.isPending}>Salvar parâmetros</Button>
       </form>
       <section className="space-y-2 rounded border p-4">

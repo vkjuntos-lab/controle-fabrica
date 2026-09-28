@@ -86,6 +86,7 @@ import { Route as AuthenticatedReconciliacaoPeriodosRouteImport } from './routes
 import { Route as AuthenticatedReconciliacaoTabelasPrecoRouteImport } from './routes/_authenticated/reconciliacao/tabelas-preco'
 import { Route as AuthenticatedReconciliacaoVendasRouteImport } from './routes/_authenticated/reconciliacao/vendas'
 import { Route as AuthenticatedRelatoriosRentabilidadeRouteImport } from './routes/_authenticated/relatorios/rentabilidade'
+import { Route as AuthenticatedVendasIndexRouteImport } from './routes/_authenticated/vendas/index'
 import { Route as ApiCronHealthRouteImport } from './routes/api/cron.health'
 import { Route as ApiWebhooksReceiverRouteImport } from './routes/api/webhooks.receiver'
 import { Route as AuthenticatedComercialClientesIdRouteImport } from './routes/_authenticated/comercial/clientes_.$id'
@@ -106,6 +107,7 @@ import { Route as AuthenticatedParceirosRemessasIdRouteImport } from './routes/_
 import { Route as AuthenticatedPlanejamentoExecucoesIdRouteImport } from './routes/_authenticated/planejamento/execucoes_.$id'
 import { Route as AuthenticatedReconciliacaoPeriodosIdRouteImport } from './routes/_authenticated/reconciliacao/periodos_.$id'
 import { Route as AuthenticatedReconciliacaoTabelasPrecoIdRouteImport } from './routes/_authenticated/reconciliacao/tabelas-preco_.$id'
+import { Route as AuthenticatedVendasPedidosIdRouteImport } from './routes/_authenticated/vendas/pedidos.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -558,6 +560,12 @@ const AuthenticatedRelatoriosRentabilidadeRoute =
     path: '/relatorios/rentabilidade',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedVendasIndexRoute =
+  AuthenticatedVendasIndexRouteImport.update({
+    id: '/vendas/',
+    path: '/vendas/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const ApiCronHealthRoute = ApiCronHealthRouteImport.update({
   id: '/api/cron/health',
   path: '/api/cron/health',
@@ -676,6 +684,12 @@ const AuthenticatedReconciliacaoTabelasPrecoIdRoute =
     path: '/reconciliacao/tabelas-preco/$id',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedVendasPedidosIdRoute =
+  AuthenticatedVendasPedidosIdRouteImport.update({
+    id: '/vendas/pedidos/$id',
+    path: '/vendas/pedidos/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -756,6 +770,7 @@ export interface FileRoutesByFullPath {
   '/planejamento/': typeof AuthenticatedPlanejamentoIndexRoute
   '/precificacao/': typeof AuthenticatedPrecificacaoIndexRoute
   '/reconciliacao/': typeof AuthenticatedReconciliacaoIndexRoute
+  '/vendas/': typeof AuthenticatedVendasIndexRoute
   '/comercial/clientes/$id': typeof AuthenticatedComercialClientesIdRoute
   '/comercial/configuracoes/$section': typeof AuthenticatedComercialConfiguracoesSectionRoute
   '/comercial/oportunidades/$id': typeof AuthenticatedComercialOportunidadesIdRoute
@@ -774,6 +789,7 @@ export interface FileRoutesByFullPath {
   '/planejamento/execucoes/$id': typeof AuthenticatedPlanejamentoExecucoesIdRoute
   '/reconciliacao/periodos/$id': typeof AuthenticatedReconciliacaoPeriodosIdRoute
   '/reconciliacao/tabelas-preco/$id': typeof AuthenticatedReconciliacaoTabelasPrecoIdRoute
+  '/vendas/pedidos/$id': typeof AuthenticatedVendasPedidosIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -854,6 +870,7 @@ export interface FileRoutesByTo {
   '/planejamento': typeof AuthenticatedPlanejamentoIndexRoute
   '/precificacao': typeof AuthenticatedPrecificacaoIndexRoute
   '/reconciliacao': typeof AuthenticatedReconciliacaoIndexRoute
+  '/vendas': typeof AuthenticatedVendasIndexRoute
   '/comercial/clientes/$id': typeof AuthenticatedComercialClientesIdRoute
   '/comercial/configuracoes/$section': typeof AuthenticatedComercialConfiguracoesSectionRoute
   '/comercial/oportunidades/$id': typeof AuthenticatedComercialOportunidadesIdRoute
@@ -872,6 +889,7 @@ export interface FileRoutesByTo {
   '/planejamento/execucoes/$id': typeof AuthenticatedPlanejamentoExecucoesIdRoute
   '/reconciliacao/periodos/$id': typeof AuthenticatedReconciliacaoPeriodosIdRoute
   '/reconciliacao/tabelas-preco/$id': typeof AuthenticatedReconciliacaoTabelasPrecoIdRoute
+  '/vendas/pedidos/$id': typeof AuthenticatedVendasPedidosIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -954,6 +972,7 @@ export interface FileRoutesById {
   '/_authenticated/planejamento/': typeof AuthenticatedPlanejamentoIndexRoute
   '/_authenticated/precificacao/': typeof AuthenticatedPrecificacaoIndexRoute
   '/_authenticated/reconciliacao/': typeof AuthenticatedReconciliacaoIndexRoute
+  '/_authenticated/vendas/': typeof AuthenticatedVendasIndexRoute
   '/_authenticated/comercial/clientes_/$id': typeof AuthenticatedComercialClientesIdRoute
   '/_authenticated/comercial/configuracoes/$section': typeof AuthenticatedComercialConfiguracoesSectionRoute
   '/_authenticated/comercial/oportunidades_/$id': typeof AuthenticatedComercialOportunidadesIdRoute
@@ -972,6 +991,7 @@ export interface FileRoutesById {
   '/_authenticated/planejamento/execucoes_/$id': typeof AuthenticatedPlanejamentoExecucoesIdRoute
   '/_authenticated/reconciliacao/periodos_/$id': typeof AuthenticatedReconciliacaoPeriodosIdRoute
   '/_authenticated/reconciliacao/tabelas-preco_/$id': typeof AuthenticatedReconciliacaoTabelasPrecoIdRoute
+  '/_authenticated/vendas/pedidos/$id': typeof AuthenticatedVendasPedidosIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -1054,6 +1074,7 @@ export interface FileRouteTypes {
     | '/planejamento/'
     | '/precificacao/'
     | '/reconciliacao/'
+    | '/vendas/'
     | '/comercial/clientes/$id'
     | '/comercial/configuracoes/$section'
     | '/comercial/oportunidades/$id'
@@ -1072,6 +1093,7 @@ export interface FileRouteTypes {
     | '/planejamento/execucoes/$id'
     | '/reconciliacao/periodos/$id'
     | '/reconciliacao/tabelas-preco/$id'
+    | '/vendas/pedidos/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -1152,6 +1174,7 @@ export interface FileRouteTypes {
     | '/planejamento'
     | '/precificacao'
     | '/reconciliacao'
+    | '/vendas'
     | '/comercial/clientes/$id'
     | '/comercial/configuracoes/$section'
     | '/comercial/oportunidades/$id'
@@ -1170,6 +1193,7 @@ export interface FileRouteTypes {
     | '/planejamento/execucoes/$id'
     | '/reconciliacao/periodos/$id'
     | '/reconciliacao/tabelas-preco/$id'
+    | '/vendas/pedidos/$id'
   id:
     | '__root__'
     | '/'
@@ -1251,6 +1275,7 @@ export interface FileRouteTypes {
     | '/_authenticated/planejamento/'
     | '/_authenticated/precificacao/'
     | '/_authenticated/reconciliacao/'
+    | '/_authenticated/vendas/'
     | '/_authenticated/comercial/clientes_/$id'
     | '/_authenticated/comercial/configuracoes/$section'
     | '/_authenticated/comercial/oportunidades_/$id'
@@ -1269,6 +1294,7 @@ export interface FileRouteTypes {
     | '/_authenticated/planejamento/execucoes_/$id'
     | '/_authenticated/reconciliacao/periodos_/$id'
     | '/_authenticated/reconciliacao/tabelas-preco_/$id'
+    | '/_authenticated/vendas/pedidos/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -1822,6 +1848,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRelatoriosRentabilidadeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/vendas/': {
+      id: '/_authenticated/vendas/'
+      path: '/vendas'
+      fullPath: '/vendas/'
+      preLoaderRoute: typeof AuthenticatedVendasIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/api/cron/health': {
       id: '/api/cron/health'
       path: '/api/cron/health'
@@ -1960,6 +1993,13 @@ declare module '@tanstack/react-router' {
       path: '/reconciliacao/tabelas-preco/$id'
       fullPath: '/reconciliacao/tabelas-preco/$id'
       preLoaderRoute: typeof AuthenticatedReconciliacaoTabelasPrecoIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/vendas/pedidos/$id': {
+      id: '/_authenticated/vendas/pedidos/$id'
+      path: '/vendas/pedidos/$id'
+      fullPath: '/vendas/pedidos/$id'
+      preLoaderRoute: typeof AuthenticatedVendasPedidosIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
   }
@@ -2136,6 +2176,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPlanejamentoIndexRoute: typeof AuthenticatedPlanejamentoIndexRoute
   AuthenticatedPrecificacaoIndexRoute: typeof AuthenticatedPrecificacaoIndexRoute
   AuthenticatedReconciliacaoIndexRoute: typeof AuthenticatedReconciliacaoIndexRoute
+  AuthenticatedVendasIndexRoute: typeof AuthenticatedVendasIndexRoute
   AuthenticatedComercialClientesIdRoute: typeof AuthenticatedComercialClientesIdRoute
   AuthenticatedComercialConfiguracoesSectionRoute: typeof AuthenticatedComercialConfiguracoesSectionRoute
   AuthenticatedComercialOportunidadesIdRoute: typeof AuthenticatedComercialOportunidadesIdRoute
@@ -2149,6 +2190,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPlanejamentoExecucoesIdRoute: typeof AuthenticatedPlanejamentoExecucoesIdRoute
   AuthenticatedReconciliacaoPeriodosIdRoute: typeof AuthenticatedReconciliacaoPeriodosIdRoute
   AuthenticatedReconciliacaoTabelasPrecoIdRoute: typeof AuthenticatedReconciliacaoTabelasPrecoIdRoute
+  AuthenticatedVendasPedidosIdRoute: typeof AuthenticatedVendasPedidosIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -2244,6 +2286,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPlanejamentoIndexRoute: AuthenticatedPlanejamentoIndexRoute,
   AuthenticatedPrecificacaoIndexRoute: AuthenticatedPrecificacaoIndexRoute,
   AuthenticatedReconciliacaoIndexRoute: AuthenticatedReconciliacaoIndexRoute,
+  AuthenticatedVendasIndexRoute: AuthenticatedVendasIndexRoute,
   AuthenticatedComercialClientesIdRoute: AuthenticatedComercialClientesIdRoute,
   AuthenticatedComercialConfiguracoesSectionRoute:
     AuthenticatedComercialConfiguracoesSectionRoute,
@@ -2265,6 +2308,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedReconciliacaoPeriodosIdRoute,
   AuthenticatedReconciliacaoTabelasPrecoIdRoute:
     AuthenticatedReconciliacaoTabelasPrecoIdRoute,
+  AuthenticatedVendasPedidosIdRoute: AuthenticatedVendasPedidosIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

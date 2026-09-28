@@ -1,0 +1,222 @@
+-- MASTER 013: explicit confirmed demand consumes forecast; reservations are deducted once.
+BEGIN;
+CREATE OR REPLACE FUNCTION public.planning_execute(_org uuid,_data jsonb) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE run public.planning_runs;cfg public.planning_settings;sc public.planning_scenarios;r record;it record;d date;startd date;endd date;
+ key text:=_data->>'idempotency_key';sid uuid:=nullif(_data->>'scenario_id','')::uuid;sim boolean:=coalesce((_data->>'simulated')::boolean,false);
+ confirmed numeric; allocated numeric; base numeric;manual numeric;dependent numeric;demand numeric;receipt numeric;bal numeric;rawbal numeric;opening numeric;net numeric;suggested numeric;floorqty numeric;target numeric;
+ lead integer;needed date;oid uuid;kind text;supplier jsonb;factor numeric;details jsonb;missing boolean;total integer;weights integer;runname text;
+BEGIN
+ PERFORM public.planning_require(_org,'planning.read');PERFORM public.planning_require(_org,CASE WHEN sim OR sid IS NOT NULL THEN 'planning.simulate' ELSE 'planning.run' END);PERFORM public.inventory_lock(_org);
+ IF nullif(trim(key),'') IS NULL THEN RAISE EXCEPTION 'Chave de idempotência obrigatória.';END IF;
+ SELECT * INTO run FROM public.planning_runs WHERE organization_id=_org AND request_key=key;
+ IF FOUND THEN IF run.request_payload<>_data THEN RAISE EXCEPTION 'Chave reutilizada com conteúdo diferente.';END IF;RETURN to_jsonb(run);END IF;
+ runname:=coalesce(nullif(trim(_data->>'name'),''),'Planejamento '||key);
+ IF EXISTS(SELECT 1 FROM public.planning_runs WHERE organization_id=_org AND name=runname) THEN RAISE EXCEPTION 'Já existe um planejamento com o nome %. Escolha outro nome.',runname;END IF;
+ PERFORM public.planning_ensure_settings(_org);SELECT * INTO cfg FROM public.planning_settings WHERE organization_id=_org;
+ IF sid IS NOT NULL THEN SELECT * INTO sc FROM public.planning_scenarios WHERE id=sid AND organization_id=_org;IF NOT FOUND THEN RAISE EXCEPTION 'Cenário fora da organização.';END IF;sim:=true;END IF;
+ startd:=coalesce((_data->>'horizon_start')::date,current_date);endd:=coalesce((_data->>'horizon_end')::date,startd+coalesce(sc.horizon_days,cfg.projection_days)-1);
+ IF startd<current_date OR endd<startd OR endd-current_date>=365 THEN RAISE EXCEPTION 'Horizonte deve começar hoje ou no futuro e terminar em até 365 dias.';END IF;
+ IF coalesce(sc.demand_multiplier,1)>100 OR coalesce(sc.safety_stock_multiplier,1)>100 OR abs(coalesce(sc.lead_time_adjustment_days,0))>365 THEN RAISE EXCEPTION 'Cenário fora dos limites operacionais.';END IF;
+ INSERT INTO public.planning_runs(organization_id,name,planning_date,horizon_start,horizon_end,status,time_bucket,planning_method,demand_sources,scenario_id,simulated,request_key,request_payload,parameters_snapshot,started_at,created_by)
+ VALUES(_org,runname,current_date,startd,endd,'PROCESSING',cfg.time_bucket,cfg.forecast_method,cfg.demand_sources,sid,sim,key,_data,
+ jsonb_build_object('settings',to_jsonb(cfg),'scenario',to_jsonb(sc),'calendar','UTC_CALENDAR_DAYS','bom_policy','VALID_AT_PLANNING_DATE','reservations','ACTIVE_INCLUDED_LOCATIONS','confirmed_policy','FORECAST_CONSUMPTION_NO_DOUBLE_COUNT','forecast_policy','ADDITIVE_MANUAL','calculated_at',now()),now(),auth.uid()) RETURNING * INTO run;
+ PERFORM public.planning_audit(_org,'planning.run.created','planning_runs',run.id,_data);
+ BEGIN
+  total:=0;
+  -- Freeze input relations while calculating. No frontend arithmetic and no writer in this block.
+  DROP TABLE IF EXISTS pg_temp.pln_locations,pg_temp.pln_items,pg_temp.pln_edges,pg_temp.pln_depth;
+  CREATE TEMP TABLE pln_locations ON COMMIT DROP AS SELECT l.id,l.type,
+   l.type NOT IN ('PARTNER','TRANSIT') AND l.operational_purpose='NORMAL' AND
+   coalesce(a.include_in_planning,l.type IN ('FACTORY','WAREHOUSE','OWN_STORE')) included
+   FROM public.inventory_locations l LEFT JOIN public.planning_availability a ON a.location_id=l.id AND a.organization_id=_org WHERE l.organization_id=_org AND l.status='ACTIVE';
+  CREATE TEMP TABLE pln_items ON COMMIT DROP AS
+   SELECT v.id,v.sku,p.name,p.item_type::text item_type,(v.status::text='ACTIVE' AND p.status::text='ACTIVE') active,
+    coalesce(v.unit_of_measure_id,(SELECT id FROM public.units_of_measure WHERE organization_id IS NULL AND code='un')) unit,
+    v.safety_stock,v.minimum_stock,v.reorder_point,v.target_stock,v.replenishment_policy,b.id bom_id,b.version bom_version,b.production_lead_time_days,
+    (coalesce(stock.available,0)-coalesce((SELECT sum(rs.quantity-rs.fulfilled_quantity-rs.released_quantity) FROM public.inventory_reservations rs JOIN pg_temp.pln_locations rl ON rl.id=rs.inventory_location_id AND rl.included WHERE rs.organization_id=_org AND rs.variant_id=v.id AND rs.status IN ('ACTIVE','PARTIALLY_CONSUMED')),0))::numeric available,coalesce(stock.partner,0)::numeric partner,coalesce(stock.transit,0)::numeric transit,stock.last_movement,
+    0::numeric daily_demand,NULL::date last_sale,0::integer depth
+   FROM public.product_variants v JOIN public.products p ON p.id=v.product_id
+   LEFT JOIN LATERAL(SELECT b.* FROM public.bill_of_materials b WHERE b.organization_id=_org AND b.product_variant_id=v.id AND b.status IN ('ACTIVE','INACTIVE','ARCHIVED') AND coalesce(b.effective_from,'-infinity')<=current_date AND (b.effective_to IS NULL OR b.effective_to>current_date) ORDER BY b.effective_from DESC NULLS LAST,b.version DESC LIMIT 1)b ON true
+   LEFT JOIN LATERAL(SELECT sum(CASE WHEN m.direction='IN' THEN m.quantity ELSE -m.quantity END) FILTER(WHERE l.included) available,
+    sum(CASE WHEN m.direction='IN' THEN m.quantity ELSE -m.quantity END) FILTER(WHERE l.type='PARTNER') partner,
+    sum(CASE WHEN m.direction='IN' THEN m.quantity ELSE -m.quantity END) FILTER(WHERE l.type='TRANSIT') transit,max(m.occurred_at) last_movement
+    FROM public.inventory_movements m JOIN pg_temp.pln_locations l ON l.id=m.location_id WHERE m.organization_id=_org AND m.variant_id=v.id AND m.status='POSTED' AND m.occurred_at<=now())stock ON true WHERE v.organization_id=_org;
+  IF (SELECT count(*) FROM pg_temp.pln_items)*(endd-current_date+1)>20000 THEN RAISE EXCEPTION 'Limite de 20000 posições diárias por execução; reduza o horizonte.';END IF;
+  CREATE UNIQUE INDEX ON pln_items(id);
+  CREATE TEMP TABLE pln_edges ON COMMIT DROP AS SELECT i.id,i.bom_id,a.id parent,i.component_variant_id child,i.unit_of_measure_id,
+    i.quantity,i.scrap_percentage,(public.cost_conversion(_org,i.unit_of_measure_id,c.unit)->>'factor')::numeric factor
+    FROM pg_temp.pln_items a JOIN public.bill_of_materials_items i ON i.bom_id=a.bom_id AND i.organization_id=_org JOIN pg_temp.pln_items c ON c.id=i.component_variant_id;
+  CREATE TEMP TABLE pln_depth ON COMMIT DROP AS WITH RECURSIVE paths(node,path,cycle) AS(
+   SELECT id,ARRAY[id],false FROM pg_temp.pln_items UNION ALL SELECT e.child,p.path||e.child,e.child=ANY(p.path) FROM paths p JOIN pg_temp.pln_edges e ON e.parent=p.node WHERE NOT p.cycle AND cardinality(p.path)<33)
+   SELECT node,max(cardinality(path)-1) depth,bool_or(cycle) cycle FROM paths GROUP BY node;
+  IF EXISTS(SELECT 1 FROM pg_temp.pln_depth WHERE cycle OR depth>=32) THEN
+   PERFORM public.planning_note(_org,run.id,'BOM_CYCLE_DETECTED','BLOCKING',NULL,'Ciclo ou profundidade superior a 32 níveis. Nenhuma sugestão foi emitida.');
+   UPDATE public.planning_runs SET status='FAILED',error='BOM_CYCLE_DETECTED',completed_at=now() WHERE id=run.id RETURNING * INTO run;RETURN to_jsonb(run);
+  END IF;
+  UPDATE pg_temp.pln_items i SET depth=d.depth FROM pg_temp.pln_depth d WHERE d.node=i.id;
+  -- One source sale = one fact, irrespective of the number of reconciliation records.
+  INSERT INTO public.planning_source_facts(organization_id,planning_run_id,variant_id,source_type,source_id,required_date,quantity,context)
+  SELECT _org,run.id,s.variant_id,'HISTORICAL_SALES',s.id::text,s.sale_date,s.quantity,jsonb_build_object('store_id',s.store_id,'marketplace',st.marketplace,'ownership_type',st.ownership_type,'partner_id',st.partner_id)
+   FROM public.marketplace_sales s JOIN public.marketplace_stores st ON st.id=s.store_id
+   WHERE s.organization_id=_org AND s.variant_id IS NOT NULL AND s.sale_date>=current_date-cfg.history_days AND s.sale_date<current_date
+   AND (s.status='VALIDATED' OR (s.status='RECONCILED' AND EXISTS(SELECT 1 FROM public.partner_reconciliation_items i WHERE i.marketplace_sale_id=s.id AND i.organization_id=_org AND i.status='RECONCILED')))
+   AND cfg.demand_sources ? 'HISTORICAL_SALES';
+  weights:=jsonb_array_length(cfg.weighted_weights);
+  IF cfg.forecast_method='WEIGHTED_MOVING_AVERAGE' AND (weights<1 OR EXISTS(SELECT 1 FROM jsonb_array_elements_text(cfg.weighted_weights)x WHERE x::numeric<=0)) THEN RAISE EXCEPTION 'Pesos inválidos.';END IF;
+  FOR r IN SELECT * FROM pg_temp.pln_items LOOP
+   SELECT max(required_date) INTO d FROM public.planning_source_facts WHERE planning_run_id=run.id AND variant_id=r.id AND source_type='HISTORICAL_SALES';
+   IF d IS NOT NULL AND (SELECT min(required_date) FROM public.planning_source_facts WHERE planning_run_id=run.id AND variant_id=r.id AND source_type='HISTORICAL_SALES')<=current_date-cfg.min_history_days THEN
+    IF cfg.forecast_method='SIMPLE_MOVING_AVERAGE' THEN SELECT sum(quantity)/cfg.history_days INTO base FROM public.planning_source_facts WHERE planning_run_id=run.id AND variant_id=r.id AND source_type='HISTORICAL_SALES';
+    ELSE
+     SELECT sum(coalesce(f.qty,0)*(cfg.weighted_weights->>least(weights-1,floor((current_date-1-g.day::date)::numeric*weights/cfg.history_days)::integer))::numeric)/
+      sum((cfg.weighted_weights->>least(weights-1,floor((current_date-1-g.day::date)::numeric*weights/cfg.history_days)::integer))::numeric)
+      INTO base FROM generate_series((current_date-cfg.history_days)::timestamp,(current_date-1)::timestamp,'1 day')g(day)
+      LEFT JOIN LATERAL(SELECT sum(quantity) qty FROM public.planning_source_facts WHERE planning_run_id=run.id AND variant_id=r.id AND source_type='HISTORICAL_SALES' AND required_date=g.day::date)f ON true;
+    END IF;
+    UPDATE pg_temp.pln_items SET daily_demand=coalesce(base,0),last_sale=d WHERE id=r.id;
+   ELSE
+    UPDATE pg_temp.pln_items SET last_sale=d WHERE id=r.id;
+    IF cfg.demand_sources ? 'HISTORICAL_SALES' AND r.item_type IN ('FINISHED_GOOD','SEMI_FINISHED_GOOD') THEN PERFORM public.planning_note(_org,run.id,'INSUFFICIENT_HISTORY','INFO',r.id,'Histórico insuficiente. Forecast base zero identificado; use ajuste manual.');END IF;
+   END IF;
+  END LOOP;
+  INSERT INTO public.planning_source_facts(organization_id,planning_run_id,variant_id,source_type,source_id,required_date,quantity,context)
+   SELECT _org,run.id,variant_id,'MANUAL_FORECAST',id::text,adjustment_date,quantity,jsonb_build_object('reason',reason,'created_by',created_by)
+   FROM public.forecast_adjustments WHERE organization_id=_org AND adjustment_date BETWEEN startd AND endd AND cfg.demand_sources ? 'MANUAL_FORECAST';
+  -- Scheduled receipts are pending quantities only and require a real expected date and included destination.
+  FOR r IN SELECT i.*,p.destination_location_id,p.id po_id,coalesce(i.expected_delivery_date,p.expected_delivery_date) arrival FROM public.purchase_order_items i JOIN public.purchase_orders p ON p.id=i.purchase_order_id
+   WHERE p.organization_id=_org AND p.status IN ('APPROVED','SENT','RECEIVING') AND i.status IN ('OPEN','PARTIALLY_RECEIVED') AND i.ordered_quantity>i.received_quantity LOOP
+   IF NOT EXISTS(SELECT 1 FROM pg_temp.pln_locations WHERE id=r.destination_location_id AND included) THEN CONTINUE;END IF;
+   IF r.arrival IS NULL OR r.arrival<current_date THEN PERFORM public.planning_note(_org,run.id,'PAST_DUE_REQUIREMENT','WARNING',r.variant_id,'Compra sem data futura confiável: não abatida da necessidade.',jsonb_build_object('purchase_order_id',r.po_id));CONTINUE;END IF;
+   factor:=CASE WHEN r.purchase_unit_id=(SELECT unit FROM pg_temp.pln_items WHERE id=r.variant_id) THEN 1 WHEN r.inventory_unit_id=(SELECT unit FROM pg_temp.pln_items WHERE id=r.variant_id) THEN r.conversion_factor END;
+   IF factor IS NULL OR factor<=0 THEN PERFORM public.planning_note(_org,run.id,'UNIT_CONVERSION_MISSING','BLOCKING',r.variant_id,'Compra pendente sem conversão válida.',jsonb_build_object('purchase_order_item_id',r.id));CONTINUE;END IF;
+   INSERT INTO public.planning_source_facts(organization_id,planning_run_id,variant_id,source_type,source_id,required_date,quantity,context)
+    VALUES(_org,run.id,r.variant_id,'PURCHASE_RECEIPT',r.id::text,r.arrival+coalesce(sc.lead_time_adjustment_days,0),greatest(0,r.ordered_quantity-r.received_quantity)*factor,jsonb_build_object('purchase_order_id',r.po_id,'ordered',r.ordered_quantity,'received',r.received_quantity,'factor',factor,'expected_date',r.arrival));
+  END LOOP;
+  FOR r IN SELECT * FROM public.production_orders WHERE organization_id=_org AND status IN ('RELEASED','IN_PROGRESS') LOOP
+   IF NOT EXISTS(SELECT 1 FROM pg_temp.pln_locations WHERE id=r.destination_location_id AND included) THEN CONTINUE;END IF;
+   SELECT coalesce(sum(o.quantity_good),0) INTO base FROM public.production_outputs o JOIN public.inventory_movements m ON m.id=o.inventory_movement_id WHERE o.production_order_id=r.id AND m.status='POSTED' AND NOT EXISTS(SELECT 1 FROM public.inventory_movements rev WHERE rev.reversal_of_id=m.id);
+   IF r.planned_end_at IS NULL OR r.planned_end_at::date<current_date THEN PERFORM public.planning_note(_org,run.id,'PAST_DUE_REQUIREMENT','WARNING',r.product_variant_id,'Produção sem data futura confiável não é recebimento programado.',jsonb_build_object('production_order_id',r.id));
+   ELSE INSERT INTO public.planning_source_facts(organization_id,planning_run_id,variant_id,source_type,source_id,required_date,quantity,context) VALUES(_org,run.id,r.product_variant_id,'PRODUCTION_RECEIPT',r.id::text,r.planned_end_at::date,greatest(0,r.planned_quantity-base),jsonb_build_object('planned',r.planned_quantity,'posted_good',base));END IF;
+   -- Outstanding material commitment of released production, not a second manufactured-product demand.
+   FOR it IN SELECT * FROM public.production_order_materials WHERE production_order_id=r.id LOOP
+    factor:=(public.cost_conversion(_org,it.unit_of_measure_id,(SELECT unit FROM pg_temp.pln_items WHERE id=it.component_variant_id))->>'factor')::numeric;
+    IF factor IS NULL THEN PERFORM public.planning_note(_org,run.id,'UNIT_CONVERSION_MISSING','BLOCKING',it.component_variant_id,'Consumo programado sem conversão.');CONTINUE;END IF;
+    INSERT INTO public.planning_source_facts(organization_id,planning_run_id,variant_id,source_type,source_id,required_date,quantity,context)
+    VALUES(_org,run.id,it.component_variant_id,'PRODUCTION_REQUIREMENT',it.id::text,greatest(current_date,coalesce(r.planned_start_at::date,current_date)),greatest(0,it.planned_quantity-it.actual_quantity)*factor,jsonb_build_object('production_order_id',r.id,'factor',factor));
+   END LOOP;
+  END LOOP;
+  UPDATE public.planning_runs SET parameters_snapshot=parameters_snapshot||jsonb_build_object('locations',(SELECT coalesce(jsonb_agg(to_jsonb(l)),'[]') FROM pg_temp.pln_locations l),'bom_edges',(SELECT coalesce(jsonb_agg(to_jsonb(e)),'[]') FROM pg_temp.pln_edges e)) WHERE id=run.id;
+  IF cfg.demand_sources ? 'CONFIRMED_ORDER' THEN
+   INSERT INTO public.planning_source_facts(organization_id,planning_run_id,variant_id,source_type,source_id,required_date,quantity,context)
+   SELECT _org,run.id,sd.variant_id,'CONFIRMED_ORDER',sd.id::text,greatest(current_date,sd.required_date),sd.pending_quantity,
+    jsonb_build_object('sales_order_id',sd.sales_order_id,'sales_order_item_id',sd.sales_order_item_id,'reserved_quantity',coalesce((SELECT sum(rs.quantity-rs.fulfilled_quantity-rs.released_quantity) FROM public.inventory_reservations rs JOIN pg_temp.pln_locations rl ON rl.id=rs.inventory_location_id AND rl.included WHERE rs.sales_order_item_id=sd.sales_order_item_id AND rs.status IN ('ACTIVE','PARTIALLY_CONSUMED')),0))
+   FROM public.sales_demands sd WHERE sd.organization_id=_org AND sd.status IN ('OPEN','PARTIAL') AND sd.pending_quantity>0 AND sd.required_date<=endd;
+  END IF;
+  -- Low-level coding: all parents are solved before their shared components. One stock pool per variant.
+  FOR r IN SELECT * FROM pg_temp.pln_items ORDER BY depth,id LOOP
+   supplier:=public.planning_supplier(_org,r.id,r.unit,cfg);bal:=r.available;rawbal:=bal;
+   floorqty:=r.safety_stock*coalesce(sc.safety_stock_multiplier,1);target:=r.target_stock*coalesce(sc.target_stock_multiplier,1);
+   INSERT INTO public.planning_item_snapshots(organization_id,planning_run_id,variant_id,sku,product_name,item_type,unit_of_measure_id,opening_quantity,partner_quantity,transit_quantity,daily_demand,days_of_cover,last_sale_date,last_movement_at,parameters)
+    VALUES(_org,run.id,r.id,r.sku,r.name,r.item_type,r.unit,bal,r.partner,r.transit,r.daily_demand,CASE WHEN r.daily_demand>0 THEN bal/r.daily_demand END,r.last_sale,r.last_movement,to_jsonb(r)||jsonb_build_object('supplier',supplier,'safety_effective',floorqty));
+   IF bal<0 THEN PERFORM public.planning_note(_org,run.id,'NEGATIVE_INVENTORY','WARNING',r.id,'Saldo inicial negativo no ledger.');END IF;
+   FOR d IN SELECT day::date FROM generate_series(current_date::timestamp,endd::timestamp,'1 day')day LOOP
+    opening:=bal;oid:=NULL;suggested:=0;lead:=NULL;needed:=NULL;missing:=false;
+    base:=CASE WHEN d>=startd THEN r.daily_demand*coalesce(sc.demand_multiplier,1) ELSE 0 END;
+    SELECT coalesce(sum(quantity) FILTER(WHERE source_type='MANUAL_FORECAST'),0)*coalesce(sc.demand_multiplier,1),
+      coalesce(sum(quantity) FILTER(WHERE source_type IN ('BOM','PRODUCTION_REQUIREMENT')),0),
+      coalesce(sum(quantity) FILTER(WHERE source_type IN ('PURCHASE_RECEIPT','PRODUCTION_RECEIPT')),0)
+     INTO manual,dependent,receipt FROM public.planning_source_facts WHERE planning_run_id=run.id AND variant_id=r.id AND required_date=d;
+    SELECT coalesce(sum(quantity),0),coalesce(sum((context->>'reserved_quantity')::numeric),0) INTO confirmed,allocated FROM public.planning_source_facts WHERE planning_run_id=run.id AND variant_id=r.id AND required_date=d AND source_type='CONFIRMED_ORDER';
+    demand:=greatest(base+manual-confirmed,0)+greatest(confirmed-allocated,0)+dependent;bal:=bal+receipt-demand;rawbal:=rawbal+receipt-demand;
+    net:=greatest(0,floorqty-bal);
+    IF cfg.minimum_stock_demand AND cfg.demand_sources ? 'MINIMUM_STOCK' AND d>=startd AND r.replenishment_policy<>'MANUAL' AND
+     (r.replenishment_policy='TARGET_STOCK' OR bal<=coalesce(r.reorder_point,r.minimum_stock,0)) THEN net:=greatest(net,coalesce(target,r.minimum_stock,0)-bal);END IF;
+    net:=ceil(net*1000)/1000;
+    IF net>0 THEN
+     kind:=CASE WHEN r.item_type IN ('FINISHED_GOOD','SEMI_FINISHED_GOOD') THEN 'PRODUCTION' ELSE 'PURCHASE' END;
+     IF NOT r.active THEN missing:=true;PERFORM public.planning_note(_org,run.id,'PLANNING_DATA_INCONSISTENT','WARNING',r.id,'Variante/produto inativo ou descontinuado: sugestão bloqueada.');
+     ELSIF kind='PRODUCTION' AND r.bom_id IS NULL THEN missing:=true;PERFORM public.planning_note(_org,run.id,'BOM_MISSING','BLOCKING',r.id,'Produto fabricado sem BOM vigente.');
+     ELSIF kind='PRODUCTION' AND (NOT EXISTS(SELECT 1 FROM pg_temp.pln_edges WHERE parent=r.id) OR EXISTS(SELECT 1 FROM pg_temp.pln_edges e WHERE e.parent=r.id AND e.factor IS NULL)) THEN missing:=true;PERFORM public.planning_note(_org,run.id,'UNIT_CONVERSION_MISSING','BLOCKING',r.id,'BOM vazia ou componente sem conversão oficial.');
+     END IF;
+     IF NOT missing THEN
+      suggested:=net;
+      IF kind='PRODUCTION' THEN lead:=coalesce(r.production_lead_time_days,cfg.production_lead_time_default);
+      ELSE
+       IF supplier IS NULL THEN PERFORM public.planning_note(_org,run.id,'SUPPLIER_MISSING','WARNING',r.id,'Sem fornecedor preferencial único; responsável deve definir o suprimento.');END IF;
+       lead:=(supplier->>'lead_time_days')::integer;
+       IF supplier IS NOT NULL AND supplier->>'conversion_factor' IS NULL THEN missing:=true;suggested:=0;PERFORM public.planning_note(_org,run.id,'UNIT_CONVERSION_MISSING','BLOCKING',r.id,'Catálogo sem conversão de MOQ/múltiplo para unidade de estoque.');
+       ELSE suggested:=greatest(suggested,coalesce((supplier->>'moq')::numeric,0));IF (supplier->>'order_multiple')::numeric>0 THEN suggested:=ceil(suggested/(supplier->>'order_multiple')::numeric)*(supplier->>'order_multiple')::numeric;END IF;END IF;
+      END IF;
+      IF lead IS NULL THEN PERFORM public.planning_note(_org,run.id,'LEAD_TIME_MISSING','WARNING',r.id,'Lead time não configurado/observado; data sugerida indisponível.');
+      ELSE lead:=greatest(0,lead+coalesce(sc.lead_time_adjustment_days,0));needed:=d-lead;IF needed<current_date THEN PERFORM public.planning_note(_org,run.id,'PAST_DUE_REQUIREMENT','WARNING',r.id,'PLANNING_LATE: início sugerido anterior a hoje.',jsonb_build_object('required_date',d,'suggested_date',needed));END IF;END IF;
+      IF NOT missing THEN
+       suggested:=ceil(suggested*1000)/1000;
+       details:=jsonb_build_object('opening',opening,'base_forecast',base,'manual_adjustment',manual,'confirmed_demand',confirmed,'allocated_confirmed',allocated,'dependent_demand',dependent,'gross_requirement',demand,'scheduled_receipts',receipt,'safety_stock',floorqty,'target_stock',target,'net_requirement',net,'suggested_quantity',suggested,'supplier',supplier,'lead_time_days',lead,'required_date',d,'suggested_date',needed,'bom_id',r.bom_id,'bom_version',r.bom_version,'rounding',CASE WHEN suggested>net THEN 'MOQ_OR_ORDER_MULTIPLE' ELSE 'NONE' END);
+       INSERT INTO public.planned_orders(organization_id,planning_run_id,scenario_id,simulated,order_type,variant_id,unit_of_measure_id,quantity,required_date,suggested_start_date,suggested_order_date,suggested_supplier_id,priority,reason,why,moq_applied,moq_value,order_multiple,bom_id)
+        VALUES(_org,run.id,sid,sim,kind,r.id,r.unit,suggested,d,CASE WHEN kind='PRODUCTION' THEN needed END,CASE WHEN kind='PURCHASE' THEN needed END,(supplier->>'supplier_id')::uuid,CASE WHEN needed<current_date THEN 'HIGH' ELSE 'NORMAL' END,'Necessidade líquida calculada; sugestão não executa estoque ou financeiro.',details,coalesce((supplier->>'moq')::numeric>net,false),(supplier->>'moq')::numeric,(supplier->>'order_multiple')::numeric,r.bom_id) RETURNING id INTO oid;
+        total:=total+1;IF total>cfg.max_planned_orders THEN RAISE EXCEPTION 'Limite de sugestões excedido; reduza horizonte.';END IF;
+       IF kind='PRODUCTION' THEN FOR it IN SELECT * FROM pg_temp.pln_edges WHERE parent=r.id LOOP
+        INSERT INTO public.planning_source_facts(organization_id,planning_run_id,variant_id,source_type,source_id,required_date,quantity,context)
+         VALUES(_org,run.id,it.child,'BOM',oid::text,greatest(current_date,coalesce(needed,d)),suggested*it.quantity*(1+it.scrap_percentage/100)*it.factor,to_jsonb(it)||jsonb_build_object('parent_planned_order_id',oid,'parent_quantity',suggested,'original_required_date',needed));
+       END LOOP;END IF;
+       bal:=bal+suggested;
+      END IF;
+     END IF;
+     INSERT INTO public.material_requirements(organization_id,planning_run_id,variant_id,source_kind,required_quantity,available_quantity,scheduled_receipt_quantity,net_requirement,planning_quantity,required_date,suggested_order_date,lead_time_days,unit_of_measure_id,block_reason,calculation)
+      VALUES(_org,run.id,r.id,CASE WHEN dependent>0 THEN 'BOM' ELSE 'TOP' END,demand,opening,receipt,net,suggested,d,needed,lead,r.unit,CASE WHEN missing THEN 'BLOCKING' END,jsonb_build_object('base_forecast',base,'manual',manual,'dependent',dependent,'safety',floorqty,'target',target,'planned_order_id',oid));
+     INSERT INTO public.projected_shortages(organization_id,planning_run_id,variant_id,shortage_date,shortage_quantity,severity,source,detail)
+      VALUES(_org,run.id,r.id,d,net,CASE WHEN missing OR d<=current_date THEN 'CRITICAL' ELSE 'WARNING' END,CASE WHEN dependent>0 THEN 'PRODUCTION_BLOCKING' ELSE 'DEMAND' END,jsonb_build_object('physical_gap',greatest(0,-(opening+receipt-demand)),'buffer_or_target_gap',net,'suggested_order_id',oid,'suggestion_is_not_execution',true));
+    END IF;
+    INSERT INTO public.planning_projections(organization_id,planning_run_id,variant_id,bucket_date,opening_quantity,base_forecast,manual_adjustment,dependent_demand,demand,scheduled_receipts,planned_receipts,projected_without_plans,projected_quantity,safety_stock,target_stock,excess_quantity)
+     VALUES(_org,run.id,r.id,d,opening,base,manual,dependent,demand,receipt,suggested,rawbal,bal,floorqty,target,CASE WHEN target IS NOT NULL THEN greatest(0,bal-target) END);
+   END LOOP;
+  END LOOP;
+  UPDATE public.planning_runs SET status=CASE WHEN EXISTS(SELECT 1 FROM public.planning_exceptions WHERE planning_run_id=run.id) THEN 'COMPLETED_WITH_WARNINGS' ELSE 'COMPLETED' END,completed_at=now(),
+   summary=jsonb_build_object('production_orders',(SELECT count(*) FROM public.planned_orders WHERE planning_run_id=run.id AND order_type='PRODUCTION'),'purchase_orders',(SELECT count(*) FROM public.planned_orders WHERE planning_run_id=run.id AND order_type='PURCHASE'),
+   'shortage_items',(SELECT count(DISTINCT variant_id) FROM public.projected_shortages WHERE planning_run_id=run.id),'material_items',(SELECT count(DISTINCT variant_id) FROM public.material_requirements WHERE planning_run_id=run.id AND source_kind='BOM'),
+   'late_orders',(SELECT count(*) FROM public.planned_orders WHERE planning_run_id=run.id AND coalesce(suggested_start_date,suggested_order_date)<current_date),
+   'average_days_cover',(SELECT avg(days_of_cover) FROM public.planning_item_snapshots WHERE planning_run_id=run.id),
+   'below_safety',(SELECT count(*) FROM public.planning_item_snapshots WHERE planning_run_id=run.id AND opening_quantity<(parameters->>'safety_effective')::numeric)) WHERE id=run.id RETURNING * INTO run;
+ EXCEPTION WHEN OTHERS THEN
+  UPDATE public.planning_runs SET status='FAILED',completed_at=now(),error=SQLERRM WHERE id=run.id RETURNING * INTO run;
+  PERFORM public.planning_note(_org,run.id,'PLANNING_DATA_INCONSISTENT','BLOCKING',NULL,SQLERRM);
+ END;
+ PERFORM public.planning_audit(_org,'planning.run.'||lower(run.status),'planning_runs',run.id,jsonb_build_object('summary',run.summary,'error',run.error));RETURN to_jsonb(run);
+END $$;
+CREATE OR REPLACE FUNCTION public.planning_save(_org uuid,_kind text,_data jsonb) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE result jsonb;v uuid;BEGIN
+ PERFORM public.planning_require(_org,CASE WHEN _kind='scenario' THEN 'planning.simulate' WHEN _kind='forecast' THEN 'planning.adjust_forecast' ELSE 'planning.run' END);PERFORM public.inventory_lock(_org);
+ IF _kind='variant' THEN PERFORM public.planning_require(_org,'products.manage');IF _data ? 'production_lead_time_days' THEN PERFORM public.planning_require(_org,'production.bom.update');END IF;END IF;
+ IF _kind='supplier_product' THEN PERFORM public.planning_require(_org,'suppliers.manage');END IF;
+ IF _kind='settings' THEN
+  IF _data ? 'demand_sources' AND EXISTS(SELECT 1 FROM jsonb_array_elements_text(_data->'demand_sources')x WHERE x NOT IN ('HISTORICAL_SALES','MANUAL_FORECAST','MINIMUM_STOCK','PRODUCTION_REQUIREMENT','CONFIRMED_ORDER')) THEN RAISE EXCEPTION 'Fonte de demanda não implementada.';END IF;
+  IF _data ? 'weighted_weights' AND (jsonb_typeof(_data->'weighted_weights')<>'array' OR jsonb_array_length(_data->'weighted_weights') NOT BETWEEN 1 AND 12 OR EXISTS(SELECT 1 FROM jsonb_array_elements_text(_data->'weighted_weights')x WHERE x::numeric<=0)) THEN RAISE EXCEPTION 'Pesos devem ser positivos, entre 1 e 12 faixas.';END IF;
+  result:=public.planning_settings_save(_org,_data);
+ ELSIF _kind='availability' THEN
+  IF EXISTS(SELECT 1 FROM jsonb_array_elements(_data->'items')i JOIN public.inventory_locations l ON l.id=(i->>'location_id')::uuid WHERE (i->>'include_in_planning')::boolean AND (l.type IN ('PARTNER','TRANSIT') OR l.operational_purpose<>'NORMAL')) THEN RAISE EXCEPTION 'Parceiro, trânsito e quarentena não são estoque fabril disponível.';END IF;
+  IF EXISTS(SELECT 1 FROM jsonb_array_elements(_data->'items')i WHERE i->>'safety_stock' IS NOT NULL) THEN RAISE EXCEPTION 'Configure segurança por variante, não um total indistinto por localização.';END IF;
+  result:=public.planning_availability_save(_org,_data);
+ ELSIF _kind='scenario' THEN
+  IF coalesce((_data->>'is_base')::boolean,false) OR _data->>'scenario_type'='BASE' THEN RAISE EXCEPTION 'Cenário base usa os parâmetros oficiais.';END IF;
+  result:=public.planning_scenario_save(_org,_data);
+  IF _data ? 'target_stock_multiplier' THEN UPDATE public.planning_scenarios SET target_stock_multiplier=(_data->>'target_stock_multiplier')::numeric WHERE id=(result->>'id')::uuid AND organization_id=_org;END IF;
+ ELSIF _kind='forecast' THEN
+   IF nullif(trim(_data->>'id'),'') IS NULL AND EXISTS(SELECT 1 FROM public.forecast_adjustments WHERE organization_id=_org AND variant_id=(_data->>'variant_id')::uuid AND adjustment_date=(_data->>'adjustment_date')::date) THEN RAISE EXCEPTION 'Já existe ajuste para esta variante e data. Edite o ajuste existente.';END IF;
+   result:=public.planning_forecast_adjust_save(_org,_data,nullif(trim(_data->>'id'),'')::uuid);
+ ELSIF _kind='variant' THEN
+  v:=(_data->>'variant_id')::uuid;
+  UPDATE public.product_variants SET safety_stock=(_data->>'safety_stock')::numeric WHERE id=v AND organization_id=_org;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Variante inválida.';END IF;
+  IF _data ? 'production_lead_time_days' THEN UPDATE public.bill_of_materials SET production_lead_time_days=(_data->>'production_lead_time_days')::integer WHERE organization_id=_org AND product_variant_id=v AND status='ACTIVE';END IF;
+  IF _data ? 'purchase_lead_time_days' THEN
+   IF nullif(trim(_data->>'purchase_lead_time_days'),'') IS NOT NULL AND (_data->>'purchase_lead_time_days')::integer<0 THEN RAISE EXCEPTION 'Prazo inválido.';END IF;
+    PERFORM public.planning_ensure_settings(_org);UPDATE public.planning_settings SET lead_time_overrides=CASE WHEN nullif(trim(_data->>'purchase_lead_time_days'),'') IS NULL THEN lead_time_overrides-v::text ELSE lead_time_overrides||jsonb_build_object(v::text,(_data->>'purchase_lead_time_days')::integer) END WHERE organization_id=_org;
+  END IF;
+  result:=jsonb_build_object('id',v);
+ ELSIF _kind='supplier_product' THEN
+  UPDATE public.supplier_products SET order_multiple=(_data->>'order_multiple')::numeric WHERE id=(_data->>'id')::uuid AND organization_id=_org;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Catálogo de fornecedor inválido.';END IF;result:=jsonb_build_object('id',_data->>'id');
+ ELSE RAISE EXCEPTION 'Configuração inválida.';END IF;
+ PERFORM public.planning_audit(_org,'planning.parameter.'||_kind,'planning_settings',_org,_data);RETURN result;
+END $$;
+COMMIT;

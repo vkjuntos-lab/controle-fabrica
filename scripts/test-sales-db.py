@@ -8,7 +8,7 @@ db=importlib.util.module_from_spec(spec);spec.loader.exec_module(db)
 q,sql,uid=db.q,db.sql,db.uid
 def run():
  db.setup()
- for name in ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql','20261001100000_purchasing.sql','20261002100000_planning.sql','20261003100000_planning_engine.sql','20261004100000_planning_fixes.sql','20261005100000_crm.sql','20261006100000_sales_orders.sql']:
+ for name in ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql','20261001100000_purchasing.sql','20261002100000_planning.sql','20261003100000_planning_engine.sql','20261004100000_planning_fixes.sql','20261005100000_crm.sql','20261006100000_crm_integrity.sql','20261006100000_sales_orders.sql','20261007100000_crm_documents.sql','20261008100000_crm_company_services.sql','20261009100000_crm_customer_history.sql','20261010100000_sales_integrity.sql','20261011100000_sales_planning.sql']:
   sql((db.ROOT/'supabase/migrations'/name).read_text())
  today=datetime.date.today()
  (a,commercial,approver,picker,fin,outsider,org,other)=(uid() for _ in range(8))
@@ -49,6 +49,7 @@ def run():
   variants[code]={'v':v,'price':price,'barcode':bc}
  nw(variants['SAP-001']['v'],warehouse);nw(variants['SAP-002']['v'],warehouse)
  assert balance(variants['SAP-001']['v'],warehouse)==100.0
+ crm('discount_authority',{'user_id':a,'max_discount_percent':5,'reason':'Alçada do cenário'})
  print('PASS A: cenario montado; saldo fisico oficial em 100')
 
  # ------------------------------------------------- criacao e preco oficial
@@ -234,8 +235,7 @@ def run():
  # ------------------------------------------- titulo financeiro unico
  assert sql(f"SELECT count(*) FROM account_receivables WHERE source_type='SALE' AND source_id={q(order['id'])}")=='1'
  sql("UPDATE account_receivables SET source_type='SALE'")
- duplicate=rpc('sales_create_receivables',org,order['id'],'ON_DISPATCH',user=fin)
- assert duplicate==0, duplicate
+ call('sales_create_receivables',org,order['id'],'ON_DISPATCH',user=fin,fail='permission denied')
  assert sql(f"SELECT count(*) FROM account_receivables WHERE source_type='SALE' AND source_id={q(order['id'])}")=='1'
  # Titulo proporcional ao que saiu: 19 de 20 unidades aprovadas de 500,00.
  assert sql(f"SELECT open_amount FROM account_receivables WHERE source_id={q(order['id'])} LIMIT 1")=='475.00'
@@ -254,14 +254,14 @@ def run():
  crmact('quote',discounted,'approve',{'reason':'Sem alcada'},fail='alçada')
  crmact('quote',quote,'send');crmact('quote',quote,'accept',{'contact_id':contact,'evidence':'Aceite'})
  key=uid()
- with ThreadPoolExecutor(1) as pool:
-  converted=list(pool.map(lambda _:rpc('sales_convert_quote',org,quote,{},key,user=commercial),range(1)))
+ with ThreadPoolExecutor(2) as pool:
+  converted=list(pool.map(lambda _:rpc('sales_convert_quote',org,quote,{},key,user=commercial),range(2)))
  assert converted[0]['id']==converted[1]['id'], converted
  assert sql(f"SELECT count(*) FROM sales_orders WHERE sales_quote_id={q(quote)}")=='1'
- assert float(sql(f"SELECT unit_price FROM sales_order_items WHERE sales_order_id={q(converted[0]['id'])}"))==22.00
+ assert float(sql(f"SELECT unit_price FROM sales_order_items WHERE sales_order_id={q(converted[0]['id'])}"))==25.00
  again=rpc('sales_convert_quote',org,quote,{},uid(),user=commercial)
  assert again['deduped'] is True and again['id']==converted[0]['id']
- assert sql("SELECT count(*) FROM inventory_movements")=='3'
+ assert sql("SELECT count(*) FROM inventory_movements WHERE movement_type='SALE'")=='2'
  print('PASS R: proposta aceita -> conversao idempotente por chave e por vinculo; preco aceito preservado')
 
  # ----------------------------------------------- cancelamento e reserva
@@ -269,11 +269,11 @@ def run():
  action(order3['id'],'submit',user=commercial);action(order3['id'],'approve',user=approver)
  rpc('sales_reserve',org,order3['id'],{},user=picker)
  assert float(sql(f"SELECT reserved_quantity FROM sales_order_items WHERE sales_order_id={q(order3['id'])}"))==5.0
- assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==81.0
+ assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==80.0
  action(order3['id'],'cancel',{'reason':'Cliente desistiu'},user=approver)
  assert sql(f"SELECT status FROM sales_orders WHERE id={q(order3['id'])}")=='CANCELED'
  assert float(sql(f"SELECT reserved_quantity FROM sales_order_items WHERE sales_order_id={q(order3['id'])}"))==0.0
- assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==86.0
+ assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==85.0
  assert balance(variants['SAP-001']['v'],warehouse)==86.0
  print('PASS S: cancelar libera a reserva e devolve o disponivel sem tocar no saldo fisico')
 
@@ -286,7 +286,7 @@ def run():
  expired=rpc('sales_expire_reservations',org,{},user=picker)
  assert expired['expired']==1, expired
  assert sql(f"SELECT count(*) FROM inventory_reservations WHERE sales_order_id={q(order4['id'])} AND status='EXPIRED'")=='1'
- assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==86.0
+ assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-001']['v'],warehouse])),a))==85.0
  print('PASS T: reserva vencida expira por chamada idempotente e devolve o disponivel')
 
  # ------------------------------------------------ painel, cliente 360
@@ -295,25 +295,98 @@ def run():
  assert dash['open_exceptions']>=1 and dash['by_status'].get('FULFILLED')==1, dash
  assert 'DISPONÍVEL = SALDO FÍSICO - RESERVAS ATIVAS' in dash['definitions']['available_formula']
  activity=rpc('sales_company_activity',org,company,user=fin)
- assert len(activity['orders'])==7 and activity['totals']['orders']==7
+ assert len(activity['orders'])==7 and activity['totals']['orders']==5
  assert len(activity['shipments'])==2 and len(activity['returns'])==2
  full=detail(order['id'])
  assert len(full['items'])==1 and len(full['shipments'])==1 and len(full['returns'])==2
- assert len(full['movements'])==2 and len(full['receivables'])==1
+ assert len(full['movements'])==3 and len(full['receivables'])==1
  assert full['availability']['required_quantity']==20
  print('PASS U: painel e Customer 360 leem dos dados oficiais e declaram as formulas')
 
  # ------------------------------------------------------------- isolamento
- assert query('orders',user=outsider)['total']==0
+ call('sales_query',org,'orders',{},user=outsider,fail='Sem permiss')
  assert sql(f"SELECT count(*) FROM sales_orders WHERE organization_id={q(org)}",outsider)=='0'
  assert sql(f"SELECT count(*) FROM sales_orders WHERE organization_id={q(org)}",fin)=='7'
- sql(f"UPDATE sales_orders SET status='CANCELED' WHERE id={q(order['id'])}",fin,fail='permissao de linha')
- sql(f"DELETE FROM sales_orders WHERE id={q(order['id'])}",approver,fail='imut')
+ sql(f"UPDATE sales_orders SET status='CANCELED' WHERE id={q(order['id'])}",fin,fail='permission denied')
+ sql(f"DELETE FROM sales_orders WHERE id={q(order['id'])}",approver,fail='permission denied')
  print('PASS V: isolamento por organizacao; escrita direta bloqueada; rascunho terminal e imutavel')
 
  # Cliente de outra organizacao nunca enxerga o pedido.
  assert sql(f"SELECT count(*) FROM companies WHERE id={q(company)}",outsider)=='0'
  print('PASS W: empresa do cliente tambem fica presa a organizacao')
+
+ # Segurança em acesso direto: helper, coluna sensível e ID de outro tenant.
+ for helper,args in [('sales_next_number',[org,'order']),('sales_settings',[org]),('sales_credit_check',[org,company,100,None]),('sales_emit',[org,'FAKE','FAKE',{}])]:
+  call(helper,*args,user=commercial,fail='permission denied')
+ call('sales_order_detail',org,order['id'],user=outsider,fail='Sem permiss')
+ call('sales_available',org,variants['SAP-001']['v'],warehouse,user=outsider,fail='Sem permiss')
+ sql(f"SELECT credit_check_result FROM sales_orders WHERE id={q(order['id'])}",commercial,fail='permission denied')
+ assert detail(order['id'],user=picker)['financial_position'] is None
+ assert detail(order['id'],user=picker)['receivables']==[]
+ print('PASS X: direct RPC, tenant IDs, internal helpers and financial columns protected')
+
+ # UI usa gateway transacional: duplo clique cria exatamente um pedido.
+ payload={'company_id':company,'price_table_id':table,'shipping_address_id':address,'payment_terms_snapshot':'15/30','items':[{'variant_id':variants['SAP-002']['v'],'quantity':2}]}
+ key=uid()
+ with ThreadPoolExecutor(2) as pool:
+  created=list(pool.map(lambda _:rpc('sales_execute',org,'save',None,'',payload,key,user=commercial),range(2)))
+ assert created[0]['id']==created[1]['id']
+ call('sales_execute',org,'save',None,'',{**payload,'commercial_notes':'Outro conteúdo'},key,user=commercial,fail='outro conteúdo')
+ assert sql(f"SELECT payment_terms_snapshot FROM sales_orders WHERE id={q(created[0]['id'])}")=='15/30'
+ assert query('settings')['receivable_trigger']=='ON_DISPATCH'
+ assert len(query('addresses',{'company_id':company})['rows'])==1
+ assert any(x['id']==warehouse for x in query('locations')['rows'])
+ print('PASS Y: UI creation gateway idempotency, explicit terms and real lookup contracts')
+
+ # Pedido com duas variantes diferentes, expedições parciais, obrigação monetária proporcional.
+ multi=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'payment_terms_snapshot':'30','items':[
+  {'variant_id':variants['SAP-001']['v'],'quantity':4}, {'variant_id':variants['SAP-002']['v'],'quantity':6}], 'freight_amount':10})
+ action(multi['id'],'submit',user=commercial);action(multi['id'],'approve',user=approver)
+ lines=detail(multi['id'])['items'];one=next(x for x in lines if x['product_variant_id']==variants['SAP-001']['v']);two=next(x for x in lines if x['product_variant_id']==variants['SAP-002']['v'])
+ stock_before=balance(variants['SAP-001']['v'],warehouse)
+ for quantities in [(1,2),(3,4)]:
+  sh=rpc('sales_shipment_create',org,multi['id'],{'source_location_id':warehouse,'items':[{'sales_order_item_id':one['id'],'quantity':quantities[0]},{'sales_order_item_id':two['id'],'quantity':quantities[1]}]},user=picker)
+  rpc('sales_shipment_dispatch',org,sh['id'],{},user=picker)
+  rpc('sales_shipment_dispatch',org,sh['id'],{},user=picker)
+ assert sql(f"SELECT fulfilled_quantity FROM sales_order_items WHERE id={q(one['id'])}")=='4.000'
+ assert sql(f"SELECT fulfilled_quantity FROM sales_order_items WHERE id={q(two['id'])}")=='6.000'
+ assert sql(f"SELECT status FROM sales_orders WHERE id={q(multi['id'])}")=='FULFILLED'
+ assert float(sql(f"SELECT sum(original_amount) FROM account_receivables WHERE source_type='SALE' AND source_id={q(multi['id'])}"))==173
+ assert balance(variants['SAP-001']['v'],warehouse)==stock_before-4
+ assert sql(f"SELECT count(*) FROM sales_demands WHERE sales_order_id={q(multi['id'])} AND status='CLOSED'")=='2'
+ print('PASS Z: multi-SKU partial dispatch, historical lines, incremental receivables including freight and demand synchronization')
+
+ # Crédito inclui valor avaliado, exclui rascunhos e não duplica valor já faturado.
+ crm('credit',{'company_id':company,'credit_limit':1,'block_over_limit':True,'reason':'Teste de limite'})
+ blocked=save(payload);action(blocked['id'],'submit',user=commercial)
+ action(blocked['id'],'approve',user=approver,fail='Crédito insuficiente')
+ crm('credit',{'id':sql(f"SELECT id FROM customer_credit_policies WHERE company_id={q(company)}"),'company_id':company,'credit_limit':100000,'block_over_limit':False,'reason':'Encerrar cenário'})
+ print('PASS AA: credit policy enforced with evaluated amount at approval')
+
+ # Corrida: ambas pretendem reservar todo o mesmo estoque; soma <= disponível.
+ before_available=float(raw('sales_available',','.join(map(q,[org,variants['SAP-002']['v'],warehouse])),a))
+ concurrent=[]
+ for n in range(2):
+  ro=save({**payload,'items':[{'variant_id':variants['SAP-002']['v'],'quantity':before_available}]})
+  action(ro['id'],'submit',user=commercial);action(ro['id'],'approve',user=approver);concurrent.append(ro['id'])
+ with ThreadPoolExecutor(2) as pool:
+  reserved=list(pool.map(lambda oid:rpc('sales_reserve',org,oid,{},user=picker),concurrent))
+ assert sum(x['reserved_total'] for x in reserved)==before_available
+ assert float(raw('sales_available',','.join(map(q,[org,variants['SAP-002']['v'],warehouse])),a))==0
+ noreserve=next(oid for oid,x in zip(concurrent,reserved) if x['reserved_total']==0)
+ line=detail(noreserve)['items'][0]
+ ship=rpc('sales_shipment_create',org,noreserve,{'source_location_id':warehouse,'items':[{'sales_order_item_id':line['id'],'quantity':1}]},user=picker)
+ movements_before=sql('SELECT count(*) FROM inventory_movements')
+ rpc('sales_shipment_dispatch',org,ship['id'],{},user=picker,fail='insuficiente')
+ assert sql('SELECT count(*) FROM inventory_movements')==movements_before
+ print('PASS AB: concurrent reservations and dispatch cannot consume stock reserved by another order; atomic rejection')
+
+ # Recebimento de devolução repetido e limite acumulado.
+ movements_before=sql('SELECT count(*) FROM inventory_movements')
+ assert rpc('sales_return_action',org,ret['id'],'receive',{'quantity':5,'destination':'SELLABLE'},user=picker)['deduped']
+ assert sql('SELECT count(*) FROM inventory_movements')==movements_before
+ rpc('sales_return_create',org,order['id'],{'reason':'Excesso','shipment_id':shipment['id'],'items':[{'sales_order_item_id':sql(f"SELECT id FROM sales_order_items WHERE sales_order_id={q(order['id'])}"),'quantity':13}]},user=a,fail='Quantidade inválida')
+ print('PASS AC: return receive replay and accumulated return ceiling')
 
 if __name__=='__main__':
  try:run()

@@ -1,3 +1,4 @@
+import { CustomerOrders } from "@/components/sales/workspace";
 import {
   CompanyChoice,
   companyChoicePayload,
@@ -148,6 +149,7 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
             ["history", "Histórico comercial"],
             ["finance", "Financeiro"],
             ["documents", "Documentos"],
+            ...(hasPermission("sales_orders.read") ? [["orders", "Pedidos"]] : []),
           ].map(([value, label]) => (
             <TabsTrigger key={value} value={value}>
               {label}
@@ -155,6 +157,7 @@ function Customer360({ org, companyId }: { org: string; companyId: string }) {
           ))}
         </TabsList>
 
+        {hasPermission("sales_orders.read") && <TabsContent value="orders"><CustomerOrders org={org} companyId={companyId}/></TabsContent>}
         <TabsContent value="overview">
           <ResultState loading={loading} error={error} empty={!companyRow && !profileRow}>
             <div className="grid gap-4 lg:grid-cols-2">
