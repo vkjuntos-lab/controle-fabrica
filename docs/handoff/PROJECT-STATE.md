@@ -466,6 +466,13 @@ Validação local; publicação não verificada.
 - Webhooks de domínio (`/api/webhooks/receiver` pronto, mas nenhum provedor externo conectado e
   sem `WEBHOOK_SECRET` definido em ambiente), cron/automações de negócio, filas.
 - Integrações de marketplace por API, pagamentos, e-mail transacional, notificações.
+- Fiscal e NF-e: nada no MASTER 013 emite ou transmite documento fiscal.
+- Rastreamento de transportadora externa: o modo `WEBHOOK` existe como política, mas nenhum
+  provedor está conectado; o rastreio é informado manualmente e o cadastro de recebedor é registro
+  manual de evidência, sem upload de foto nem assinatura digital.
+- Expiração automática de reserva em background: a reserva expira por chamada processada
+  (`sales_expire_reservations`); não há job que a dispare sozinho.
+- Apuração financeira de comissão: não existe no módulo de vendas.
 - Modo DEMO.
 
 ## DECISIONS
