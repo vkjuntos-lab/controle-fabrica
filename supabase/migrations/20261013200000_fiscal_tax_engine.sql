@@ -538,7 +538,7 @@ BEGIN
       coalesce(_data->>'calculation_base','BASE_CALCULO'),
       coalesce((_data->>'is_tax')::boolean,true),
       (_data->>'is_recoverable_default')::boolean,
-      coalesce(_data->>'applies_to','{}'::jsonb),
+      coalesce(_data->'applies_to','{}'::jsonb),
       coalesce((_data->>'is_active')::boolean,true))
     RETURNING * INTO v_row;
   ELSE
@@ -559,7 +559,7 @@ BEGIN
       calculation_base=coalesce(_data->>'calculation_base',calculation_base),
       is_tax=coalesce((_data->>'is_tax')::boolean,is_tax),
       is_recoverable_default=coalesce((_data->>'is_recoverable_default')::boolean,is_recoverable_default),
-      applies_to=coalesce(_data->>'applies_to',applies_to),
+      applies_to=coalesce(_data->'applies_to',applies_to),
       is_active=coalesce((_data->>'is_active')::boolean,is_active), updated_at=now()
     WHERE organization_id=_org AND id=_id RETURNING * INTO v_row;
   END IF;
@@ -635,7 +635,7 @@ BEGIN
     VALUES(_org,_data->>'document_model',_data->>'version',_data->>'source_reference',
       nullif(_data->>'published_at','')::date,coalesce((_data->>'valid_from')::date,CURRENT_DATE),
       nullif(_data->>'valid_to','')::date,nullif(_data->>'implanted_at','')::date,
-      coalesce(_data->>'required_fields','[]'::jsonb),coalesce(_data->>'reform_fields','{}'::jsonb),
+      coalesce(_data->'required_fields','[]'::jsonb),coalesce(_data->'reform_fields','{}'::jsonb),
       'DRAFT',_data->>'homologation_notes',auth.uid())
     RETURNING * INTO v_row;
   ELSE
@@ -650,8 +650,8 @@ BEGIN
       published_at=coalesce(nullif(_data->>'published_at','')::date,published_at),
       valid_from=coalesce((_data->>'valid_from')::date,valid_from),
       valid_to=coalesce(nullif(_data->>'valid_to','')::date,valid_to),
-      required_fields=coalesce(_data->>'required_fields',required_fields),
-      reform_fields=coalesce(_data->>'reform_fields',reform_fields),
+      required_fields=coalesce(_data->'required_fields',required_fields),
+      reform_fields=coalesce(_data->'reform_fields',reform_fields),
       homologation_notes=_data->>'homologation_notes', updated_at=now()
     WHERE organization_id=_org AND id=_id RETURNING * INTO v_row;
   END IF;
@@ -794,7 +794,7 @@ BEGIN
       nullif(_data->>'document_model',''),coalesce((_data->>'version')::integer,1),
       coalesce((_data->>'valid_from')::date,CURRENT_DATE),nullif(_data->>'valid_to','')::date,
       'DRAFT',coalesce((_data->>'priority')::integer,100),
-      coalesce(_data->>'tax_parameters','{}'::jsonb),
+      coalesce(_data->'tax_parameters','{}'::jsonb),
       nullif(_data->>'layout_version_id','')::uuid,_data->>'justification',auth.uid())
     RETURNING * INTO v_rule;
   ELSE
@@ -806,7 +806,7 @@ BEGIN
       RAISE EXCEPTION 'Regra em % só é alterável criando nova versão.',v_rule.status;
     END IF;
     UPDATE public.tax_rules SET priority=coalesce((_data->>'priority')::integer,priority),
-      tax_parameters=coalesce(_data->>'tax_parameters',tax_parameters),
+      tax_parameters=coalesce(_data->'tax_parameters',tax_parameters),
       valid_from=coalesce((_data->>'valid_from')::date,valid_from),
       valid_to=coalesce(nullif(_data->>'valid_to','')::date,valid_to),
       justification=_data->>'justification', updated_at=now()
@@ -846,7 +846,7 @@ BEGIN
     VALUES(_org,(_data->>'product_variant_id')::uuid,_data->>'ncm',nullif(_data->>'cest',''),
       coalesce((_data->>'origin_code')::smallint,0),_data->>'fiscal_unit',
       nullif(_data->>'tax_classification',''),
-      coalesce(_data->>'additional_classification','{}'::jsonb),
+      coalesce(_data->'additional_classification','{}'::jsonb),
       coalesce(_data->>'tax_treatment','DEFAULT'),
       coalesce((_data->>'version')::integer,1),
       coalesce((_data->>'effective_from')::date,CURRENT_DATE),
@@ -864,7 +864,7 @@ BEGIN
       origin_code=coalesce((_data->>'origin_code')::smallint,origin_code),
       fiscal_unit=coalesce(_data->>'fiscal_unit',fiscal_unit),
       tax_classification=coalesce(nullif(_data->>'tax_classification',''),tax_classification),
-      additional_classification=coalesce(_data->>'additional_classification',additional_classification),
+      additional_classification=coalesce(_data->'additional_classification',additional_classification),
       tax_treatment=coalesce(_data->>'tax_treatment',tax_treatment),
       justification=_data->>'justification', updated_at=now()
     WHERE organization_id=_org AND id=_id RETURNING * INTO v_row;
