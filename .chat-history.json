@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sed -n '855,935p' supabase/migrations/20261005100000_crm.sql",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790619892358
-  },
-  {
-    "role": "tool_result",
-    "content": "   FROM sales_opportunities o WHERE organization_id=_org AND status='OPEN' AND public.crm_visible(_org,'sales_opportunities',to_jsonb(o))\n    AND (_filters->>'from' IS NULL OR created_at>=(_filters->>'from')::date) AND (_filters->>'to' IS NULL OR created_at<(_filters->>'to')::date+1);\n  SELECT resul",
-    "is_error": false,
-    "timestamp": 1790619892383
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/reference-picker.tsx",
@@ -1538,5 +1523,21 @@
     "content": "318:export const exceptionStatusLabel = (value: unknown) => label(EXCEPTION_STATUS, value);\n319:export const exceptionSeverityLabel = (value: unknown) => label(EXCEPTION_SEVERITY, value);\n320-export const carrierModalityLabel = (value: unknown) => label(CARRIER_MODALITY, value);\n321-export const ret",
     "is_error": false,
     "timestamp": 1790620790536
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/sales/constants.ts",
+      "newString": "export const exceptionStatusLabel = (value: unknown) => label(EXCEPTION_STATUS, value);\nexport const exceptionSeverityLabel = (value: unknown) => label(EXCEPTION_SEVERITY, value);\nexport const exceptionTypeLabel = (value: unknown) => label(EXCEPTION_TYPE, value);\nexport const proofTypeLabel = (value: unknown) => label(PROOF_TYPE, value);",
+      "oldString": "export const exceptionStatusLabel = (value: unknown) => label(EXCEPTION_STATUS, value);\nexport const exceptionSeverityLabel = (value: unknown) => label(EXCEPTION_SEVERITY, value);"
+    },
+    "timestamp": 1790620794603
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790620794615
   }
 ]

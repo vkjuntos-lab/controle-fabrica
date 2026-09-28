@@ -317,6 +317,8 @@ export const shipmentStatusLabel = (value: unknown) => label(SHIPMENT_STATUS, va
 export const returnStatusLabel = (value: unknown) => label(RETURN_STATUS, value);
 export const exceptionStatusLabel = (value: unknown) => label(EXCEPTION_STATUS, value);
 export const exceptionSeverityLabel = (value: unknown) => label(EXCEPTION_SEVERITY, value);
+export const exceptionTypeLabel = (value: unknown) => label(EXCEPTION_TYPE, value);
+export const proofTypeLabel = (value: unknown) => label(PROOF_TYPE, value);
 export const carrierModalityLabel = (value: unknown) => label(CARRIER_MODALITY, value);
 export const returnDestinationLabel = (value: unknown) => label(RETURN_DESTINATION, value);
 export const shippingMethodLabel = (value: unknown) => label(SHIPPING_METHOD, value);
