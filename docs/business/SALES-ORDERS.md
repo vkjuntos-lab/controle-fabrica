@@ -77,8 +77,8 @@ Conferir confronta o separado com o conferido. **A diferença vira ocorrência, 
 existe caminho em que divergência de separação increase o saldo. A conferência é imutável depois de
 registrada.
 
-Embalagem registra peso e dimensões **medidos**. O sistema nunca estima peso nem calculates volume
-por conta própria. Medidas、分 volumes ficam registrados por expedição para conferência posterior.
+Embalagem registra peso e dimensões **medidos**. O sistema nunca estima peso nem calcula volume
+por conta própria. Medidas e volumes ficam registrados por expedição para conferência posterior.
 
 Expedir exige duas permissões: a de expedição e a de movimentação de inventário. A tela mostra o
 botão; o banco exige as duas.
