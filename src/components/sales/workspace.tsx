@@ -18,7 +18,7 @@ const rows = (v: unknown): Row[] => Array.isArray(v) ? v as Row[] : [];
 const obj = (v: unknown): Row => v && typeof v === "object" && !Array.isArray(v) ? v as Row : {};
 const text = (v: unknown) => v == null ? "" : String(v);
 const qty = (v: unknown) => Number(v ?? 0);
-type Operation = Parameters<typeof mutateSales>[0]["data"]["operation"];
+type Operation = "save" | "convert" | "order" | "reserve" | "reservation" | "fulfillment_create" | "fulfillment" | "scan" | "confirm" | "pack" | "shipment_create" | "dispatch" | "shipment" | "return_create" | "return" | "exception" | "carrier" | "settings" | "expire";
 type Field = { key: string; label: string; type?: string; lookup?: string; options?: string[]; choices?: Row[]; required?: boolean };
 const reason: Field = {key:"reason",label:"Motivo",required:true};
 const quantity: Field = {key:"quantity",label:"Quantidade",type:"number",required:true};

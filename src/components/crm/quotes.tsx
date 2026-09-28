@@ -384,7 +384,7 @@ function QuoteDetail({ org, id }: { org: string; id: string }) {
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-      {status === "ACCEPTED" && <QuoteToOrder org={org} quoteId={quote.id}/>}
+      {status === "ACCEPTED" && quote ? <QuoteToOrder org={org} quoteId={str(quote.id)}/> : null}
           <StatusBadge value={quote?.status} kind="status" />
           {quote && quote.status !== "ACCEPTED" && hasPermission("quotes.update") ? (
             <Button variant="outline" onClick={() => setRevising(true)}>
