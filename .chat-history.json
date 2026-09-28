@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261009100000_crm_customer_history.sql').read_text()\ni=t.find('crm_query')\nb=t[i:i+14000]\nm=re.search(r\"CASE\\s+_kind(.*?)END CASE\", b, re.S)\nprint(m.group(1)[:3000] if m else 'sem CASE')\nPY"
-    },
-    "timestamp": 1790618324115
-  },
-  {
-    "role": "tool_result",
-    "content": "sem CASE\n",
-    "is_error": false,
-    "timestamp": 1790618324170
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261009100000_crm_customer_history.sql').read_text()\ni=t.find('crm_query')\nb=t[i:i+14000]\nfor m in re.finditer(r\"tab\\s*:?=\\s*(CASE[^;]{0,2000})\", b, re.S):\n    print(m.group(1)[:2500])\n    break\nelse:\n    j=b.find('tab:=')\n    print(b[j:j+2500])\nPY"
     },
     "timestamp": 1790618326722
@@ -1543,5 +1529,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790619074298
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/new-order.tsx",
+      "newString": "            {incomplete ? (\n              <p role=\"alert\" className=\"text-sm text-destructive\">\n                Informe cliente, tabela de preços, endereço de entrega e condição acordada, e\n                escolha um produto com quantidade maior que zero em todos os itens.\n              </p>\n            ) : null}\n            {write.error ? (\n              <p role=\"alert\" className=\"text-sm text-destructive\">\n                {write.error.message}\n              </p>\n            ) : null}",
+      "oldString": "            {write.error ? (\n              <p role=\"alert\" className=\"text-sm text-destructive\">\n                {write.error.message}\n              </p>\n            ) : null}"
+    },
+    "timestamp": 1790619078640
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790619078669
   }
 ]

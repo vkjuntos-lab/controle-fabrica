@@ -249,6 +249,12 @@ export function NewOrder({ organizationId }: { organizationId: string }) {
               Nenhuma reserva é criada neste passo: reserva não é baixa de estoque. O preço
               aplicado é o da tabela oficial vigente na data do pedido.
             </p>
+            {incomplete ? (
+              <p role="alert" className="text-sm text-destructive">
+                Informe cliente, tabela de preços, endereço de entrega e condição acordada, e
+                escolha um produto com quantidade maior que zero em todos os itens.
+              </p>
+            ) : null}
             {write.error ? (
               <p role="alert" className="text-sm text-destructive">
                 {write.error.message}
