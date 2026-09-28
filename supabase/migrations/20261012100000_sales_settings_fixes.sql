@@ -14,6 +14,7 @@
 CREATE OR REPLACE FUNCTION public.sales_settings_save(_org uuid,_data jsonb)
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE cur public.sales_order_settings; cfg jsonb; v_key uuid;
+ v_field text; v_value text;
 BEGIN
  PERFORM public.sales_require(_org,'sales.configure');
  PERFORM public.sales_ensure_settings(_org);
