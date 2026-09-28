@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sed -n '3183,3398p' supabase/migrations/20261006100000_sales_orders.sql | grep -nE \"_kind='[a-z_]+'|FROM public\\.[a-z_]+ (AS )?[a-z]+|jsonb_agg\" | head -50",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620559055
-  },
-  {
-    "role": "tool_result",
-    "content": "17: IF _kind='orders' THEN\n27:  SELECT coalesce(jsonb_agg(to_jsonb(x) ORDER BY x.order_date DESC,x.order_number DESC),'[]'::jsonb) INTO v_rows\n32:     (SELECT count(*) FROM public.sales_order_items i WHERE i.sales_order_id=o.id) AS item_count,\n33:     (SELECT count(*) FROM public.shipments s WHERE s",
-    "is_error": false,
-    "timestamp": 1790620559095
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"AREAS\\|^  [a-z]*: {$\\|columns:\" src/components/sales/areas.tsx | head -40",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1541,5 +1526,21 @@
     "content": "=== TYPECHECK ===\n> typecheck\n> tsc --noEmit\n\n=== LINT (vendas + rbac) ===\n\n✖ 1 problem (0 errors, 1 warning)\n\n=== TESTES ===\n ✓ src/lib/sales/idempotency.test.ts (11 tests) 101ms\n ✓ src/lib/rbac.test.ts (18 tests) 28ms\n ✓ src/lib/crm/crm.test.ts (23 tests) 33ms\n ✓ src/lib/sales/constants.test.ts (1",
     "is_error": false,
     "timestamp": 1790621440972
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && npm run test:sales:db\" 2>&1 | tail -6",
+      "timeout": 900000,
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790621449243
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS AA: credit policy enforced with evaluated amount at approval\nPASS AB: concurrent reservations and dispatch cannot consume stock reserved by another order; atomic rejection\nPASS AC: return receive replay and accumulated return ceiling\nPASS AD: every button of the sales screen has a working gatew",
+    "is_error": false,
+    "timestamp": 1790621456325
   }
 ]
