@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/reference-picker.tsx",
-      "newString": "/**\n * Filtros fixos por tipo.\n *\n * Só a proposta aceita vira pedido: converter uma proposta em rascunho ou\n * recusada não é conversão, é um desvio do fluxo comercial. O filtro vai no\n * servidor porque a tela não pode decidir quem é elegível.\n */\nconst PICKER_FILTERS: Partial<Record<PickerKind, Record<string, string>>> = {\n  quotes: { status: \"ACCEPTED\" },\n};\n\nexport function ReferencePicker({\n  organizationId,\n  kind,\n  value,\n  onChange,\n  label,\n  required,\n  disabled,\n  emptyHint,\n}: {\n  organizationId: string;\n  kind: PickerKind;\n  value: string;\n  onChange: (value: string) => void;\n  label: string;\n  required?: boolean;\n  disabled?: boolean;\n  emptyHint?: string;\n}) {\n  const api = useServerFn(queryCrm);\n  const [term, setTerm] = useState(\"\");\n  const [page, setPage] = useState(1);\n  // Rótulo da escolha corrente: quando a opção sai da busca, o valor continua\n  // selecionado e precisa continuar legível — o UUID não ajuda ninguém.\n  const [chosen, setChosen] = useState<{ id: string; label: string } | null>(null);\n\n  useEffect(() => setPage(1), [term]);\n\n  const fixed = PICKER_FILTERS[kind] ?? {};\n  const options = useQuery({\n    queryKey: [\"sales\", organizationId, \"picker\", kind, term, page, fixed],\n    queryFn: async () => {\n      const response = await api({\n        data: {\n          organizationId,\n          kind,\n          filters: { ...fixed, ...(term ? { q: term } : {}) },\n          page,\n        },\n      });\n      return { rows: (response.rows ?? []) as Row[], total: Number(response.total ?? 0) };\n    },\n    enabled: Boolean(organizationId) && !disabled,\n  });\n\n  const describe = PICKER_LABEL[kind];\n  const options_ = options.data?.rows ?? [];\n  const current = options_.find((row) => text(row.id) === value);\n  const currentLabel = current ? describe(current) : chosen?.id === value ? chosen.label : \"\";\n  const total = options.data?.total ?? 0;\n  const pages = Math.max(1, Math.ceil(total / 50));",
-      "oldString": "export function ReferencePicker({\n  organizationId,\n  kind,\n  value,\n  onChange,\n  label,\n  required,\n  disabled,\n  emptyHint,\n}: {\n  organizationId: string;\n  kind: PickerKind;\n  value: string;\n  onChange: (value: string) => void;\n  label: string;\n  required?: boolean;\n  disabled?: boolean;\n  emptyHint?: string;\n}) {\n  const api = useServerFn(queryCrm);\n  const [term, setTerm] = useState(\"\");\n  const [page, setPage] = useState(1);\n\n  useEffect(() => setPage(1), [term]);\n\n  const options = useQuery({\n    queryKey: [\"sales\", organizationId, \"picker\", kind, term, page],\n    queryFn: async () => {\n      const response = await api({\n        data: { organizationId, kind, filters: term ? { q: term } : {}, page },\n      });\n      return { rows: (response.rows ?? []) as Row[], total: Number(response.total ?? 0) };\n    },\n    enabled: Boolean(organizationId) && !disabled,\n  });\n\n  const describe = PICKER_LABEL[kind];\n  const options_ = options.data?.rows ?? [];\n  const selected = options_.find((row) => text(row.id) === value);\n  const total = options.data?.total ?? 0;\n  const pages = Math.max(1, Math.ceil(total / 50));"
-    },
-    "timestamp": 1790619912749
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619912763
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/reference-picker.tsx",
       "newString": "      <div className=\"space-y-1\">\n        <Label>{label}</Label>\n        {value && currentLabel ? (\n          <p className=\"text-sm\">\n            Selecionado: <span className=\"font-medium\">{currentLabel}</span>\n          </p>\n        ) : null}\n        <Input\n          placeholder=\"Buscar\"\n          aria-label={`${label}: buscar`}\n          value={term}\n          onChange={(event) => setTerm(event.target.value)}\n          disabled={disabled}\n        />",
       "oldString": "      <div className=\"space-y-1\">\n        <Label>{label}</Label>\n        <Input\n          placeholder=\"Buscar\"\n          aria-label={`${label}: buscar`}\n          value={term}\n          onChange={(event) => setTerm(event.target.value)}\n          disabled={disabled}\n        />"
     },
@@ -1539,5 +1523,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790620794615
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
+      "limit": 45,
+      "offset": 505
+    },
+    "timestamp": 1790620797723
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx</path>\n<type>file</type>\n<content>\n505: \n506: function ShipmentActions({\n507:   organizationId,\n508:   orderId,\n509:   shipment,\n510:   shipmentItems,\n511: }: {\n512:   organizationId: string;\n513:   orderId: string",
+    "is_error": false,
+    "timestamp": 1790620797737
   }
 ]
