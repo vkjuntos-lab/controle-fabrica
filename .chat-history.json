@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/new-order.tsx",
-      "newString": "  const [items, setItems] = useState([{ variant: \"\", quantity: 1 }]);\n  const [incomplete, setIncomplete] = useState(false);",
-      "oldString": "  const [items, setItems] = useState([{ variant: \"\", quantity: 1 }]);\n  const { key, renew } = useIdempotencyKey();"
-    },
-    "timestamp": 1790619060821
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619060833
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/new-order.tsx",
       "newString": "  if (!hasPermission(\"sales_orders.create\")) return null;\n\n  const addressOptions = rows(object(addresses.data).rows).map((row) => ({\n    id: String(row.id ?? \"\"),\n    label: [row.street, row.number, row.district, row.city, row.state]\n      .filter(Boolean)\n      .join(\", \"),\n  }));\n\n  const submit = () => {\n    if (quote) {\n      write.mutate({ operation: \"convert\", id: quote, values: {} });\n      return;\n    }\n    // Os seletores de proposta, cliente, tabela e produto são botões: o navegador\n    // não valida `required` neles. A verificação é feita aqui para não enviar um\n    // pedido incompleto e deixar o servidor recusá-lo.\n    const missingItem = items.some(\n      (item) => item.variant === \"\" || !(item.quantity > 0),\n    );\n    if (company === \"\" || priceTable === \"\" || address === \"\" || terms.trim() === \"\" || missingItem) {\n      setIncomplete(true);\n      return;\n    }\n    setIncomplete(false);\n    write.mutate({",
       "oldString": "  if (!hasPermission(\"sales_orders.create\")) return null;\n\n  const addressOptions = rows(addresses.data).map((row) => ({\n    id: String(row.id ?? \"\"),\n    label: [row.street, row.number, row.district, row.city, row.state]\n      .filter(Boolean)\n      .join(\", \"),\n  }));\n\n  const submit = () => {\n    if (quote) {\n      write.mutate({ operation: \"convert\", id: quote, values: {} });\n      return;\n    }\n    write.mutate({"
     },
@@ -1556,5 +1540,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790620172187
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/MASTER-013-VALIDATION.md",
+      "newString": "Porta única de escrita: `sales_execute`. Leitura por `sales_query`, `sales_order_detail` e\n`sales_dashboard`. Catorze funções `sales_*` são internas e permanecem sem `GRANT` a `authenticated`:\n`sales_audit`, `sales_emit`, `sales_ensure_settings`, `sales_next_number`, `sales_prepare_item`,\n`sales_insert_order`, `sales_validate_order`, `sales_receivable_total`, `sales_create_receivables`,\n`sales_open_exception`, `sales_credit_check`, `sales_settings`, `sales_guard_relations` e\n`sales_immutable`.",
+      "oldString": "Porta única de escrita: `sales_execute`. Leitura por `sales_query`, `sales_order_detail` e\n`sales_dashboard`. Oito das 41 funções `sales_*` são internas e sem `GRANT` a `authenticated`."
+    },
+    "timestamp": 1790620175364
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790620175378
   }
 ]

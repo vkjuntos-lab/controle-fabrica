@@ -143,7 +143,11 @@ com `source_type = 'SALE'`. Cancelar pedido com recebível em aberto é recusado
 ## 7. Serviços e eventos
 
 Porta única de escrita: `sales_execute`. Leitura por `sales_query`, `sales_order_detail` e
-`sales_dashboard`. Oito das 41 funções `sales_*` são internas e sem `GRANT` a `authenticated`.
+`sales_dashboard`. Catorze funções `sales_*` são internas e permanecem sem `GRANT` a `authenticated`:
+`sales_audit`, `sales_emit`, `sales_ensure_settings`, `sales_next_number`, `sales_prepare_item`,
+`sales_insert_order`, `sales_validate_order`, `sales_receivable_total`, `sales_create_receivables`,
+`sales_open_exception`, `sales_credit_check`, `sales_settings`, `sales_guard_relations` e
+`sales_immutable`.
 
 Eventos publicados na mesma transação: `SALES_ORDER_CREATED`, `SALES_ORDER_APPROVED`,
 `SALES_ORDER_CANCELED`, `SALES_ORDER_STATUS_CHANGED`, `SALES_ORDER` e `SALES_DEMAND`. A aprovação
