@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { useOrganization } from "@/lib/org/org-context";
 import { ReferencePicker } from "@/components/sales/reference-picker";
-import { useIdempotencyKey, useSalesRead, useSalesWrite, object, rows } from "@/components/sales/shared";
+import { useSalesRead, useSalesWrite, object, rows } from "@/components/sales/shared";
 import type { Json } from "@/integrations/supabase/types";
 
 /**
