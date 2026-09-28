@@ -36,16 +36,18 @@ export const isMoneyColumn = (column: string): boolean =>
 /** Monta a query de leitura de uma área do módulo. */
 export function useSalesRead(organizationId: string, kind: string, id?: string, filters: Row = {}) {
   const api = useServerFn(readSales);
-  const stable = useMemo(() => filters, [JSON.stringify(filters)]);
+  // O filtro entra na chave já serializado: um objeto novo a cada render não
+  // provoca nova consulta, e um filtro de verdade diferente provoca.
+  const serialized = JSON.stringify(filters);
   return useQuery({
-    queryKey: ["sales", organizationId, kind, id, stable],
+    queryKey: ["sales", organizationId, kind, id, serialized],
     queryFn: () =>
       api({
         data: {
           organizationId,
           kind,
           id,
-          filters: stable as Record<string, Json>,
+          filters: JSON.parse(serialized) as Record<string, Json>,
         } as never,
       }),
     enabled: Boolean(organizationId),

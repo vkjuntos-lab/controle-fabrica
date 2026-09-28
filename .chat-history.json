@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py",
-      "newString": "'20261010100000_sales_integrity.sql','20261011100000_sales_planning.sql','20261012100000_sales_settings_fixes.sql']:",
-      "oldString": "'20261010100000_sales_integrity.sql','20261011100000_sales_planning.sql']:"
-    },
-    "timestamp": 1790618501112
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790618501133
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && npm run test:sales:db\" 2>&1 | tail -16",
@@ -1530,5 +1514,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx</path>\n<type>file</type>\n<content>\n28:   value === null || value === undefined ? \"\" : String(value);\n29: export const numeric = (value: unknown): number => Number(value ?? 0);\n30: export const truthy = (value: unknown): ",
     "is_error": false,
     "timestamp": 1790619306475
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx",
+      "newString": "/** Monta a query de leitura de uma área do módulo. */\nexport function useSalesRead(organizationId: string, kind: string, id?: string, filters: Row = {}) {\n  const api = useServerFn(readSales);\n  // O filtro entra na chave já serializado: um objeto novo a cada render não\n  // provoca nova consulta, e um filtro de verdade diferente provoca.\n  const serialized = JSON.stringify(filters);\n  return useQuery({\n    queryKey: [\"sales\", organizationId, kind, id, serialized],\n    queryFn: () =>\n      api({\n        data: {\n          organizationId,\n          kind,\n          id,\n          filters: JSON.parse(serialized) as Record<string, Json>,\n        } as never,\n      }),\n    enabled: Boolean(organizationId),\n  });\n}",
+      "oldString": "/** Monta a query de leitura de uma área do módulo. */\nexport function useSalesRead(organizationId: string, kind: string, id?: string, filters: Row = {}) {\n  const api = useServerFn(readSales);\n  const stable = useMemo(() => filters, [JSON.stringify(filters)]);\n  return useQuery({\n    queryKey: [\"sales\", organizationId, kind, id, stable],\n    queryFn: () =>\n      api({\n        data: {\n          organizationId,\n          kind,\n          id,\n          filters: stable as Record<string, Json>,\n        } as never,\n      }),\n    enabled: Boolean(organizationId),\n  });\n}"
+    },
+    "timestamp": 1790619310492
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790619310506
   }
 ]
