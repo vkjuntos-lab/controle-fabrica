@@ -1,34 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 318, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 117, in run\n    rpc('sales_reserve',org,order['id'],{'items':[{'sales_order_item_id':sql(f\"SE",
-    "is_error": false,
-    "timestamp": 1790594145749
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20261010100000_sales_integrity.sql');s=p.read_text();s=s.replace(\\\"  IF v_pend<=0 THEN\\\", \\\"  IF nullif(i->>'inventory_location_id','') IS NOT NULL AND NOT EXISTS(SELECT 1 FROM public.inventory_locations WHERE id=(i->>'inventory_location_id')::uuid AND organization_id=_org AND status='ACTIVE' AND operational_purpose='NORMAL' AND partner_id IS NULL AND type NOT IN ('TRANSIT','PARTNER')) THEN RAISE EXCEPTION 'Localização não é autorizada para venda direta.'; END IF;\\\\n  IF v_pend<=0 THEN\\\");p.write_text(s)\nPY\npython3 scripts/test-sales-db.py > .git/sales-db.log 2>&1\""
-    },
-    "timestamp": 1790594158029
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"sed -n '245,283p' src/components/crm/shared.tsx; cat src/components/states.tsx | head -n 90; sed -n '1,75p' src/components/layout/app-shell.tsx\""
-    },
-    "timestamp": 1790594159074
-  },
-  {
-    "role": "tool_result",
-    "content": "export function Picker({\n  org,\n  kind,\n  value,\n  onChange,\n  label,\n  id,\n}: {\n  org: string;\n  kind: string;\n  value: string;\n  onChange: (value: string) => void;\n  label?: string;\n  id?: string;\n}) {\n  const api = useServerFn(queryCrm);\n  const [term, setTerm] = useState(\"\");\n  const [page, setP",
-    "is_error": false,
-    "timestamp": 1790594159083
-  },
-  {
-    "role": "tool_result",
     "content": "",
     "is_error": true,
     "timestamp": 1790594161260
@@ -1433,5 +1405,33 @@
     "content": "tab:='customer_credit_policies';perm:='commercial_sensitive.read';\n WHEN 'customers' THEN tab:='customer_profiles';perm:='customers.read';\n WHEN 'companies' THEN tab:='companies';perm:='customers.read';\n WHEN 'contacts' THEN tab:='company_contacts';perm:='customers.read';\n WHEN 'leads' THEN tab:='le",
     "is_error": false,
     "timestamp": 1790618328829
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '60,100p' src/components/crm/shared.tsx"
+    },
+    "timestamp": 1790618336107
+  },
+  {
+    "role": "tool_result",
+    "content": "};\n\nexport const selectClass = \"h-10 w-full rounded-md border border-input bg-background px-3 text-sm\";\nconst inputClass = \"w-full rounded-md border border-input bg-background px-3 py-2 text-sm\";\n\n/** Exibe qualquer valor vindo de `crm_query` sem quebrar a tabela. */\nexport const str = (value: unkno",
+    "is_error": false,
+    "timestamp": 1790618336118
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"CREATE TABLE public.sales_quotes\" -A 20 supabase/migrations/20261005100000_crm.sql | head -25"
+    },
+    "timestamp": 1790618336146
+  },
+  {
+    "role": "tool_result",
+    "content": "161:CREATE TABLE public.sales_quotes (\n162- id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES public.organizations,\n163- company_id uuid NOT NULL, FOREIGN KEY(organization_id,company_id) REFERENCES public.companies(organization_id,id),representative_id uuid , FO",
+    "is_error": false,
+    "timestamp": 1790618336169
   }
 ]
