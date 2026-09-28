@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
-      "newString": "        {order.expected_delivery_date ? (\n          <p className=\"text-sm text-muted-foreground\">\n            Previsão de entrega: {str(order.expected_delivery_date)}\n          </p>\n        ) : null}\n        {text(quote.id) ? (\n          <p className=\"text-sm text-muted-foreground\">\n            Proposta de origem: {str(quote.number)} (versão {str(quote.version)},{\" \"}\n            {str(quote.status)}). O preço aceito é o da proposta; a tela não o recalcula.\n          </p>\n        ) : null}",
-      "oldString": "        {order.expected_delivery_date ? (\n          <p className=\"text-sm text-muted-foreground\">\n            Previsão de entrega: {str(order.expected_delivery_date)}\n          </p>\n        ) : null}"
-    },
-    "timestamp": 1790621072690
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790621072704
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -n \"const order = \\|const data = \\|const status = \" src/components/sales/order-detail.tsx | head -5",
@@ -1577,5 +1561,20 @@
     "content": "106:  UNIQUE(organization_id,id)\n140:  UNIQUE(organization_id,code,version),\n192:  UNIQUE(organization_id,code),\n354:  UNIQUE(organization_id,code)\n397:  UNIQUE(organization_id,id),\n",
     "is_error": false,
     "timestamp": 1790622249418
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"UNIQUE(organization_id\" supabase/migrations/20260917110000_catalog_mestre.sql | head; echo \"=== product_variants tem unique composta? ===\"; awk \"/CREATE TABLE.*product_variants \\(/,/^\\);/\" supabase/migrations/20260917110000_catalog_mestre.sql | grep -n \"UNIQUE\"",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622253079
+  },
+  {
+    "role": "tool_result",
+    "content": "=== product_variants tem unique composta? ===\n18:  UNIQUE (organization_id, sku),\n19:  UNIQUE (organization_id, barcode)\n",
+    "is_error": false,
+    "timestamp": 1790622253096
   }
 ]
