@@ -451,8 +451,9 @@ Validação local; publicação não verificada.
   duplicar lojas nem baixar estoque por MarketplaceSale. O registro de vendas é manual com o mesmo
   contrato; a importação automática de provedores reais é pendência.
 - Valorização financeira do estoque (custo/valor por movimento) — o ledger registra quantidades.
-- Integração automática de venda/produção/compra com o ledger (hoje os lançamentos são feitos
-  pelas telas de estoque; os módulos de origem ainda não existem).
+- Integração automática de venda/produção/compra com o ledger: o MASTER 013 ligou a venda ao ledger
+  pela expedição e ao MRP pela aprovação, mas a produção ainda não gera movimento
+  (`PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`) — hoje ela é apontada pelas telas de estoque.
 - Atributos personalizados editáveis na tela (o campo `attributes` jsonb já existe nas tabelas
   de produto/variante).
 - Importação CSV/XLSX com mapeamento configurável de colunas e `external_sku`.
