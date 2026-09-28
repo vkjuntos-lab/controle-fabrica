@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "write",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261012100000_sales_settings_fixes.sql",
-      "content": "-- =====================================================================\n-- MASTER 013 (continuacao) — correcoes de_settings de vendas.\n--\n-- A migration 20261006100000_sales_orders.sql declarava `v_key text` e\n-- recebia `cur.id` (uuid). Ao gravar as politicas, a chamada a `sales_audit`\n-- recebia um text onde a assinatura exige uuid e a tela de Configuracoes\n-- falhava sempre com \"function public.sales_audit(uuid, unknown, unknown,\n-- text, jsonb) does not exist\". Nenhum teste cobria a escrita: o harness\n-- apenas lia as politicas.\n--\n-- A migration publicada e preservada; a correcao vem em arquivo novo.\n-- =====================================================================\n\nCREATE OR REPLACE FUNCTION public.sales_settings_save(_org uuid,_data jsonb)\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE cur public.sales_order_settings; cfg jsonb; v_key uuid;\nBEGIN\n PERFORM public.sales_require(_org,'sales.configure');\n PERFORM public.sales_ensure_settings(_org);\n SELECT * INTO cur FROM public.sales_order_settings WHERE organization_id=_org FOR UPDATE;\n IF NOT FOUND THEN RAISE EXCEPTION 'Politicas de vendas nao encontradas.'; END IF;\n v_key:=cur.id;\n IF nullif(_data->>'reservation_policy','') IS NOT NULL\n    AND _data->>'reservation_policy' NOT IN ('FULL_ONLY','ALLOW_PARTIAL','ALLOW_NEGATIVE_AVAILABLE') THEN\n  RAISE EXCEPTION 'Politica de reserva invalida.';\n END IF;\n IF nullif(_data->>'price_override_policy','') IS NOT NULL\n    AND _data->>'price_override_policy' NOT IN ('BLOCK','ALLOW_WITH_AUTHORIZATION') THEN\n  RAISE EXCEPTION 'Politica de preco invalida.';\n END IF;\n IF nullif(_data->>'receivable_trigger','') IS NOT NULL\n    AND _data->>'receivable_trigger' NOT IN ('NONE','ON_APPROVAL','ON_DISPATCH') THEN\n  RAISE EXCEPTION 'Gatilho financeiro invalido.';\n END IF;\n IF nullif(_data->>'credit_exposure_policy','') IS NOT NULL\n    AND _data->>'credit_exposure_policy' NOT IN ('OPEN_RECEIVABLES_ONLY','OPEN_RECEIVABLES_PLUS_OPEN_ORDERS') THEN\n  RAISE EXCEPTION 'Politica de exposicao invalida.';\n END IF;\n IF nullif(_data->>'tracking_mode','') IS NOT NULL\n    AND _data->>'tracking_mode' NOT IN ('MANUAL','WEBHOOK') THEN\n  RAISE EXCEPTION 'Modo de rastreamento invalido.';\n END IF;\n IF nullif(_data->>'max_discount_percent','') IS NOT NULL\n    AND (nullif(_data->>'max_discount_percent','')::numeric<0 OR nullif(_data->>'max_discount_percent','')::numeric>100) THEN\n  RAISE EXCEPTION 'Desconto maximo deve estar entre 0 e 100.';\n END IF;\n IF nullif(_data->>'reservation_expiry_hours','') IS NOT NULL\n    AND (nullif(_data->>'reservation_expiry_hours','')::int<1 OR nullif(_data->>'reservation_expiry_hours','')::int>8760) THEN\n  RAISE EXCEPTION 'Validade da reserva deve estar entre 1 e 8760 horas.';\n END IF;\n -- Uma politica de boolean nunca pode ser gravada a partir de texto livre\n -- fora de 'true'/'false'; a tela envia 'true'/'false' e nao o相反.\n FOR v_key,v_action IN\n  SELECT * FROM (VALUES\n   ('make_to_order_enabled',_data->>'make_to_order_enabled'),\n   ('approval_segregation',_data->>'approval_segregation'),\n   ('allow_partial_fulfillment',_data->>'allow_partial_fulfillment'),\n   ('shipment_requires_full_confirmation',_data->>'shipment_requires_full_confirmation'),\n   ('require_shipping_address',_data->>'require_shipping_address')\n  ) AS v(field,value)\n LOOP\n  IF v_action IS NOT NULL AND nullif(v_action,'') IS NOT NULL\n     AND lower(v_action) NOT IN ('true','false') THEN\n   RAISE EXCEPTION 'Valor booleano invalido em %.',v_field;\n  END IF;\n END LOOP;\n UPDATE public.sales_order_settings SET\n   reservation_policy=coalesce(nullif(_data->>'reservation_policy',''),reservation_policy),\n   reservation_expiry_hours=coalesce(nullif(_data->>'reservation_expiry_hours','')::int,reservation_expiry_hours),\n   make_to_order_enabled=coalesce(nullif(_data->>'make_to_order_enabled','')::boolean,make_to_order_enabled),\n   credit_exposure_policy=coalesce(nullif(_data->>'credit_exposure_policy',''),credit_exposure_policy),\n   approval_segregation=coalesce(nullif(_data->>'approval_segregation','')::boolean,approval_segregation),\n   max_discount_percent=coalesce(nullif(_data->>'max_discount_percent','')::numeric,max_discount_percent),\n   price_override_policy=coalesce(nullif(_data->>'price_override_policy',''),price_override_policy),\n   receivable_trigger=coalesce(nullif(_data->>'receivable_trigger',''),receivable_trigger),\n   allow_partial_fulfillment=coalesce(nullif(_data->>'allow_partial_fulfillment','')::boolean,allow_partial_fulfillment),\n   shipment_requires_full_confirmation=coalesce(nullif(_data->>'shipment_requires_full_confirmation','')::boolean,shipment_requires_full_confirmation),\n   tracking_mode=coalesce(nullif(_data->>'tracking_mode',''),tracking_mode),\n   require_shipping_address=coalesce(nullif(_data->>'require_shipping_address','')::boolean,require_shipping_address),\n   updated_by=auth.uid(),updated_at=now()\n WHERE organization_id=_org;\n PERFORM public.sales_audit(_org,'sales_settings.updated','sales_order_settings',cur.id,_data);\n RETURN public.sales_settings(_org);\nEND;\n$$;\n"
-    },
-    "timestamp": 1790618489792
-  },
-  {
-    "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1790618489801
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261012100000_sales_settings_fixes.sql",
@@ -1530,5 +1515,20 @@
     "content": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/areas.tsx\n   54:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components                                                                                 r",
     "is_error": false,
     "timestamp": 1790619288211
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "npx eslint --fix src/components/sales src/lib/sales 2>&1 | tail -30",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790619292104
+  },
+  {
+    "role": "tool_result",
+    "content": "\n/root/Zheus AI Projects/controle-fabricas/src/components/sales/areas.tsx\n  54:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components\n\n/root/Zheus AI Projects/controle-fabricas/",
+    "is_error": false,
+    "timestamp": 1790619296404
   }
 ]

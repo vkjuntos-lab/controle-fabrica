@@ -5,14 +5,7 @@ import { EmptyState, ErrorState, LoadingState } from "@/components/states";
 import { PERMISSIONS } from "@/lib/rbac";
 import { money, str } from "@/components/crm/shared";
 import { SalesAction, type ActionItem } from "@/components/sales/action";
-import {
-  numeric,
-  object,
-  rows,
-  text,
-  useSalesRead,
-  type Row,
-} from "@/components/sales/shared";
+import { numeric, object, rows, text, useSalesRead, type Row } from "@/components/sales/shared";
 import {
   CARRIER_MODALITY,
   DELIVERED_SHIPMENT_STATUS,
@@ -41,7 +34,13 @@ import {
  * status devolvido pelo servidor e oferece a ação correspondente; quem valida,
  * com permissão e regra, continua sendo a RPC.
  */
-export function OrderDetail({ organizationId, orderId }: { organizationId: string; orderId: string }) {
+export function OrderDetail({
+  organizationId,
+  orderId,
+}: {
+  organizationId: string;
+  orderId: string;
+}) {
   const query = useSalesRead(organizationId, "detail", orderId);
   const locations = useSalesRead(organizationId, "locations");
 
@@ -70,7 +69,8 @@ export function OrderDetail({ organizationId, orderId }: { organizationId: strin
     <div className="space-y-6">
       <header className="space-y-1">
         <h1 className="text-xl font-semibold">
-          {str(order.order_number)} · {str(object(data.company).legal_name || object(data.company).trade_name)}
+          {str(order.order_number)} ·{" "}
+          {str(object(data.company).legal_name || object(data.company).trade_name)}
         </h1>
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="outline">{orderStatusLabel(status)}</Badge>
@@ -87,7 +87,9 @@ export function OrderDetail({ organizationId, orderId }: { organizationId: strin
           </p>
         ) : null}
         {str(order.commercial_notes) === "—" ? null : (
-          <p className="text-sm text-muted-foreground">Observações: {str(order.commercial_notes)}</p>
+          <p className="text-sm text-muted-foreground">
+            Observações: {str(order.commercial_notes)}
+          </p>
         )}
       </header>
 
@@ -100,7 +102,10 @@ export function OrderDetail({ organizationId, orderId }: { organizationId: strin
         items={rows(data.items)}
       />
 
-      <Section title="Itens do pedido" description="Preço e quantidade vêm da tabela oficial e da proposta aceita; a tela não permite digitá-los.">
+      <Section
+        title="Itens do pedido"
+        description="Preço e quantidade vêm da tabela oficial e da proposta aceita; a tela não permite digitá-los."
+      >
         <Table
           data={rows(data.items)}
           columns={[
@@ -135,7 +140,10 @@ export function OrderDetail({ organizationId, orderId }: { organizationId: strin
         />
       </Section>
 
-      <Section title="Reservas" description="Reserva prende disponibilidade; não é baixa de estoque.">
+      <Section
+        title="Reservas"
+        description="Reserva prende disponibilidade; não é baixa de estoque."
+      >
         <Table
           data={rows(data.reservations)}
           columns={[
@@ -156,7 +164,10 @@ export function OrderDetail({ organizationId, orderId }: { organizationId: strin
         picks={rows(data.picking_items)}
       />
 
-      <Section title="Expedições e entregas" description="A expedição é a etapa que dá baixa oficial no estoque, uma única vez.">
+      <Section
+        title="Expedições e entregas"
+        description="A expedição é a etapa que dá baixa oficial no estoque, uma única vez."
+      >
         <Table
           data={rows(data.shipments)}
           columns={[
@@ -203,7 +214,10 @@ export function OrderDetail({ organizationId, orderId }: { organizationId: strin
         </Section>
       ) : null}
 
-      <Section title="Movimentos oficiais de estoque" description="Derivados do ledger; nunca editados.">
+      <Section
+        title="Movimentos oficiais de estoque"
+        description="Derivados do ledger; nunca editados."
+      >
         <Table
           data={rows(data.movements)}
           columns={[
@@ -242,7 +256,13 @@ function OrderActions({
   orderId: string;
   status: string;
   actions: string[];
-  sourceField: { key: string; label: string; required?: boolean; options: string[]; optionLabels: Record<string, string> };
+  sourceField: {
+    key: string;
+    label: string;
+    required?: boolean;
+    options: string[];
+    optionLabels: Record<string, string>;
+  };
   items: Row[];
 }) {
   const reason = { key: "reason", label: "Motivo", type: "textarea" as const, required: true };
@@ -422,7 +442,10 @@ function Fulfillments({
                     permission={PERMISSIONS.packingManage}
                     operation="pack"
                     id={text(fulfillment.id)}
-                    items={taskPicks.map((pick) => ({ id: text(pick.id), label: str(pick.sku_snapshot) }))}
+                    items={taskPicks.map((pick) => ({
+                      id: text(pick.id),
+                      label: str(pick.sku_snapshot),
+                    }))}
                     itemField="picking_task_item_id"
                     fields={[
                       { key: "gross_weight_kg", label: "Peso medido (kg)", type: "number" },
@@ -448,7 +471,11 @@ function Fulfillments({
                         hint: "Opcional: a expedição pode ser criada sem transportadora definida.",
                       },
                       { key: "tracking_code", label: "Código de rastreio" },
-                      { key: "expected_delivery_at", label: "Entrega prevista", type: "datetime-local" },
+                      {
+                        key: "expected_delivery_at",
+                        label: "Entrega prevista",
+                        type: "datetime-local",
+                      },
                     ]}
                     description="A expedição é criada como rascunho pronta; a baixa de estoque acontece ao despachar."
                   />
@@ -612,7 +639,9 @@ function Returns({
                         operation="return"
                         id={text(entry.id)}
                         action="approve"
-                        fields={[{ key: "reason", label: "Motivo", type: "textarea", required: true }]}
+                        fields={[
+                          { key: "reason", label: "Motivo", type: "textarea", required: true },
+                        ]}
                       />
                     ) : null}
                     {status === "APPROVED" ? (
@@ -661,7 +690,9 @@ function Returns({
                         operation="return"
                         id={text(entry.id)}
                         action="complete"
-                        fields={[{ key: "reason", label: "Motivo", type: "textarea", required: true }]}
+                        fields={[
+                          { key: "reason", label: "Motivo", type: "textarea", required: true },
+                        ]}
                       />
                     ) : null}
                   </div>
@@ -737,13 +768,11 @@ function Table({
               <tr key={text(row.id) || index} className="border-b last:border-b-0">
                 {columns.map(([key]) => (
                   <td key={key} className="px-3 py-2 align-top">
-                    {render ? (
-                      render(row)
-                    ) : key.includes("amount") || key === "unit_price" ? (
-                      money(row[key])
-                    ) : (
-                      str(row[key])
-                    )}
+                    {render
+                      ? render(row)
+                      : key.includes("amount") || key === "unit_price"
+                        ? money(row[key])
+                        : str(row[key])}
                   </td>
                 ))}
               </tr>

@@ -176,7 +176,9 @@ export const FULFILLMENT_ACTIONS: Record<
   { action: string; label: string; permission: string }[]
 > = {
   DRAFT: [],
-  READY_FOR_PICKING: [{ action: "start", label: "Iniciar separação", permission: "fulfillment.manage" }],
+  READY_FOR_PICKING: [
+    { action: "start", label: "Iniciar separação", permission: "fulfillment.manage" },
+  ],
   PICKING: [{ action: "pick", label: "Concluir separação", permission: "fulfillment.manage" }],
   PICKED: [{ action: "pack", label: "Iniciar embalagem", permission: "fulfillment.manage" }],
   PACKING: [{ action: "ready", label: "Liberar para expedição", permission: "fulfillment.manage" }],

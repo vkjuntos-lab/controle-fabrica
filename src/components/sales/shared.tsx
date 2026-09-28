@@ -1,5 +1,10 @@
 import { useCallback, useMemo, useState } from "react";
-import { useMutation, useQuery, useQueryClient, type UseMutationResult } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  type UseMutationResult,
+} from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { readSales, mutateSales, type SalesOperation } from "@/lib/sales/sales.functions";
@@ -29,12 +34,7 @@ export const isMoneyColumn = (column: string): boolean =>
   (MONEY_COLUMNS as readonly string[]).includes(column);
 
 /** Monta a query de leitura de uma área do módulo. */
-export function useSalesRead(
-  organizationId: string,
-  kind: string,
-  id?: string,
-  filters: Row = {},
-) {
+export function useSalesRead(organizationId: string, kind: string, id?: string, filters: Row = {}) {
   const api = useServerFn(readSales);
   const stable = useMemo(() => filters, [JSON.stringify(filters)]);
   return useQuery({
@@ -133,11 +133,7 @@ export function useSalesWrite(
 }
 
 /** Linhas e total de uma listagem, com os filtros que o servidor entende. */
-export function useSalesList(
-  organizationId: string,
-  kind: string,
-  filters: Record<string, Json>,
-) {
+export function useSalesList(organizationId: string, kind: string, filters: Record<string, Json>) {
   const query = useSalesRead(organizationId, kind, undefined, filters);
   const data = object(query.data);
   return { query, rows: rows(data.rows), total: numeric(data.total), data };

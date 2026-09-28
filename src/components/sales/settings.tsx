@@ -51,7 +51,8 @@ export function SalesSettings({ organizationId }: { organizationId: string }) {
   const submit = () => {
     const payload: Record<string, Json> = {};
     for (const [key, value] of Object.entries(values)) {
-      payload[key] = key.endsWith("_hours") || key === "max_discount_percent" ? Number(value) : value;
+      payload[key] =
+        key.endsWith("_hours") || key === "max_discount_percent" ? Number(value) : value;
     }
     write.mutate({ operation: "settings", values: payload });
   };
@@ -61,8 +62,8 @@ export function SalesSettings({ organizationId }: { organizationId: string }) {
       <header>
         <h1 className="text-xl font-semibold">Políticas de vendas</h1>
         <p className="text-sm text-muted-foreground">
-          Reserva não movimenta estoque. A obrigação financeira segue o gatilho configurado e
-          nunca nasce de uma reserva. Pedido aprovado não é venda recebida.
+          Reserva não movimenta estoque. A obrigação financeira segue o gatilho configurado e nunca
+          nasce de uma reserva. Pedido aprovado não é venda recebida.
         </p>
       </header>
       <div className="grid gap-4 lg:grid-cols-2">

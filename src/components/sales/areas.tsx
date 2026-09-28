@@ -99,7 +99,8 @@ export const AREAS: Area[] = [
     kind: "returns",
     permission: PERMISSIONS.returnsRead,
     columns: ["return_number", "order_number", "status", "reason"],
-    description: "Receber devolução devolve mercadoria ao estoque; o estorno financeiro fica pedido.",
+    description:
+      "Receber devolução devolve mercadoria ao estoque; o estorno financeiro fica pedido.",
   },
   {
     key: "exceptions",
@@ -241,7 +242,8 @@ export function SalesArea({ organizationId, area }: { organizationId: string; ar
     offset: page * PAGE_SIZE,
   });
 
-  if (list.query.isPending) return <LoadingState label={`Carregando ${area.title.toLowerCase()}`} />;
+  if (list.query.isPending)
+    return <LoadingState label={`Carregando ${area.title.toLowerCase()}`} />;
   if (list.query.error) {
     return (
       <ErrorState
@@ -357,7 +359,9 @@ export function SalesArea({ organizationId, area }: { organizationId: string; ar
                 operation="exception"
                 action="resolve"
                 id={text(row.id)}
-                fields={[{ key: "resolution", label: "Resolução", type: "textarea", required: true }]}
+                fields={[
+                  { key: "resolution", label: "Resolução", type: "textarea", required: true },
+                ]}
               />
             ) : null}
             {area.key === "carriers" ? (
@@ -429,9 +433,7 @@ export function SalesDashboard({ organizationId }: { organizationId: string }) {
   const query = useSalesRead(organizationId, "dashboard");
   if (query.isPending) return <LoadingState label="Carregando indicadores" />;
   if (query.error) {
-    return (
-      <ErrorState description={query.error.message} onRetry={() => void query.refetch()} />
-    );
+    return <ErrorState description={query.error.message} onRetry={() => void query.refetch()} />;
   }
   const data = (query.data ?? {}) as Record<string, Json>;
   const indicators: [string, string, boolean?][] = [

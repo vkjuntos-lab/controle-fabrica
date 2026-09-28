@@ -60,9 +60,7 @@ export function NewOrder({ organizationId }: { organizationId: string }) {
 
   const addressOptions = rows(object(addresses.data).rows).map((row) => ({
     id: String(row.id ?? ""),
-    label: [row.street, row.number, row.district, row.city, row.state]
-      .filter(Boolean)
-      .join(", "),
+    label: [row.street, row.number, row.district, row.city, row.state].filter(Boolean).join(", "),
   }));
 
   const submit = () => {
@@ -73,10 +71,14 @@ export function NewOrder({ organizationId }: { organizationId: string }) {
     // Os seletores de proposta, cliente, tabela e produto são botões: o navegador
     // não valida `required` neles. A verificação é feita aqui para não enviar um
     // pedido incompleto e deixar o servidor recusá-lo.
-    const missingItem = items.some(
-      (item) => item.variant === "" || !(item.quantity > 0),
-    );
-    if (company === "" || priceTable === "" || address === "" || terms.trim() === "" || missingItem) {
+    const missingItem = items.some((item) => item.variant === "" || !(item.quantity > 0));
+    if (
+      company === "" ||
+      priceTable === "" ||
+      address === "" ||
+      terms.trim() === "" ||
+      missingItem
+    ) {
       setIncomplete(true);
       return;
     }
@@ -184,8 +186,8 @@ export function NewOrder({ organizationId }: { organizationId: string }) {
                     placeholder="30"
                   />
                   <p className="text-xs text-muted-foreground">
-                    Fica registrada no pedido como combinado. Parcelas só existem quando a
-                    obrigação financeira é gerada.
+                    Fica registrada no pedido como combinado. Parcelas só existem quando a obrigação
+                    financeira é gerada.
                   </p>
                 </div>
                 {items.map((item, index) => (
@@ -246,8 +248,8 @@ export function NewOrder({ organizationId }: { organizationId: string }) {
               </>
             )}
             <p className="text-sm text-muted-foreground">
-              Nenhuma reserva é criada neste passo: reserva não é baixa de estoque. O preço
-              aplicado é o da tabela oficial vigente na data do pedido.
+              Nenhuma reserva é criada neste passo: reserva não é baixa de estoque. O preço aplicado
+              é o da tabela oficial vigente na data do pedido.
             </p>
             {incomplete ? (
               <p role="alert" className="text-sm text-destructive">

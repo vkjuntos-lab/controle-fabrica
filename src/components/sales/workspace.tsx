@@ -6,7 +6,14 @@ import { Button } from "@/components/ui/button";
 import { useOrganization } from "@/lib/org/org-context";
 import { PERMISSIONS } from "@/lib/rbac";
 import { SalesAction } from "@/components/sales/action";
-import { RecordCards, SalesArea, SalesCredits, SalesDashboard, AREAS, type Area } from "@/components/sales/areas";
+import {
+  RecordCards,
+  SalesArea,
+  SalesCredits,
+  SalesDashboard,
+  AREAS,
+  type Area,
+} from "@/components/sales/areas";
 import { OrderDetail } from "@/components/sales/order-detail";
 import { SalesSettings } from "@/components/sales/settings";
 import { NewOrder } from "@/components/sales/new-order";
@@ -41,9 +48,7 @@ const SECTIONS: Section[] = [
   { key: "settings", label: "Configurações", permission: PERMISSIONS.salesConfigure },
 ];
 
-const AREA_BY_KEY: Record<string, Area> = Object.fromEntries(
-  AREAS.map((area) => [area.key, area]),
-);
+const AREA_BY_KEY: Record<string, Area> = Object.fromEntries(AREAS.map((area) => [area.key, area]));
 
 function Frame({ children }: { children: ReactNode }) {
   const { hasPermission } = useOrganization();
@@ -71,7 +76,12 @@ function Frame({ children }: { children: ReactNode }) {
 export function SalesPage({ view = "orders" }: { view?: string }) {
   const { currentOrganization, hasPermission } = useOrganization();
   const org = currentOrganization?.organization_id;
-  if (!org) return <Frame><p>Selecione uma organização.</p></Frame>;
+  if (!org)
+    return (
+      <Frame>
+        <p>Selecione uma organização.</p>
+      </Frame>
+    );
   const section = SECTIONS.find((item) => item.key === view) ?? SECTIONS[0];
   if (!hasPermission(section.permission)) {
     return (
@@ -103,7 +113,12 @@ export function SalesPage({ view = "orders" }: { view?: string }) {
 export function SalesOrderPage({ id }: { id: string }) {
   const { currentOrganization, hasPermission } = useOrganization();
   const org = currentOrganization?.organization_id;
-  if (!org) return <Frame><p>Selecione uma organização.</p></Frame>;
+  if (!org)
+    return (
+      <Frame>
+        <p>Selecione uma organização.</p>
+      </Frame>
+    );
   if (!hasPermission(PERMISSIONS.salesOrdersRead)) {
     return (
       <Frame>
