@@ -387,80 +387,80 @@ def run():
  assert rpc('sales_return_action',org,ret['id'],'receive',{'quantity':5,'destination':'SELLABLE'},user=picker)['deduped']
  assert sql('SELECT count(*) FROM inventory_movements')==movements_before
  rpc('sales_return_create',org,order['id'],{'reason':'Excesso','shipment_id':shipment['id'],'items':[{'sales_order_item_id':sql(f"SELECT id FROM sales_order_items WHERE sales_order_id={q(order['id'])}"),'quantity':13}]},user=a,fail='Quantidade inválida')
-  print('PASS AC: return receive replay and accumulated return ceiling')
+ print('PASS AC: return receive replay and accumulated return ceiling')
 
-  # ------------------------------------------- gateway exercitado pela tela
-  # Cada botao da interface chama sales_execute. Este grupo percorre o ciclo
-  # completo apenas pelo gateway, com o papel que a interface usaria, para que
-  # nenhum botao exista sem caminho funcional no servidor.
-  cycle=execute('save',None,'',{'company_id':company,'price_table_id':table,'shipping_address_id':address,
-    'payment_terms_snapshot':'30','items':[{'variant_id':variants['SAP-001']['v'],'quantity':4}]},user=commercial)
-  cycle_id=cycle['id']
-  execute('order',cycle_id,'submit',{'reason':'Enviado pela tela'},user=commercial)
-  execute('order',cycle_id,'approve',{'reason':'Alcada do gestor'},user=approver)
-  execute('reserve',cycle_id,'',{'source_location_id':warehouse},user=commercial)
-  reservation=next(x for x in query('reservations',{'status':'ACTIVE'})['rows'] if x['sales_order_id']==cycle_id)
-  fulfillment=execute('fulfillment_create',cycle_id,'',{'source_location_id':warehouse},user=picker)
-  state=detail(cycle_id);order_state=state['fulfillments'][0]
-  task=next(t for t in state['picking_tasks'] if t['fulfillment_order_id']==order_state['id'])
-  execute('fulfillment',order_state['id'],'start',{},user=picker)
-  scanned=execute('scan',task['id'],'',{'code':'SAP-001','quantity':4},user=picker)
-  execute('fulfillment',order_state['id'],'pick',{},user=picker)
-  picked=next(p for p in detail(cycle_id)['picking_items'] if p['picking_task_id']==task['id'])
-  execute('confirm',task['id'],'',{'items':[{'picking_task_item_id':picked['id'],'confirmed_quantity':4}]},user=picker)
-  execute('fulfillment',order_state['id'],'pack',{},user=picker)
-  execute('pack',order_state['id'],'',{'picking_task_item_id':picked['id'],'quantity':4,
-    'gross_weight_kg':12.5,'length_cm':40,'width_cm':30,'height_cm':20},user=picker)
-  execute('fulfillment',order_state['id'],'ready',{},user=picker)
-  created=execute('shipment_create',cycle_id,'',{'fulfillment_order_id':order_state['id'],
-    'source_location_id':warehouse,'tracking_code':'BR123','expected_delivery_at':'2026-12-01T12:00:00Z'},user=commercial)
-  execute('dispatch',created['id'],'',{},user=picker)
-  execute('shipment',created['id'],'track',{'tracking_code':'BR123','tracking_source':'MANUAL'},user=picker)
-  execute('shipment',created['id'],'proof',{'proof_type':'SIGNATURE','signature_name':'Recepcionista'},user=commercial)
-  execute('shipment',created['id'],'deliver',{},user=commercial)
-  cycle_items=detail(cycle_id)['items']
-  delivery=execute('return_create',cycle_id,'',{'shipment_id':created['id'],'reason':'Excesso',
-    'items':[{'sales_order_item_id':cycle_items[0]['id'],'quantity':1}]},user=commercial)
-  execute('return',delivery['id'],'submit',{},user=commercial)
-  execute('return',delivery['id'],'approve',{'reason':'Conferido'},user=fin)
-  return_items=next(r for r in detail(cycle_id)['return_items'] if r['customer_return_id']==delivery['id'])
-  execute('return',delivery['id'],'receive',{'destination_location_id':quarantine,'destination':'QUARANTINE',
-    'items':[{'customer_return_item_id':return_items['id'],'quantity':1}]},user=picker)
-  execute('return',delivery['id'],'complete',{'reason':'Encerrada'},user=commercial)
-  execute('reservation',reservation['id'],'release',{'reason':'Expedicao concluida'},user=picker)
-  execute('order',cycle_id,'close',{'reason':'Pedido encerrado'},user=approver)
-  assert sql(f"SELECT status FROM sales_orders WHERE id={q(cycle_id)}")=='CLOSED'
-  assert sql(f"SELECT status FROM customer_returns WHERE id={q(delivery['id'])}")=='COMPLETED'
-  assert float(sql(f"SELECT count(*)::numeric FROM packing_records WHERE sales_order_id={q(cycle_id)}"))==1
-  assert sql(f"SELECT gross_weight_kg FROM packing_records WHERE sales_order_id={q(cycle_id)}")=='12.500'
-  print('PASS AD: every button of the sales screen has a working gateway path')
+ # ------------------------------------------- gateway exercitado pela tela
+ # Cada botao da interface chama sales_execute. Este grupo percorre o ciclo
+ # completo apenas pelo gateway, com o papel que a interface usaria, para que
+ # nenhum botao exista sem caminho funcional no servidor.
+ cycle=execute('save',None,'',{'company_id':company,'price_table_id':table,'shipping_address_id':address,
+   'payment_terms_snapshot':'30','items':[{'variant_id':variants['SAP-001']['v'],'quantity':4}]},user=commercial)
+ cycle_id=cycle['id']
+ execute('order',cycle_id,'submit',{'reason':'Enviado pela tela'},user=commercial)
+ execute('order',cycle_id,'approve',{'reason':'Alcada do gestor'},user=approver)
+ execute('reserve',cycle_id,'',{'source_location_id':warehouse},user=commercial)
+ reservation=next(x for x in query('reservations',{'status':'ACTIVE'})['rows'] if x['sales_order_id']==cycle_id)
+ fulfillment=execute('fulfillment_create',cycle_id,'',{'source_location_id':warehouse},user=picker)
+ state=detail(cycle_id);order_state=state['fulfillments'][0]
+ task=next(t for t in state['picking_tasks'] if t['fulfillment_order_id']==order_state['id'])
+ execute('fulfillment',order_state['id'],'start',{},user=picker)
+ scanned=execute('scan',task['id'],'',{'code':'SAP-001','quantity':4},user=picker)
+ execute('fulfillment',order_state['id'],'pick',{},user=picker)
+ picked=next(p for p in detail(cycle_id)['picking_items'] if p['picking_task_id']==task['id'])
+ execute('confirm',task['id'],'',{'items':[{'picking_task_item_id':picked['id'],'confirmed_quantity':4}]},user=picker)
+ execute('fulfillment',order_state['id'],'pack',{},user=picker)
+ execute('pack',order_state['id'],'',{'picking_task_item_id':picked['id'],'quantity':4,
+   'gross_weight_kg':12.5,'length_cm':40,'width_cm':30,'height_cm':20},user=picker)
+ execute('fulfillment',order_state['id'],'ready',{},user=picker)
+ created=execute('shipment_create',cycle_id,'',{'fulfillment_order_id':order_state['id'],
+   'source_location_id':warehouse,'tracking_code':'BR123','expected_delivery_at':'2026-12-01T12:00:00Z'},user=commercial)
+ execute('dispatch',created['id'],'',{},user=picker)
+ execute('shipment',created['id'],'track',{'tracking_code':'BR123','tracking_source':'MANUAL'},user=picker)
+ execute('shipment',created['id'],'proof',{'proof_type':'SIGNATURE','signature_name':'Recepcionista'},user=commercial)
+ execute('shipment',created['id'],'deliver',{},user=commercial)
+ cycle_items=detail(cycle_id)['items']
+ delivery=execute('return_create',cycle_id,'',{'shipment_id':created['id'],'reason':'Excesso',
+   'items':[{'sales_order_item_id':cycle_items[0]['id'],'quantity':1}]},user=commercial)
+ execute('return',delivery['id'],'submit',{},user=commercial)
+ execute('return',delivery['id'],'approve',{'reason':'Conferido'},user=fin)
+ return_items=next(r for r in detail(cycle_id)['return_items'] if r['customer_return_id']==delivery['id'])
+ execute('return',delivery['id'],'receive',{'destination_location_id':quarantine,'destination':'QUARANTINE',
+   'items':[{'customer_return_item_id':return_items['id'],'quantity':1}]},user=picker)
+ execute('return',delivery['id'],'complete',{'reason':'Encerrada'},user=commercial)
+ execute('reservation',reservation['id'],'release',{'reason':'Expedicao concluida'},user=picker)
+ execute('order',cycle_id,'close',{'reason':'Pedido encerrado'},user=approver)
+ assert sql(f"SELECT status FROM sales_orders WHERE id={q(cycle_id)}")=='CLOSED'
+ assert sql(f"SELECT status FROM customer_returns WHERE id={q(delivery['id'])}")=='COMPLETED'
+ assert float(sql(f"SELECT count(*)::numeric FROM packing_records WHERE sales_order_id={q(cycle_id)}"))==1
+ assert sql(f"SELECT gross_weight_kg FROM packing_records WHERE sales_order_id={q(cycle_id)}")=='12.500'
+ print('PASS AD: every button of the sales screen has a working gateway path')
 
-  # Politicas: tela altera cada uma e o servidor valida e persiste.
-  policies={'reservation_policy':'ALLOW_PARTIAL','reservation_expiry_hours':'48','make_to_order_enabled':'true',
-   'credit_exposure_policy':'OPEN_RECEIVABLES_PLUS_OPEN_ORDERS','approval_segregation':'true','max_discount_percent':'7.5',
-   'price_override_policy':'ALLOW_WITH_AUTHORIZATION','receivable_trigger':'ON_DISPATCH',
-   'allow_partial_fulfillment':'true','shipment_requires_full_confirmation':'false','tracking_mode':'MANUAL',
-   'require_shipping_address':'true'}
-  saved=execute('settings',None,'',policies,user=a)
-  for key,value in policies.items():
-   expected='true' if value=='true' else 'false' if value=='false' else value
-   actual=saved[key]
-   assert str(actual).lower().replace('.00','')==str(expected).lower().replace('.00','') or float(actual)==float(expected), (key,actual,expected)
-  call('sales_execute',org,'settings',None,'',{**policies,'receivable_trigger':'INVALID'},uid(),user=a,fail='Gatilho inválido')
-  call('sales_execute',org,'settings',None,'',{**policies,'max_discount_percent':'150'},uid(),user=a,fail='entre 0 e 100')
-  assert query('settings')['reservation_policy']=='ALLOW_PARTIAL'
-  print('PASS AE: all twelve policies are editable from the screen and validated by the server')
+ # Politicas: tela altera cada uma e o servidor valida e persiste.
+ policies={'reservation_policy':'ALLOW_PARTIAL','reservation_expiry_hours':'48','make_to_order_enabled':'true',
+  'credit_exposure_policy':'OPEN_RECEIVABLES_PLUS_OPEN_ORDERS','approval_segregation':'true','max_discount_percent':'7.5',
+  'price_override_policy':'ALLOW_WITH_AUTHORIZATION','receivable_trigger':'ON_DISPATCH',
+  'allow_partial_fulfillment':'true','shipment_requires_full_confirmation':'false','tracking_mode':'MANUAL',
+  'require_shipping_address':'true'}
+ saved=execute('settings',None,'',policies,user=a)
+ for key,value in policies.items():
+  expected='true' if value=='true' else 'false' if value=='false' else value
+  actual=saved[key]
+  assert str(actual).lower().replace('.00','')==str(expected).lower().replace('.00','') or float(actual)==float(expected), (key,actual,expected)
+ call('sales_execute',org,'settings',None,'',{**policies,'receivable_trigger':'INVALID'},uid(),user=a,fail='Gatilho inválido')
+ call('sales_execute',org,'settings',None,'',{**policies,'max_discount_percent':'150'},uid(),user=a,fail='entre 0 e 100')
+ assert query('settings')['reservation_policy']=='ALLOW_PARTIAL'
+ print('PASS AE: all twelve policies are editable from the screen and validated by the server')
 
-  # Transportadora e ocorrencia tambem passam pelo gateway da tela.
-  carrier=execute('carrier',None,'',{'name':'Transportes Rapidos','document_number':'12345678000199',
-    'document_type':'CNPJ','contact_name':'Central'},user=commercial)
-  assert any(x['id']==carrier['id'] for x in query('carriers')['rows'])
-  pending=next((x for x in query('exceptions')['rows'] if x['status']=='OPEN'),None)
-  if pending:
-   execute('exception',pending['id'],'resolve',{'resolution':'Conferido com o transportador'},user=picker)
-   assert sql(f"SELECT status FROM logistics_exceptions WHERE id={q(pending['id'])}")=='RESOLVED'
-  execute('expire',None,'',{},user=picker)
-  print('PASS AF: carrier, exception resolution and reservation expiry work from the screen gateway')
+ # Transportadora e ocorrencia tambem passam pelo gateway da tela.
+ carrier=execute('carrier',None,'',{'name':'Transportes Rapidos','document_number':'12345678000199',
+   'document_type':'CNPJ','contact_name':'Central'},user=commercial)
+ assert any(x['id']==carrier['id'] for x in query('carriers')['rows'])
+ pending=next((x for x in query('exceptions')['rows'] if x['status']=='OPEN'),None)
+ if pending:
+  execute('exception',pending['id'],'resolve',{'resolution':'Conferido com o transportador'},user=picker)
+  assert sql(f"SELECT status FROM logistics_exceptions WHERE id={q(pending['id'])}")=='RESOLVED'
+ execute('expire',None,'',{},user=picker)
+ print('PASS AF: carrier, exception resolution and reservation expiry work from the screen gateway')
 
 
 if __name__=='__main__':
