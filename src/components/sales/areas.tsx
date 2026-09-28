@@ -212,20 +212,26 @@ export function RecordCards({
  * Renderiza uma célula: dinheiro, rótulo de código ou texto simples.
  *
  * A tradução de cada código de status fica em `constants.ts`; aqui só se decide
- * o formato. Nenhum valor é formatado como código solto para o usuário final.
+ * o formato. Nenhum valor é exibido como código solto para o usuário final.
  */
 function Cell({ column, value, area }: { column: string; value: unknown; area: string }) {
-  const asLabel = (label: string) =>
-    label === "—" ? <span className="text-muted-foreground">—</span> : label;
+  const plain = (label: string) =>
+    label === "—" ? <span className="text-muted-foreground">—</span> : <span>{label}</span>;
 
   if (column === "status") {
     const label = (AREA_STATUS_LABELS[area] ?? ((v: unknown) => text(v) || "—"))(value);
-    return asLabel(label) === "—" ? asLabel("—") : <Badge variant="outline" className="font-normal">{asLabel(label)}</Badge>;
+    return label === "—" ? (
+      <span className="text-muted-foreground">—</span>
+    ) : (
+      <Badge variant="outline" className="font-normal">
+        {label}
+      </Badge>
+    );
   }
-  if (column === "severity") return asLabel(exceptionSeverityLabel(value));
-  if (column === "modality") return asLabel(carrierModalityLabel(value));
-  if (column === "stock_status") return asLabel(stockStatusLabel(value));
-  if (column === "fulfillment_status") return asLabel(fulfillmentStatusLabel(value));
+  if (column === "severity") return plain(exceptionSeverityLabel(value));
+  if (column === "modality") return plain(carrierModalityLabel(value));
+  if (column === "stock_status") return plain(stockStatusLabel(value));
+  if (column === "fulfillment_status") return plain(fulfillmentStatusLabel(value));
   if (isMoneyColumn(column)) return <span>{money(value)}</span>;
   return <span>{str(value)}</span>;
 }
