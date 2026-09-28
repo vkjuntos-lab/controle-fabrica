@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "ls docs/ docs/architecture/ docs/business/ docs/handoff/ 2>&1 | head -50",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620011546
-  },
-  {
-    "role": "tool_result",
-    "content": "docs/:\narchitecture\nbusiness\nhandoff\n\ndocs/architecture/:\nADR-001-initial-architecture.md\nADR-006-PARTNER-SHIPMENTS.md\nADR-007-PARTNER-RECONCILIATION.md\nADR-008-PLANNING-ENGINE.md\nADR-009-COSTING.md\nADR-010-CRM.md\n\ndocs/business/:\nCOMMERCIAL-POLICIES.md\nCORE-BUSINESS.md\nCOSTING.md\nCRM.md\nCUSTOMER-36",
-    "is_error": false,
-    "timestamp": 1790620011588
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "head -60 docs/handoff/MASTER-012-VALIDATION.md; echo \"=========== ADR-010 head ===========\"; head -45 docs/architecture/ADR-010-CRM.md",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1535,5 +1520,20 @@
     "content": "src/lib/inventory/inventory.functions.ts\nsrc/lib/inventory/constants.ts\nsrc/components/inventory/movement-dialog.tsx\nsrc/integrations/supabase/types.ts\n---\nsrc/routes/_authenticated/estoque/movimentacoes.tsx:35:  movementTypeLabel,\nsrc/routes/_authenticated/estoque/movimentacoes.tsx:36:  MOVEMENT_TY",
     "is_error": false,
     "timestamp": 1790620827766
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '95,120p' src/lib/inventory/constants.ts; echo \"=== MovementType ===\"; grep -n \"MovementType\" src/lib/inventory/constants.ts | head -4",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620831957
+  },
+  {
+    "role": "tool_result",
+    "content": "    value: \"REVERSAL\",\n    label: \"Reversão/estorno\",\n    direction: \"FLEX\",\n    permission: \"inventory.reverse\",\n  },\n];\n\nexport function movementTypeLabel(type: MovementType): string {\n  return MOVEMENT_TYPES.find((m) => m.value === type)?.label ?? type;\n}\n\n/** Direção esperada de um tipo de movim",
+    "is_error": false,
+    "timestamp": 1790620831975
   }
 ]
