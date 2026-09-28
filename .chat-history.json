@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
-      "newString": "  const data = object(query.data);\n  const order = object(data.order);\n  const quote = object(data.quote);\n  const status = text(order.status);",
-      "oldString": "  const data = object(query.data);\n  const order = object(data.order);\n  const status = text(order.status);"
-    },
-    "timestamp": 1790621079436
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790621079448
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "npm run typecheck 2>&1 | tail -8; npx eslint --fix src/components/sales 2>&1 | tail -4; echo \"=== TESTES ===\"; npm test 2>&1 | grep -E \"Test Files|Tests \"",
@@ -1576,5 +1560,20 @@
     "content": "ok\n106:  UNIQUE(organization_id,id)\n141:  UNIQUE(organization_id,id),\n172:CREATE UNIQUE INDEX product_variants_org_id_uq ON public.product_variants(organization_id,id);\n335:  UNIQUE(organization_id,id)\n404:  UNIQUE(organization_id,id),\n",
     "is_error": false,
     "timestamp": 1790622258464
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabricas' && su claude-runner -c \"python3 scripts/test-fiscal-db.py > /tmp/opencode/fiscal.log 2>&1; echo EXIT=\\$?\"; tail -12 /tmp/opencode/fiscal.log",
+      "timeout": 400000
+    },
+    "timestamp": 1790622261245
+  },
+  {
+    "role": "tool_result",
+    "content": "EXIT=1\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py\", line 33, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py\", line 27, in run\n    sql((db.ROOT / 'supabase/migrations' / na",
+    "is_error": false,
+    "timestamp": 1790622263445
   }
 ]
