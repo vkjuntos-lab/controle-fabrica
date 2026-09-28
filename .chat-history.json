@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "for f in 20261006100000_sales_orders 20261010100000_sales_integrity 20261011100000_sales_planning 20261012100000_sales_screen_fixes; do echo \"--- $f ---\"; grep -oiE \"CREATE TABLE (IF NOT EXISTS )?(public\\.)?[a-z_]+\" supabase/migrations/$f.sql | awk '{print $NF}' | tr -d ';' | sort -u | tr '\\n' ' '; echo; done",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620036758
-  },
-  {
-    "role": "tool_result",
-    "content": "--- 20261006100000_sales_orders ---\npublic.carriers public.customer_return_items public.customer_returns public.fulfillment_orders public.inventory_reservations public.logistics_exceptions public.packing_record_items public.packing_records public.packing_record_volumes public.picking_task_items publ",
-    "is_error": false,
-    "timestamp": 1790620036821
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "echo \"=== sales_receivables? ===\"; grep -ohiE \"CREATE TABLE (IF NOT EXISTS )?(public\\.)?[a-z_]+\" supabase/migrations/20261011100000_sales_planning.sql | awk '{print $NF}' | tr -d ';' | sort -u | tr '\\n' ' '; echo; echo \"=== RPCs sales_ ===\"; grep -ohE \"FUNCTION public\\.sales_[a-z_]+\" supabase/migrations/*.sql | awk '{print $NF}' | sort -u | tr '\\n' ' '; echo; echo \"=== eventos ===\"; grep -ohE \"'(SALES_[A-Z_]+)'\" supabase/migrations/*.sql | sort -u | tr '\\n' ' '",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1536,5 +1521,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx</path>\n<type>file</type>\n<content>\n703:                         ]}\n704:                       />\n705:                     ) : null}\n706:                   </div>\n707:                   <Table\n708:                  ",
     "is_error": false,
     "timestamp": 1790620873267
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
+      "newString": "function Table({\n  data,\n  columns,\n  render,\n  children,\n}: {\n  data: Row[];\n  columns: [string, string][];\n  /** Substitui a célula de uma coluna específica, por chave. Colunas sem\n   *  entrada aqui usam o valor cru. */\n  render?: Record<string, (row: Row) => string>;\n  children?: (row: Row) => React.ReactNode;\n}) {",
+      "oldString": "function Table({\n  data,\n  columns,\n  render,\n  children,\n}: {\n  data: Row[];\n  columns: [string, string][];\n  render?: (row: Row) => string;\n  children?: (row: Row) => React.ReactNode;\n}) {"
+    },
+    "timestamp": 1790620881310
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790620881335
   }
 ]

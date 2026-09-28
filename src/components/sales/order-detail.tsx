@@ -752,7 +752,9 @@ function Table({
 }: {
   data: Row[];
   columns: [string, string][];
-  render?: (row: Row) => string;
+  /** Substitui a célula de uma coluna específica, por chave. Colunas sem
+   *  entrada aqui usam o valor cru. */
+  render?: Record<string, (row: Row) => string>;
   children?: (row: Row) => React.ReactNode;
 }) {
   if (data.length === 0) {
