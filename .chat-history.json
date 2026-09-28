@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "python3 -c \"\nfor p in ['docs/handoff/MASTER-013-VALIDATION.md']:\n    for i,l in enumerate(open(p,encoding='utf-8'),1):\n        bad=[c for c in l if '\\u4e00'<=c<='\\u9fff']\n        if bad: print(p,i,''.join(bad))\nprint('ok')\n\"; echo \"=== confere 22 tabelas ===\"; grep -ohiE \"CREATE TABLE (IF NOT EXISTS )?(public\\.)?[a-z_]+\" supabase/migrations/20261006100000_sales_orders.sql | awk '{print $NF}' | tr -d ';' | sort -u | wc -l; echo \"=== confere 8 funcoes sem grant ===\"; grep -c \"sales_audit\\|sales_emit\\|sales_ensure_settings\\|sales_next_number\\|sales_prepare_item\\|sales_insert_order\\|sales_validate_order\\|sales_receivable_total\\|sales_create_receivables\\|sales_open_exception\\|sales_credit_check\\|sales_settings\\|sales_guard_relations\\|sales_immutable\" supabase/migrations/20261010100000_sales_integrity.sql",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620152438
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n=== confere 22 tabelas ===\n24\n=== confere 8 funcoes sem grant ===\n61\n",
-    "is_error": false,
-    "timestamp": 1790620152493
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -ohiE \"CREATE TABLE (IF NOT EXISTS )?public\\.[a-z_]+\" supabase/migrations/20261006100000_sales_orders.sql | awk '{print $NF}' | tr -d ';' | sort -u | tr '\\n' ' '; echo; echo \"=== contagem ===\"; grep -ohiE \"CREATE TABLE (IF NOT EXISTS )?public\\.[a-z_]+\" supabase/migrations/20261006100000_sales_orders.sql | awk '{print $NF}' | tr -d ';' | sort -u | wc -l",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1544,5 +1529,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx</path>\n<type>file</type>\n<content>\n160:       <Fulfillments\n161:         organizationId={organizationId}\n162:         orderId={orderId}\n163:         fulfillments={rows(data.fulfillments)}\n164:         tasks={rows(d",
     "is_error": false,
     "timestamp": 1790620960522
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
+      "newString": "      <Fulfillments\n        organizationId={organizationId}\n        orderId={orderId}\n        fulfillments={rows(data.fulfillments)}\n        tasks={rows(data.picking_tasks)}\n        picks={rows(data.picking_items)}\n      />\n\n      {/* `packaging_records` e `shipment_delivery_proofs` vêm no mesmo retorno de\n          `sales_order_detail`. Sem esta seção, o registro do que foi embalado e\n          de quem recebeu a mercadoria ficaria visível só na ação, e não depois\n          dela — que é quando ele serve de evidência. */}\n      <Section\n        title=\"Embalagens registradas\"\n        description=\"Peso e dimensão são os medidos no momento da embalagem, não estimados.\"\n      >\n        <Table\n          data={rows(data.packings)}\n          columns={[\n            [\"packed_at\", \"Data\"],\n            [\"packed_by\", \"Registrado por\"],\n            [\"gross_weight_kg\", \"Peso bruto (kg)\"],\n            [\"weight_informed\", \"Peso informado\"],\n            [\"length_cm\", \"Comprimento (cm)\"],\n            [\"width_cm\", \"Largura (cm)\"],\n            [\"height_cm\", \"Altura (cm)\"],\n            [\"volume_count\", \"Volumes\"],\n          ]}\n        />\n      </Section>\n\n      <Section\n        title=\"Expedições e entregas\"\n        description=\"A expedição é a etapa que dá baixa oficial no estoque, uma única vez.\"\n      >\n        <Table\n          data={rows(data.shipments)}\n          columns={[\n            [\"shipment_number\", \"Expedição\"],\n            [\"status\", \"Situação\"],\n            [\"tracking_code\", \"Rastreio\"],\n            [\"delivered_quantity\", \"Entregue\"],\n          ]}\n          render={{ status: (row) => shipmentStatusLabel(row.status) }}\n        >\n          {(shipment) => (\n            <ShipmentActions\n              organizationId={organizationId}\n              orderId={orderId}\n              shipment={shipment}\n              shipmentItems={rows(data.shipment_items).filter(\n                (item) => text(item.shipment_id) === text(shipment.id),\n              )}\n            />\n          )}\n        </Table>\n      </Section>\n\n      <Section\n        title=\"Provas de entrega\"\n        description=\"Registro manual de evidência de recebimento. Não há upload de foto nem assinatura digital.\"\n      >\n        <Table\n          data={rows(data.delivery_proofs)}\n          columns={[\n            [\"occurred_at\", \"Data\"],\n            [\"proof_type\", \"Tipo\"],\n            [\"signature_name\", \"Recebedor\"],\n            [\"notes\", \"Observação\"],\n          ]}\n          render={{\n            proof_type: (row) => proofTypeLabel(row.proof_type),\n          }}\n        />\n      </Section>\n",
+      "oldString": "      <Fulfillments\n        organizationId={organizationId}\n        orderId={orderId}\n        fulfillments={rows(data.fulfillments)}\n        tasks={rows(data.picking_tasks)}\n        picks={rows(data.picking_items)}\n      />\n\n      <Section\n        title=\"Expedições e entregas\"\n        description=\"A expedição é a etapa que dá baixa oficial no estoque, uma única vez.\"\n      >\n        <Table\n          data={rows(data.shipments)}\n          columns={[\n            [\"shipment_number\", \"Expedição\"],\n            [\"status\", \"Situação\"],\n            [\"tracking_code\", \"Rastreio\"],\n            [\"delivered_quantity\", \"Entregue\"],\n          ]}\n          render={{ status: (row) => shipmentStatusLabel(row.status) }}\n        >\n          {(shipment) => (\n            <ShipmentActions\n              organizationId={organizationId}\n              orderId={orderId}\n              shipment={shipment}\n              shipmentItems={rows(data.shipment_items).filter(\n                (item) => text(item.shipment_id) === text(shipment.id),\n              )}\n            />\n          )}\n        </Table>\n      </Section>\n"
+    },
+    "timestamp": 1790620970272
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790620970276
   }
 ]

@@ -165,6 +165,29 @@ export function OrderDetail({
         picks={rows(data.picking_items)}
       />
 
+      {/* `packaging_records` e `shipment_delivery_proofs` vêm no mesmo retorno de
+          `sales_order_detail`. Sem esta seção, o registro do que foi embalado e
+          de quem recebeu a mercadoria ficaria visível só na ação, e não depois
+          dela — que é quando ele serve de evidência. */}
+      <Section
+        title="Embalagens registradas"
+        description="Peso e dimensão são os medidos no momento da embalagem, não estimados."
+      >
+        <Table
+          data={rows(data.packings)}
+          columns={[
+            ["packed_at", "Data"],
+            ["packed_by", "Registrado por"],
+            ["gross_weight_kg", "Peso bruto (kg)"],
+            ["weight_informed", "Peso informado"],
+            ["length_cm", "Comprimento (cm)"],
+            ["width_cm", "Largura (cm)"],
+            ["height_cm", "Altura (cm)"],
+            ["volume_count", "Volumes"],
+          ]}
+        />
+      </Section>
+
       <Section
         title="Expedições e entregas"
         description="A expedição é a etapa que dá baixa oficial no estoque, uma única vez."
@@ -190,6 +213,24 @@ export function OrderDetail({
             />
           )}
         </Table>
+      </Section>
+
+      <Section
+        title="Provas de entrega"
+        description="Registro manual de evidência de recebimento. Não há upload de foto nem assinatura digital."
+      >
+        <Table
+          data={rows(data.delivery_proofs)}
+          columns={[
+            ["occurred_at", "Data"],
+            ["proof_type", "Tipo"],
+            ["signature_name", "Recebedor"],
+            ["notes", "Observação"],
+          ]}
+          render={{
+            proof_type: (row) => proofTypeLabel(row.proof_type),
+          }}
+        />
       </Section>
 
       <Returns
