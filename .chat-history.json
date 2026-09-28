@@ -1,19 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"cat > .git/fix-sales-more.py <<'PY'\nfrom pathlib import Path\nimport re\nsrc=Path('supabase/migrations/20261006100000_sales_orders.sql').read_text()\ndef fn(n):return re.search(r'CREATE FUNCTION public\\\\.'+n+r'\\\\(.*?\\\\n\\\\\"'$'\"\\\\\"'$;'\"',src,re.S)[0].replace('CREATE FUNCTION','CREATE OR REPLACE FUNCTION',1)\np=Path('supabase/migrations/20261010100000_sales_integrity.sql');s=p.read_text().removesuffix('COMMIT;')\nf=fn('sales_reserve').replace('it2.approved_quantity>it2.reserved_quantity','it2.approved_quantity>it2.reserved_quantity+it2.fulfilled_quantity').replace('v_reserved:=it.reserved_quantity-it.fulfilled_quantity','v_reserved:=it.reserved_quantity').replace('v_need-v_reserved','v_need-v_reserved-it.fulfilled_quantity')\nf=f.replace(' -- Recalcula o estado', ''' UPDATE public.sales_order_items i SET reserved_quantity=coalesce((SELECT sum(r.quantity-r.fulfilled_quantity-r.released_quantity)\n FROM public.inventory_reservations r WHERE r.sales_order_item_id=i.id AND r.status IN ('ACTIVE','PARTIALLY_CONSUMED')),0)\n WHERE i.organization_id=_org AND i.sales_order_id=_order;\n -- Recalcula o estado''')\ns+=f+'\\\\n'\n# Block over-shipment, stolen reservations, cross-order task, customer address mismatches.\nf=fn('sales_shipment_create').replace(\\\"AND status IN ('PICKED','PACKING','READY_FOR_SHIPMENT')\\\", \\\"AND status='READY_FOR_SHIPMENT'\\\")\nf=f.replace(\\\"WHERE id=v_addr AND organization_id=_org)\\\",\\\"WHERE id=v_addr AND organization_id=_org AND company_id=o.company_id)\\\")\nf=f.replace(\\\" v_loc:=coalesce(v_loc\\\", \\\" IF v_task IS NOT NULL AND NOT EXISTS(SELECT 1 FROM public.picking_tasks WHERE id=v_task AND organization_id=_org AND sales_order_id=_order AND status='CONFIRMED') THEN RAISE EXCEPTION 'Conferência inválida para este pedido.'; END IF;\\\\n v_loc:=coalesce(v_loc\\\")\nf=f.replace(\\\" IF v_count=0 THEN\\\", \\\" IF EXISTS(SELECT 1 FROM public.shipment_items si JOIN public.sales_order_items i ON i.id=si.sales_order_item_id WHERE si.shipment_id=ident GROUP BY i.id HAVING sum(si.quantity)>i.approved_quantity-i.fulfilled_quantity) THEN RAISE EXCEPTION 'Quantidade excede saldo do pedido.'; END IF;\\\\n IF v_count=0 THEN\\\")\ns+=f+'\\\\n'\n# Dispatch rechecks aggregate quantity and unreserved stock at transaction time.\nf=re.search(r'CREATE OR REPLACE FUNCTION public.sales_shipment_dispatch\\\\(.*?\\\\n\\\\\"'$'\"\\\\\"'$;'\"',s,re.S)[0]\nf=f.replace(' v_carrier:=coalesce', ''' IF EXISTS(SELECT 1 FROM public.shipment_items si JOIN public.sales_order_items i ON i.id=si.sales_order_item_id\n WHERE si.shipment_id=_shipment GROUP BY i.id HAVING sum(si.quantity)>i.approved_quantity-i.fulfilled_quantity)\n THEN RAISE EXCEPTION 'Quantidade excede saldo do pedido.'; END IF;\n IF EXISTS(SELECT 1 FROM public.shipment_items si WHERE si.shipment_id=_shipment AND\n si.quantity > public.sales_available(_org,si.variant_id,sh.source_location_id,si.batch_id)+coalesce((SELECT r.quantity-r.fulfilled_quantity-r.released_quantity FROM public.inventory_reservations r WHERE r.id=si.reservation_id AND r.status IN ('ACTIVE','PARTIALLY_CONSUMED') AND r.inventory_location_id=sh.source_location_id AND r.sales_order_item_id=si.sales_order_item_id),0))\n THEN RAISE EXCEPTION 'Estoque disponível insuficiente na expedição.'; END IF;\n v_carrier:=coalesce''',1)\ns+=f+'\\\\n'\n# Receivable installments appended for subsequent partial shipments; amount is allocated on monetary line share including header discount, freight and tax.\nf=fn('sales_create_receivables').replace('v_parts int[];', 'v_parts int[]; v_offset int;')\nf=f.replace('sum(round((si.quantity-si.returned_quantity)/nullif(i.approved_quantity,0)*i.line_total,2))','sum(si.quantity/nullif(i.approved_quantity,0)*i.line_total)')\nf=f.replace(\\\"AND s.status NOT IN ('DRAFT','CANCELED')\\\", \\\"AND s.status IN ('DISPATCHED','IN_TRANSIT','PARTIALLY_DELIVERED','DELIVERED','DELIVERY_EXCEPTION')\\\")\nf=f.replace('  IF v_base<=0 THEN RETURN 0; END IF;', \\\"  v_base:=round(v_base/nullif((SELECT sum(line_total) FROM public.sales_order_items WHERE sales_order_id=_order),0)*o.total_amount,2);\\\\n  IF coalesce(v_base,0)<=0 THEN RETURN 0; END IF;\\\")\nf=f.replace(\\\" v_parts:=public.purchasing_split_terms(coalesce(v_terms,'30'));\\\", \\\" v_parts:=public.purchasing_split_terms(coalesce(o.payment_terms_snapshot,'30'));\\\\n SELECT coalesce(max(installment_number),0) INTO v_offset FROM public.account_receivables WHERE organization_id=_org AND source_type='SALE' AND source_id=_order::text;\\\")\nf=f.replace(\\\"lpad(v_i::text,2,'0')\\\", \\\"lpad((v_offset+v_i)::text,2,'0')\\\").replace('null,v_i,v_n,','null,v_offset+v_i,v_offset+v_n,')\ns+=f+'\\\\n'\np.write_text(s+'\\\\nCOMMIT;\\\\n')\nPY\npython3 .git/fix-sales-more.py\npython3 scripts/test-sales-db.py > .git/sales-db.log 2>&1\""
-    },
-    "timestamp": 1790594134455
-  },
-  {
-    "role": "tool_result",
-    "content": "",
-    "is_error": true,
-    "timestamp": 1790594137237
-  },
-  {
     "role": "assistant",
     "content": "A conversão já passou no teste concorrente: duas solicitações retornam o mesmo pedido, preservando os preços da proposta aceita. Estou validando agora o fluxo físico e corrigindo reservas e expedições parciais, para impedir envio acima do pedido e duplicação de recebíveis.\n",
     "timestamp": 1790594142577
@@ -1432,5 +1418,19 @@
     "content": "sem CASE\n",
     "is_error": false,
     "timestamp": 1790618324170
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261009100000_crm_customer_history.sql').read_text()\ni=t.find('crm_query')\nb=t[i:i+14000]\nfor m in re.finditer(r\"tab\\s*:?=\\s*(CASE[^;]{0,2000})\", b, re.S):\n    print(m.group(1)[:2500])\n    break\nelse:\n    j=b.find('tab:=')\n    print(b[j:j+2500])\nPY"
+    },
+    "timestamp": 1790618326722
+  },
+  {
+    "role": "tool_result",
+    "content": "tab:='customer_credit_policies';perm:='commercial_sensitive.read';\n WHEN 'customers' THEN tab:='customer_profiles';perm:='customers.read';\n WHEN 'companies' THEN tab:='companies';perm:='customers.read';\n WHEN 'contacts' THEN tab:='company_contacts';perm:='customers.read';\n WHEN 'leads' THEN tab:='le",
+    "is_error": false,
+    "timestamp": 1790618326773
   }
 ]
