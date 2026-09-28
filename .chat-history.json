@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -n \"commercial_sensitive.read\" src/lib/rbac.ts | head; echo \"---\"; sed -n '360,375p' src/lib/rbac.ts"
-    },
-    "timestamp": 1790618696372
-  },
-  {
-    "role": "tool_result",
-    "content": "207:  commercialSensitiveRead: \"commercial_sensitive.read\",\n400:  \"commercial_sensitive.read\":\n---\n  \"goods_receipts.inspect\": \"Inspecionar recebimentos\",\n  \"goods_receipts.post\": \"Postar recebimentos e custo\",\n  \"goods_receipts.cancel\": \"Cancelar recebimentos\",\n  \"supplier_returns.read\": \"Ver devol",
-    "is_error": false,
-    "timestamp": 1790618696389
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '396,406p' src/lib/rbac.ts"
     },
     "timestamp": 1790618698407
@@ -1543,5 +1529,20 @@
     "content": "19:        kind: z.string().min(1).max(60),\n20:        filters: values.default({}),\n29:      _kind: data.kind,\n30:      _filters: data.filters as Json,\n40:    z.object({ organizationId: uuid, kind: z.string().max(60), values }).parse(i),\n45:      _kind: data.kind,\n57:        kind: z.enum([\"lead\", \"p",
     "is_error": false,
     "timestamp": 1790619888273
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '855,935p' supabase/migrations/20261005100000_crm.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790619892358
+  },
+  {
+    "role": "tool_result",
+    "content": "   FROM sales_opportunities o WHERE organization_id=_org AND status='OPEN' AND public.crm_visible(_org,'sales_opportunities',to_jsonb(o))\n    AND (_filters->>'from' IS NULL OR created_at>=(_filters->>'from')::date) AND (_filters->>'to' IS NULL OR created_at<(_filters->>'to')::date+1);\n  SELECT resul",
+    "is_error": false,
+    "timestamp": 1790619892383
   }
 ]
