@@ -1,31 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790535629812
-  },
-  {
-    "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790535643946
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\nimport re\ndef save(path,s):\n p=Path(path)\n try:p.write_text(s)\n except PermissionError:\n  p.rename(Path('.git')/(p.name+'.handoff-27-backup'));p.write_text(s)\ntables=re.findall(r'CREATE TABLE public\\\\.([a-z_]+)',Path('supabase/migrations/20261005100000_crm.sql').read_text())+['crm_documents']\nreport=\\\"\\\"\\\"# MASTER 012 — Relatório de validação\nRevisão: 27/09/2026. Estado global: PARTIAL. Implementação local; implantação e aceitação visual publicada não verificadas.\n\n## 1. Diagnóstico\nO checkout já tinha Company, contatos, preços versionados, financeiro, ledger, planejamento, eventos e uma primeira implementação CRM. A revisão encontrou falhas não cobertas pelos testes: responsável alterado em patches, acesso externo indevido a atividades, conversão visual sem seleção de empresa, rotas de detalhe sob listagens sem Outlet, agregações limitadas à primeira página, filtros incompatíveis e ausência de anexos/consulta futura. Documentos descreviam recursos inexistentes; foram corrigidos.\n\n## 2. Implementado\nCadastro empresarial unificado; lead e conversão transacional; contatos; representantes e carteiras históricas; segmentação; pipeline e histórico; propostas versionadas com preço oficial; alçada e bloqueio de crédito; aceite idempotente; atividades; consultas de estoque/planejamento; dashboard server-side; CSV; documentos privados; RLS e auditoria.\n\n## 3. Critérios de aceite\n| Critério | Estado | Evidência / limite |\n| --- | --- | --- |\n| Cadastro comercial unificado | IMPLEMENTED | A: fornecedor recebe CUSTOMER sem duplicação; criação por usuário comercial |\n| Leads e conversão | IMPLEMENTED | B: conversão concorrente, contato reutilizado, seleção de empresa na interface |\n| Contatos | IMPLEMENTED | Serviço compartilhado e formulário no 360; patch preserva campos |\n| Representantes e carteiras | IMPLEMENTED | C: histórico e responsável da oportunidade preservados |\n| Pipeline e oportunidades | IMPLEMENTED | D: três variantes somam 60 sem estoque; edição geral posterior não disponível |\n| Histórico de etapas | IMPLEMENTED | Snapshot anterior/novo |\n| Propostas/versionamento/preços | IMPLEMENTED | E/F: preço histórico permanece após nova tabela/versão |\n| Aprovação comercial | IMPLEMENTED | G/H: alçada, vencidos, limite e cliente bloqueado; sem política automática de margem mínima |\n| Consulta de estoque | IMPLEMENTED | Balance oficial e PlanningRun real; sem reserva |\n| Atividades e agenda | IMPLEMENTED | Reagendamento com histórico; sem conclusão automática |\n| Customer 360 | PARTIAL | Contatos/comercial/financeiro/timeline/documentos; sem reconciliações/ocorrências na timeline; algumas abas com primeira página |\n| Dashboard real | IMPLEMENTED | Teste com mais de 50 oportunidades e filtro por responsável |\n| Integrações testadas | PARTIAL | Banco real isolado; Storage publicado e navegação autenticada não testados |\n| RLS/permissões | IMPLEMENTED | K/L: isolamento, escopo externo, escrita direta e RPC ampla do ERP bloqueadas |\n| Auditoria | IMPLEMENTED | Eventos crm.*; rejeições com rollback não têm log independente |\n| Testes críticos | IMPLEMENTED | A–L e regressões, 14 grupos PostgreSQL |\n| TypeScript/build | IMPLEMENTED | Verificações locais |\n| Comissão | PARTIAL | Configuração/simulação por regra; sem apuração financeira ou precedência automática |\n| Mesclagem | PARTIAL | Solicitação deduplicada para revisão; sem execução de fusão |\n| LGPD | PARTIAL | Finalidade/preferências/acesso; sem retenção automatizada ou workflow de titular |\n\n## 4. Não implementado\nSalesOrder, reserva definitiva, expedição B2B, fiscal/NF-e, envio real de mensagens/campanhas, comissão financeira, integração automática de oportunidade ao MRP, expiração automática de propostas, PDF próprio e assinatura eletrônica. Nenhum deles é apresentado como funcionando.\n\n## 5. Arquivos\nCriados nesta revisão:\n- supabase/migrations/20261006100000_crm_integrity.sql\n- supabase/migrations/20261007100000_crm_documents.sql\n- supabase/migrations/20261008100000_crm_company_services.sql\n- src/components/crm/availability.tsx\n- src/components/crm/company-choice.tsx\n- src/components/crm/documents.tsx\n\nModificados: componentes CRM de configuração/clientes/dashboard/leads/oportunidades/propostas/shared/carteiras; funções, constantes e testes CRM; scripts/test-crm-db.py; tipos Supabase; árvore de rotas; sete documentos de negócio, ADR-010-CRM e handoff.\nQuatro arquivos de detalhes passaram a usar *_.\"'$id.tsx, preservando URLs e removendo o aninhamento incorreto sob listagens.\n\n## 6. Migrations e tabelas\nA migration original 20261005100000_crm.sql foi preservada (28 tabelas). Três migrations novas acrescentam integridade, escopo externo, documentos, consultas e extração dos serviços empresariais compartilhados. Total: 29 tabelas:\n\"\"\"+\", \".join(tables)+\"\"\".\n\nBucket crm-documents privado, PDF/JPEG/PNG até 10 MB. Conferir histórico do banco de destino antes de aplicar; aplicação publicada não foi verificada.\n\n## 7. Serviços e eventos\nRPCs crm_save, crm_action, crm_query e crm_document. Preparação/conclusão/download de documento usam servidor autenticado. company_save_core e company_detail_core são privados; wrappers de Parceiros mantêm suas autorizações originais.\nSALES_QUOTE_ACCEPTED é inserido em domain_events com chave única por proposta, versão e cliente, na mesma transação. PENDING não significa entrega externa. Não há consumidor SalesOrder.\n\n## 8. Rotas\n/comercial; leads; clientes e detalhe; oportunidades e detalhe; propostas e detalhe; atividades; agenda; representantes e detalhe; carteiras; relatórios; configurações por seção. Todas sob /comercial, autenticadas. URLs de detalhe preservadas após correção.\n\n## 9. Integrações\nCompany/Contact compartilhados; ProductVariant; PriceTableItem oficial; Cost Engine para estimativa autorizada; recebíveis para crédito; inventory_get_balance; PlanningRun; domain_events. PartnerProfile/MarketplaceStore não foram duplicados. Não há reconciliação automática de venda ou demanda confirmada.\n\n## 10. Permissões/RLS\nMatriz existente: crm.read/dashboard/export/configure, leads.read/create/update/convert, customers.read/create/update/merge, opportunities.read/create/update/close, quotes.read/create/update/approve/send/accept, activities.read/manage, representatives.read/manage, portfolios.manage, commercial_sensitive.read.\nFinanceiro exige também receivables.read; margem costs.read; projeções planning.read e inventory.read.\nIdentidades externas vinculadas a representante têm acesso por carteira e não herdam leitura ampla do ERP. Company/Contact têm política restritiva. Escrita direta CRM negada. Documento exige empresa autorizada; download assinado por 60 segundos.\n\n## 11. Testes\n- 14 grupos em PostgreSQL descartável: A–L, concorrência, patch, crédito, bloqueio, RLS, helpers privados, auditoria, metadados/políticas Storage, timeline, filtros, dashboard completo e projeção real.\n- 63 testes Vitest em seis arquivos, incluindo quatro regressões de rotas.\n- TypeScript (tsc --noEmit), build Vite/Nitro e lint CRM.\n- Lint: zero erros; 14 avisos Fast Refresh.\nNenhum dado demo foi inserido na organização real. Teste local de Storage não comprova transporte de arquivos no ambiente publicado. Não houve teste de navegador autenticado ou carga.\n\n## 12. Problemas conhecidos\nAlgumas abas do 360/referências ainda limitadas à primeira página. Exposição de crédito = recebíveis abertos + proposta examinada, sem reservar limite nem somar outras propostas. Taxa de aceite conta versões. Comissão trata regras como cenários independentes, não aditivos. Margem é estimativa, não snapshot definitivo de COGS. Regenerar tipos de Tables após migração publicada. Não houve commit/push/deploy nesta revisão.\n\n## 13. Decisões de configuração\nNenhuma confirmação é necessária para revisar o código local. Operação requer configurar pipelines, etapas, motivos, preços, condições, alçadas por usuário e crédito. Política de retenção e fato gerador contratual de comissão precisam ser definidos antes da automação. Não foram inventados limites, taxas ou consentimentos.\n\n## 14. MASTER 013\nConsumir SALES_QUOTE_ACCEPTED idempotentemente, criar SalesOrder com a versão e os snapshots aceitos, deduplicar por quote_id/event_key. Só então implementar demanda confirmada, reserva e efeitos operacionais/financeiros.\n\"\"\"\nsave('\"'docs/handoff/MASTER-012-VALIDATION.md',report)\np=Path('docs/handoff/PROJECT-STATE.md');s=p.read_text();a=s.index('## Revisão de continuidade — 26/09/2026 (MASTER 012)');b=s.index('## Revisão de continuidade — 26/09/2026 (MASTER 011)',a)\nheader=\\\"\\\"\\\"## Revisão de continuidade — 27/09/2026 (MASTER 012)\n\nCRM corrigido localmente sobre Company, contatos, preços, ledger, financeiro, planejamento e\neventos existentes. Estado integral: PARTIAL. Ainda há pendências de Customer 360, mesclagem,\ngovernança de dados e validação publicada; não declarar conclusão integral.\n\nCorreções: rotas de detalhe independentes; seleção/criação de Company na conversão; núcleo\nempresarial compartilhado; contatos no 360; patches preservando responsáveis; carteira externa\nprotegida inclusive contra APIs amplas; crédito vencido/limite e cliente bloqueado; documentos\nprivados; timeline autorizada; projeções MRP; filtros; dashboard agregado; retries com chave estável.\n\nMigrations novas: 20261006100000_crm_integrity.sql, 20261007100000_crm_documents.sql e\n20261008100000_crm_company_services.sql. Original preservada. Total de 29 tabelas CRM.\nAplicação no banco publicado e entrega real no Storage não verificadas.\n\nValidação local: 14 grupos PostgreSQL; 63 testes unitários; TypeScript/build; lint CRM sem erros\n(14 avisos Fast Refresh). Documentos revisados para remover afirmações incorretas sobre expiração\nautomática, margem persistida, fusão e comissões apuradas.\n[Relatório e critérios IMPLEMENTED/PARTIAL/NOT_IMPLEMENTED](MASTER-012-VALIDATION.md).\n\nSALES_QUOTE_ACCEPTED prepara o MASTER 013; não cria pedido, reserva, venda ou recebível.\nNenhum novo domínio, commit/push ou deploy foi realizado nesta revisão.\n\n\\\"\\\"\\\"\nsave(p,s[:a]+header+s[b:])\nPY\""
-    },
-    "timestamp": 1790535769391
-  },
-  {
-    "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790535769400
-  },
-  {
     "role": "user",
     "content": "continue",
     "timestamp": 1790551279749
@@ -1401,5 +1375,34 @@
     "content": "\n> test:sales:db\n> python3 scripts/test-sales-db.py\n\nPASS A: cenario montado; saldo fisico oficial em 100\nPASS B: pedido nasce com preco oficial da tabela e subtotal correto; nenhum movimento\nPASS C: preco enviado pelo cliente e ignorado; a tabela oficial prevalece\nPASS D: variante descontinuada blo",
     "is_error": false,
     "timestamp": 1790618168420
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "npm test 2>&1 | tail -20",
+      "timeout": 600000
+    },
+    "timestamp": 1790618173659
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"sales\\|vendas\" src/lib/rbac.ts | head -60"
+    },
+    "timestamp": 1790618173663
+  },
+  {
+    "role": "tool_result",
+    "content": "38:  comercial: \"Clientes, pedidos e vendas B2B.\",\n253:  \"marketplace.read\": \"Ver lojas e vendas externas\",\n254:  \"marketplace.manage\": \"Gerenciar lojas, SKUs e vendas externas\",\n258:  \"reconciliation.review\": \"Revisar vendas do marketplace\",\n398:    description: \"Clientes, pedidos e vendas B2B.\",\n",
+    "is_error": false,
+    "timestamp": 1790618173681
+  },
+  {
+    "role": "tool_result",
+    "content": "> vitest run\n\n\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\nstderr | src/lib/crm/crm.test.ts\n⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js. Please upgrade to Node.js 22 or later. For more information, visit: https://git",
+    "is_error": false,
+    "timestamp": 1790618177173
   }
 ]
