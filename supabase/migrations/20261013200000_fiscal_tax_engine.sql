@@ -407,6 +407,7 @@ BEGIN
   SELECT * INTO v_rule FROM public.tax_rules
   WHERE organization_id=_org AND id=_rule_id FOR UPDATE;
   IF NOT FOUND THEN RAISE EXCEPTION 'Regra inexistente: %',_rule_id; END IF;
+  v_from := v_rule.status;
 
   v_to := CASE _action
     WHEN 'submit' THEN 'REVIEW'

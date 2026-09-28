@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "npx vitest run src/lib/sales/constants.test.ts 2>&1 | tail -35",
-      "timeout": 180000,
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790621282554
-  },
-  {
-    "role": "tool_result",
-    "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ✓ src/lib/sales/constants.test.ts (10 tests) 16ms\n\n Test Files  1 passed (1)\n      Tests  10 passed (10)\n   Start at  18:48:03\n   Duration  335ms (transform 77ms, setup 0ms, collect 91ms, tests 16ms, environment 0ms, prepare 70ms)\n\n",
-    "is_error": false,
-    "timestamp": 1790621283912
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cp src/lib/sales/constants.ts /tmp/opencode/constants.bak\n# 1) código órfão no mapa\nperl -0pi -e \"s/  CUSTOMER_REFUSAL: \\\"Recusa do cliente\\\",/  CUSTOMER_REFUSAL: \\\"Recusa do cliente\\\",\\n  BOGUS_CODE: \\\"Inventado\\\",/\" src/lib/sales/constants.ts\n# 2) política com valor que o servidor rejeita\nperl -0pi -e 's/options: \\[\"MANUAL\", \"WEBHOOK\"\\]/options: [\"MANUAL\", \"WEBHOOK\", \"DRONE\"]/' src/lib/sales/constants.ts\nnpx vitest run src/lib/sales/constants.test.ts 2>&1 | grep -E \"✓|×|FAIL|Tests |BOGUS_CODE|DRONE|exception_type|tracking_mode\" | head -20",
       "timeout": 180000,
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
@@ -1634,5 +1618,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790622550578
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261013200000_fiscal_tax_engine.sql",
+      "newString": "  SELECT * INTO v_rule FROM public.tax_rules\n  WHERE organization_id=_org AND id=_rule_id FOR UPDATE;\n  IF NOT FOUND THEN RAISE EXCEPTION 'Regra inexistente: %',_rule_id; END IF;\n  v_from := v_rule.status;",
+      "oldString": "  SELECT * INTO v_rule FROM public.tax_rules\n  WHERE organization_id=_org AND id=_rule_id FOR UPDATE;\n  IF NOT FOUND THEN RAISE EXCEPTION 'Regra inexistente: %',_rule_id; END IF;"
+    },
+    "timestamp": 1790622553666
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790622553681
   }
 ]
