@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "npm run build 2>&1 | grep -iE \"error|✓ built|success|Generated .output/server\" | head -10; echo \"=== HARNESS DE VENDAS ===\"; su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && npm run test:sales:db\" 2>&1 | grep -cE \"^PASS\"",
-      "timeout": 900000,
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620295866
-  },
-  {
-    "role": "tool_result",
-    "content": "✓ built in 4.95s\n✓ built in 4.38s\n\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@tanstack/react-query/build/modern/QueryErrorResetBoundary.js\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_mo",
-    "is_error": false,
-    "timestamp": 1790620323487
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"FUNCTION public.sales_order_detail\" -A 45 supabase/migrations/20261010100000_sales_integrity.sql | grep -oE \"'(order|items|availability|reservations|fulfillments|picking_tasks|picking_items|shipments|shipment_items|returns|return_items|receivables|movements|history|company)'\" | sort -u | tr '\\n' ' '; echo; echo \"=== sales_query filtros aceitos ===\"; grep -n \"FUNCTION public.sales_query\" -A 40 supabase/migrations/20261010100000_sales_integrity.sql | grep -oE \"'(search|q|status|company_id|limit|offset|from|to|page)'\" | sort -u | tr '\\n' ' '",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1540,5 +1524,20 @@
     "content": "supabase/migrations/20261005100000_crm.sql:303: 'block_over_limit',coalesce(p.block_over_limit,false),'block_overdue',coalesce(p.block_overdue,false),'exposure_policy','OPEN_RECEIVABLES_PLUS_QUOTE_AT_\n",
     "is_error": false,
     "timestamp": 1790621181992
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "echo \"=== colunas de sales_order_settings ===\"; awk \"/CREATE TABLE.*sales_order_settings \\(/,/^\\);/\" supabase/migrations/20261006100000_sales_orders.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; echo \"=== tabela de。过\"; grep -c \"\" supabase/migrations/20261006100000_sales_orders.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790621193045
+  },
+  {
+    "role": "tool_result",
+    "content": "=== colunas de sales_order_settings ===\nid organization_id reservation_policy reservation_expiry_hours make_to_order_enabled credit_exposure_policy approval_segregation max_discount_percent price_override_policy receivable_trigger allow_partial_fulfillment shipment_requires_full_confirmation trackin",
+    "is_error": false,
+    "timestamp": 1790621193104
   }
 ]
