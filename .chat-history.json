@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "ls -la src/routes/_authenticated/vendas/; echo \"--- sales lib ---\"; ls -la src/lib/sales/; echo \"--- components sales ---\"; ls -la src/components/sales/"
-    },
-    "timestamp": 1790618117247
-  },
-  {
-    "role": "tool_result",
-    "content": "total 16\ndrwxr-xr-x  2 claude-runner claude-runner 4096 Sep 28 17:21 .\ndrwxr-xr-x 13 claude-runner claude-runner 4096 Sep 28 17:21 ..\n-rw-r--r--  1 claude-runner claude-runner  373 Sep 28 17:21 index.tsx\n-rw-r--r--  1 claude-runner claude-runner  295 Sep 28 17:21 pedidos.$id.tsx\n--- sales lib ---\nto",
-    "is_error": false,
-    "timestamp": 1790618117271
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "wc -l src/routes/_authenticated/vendas/*.tsx src/lib/sales/*.ts src/components/sales/*.tsx scripts/test-sales-db.py 2>/dev/null"
     },
     "timestamp": 1790618117475
@@ -1504,5 +1490,19 @@
     "content": "92:   CHECK(reservation_policy IN ('FULL_ONLY','ALLOW_PARTIAL','ALLOW_NEGATIVE_AVAILABLE')),\n98:   CHECK(credit_exposure_policy IN ('OPEN_RECEIVABLES_ONLY','OPEN_RECEIVABLES_PLUS_OPEN_ORDERS')),\n106:   CHECK(price_override_policy IN ('BLOCK','ALLOW_WITH_AUTHORIZATION')),\n110:   CHECK(receivable_trig",
     "is_error": false,
     "timestamp": 1790618640023
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '168,175p;535,537p;630,632p' supabase/migrations/20261006100000_sales_orders.sql"
+    },
+    "timestamp": 1790618643233
+  },
+  {
+    "role": "tool_result",
+    "content": "   CHECK(status IN ('DRAFT','PENDING_APPROVAL','APPROVED','AWAITING_STOCK','READY_FOR_FULFILLMENT',\n                    'PARTIALLY_FULFILLED','FULFILLED','CLOSED','CANCELED')),\n -- Situacao do estoque e do atendimento, derivadas, nunca editaveis a mao.\n stock_status text NOT NULL DEFAULT 'NOT_EVALUA",
+    "is_error": false,
+    "timestamp": 1790618643236
   }
 ]
