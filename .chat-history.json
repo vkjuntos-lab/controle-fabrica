@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"A:\\|B:\\|C:\\|AD:\\|AE:\\|AF:\" scripts/test-sales-db.py | head -40",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620024353
-  },
-  {
-    "role": "tool_result",
-    "content": "54: print('PASS A: cenario montado; saldo fisico oficial em 100')\n64: print('PASS B: pedido nasce com preco oficial da tabela e subtotal correto; nenhum movimento')\n70: print('PASS C: preco enviado pelo cliente e ignorado; a tabela oficial prevalece')\n365: print('PASS AA: credit policy enforced with",
-    "is_error": false,
-    "timestamp": 1790620024368
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && npm run test:sales:db\" 2>&1 | grep -E \"^(PASS|FAIL)\" ",
       "timeout": 900000,
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
@@ -1536,5 +1521,20 @@
     "content": "src/components/sales/order-detail.tsx:747:function Table({\nsrc/components/sales/order-detail.tsx-748-  data,\nsrc/components/sales/order-detail.tsx-749-  columns,\nsrc/components/sales/order-detail.tsx-750-  render,\nsrc/components/sales/order-detail.tsx-751-  children,\nsrc/components/sales/order-detai",
     "is_error": false,
     "timestamp": 1790620850661
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"render={\" -A 1 src/components/sales/order-detail.tsx",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620860028
+  },
+  {
+    "role": "tool_result",
+    "content": "155:          render={(row) => reservationStatusLabel(row.status)}\n156-        />\n--\n179:          render={(row) => shipmentStatusLabel(row.status)}\n180-        >\n--\n230:          render={(row) => (\n231-            <>\n--\n715:                    render={(row) => returnDestinationLabel(row.destination",
+    "is_error": false,
+    "timestamp": 1790620860070
   }
 ]
