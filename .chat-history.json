@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/action.tsx",
-      "newString": "      ) : field.type === \"textarea\" ? (\n        <Textarea\n          aria-label={field.label}\n          required={field.required}\n          value={value}\n          onChange={(event) => onChange(event.target.value)}\n        />",
-      "oldString": "      ) : field.type === \"textarea\" ? (\n        <Textarea\n          aria-label={field.label}\n          value={value}\n          onChange={(event) => onChange(event.target.value)}\n        />"
-    },
-    "timestamp": 1790619101047
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619101067
-  },
-  {
-    "role": "tool",
     "tool": "write",
     "input": {
       "content": "import type { ReactNode } from \"react\";\nimport { Link } from \"@tanstack/react-router\";\n\nimport { AppShell } from \"@/components/layout/app-shell\";\nimport { Button } from \"@/components/ui/button\";\nimport { useOrganization } from \"@/lib/org/org-context\";\nimport { PERMISSIONS } from \"@/lib/rbac\";\nimport { SalesAction } from \"@/components/sales/action\";\nimport { RecordCards, SalesArea, SalesCredits, SalesDashboard, AREAS, type Area } from \"@/components/sales/areas\";\nimport { OrderDetail } from \"@/components/sales/order-detail\";\nimport { SalesSettings } from \"@/components/sales/settings\";\nimport { NewOrder } from \"@/components/sales/new-order\";\nimport { object, rows, text, useSalesList, numeric } from \"@/components/sales/shared\";\nimport { EmptyState } from \"@/components/states\";\n\n/**\n * Casca e navegação do módulo de vendas.\n *\n * Este arquivo só compõe: cada área vive no seu próprio módulo e nenhuma regra de\n * negócio mora aqui. As quatro exportações públicas (`SalesPage`,\n * `SalesOrderPage`, `QuoteToOrder`, `CustomerOrders`) mantêm a assinatura usada\n * pelas rotas e pelas telas do CRM.\n */\n\ntype Section = {\n  key: string;\n  label: string;\n  permission: string;\n};\n\nconst SECTIONS: Section[] = [\n  { key: \"orders\", label: \"Pedidos\", permission: PERMISSIONS.salesOrdersRead },\n  { key: \"dashboard\", label: \"Dashboard\", permission: PERMISSIONS.salesDashboard },\n  { key: \"reservations\", label: \"Reservas\", permission: PERMISSIONS.reservationsRead },\n  { key: \"fulfillment\", label: \"Separação\", permission: PERMISSIONS.fulfillmentRead },\n  { key: \"shipments\", label: \"Expedições\", permission: PERMISSIONS.shipmentsRead },\n  { key: \"returns\", label: \"Devoluções\", permission: PERMISSIONS.returnsRead },\n  { key: \"exceptions\", label: \"Ocorrências\", permission: PERMISSIONS.logisticsRead },\n  { key: \"carriers\", label: \"Transportadoras\", permission: PERMISSIONS.carriersManage },\n  { key: \"credits\", label: \"Crédito\", permission: PERMISSIONS.salesCreditRead },\n  { key: \"settings\", label: \"Configurações\", permission: PERMISSIONS.salesConfigure },\n];\n\nconst AREA_BY_KEY: Record<string, Area> = Object.fromEntries(\n  AREAS.map((area) => [area.key, area]),\n);\n\nfunction Frame({ children }: { children: ReactNode }) {\n  const { hasPermission } = useOrganization();\n  return (\n    <AppShell title=\"Vendas e logística\">\n      <div className=\"space-y-5\">\n        <nav className=\"flex flex-wrap gap-2\" aria-label=\"Vendas\">\n          {SECTIONS.filter((section) => hasPermission(section.permission)).map((section) => (\n            <Link\n              className=\"rounded border px-3 py-2 text-sm\"\n              key={section.key}\n              to=\"/vendas\"\n              search={{ view: section.key }}\n            >\n              {section.label}\n            </Link>\n          ))}\n        </nav>\n        {children}\n      </div>\n    </AppShell>\n  );\n}\n\nexport function SalesPage({ view = \"orders\" }: { view?: string }) {\n  const { currentOrganization, hasPermission } = useOrganization();\n  const org = currentOrganization?.organization_id;\n  if (!org) return <Frame><p>Selecione uma organização.</p></Frame>;\n  const section = SECTIONS.find((item) => item.key === view) ?? SECTIONS[0];\n  if (!hasPermission(section.permission)) {\n    return (\n      <Frame>\n        <p role=\"alert\">Acesso não permitido.</p>\n      </Frame>\n    );\n  }\n\n  let content: ReactNode;\n  if (section.key === \"dashboard\") {\n    content = <SalesDashboard organizationId={org} />;\n  } else if (section.key === \"settings\") {\n    content = <SalesSettings organizationId={org} />;\n  } else if (section.key === \"credits\") {\n    content = <SalesCredits organizationId={org} />;\n  } else {\n    const area = AREA_BY_KEY[section.key];\n    content = area ? (\n      <SalesArea key={`${org}:${area.key}`} organizationId={org} area={area} />\n    ) : (\n      <EmptyState title=\"Área desconhecida\" description=\"Selecione uma área válida.\" />\n    );\n  }\n\n  return <Frame>{content}</Frame>;\n}\n\nexport function SalesOrderPage({ id }: { id: string }) {\n  const { currentOrganization, hasPermission } = useOrganization();\n  const org = currentOrganization?.organization_id;\n  if (!org) return <Frame><p>Selecione uma organização.</p></Frame>;\n  if (!hasPermission(PERMISSIONS.salesOrdersRead)) {\n    return (\n      <Frame>\n        <p role=\"alert\">Acesso não permitido.</p>\n      </Frame>\n    );\n  }\n  return (\n    <Frame>\n      <OrderDetail key={`${org}:${id}`} organizationId={org} orderId={id} />\n    </Frame>\n  );\n}\n\n/** Conversão de uma proposta aceita em pedido, chamada a partir do CRM. */\nexport function QuoteToOrder({ org, quoteId }: { org: string; quoteId: string }) {\n  return (\n    <SalesAction\n      organizationId={org}\n      label=\"Criar pedido desta versão\"\n      permission={PERMISSIONS.salesOrdersCreate}\n      operation=\"convert\"\n      id={quoteId}\n      description=\"O pedido nasce em rascunho com o preço aceito na proposta. A aprovação é um passo seguinte.\"\n    />\n  );\n}\n\n/** Pedidos de uma empresa, exibidos na aba de vendas do cliente no CRM. */\nexport function CustomerOrders({ org, companyId }: { org: string; companyId: string }) {\n  const [page, setPage] = useState(0);\n  const list = useSalesList(org, \"orders\", {\n    company_id: companyId,\n    limit: 20,\n    offset: page * 20,\n  });\n\n  if (list.query.isPending) return <p>Carregando pedidos…</p>;\n  if (list.query.error) {\n    return (\n      <div role=\"alert\" className=\"space-y-2\">\n        <p>{list.query.error.message}</p>\n        <Button onClick={() => void list.query.refetch()}>Tentar novamente</Button>\n      </div>\n    );\n  }\n\n  const total = numeric(list.total);\n  return (\n    <div className=\"space-y-3\">\n      <RecordCards\n        data={list.rows}\n        columns={[\"order_number\", \"order_date\", \"status\", \"total_amount\"]}\n        area=\"orders\"\n      >\n        {(row) => (\n          <Link\n            to=\"/vendas/pedidos/$id\"\n            params={{ id: text(row.id) }}\n            className=\"text-primary underline\"\n          >\n            Abrir pedido\n          </Link>\n        )}\n      </RecordCards>\n      <div className=\"flex items-center gap-3\">\n        <Button disabled={page === 0} onClick={() => setPage((current) => current - 1)}>\n          Anterior\n        </Button>\n        <span className=\"text-sm text-muted-foreground\">\n          Página {page + 1} · {total} registros\n        </span>\n        <Button\n          disabled={(page + 1) * 20 >= total}\n          onClick={() => setPage((current) => current + 1)}\n        >\n          Próxima\n        </Button>\n      </div>\n    </div>\n  );\n}\n\nexport { NewOrder, object, rows };\n",
@@ -1554,5 +1538,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790620239024
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"advanced\" docs/handoff/PROJECT-STATE.md",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620242548
+  },
+  {
+    "role": "tool_result",
+    "content": "533:- O MASTER 013 é o caso mais advanced de cobertura de interface: a cobertura é banco real isolado,\n",
+    "is_error": false,
+    "timestamp": 1790620242551
   }
 ]
