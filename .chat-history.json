@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "edit",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx",
-      "newString": "  options: { alsoCrm?: boolean; onSuccess?: (data: unknown) => void; onError?: () => void } = {},",
-      "oldString": "  options: { alsoCrm?: boolean; onSuccess?: () => void; onError?: () => void } = {},"
-    },
-    "timestamp": 1790619171570
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619171590
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/areas.tsx",
       "newString": "import { money, str } from \"@/components/crm/shared\";\nimport type { Json } from \"@/integrations/supabase/types\";",
       "oldString": "import { money, str } from \"@/components/crm/shared\";"
@@ -1554,5 +1538,20 @@
     "content": "✓ built in 4.95s\n✓ built in 4.38s\n\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"use client\" in \"node_modules/@tanstack/react-query/build/modern/QueryErrorResetBoundary.js\" may not be preserved when bundling.\n   \u001b[38;5;246m╭\u001b[0m\u001b[38;5;246m─\u001b[0m\u001b[38;5;246m[\u001b[0m node_mo",
     "is_error": false,
     "timestamp": 1790620323487
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"FUNCTION public.sales_order_detail\" -A 45 supabase/migrations/20261010100000_sales_integrity.sql | grep -oE \"'(order|items|availability|reservations|fulfillments|picking_tasks|picking_items|shipments|shipment_items|returns|return_items|receivables|movements|history|company)'\" | sort -u | tr '\\n' ' '; echo; echo \"=== sales_query filtros aceitos ===\"; grep -n \"FUNCTION public.sales_query\" -A 40 supabase/migrations/20261010100000_sales_integrity.sql | grep -oE \"'(search|q|status|company_id|limit|offset|from|to|page)'\" | sort -u | tr '\\n' ' '",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620330591
+  },
+  {
+    "role": "tool_result",
+    "content": "'company' 'fulfillments' 'history' 'items' 'order' 'picking_items' 'picking_tasks' 'receivables' 'reservations' 'return_items' 'returns' 'shipment_items' 'shipments' \n=== sales_query filtros aceitos ===\n'company_id' 'from' 'limit' 'offset' 'search' 'status' 'to' ",
+    "is_error": false,
+    "timestamp": 1790620330639
   }
 ]
