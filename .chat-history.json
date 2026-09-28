@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np=Path('scripts/test-sales-db.py')\nlines=p.read_text().split('\\n')\nstart=458\nout=[l[1:] if i>=start and l.startswith('  ') else l for i,l in enumerate(lines)]\np.write_text('\\n'.join(out))\nPY\nsed -n '455,470p' scripts/test-sales-db.py"
-    },
-    "timestamp": 1790618598708
-  },
-  {
-    "role": "tool_result",
-    "content": " assert query('settings')['reservation_policy']=='ALLOW_PARTIAL'\n print('PASS AE: all twelve policies are editable from the screen and validated by the server')\n\n # Transportadora e ocorrencia tambem passam pelo gateway da tela.\n carrier=execute('carrier',None,'',{'name':'Transportes Rapidos','docum",
-    "is_error": false,
-    "timestamp": 1790618598765
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && npm run test:sales:db\" 2>&1 | tail -8",
       "timeout": 900000
     },
@@ -1535,5 +1521,20 @@
     "content": "4:CREATE OR REPLACE FUNCTION public.sales_convert_quote(_org uuid,_quote uuid,_data jsonb DEFAULT '{}',_key uuid DEFAULT NULL)\n404: v_key text; v_mov jsonb; v_mov_id uuid; v_res uuid; v_consumed numeric; v_out jsonb:='[]'::jsonb;\n1066: v_key text; v_mov jsonb; v_mov_id uuid; v_res uuid; v_consumed n",
     "is_error": false,
     "timestamp": 1790619503521
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '1807,1862p' supabase/migrations/20261010100000_sales_integrity.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790619514481
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE FUNCTION public.sales_execute(_org uuid,_operation text,_id uuid,_action text,_data jsonb,_key uuid)\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE prior public.sales_order_operation_keys; payload jsonb; result jsonb; perm text;\nBEGIN\n IF _key IS NULL THE",
+    "is_error": false,
+    "timestamp": 1790619514501
   }
 ]
