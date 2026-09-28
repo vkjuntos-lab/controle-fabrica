@@ -443,8 +443,8 @@ Validação local; publicação não verificada.
 
 ## NOT_IMPLEMENTED
 
-- Módulos/telas completos: Comercial, Produção (migration preparatória `20260922100000_production.sql`
-  preservada), Marketplaces, Financeiro, Relatórios, Inteligência (marcados como `coming_soon` em
+- Módulos/telas completos: Produção (migration preparatória `20260922100000_production.sql`
+  preservada), Marketplaces, Relatórios, Inteligência (marcados como `coming_soon` em
   `src/lib/rbac.ts`, fora do menu operacional).
 - MASTER 005 (MarketplaceStore, lojas vinculadas a parceiros, importação de relatórios e mapeamento
   de SKU) não está neste checkout; o vínculo parceiro → loja será feito quando o módulo existir, sem
