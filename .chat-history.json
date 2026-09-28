@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 24, in rpc\n    value=call(name,*args,**kw)\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 22, in call\n    return db.call(name,','.join(q(json.dumps(x) if isinstance(x,(dict,list)) else ",
-    "is_error": false,
-    "timestamp": 1790594610988
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\nimport re\np=Path('supabase/migrations/20261010100000_sales_integrity.sql');s=p.read_text().rsplit('COMMIT;',1)[0];src=Path('supabase/migrations/20261006100000_sales_orders.sql').read_text();f=re.search(r'CREATE FUNCTION public.sales_expire_reservations\\\\(.*?\\\\n\\\\\"'$'\"\\\\\"'$;'\"',src,re.S)[0].replace('CREATE FUNCTION','CREATE OR REPLACE FUNCTION',1);a=f.index(' UPDATE public.sales_orders');f=f[:a]+f[a:].replace('inventory_reservations r','inventory_reservations rr').replace('r.organization_id','rr.organization_id').replace('r.sales_order_id','rr.sales_order_id').replace('r.status','rr.status').replace('r.quantity','rr.quantity').replace('r.fulfilled_quantity','rr.fulfilled_quantity').replace('r.released_quantity','rr.released_quantity');p.write_text(s+f+'\\\\nCOMMIT;\\\\n')\nPY\npython3 scripts/test-sales-db.py > .git/sales-db.log 2>&1\""
-    },
-    "timestamp": 1790594621857
-  },
-  {
-    "role": "tool_result",
     "content": "",
     "is_error": true,
     "timestamp": 1790594627281
@@ -1488,5 +1474,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790618418049
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && npm run test:sales:db\" 2>&1 | tail -25",
+      "timeout": 900000
+    },
+    "timestamp": 1790618420565
+  },
+  {
+    "role": "tool_result",
+    "content": "\n> test:sales:db\n> python3 scripts/test-sales-db.py\n\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py\", line 390\n    print('PASS AC: return receive replay and accumulated return ceiling')\nIndentationError: unexpected indent\n",
+    "is_error": false,
+    "timestamp": 1790618420823
   }
 ]
