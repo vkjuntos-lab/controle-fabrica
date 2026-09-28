@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
-      "limit": 24,
-      "offset": 118
-    },
-    "timestamp": 1790620367532
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx</path>\n<type>file</type>\n<content>\n118:             [\"delivered_quantity\", \"Entregue\"],\n119:             [\"returned_quantity\", \"Devolvido\"],\n120:           ]}\n121:         />\n122:       </Section>\n123: \n124:       ",
-    "is_error": false,
-    "timestamp": 1790620367540
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
@@ -1541,5 +1525,20 @@
     "content": "=== carriers ===\nid organization_id name document_type document_number contact_name modality status notes created_by created_at updated_at \n=== customer_returns ===\nid organization_id return_number company_id sales_order_id shipment_id reason status requested_at approved_by approved_at received_at d",
     "is_error": false,
     "timestamp": 1790621254405
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "awk \"/CREATE TABLE.*customer_return_items \\(/,/^\\);/\" supabase/migrations/20261006100000_sales_orders.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; echo \"=== RETURN_DESTINATION no servidor ===\"; grep -n \"RETURN_DESTINATION\\|destination\" supabase/migrations/20261006100000_sales_orders.sql | grep -iE \"IN \\(|check|destination IN\" | head -5",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790621260792
+  },
+  {
+    "role": "tool_result",
+    "content": "id organization_id customer_return_id sales_order_item_id shipment_item_id variant_id sku_snapshot quantity received_quantity condition destination reason created_at updated_at \n=== RETURN_DESTINATION no servidor ===\n673:   CHECK(destination IN ('PENDING','SELLABLE','QUARANTINE','SCRAP')),\n2963:   I",
+    "is_error": false,
+    "timestamp": 1790621260829
   }
 ]
