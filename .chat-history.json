@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "awk '/FUNCTION public.sales_order_detail/,/^\\$\\$/' supabase/migrations/20261010100000_sales_integrity.sql | sed -n '20,45p'",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620350901
-  },
-  {
-    "role": "tool_result",
-    "content": "     FROM public.inventory_reservations r WHERE r.sales_order_id=o.id),\n  'fulfillments',(SELECT coalesce(jsonb_agg(to_jsonb(f) ORDER BY f.created_at),'[]'::jsonb)\n     FROM public.fulfillment_orders f WHERE f.sales_order_id=o.id),\n  'picking_tasks',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY t.",
-    "is_error": false,
-    "timestamp": 1790620350931
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "awk '/FUNCTION public.sales_order_detail/,/^\\$\\$/' supabase/migrations/20261010100000_sales_integrity.sql | sed -n '45,60p'",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1540,5 +1525,21 @@
     "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n\n⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  src/lib/sales/constants.test.ts [ src/lib/sales/constants.test.ts ]\nError: ENOENT: no such file or directory, open '/root/Zheus AI Projects/controle-fabricas/src/supabase/migrations/20261006100000_sales_",
     "is_error": false,
     "timestamp": 1790621218191
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/sales/constants.test.ts",
+      "newString": "  new URL(\"../../../supabase/migrations/20261006100000_sales_orders.sql\", import.meta.url),",
+      "oldString": "  new URL(\"../../supabase/migrations/20261006100000_sales_orders.sql\", import.meta.url),"
+    },
+    "timestamp": 1790621222035
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790621222049
   }
 ]
