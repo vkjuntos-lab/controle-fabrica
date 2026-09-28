@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"advanced\" docs/handoff/PROJECT-STATE.md",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620242548
-  },
-  {
-    "role": "tool_result",
-    "content": "533:- O MASTER 013 é o caso mais advanced de cobertura de interface: a cobertura é banco real isolado,\n",
-    "is_error": false,
-    "timestamp": 1790620242551
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md",
@@ -1543,5 +1528,20 @@
     "content": "3:DECLARE cur public.sales_order_settings; cfg jsonb; v_key text;\n8: v_key:=cur.id;\n48: PERFORM public.sales_audit(_org,'sales_settings.updated','sales_order_settings',v_key,_data);\n132:DECLARE cur public.sales_order_settings; cfg jsonb; v_key uuid;\n139: v_key:=cur.id;\n",
     "is_error": false,
     "timestamp": 1790621146320
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "awk '/FUNCTION public.sales_settings_save/,/^\\$\\$/' supabase/migrations/*.sql | sed -n '10,30p' | sed 's/^ *//'",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790621148458
+  },
+  {
+    "role": "tool_result",
+    "content": "AND _data->>'reservation_policy' NOT IN ('FULL_ONLY','ALLOW_PARTIAL','ALLOW_NEGATIVE_AVAILABLE') THEN\nRAISE EXCEPTION 'Política de reserva inválida.';\nEND IF;\nIF nullif(_data->>'price_override_policy','') IS NOT NULL\nAND _data->>'price_override_policy' NOT IN ('BLOCK','ALLOW_WITH_AUTHORIZATION') THE",
+    "is_error": false,
+    "timestamp": 1790621148492
   }
 ]
