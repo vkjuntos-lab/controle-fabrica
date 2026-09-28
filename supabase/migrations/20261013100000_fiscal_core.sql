@@ -138,6 +138,7 @@ CREATE TABLE public.fiscal_tax_regimes (
   approved_at timestamptz,
   justification text,
   UNIQUE(organization_id,code,version),
+  UNIQUE(organization_id,id),
   CHECK(valid_to IS NULL OR valid_to>valid_from)
 );
 ALTER TABLE public.fiscal_establishments
@@ -164,6 +165,11 @@ CREATE TABLE public.fiscal_establishment_regime_history (
 );
 CREATE INDEX fiscal_regime_history_est
   ON public.fiscal_establishment_regime_history(organization_id,establishment_id,valid_from DESC);
+
+-- `product_variants` só tem UNIQUE(organization_id,sku). A classificação
+-- fiscal referencia a variante por (organization_id,id), então o índice
+-- único correspondente é criado aqui. Não altera dados nem a PK.
+CREATE UNIQUE INDEX product_variants_org_id_uq ON public.product_variants(organization_id,id);
 
 -- ---------------------------------------------------------------------
 -- 5. Tipos de operação fiscal.
@@ -325,7 +331,8 @@ CREATE TABLE public.fiscal_region_profiles (
   is_active boolean NOT NULL DEFAULT true,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
-  UNIQUE(organization_id,country_code,state_code)
+  UNIQUE(organization_id,country_code,state_code),
+  UNIQUE(organization_id,id)
 );
 
 -- ---------------------------------------------------------------------

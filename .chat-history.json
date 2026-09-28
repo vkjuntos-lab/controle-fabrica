@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"const order = \\|const data = \\|const status = \" src/components/sales/order-detail.tsx | head -5",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790621075934
-  },
-  {
-    "role": "tool_result",
-    "content": "59:  const data = object(query.data);\n60:  const order = object(data.order);\n61:  const status = text(order.status);\n470:        const status = text(fulfillment.status);\n603:  const status = text(shipment.status);\n",
-    "is_error": false,
-    "timestamp": 1790621075946
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
@@ -1576,5 +1561,20 @@
     "content": "=== product_variants tem unique composta? ===\n18:  UNIQUE (organization_id, sku),\n19:  UNIQUE (organization_id, barcode)\n",
     "is_error": false,
     "timestamp": 1790622253096
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'EOF'\nimport io\np=\"/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261013100000_fiscal_core.sql\"\ns=io.open(p,encoding=\"utf-8\").read()\n\n# fiscal_tax_regimes: precisa de (organization_id,id) para ser referenciado\ns=s.replace(\"\"\"  UNIQUE(organization_id,code,version),\n  CHECK(valid_to IS NULL OR valid_to>valid_from)\"\"\",\n\"\"\"  UNIQUE(organization_id,code,version),\n  UNIQUE(organization_id,id),\n  CHECK(valid_to IS NULL OR valid_to>valid_to_sentinel)\"\"\")\ns=s.replace(\"CHECK(valid_to IS NULL OR valid_to>valid_to_sentinel)\",\"CHECK(valid_to IS NULL OR valid_to>valid_from)\")\n\n# fiscal_region_profiles\ns=s.replace(\"\"\"  UNIQUE(organization_id,country_code,state_code)\n);\"\"\",\"\"\"  UNIQUE(organization_id,country_code,state_code),\n  UNIQUE(organization_id,id)\n);\"\"\")\n\n# product_variants nao tem (organization_id,id): cria indice unico para permitir a FK\ns=s.replace(\"\"\"-- ---------------------------------------------------------------------\n-- 5. Tipos de operação fiscal.\"\"\",\"\"\"-- `product_variants` só tem UNIQUE(organization_id,sku). A classificação\n-- fiscal referencia a variante por (organization_id,id), então o índice\n-- único correspondente é criado aqui. Não altera dados nem a PK.\nCREATE UNIQUE INDEX product_variants_org_id_uq ON public.product_variants(organization_id,id);\n\n-- ---------------------------------------------------------------------\n-- 5. Tipos de operação fiscal.\"\"\")\nio.open(p,\"w\",encoding=\"utf-8\").write(s)\nprint(\"ok\")\nEOF\ngrep -n \"UNIQUE(organization_id,id)\\|product_variants_org_id_uq\" supabase/migrations/20261013100000_fiscal_core.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622258424
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n106:  UNIQUE(organization_id,id)\n141:  UNIQUE(organization_id,id),\n172:CREATE UNIQUE INDEX product_variants_org_id_uq ON public.product_variants(organization_id,id);\n335:  UNIQUE(organization_id,id)\n404:  UNIQUE(organization_id,id),\n",
+    "is_error": false,
+    "timestamp": 1790622258464
   }
 ]
