@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "PASS G: DISPONIVEL = SALDO FISICO - RESERVAS; reserva nao cria movimento e e idempotente\nPASS H: reserva de um pedido reduz o disponivel do outro; quarentena nao atende venda direta\nPASS I: leitura por codigo de barras e SKU; item errado e excesso recusados; separar nao baixa estoque\nPASS J: diverge",
-    "is_error": false,
-    "timestamp": 1790594686064
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"rg -n 'CREATE TABLE.*planning_source_facts|source_type.*CHECK|demand_sources' supabase/migrations/2026100{2,3,4}*planning* | head -n 24; rg -n 'demand_sources|HISTORICAL_SALES' src/components/planning* -g '*.tsx'; rg -n 'planning' scripts/test-planning-db.py | head -n 15; sed -n '299,307p' scripts/test-sales-db.py\""
-    },
-    "timestamp": 1790594693810
-  },
-  {
-    "role": "tool_result",
     "content": "supabase/migrations/20261003100000_planning_engine.sql:24:CREATE TABLE public.planning_source_facts(\nsupabase/migrations/20261003100000_planning_engine.sql:30: planned_order_id uuid NOT NULL REFERENCES public.planned_orders,quantity numeric(14,3) NOT NULL CHECK(quantity>0),source_type text NOT NULL ",
     "is_error": false,
     "timestamp": 1790594693817
@@ -1495,5 +1481,21 @@
     "content": "      'gross_weight_kg':12.5,'length_cm':40,'width_cm':30,'height_cm':20},user=picker)\n      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py\", line 34, in execute\n    def execute(operation,ide",
     "is_error": false,
     "timestamp": 1790618449386
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py",
+      "newString": " execute('pack',order_state['id'],'',{'items':[{'picking_task_item_id':picked['id'],'quantity':4}],\n  'gross_weight_kg':12.5,'length_cm':40,'width_cm':30,'height_cm':20},user=picker)",
+      "oldString": " execute('pack',order_state['id'],'',{'picking_task_item_id':picked['id'],'quantity':4,\n  'gross_weight_kg':12.5,'length_cm':40,'width_cm':30,'height_cm':20},user=picker)"
+    },
+    "timestamp": 1790618455329
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790618455343
   }
 ]

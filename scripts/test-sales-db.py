@@ -411,8 +411,8 @@ def run():
  picked=next(p for p in detail(cycle_id)['picking_items'] if p['picking_task_id']==task['id'])
  execute('confirm',task['id'],'',{'items':[{'picking_task_item_id':picked['id'],'confirmed_quantity':4}]},user=picker)
  execute('fulfillment',order_state['id'],'pack',{},user=picker)
- execute('pack',order_state['id'],'',{'picking_task_item_id':picked['id'],'quantity':4,
-   'gross_weight_kg':12.5,'length_cm':40,'width_cm':30,'height_cm':20},user=picker)
+ execute('pack',order_state['id'],'',{'items':[{'picking_task_item_id':picked['id'],'quantity':4}],
+  'gross_weight_kg':12.5,'length_cm':40,'width_cm':30,'height_cm':20},user=picker)
  execute('fulfillment',order_state['id'],'ready',{},user=picker)
  created=execute('shipment_create',cycle_id,'',{'fulfillment_order_id':order_state['id'],
    'source_location_id':warehouse,'tracking_code':'BR123','expected_delivery_at':'2026-12-01T12:00:00Z'},user=commercial)
