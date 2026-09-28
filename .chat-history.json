@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sed -n '687,694p' supabase/migrations/20261006100000_sales_orders.sql",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620776569
-  },
-  {
-    "role": "tool_result",
-    "content": " exception_type text NOT NULL CHECK(exception_type IN\n   ('INSUFFICIENT_STOCK','RESERVATION_CONFLICT','INVALID_SKU','WRONG_BATCH','PICKING_DIFFERENCE',\n    'PACKING_DIFFERENCE','SHIPMENT_DUPLICATE','DELIVERY_DELAY','DELIVERY_FAILURE','DAMAGED_GOODS',\n    'CUSTOMER_REFUSAL')),\n severity text NOT NULL",
-    "is_error": false,
-    "timestamp": 1790620776594
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/sales/constants.ts",
@@ -1599,5 +1584,20 @@
     "content": "=== 20260917110000_catalog_mestre ===\n37-CREATE TABLE public.products (\n39-  organization_id uuid NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE,\n45:  ncm text,\n=== 20260928121500_ee2e153f-bc2a-4d10-ab0d-de9050371f43 ===\n20-CREATE TABLE public.products (\n22-  organization_id uuid NOT",
     "is_error": false,
     "timestamp": 1790622012388
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "awk \"/CREATE TABLE.*public.products \\(/,/^\\);/\" supabase/migrations/20260917110000_catalog_mestre.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; echo \"=== product_variants ===\"; awk \"/CREATE TABLE.*public.product_variants \\(/,/^\\);/\" supabase/migrations/20260917110000_catalog_mestre.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622017228
+  },
+  {
+    "role": "tool_result",
+    "content": "id organization_id code name description category_id brand ncm status main_image_url attributes created_at updated_at created_by updated_by \n=== product_variants ===\nid organization_id product_id sku barcode size color cost_price sell_price weight_grams status attributes created_at updated_at create",
+    "is_error": false,
+    "timestamp": 1790622017269
   }
 ]
