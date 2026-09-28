@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && npm run test:sales:db\" 2>&1 | tail -6",
-      "timeout": 900000
-    },
-    "timestamp": 1790618595461
-  },
-  {
-    "role": "tool_result",
-    "content": "> test:sales:db\n> python3 scripts/test-sales-db.py\n\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py\", line 459\n    carrier=execute('carrier',None,'',{'name':'Transportes Rapidos','document_number':'12345678000199',\nIndentationError: unexpected indent\n",
-    "is_error": false,
-    "timestamp": 1790618595810
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np=Path('scripts/test-sales-db.py')\nlines=p.read_text().split('\\n')\nstart=458\nout=[l[1:] if i>=start and l.startswith('  ') else l for i,l in enumerate(lines)]\np.write_text('\\n'.join(out))\nPY\nsed -n '455,470p' scripts/test-sales-db.py"
     },
     "timestamp": 1790618598708
@@ -1535,5 +1520,20 @@
     "content": "19:CREATE OR REPLACE FUNCTION public.sales_settings_save(_org uuid,_data jsonb)\n20-RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n21-DECLARE cur public.sales_order_settings; cfg jsonb; v_key uuid;\n22- v_field text; v_value text;\n23-BEGIN\n24- PERFORM public.sales_require",
     "is_error": false,
     "timestamp": 1790619495749
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -rn \"_key\" supabase/migrations/20261010100000_sales_integrity.sql | grep -i \"uuid\\|param\\|signature\" | head -10; echo \"=== sales_execute signature ===\"; grep -n \"FUNCTION public.sales_execute\" supabase/migrations/*.sql | head; echo \"=== idempotency key column ===\"; grep -rn \"idempotency_key\\|sales_idempotency\" supabase/migrations/20261006100000_sales_orders.sql | head -10",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790619503474
+  },
+  {
+    "role": "tool_result",
+    "content": "4:CREATE OR REPLACE FUNCTION public.sales_convert_quote(_org uuid,_quote uuid,_data jsonb DEFAULT '{}',_key uuid DEFAULT NULL)\n404: v_key text; v_mov jsonb; v_mov_id uuid; v_res uuid; v_consumed numeric; v_out jsonb:='[]'::jsonb;\n1066: v_key text; v_mov jsonb; v_mov_id uuid; v_res uuid; v_consumed n",
+    "is_error": false,
+    "timestamp": 1790619503521
   }
 ]
