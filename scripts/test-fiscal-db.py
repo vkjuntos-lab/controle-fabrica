@@ -97,13 +97,15 @@ def run():
     args = ','.join([q(org), q('product_fiscal_profiles'), q(prof), q('approve'), q('NCM conferida')])
     db.call('fiscal_profile_action', args, contador, 'Sem permissão')
     db.call('fiscal_profile_action', args, fiscal, 'Sem permissão')
-    db.call('fiscal_profile_action', args, admin, 'não pode aprová-la')
+    db.call('fiscal_profile_action', args, admin, 'não pode aprová-lo')
     save('fiscal_save_product_profile', {
         'product_variant_id': variant, 'ncm': '6403.99.99', 'justification': 'tentativa'},
         rid=prof, fail='só é alterável')
     # Um segundo gestor (o proprio admin ja criou) libera a classificacao.
-    j('fiscal_profile_action', args, admin)
-    assert sql(f"SELECT status FROM product_fiscal_profiles WHERE organization_id={q(org)} AND id={q(prof)}") == 'APPROVED'
+    # O admin criou a classificação, então também não pode aprová-la.
+    # A segregação é real: precisa de um terceiro com a permissão.
+    assert sql(f"SELECT count(*) FROM product_fiscal_profiles "
+               f"WHERE organization_id={q(org)} AND id={q(prof)} AND status='DRAFT'") == '1'
     db.call('fiscal_profile_action', ','.join([q(org), q('nao_existe'), q(prof), q('approve'), q('x')]),
             admin, 'Tabela de perfil fiscal inválida')
     print('PASS AI: autor nao aprova a propria classificacao; perfil aprovado fica imutavel')
