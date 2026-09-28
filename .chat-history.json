@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/business/SALES-ORDERS.md",
-      "newString": "- **Nota fiscal e integração fiscal.** Não há NF-e, nem emissão, nem transmissão de documento fiscal.",
-      "oldString": "- **Nota fiscal e integração fiscal.** Não há NF-e, nem emissão, nem传输 de documento fiscal."
-    },
-    "timestamp": 1790620113958
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790620113967
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "python3 -c \"\nimport glob\nfor p in glob.glob('docs/**/*.md',recursive=True)+glob.glob('src/**/*.ts*',recursive=True):\n    try: t=open(p,encoding='utf-8').read()\n    except: continue\n    for i,l in enumerate(t.split(chr(10)),1):\n        bad=[c for c in l if '\\u4e00'<=c<='\\u9fff']\n        if bad: print(p,i,''.join(bad))\nprint('varredura concluida')\n\"",
@@ -1543,5 +1527,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx</path>\n<type>file</type>\n<content>\n62:     key: \"source_location_id\",\n63:     label: \"Localização de origem\",\n64:     required: true,\n65:     options: locationChoices.map((choice) => choice.key),\n66:     optionLabe",
     "is_error": false,
     "timestamp": 1790620946253
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"sku_snapshot\\|description_snapshot\\|ordered_quantity\\|unit_price\" supabase/migrations/20261006100000_sales_orders.sql | grep -m2 \"\" >/dev/null; awk \"/CREATE TABLE.*public.sales_order_items \\(/,/^\\);/\" supabase/migrations/*.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620950174
+  },
+  {
+    "role": "tool_result",
+    "content": "id organization_id sales_order_id product_variant_id sku_snapshot description_snapshot unit_snapshot price_snapshot ordered_quantity approved_quantity reserved_quantity picked_quantity fulfilled_quantity delivered_quantity returned_quantity unit_price discount_amount tax_amount line_total expected_d",
+    "is_error": false,
+    "timestamp": 1790620950225
   }
 ]
