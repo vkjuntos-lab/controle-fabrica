@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"proname=ANY\\|proname IN\" supabase/migrations/20261010100000_sales_integrity.sql | tail -3",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620165636
-  },
-  {
-    "role": "tool_result",
-    "content": "575:DO $permissions$ DECLARE f record; BEGIN FOR f IN SELECT oid::regprocedure signature,proname FROM pg_proc WHERE pronamespace='public'::regnamespace AND proname LIKE 'sales_%' LOOP EXECUTE format('REVOKE ALL ON FUNCTION %s FROM PUBLIC, anon',f.signature); IF f.proname=ANY(ARRAY['sales_audit','sal",
-    "is_error": false,
-    "timestamp": 1790620165657
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/MASTER-013-VALIDATION.md",
@@ -1547,5 +1532,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790620978400
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"exceptionSeverityLabel\\|exceptionTypeLabel\\|exceptionStatusLabel\\|proofTypeLabel\" src/components/sales/order-detail.tsx | head",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620981069
+  },
+  {
+    "role": "tool_result",
+    "content": "230:            proof_type: (row) => proofTypeLabel(row.proof_type),\n272:            exception_type: (row) => exceptionTypeLabel(row.exception_type),\n273:            severity: (row) => exceptionSeverityLabel(row.severity),\n274:            status: (row) => exceptionStatusLabel(row.status),\n",
+    "is_error": false,
+    "timestamp": 1790620981106
   }
 ]
