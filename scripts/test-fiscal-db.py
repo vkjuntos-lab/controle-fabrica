@@ -59,10 +59,10 @@ def run():
         'tax_registration': '00000000000191', 'tax_regime_id': regime,
         'regime_reason': 'Vigencia inicial'})['id']
     op = save('fiscal_save_operation', {
-        'kind': 'OUTBOUND', 'code': 'VENDA_MERC', 'label': 'Venda de mercadoria',
+        'kind': 'DIRECT_SALE', 'code': 'VENDA_MERC', 'label': 'Venda de mercadoria',
         'requires_document': True})['id']
     save('fiscal_save_operation', {
-        'kind': 'INTERNAL', 'code': 'CONSUMO_PROD', 'label': 'Consumo de producao',
+        'kind': 'PRODUCTION_CONSUMPTION', 'code': 'CONSUMO_PROD', 'label': 'Consumo de producao',
         'requires_document': False, 'requires_inventory_effect': True})
     assert sql(f"SELECT requires_document::text FROM fiscal_operation_types "
                f"WHERE organization_id={q(org)} AND code='CONSUMO_PROD'") == 'false'
