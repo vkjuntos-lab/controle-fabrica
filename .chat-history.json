@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md",
-      "newString": "Última atualização: LOVABLE MASTER 013 — Vendas e logística, sobre o MASTER 012 (CRM), 010 (Compras),\n011 (Planejamento), 009 (Custos), 007 (reconciliação/tabelas de preço), 006 (parceiros),\n003 (Inventory Ledger), 002 (Catálogo) e a fundação do MASTER 001. O MASTER 005 (importador\nmarketplace automático) não está no checkout — o registro de vendas é manual com o mesmo contrato.\nEtapa atual: vendas e logística validadas localmente (quatro migrations, telas `/vendas` e\n`/vendas/pedidos/$id`, RBAC e harness PostgreSQL reproduzível via `npm run test:sales:db` com 32\ngrupos A–AF). Validação local; publicação não verificada.",
-      "oldString": "Última atualização: LOVABLE MASTER 009 — Cost Engine, formação de preço, margens e rentabilidade,\nsobre o MASTER 008 (Financeiro), 007 (reconciliação/tabelas de preço), 006 (parceiros),\n003 (Inventory Ledger), 002 (Catálogo) e a fundação do MASTER 001. O MASTER 005 (importador\nmarketplace automático) não está no checkout — o registro de vendas é manual com o mesmo contrato.\nEtapa atual: cost/preço/rentabilidade validados localmente\n(`20260930100000_cost_engine.sql`, telas `/custos`, `/precificacao`, `/relatorios/rentabilidade`,\nRBAC e harness PostgreSQL reproduzível via `npm run test:costs:db`).\nValidação local; publicação não verificada."
-    },
-    "timestamp": 1790620252310
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790620252335
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "echo \"=== TYPECHECK ===\"; npm run typecheck 2>&1 | tail -5; echo \"=== LINT VENDAS ===\"; npx eslint src/components/sales src/lib/sales src/lib/rbac.ts src/lib/rbac.test.ts 2>&1 | tail -8; echo \"=== TESTES ===\"; npm test 2>&1 | tail -8",
@@ -1542,5 +1526,20 @@
     "content": "=== CHECK na tabela ===\n98:   CHECK(credit_exposure_policy IN ('OPEN_RECEIVABLES_ONLY','OPEN_RECEIVABLES_PLUS_OPEN_ORDERS')),\n3144:    AND _data->>'credit_exposure_policy' NOT IN ('OPEN_RECEIVABLES_ONLY','OPEN_RECEIVABLES_PLUS_OPEN_ORDERS') THEN\n=== todos os valores citados em qualquer migration ===",
     "is_error": false,
     "timestamp": 1790621161635
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "for f in supabase/migrations/20261006100000_sales_orders.sql supabase/migrations/20261010100000_sales_integrity.sql supabase/migrations/20261011100000_sales_planning.sql; do echo \"=== $f ===\"; grep -nE \"credit_exposure_policy\" \"$f\" | grep -E \"IN \\(\" | sed 's/^ *//' | cut -c1-150; done",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790621169420
+  },
+  {
+    "role": "tool_result",
+    "content": "=== supabase/migrations/20261006100000_sales_orders.sql ===\n98:   CHECK(credit_exposure_policy IN ('OPEN_RECEIVABLES_ONLY','OPEN_RECEIVABLES_PLUS_OPEN_ORDERS')),\n3144:    AND _data->>'credit_exposure_policy' NOT IN ('OPEN_RECEIVABLES_ONLY','OPEN_RECEIVABLES_PLUS_OPEN_ORDERS') THEN\n=== supabase/migra",
+    "is_error": false,
+    "timestamp": 1790621169483
   }
 ]
