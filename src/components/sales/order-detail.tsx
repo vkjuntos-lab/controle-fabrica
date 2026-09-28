@@ -257,6 +257,27 @@ export function OrderDetail({
       ) : null}
 
       <Section
+        title="Ocorrências deste pedido"
+        description="Divergência de separação, atraso e problema de entrega. Ocorrência não corrige estoque: registrar a divergência é o caminho."
+      >
+        <Table
+          data={rows(data.exceptions)}
+          columns={[
+            ["created_at", "Data"],
+            ["exception_type", "Tipo"],
+            ["severity", "Gravidade"],
+            ["message", "Descrição"],
+            ["status", "Situação"],
+          ]}
+          render={{
+            exception_type: (row) => exceptionTypeLabel(row.exception_type),
+            severity: (row) => exceptionSeverityLabel(row.severity),
+            status: (row) => exceptionStatusLabel(row.status),
+          }}
+        />
+      </Section>
+
+      <Section
         title="Movimentos oficiais de estoque"
         description="Derivados do ledger; nunca editados. Um movimento por vez: expedir e devolver geram os seus."
       >

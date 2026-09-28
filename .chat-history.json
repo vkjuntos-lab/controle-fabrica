@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -ohiE \"CREATE TABLE (IF NOT EXISTS )?public\\.[a-z_]+\" supabase/migrations/20261006100000_sales_orders.sql | awk '{print $NF}' | tr -d ';' | sort -u | tr '\\n' ' '; echo; echo \"=== contagem ===\"; grep -ohiE \"CREATE TABLE (IF NOT EXISTS )?public\\.[a-z_]+\" supabase/migrations/20261006100000_sales_orders.sql | awk '{print $NF}' | tr -d ';' | sort -u | wc -l",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620157406
-  },
-  {
-    "role": "tool_result",
-    "content": "public.carriers public.customer_return_items public.customer_returns public.fulfillment_orders public.inventory_reservations public.logistics_exceptions public.packing_record_items public.packing_records public.packing_record_volumes public.picking_task_items public.picking_tasks public.sales_credit",
-    "is_error": false,
-    "timestamp": 1790620157463
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -ohE \"FUNCTION public\\.sales_[a-z_]+\" supabase/migrations/*.sql | awk '{print $NF}' | sort -u | wc -l; echo \"--- lista sem grant (15 internas) ---\"; grep -oE \"IF p.proname=ANY\\(ARRAY\\[[^]]*\\]\" supabase/migrations/20261010100000_sales_integrity.sql | head -c 600",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1545,5 +1530,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790620970276
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
+      "newString": "      <Section\n        title=\"Ocorrências deste pedido\"\n        description=\"Divergência de separação, atraso e problema de entrega. Ocorrência não corrige estoque: registrar a divergência é o caminho.\"\n      >\n        <Table\n          data={rows(data.exceptions)}\n          columns={[\n            [\"created_at\", \"Data\"],\n            [\"exception_type\", \"Tipo\"],\n            [\"severity\", \"Gravidade\"],\n            [\"message\", \"Descrição\"],\n            [\"status\", \"Situação\"],\n          ]}\n          render={{\n            exception_type: (row) => exceptionTypeLabel(row.exception_type),\n            severity: (row) => exceptionSeverityLabel(row.severity),\n            status: (row) => exceptionStatusLabel(row.status),\n          }}\n        />\n      </Section>\n\n      <Section\n        title=\"Movimentos oficiais de estoque\"",
+      "oldString": "      <Section\n        title=\"Movimentos oficiais de estoque\""
+    },
+    "timestamp": 1790620975753
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790620975759
   }
 ]
