@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "echo \"=== colunas de sales_order_settings ===\"; awk \"/CREATE TABLE.*sales_order_settings \\(/,/^\\);/\" supabase/migrations/20261006100000_sales_orders.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; echo \"=== tabela de。过\"; grep -c \"\" supabase/migrations/20261006100000_sales_orders.sql",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790621193045
-  },
-  {
-    "role": "tool_result",
-    "content": "=== colunas de sales_order_settings ===\nid organization_id reservation_policy reservation_expiry_hours make_to_order_enabled credit_exposure_policy approval_segregation max_discount_percent price_override_policy receivable_trigger allow_partial_fulfillment shipment_requires_full_confirmation trackin",
-    "is_error": false,
-    "timestamp": 1790621193104
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sed -n '1,60p' src/lib/sales/idempotency.test.ts | grep -nE \"describe|it\\(\" ; echo \"=== fim do arquivo de teste ===\"; tail -20 src/lib/sales/idempotency.test.ts",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1633,5 +1618,20 @@
     "content": "506:--     A checagem real de permissão é server-side, em fiscal_require.\n507--- ---------------------------------------------------------------------\n508-ALTER TABLE public.fiscal_number_sequences ENABLE ROW LEVEL SECURITY;\n509-ALTER TABLE public.fiscal_establishments ENABLE ROW LEVEL SECURITY;\n510",
     "is_error": false,
     "timestamp": 1790622503453
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"CREATE.*FUNCTION public.has_permission\" -A 30 supabase/migrations/*.sql | head -45; echo \"=== role map ===\"; grep -n \"'fiscal\\.\" supabase/migrations/*.sql | head -20",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622506327
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql:107:CREATE OR REPLACE FUNCTION public.has_permission(_organization_id uuid, _permission text, _user_id uuid DEFAULT auth.uid())\nsupabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql-108-RETURNS boolean ",
+    "is_error": false,
+    "timestamp": 1790622506383
   }
 ]
