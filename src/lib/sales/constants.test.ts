@@ -16,13 +16,15 @@ import {
 /**
  * Contrato entre as telas de vendas e o banco.
  *
- * Estas regras já custaram defeitos reais: a tela oferecia um valor de política
- * que o servidor rejeitava, e o cartão de crédito lia campos que existem dentro
- * de `position`, não no nível da linha. Nenhum dos dois aparece em typecheck nem
- * em teste de unidade — só em tempo de execução, contra o banco.
+ * Estas regras já custaram defeitos reais: colunas lidas pela tela que não
+ * existem no retorno da RPC, e cartões de crédito que liam os campos no nível
+ * errado. Nenhum dos dois aparece em typecheck nem em teste de unidade — só em
+ * tempo de execução, contra o banco, e a tela apenas mostra "—".
  *
- * A verificação aqui é mecânica e barata: as migrations são a fonte, e a tela
- * precisa concordar com elas.
+ * A verificação aqui é mecânica e barata: a migration é a fonte, e a tela
+ * precisa concordar com ela. Toda leitura é escopada a uma tabela, porque
+ * `status` e `severity` se repetem em meia dúzia de tabelas com valores
+ * diferentes.
  */
 
 const migration = readFileSync(
@@ -30,20 +32,35 @@ const migration = readFileSync(
   "utf8",
 );
 
-/** Colunas de uma tabela, na ordem em que a migration declara. */
-const tableColumns = (table: string): string[] => {
+/** Corpo do `CREATE TABLE` de uma tabela. */
+const tableBody = (table: string): string => {
   const body = migration.match(new RegExp(`CREATE TABLE[^;]*${table} \\(([\\s\\S]*?)\\n\\);`));
   if (!body) throw new Error(`Tabela ${table} não encontrada na migration.`);
-  return [...body[1].matchAll(/^\s{2}([a-z_]+)\s/gm)].map((match) => match[1]);
+  return body[1];
 };
 
-/** Valores aceitos por um `CHECK(coluna IN ('A','B'))`. */
-const checkValues = (column: string): string[] => {
-  const match = migration.match(
+/** Colunas declaradas na criação da tabela. */
+const tableColumns = (table: string): string[] =>
+  [...tableBody(table).matchAll(/^\s+([a-z_]+)\s/gm)].map((match) => match[1]);
+
+/** Valores aceitos por `CHECK(coluna IN ('A','B'))` dentro de uma tabela. */
+const checkValues = (table: string, column: string): string[] => {
+  const match = tableBody(table).match(
     new RegExp(`CHECK\\s*\\(\\s*${column}\\s+IN\\s*\\(([^)]*)\\)`, "s"),
   );
-  if (!match) throw new Error(`CHECK de ${column} não encontrado.`);
+  if (!match) throw new Error(`CHECK de ${column} não encontrado em ${table}.`);
   return [...match[1].matchAll(/'([A-Z_]+)'/g)].map((value) => value[1]);
+};
+
+/**
+ * Todo código que a tela mostra precisa existir no banco, e todo código que o
+ * banco produz precisa de tradução: sem ela, `label()` devolve o texto cru e o
+ * usuário lê `PICKING_DIFFERENCE`.
+ */
+const expectAligned = (table: string, column: string, map: Record<string, string>): void => {
+  const accepted = checkValues(table, column);
+  for (const value of accepted) expect(map[value], `${table}.${column}:${value}`).toBeTruthy();
+  for (const value of Object.keys(map)) expect(accepted, `${table}.${column}:${value}`).toContain(value);
 };
 
 describe("políticas editáveis na tela de configurações", () => {
@@ -60,61 +77,58 @@ describe("políticas editáveis na tela de configurações", () => {
   });
 
   it("sete chaves correspondem a colunas de sales_order_settings", () => {
-    // `sales_order_settings` guarda uma linha por organização; a tela lê e
-    // escreve essas mesmas colunas. Sem correspondência, o servidor ignora o
-    // campo ou falha na gravação.
+    // A tela lê e escreve estas colunas. Sem correspondência, o servidor ignora
+    // o campo e a tela mente mostrando a política salva.
     const columns = new Set(tableColumns("sales_order_settings"));
     for (const key of keys) expect(columns.has(key), key).toBe(true);
   });
 
   it("oferece exatamente os valores que o servidor aceita", () => {
+    // Um valor a mais na tela é erro de escrita em tempo de execução: o
+    // `sales_settings_save` responde "política inválida" e nada é salvo.
     for (const [key, option] of Object.entries(SETTING_OPTIONS)) {
-      const accepted = checkValues(key);
-      expect([...option.options].sort(), key).toEqual([...accepted].sort());
+      expect([...option.options].sort(), key).toEqual([...checkValues("sales_order_settings", key)].sort());
     }
   });
 
   it("traduz todo valor aceito, sem valor órfão", () => {
     for (const [key, option] of Object.entries(SETTING_OPTIONS)) {
-      const labels = Object.keys(option.labels).sort();
-      expect(labels, key).toEqual([...option.options].sort());
+      expect(Object.keys(option.labels).sort(), key).toEqual([...option.options].sort());
     }
   });
 
   it("traduz toda opção de booleanos e de números", () => {
     for (const [key, flag] of Object.entries(SETTING_FLAGS)) {
-      expect(typeof flag.label, key).toBe("string");
       expect(flag.label.length, key).toBeGreaterThan(0);
-      expect(typeof flag.hint, key).toBe("string");
+      expect(flag.hint.length, key).toBeGreaterThan(0);
     }
   });
 });
 
-describe("códigos de status e de ocorrência", () => {
-  const cases: [string, Record<string, string>, string][] = [
-    ["exception_type", EXCEPTION_TYPE, "exception_type"],
-    ["proof_type", PROOF_TYPE, "proof_type"],
-    ["exception severity", EXCEPTION_SEVERITY, "severity"],
-    ["exception status", EXCEPTION_STATUS, "status"],
-    ["modality", CARRIER_MODALITY, "modality"],
-  ];
-
-  it.each(cases)("traduz todos os valores de %s sem inventar código", (_name, map, column) => {
-    const accepted = new Set(checkValues(column));
-    // Um código que o banco nunca produz cai no `label()` e vira texto cru na
-    // tela; um código sem tradução mostra `PICKING_DIFFERENCE` ao usuário.
-    for (const value of checkValues(column)) expect(map[value], value).toBeTruthy();
-    for (const value of Object.keys(map)) expect(accepted.has(value), value).toBe(true);
+describe("códigos traduzidos antes de chegar à tela", () => {
+  it("ocorrência de logística", () => {
+    expectAligned("logistics_exceptions", "exception_type", EXCEPTION_TYPE);
+    expectAligned("logistics_exceptions", "severity", EXCEPTION_SEVERITY);
+    expectAligned("logistics_exceptions", "status", EXCEPTION_STATUS);
   });
 
-  it("traduz os destinos de devolução", () => {
-    const accepted = new Set(checkValues("destination"));
-    for (const value of accepted) expect(RETURN_DESTINATION[value], value).toBeTruthy();
-    for (const value of Object.keys(RETURN_DESTINATION)) expect(accepted.has(value), value).toBe(true);
+  it("prova de entrega", () => {
+    expectAligned("shipment_delivery_proofs", "proof_type", PROOF_TYPE);
   });
 
-  it("traduz todo status de pedido que o banco aceita", () => {
-    const accepted = new Set(checkValues("status"));
-    for (const value of Object.keys(ORDER_STATUS)) expect(accepted.has(value), value).toBe(true);
+  it("transportadora", () => {
+    expectAligned("carriers", "modality", CARRIER_MODALITY);
+  });
+
+  it("destinação do item devolvido", () => {
+    expectAligned("customer_return_items", "destination", RETURN_DESTINATION);
+  });
+
+  it("status de pedido", () => {
+    // Só o sentido banco → tela: o mapa de ações é maior que o conjunto de
+    // status e não faz sentido exigir igualdade aqui.
+    for (const value of checkValues("sales_orders", "status")) {
+      expect(ORDER_STATUS[value], value).toBeTruthy();
+    }
   });
 });

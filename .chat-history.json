@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
-      "newString": "      <Section\n        title=\"Disponibilidade oficial\"\n        description=\"Saldo físico menos reservas, como o servidor calcula. Consultar não reserva nem movimenta mercadoria.\"\n      >\n        <p className=\"text-sm text-muted-foreground\">\n          Quantidade necessária: {numeric(object(data.availability).required_quantity)}\n        </p>\n        {/* Só os campos que `sales_availability` devolve. A reserva por item não\n            vem no resultado: deduzi-la aqui seria calcular regra no cliente. */}\n        <Table\n          data={rows(object(data.availability).items)}\n          columns={[\n            [\"sku\", \"SKU\"],\n            [\"available\", \"Disponível\"],\n            [\"on_hand\", \"Saldo físico\"],\n          ]}\n        />\n      </Section>",
-      "oldString": "      <Section\n        title=\"Disponibilidade oficial\"\n        description=\"Saldo físico menos reservas. Consultar disponibilidade não reserva nem movimenta mercadoria.\"\n      >\n        <Table\n          data={rows(object(data.availability).items).map((row) => ({\n            ...row,\n            sku: row.sku ?? row.sku_snapshot,\n            available: row.available ?? row.available_quantity,\n          }))}\n          columns={[\n            [\"sku\", \"SKU\"],\n            [\"available\", \"Disponível\"],\n            [\"reserved\", \"Reservado\"],\n            [\"on_hand\", \"Saldo físico\"],\n          ]}\n        />\n      </Section>"
-    },
-    "timestamp": 1790620372072
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790620372091
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "echo \"=== TYPECHECK ===\"; npm run typecheck 2>&1 | tail -3; echo \"=== LINT ===\"; npx eslint src/components/sales 2>&1 | tail -4; echo \"=== TESTES ===\"; npm test 2>&1 | grep -E \"Test Files|Tests \"",
@@ -1540,5 +1524,20 @@
     "content": "id organization_id customer_return_id sales_order_item_id shipment_item_id variant_id sku_snapshot quantity received_quantity condition destination reason created_at updated_at \n=== RETURN_DESTINATION no servidor ===\n673:   CHECK(destination IN ('PENDING','SELLABLE','QUARANTINE','SCRAP')),\n2963:   I",
     "is_error": false,
     "timestamp": 1790621260829
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "import { readFileSync } from \"node:fs\";\nimport { describe, expect, it } from \"vitest\";\n\nimport {\n  CARRIER_MODALITY,\n  EXCEPTION_SEVERITY,\n  EXCEPTION_STATUS,\n  EXCEPTION_TYPE,\n  ORDER_STATUS,\n  PROOF_TYPE,\n  RETURN_DESTINATION,\n  SETTING_FLAGS,\n  SETTING_OPTIONS,\n} from \"@/lib/sales/constants\";\n\n/**\n * Contrato entre as telas de vendas e o banco.\n *\n * Estas regras já custaram defeitos reais: colunas lidas pela tela que não\n * existem no retorno da RPC, e cartões de crédito que liam os campos no nível\n * errado. Nenhum dos dois aparece em typecheck nem em teste de unidade — só em\n * tempo de execução, contra o banco, e a tela apenas mostra \"—\".\n *\n * A verificação aqui é mecânica e barata: a migration é a fonte, e a tela\n * precisa concordar com ela. Toda leitura é escopada a uma tabela, porque\n * `status` e `severity` se repetem em meia dúzia de tabelas com valores\n * diferentes.\n */\n\nconst migration = readFileSync(\n  new URL(\"../../../supabase/migrations/20261006100000_sales_orders.sql\", import.meta.url),\n  \"utf8\",\n);\n\n/** Corpo do `CREATE TABLE` de uma tabela. */\nconst tableBody = (table: string): string => {\n  const body = migration.match(new RegExp(`CREATE TABLE[^;]*${table} \\\\(([\\\\s\\\\S]*?)\\\\n\\\\);`));\n  if (!body) throw new Error(`Tabela ${table} não encontrada na migration.`);\n  return body[1];\n};\n\n/** Colunas declaradas na criação da tabela. */\nconst tableColumns = (table: string): string[] =>\n  [...tableBody(table).matchAll(/^\\s+([a-z_]+)\\s/gm)].map((match) => match[1]);\n\n/** Valores aceitos por `CHECK(coluna IN ('A','B'))` dentro de uma tabela. */\nconst checkValues = (table: string, column: string): string[] => {\n  const match = tableBody(table).match(\n    new RegExp(`CHECK\\\\s*\\\\(\\\\s*${column}\\\\s+IN\\\\s*\\\\(([^)]*)\\\\)`, \"s\"),\n  );\n  if (!match) throw new Error(`CHECK de ${column} não encontrado em ${table}.`);\n  return [...match[1].matchAll(/'([A-Z_]+)'/g)].map((value) => value[1]);\n};\n\n/**\n * Todo código que a tela mostra precisa existir no banco, e todo código que o\n * banco produz precisa de tradução: sem ela, `label()` devolve o texto cru e o\n * usuário lê `PICKING_DIFFERENCE`.\n */\nconst expectAligned = (table: string, column: string, map: Record<string, string>): void => {\n  const accepted = checkValues(table, column);\n  for (const value of accepted) expect(map[value], `${table}.${column}:${value}`).toBeTruthy();\n  for (const value of Object.keys(map)) expect(accepted, `${table}.${column}:${value}`).toContain(value);\n};\n\ndescribe(\"políticas editáveis na tela de configurações\", () => {\n  const keys = [\n    ...Object.keys(SETTING_OPTIONS),\n    ...Object.keys(SETTING_FLAGS),\n    \"reservation_expiry_hours\",\n    \"max_discount_percent\",\n  ];\n\n  it(\"cobre exatamente as doze políticas do banco\", () => {\n    expect(keys).toHaveLength(12);\n    expect(new Set(keys).size).toBe(12);\n  });\n\n  it(\"sete chaves correspondem a colunas de sales_order_settings\", () => {\n    // A tela lê e escreve estas colunas. Sem correspondência, o servidor ignora\n    // o campo e a tela mente mostrando a política salva.\n    const columns = new Set(tableColumns(\"sales_order_settings\"));\n    for (const key of keys) expect(columns.has(key), key).toBe(true);\n  });\n\n  it(\"oferece exatamente os valores que o servidor aceita\", () => {\n    // Um valor a mais na tela é erro de escrita em tempo de execução: o\n    // `sales_settings_save` responde \"política inválida\" e nada é salvo.\n    for (const [key, option] of Object.entries(SETTING_OPTIONS)) {\n      expect([...option.options].sort(), key).toEqual([...checkValues(\"sales_order_settings\", key)].sort());\n    }\n  });\n\n  it(\"traduz todo valor aceito, sem valor órfão\", () => {\n    for (const [key, option] of Object.entries(SETTING_OPTIONS)) {\n      expect(Object.keys(option.labels).sort(), key).toEqual([...option.options].sort());\n    }\n  });\n\n  it(\"traduz toda opção de booleanos e de números\", () => {\n    for (const [key, flag] of Object.entries(SETTING_FLAGS)) {\n      expect(flag.label.length, key).toBeGreaterThan(0);\n      expect(flag.hint.length, key).toBeGreaterThan(0);\n    }\n  });\n});\n\ndescribe(\"códigos traduzidos antes de chegar à tela\", () => {\n  it(\"ocorrência de logística\", () => {\n    expectAligned(\"logistics_exceptions\", \"exception_type\", EXCEPTION_TYPE);\n    expectAligned(\"logistics_exceptions\", \"severity\", EXCEPTION_SEVERITY);\n    expectAligned(\"logistics_exceptions\", \"status\", EXCEPTION_STATUS);\n  });\n\n  it(\"prova de entrega\", () => {\n    expectAligned(\"shipment_delivery_proofs\", \"proof_type\", PROOF_TYPE);\n  });\n\n  it(\"transportadora\", () => {\n    expectAligned(\"carriers\", \"modality\", CARRIER_MODALITY);\n  });\n\n  it(\"destinação do item devolvido\", () => {\n    expectAligned(\"customer_return_items\", \"destination\", RETURN_DESTINATION);\n  });\n\n  it(\"status de pedido\", () => {\n    // Só o sentido banco → tela: o mapa de ações é maior que o conjunto de\n    // status e não faz sentido exigir igualdade aqui.\n    for (const value of checkValues(\"sales_orders\", \"status\")) {\n      expect(ORDER_STATUS[value], value).toBeTruthy();\n    }\n  });\n});\n",
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/sales/constants.test.ts"
+    },
+    "timestamp": 1790621279886
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790621279897
   }
 ]
