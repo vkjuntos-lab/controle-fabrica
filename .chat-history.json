@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "echo \"=== credits no SQL ===\"; sed -n '3317,3326p' supabase/migrations/20261006100000_sales_orders.sql | sed 's/^ *//'; echo; echo \"=== colunas lidas por SalesCredits ===\"; sed -n '491,520p' src/components/sales/areas.tsx | grep -oE '\\[\"[a-z_]+\",' | tr -d '[\"' | tr '\\n' ' '",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620600867
-  },
-  {
-    "role": "tool_result",
-    "content": "=== credits no SQL ===\nELSIF _kind='credits' THEN\nPERFORM public.sales_require(_org,'sales_credit.read');\nSELECT coalesce(jsonb_agg(to_jsonb(x)),'[]'::jsonb) INTO v_json\nFROM (SELECT c.id AS company_id,co.trade_name AS company_name,\npublic.crm_financial_position(_org,c.id) AS position\nFROM public.cu",
-    "is_error": false,
-    "timestamp": 1790620600906
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sed -n '488,520p' src/components/sales/areas.tsx; echo \"=== crm_financial_position retorna ===\"; awk '/FUNCTION public.crm_financial_position/,/^\\$\\$/' supabase/migrations/*.sql | grep -oE \"'[a-z_]+',\" | tr -d \" ',\" | sort -u | tr '\\n' ' '",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1546,5 +1531,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790621479045
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/MASTER-013-VALIDATION.md",
+      "newString": "| Testes críticos | IMPLEMENTED | 32 grupos PostgreSQL (A–AF) e 87 testes Vitest |",
+      "oldString": "| Testes críticos | IMPLEMENTED | 32 grupos PostgreSQL (A–AF) e 77 testes Vitest |"
+    },
+    "timestamp": 1790621482367
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790621482378
   }
 ]

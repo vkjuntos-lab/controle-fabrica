@@ -88,7 +88,7 @@ Vinte e oito permissões declaradas, com rótulo, e o módulo `vendas` marcado c
 | Tela de vendas | IMPLEMENTED | AD: todo botão tem caminho pelo gateway |
 | Isolamento e RLS | IMPLEMENTED | V/W/X: escrita direta e colunas financeiras bloqueadas |
 | Credit e Customer 360 | IMPLEMENTED | U: leem dados oficiais e declaram as fórmulas |
-| Testes críticos | IMPLEMENTED | 32 grupos PostgreSQL (A–AF) e 77 testes Vitest |
+| Testes críticos | IMPLEMENTED | 32 grupos PostgreSQL (A–AF) e 87 testes Vitest |
 | TypeScript, lint e build | IMPLEMENTED | Verificações locais sem erro |
 | Integrações testadas | PARTIAL | Banco real isolado; navegador autenticado não testado |
 | Implantação publicada | NÃO VERIFICADA | Nenhuma migration aplicada no banco de destino |
