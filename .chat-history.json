@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"SalesShipments\\|<Section\\|</Section>\\|^      />\" src/components/sales/order-detail.tsx | sed -n '1,60p'",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620800441
-  },
-  {
-    "role": "tool_result",
-    "content": "103:      />\n105:      <Section\n122:      </Section>\n124:      <Section\n141:      </Section>\n143:      <Section\n157:      </Section>\n165:      />\n167:      <Section\n192:      </Section>\n199:      />\n202:        <Section\n214:        </Section>\n217:      <Section\n230:      </Section>\n232:      <Sectio",
-    "is_error": false,
-    "timestamp": 1790620800492
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
@@ -1595,5 +1580,20 @@
     "content": "=== account_receivables ===\nid organization_id company_id source_type source_id source_status document_number description issue_date due_date competence_date original_amount discount_amount interest_amount penalty_amount adjustment_amount open_amount currency status financial_category_id cost_center",
     "is_error": false,
     "timestamp": 1790622044726
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "echo \"=== domain_events ===\"; awk \"/CREATE TABLE.*public.domain_events \\(/,/^\\);/\" supabase/migrations/20260926100000_partner_reconciliation.sql | sed 's/^ *//' | head -20; echo \"=== outbox? ===\"; grep -rn \"outbox\" supabase/migrations/*.sql | head -5",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622048216
+  },
+  {
+    "role": "tool_result",
+    "content": "=== domain_events ===\nCREATE TABLE public.domain_events (\nid uuid PRIMARY KEY DEFAULT gen_random_uuid(),\norganization_id uuid NOT NULL REFERENCES public.organizations,\nevent_type text NOT NULL CHECK(length(trim(event_type))>0),\nevent_source text NOT NULL DEFAULT 'RECONCILIATION',\nevent_key text NOT ",
+    "is_error": false,
+    "timestamp": 1790622048254
   }
 ]
