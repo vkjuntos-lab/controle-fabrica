@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/reference-picker.tsx",
-      "newString": "      <div className=\"space-y-1\">\n        <Label>{label}</Label>\n        {value && currentLabel ? (\n          <p className=\"text-sm\">\n            Selecionado: <span className=\"font-medium\">{currentLabel}</span>\n          </p>\n        ) : null}\n        <Input\n          placeholder=\"Buscar\"\n          aria-label={`${label}: buscar`}\n          value={term}\n          onChange={(event) => setTerm(event.target.value)}\n          disabled={disabled}\n        />",
-      "oldString": "      <div className=\"space-y-1\">\n        <Label>{label}</Label>\n        <Input\n          placeholder=\"Buscar\"\n          aria-label={`${label}: buscar`}\n          value={term}\n          onChange={(event) => setTerm(event.target.value)}\n          disabled={disabled}\n        />"
-    },
-    "timestamp": 1790619916639
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619916655
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/reference-picker.tsx",
       "newString": "          options_.map((row) => {\n            const id = text(row.id);\n            const active = id === value;\n            return (\n              <button\n                key={id}\n                type=\"button\"\n                role=\"option\"\n                aria-selected={active}\n                className={`block w-full truncate border-b px-3 py-2 text-left text-sm last:border-b-0 ${\n                  active ? \"bg-accent font-medium\" : \"hover:bg-muted\"\n                }`}\n                onClick={() => {\n                  if (active && !required) {\n                    setChosen(null);\n                    onChange(\"\");\n                    return;\n                  }\n                  setChosen({ id, label: describe(row) });\n                  onChange(id);\n                }}\n              >\n                {describe(row)}\n              </button>\n            );\n          })",
       "oldString": "          options_.map((row) => {\n            const id = text(row.id);\n            const active = id === value;\n            return (\n              <button\n                key={id}\n                type=\"button\"\n                role=\"option\"\n                aria-selected={active}\n                className={`block w-full truncate border-b px-3 py-2 text-left text-sm last:border-b-0 ${\n                  active ? \"bg-accent font-medium\" : \"hover:bg-muted\"\n                }`}\n                onClick={() => onChange(active && !required ? \"\" : id)}\n              >\n                {describe(row)}\n              </button>\n            );\n          })"
     },
@@ -1539,5 +1523,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx</path>\n<type>file</type>\n<content>\n505: \n506: function ShipmentActions({\n507:   organizationId,\n508:   orderId,\n509:   shipment,\n510:   shipmentItems,\n511: }: {\n512:   organizationId: string;\n513:   orderId: string",
     "is_error": false,
     "timestamp": 1790620797737
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"SalesShipments\\|<Section\\|</Section>\\|^      />\" src/components/sales/order-detail.tsx | sed -n '1,60p'",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620800441
+  },
+  {
+    "role": "tool_result",
+    "content": "103:      />\n105:      <Section\n122:      </Section>\n124:      <Section\n141:      </Section>\n143:      <Section\n157:      </Section>\n165:      />\n167:      <Section\n192:      </Section>\n199:      />\n202:        <Section\n214:        </Section>\n217:      <Section\n230:      </Section>\n232:      <Sectio",
+    "is_error": false,
+    "timestamp": 1790620800492
   }
 ]
