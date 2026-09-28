@@ -1,19 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20261010100000_sales_integrity.sql');s=p.read_text().replace(\\\"'receivables',CASE WHEN public.has_permission(_org,'receivables.read') THEN\\\", \\\"'receivables',CASE WHEN public.has_permission(_org,'receivables.read') AND public.has_permission(_org,'sales_credit.read') THEN\\\");p.write_text(s)\nPY\npython3 scripts/test-sales-db.py > .git/sales-db.log 2>&1\""
-    },
-    "timestamp": 1790594802678
-  },
-  {
-    "role": "tool_result",
-    "content": "",
-    "is_error": true,
-    "timestamp": 1790594808190
-  },
-  {
     "role": "assistant",
     "content": "O fluxo principal já passou nos testes: criação, aprovação, reserva sem baixa física, picking, expedição, entrega e devolução. Estou ampliando a validação para envios parciais com vários SKUs, crédito e disputa simultânea pelo mesmo estoque. Também integrei os pedidos ao Customer 360 e a conversão à proposta aceita.\n",
     "timestamp": 1790594808348
@@ -1505,5 +1491,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790618498304
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py",
+      "newString": "'20261010100000_sales_integrity.sql','20261011100000_sales_planning.sql','20261012100000_sales_settings_fixes.sql']:",
+      "oldString": "'20261010100000_sales_integrity.sql','20261011100000_sales_planning.sql']:"
+    },
+    "timestamp": 1790618501112
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790618501133
   }
 ]
