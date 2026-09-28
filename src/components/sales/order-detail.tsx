@@ -24,6 +24,7 @@ import {
   shipmentStatusLabel,
   stockStatusLabel,
 } from "@/lib/sales/constants";
+import { movementTypeLabel, type MovementType } from "@/lib/inventory/constants";
 
 /**
  * Detalhe de um pedido de venda.

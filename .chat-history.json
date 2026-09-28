@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"[^\\x00-\\x7F]\" docs/business/SALES-ORDERS.md docs/architecture/ADR-011-SALES.md | grep -oP \"^[^:]+:[0-9]+:.*\" | grep -P \"[\\x{4e00}-\\x{9fff}]\" ",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620103235
-  },
-  {
-    "role": "tool_result",
-    "content": "grep: Invalid range end\n",
-    "is_error": false,
-    "timestamp": 1790620103282
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "python3 -c \"\nimport re,sys\nfor p in ['docs/business/SALES-ORDERS.md','docs/architecture/ADR-011-SALES.md']:\n    for i,l in enumerate(open(p,encoding='utf-8'),1):\n        bad=[c for c in l if '\\u4e00'<=c<='\\u9fff']\n        if bad: print(p,i,''.join(bad),'|',l.strip()[:90])\n\"",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1541,5 +1526,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx</path>\n<type>file</type>\n<content>\n9: import {\n10:   CARRIER_MODALITY,\n11:   DELIVERED_SHIPMENT_STATUS,\n12:   IN_TRANSIT_SHIPMENT_STATUS,\n13:   OPEN_ORDER_STATUS,\n14:   RETURN_DESTINATION,\n15:   fulfillmentActions,",
     "is_error": false,
     "timestamp": 1790620903943
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
+      "newString": "} from \"@/lib/sales/constants\";\nimport { movementTypeLabel, type MovementType } from \"@/lib/inventory/constants\";",
+      "oldString": "} from \"@/lib/sales/constants\";"
+    },
+    "timestamp": 1790620907547
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790620907549
   }
 ]
