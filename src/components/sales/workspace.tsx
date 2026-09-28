@@ -186,5 +186,3 @@ export function CustomerOrders({ org, companyId }: { org: string; companyId: str
     </div>
   );
 }
-
-export { NewOrder, object, rows };
