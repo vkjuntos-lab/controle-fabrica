@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx",
-      "newString": "import { useCallback, useState } from \"react\";",
-      "oldString": "import { useCallback, useMemo, useState } from \"react\";"
-    },
-    "timestamp": 1790619312692
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619312704
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "npm run typecheck 2>&1 | head -20; echo \"===LINT===\"; npx eslint src/components/sales src/lib/sales 2>&1 | tail -20",
@@ -1543,5 +1527,20 @@
     "content": "=== stock_status / fulfillment_status ===\n=== shipments: tracking_code + x ===\nELSIF _kind='shipments' THEN\nv_perm:='shipments.read';\nPERFORM public.sales_require(_org,v_perm);\nSELECT count(*) INTO v_total FROM public.shipments\nWHERE organization_id=_org AND (v_status IS NULL OR status=v_status)\nAND",
     "is_error": false,
     "timestamp": 1790620583808
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "echo \"=== subquery orders completa ===\"; sed -n '3209,3220p' supabase/migrations/20261006100000_sales_orders.sql | sed 's/^ *//'; echo; echo \"=== sales_orders: colunas _status ===\"; grep -n \"CREATE TABLE.*sales_orders (\" -A 60 supabase/migrations/20261006100000_sales_orders.sql | grep -oE \"^\\s*[0-9]*-?\\s*[a-z_]+_[a-z_]+\" | grep -oE \"[a-z_]+_[a-z_]+$\" | tr '\\n' ' '",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620591489
+  },
+  {
+    "role": "tool_result",
+    "content": "=== subquery orders completa ===\nSELECT coalesce(jsonb_agg(to_jsonb(x) ORDER BY x.order_date DESC,x.order_number DESC),'[]'::jsonb) INTO v_rows\nFROM (SELECT o.id,o.order_number,o.order_date,o.expected_delivery_date,o.status,o.stock_status,\no.fulfillment_status,o.source_type,o.currency,o.subtotal,o.d",
+    "is_error": false,
+    "timestamp": 1790620591510
   }
 ]
