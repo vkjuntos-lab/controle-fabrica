@@ -468,8 +468,8 @@ def run():
  call('sales_execute',org,'carrier',None,'',{'name':'Negado'},uid(),user=picker,fail='Sem permiss')
  pending=next((x for x in query('exceptions')['rows'] if x['status']=='OPEN'),None)
  if pending:
- execute('exception',pending['id'],'resolve',{'resolution':'Conferido com o transportador'},user=picker)
- assert sql(f"SELECT status FROM logistics_exceptions WHERE id={q(pending['id'])}")=='RESOLVED'
+  execute('exception',pending['id'],'resolve',{'resolution':'Conferido com o transportador'},user=picker)
+  assert sql(f"SELECT status FROM logistics_exceptions WHERE id={q(pending['id'])}")=='RESOLVED'
  execute('expire',None,'',{},user=picker)
  print('PASS AF: carrier, exception resolution and reservation expiry work from the screen gateway')
 
