@@ -74,15 +74,13 @@ def run():
         return j('fiscal_simulate', ','.join([q(org), q(est_id), q(op_id or op), q(company),
             q(model), q(json.dumps(items))]), user, fail)
 
-    # --- AH: sem classificacao fiscal, nao ha calculo ---------------------
+    # --- AG: sem classificacao fiscal, nao ha calculo ---------------------
     item = [{'product_variant_id': variant, 'quantity': 3, 'unit_price': 33.33}]
-    save('fiscal_save_product_profile', {
-        'product_variant_id': variant, 'ncm': '6403.99.00', 'fiscal_unit': 'PAR',
-        'origin_code': 0, 'justification': 'NCM da calca de ballet'})
     sim = simulate(item)
     assert sim['has_blocking_issue'] and sim['is_authorized_document'] is False
     assert any(w['code'] == 'MISSING_TAX_CONFIGURATION' for w in sim['warnings'])
     assert 'classificação fiscal vigente' in sim['warnings'][0]['message']
+    assert float(sim['total_taxes']) == 0 and sim['lines'] == []
     print('PASS AG: simulacao sem classificacao vigente bloqueia e se declara nao autoritativa')
 
     # --- AI: classificacao em DRAFT nao habilita calculo ------------------

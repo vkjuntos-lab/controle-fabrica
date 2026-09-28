@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "awk \"/CREATE TABLE.*public.products \\(/,/^\\);/\" supabase/migrations/20260917110000_catalog_mestre.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; echo \"=== product_variants ===\"; awk \"/CREATE TABLE.*public.product_variants \\(/,/^\\);/\" supabase/migrations/20260917110000_catalog_mestre.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790622017228
-  },
-  {
-    "role": "tool_result",
-    "content": "id organization_id code name description category_id brand ncm status main_image_url attributes created_at updated_at created_by updated_by \n=== product_variants ===\nid organization_id product_id sku barcode size color cost_price sell_price weight_grams status attributes created_at updated_at create",
-    "is_error": false,
-    "timestamp": 1790622017269
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "for t in organizations companies business_units; do echo \"=== $t ===\"; grep -rn \"CREATE TABLE.*public.$t (\" supabase/migrations/*.sql | head -2; done",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1577,5 +1562,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py</path>\n<type>file</type>\n<content>\n76: \n77:     # --- AH: sem classificacao fiscal, nao ha calculo ---------------------\n78:     item = [{'product_variant_id': variant, 'quantity': 3, 'unit_price': 33.33}]\n79:     save('fiscal",
     "is_error": false,
     "timestamp": 1790622875105
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py",
+      "newString": "    # --- AG: sem classificacao fiscal, nao ha calculo ---------------------\n    item = [{'product_variant_id': variant, 'quantity': 3, 'unit_price': 33.33}]\n    sim = simulate(item)\n    assert sim['has_blocking_issue'] and sim['is_authorized_document'] is False\n    assert any(w['code'] == 'MISSING_TAX_CONFIGURATION' for w in sim['warnings'])\n    assert 'classificação fiscal vigente' in sim['warnings'][0]['message']\n    assert float(sim['total_taxes']) == 0 and sim['lines'] == []\n    print('PASS AG: simulacao sem classificacao vigente bloqueia e se declara nao autoritativa')",
+      "oldString": "    # --- AH: sem classificacao fiscal, nao ha calculo ---------------------\n    item = [{'product_variant_id': variant, 'quantity': 3, 'unit_price': 33.33}]\n    save('fiscal_save_product_profile', {\n        'product_variant_id': variant, 'ncm': '6403.99.00', 'fiscal_unit': 'PAR',\n        'origin_code': 0, 'justification': 'NCM da calca de ballet'})\n    sim = simulate(item)\n    assert sim['has_blocking_issue'] and sim['is_authorized_document'] is False\n    assert any(w['code'] == 'MISSING_TAX_CONFIGURATION' for w in sim['warnings'])\n    assert 'classificação fiscal vigente' in sim['warnings'][0]['message']\n    print('PASS AG: simulacao sem classificacao vigente bloqueia e se declara nao autoritativa')"
+    },
+    "timestamp": 1790622880402
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790622880422
   }
 ]
