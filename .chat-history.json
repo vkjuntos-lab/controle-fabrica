@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "echo \"=== TYPECHECK ===\"; npm run typecheck 2>&1 | tail -5; echo \"=== LINT VENDAS ===\"; npx eslint src/components/sales src/lib/sales src/lib/rbac.ts src/lib/rbac.test.ts 2>&1 | tail -8; echo \"=== TESTES ===\"; npm test 2>&1 | tail -8",
-      "timeout": 300000,
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620255787
-  },
-  {
-    "role": "tool_result",
-    "content": "=== TYPECHECK ===\n\n> typecheck\n> tsc --noEmit\n\n=== LINT VENDAS ===\n\n/root/Zheus AI Projects/controle-fabricas/src/components/sales/areas.tsx\n  54:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh",
-    "is_error": false,
-    "timestamp": 1790620292775
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "npm run build 2>&1 | grep -iE \"error|✓ built|success|Generated .output/server\" | head -10; echo \"=== HARNESS DE VENDAS ===\"; su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && npm run test:sales:db\" 2>&1 | grep -cE \"^PASS\"",
       "timeout": 900000,
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
@@ -1541,5 +1525,20 @@
     "content": "=== supabase/migrations/20261006100000_sales_orders.sql ===\n98:   CHECK(credit_exposure_policy IN ('OPEN_RECEIVABLES_ONLY','OPEN_RECEIVABLES_PLUS_OPEN_ORDERS')),\n3144:    AND _data->>'credit_exposure_policy' NOT IN ('OPEN_RECEIVABLES_ONLY','OPEN_RECEIVABLES_PLUS_OPEN_ORDERS') THEN\n=== supabase/migra",
     "is_error": false,
     "timestamp": 1790621169483
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -rn \"OPEN_RECEIVABLES_PLUS_QUOTE_AT_APPROVAL\" supabase/migrations/ | cut -c1-200",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790621181944
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20261005100000_crm.sql:303: 'block_over_limit',coalesce(p.block_over_limit,false),'block_overdue',coalesce(p.block_overdue,false),'exposure_policy','OPEN_RECEIVABLES_PLUS_QUOTE_AT_\n",
+    "is_error": false,
+    "timestamp": 1790621181992
   }
 ]
