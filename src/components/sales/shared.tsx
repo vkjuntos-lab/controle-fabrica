@@ -55,10 +55,10 @@ export function useSalesRead(
 /**
  * Chave de idempotência por tentativa.
  *
- * O gateway recusa a mesma chave com conteúdo diferente. Por isso a chave é
- * renovada quando a tentativa termina — inclusive quando ela falha — e quando o
- * diálogo é reaberto. Reutilizar a chave depois de um erro deixaria a tela
- * Unable para sempre com um conteúdo que o servidor já recusou.
+ * O gateway recusa a mesma chave com conteúdo diferente. A chave vale por
+ * tentativa: nasce nova quando o diálogo abre e é renovada quando a tentativa
+ * termina. Uma tentativa que falhou antes de gravar não consumou a chave, e
+ * outra que gravou precisa de uma chave nova para não ser tratada como repetição.
  */
 export function useIdempotencyKey() {
   const [key, setKey] = useState(() => crypto.randomUUID());
