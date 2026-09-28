@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "npx eslint --fix src/components/sales src/lib/sales 2>&1 | tail -5; echo \"=== TYPE CHECK + LINT ===\"; npm run typecheck 2>&1 | tail -3; npx eslint src/components/sales src/lib/sales 2>&1 | tail -4",
-      "timeout": 300000,
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790621027434
-  },
-  {
-    "role": "tool_result",
-    "content": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/areas.tsx\n  54:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components\n\n✖ 1 problem (0 errors, 1 warning)\n\n=== TYPE",
-    "is_error": false,
-    "timestamp": 1790621064932
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
@@ -1579,5 +1563,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790622241375
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabricas' && su claude-runner -c \"python3 scripts/test-fiscal-db.py > /tmp/opencode/fiscal.log 2>&1; echo EXIT=\\$?\"; echo \"--- log ---\"; tail -25 /tmp/opencode/fiscal.log",
+      "timeout": 400000
+    },
+    "timestamp": 1790622243867
+  },
+  {
+    "role": "tool_result",
+    "content": "EXIT=1\n--- log ---\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py\", line 33, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py\", line 27, in run\n    sql((db.ROOT / 'supabase/migr",
+    "is_error": false,
+    "timestamp": 1790622246113
   }
 ]
