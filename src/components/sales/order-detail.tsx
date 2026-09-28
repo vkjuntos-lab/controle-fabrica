@@ -227,12 +227,15 @@ export function OrderDetail({
             ["quantity", "Quantidade"],
             ["status", "Situação"],
           ]}
-          render={(row) => (
-            <>
-              {movementTypeLabel(row.movement_type as MovementType)}
-              {str(row.direction) === "IN" ? " (entrada)" : str(row.direction) === "OUT" ? " (saída)" : ""}
-            </>
-          )}
+          render={{
+            movement_type: (row) => movementTypeLabel(row.movement_type as MovementType),
+            direction: (row) =>
+              str(row.direction) === "IN"
+                ? "Entrada"
+                : str(row.direction) === "OUT"
+                  ? "Saída"
+                  : str(row.direction) || "—",
+          }}
         />
       </Section>
 
