@@ -497,8 +497,8 @@ export function SalesCredits({ organizationId }: { organizationId: string }) {
       <header>
         <h1 className="text-xl font-semibold">Crédito do cliente</h1>
         <p className="text-sm text-muted-foreground">
-          Limite, valor em aberto e vencidos. O servidor reavalia o crédito no momento da aprovação e
-          é ele quem bloqueia; a tela só mostra a posição avaliada, sem antecipar decisão.
+          Limite, valor em aberto e vencidos. O servidor reavalia o crédito no momento da aprovação
+          e é ele quem bloqueia; a tela só mostra a posição avaliada, sem antecipar decisão.
         </p>
       </header>
       <RecordCards
