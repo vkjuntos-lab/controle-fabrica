@@ -40,6 +40,7 @@ describe("rbac", () => {
       "financeiro",
       "compras",
       "planejamento",
+      "vendas",
     ];
     const opcionais = PLATFORM_MODULES.filter((m) => !disponiveis.includes(m.key));
     for (const mod of opcionais) {
@@ -54,6 +55,15 @@ describe("rbac", () => {
     expect(comercial?.status).toBe("available");
     expect(PERMISSIONS.crmRead).toBe("crm.read");
     expect(PERMISSIONS.crmConfigure).toBe("crm.configure");
+  });
+
+  it("mantém o módulo de vendas disponível, com leitura no RBAC", () => {
+    // O MASTER 013 entregou as telas de vendas e logística; o status evita que o
+    // módulo implemented seja escondido como "em breve".
+    const vendas = PLATFORM_MODULES.find((m) => m.key === "vendas");
+    expect(vendas?.status).toBe("available");
+    expect(PERMISSIONS.salesOrdersRead).toBe("sales_orders.read");
+    expect(PERMISSIONS.salesConfigure).toBe("sales.configure");
   });
 
   it("expõe a permissão de edição da matriz", () => {
