@@ -487,20 +487,45 @@ export function SalesCredits({ organizationId }: { organizationId: string }) {
       />
     );
   }
+  // `sales_query` no modo `credits` devolve `company_id`, `company_name` e
+  // `position`. Os números de crédito ficam dentro de `position`, com os nomes
+  // que `crm_financial_position` devolve. Achatar aqui é só renomear/achatar o
+  // que o servidor já calculou: nenhum valor é derivado nesta tela.
+  const rows = list.rows.map((row) => ({ ...row, ...object(row.position) }));
   return (
-    <section className="space-y-4">
+    <section className space-y-4>
       <header>
         <h1 className="text-xl font-semibold">Crédito do cliente</h1>
         <p className="text-sm text-muted-foreground">
-          Limite, uso e decisão de bloqueio. O servidor reavalia o crédito no momento da aprovação;
-          a tela apenas mostra o que foi avaliado.
+          Limite, valor em aberto e vencidos. O servidor reavalia o crédito no momento da aprovação e
+          é ele quem bloqueia; a tela só mostra a posição avaliada, sem antecipar decisão.
         </p>
       </header>
       <RecordCards
-        data={list.rows}
-        columns={["company_name", "credit_limit", "used_amount", "available_amount", "decision"]}
+        data={rows}
+        columns={[
+          "company_name",
+          "credit_limit",
+          "open_amount",
+          "credit_available",
+          "overdue_amount",
+        ]}
         area="credits"
-      />
+      >
+        {(row) =>
+          row.block_over_limit || row.block_overdue ? (
+            <p className="text-xs text-muted-foreground">
+              {[
+                row.block_over_limit ? "bloqueia acima do limite" : null,
+                row.block_overdue ? "bloqueia com valor vencido" : null,
+              ]
+                .filter(Boolean)
+                .join(" e ")}{" "}
+              — regra da política de crédito, aplicada pelo servidor na aprovação.
+            </p>
+          ) : null
+        }
+      </RecordCards>
     </section>
   );
 }
