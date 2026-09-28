@@ -67,10 +67,7 @@ export function useSalesRead(organizationId: string, kind: string, id?: string, 
 export function useIdempotencyKey() {
   const [attempt, setAttempt] = useState(() => crypto.randomUUID());
   const renew = useCallback(() => setAttempt(crypto.randomUUID()), []);
-  const keyFor = useCallback(
-    (payload: unknown) => keyForPayload(attempt, payload),
-    [attempt],
-  );
+  const keyFor = useCallback((payload: unknown) => keyForPayload(attempt, payload), [attempt]);
   return { keyFor, renew };
 }
 
