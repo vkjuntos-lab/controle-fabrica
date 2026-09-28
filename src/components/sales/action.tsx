@@ -191,6 +191,12 @@ export function SalesAction({
                 Confirme a operação. O servidor revalida estado, permissão e estoque.
               </p>
             ) : null}
+            {incomplete ? (
+              <p role="alert" className="text-sm text-destructive">
+                Preencha os campos obrigatórios
+                {items ? " e informe a quantidade de ao menos um item" : ""}.
+              </p>
+            ) : null}
             {write.error ? (
               <p role="alert" className="text-sm text-destructive">
                 {write.error.message}
