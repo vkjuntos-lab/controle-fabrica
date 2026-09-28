@@ -146,7 +146,7 @@ export function SalesSettings({ organizationId }: { organizationId: string }) {
                   <option value="">Manter ({settingLabel(key, data[key])})</option>
                   {option.options.map((option_) => (
                     <option key={option_} value={option_}>
-                      {option.labels[option_]}
+                      {(option.labels as Record<string, string>)[option_] ?? option_}
                     </option>
                   ))}
                 </select>
