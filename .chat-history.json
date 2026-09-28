@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -n \"CHECK(status IN\\|CHECK(severity IN\\|CHECK(.* IN (\" supabase/migrations/20261006100000_sales_orders.sql | head -40"
-    },
-    "timestamp": 1790618639983
-  },
-  {
-    "role": "tool_result",
-    "content": "92:   CHECK(reservation_policy IN ('FULL_ONLY','ALLOW_PARTIAL','ALLOW_NEGATIVE_AVAILABLE')),\n98:   CHECK(credit_exposure_policy IN ('OPEN_RECEIVABLES_ONLY','OPEN_RECEIVABLES_PLUS_OPEN_ORDERS')),\n106:   CHECK(price_override_policy IN ('BLOCK','ALLOW_WITH_AUTHORIZATION')),\n110:   CHECK(receivable_trig",
-    "is_error": false,
-    "timestamp": 1790618640023
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '168,175p;535,537p;630,632p' supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790618643233
@@ -1539,5 +1525,21 @@
     "content": "     → expected '3f2504e0-4f89-4531-8055-41d39a0c0305' to be '3f2504e0-4f89-407c-84fe-41d39a0c0305' // Object.is equality\n   ✓ chave de idempotência de vendas > uma tentativa nova não repete a chave da tentativa anterior 0ms\n   ✓ chave de idempotência de vendas > resume conteúdos diferentes em resum",
     "is_error": false,
     "timestamp": 1790619565187
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/sales/idempotency.ts",
+      "newString": "/** Resumo estável do payload (FNV-1a de 32 bits, em hexadecimal). */\nexport function payloadDigest(input: string): string {\n  let hash = 0x811c9dc5;\n  for (let index = 0; index < input.length; index += 1) {\n    hash ^= input.charCodeAt(index);\n    hash = Math.imul(hash, 0x01000193) >>> 0;\n  }\n  return hash.toString(16).padStart(8, \"0\");\n}\n\n/**\n * Serialização canônica: as chaves de um objeto saem em ordem alfabética.\n *\n * O `jsonb` do banco não guarda a ordem das chaves, então `{\"a\":1,\"b\":2}` e\n * `{\"b\":2,\"a\":1}` são o mesmo conteúdo para o gateway. Se o resumo dependesse da\n * ordem, o mesmo conteúdo em ordens diferentes cairia em chaves diferentes e o\n * reenvio executaria a operação de novo em vez de deduplicar. A ordem dos\n * elementos de uma lista é preservada: ela faz parte do significado.\n */\nfunction canonical(value: unknown): unknown {\n  if (Array.isArray(value)) return value.map(canonical);\n  if (value && typeof value === \"object\") {\n    return Object.fromEntries(\n      Object.entries(value as Record<string, unknown>)\n        .filter(([, item]) => item !== undefined)\n        .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))\n        .map(([key, item]) => [key, canonical(item)]),\n    );\n  }\n  return value;\n}\n\n/** Serializa o payload de forma independente da ordem das chaves. */\nexport function canonicalJson(payload: unknown): string {\n  return JSON.stringify(canonical(payload ?? null));\n}\n\n/**\n * Monta um UUID válido a partir do identificador da tentativa e do resumo do\n * payload. A tentativa ocupa os grupos fixos; o resumo ocupa o grupo da versão e\n * o da variante, que é o que faz o mesmo conteúdo cair sempre na mesma chave.\n */\nexport function keyFrom(attempt: string, digest: string): string {\n  const hex = attempt.replace(/-/g, \"\");\n  const variant = \"89ab\"[Number.parseInt(digest[3], 16) % 4];\n  return [\n    hex.slice(0, 8),\n    hex.slice(8, 12),\n    `4${digest.slice(0, 3)}`,\n    `${variant}${digest.slice(4, 7)}`,\n    hex.slice(12, 24),\n  ].join(\"-\");\n}\n\n/** Chave de idempotência de uma tentativa, já serializando o payload. */\nexport function keyForPayload(attempt: string, payload: unknown): string {\n  return keyFrom(attempt, payloadDigest(canonicalJson(payload)));\n}",
+      "oldString": "/** Resumo estável do payload (FNV-1a de 32 bits, em hexadecimal). */\nexport function payloadDigest(input: string): string {\n  let hash = 0x811c9dc5;\n  for (let index = 0; index < input.length; index += 1) {\n    hash ^= input.charCodeAt(index);\n    hash = Math.imul(hash, 0x01000193) >>> 0;\n  }\n  return hash.toString(16).padStart(8, \"0\");\n}\n\n/**\n * Monta um UUID válido a partir do identificador da tentativa e do resumo do\n * payload. A tentativa ocupa os grupos fixos; o resumo ocupa o grupo da versão e\n * o da variante, que é o que faz o mesmo conteúdo cair sempre na mesma chave.\n */\nexport function keyFrom(attempt: string, digest: string): string {\n  const hex = attempt.replace(/-/g, \"\");\n  const variant = \"89ab\"[Number.parseInt(digest[3], 16) % 4];\n  return [\n    hex.slice(0, 8),\n    hex.slice(8, 12),\n    `4${digest.slice(0, 3)}`,\n    `${variant}${digest.slice(4, 7)}`,\n    hex.slice(12, 24),\n  ].join(\"-\");\n}\n\n/** Chave de idempotência de uma tentativa, já serializando o payload. */\nexport function keyForPayload(attempt: string, payload: unknown): string {\n  return keyFrom(attempt, payloadDigest(JSON.stringify(payload ?? null)));\n}"
+    },
+    "timestamp": 1790619575826
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790619575840
   }
 ]

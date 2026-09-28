@@ -21,6 +21,33 @@ export function payloadDigest(input: string): string {
 }
 
 /**
+ * Serialização canônica: as chaves de um objeto saem em ordem alfabética.
+ *
+ * O `jsonb` do banco não guarda a ordem das chaves, então `{"a":1,"b":2}` e
+ * `{"b":2,"a":1}` são o mesmo conteúdo para o gateway. Se o resumo dependesse da
+ * ordem, o mesmo conteúdo em ordens diferentes cairia em chaves diferentes e o
+ * reenvio executaria a operação de novo em vez de deduplicar. A ordem dos
+ * elementos de uma lista é preservada: ela faz parte do significado.
+ */
+function canonical(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonical);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .filter(([, item]) => item !== undefined)
+        .sort(([left], [right]) => (left < right ? -1 : left > right ? 1 : 0))
+        .map(([key, item]) => [key, canonical(item)]),
+    );
+  }
+  return value;
+}
+
+/** Serializa o payload de forma independente da ordem das chaves. */
+export function canonicalJson(payload: unknown): string {
+  return JSON.stringify(canonical(payload ?? null));
+}
+
+/**
  * Monta um UUID válido a partir do identificador da tentativa e do resumo do
  * payload. A tentativa ocupa os grupos fixos; o resumo ocupa o grupo da versão e
  * o da variante, que é o que faz o mesmo conteúdo cair sempre na mesma chave.
@@ -39,5 +66,5 @@ export function keyFrom(attempt: string, digest: string): string {
 
 /** Chave de idempotência de uma tentativa, já serializando o payload. */
 export function keyForPayload(attempt: string, payload: unknown): string {
-  return keyFrom(attempt, payloadDigest(JSON.stringify(payload ?? null)));
+  return keyFrom(attempt, payloadDigest(canonicalJson(payload)));
 }
