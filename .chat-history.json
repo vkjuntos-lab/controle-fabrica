@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/new-order.tsx",
-      "newString": "  if (!hasPermission(\"sales_orders.create\")) return null;\n\n  const addressOptions = rows(object(addresses.data).rows).map((row) => ({\n    id: String(row.id ?? \"\"),\n    label: [row.street, row.number, row.district, row.city, row.state]\n      .filter(Boolean)\n      .join(\", \"),\n  }));\n\n  const submit = () => {\n    if (quote) {\n      write.mutate({ operation: \"convert\", id: quote, values: {} });\n      return;\n    }\n    // Os seletores de proposta, cliente, tabela e produto são botões: o navegador\n    // não valida `required` neles. A verificação é feita aqui para não enviar um\n    // pedido incompleto e deixar o servidor recusá-lo.\n    const missingItem = items.some(\n      (item) => item.variant === \"\" || !(item.quantity > 0),\n    );\n    if (company === \"\" || priceTable === \"\" || address === \"\" || terms.trim() === \"\" || missingItem) {\n      setIncomplete(true);\n      return;\n    }\n    setIncomplete(false);\n    write.mutate({",
-      "oldString": "  if (!hasPermission(\"sales_orders.create\")) return null;\n\n  const addressOptions = rows(addresses.data).map((row) => ({\n    id: String(row.id ?? \"\"),\n    label: [row.street, row.number, row.district, row.city, row.state]\n      .filter(Boolean)\n      .join(\", \"),\n  }));\n\n  const submit = () => {\n    if (quote) {\n      write.mutate({ operation: \"convert\", id: quote, values: {} });\n      return;\n    }\n    write.mutate({"
-    },
-    "timestamp": 1790619065385
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619065396
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/new-order.tsx",
       "newString": "import { useIdempotencyKey, useSalesRead, useSalesWrite, object, rows } from \"@/components/sales/shared\";",
       "oldString": "import { useIdempotencyKey, useSalesRead, useSalesWrite, rows } from \"@/components/sales/shared\";"
     },
@@ -1556,5 +1540,19 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790620175378
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md"
+    },
+    "timestamp": 1790620178607
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md</path>\n<type>file</type>\n<content>\n1: # Estado do projeto — handoff contínuo\n2: \n3: ## Revisão de continuidade — 27/09/2026 (MASTER 012)\n4: \n5: CRM corrigido localmente sobre Company, contatos, preços, ledger, financeiro, ",
+    "is_error": false,
+    "timestamp": 1790620178649
   }
 ]
