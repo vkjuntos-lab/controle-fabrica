@@ -21,6 +21,7 @@ import {
   type PickerKind,
   type Row,
 } from "@/components/sales/shared";
+import { ReferencePicker } from "@/components/sales/reference-picker";
 import type { Json } from "@/integrations/supabase/types";
 import type { SalesOperation } from "@/lib/sales/sales.functions";
 
