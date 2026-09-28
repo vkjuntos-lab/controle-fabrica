@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "for t in packing_records shipment_delivery_proofs logistics_exceptions; do echo \"=== $t ===\"; grep -rn \"CREATE TABLE.*$t (\" -A 22 supabase/migrations/*.sql | sed 's/^[^:]*:[0-9]*[:-]//' | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; done",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620759803
-  },
-  {
-    "role": "tool_result",
-    "content": "=== packing_records ===\n\n=== shipment_delivery_proofs ===\n\n=== logistics_exceptions ===\n\n",
-    "is_error": false,
-    "timestamp": 1790620759861
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "for t in packing_records shipment_delivery_proofs logistics_exceptions; do echo \"=== $t ===\"; awk \"/CREATE TABLE.*public.$t \\(/,/^\\);/\" supabase/migrations/*.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; done",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1599,5 +1584,20 @@
     "content": "20240808143900_batch_persistence.sql\n20260704200957_3b50bcb9-45d5-4eb1-a45e-6d9609dc094e.sql\n20260704201919_2a9ff92d-3a4a-4e77-9c8c-2edc7ed0b932.sql\n20260704202929_6c31ee79-2216-4144-8888-f1705b13cbd8.sql\n20260704204138_1df89ff1-df28-4fc9-a56b-0cee656b538b.sql\n20260704204908_585578f4-c955-42c8-9097-",
     "is_error": false,
     "timestamp": 1790621995455
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -rlniE \"nfe|nf_e|nf-e|icms|ipi|cfop|fiscal|ncm|cest|cbs|ibs|sefaz|sped|tax_regime|inscricao\" supabase/migrations/ | sort | head -30",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622001506
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260706125436_ee111f48-9274-4884-9ab0-85cb4733f37e.sql\nsupabase/migrations/20260706150230_5280fbec-723e-429d-8021-3f39cfaab1b7.sql\nsupabase/migrations/20260706150307_3c3cdc57-62e3-4e4d-8caf-1e24cf76c130.sql\nsupabase/migrations/20260706162022_3cfde7e0-0de1-4f59-bba4-6032c1ee1795.",
+    "is_error": false,
+    "timestamp": 1790622001527
   }
 ]
