@@ -26,3 +26,10 @@ def run():
     for name in MIGRATIONS:
         sql((db.ROOT / 'supabase/migrations' / name).read_text())
     print("MIGRATIONS OK")
+
+
+if __name__ == '__main__':
+    try:
+        run()
+    finally:
+        db.cleanup()

@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "npx eslint src/components/sales src/lib/sales 2>&1 | head -20",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790621020427
-  },
-  {
-    "role": "tool_result",
-    "content": "\n/root/Zheus AI Projects/controle-fabricas/src/components/sales/areas.tsx\n  54:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components\n\n/root/Zheus AI Projects/controle-fabricas/",
-    "is_error": false,
-    "timestamp": 1790621023983
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "npx eslint --fix src/components/sales src/lib/sales 2>&1 | tail -5; echo \"=== TYPE CHECK + LINT ===\"; npm run typecheck 2>&1 | tail -3; npx eslint src/components/sales src/lib/sales 2>&1 | tail -4",
       "timeout": 300000,
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
@@ -1578,5 +1563,21 @@
     "content": "    assert len(json.loads(call('inventory_search_variants',q(org)+\",'123456'\",a)))==1\n    print('PASS: more than 1000 SKUs, pagination, zero-stock dashboard, barcode search')\n\n\ndef cleanup():\n    if (TMP/'data/postmaster.pid').exists():\n        subprocess.run([str(BIN/'pg_ctl'),'-D',str(TMP/'data'),",
     "is_error": false,
     "timestamp": 1790622237748
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py",
+      "newString": "    print(\"MIGRATIONS OK\")\n\n\nif __name__ == '__main__':\n    try:\n        run()\n    finally:\n        db.cleanup()\n",
+      "oldString": "    print(\"MIGRATIONS OK\")\n"
+    },
+    "timestamp": 1790622241356
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790622241375
   }
 ]
