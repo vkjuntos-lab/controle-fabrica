@@ -166,8 +166,8 @@ não mudaram de caminho: os componentes novos preservam a assinatura que elas j�
 | Verificação | Resultado |
 | --- | --- |
 | `npm run typecheck` | sem erro |
-| `npx eslint src/components/sales src/lib/sales` | sem erro |
-| `npm test` | 77 testes, 7 arquivos, todos passando |
+| `npx eslint src/components/sales src/lib/sales` | sem erro (1 aviso de Fast Refresh) |
+| `npm test` | 87 testes, 8 arquivos, todos passando |
 | `npm run build` | sucesso |
 | `npm run test:sales:db` | 32 grupos, A–AF, todos passando |
 

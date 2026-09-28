@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "echo \"=== subquery orders completa ===\"; sed -n '3209,3220p' supabase/migrations/20261006100000_sales_orders.sql | sed 's/^ *//'; echo; echo \"=== sales_orders: colunas _status ===\"; grep -n \"CREATE TABLE.*sales_orders (\" -A 60 supabase/migrations/20261006100000_sales_orders.sql | grep -oE \"^\\s*[0-9]*-?\\s*[a-z_]+_[a-z_]+\" | grep -oE \"[a-z_]+_[a-z_]+$\" | tr '\\n' ' '",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620591489
-  },
-  {
-    "role": "tool_result",
-    "content": "=== subquery orders completa ===\nSELECT coalesce(jsonb_agg(to_jsonb(x) ORDER BY x.order_date DESC,x.order_number DESC),'[]'::jsonb) INTO v_rows\nFROM (SELECT o.id,o.order_number,o.order_date,o.expected_delivery_date,o.status,o.stock_status,\no.fulfillment_status,o.source_type,o.currency,o.subtotal,o.d",
-    "is_error": false,
-    "timestamp": 1790620591510
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "echo \"=== credits no SQL ===\"; sed -n '3317,3326p' supabase/migrations/20261006100000_sales_orders.sql | sed 's/^ *//'; echo; echo \"=== colunas lidas por SalesCredits ===\"; sed -n '491,520p' src/components/sales/areas.tsx | grep -oE '\\[\"[a-z_]+\",' | tr -d '[\"' | tr '\\n' ' '",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1545,5 +1530,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/docs/handoff/MASTER-013-VALIDATION.md</path>\n<type>file</type>\n<content>\n160: `/vendas` com `?view=` para pedidos, dashboard, reservas, separação, expedições, devoluções,\n161: ocorrências, transportadoras, crédito e configurações. `/vendas/pedidos/$id`",
     "is_error": false,
     "timestamp": 1790621474403
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/MASTER-013-VALIDATION.md",
+      "newString": "| Verificação | Resultado |\n| --- | --- |\n| `npm run typecheck` | sem erro |\n| `npx eslint src/components/sales src/lib/sales` | sem erro (1 aviso de Fast Refresh) |\n| `npm test` | 87 testes, 8 arquivos, todos passando |\n| `npm run build` | sucesso |\n| `npm run test:sales:db` | 32 grupos, A–AF, todos passando |",
+      "oldString": "| Verificação | Resultado |\n| --- | --- |\n| `npm run typecheck` | sem erro |\n| `npx eslint src/components/sales src/lib/sales` | sem erro |\n| `npm test` | 77 testes, 7 arquivos, todos passando |\n| `npm run build` | sucesso |\n| `npm run test:sales:db` | 32 grupos, A–AF, todos passando |"
+    },
+    "timestamp": 1790621479034
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790621479045
   }
 ]
