@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/sales/idempotency.test.ts",
-      "newString": "import { keyForPayload, payloadDigest } from \"@/lib/sales/idempotency\";\nimport {\n  SETTING_OPTIONS,\n  SETTING_FLAGS,\n  ORDER_ACTIONS,\n  ORDER_STATUS,\n} from \"@/lib/sales/constants\";",
-      "oldString": "import { keyForPayload, payloadDigest } from \"@/lib/sales/idempotency\";\nimport { SETTING_OPTIONS, SETTING_FLAGS, ORDER_ACTIONS, ORDER_STATUS, ORDER_ACTIONS as ACTIONS } from \"@/lib/sales/constants\";"
-    },
-    "timestamp": 1790619618529
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619618550
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/sales/idempotency.test.ts",
       "newString": "  it(\"tem ação declarada para todo status de pedido\", () => {\n    for (const status of Object.keys(ORDER_STATUS)) {\n      expect(ORDER_ACTIONS[status], status).toBeDefined();\n    }\n  });",
       "oldString": "  it(\"tem ação declarada para todo status de pedido\", () => {\n    for (const status of Object.keys(ORDER_STATUS)) {\n      expect(ACTIONS[status], status).toBeDefined();\n    }\n  });"
     },
@@ -1537,5 +1521,20 @@
     "content": "102:export const EXCEPTION_SEVERITY: Record<string, string> = {\n294:export const exceptionSeverityLabel = (value: unknown) => label(EXCEPTION_SEVERITY, value);\n",
     "is_error": false,
     "timestamp": 1790620770726
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "echo \"=== exception_type no banco ===\"; grep -n \"exception_type\" supabase/migrations/20261006100000_sales_orders.sql | grep -iE \"check|values\" | head -3; echo \"=== proof_type ===\"; grep -n \"proof_type\" supabase/migrations/20261006100000_sales_orders.sql | grep -iE \"check|values\" | head -3",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620774057
+  },
+  {
+    "role": "tool_result",
+    "content": "=== exception_type no banco ===\n687: exception_type text NOT NULL CHECK(exception_type IN\n=== proof_type ===\n604:   CHECK(proof_type IN ('RECEIPT','SIGNATURE','DOCUMENT','PHOTO','NOTE')),\n2726:  VALUES(_org,_shipment,v_proof->>'proof_type',nullif(trim(coalesce(v_proof->>'file_path','')),''),\n",
+    "is_error": false,
+    "timestamp": 1790620774116
   }
 ]
