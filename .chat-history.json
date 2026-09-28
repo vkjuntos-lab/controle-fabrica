@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/action.tsx",
-      "newString": "import { useOrganization } from \"@/lib/org/org-context\";\nimport {\n  useIdempotencyKey,\n  useSalesWrite,\n  text,\n  type PickerKind,\n  type Row,\n} from \"@/components/sales/shared\";",
-      "oldString": "import { useOrganization } from \"@/lib/org/org-context\";\nimport { useOrganization as useOrg } from \"@/lib/org/org-context\";\nimport { useIdempotencyKey, useSalesWrite, text, type Row } from \"@/components/sales/shared\";\nimport { ReferencePicker } from \"@/components/sales/reference-picker\";\nimport type { PickerKind } from \"@/components/sales/shared\";"
-    },
-    "timestamp": 1790618791687
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790618791702
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/action.tsx",
       "newString": "import { useOrganization } from \"@/lib/org/org-context\";\nimport {\n  useIdempotencyKey,\n  useSalesWrite,\n  text,\n  type PickerKind,\n  type Row,\n} from \"@/components/sales/shared\";\nimport { ReferencePicker } from \"@/components/sales/reference-picker\";",
       "oldString": "import { useOrganization } from \"@/lib/org/org-context\";\nimport {\n  useIdempotencyKey,\n  useSalesWrite,\n  text,\n  type PickerKind,\n  type Row,\n} from \"@/components/sales/shared\";"
     },
@@ -1552,5 +1536,20 @@
     "content": "PASS A: cenario montado; saldo fisico oficial em 100\nPASS B: pedido nasce com preco oficial da tabela e subtotal correto; nenhum movimento\nPASS C: preco enviado pelo cliente e ignorado; a tabela oficial prevalece\nPASS D: variante descontinuada bloqueada e permissao aplicada no servidor\nPASS E: edica",
     "is_error": false,
     "timestamp": 1790620033840
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "for f in 20261006100000_sales_orders 20261010100000_sales_integrity 20261011100000_sales_planning 20261012100000_sales_screen_fixes; do echo \"--- $f ---\"; grep -oiE \"CREATE TABLE (IF NOT EXISTS )?(public\\.)?[a-z_]+\" supabase/migrations/$f.sql | awk '{print $NF}' | tr -d ';' | sort -u | tr '\\n' ' '; echo; done",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620036758
+  },
+  {
+    "role": "tool_result",
+    "content": "--- 20261006100000_sales_orders ---\npublic.carriers public.customer_return_items public.customer_returns public.fulfillment_orders public.inventory_reservations public.logistics_exceptions public.packing_record_items public.packing_records public.packing_record_volumes public.picking_task_items publ",
+    "is_error": false,
+    "timestamp": 1790620036821
   }
 ]
