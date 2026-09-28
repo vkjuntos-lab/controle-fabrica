@@ -58,7 +58,7 @@ CREATE TYPE public.fiscal_environment AS ENUM ('HOMOLOGATION','PRODUCTION');
 -- ---------------------------------------------------------------------
 -- 2. Sequence de numeração por estabelecimento/modelo/série.
 --    O contador é transacional e nunca reutiliza número de documento
---    já autorizado: autorizacao e。数 congelam o numero.
+--    já autorizado: autorizacao e Cancelamento congelam o numero.
 -- ---------------------------------------------------------------------
 CREATE TABLE public.fiscal_number_sequences (
   organization_id uuid NOT NULL REFERENCES public.organizations,
@@ -343,7 +343,7 @@ CREATE TABLE public.fiscal_taxes (
   -- BASE_REDUCAO: tributa subtotal; VALOR_LIQUIDO: tributa líquido.
   calculation_base text NOT NULL DEFAULT 'BASE_CALCULO'
     CHECK(calculation_base IN ('BASE_CALCULO','VALOR_LIQUIDO','ISOLADO')),
-  -- TRUE = tributário; FALSE = não tributário (ex.:红的 taxa de serviço).
+  -- TRUE = tributário; FALSE = não tributário (ex.: taxa de servico).
   is_tax boolean NOT NULL DEFAULT true,
   is_recoverable_default boolean,
   -- Reduz a base antes de aplicar alíquota; quem configura, não o software.
@@ -511,7 +511,7 @@ ALTER TABLE public.fiscal_layout_versions ENABLE ROW LEVEL SECURITY;
 
 -- Releitura de dados fiscais é permitida a quem autenticou; escrita é
 -- negada aqui e só acontece por função SECURITY DEFINER que já
--- validou a permissão. Sem绕 isso o frontend escreveria direto.
+-- validou a permissão. Sem isso o frontend escreveria direto.
 CREATE POLICY fiscal_select ON public.fiscal_establishments
   FOR SELECT TO authenticated USING (organization_id IN (SELECT public.my_org_ids()));
 CREATE POLICY fiscal_select ON public.fiscal_tax_regimes

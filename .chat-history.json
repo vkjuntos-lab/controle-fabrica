@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"^import\\|from \\\"@/lib/inventory\" src/components/sales/order-detail.tsx | head -20",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620901278
-  },
-  {
-    "role": "tool_result",
-    "content": "1:import { Card, CardContent, CardHeader, CardTitle } from \"@/components/ui/card\";\n2:import { Badge } from \"@/components/ui/badge\";\n3:import { Button } from \"@/components/ui/button\";\n4:import { EmptyState, ErrorState, LoadingState } from \"@/components/states\";\n5:import { PERMISSIONS } from \"@/lib/rb",
-    "is_error": false,
-    "timestamp": 1790620901291
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
@@ -1586,5 +1571,20 @@
     "content": "95:  EXECUTE format('CREATE POLICY tenant_read ON public.%I FOR SELECT TO authenticated USING(public.has_permission(organization_id,%L))',t,perm);\n96- END LOOP;\n97-END $$;\n--\n674:CREATE POLICY partner_documents_read ON storage.objects FOR SELECT TO authenticated USING(bucket_id='partner-documents' A",
     "is_error": false,
     "timestamp": 1790622184116
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'EOF'\nimport io\np = \"/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261013100000_fiscal_core.sql\"\ns = io.open(p, encoding=\"utf-8\").read()\nfixes = [\n (\"autorizacao e。数 congelam o numero.\", \"autorizacao e Cancelamento congelam o numero.\"),\n (\"(ex.:红的 taxa de serviço)\", \"(ex.: taxa de servico)\"),\n (\"Sem绕 isso o frontend escreveria direto.\", \"Sem isso o frontend escreveria direto.\"),\n]\nfor a, b in fixes:\n    if a not in s: print(\"NAO ENCONTRADO:\", a)\n    s = s.replace(a, b)\nio.open(p, \"w\", encoding=\"utf-8\").write(s)\nprint(\"ok\")\nEOF\ngrep -nP \"[\\x{4e00}-\\x{9fff}]\" supabase/migrations/20261013100000_fiscal_core.sql; echo \"--- sem CJK ---\"",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622189457
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n--- sem CJK ---\n",
+    "is_error": false,
+    "timestamp": 1790622189509
   }
 ]
