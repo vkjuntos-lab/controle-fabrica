@@ -8,7 +8,7 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
  *
  * Leitura e escrita passam por RPCs `SECURITY DEFINER` do banco, que validam
  * tenant, permissão, estado e idempotência. O cliente nunca decide regra de
- * negócio:这里的 `kind`/`operation` apenas escolhem qual RPC chamar.
+ * negócio: `kind` e `operation` apenas escolhem qual RPC chamar.
  */
 
 const uuid = z.string().uuid();
@@ -16,6 +16,8 @@ const values = z.record(z.string(), z.json());
 
 /** `detail` e `dashboard` têm RPC própria; os demais kinds usam `sales_query`. */
 const readKinds = [
+  "detail",
+  "dashboard",
   "orders",
   "reservations",
   "fulfillment",
