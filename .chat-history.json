@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py",
-      "limit": 12,
-      "offset": 468
-    },
-    "timestamp": 1790618603868
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py</path>\n<type>file</type>\n<content>\n468:  call('sales_execute',org,'carrier',None,'',{'name':'Negado'},uid(),user=picker,fail='Sem permiss')\n469:  pending=next((x for x in query('exceptions')['rows'] if x['status']=='OPEN'),None",
-    "is_error": false,
-    "timestamp": 1790618603904
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py",
@@ -1537,5 +1521,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790619527081
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "/**\n * Derivação da chave de idempotência do gateway de vendas.\n *\n * `sales_execute` exige uma chave no formato UUID e obedece a duas regras: a\n * mesma chave com o mesmo conteúdo devolve o mesmo resultado, e a mesma chave com\n * conteúdo diferente é recusada. A chave precisa, então, carregar o conteúdo da\n * operação sem depender apenas de aleatoriedade.\n *\n * Fica isolado em módulo puro, sem React, para ser testado diretamente: um erro\n * aqui só apareceria em produção, e a consequência seria pedido duplicado.\n */\n\n/** Resumo estável do payload (FNV-1a de 32 bits, em hexadecimal). */\nexport function payloadDigest(input: string): string {\n  let hash = 0x811c9dc5;\n  for (let index = 0; index < input.length; index += 1) {\n    hash ^= input.charCodeAt(index);\n    hash = Math.imul(hash, 0x01000193) >>> 0;\n  }\n  return hash.toString(16).padStart(8, \"0\");\n}\n\n/**\n * Monta um UUID válido a partir do identificador da tentativa e do resumo do\n * payload. A tentativa ocupa os grupos fixos; o resumo ocupa o grupo da versão e\n * o da variante, que é o que faz o mesmo conteúdo cair sempre na mesma chave.\n */\nexport function keyFrom(attempt: string, digest: string): string {\n  const hex = attempt.replace(/-/g, \"\");\n  const variant = \"89ab\"[Number.parseInt(digest[3], 16) % 4];\n  return [\n    hex.slice(0, 8),\n    hex.slice(8, 12),\n    `4${digest.slice(0, 3)}`,\n    `${variant}${digest.slice(4, 7)}`,\n    hex.slice(12, 24),\n  ].join(\"-\");\n}\n\n/** Chave de idempotência de uma tentativa, já serializando o payload. */\nexport function keyForPayload(attempt: string, payload: unknown): string {\n  return keyFrom(attempt, payloadDigest(JSON.stringify(payload ?? null)));\n}\n",
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/sales/idempotency.ts"
+    },
+    "timestamp": 1790619534640
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790619534647
   }
 ]
