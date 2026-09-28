@@ -792,3 +792,51 @@ GRANT EXECUTE ON FUNCTION public.tax_snapshot_immutable() TO authenticated,servi
 -- preparatório de quem monta documento.
 REVOKE ALL ON FUNCTION public.fiscal_simulate(uuid,uuid,uuid,uuid,text,jsonb,date) FROM PUBLIC,anon;
 GRANT EXECUTE ON FUNCTION public.fiscal_simulate(uuid,uuid,uuid,uuid,text,jsonb,date) TO authenticated,service_role;
+
+-- ---------------------------------------------------------------------
+-- 12. Permissões do módulo.
+--
+--     Leitura e consulta de configuração para quem precisa enxergar o
+--     resultado; escrita de regra separada de aprovação, porque quem
+--     cadastra alíquota não pode ser quem a libera.
+-- ---------------------------------------------------------------------
+INSERT INTO public.role_permissions(role,permission)
+SELECT r,p FROM unnest(ARRAY['admin','gestor']::public.app_role[]) r CROSS JOIN unnest(ARRAY[
+  'fiscal.read','fiscal.dashboard','fiscal.simulate','fiscal.configure',
+  'fiscal.documents.read','fiscal.documents.prepare','fiscal.documents.transmit',
+  'fiscal.documents.cancel','fiscal.inbound.read','fiscal.inbound.import',
+  'fiscal.reconciliation.read','fiscal.reconciliation.manage',
+  'fiscal.exceptions.read','fiscal.exceptions.manage',
+  'fiscal.tax_rules.read','fiscal.tax_rules.manage','fiscal.tax_rules.approve',
+  'fiscal.events.read','fiscal.export']) p ON CONFLICT DO NOTHING;
+
+-- Fiscal: monta e transmite, mas não altera cadastro tributário.
+INSERT INTO public.role_permissions(role,permission)
+SELECT 'fiscal',p FROM unnest(ARRAY[
+  'fiscal.read','fiscal.dashboard','fiscal.simulate',
+  'fiscal.documents.read','fiscal.documents.prepare','fiscal.documents.transmit',
+  'fiscal.documents.cancel','fiscal.inbound.read','fiscal.inbound.import',
+  'fiscal.reconciliation.read','fiscal.exceptions.read','fiscal.tax_rules.read',
+  'fiscal.events.read','fiscal.export']) p ON CONFLICT DO NOTHING;
+
+-- Contábil: concilia e resolve divergência, não emite documento.
+INSERT INTO public.role_permissions(role,permission)
+SELECT 'financeiro',p FROM unnest(ARRAY[
+  'fiscal.read','fiscal.dashboard','fiscal.inbound.read','fiscal.inbound.import',
+  'fiscal.reconciliation.read','fiscal.reconciliation.manage',
+  'fiscal.exceptions.read','fiscal.exceptions.manage',
+  'fiscal.tax_rules.read','fiscal.events.read','fiscal.export']) p ON CONFLICT DO NOTHING;
+
+DO $permissions$ DECLARE f record; BEGIN
+  FOR f IN SELECT oid::regprocedure signature,proname FROM pg_proc
+    WHERE pronamespace='public'::regnamespace AND proname LIKE 'fiscal_%'
+  LOOP
+    EXECUTE format('REVOKE ALL ON FUNCTION %s FROM PUBLIC,anon',f.signature);
+    -- Helpers internos: só o motor pode chamá-los, não a sessão.
+    IF f.proname IN ('fiscal_audit','fiscal_emit','fiscal_assert_environment',
+                      'fiscal_resolve_rule','fiscal_product_profile','fiscal_compute_tax',
+                      'fiscal_calculate_item') THEN
+      EXECUTE format('REVOKE ALL ON FUNCTION %s FROM authenticated,anon',f.signature);
+    END IF;
+  END LOOP;
+END $permissions$;
