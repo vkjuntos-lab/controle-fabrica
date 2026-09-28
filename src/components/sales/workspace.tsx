@@ -1,111 +1,190 @@
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
-import { toast } from "sonner";
+
 import { AppShell } from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useOrganization } from "@/lib/org/org-context";
-import { readSales, mutateSales } from "@/lib/sales/sales.functions";
-import { Picker, StatusBadge, money, str, selectClass } from "@/components/crm/shared";
-import type { Json } from "@/integrations/supabase/types";
+import { PERMISSIONS } from "@/lib/rbac";
+import { SalesAction } from "@/components/sales/action";
+import { RecordCards, SalesArea, SalesCredits, SalesDashboard, AREAS, type Area } from "@/components/sales/areas";
+import { OrderDetail } from "@/components/sales/order-detail";
+import { SalesSettings } from "@/components/sales/settings";
+import { NewOrder } from "@/components/sales/new-order";
+import { object, rows, text, useSalesList, numeric } from "@/components/sales/shared";
+import { EmptyState } from "@/components/states";
 
-type Row = Record<string, Json | undefined>;
-const rows = (v: unknown): Row[] => Array.isArray(v) ? v as Row[] : [];
-const obj = (v: unknown): Row => v && typeof v === "object" && !Array.isArray(v) ? v as Row : {};
-const text = (v: unknown) => v == null ? "" : String(v);
-const qty = (v: unknown) => Number(v ?? 0);
-type Operation = "save" | "convert" | "order" | "reserve" | "reservation" | "fulfillment_create" | "fulfillment" | "scan" | "confirm" | "pack" | "shipment_create" | "dispatch" | "shipment" | "return_create" | "return" | "exception" | "carrier" | "settings" | "expire";
-type Field = { key: string; label: string; type?: string; lookup?: string; options?: string[]; choices?: Row[]; required?: boolean };
-const reason: Field = {key:"reason",label:"Motivo",required:true};
-const quantity: Field = {key:"quantity",label:"Quantidade",type:"number",required:true};
-const sections = [
- ["orders","Pedidos","sales_orders.read"], ["dashboard","Dashboard","sales.dashboard"],
- ["reservations","Reservas","reservations.read"], ["fulfillment","Separação","fulfillment.read"],
- ["shipments","Expedições","shipments.read"], ["returns","Devoluções","returns.read"],
- ["exceptions","Ocorrências","logistics.read"], ["carriers","Transportadoras","shipments.read"],
- ["settings","Configurações","sales.configure"],
+/**
+ * Casca e navegação do módulo de vendas.
+ *
+ * Este arquivo só compõe: cada área vive no seu próprio módulo e nenhuma regra de
+ * negócio mora aqui. As quatro exportações públicas (`SalesPage`,
+ * `SalesOrderPage`, `QuoteToOrder`, `CustomerOrders`) mantêm a assinatura usada
+ * pelas rotas e pelas telas do CRM.
+ */
+
+type Section = {
+  key: string;
+  label: string;
+  permission: string;
+};
+
+const SECTIONS: Section[] = [
+  { key: "orders", label: "Pedidos", permission: PERMISSIONS.salesOrdersRead },
+  { key: "dashboard", label: "Dashboard", permission: PERMISSIONS.salesDashboard },
+  { key: "reservations", label: "Reservas", permission: PERMISSIONS.reservationsRead },
+  { key: "fulfillment", label: "Separação", permission: PERMISSIONS.fulfillmentRead },
+  { key: "shipments", label: "Expedições", permission: PERMISSIONS.shipmentsRead },
+  { key: "returns", label: "Devoluções", permission: PERMISSIONS.returnsRead },
+  { key: "exceptions", label: "Ocorrências", permission: PERMISSIONS.logisticsRead },
+  { key: "carriers", label: "Transportadoras", permission: PERMISSIONS.carriersManage },
+  { key: "credits", label: "Crédito", permission: PERMISSIONS.salesCreditRead },
+  { key: "settings", label: "Configurações", permission: PERMISSIONS.salesConfigure },
 ];
-function Frame({children}: {children: ReactNode}) {
- const {hasPermission}=useOrganization();
- return <AppShell title="Vendas e logística"><div className="space-y-5"><nav className="flex flex-wrap gap-2" aria-label="Vendas">{sections.filter((s)=>hasPermission(s[2])).map(([key,label])=><Link className="rounded border px-3 py-2 text-sm" key={key} to="/vendas" search={{view:key}}>{label}</Link>)}</nav>{children}</div></AppShell>;
+
+const AREA_BY_KEY: Record<string, Area> = Object.fromEntries(
+  AREAS.map((area) => [area.key, area]),
+);
+
+function Frame({ children }: { children: ReactNode }) {
+  const { hasPermission } = useOrganization();
+  return (
+    <AppShell title="Vendas e logística">
+      <div className="space-y-5">
+        <nav className="flex flex-wrap gap-2" aria-label="Vendas">
+          {SECTIONS.filter((section) => hasPermission(section.permission)).map((section) => (
+            <Link
+              className="rounded border px-3 py-2 text-sm"
+              key={section.key}
+              to="/vendas"
+              search={{ view: section.key }}
+            >
+              {section.label}
+            </Link>
+          ))}
+        </nav>
+        {children}
+      </div>
+    </AppShell>
+  );
 }
-function useRead(org:string,kind:string,id?:string,filters:Row={}) {
- const api=useServerFn(readSales);
- return useQuery({queryKey:["sales",org,kind,id,filters],queryFn:()=>api({data:{organizationId:org,kind,id,filters:filters as Record<string,Json>}}),enabled:!!org});
+
+export function SalesPage({ view = "orders" }: { view?: string }) {
+  const { currentOrganization, hasPermission } = useOrganization();
+  const org = currentOrganization?.organization_id;
+  if (!org) return <Frame><p>Selecione uma organização.</p></Frame>;
+  const section = SECTIONS.find((item) => item.key === view) ?? SECTIONS[0];
+  if (!hasPermission(section.permission)) {
+    return (
+      <Frame>
+        <p role="alert">Acesso não permitido.</p>
+      </Frame>
+    );
+  }
+
+  let content: ReactNode;
+  if (section.key === "dashboard") {
+    content = <SalesDashboard organizationId={org} />;
+  } else if (section.key === "settings") {
+    content = <SalesSettings organizationId={org} />;
+  } else if (section.key === "credits") {
+    content = <SalesCredits organizationId={org} />;
+  } else {
+    const area = AREA_BY_KEY[section.key];
+    content = area ? (
+      <SalesArea key={`${org}:${area.key}`} organizationId={org} area={area} />
+    ) : (
+      <EmptyState title="Área desconhecida" description="Selecione uma área válida." />
+    );
+  }
+
+  return <Frame>{content}</Frame>;
 }
-function FormField({field,value,change,org}:{field:Field;value:string;change:(s:string)=>void;org:string}) {
- if(field.lookup) return <Picker org={org} kind={field.lookup} value={value} onChange={change} label={field.label}/>;
- return <div className="space-y-1"><Label>{field.label}</Label>{field.options || field.choices ? <select aria-label={field.label} className={selectClass} value={value} onChange={e=>change(e.target.value)} required={field.required}><option value="">Selecione</option>{field.options?.map(s=><option key={s} value={s}>{s}</option>)}{field.choices?.map(r=><option key={text(r.id)} value={text(r.id)}>{str(r.label ?? r.name ?? r.sku_snapshot ?? r.id)}</option>)}</select> : <Input aria-label={field.label} type={field.type ?? "text"} step="any" min={field.type==="number" ? 0 : undefined} value={value} onChange={e=>change(e.target.value)} required={field.required}/>}</div>;
+
+export function SalesOrderPage({ id }: { id: string }) {
+  const { currentOrganization, hasPermission } = useOrganization();
+  const org = currentOrganization?.organization_id;
+  if (!org) return <Frame><p>Selecione uma organização.</p></Frame>;
+  if (!hasPermission(PERMISSIONS.salesOrdersRead)) {
+    return (
+      <Frame>
+        <p role="alert">Acesso não permitido.</p>
+      </Frame>
+    );
+  }
+  return (
+    <Frame>
+      <OrderDetail key={`${org}:${id}`} organizationId={org} orderId={id} />
+    </Frame>
+  );
 }
-function Action({label,permission,operation,id,action="",fields=[],fixed={},items,itemsField="sales_order_item_id",initial={},org}:{label:string;permission:string;operation:Operation;id?:string;action?:string;fields?:Field[];fixed?:Row;items?:Row[];itemsField?:string;initial?:Row;org:string}) {
- const {hasPermission}=useOrganization();const [open,setOpen]=useState(false);const [values,setValues]=useState<Record<string,string>>({});const [amounts,setAmounts]=useState<Record<string,string>>({});const [key,setKey]=useState(crypto.randomUUID());
- const api=useServerFn(mutateSales); const client=useQueryClient();
- const mutation=useMutation({mutationFn:async()=>{
-  const data:Record<string,Json>={...fixed} as Record<string,Json>;
-  fields.forEach(f=>{const val=values[f.key] ?? text(initial[f.key]);if(val!=="")data[f.key]=f.type==="number" ? Number(val):val;});
-  if(items) data.items=items.filter(i=>Number(amounts[text(i.id)]??0)>0).map(i=>({[itemsField]:text(i.id),[operation==="confirm" ? "confirmed_quantity":"quantity"]:Number(amounts[text(i.id)])}));
-  return api({data:{organizationId:org,operation,id,action,values:data,key}});
- },onSuccess:()=>{toast.success("Operação concluída");setOpen(false);setValues({});setAmounts({});setKey(crypto.randomUUID());void client.invalidateQueries({queryKey:["sales",org]});void client.invalidateQueries({queryKey:["crm",org]});}});
- if(!hasPermission(permission)) return null;
- return <><Button variant="outline" onClick={()=>setOpen(true)}>{label}</Button><Dialog open={open} onOpenChange={v=>{if(!mutation.isPending)setOpen(v);}}><DialogContent className="max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>{label}</DialogTitle></DialogHeader><form className="space-y-4" onSubmit={e=>{e.preventDefault();mutation.mutate();}}>{fields.map(f=><FormField key={f.key} field={f} value={values[f.key]??text(initial[f.key])} change={v=>setValues(s=>({...s,[f.key]:v}))} org={org}/>)}{items?.map(i=><div key={text(i.id)}><Label>{str(i.sku_snapshot ?? i.label)} — {str(i.description_snapshot)} {i.pending!=null ? `(pendente: ${i.pending})`:""}</Label><Input aria-label={`Quantidade ${i.sku_snapshot??i.id}`} type="number" min="0" step="any" value={amounts[text(i.id)]??""} onChange={e=>setAmounts(s=>({...s,[text(i.id)]:e.target.value}))}/></div>)}{!fields.length && !items && <p>Confirme a operação. As regras serão revalidadas pelo servidor.</p>}{mutation.error && <p role="alert" className="text-destructive">{mutation.error.message}</p>}<Button type="submit" disabled={mutation.isPending}>{mutation.isPending?"Processando…":"Confirmar"}</Button></form></DialogContent></Dialog></>;
+
+/** Conversão de uma proposta aceita em pedido, chamada a partir do CRM. */
+export function QuoteToOrder({ org, quoteId }: { org: string; quoteId: string }) {
+  return (
+    <SalesAction
+      organizationId={org}
+      label="Criar pedido desta versão"
+      permission={PERMISSIONS.salesOrdersCreate}
+      operation="convert"
+      id={quoteId}
+      description="O pedido nasce em rascunho com o preço aceito na proposta. A aprovação é um passo seguinte."
+    />
+  );
 }
-const cols: Record<string,string>={order_number:"Pedido",shipment_number:"Expedição",return_number:"Devolução",fulfillment_number:"Atendimento",company_name:"Cliente",order_date:"Data",total_amount:"Total",original_amount:"Valor original",open_amount:"Em aberto",sku_snapshot:"SKU",quantity:"Quantidade",location_name:"Local",status:"Status",message:"Ocorrência",severity:"Gravidade",name:"Nome",tracking_code:"Rastreio",stock_status:"Estoque",fulfilled_quantity:"Expedido",reserved_quantity:"Reservado",delivered_quantity:"Entregue",returned_quantity:"Devolvido",ordered_quantity:"Pedido",unit_price:"Preço",line_total:"Total",description_snapshot:"Descrição",created_at:"Data",action:"Ação",previous_status:"Anterior",new_status:"Novo",source_location_name:"Origem",confirmed_quantity:"Conferido",picked_quantity:"Separado",requested_quantity:"Solicitado"};
-function Cards({data,columns,children}:{data:Row[];columns:string[];children?:(r:Row)=>ReactNode}) {
- if(!data.length)return <p className="rounded border p-5 text-muted-foreground">Nenhum registro encontrado.</p>;
- return <div className="grid gap-3 lg:grid-cols-2">{data.map((r,index)=><article key={text(r.id)||index} className="space-y-3 rounded-lg border p-4"><dl className="grid grid-cols-2 gap-2">{columns.map(c=><div key={c}><dt className="text-xs text-muted-foreground">{cols[c]??c}</dt><dd className="break-words text-sm">{c.includes("status")?<StatusBadge value={r[c]}/>:c.includes("amount")||["unit_price","line_total"].includes(c)?money(r[c]):str(r[c])}</dd></div>)}</dl>{children?.(r)}</article>)}</div>;
+
+/** Pedidos de uma empresa, exibidos na aba de vendas do cliente no CRM. */
+export function CustomerOrders({ org, companyId }: { org: string; companyId: string }) {
+  const [page, setPage] = useState(0);
+  const list = useSalesList(org, "orders", {
+    company_id: companyId,
+    limit: 20,
+    offset: page * 20,
+  });
+
+  if (list.query.isPending) return <p>Carregando pedidos…</p>;
+  if (list.query.error) {
+    return (
+      <div role="alert" className="space-y-2">
+        <p>{list.query.error.message}</p>
+        <Button onClick={() => void list.query.refetch()}>Tentar novamente</Button>
+      </div>
+    );
+  }
+
+  const total = numeric(list.total);
+  return (
+    <div className="space-y-3">
+      <RecordCards
+        data={list.rows}
+        columns={["order_number", "order_date", "status", "total_amount"]}
+        area="orders"
+      >
+        {(row) => (
+          <Link
+            to="/vendas/pedidos/$id"
+            params={{ id: text(row.id) }}
+            className="text-primary underline"
+          >
+            Abrir pedido
+          </Link>
+        )}
+      </RecordCards>
+      <div className="flex items-center gap-3">
+        <Button disabled={page === 0} onClick={() => setPage((current) => current - 1)}>
+          Anterior
+        </Button>
+        <span className="text-sm text-muted-foreground">
+          Página {page + 1} · {total} registros
+        </span>
+        <Button
+          disabled={(page + 1) * 20 >= total}
+          onClick={() => setPage((current) => current + 1)}
+        >
+          Próxima
+        </Button>
+      </div>
+    </div>
+  );
 }
-export function SalesPage({view="orders"}:{view?:string}) {
- const {currentOrganization,hasPermission}=useOrganization();const org=currentOrganization?.organization_id;
- if(!org)return <Frame><p>Selecione uma organização.</p></Frame>;
- const section=sections.find(s=>s[0]===view)??sections[0];
- if(!hasPermission(section[2]))return <Frame><p role="alert">Acesso não permitido.</p></Frame>;
- return <Frame><Workspace key={`${org}:${section[0]}`} org={org} view={section[0]}/></Frame>;
-}
-function Workspace({org,view}:{org:string;view:string}) {
- const [search,setSearch]=useState(""); const [status,setStatus]=useState("");const [page,setPage]=useState(0);
- const q=useRead(org,view==="settings"?"settings":view,undefined,{search,status,limit:30,offset:page*30});const data=obj(q.data);
- if(q.isPending)return <p>Carregando…</p>;if(q.error)return <div role="alert">{q.error.message}<Button onClick={()=>q.refetch()}>Tentar novamente</Button></div>;
- if(view==="settings")return <section className="space-y-4"><h1 className="text-xl font-semibold">Políticas de vendas</h1><p>Reserva não movimenta estoque. A obrigação financeira segue o gatilho configurado.</p><Action org={org} label="Alterar políticas" permission="sales.configure" operation="settings" initial={data} fields={[
- {key:"reservation_policy",label:"Reserva",options:["FULL_ONLY","ALLOW_PARTIAL"]},
- {key:"reservation_expiry_hours",label:"Validade da reserva (horas)",type:"number"},
- {key:"receivable_trigger",label:"Gatilho financeiro",options:["NONE","ON_APPROVAL","ON_DISPATCH"]},
- {key:"approval_segregation",label:"Aprovação por outro usuário",options:["true","false"]},
- {key:"max_discount_percent",label:"Desconto máximo % (vazio usa alçada CRM)",type:"number"},reason]}/><dl className="space-y-2">{Object.entries(data).filter(([k])=>["reservation_policy","reservation_expiry_hours","receivable_trigger","approval_segregation"].includes(k)).map(([k,v])=><div key={k}>{k}: {str(v)}</div>)}</dl></section>;
- if(view==="dashboard")return <section><h1 className="mb-4 text-xl font-semibold">Dashboard de vendas</h1><p className="mb-4">Período: {str(data.from)} a {str(data.to)}. Valores de pedidos não representam recebimentos.</p><div className="grid gap-4 sm:grid-cols-3">{Object.entries({orders_total:"Pedidos no período",amount_total:"Valor dos pedidos",awaiting_approval:"Aguardando aprovação",awaiting_stock:"Aguardando estoque",shipments_in_transit:"Em trânsito",shipments_overdue:"Entregas atrasadas",returns_pending:"Devoluções pendentes",open_exceptions:"Ocorrências abertas"}).map(([k,l])=><div className="rounded border p-4" key={k}><p>{l}</p><strong>{k==="amount_total"?money(data[k]):str(data[k])}</strong></div>)}</div></section>;
- const columns:Record<string,string[]>={orders:["order_number","company_name","order_date","status","stock_status","total_amount"],reservations:["order_number","sku_snapshot","location_name","quantity","status"],fulfillment:["fulfillment_number","order_number","source_location_name","status"],shipments:["shipment_number","company_name","status","tracking_code"],returns:["return_number","order_number","company_name","status"],exceptions:["order_number","message","severity","status"],carriers:["name","status"]};
- return <section className="space-y-4"><h1 className="text-xl font-semibold">{sections.find(s=>s[0]===view)?.[1]}</h1><div className="flex flex-wrap gap-2">{view==="orders" && <><NewOrder org={org}/></>}{view==="reservations" && <Action org={org} label="Processar reservas vencidas" permission="reservations.release" operation="expire"/>}{view==="carriers" && <Action org={org} label="Nova transportadora" permission="carriers.manage" operation="carrier" fields={[{key:"name",label:"Nome",required:true},{key:"code",label:"Código",required:true},{key:"document_number",label:"Documento"},{key:"phone",label:"Telefone"}]}/>}</div><div className="flex gap-2">{view==="orders"&&<Input aria-label="Buscar pedido" placeholder="Número ou observação" value={search} onChange={e=>{setSearch(e.target.value);setPage(0);}}/>}<Input aria-label="Filtrar status" placeholder="Status (ex.: DRAFT)" value={status} onChange={e=>{setStatus(e.target.value);setPage(0);}}/></div><Cards data={rows(data.rows)} columns={columns[view]??[]}>{r=><div className="flex flex-wrap gap-2">{(view==="orders"||r.sales_order_id)&&<Link className="text-primary underline" to="/vendas/pedidos/$id" params={{id:text(view==="orders"?r.id:r.sales_order_id)}}>Abrir pedido</Link>}{view==="reservations"&&["ACTIVE","PARTIALLY_CONSUMED"].includes(text(r.status))&&<Action org={org} label="Liberar reserva" operation="reservation" action="release" id={text(r.id)} permission="reservations.release" fields={[reason]}/>}{view==="exceptions"&&<Action org={org} label="Resolver ocorrência" operation="exception" action="resolve" id={text(r.id)} permission="logistics.exceptions" fields={[{key:"resolution",label:"Resolução",required:true}]}/>}</div>}</Cards><div className="flex items-center gap-3"><Button disabled={!page} onClick={()=>setPage(p=>p-1)}>Anterior</Button><span>Página {page+1} · {str(data.total)} registros</span><Button disabled={(page+1)*30>=qty(data.total)} onClick={()=>setPage(p=>p+1)}>Próxima</Button></div></section>;
-}
-function NewOrder({org}:{org:string}) {
- const {hasPermission}=useOrganization();const [open,setOpen]=useState(false);const [company,setCompany]=useState("");const [table,setTable]=useState("");const [address,setAddress]=useState("");const [terms,setTerms]=useState("");const [items,setItems]=useState([{variant_id:"",quantity:1}]);const [key,setKey]=useState(crypto.randomUUID());
- const api=useServerFn(mutateSales); const client=useQueryClient();const [quote,setQuote]=useState("");
- const q=useRead(org,"addresses",undefined,{company_id:company});
- const m=useMutation({mutationFn:()=>api({data:{organizationId:org,operation:quote?"convert":"save",id:quote||undefined,key,values:quote?{}:{company_id:company,price_table_id:table,shipping_address_id:address,payment_terms_snapshot:terms,items}}}),onSuccess:()=>{setOpen(false);setKey(crypto.randomUUID());toast.success("Pedido criado");void client.invalidateQueries({queryKey:["sales",org]});}});
- if(!hasPermission("sales_orders.create"))return null;
- return <><Button onClick={()=>setOpen(true)}>Novo pedido / proposta aceita</Button><Dialog open={open} onOpenChange={setOpen}><DialogContent className="max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>Novo pedido</DialogTitle></DialogHeader><form className="space-y-4" onSubmit={e=>{e.preventDefault();m.mutate();}}><Picker org={org} kind="quotes" label="Proposta aceita (opcional)" value={quote} onChange={setQuote}/>{!quote&&<><Picker org={org} kind="companies" label="Cliente" value={company} onChange={v=>{setCompany(v);setAddress("");}}/><Picker org={org} kind="price_tables" label="Tabela de preços" value={table} onChange={setTable}/><FormField org={org} field={{key:"address",label:"Endereço de entrega",required:true,choices:rows(obj(q.data).rows).map(r=>({...r,label:`${r.street}, ${r.number} — ${r.city}`}))}} value={address} change={setAddress}/>{q.error&&<p role="alert">{q.error.message}</p>}<Label>Condição acordada (dias, ex.: 30/60)</Label><Input required value={terms} onChange={e=>setTerms(e.target.value)}/>{items.map((i,n)=><div key={n} className="space-y-2 rounded border p-3"><Picker org={org} kind="variants" label="Produto / SKU / barcode" value={i.variant_id} onChange={v=>setItems(s=>s.map((x,j)=>j===n?{...x,variant_id:v}:x))}/><Input aria-label="Quantidade" type="number" min="0.001" step="any" required value={i.quantity} onChange={e=>setItems(s=>s.map((x,j)=>j===n?{...x,quantity:Number(e.target.value)}:x))}/><Button type="button" variant="ghost" disabled={items.length===1} onClick={()=>setItems(s=>s.filter((_,j)=>j!==n))}>Remover item</Button></div>)}<Button type="button" variant="outline" onClick={()=>setItems(s=>[...s,{variant_id:"",quantity:1}])}>Adicionar item</Button><p className="text-sm text-muted-foreground">O servidor aplica o preço vigente. Nenhuma reserva é criada neste passo.</p></>}{m.error&&<p role="alert" className="text-destructive">{m.error.message}</p>}<Button disabled={m.isPending} type="submit">{m.isPending?"Criando…":"Criar rascunho"}</Button></form></DialogContent></Dialog></>;
-}
-export function QuoteToOrder({org,quoteId}:{org:string;quoteId:string}) { return <Action org={org} label="Criar pedido desta versão" permission="sales_orders.create" operation="convert" id={quoteId}/>; }
-export function CustomerOrders({org,companyId}:{org:string;companyId:string}) {
- const [page,setPage]=useState(0);const q=useRead(org,"orders",undefined,{company_id:companyId,limit:20,offset:page*20});
- if(q.isPending)return <p>Carregando pedidos…</p>;if(q.error)return <p role="alert">{q.error.message}</p>;
- const d=obj(q.data);return <div className="space-y-3"><Cards data={rows(d.rows)} columns={["order_number","order_date","status","total_amount"]}>{r=><Link to="/vendas/pedidos/$id" params={{id:text(r.id)}} className="text-primary underline">Abrir pedido</Link>}</Cards><Button disabled={!page} onClick={()=>setPage(p=>p-1)}>Anterior</Button><Button disabled={(page+1)*20>=qty(d.total)} onClick={()=>setPage(p=>p+1)}>Próxima</Button></div>;
-}
-export function SalesOrderPage({id}:{id:string}) {
- const {currentOrganization,hasPermission}=useOrganization();const org=currentOrganization?.organization_id;
- if(!org)return <Frame><p>Selecione uma organização.</p></Frame>;
- if(!hasPermission("sales_orders.read"))return <Frame><p role="alert">Acesso não permitido.</p></Frame>;
- return <Frame><OrderDetail key={`${org}:${id}`} org={org} id={id}/></Frame>;
-}
-function OrderDetail({org,id}:{org:string;id:string}) {
- const q=useRead(org,"detail",id);const locations=useRead(org,"locations");const data=obj(q.data),o=obj(data.order);const items=rows(data.items);
- if(q.isPending)return <p>Carregando pedido…</p>;if(q.error)return <div role="alert">{q.error.message}<Button onClick={()=>q.refetch()}>Tentar novamente</Button></div>;
- const locs=rows(obj(locations.data).rows);const active=["APPROVED","AWAITING_STOCK","READY_FOR_FULFILLMENT","PARTIALLY_FULFILLED"].includes(text(o.status));
- const source:Field={key:"source_location_id",label:"Localização de origem",choices:locs,required:true};
- return <section className="space-y-6"><header><h1 className="text-xl font-semibold">{str(o.order_number)} · {str(obj(data.company).legal_name)}</h1><StatusBadge value={o.status}/><p>Total: {money(o.total_amount)}</p></header><div className="flex flex-wrap gap-2">{o.status==="DRAFT"&&<Action org={org} label="Enviar para aprovação" permission="sales_orders.update" operation="order" id={id} action="submit"/>}{o.status==="PENDING_APPROVAL"&&<Action org={org} label="Aprovar pedido" permission="sales_orders.approve" operation="order" id={id} action="approve" fields={[reason]}/>}{!["CANCELED","CLOSED","FULFILLED"].includes(text(o.status))&&<Action org={org} label="Cancelar pedido" permission="sales_orders.cancel" operation="order" id={id} action="cancel" fields={[reason]}/>}{active&&<><Action org={org} label="Reservar estoque" permission="reservations.create" operation="reserve" id={id} fields={[source]}/><Action org={org} label="Criar separação" permission="fulfillment.manage" operation="fulfillment_create" id={id} fields={[source]} items={items.map(i=>({...i,pending:qty(i.approved_quantity)-qty(i.fulfilled_quantity)}))}/></>}{o.status==="FULFILLED"&&<Action org={org} label="Encerrar pedido" permission="sales_orders.update" operation="order" id={id} action="close" fields={[reason]}/>}</div><h2 className="font-semibold">Itens e atendimento</h2><Cards data={items} columns={["sku_snapshot","description_snapshot","ordered_quantity","unit_price","reserved_quantity","fulfilled_quantity","delivered_quantity","returned_quantity"]}/><h2 className="font-semibold">Disponibilidade oficial</h2><Cards data={rows(obj(data.availability).items).map(i=>({...i,sku_snapshot:i.sku,quantity:i.available}))} columns={["sku_snapshot","quantity"]}/><h2 className="font-semibold">Separação e embalagem</h2>{rows(data.fulfillments).map(f=>{
- const task=rows(data.picking_tasks).find(t=>t.fulfillment_order_id===f.id);const picks=rows(data.picking_items).filter(p=>p.picking_task_id===task?.id);
- return <div key={text(f.id)} className="space-y-3 rounded border p-4"><p>{str(f.fulfillment_number)} · <StatusBadge value={f.status}/></p><div className="flex flex-wrap gap-2">{f.status==="READY_FOR_PICKING"&&<Action org={org} label="Iniciar separação" permission="fulfillment.manage" operation="fulfillment" id={text(f.id)} action="start"/>}{f.status==="PICKING"&&<><Action org={org} label="Ler barcode / SKU" permission="picking.execute" operation="scan" id={text(task?.id)} fields={[{key:"code",label:"Barcode ou SKU",required:true},quantity]} initial={{quantity:1}}/><Action org={org} label="Concluir separação" permission="fulfillment.manage" operation="fulfillment" id={text(f.id)} action="pick"/></>}{task?.status==="PICKED"&&<Action org={org} label="Conferir quantidades" permission="picking.confirm" operation="confirm" id={text(task.id)} items={picks} itemsField="picking_task_item_id"/>}{f.status==="PICKED"&&task?.status==="CONFIRMED"&&<Action org={org} label="Iniciar embalagem" permission="fulfillment.manage" operation="fulfillment" action="pack" id={text(f.id)}/>} {f.status==="PACKING"&&<><Action org={org} label="Registrar embalagem" permission="packing.manage" operation="pack" id={text(f.id)} items={picks} itemsField="picking_task_item_id" fields={[{key:"gross_weight_kg",label:"Peso medido (kg)",type:"number"},{key:"length_cm",label:"Comprimento (cm)",type:"number"},{key:"width_cm",label:"Largura (cm)",type:"number"},{key:"height_cm",label:"Altura (cm)",type:"number"}]}/><Action org={org} label="Liberar para expedição" permission="fulfillment.manage" operation="fulfillment" action="ready" id={text(f.id)}/></>}{f.status==="READY_FOR_SHIPMENT"&&<Action org={org} label="Criar expedição" permission="shipments.create" operation="shipment_create" id={id} fixed={{fulfillment_order_id:f.id}} fields={[{key:"tracking_code",label:"Código de rastreio"},{key:"expected_delivery_at",label:"Entrega prevista",type:"datetime-local"}]}/>}</div><Cards data={picks} columns={["sku_snapshot","requested_quantity","picked_quantity","confirmed_quantity"]}/></div>;
- })}<h2 className="font-semibold">Expedições e entregas</h2><Cards data={rows(data.shipments)} columns={["shipment_number","status","tracking_code","delivered_quantity"]}>{s=><div className="flex flex-wrap gap-2">{s.status==="READY"&&<Action org={org} label="Confirmar expedição" permission="shipments.dispatch" operation="dispatch" id={text(s.id)}/>} {['DISPATCHED','IN_TRANSIT','PARTIALLY_DELIVERED'].includes(text(s.status))&&<><Action org={org} label="Registrar rastreio" permission="shipments.dispatch" operation="shipment" action="track" id={text(s.id)} fields={[{key:"tracking_code",label:"Código de rastreio",required:true}]}/><Action org={org} label="Registrar recebedor" permission="shipments.confirm_delivery" operation="shipment" action="proof" id={text(s.id)} fixed={{proof_type:"SIGNATURE"}} fields={[{key:"signature_name",label:"Nome do recebedor (registro manual)",required:true},{key:"notes",label:"Evidência / observações",required:true}]}/><Action org={org} label="Confirmar entrega" permission="shipments.confirm_delivery" operation="shipment" action="deliver" id={text(s.id)}/></>}{['DELIVERED','PARTIALLY_DELIVERED'].includes(text(s.status))&&<Action org={org} label="Solicitar devolução" permission="returns.create" operation="return_create" id={id} fixed={{shipment_id:s.id}} fields={[reason]} items={rows(data.shipment_items).filter(i=>i.shipment_id===s.id).map(i=>({...i,id:i.sales_order_item_id}))}/>}</div>}</Cards><h2 className="font-semibold">Devoluções</h2><Cards data={rows(data.returns)} columns={["return_number","status"]}>{r=><div className="flex flex-wrap gap-2">{r.status==="DRAFT"&&<Action org={org} label="Submeter devolução" permission="returns.create" operation="return" id={text(r.id)} action="submit"/>}{r.status==="PENDING_APPROVAL"&&<Action org={org} label="Aprovar devolução" permission="returns.approve" operation="return" id={text(r.id)} action="approve" fields={[reason]}/>} {r.status==="APPROVED"&&<Action org={org} label="Receber devolução" permission="returns.receive" operation="return" id={text(r.id)} action="receive" fields={[{key:"destination_location_id",label:"Destino",choices:locs,required:true},{key:"destination",label:"Destinação",options:["SELLABLE","QUARANTINE","INSPECTION"],required:true}]} items={rows(data.return_items).filter(i=>i.customer_return_id===r.id)} itemsField="customer_return_item_id"/>}{['RECEIVED','INSPECTED'].includes(text(r.status))&&<Action org={org} label="Concluir devolução" permission="returns.create" operation="return" action="complete" id={text(r.id)} fields={[reason]}/>}</div>}</Cards><h2 className="font-semibold">Histórico</h2><Cards data={rows(data.history)} columns={["created_at","previous_status","new_status"]}/><h2 className="font-semibold">Movimentos oficiais</h2><Cards data={rows(data.movements)} columns={["created_at","quantity","status"]}/>{rows(data.receivables).length>0&&<><h2 className="font-semibold">Recebíveis</h2><Cards data={rows(data.receivables)} columns={["status","original_amount","open_amount"]}/></>}</section>;
-}
+
+export { NewOrder, object, rows };
