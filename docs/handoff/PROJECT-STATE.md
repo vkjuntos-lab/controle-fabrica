@@ -530,7 +530,7 @@ Validação local; publicação não verificada.
   `docs/handoff/MASTER-006-VALIDATION.md`, `docs/handoff/MASTER-007-VALIDATION.md`,
   `docs/handoff/MASTER-009-VALIDATION.md`, `docs/handoff/MASTER-010-VALIDATION.md`,
   `docs/handoff/MASTER-011-VALIDATION.md` e `docs/handoff/MASTER-013-VALIDATION.md`.
-- O MASTER 013 é o caso mais advanced de cobertura de interface: a cobertura é banco real isolado,
+- O MASTER 013 é o caso mais recente de cobertura de interface: a cobertura é banco real isolado,
   testes unitários e build, sem navegação em navegador autenticado. Ficam sem verificação prática o
   agrupamento dos campos nas telas, o seletor com muitas opções e a leitura de erro do gateway na
   interface.
