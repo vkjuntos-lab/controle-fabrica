@@ -969,7 +969,7 @@ GRANT EXECUTE ON FUNCTION public.fiscal_simulate(uuid,uuid,uuid,uuid,text,jsonb,
 --
 --     Papel novo: 'fiscal' é quem emite e transmite documento. Não é o
 --     mesmo papel de 'financeiro', que concilia. Confundir os dois é o
---     que permite quem transmite o documentO também apagar a própria
+--     que permite quem transmite o documento também apagar a própria
 --     divergência.
 --
 --     Nota de execução: o ADD VALUE precisa estar em autocommit para
