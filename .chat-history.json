@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -rniE \"ncm|cest|cfop|icms|\\bipi\\b|tax_regime\" supabase/migrations/20260917110000_catalog_mestre.sql supabase/migrations/20260924100000_partners.sql supabase/migrations/20261006100000_sales_orders.sql | grep -viE \"^\\s*--\" | head -25",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790622005271
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20260917110000_catalog_mestre.sql:12:--   * NCM é texto (nunca identificador interno);\nsupabase/migrations/20260917110000_catalog_mestre.sql:45:  ncm text,\n",
-    "is_error": false,
-    "timestamp": 1790622005303
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -rn \"ncm\" supabase/migrations/*.sql | head -20",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1576,5 +1561,20 @@
     "content": "ok\nEXIT=1\nCONTEXT:  SQL statement \"INSERT INTO public.product_fiscal_profiles(organization_id,product_variant_id,ncm,cest,\n      origin_code,fiscal_unit,tax_classification,additional_classification,tax_treatment,\n      version,effective_from,effective_to,status,justification,created_by)\n    VALUES(_",
     "is_error": false,
     "timestamp": 1790622861757
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"AssertionError\\|PASS \\|Error\" /tmp/opencode/fiscal12.log | head -6; echo \"=== msg ===\"; grep -n \"ERROR:\" /tmp/opencode/fiscal12.log | head -3",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622865576
+  },
+  {
+    "role": "tool_result",
+    "content": "2:PASS AG: simulacao sem classificacao vigente bloqueia e se declara nao autoritativa\n24:AssertionError: ERROR:  duplicate key value violates unique constraint \"product_fiscal_profiles_organization_id_product_variant_id__key\"\n=== msg ===\n24:AssertionError: ERROR:  duplicate key value violates unique",
+    "is_error": false,
+    "timestamp": 1790622865595
   }
 ]
