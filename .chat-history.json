@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261010100000_sales_integrity.sql').read_text()\nt+=Path('supabase/migrations/20261006100000_sales_orders.sql').read_text()\nfor fn in ['sales_fulfillment_action','sales_shipment_action','sales_return_action','sales_exception_action','sales_reservation_action']:\n    ms=list(re.finditer(r'CREATE(?: OR REPLACE)? FUNCTION public\\.'+fn+r'\\(.*?\\n\\$\\$;', t, re.S))\n    body=ms[-1].group(0)\n    print('#'*15, fn)\n    for ln in body.split('\\n'):\n        s=ln.strip()\n        if re.search(r\"_action (IN|=)|RAISE EXCEPTION 'Ação|_action='|v_perm:=\", s):\n            print('  ', s[:200])\nPY"
-    },
-    "timestamp": 1790618362067
-  },
-  {
-    "role": "tool_result",
-    "content": "############### sales_fulfillment_action\n   IF _action='start' THEN\n   ELSIF _action='pick' THEN\n   ELSIF _action='pack' THEN\n   ELSIF _action='ready' THEN\n   ELSIF _action='cancel' THEN\n   ELSE RAISE EXCEPTION 'Ação inválida.'; END IF;\n############### sales_shipment_action\n   PERFORM public.sales_r",
-    "is_error": false,
-    "timestamp": 1790618362144
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261010100000_sales_integrity.sql').read_text()\nt+=Path('supabase/migrations/20261006100000_sales_orders.sql').read_text()\nfor fn in ['sales_reserve','sales_fulfillment_create','sales_pick_scan','sales_pick_confirm','sales_pack','sales_shipment_create','sales_return_create','sales_carrier_save','sales_settings_save','sales_expire_reservations','sales_fulfillment_action','sales_shipment_action']:\n    ms=list(re.finditer(r'CREATE(?: OR REPLACE)? FUNCTION public\\.'+fn+r'\\(.*?\\n\\$\\$;', t, re.S))\n    if not ms: continue\n    body=ms[-1].group(0)\n    print(fn, '->', sorted(set(re.findall(r\"_data->>'([a-z_]+)'\", body))))\nPY"
     },
     "timestamp": 1790618366400
@@ -1510,5 +1496,21 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790619124637
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/workspace.tsx",
+      "newString": "import { useState, type ReactNode } from \"react\";",
+      "oldString": "import type { ReactNode } from \"react\";"
+    },
+    "timestamp": 1790619127124
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790619127150
   }
 ]
