@@ -36,7 +36,7 @@ def run():
        # handle_new_organization. Inserir de novo seria duplicar a linha.
        f"INSERT INTO organization_members(organization_id,user_id,role) VALUES"
        f"({q(org)},{q(fiscal)},'fiscal'),({q(org)},{q(contador)},'financeiro');"
-       f"INSERT INTO companies(id,organization_id,legal_name) VALUES ({q(company)},{q(org)},'Cliente Ltda');"
+       f"INSERT INTO companies(id,organization_id,code,legal_name) VALUES ({q(company)},{q(org)},'CLI-001','Cliente Ltda');"
        f"INSERT INTO products(id,organization_id,code,name) VALUES ({q(product)},{q(org)},'BALLET','Sapatilha');"
        f"INSERT INTO product_variants(id,organization_id,product_id,sku,size,color) VALUES"
        f"({q(variant)},{q(org)},{q(product)},'BAL-34-ROSA','34','Rosa'),"
