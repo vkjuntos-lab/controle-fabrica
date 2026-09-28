@@ -143,7 +143,7 @@ export function SalesAction({
         open={open}
         onOpenChange={(next) => {
           if (write.isPending) return;
-          if (next) renew();
+          if (next) setIncomplete(false);
           setOpen(next);
         }}
       >
