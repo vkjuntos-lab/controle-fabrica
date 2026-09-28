@@ -82,7 +82,7 @@ def run():
     sim = simulate(item)
     assert sim['has_blocking_issue'] and sim['is_authorized_document'] is False
     assert any(w['code'] == 'MISSING_TAX_CONFIGURATION' for w in sim['warnings'])
-    assert 'classificacao fiscal' in sim['warnings'][0]['message']
+    assert 'classificação fiscal vigente' in sim['warnings'][0]['message']
     print('PASS AG: simulacao sem classificacao vigente bloqueia e se declara nao autoritativa')
 
     # --- AI: classificacao em DRAFT nao habilita calculo ------------------
@@ -92,22 +92,22 @@ def run():
     assert sql(f"SELECT status FROM product_fiscal_profiles WHERE organization_id={q(org)} AND id={q(prof)}") == 'DRAFT'
     sim = simulate(item)
     assert sim['has_blocking_issue'] and float(sim['total_taxes']) == 0
-    assert any('classificacao fiscal' in w['message'] for w in sim['warnings'])
+    assert any('classificação fiscal' in w['message'] for w in sim['warnings'])
     print('PASS AH: classificacao em DRAFT nao entra no calculo; falta de regra nomeia a pendencia')
 
     # --- AJ: segregacao de funcoes ----------------------------------------
     args = ','.join([q(org), q('product_fiscal_profiles'), q(prof), q('approve'), q('NCM conferida')])
-    db.call('fiscal_profile_action', args, contador, 'Sem permissao')
-    db.call('fiscal_profile_action', args, fiscal, 'Sem permissao')
-    db.call('fiscal_profile_action', args, admin, 'nao pode aprovar')
+    db.call('fiscal_profile_action', args, contador, 'Sem permissão')
+    db.call('fiscal_profile_action', args, fiscal, 'Sem permissão')
+    db.call('fiscal_profile_action', args, admin, 'não pode aprová-la')
     save('fiscal_save_product_profile', {
         'product_variant_id': variant, 'ncm': '6403.99.99', 'justification': 'tentativa'},
-        rid=prof, fail='so e alteravel')
+        rid=prof, fail='só é alterável')
     # Um segundo gestor (o proprio admin ja criou) libera a classificacao.
     j('fiscal_profile_action', args, admin)
     assert sql(f"SELECT status FROM product_fiscal_profiles WHERE organization_id={q(org)} AND id={q(prof)}") == 'APPROVED'
     db.call('fiscal_profile_action', ','.join([q(org), q('nao_existe'), q(prof), q('approve'), q('x')]),
-            admin, 'Tabela de perfil')
+            admin, 'Tabela de perfil fiscal inválida')
     print('PASS AI: autor nao aprova a propria classificacao; perfil aprovado fica imutavel')
 
     # --- AK: ciclo de vida da regra e aprovacao com justificativa ----------
@@ -126,16 +126,16 @@ def run():
         db.call('fiscal_rule_action', ','.join([q(org), q(rule_id), q('review'), q('Voltar para ajuste')]), admin)
         db.call('fiscal_rule_action', ','.join([q(org), q(rule_id), q('submit'), q('Para revisao')]), admin)
         db.call('fiscal_rule_action', ','.join([q(org), q(rule_id), q('approve'), q('  ')]), user,
-                'justificativa')
+                'justificativa registrada')
         j('fiscal_rule_action', ','.join([q(org), q(rule_id), q('approve'), q(just)]), user)
         return j('fiscal_rule_action', ','.join([q(org), q(rule_id), q('activate'), q(just)]), user)
 
     r_nfe = make_rule()
     save('fiscal_save_rule', {'priority': 5}, rid=r_nfe)
     db.call('fiscal_rule_action', ','.join([q(org), q(r_nfe), q('submit'), q('Revisar')]), admin)
-    save('fiscal_save_rule', {'priority': 5}, rid=r_nfe, fail='so e alteravel')
+    save('fiscal_save_rule', {'priority': 5}, rid=r_nfe, fail='só é alterável')
     db.call('fiscal_rule_action', ','.join([q(org), q(r_nfe), q('approve'), q('x')]), fiscal,
-            'Sem permissao')
+            'Sem permissão')
     print('PASS AJ: regra submetida vira imutavel; aprovacao exige permissao e justificativa')
 
     assert approve(r_nfe, admin)['status'] == 'ACTIVE'
@@ -143,7 +143,7 @@ def run():
     db.call('fiscal_rule_action', ','.join([q(org), q(r_dup), q('submit'), q('Revisar')]), admin)
     db.call('fiscal_rule_action', ','.join([q(org), q(r_dup), q('approve'), q('Duplicada')]), admin)
     db.call('fiscal_rule_action', ','.join([q(org), q(r_dup), q('activate'), q('Duplicada')]), admin,
-            'mesmo escopo')
+            'mesmo escopo e vigência sobreposta')
     print('PASS AK: segunda regra ATIVE de mesmo escopo e vigencia e recusada')
 
     # --- AL: o calculo usa a regra ativa -----------------------------------
@@ -175,7 +175,7 @@ def run():
     # --- AN: produto sem classificacao vigente nao recebe estimativa -------
     sim = simulate([{'product_variant_id': variant2, 'quantity': 1, 'unit_price': 10}])
     assert sim['has_blocking_issue'] and float(sim['total_taxes']) == 0
-    assert any('classificacao fiscal' in w['message'] for w in sim['warnings'])
+    assert any('classificação fiscal' in w['message'] for w in sim['warnings'])
     print('PASS AN: linha sem classificacao bloqueia a operacao e nao estima tributo')
 
     # --- AO: tributo ISOLADO nao acompanha o valor da mercadoria ------------
@@ -214,7 +214,7 @@ def run():
     assert sql(f"SELECT count(*) FROM tax_rule_items WHERE organization_id={q(org)} AND tax_id NOT IN "
                f"(SELECT id FROM fiscal_taxes WHERE organization_id={q(org)})") == '0'
     db.call('fiscal_save_tax', ','.join([q(org), q(json.dumps({'code': 'X', 'label': ''}))]),
-            admin, 'fiscal.configure')
+            admin, 'Sem permissão')
     assert sql(f"SELECT count(*) FROM fiscal_taxes WHERE organization_id={q(org)} AND code LIKE '%PADRAO%'") == '0'
     print('PASS AR: nenhum tributo nasce sem cadastro; o banco nao semeia aliquota')
 
@@ -223,7 +223,7 @@ def run():
     assert sql(f"SELECT count(*) FROM tax_rules WHERE organization_id={q(org)}", outsider) == '0'
     assert sql(f"SELECT count(*) FROM tax_rule_reviews WHERE organization_id={q(org)}", outsider) == '0'
     db.call('fiscal_simulate', ','.join([q(org), q(est), q(op), q(company), q('NFe'), q(json.dumps(item))]),
-            outsider, 'Sem permissao')
+            outsider, 'Sem permissão')
     print('PASS AS: RLS isola a organizacao e usuario sem permissao nao simula')
 
     # --- AT: mudanca de regime nao reinterpreta o passado --------------------

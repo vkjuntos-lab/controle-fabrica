@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -rlniE \"nfe|nf_e|nf-e|icms|ipi|cfop|fiscal|ncm|cest|cbs|ibs|sefaz|sped|tax_regime|inscricao\" supabase/migrations/ | sort | head -30",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790622001506
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20260706125436_ee111f48-9274-4884-9ab0-85cb4733f37e.sql\nsupabase/migrations/20260706150230_5280fbec-723e-429d-8021-3f39cfaab1b7.sql\nsupabase/migrations/20260706150307_3c3cdc57-62e3-4e4d-8caf-1e24cf76c130.sql\nsupabase/migrations/20260706162022_3cfde7e0-0de1-4f59-bba4-6032c1ee1795.",
-    "is_error": false,
-    "timestamp": 1790622001527
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -rniE \"ncm|cest|cfop|icms|\\bipi\\b|tax_regime\" supabase/migrations/20260917110000_catalog_mestre.sql supabase/migrations/20260924100000_partners.sql supabase/migrations/20261006100000_sales_orders.sql | grep -viE \"^\\s*--\" | head -25",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1576,5 +1561,20 @@
     "content": "ok\nEXIT=1\nMIGRATIONS OK\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py\", line 245, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py\", line 85, in run\n    assert 'classificacao f",
     "is_error": false,
     "timestamp": 1790622838550
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabricas' && python3 - <<'PY'\nimport io\np=\"scripts/test-fiscal-db.py\"\ns=io.open(p,encoding=\"utf-8\").read()\nfor a,b in [\n (\"'classificacao fiscal' in sim['warnings'][0]['message']\", \"'classificação fiscal vigente' in sim['warnings'][0]['message']\"),\n (\"any('classificacao fiscal' in w['message'] for w in sim['warnings'])\",\n  \"any('classificação fiscal' in w['message'] for w in sim['warnings'])\"),\n (\"rid=prof, fail='so e alteravel'\", \"rid=prof, fail='só é alterável'\"),\n (\"rid=r_nfe, fail='so e alteravel'\", \"rid=r_nfe, fail='só é alterável'\"),\n (\"'Sem permissao'\", \"'Sem permissão'\"),\n (\"'nao pode aprovar'\", \"'não pode aprová-la'\"),\n (\"'justificativa'\", \"'justificativa registrada'\"),\n (\"'Tabela de perfil'\", \"'Tabela de perfil fiscal inválida'\"),\n (\"'fiscal.configure'\", \"'Sem permissão'\"),\n (\"'mesmo escopo'\", \"'mesmo escopo e vigência sobreposta'\"),\n]:\n    s=s.replace(a,b)\nio.open(p,\"w\",encoding=\"utf-8\").write(s)\nprint(\"ok\")\nPY\nsu claude-runner -c \"python3 scripts/test-fiscal-db.py > /tmp/opencode/fiscal12.log 2>&1; echo EXIT=\\$?\"; tail -14 /tmp/opencode/fiscal12.log",
+      "timeout": 500000
+    },
+    "timestamp": 1790622859379
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nEXIT=1\nCONTEXT:  SQL statement \"INSERT INTO public.product_fiscal_profiles(organization_id,product_variant_id,ncm,cest,\n      origin_code,fiscal_unit,tax_classification,additional_classification,tax_treatment,\n      version,effective_from,effective_to,status,justification,created_by)\n    VALUES(_",
+    "is_error": false,
+    "timestamp": 1790622861757
   }
 ]
