@@ -58,6 +58,70 @@ export type Database = {
           },
         ]
       }
+      invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string
+          created_by: string | null
+          email: string
+          expires_at: string
+          id: string
+          organization_id: string
+          role: Database["public"]["Enums"]["app_role"]
+          status: Database["public"]["Enums"]["invitation_status"]
+          token: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          email: string
+          expires_at: string
+          id?: string
+          organization_id: string
+          role: Database["public"]["Enums"]["app_role"]
+          status?: Database["public"]["Enums"]["invitation_status"]
+          token: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          email?: string
+          expires_at?: string
+          id?: string
+          organization_id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          status?: Database["public"]["Enums"]["invitation_status"]
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitations_accepted_by_fkey"
+            columns: ["accepted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "invitations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_members: {
         Row: {
           created_at: string
@@ -174,6 +238,36 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_events: {
+        Row: {
+          context: Json
+          event_id: string
+          id: string
+          processed: boolean
+          provider: string
+          received_at: string
+          signature_ok: boolean
+        }
+        Insert: {
+          context?: Json
+          event_id?: string
+          id?: string
+          processed?: boolean
+          provider: string
+          received_at?: string
+          signature_ok?: boolean
+        }
+        Update: {
+          context?: Json
+          event_id?: string
+          id?: string
+          processed?: boolean
+          provider?: string
+          received_at?: string
+          signature_ok?: boolean
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -218,6 +312,7 @@ export type Database = {
         | "producao"
         | "comercial"
         | "marketplace"
+      invitation_status: "pending" | "accepted" | "expired" | "revoked"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -354,6 +449,7 @@ export const Constants = {
         "comercial",
         "marketplace",
       ],
+      invitation_status: ["pending", "accepted", "expired", "revoked"],
     },
   },
 } as const
