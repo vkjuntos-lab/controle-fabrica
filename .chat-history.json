@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "npx vitest run src/lib/sales/constants.test.ts 2>&1 | tail -45",
-      "timeout": 180000,
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790621224699
-  },
-  {
-    "role": "tool_result",
-    "content": "\n FAIL  src/lib/sales/constants.test.ts > políticas editáveis na tela de configurações > sete chaves correspondem a colunas de sales_order_settings\nAssertionError: reservation_policy: expected false to be true // Object.is equality\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- true\u001b[39m\n\u001b[31m+ ",
-    "is_error": false,
-    "timestamp": 1790621226032
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cat > /tmp/opencode/dbg.mjs <<'EOF'\nimport { readFileSync } from \"node:fs\";\nconst m = readFileSync(\"/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261006100000_sales_orders.sql\",\"utf8\");\nconst body = m.match(new RegExp(`CREATE TABLE[^;]*sales_order_settings \\\\(([\\\\s\\\\S]*?)\\\\n\\\\);`));\nconsole.log(\"match:\", !!body);\nif (body) {\n  console.log(\"--- primeiras 12 linhas do corpo ---\");\n  console.log(body[1].split(\"\\n\").slice(0,12).map(l=>JSON.stringify(l)).join(\"\\n\"));\n  console.log(\"--- colunas via /^\\s{2}([a-z_]+)\\s/gm ---\");\n  console.log([...body[1].matchAll(/^\\s{2}([a-z_]+)\\s/gm)].map(x=>x[1]).join(\" \"));\n}\nconsole.log(\"--- onde casa CHECK(status IN ---\");\nconsole.log([...m.matchAll(/CHECK\\s*\\(\\s*status\\s+IN\\s*\\(([^)]*)\\)/gs)].map(x=>x[0].slice(0,120)).join(\"\\n\"));\nEOF\nnode /tmp/opencode/dbg.mjs",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1632,5 +1616,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790622524146
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'EOF'\nimport io,re\np=\"/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261013100000_fiscal_core.sql\"\ns=io.open(p,encoding=\"utf-8\").read()\nfor t in ['fiscal_taxes','fiscal_operation_types','fiscal_layout_versions','fiscal_region_profiles','tax_rules','tax_rule_items','product_fiscal_profiles']:\n    m=re.search(r\"CREATE TABLE public\\.\"+t+r\" \\((.*?)\\n\\);\", s, re.S)\n    print(\"=== \"+t+\" ===\")\n    print(m.group(1)[:1200] if m else \"NAO ENCONTRADO\")\n    print()\nEOF",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622529282
+  },
+  {
+    "role": "tool_result",
+    "content": "=== fiscal_taxes ===\n\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations,\n  code text NOT NULL CHECK(length(trim(code))>0),\n  label text NOT NULL CHECK(length(trim(label))>0),\n  -- BASE_REDUCAO: tributa subtotal; VALOR_LIQUIDO: tributa lí",
+    "is_error": false,
+    "timestamp": 1790622529328
   }
 ]
