@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"sed -n '1860,1982p' supabase/migrations/20261006100000_sales_orders.sql; sed -n '2398,2544p' supabase/migrations/20261006100000_sales_orders.sql\""
-    },
-    "timestamp": 1790594086826
-  },
-  {
-    "role": "tool_result",
-    "content": " SELECT * INTO o FROM public.sales_orders WHERE id=_order AND organization_id=_org FOR UPDATE;\n IF NOT FOUND THEN RAISE EXCEPTION 'Pedido não encontrado.'; END IF;\n IF o.status NOT IN ('APPROVED','AWAITING_STOCK','READY_FOR_FULFILLMENT','PARTIALLY_FULFILLED') THEN\n  RAISE EXCEPTION 'Somente pedido a",
-    "is_error": false,
-    "timestamp": 1790594086830
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"cat > .git/fix-sales-more.py <<'PY'\nexec(Path('.git/fix-sales.py').read_text().split('# update test pipeline')[0].replace(\\\"out.append('COMMIT;')\\\",''))\nPY\""
     },
     "timestamp": 1790594092017
@@ -1432,5 +1418,19 @@
     "content": "[\"approvers' \", \"documents' \", \"timeline' \", \"availability' \", \"members' \", \"finance' \", \"margin' \", \"stock' \", \"commission' \", \"dashboard' \", \"credit_policies' \", \"customers' \", \"customers' \", \"customers' \", \"customers' \"]\n",
     "is_error": false,
     "timestamp": 1790618317877
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261009100000_crm_customer_history.sql').read_text()\ni=t.find('crm_query')\nb=t[i:]\n# procura bloco de kinds principais\nj=b.find(\"_kind='lead'\")\nprint(b[max(0,j-2000):j+300])\nPY"
+    },
+    "timestamp": 1790618320452
+  },
+  {
+    "role": "tool_result",
+    "content": "crm_query(_org uuid,_kind text,_filters jsonb DEFAULT '{}',_page integer DEFAULT 1,_export boolean DEFAULT false) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE tab text; perm text; scope text; result jsonb; cnt integer; offst integer:=greatest(0,_page-1)*50; c\n",
+    "is_error": false,
+    "timestamp": 1790618320497
   }
 ]
