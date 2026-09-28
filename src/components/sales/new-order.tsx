@@ -58,7 +58,7 @@ export function NewOrder({ organizationId }: { organizationId: string }) {
 
   if (!hasPermission("sales_orders.create")) return null;
 
-  const addressOptions = rows(addresses.data).map((row) => ({
+  const addressOptions = rows(object(addresses.data).rows).map((row) => ({
     id: String(row.id ?? ""),
     label: [row.street, row.number, row.district, row.city, row.state]
       .filter(Boolean)
@@ -70,6 +70,17 @@ export function NewOrder({ organizationId }: { organizationId: string }) {
       write.mutate({ operation: "convert", id: quote, values: {} });
       return;
     }
+    // Os seletores de proposta, cliente, tabela e produto são botões: o navegador
+    // não valida `required` neles. A verificação é feita aqui para não enviar um
+    // pedido incompleto e deixar o servidor recusá-lo.
+    const missingItem = items.some(
+      (item) => item.variant === "" || !(item.quantity > 0),
+    );
+    if (company === "" || priceTable === "" || address === "" || terms.trim() === "" || missingItem) {
+      setIncomplete(true);
+      return;
+    }
+    setIncomplete(false);
     write.mutate({
       operation: "save",
       values: {
