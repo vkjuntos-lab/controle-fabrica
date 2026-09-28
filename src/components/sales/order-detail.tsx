@@ -778,8 +778,8 @@ function Table({
               <tr key={text(row.id) || index} className="border-b last:border-b-0">
                 {columns.map(([key]) => (
                   <td key={key} className="px-3 py-2 align-top">
-                    {render
-                      ? render(row)
+                    {render?.[key]
+                      ? render[key](row)
                       : key.includes("amount") || key === "unit_price"
                         ? money(row[key])
                         : str(row[key])}
