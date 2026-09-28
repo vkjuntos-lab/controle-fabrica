@@ -59,8 +59,8 @@ export function useSalesRead(organizationId: string, kind: string, id?: string, 
  *
  * O gateway recusa a mesma chave com conteúdo diferente e devolve o mesmo
  * resultado para a mesma chave com conteúdo igual. A chave enviada é, portanto,
- * a combinação de um identificador de tentativa (renovado quando a tentativa é
- * concluída com sucesso) com o resumo do payload:
+ * montada a partir de um identificador de tentativa (renovado quando a tentativa
+ * é concluída com sucesso) e do resumo do payload:
  *
  * - reenviar exatamente o mesmo conteúdo deduplica — protege contra duplo
  *   clique e contra resposta perdida depois da gravação;
@@ -79,11 +79,28 @@ function payloadDigest(input: string): string {
   return hash.toString(16).padStart(8, "0");
 }
 
+/**
+ * `sales_execute` exige uma chave no formato UUID. A tentativa entra nos
+ * grupos fixos e o resumo do conteúdo ocupa o grupo da versão e o da variante,
+ * de modo que o resultado continua sendo um UUID válido para o banco.
+ */
+function keyFrom(attempt: string, digest: string): string {
+  const hex = attempt.replace(/-/g, "");
+  const variant = "89ab"[Number.parseInt(digest[3], 16) % 4];
+  return [
+    hex.slice(0, 8),
+    hex.slice(8, 12),
+    `4${digest.slice(0, 3)}`,
+    `${variant}${digest.slice(4, 7)}`,
+    hex.slice(12, 24),
+  ].join("-");
+}
+
 export function useIdempotencyKey() {
   const [attempt, setAttempt] = useState(() => crypto.randomUUID());
   const renew = useCallback(() => setAttempt(crypto.randomUUID()), []);
   const keyFor = useCallback(
-    (payload: unknown) => `${attempt}:${payloadDigest(JSON.stringify(payload ?? null))}`,
+    (payload: unknown) => keyFrom(attempt, payloadDigest(JSON.stringify(payload ?? null))),
     [attempt],
   );
   return { keyFor, renew };
