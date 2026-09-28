@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/settings.tsx",
-      "newString": "                  {option.options.map((option_) => (\n                    <option key={option_} value={option_}>\n                      {(option.labels as Record<string, string>)[option_] ?? option_}\n                    </option>\n                  ))}",
-      "oldString": "                  {option.options.map((option_) => (\n                    <option key={option_} value={option_}>\n                      {option.labels[option_]}\n                    </option>\n                  ))}"
-    },
-    "timestamp": 1790619177191
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619177218
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "npm run typecheck 2>&1 | head -60",
@@ -1552,5 +1536,20 @@
     "content": "jsonb_build_object\njsonb_build_object\n'close')\n",
     "is_error": false,
     "timestamp": 1790620334045
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "awk '/FUNCTION public.sales_order_detail/,/^\\$\\$/' supabase/migrations/20261010100000_sales_integrity.sql | grep -nE \"availability|movement|result:=|result||=|RETURN\" | head -20",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620339857
+  },
+  {
+    "role": "tool_result",
+    "content": "1:CREATE OR REPLACE FUNCTION public.sales_order_detail(_org uuid,_order uuid)\n2:RETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\n3:DECLARE o public.sales_orders; v_json jsonb; v_perm text;\n4:BEGIN\n5: SELECT * INTO o FROM public.sales_orders WHERE id=_order AND orga",
+    "is_error": false,
+    "timestamp": 1790620339873
   }
 ]
