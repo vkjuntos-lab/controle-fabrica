@@ -2,7 +2,12 @@ import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
 import { keyForPayload, payloadDigest } from "@/lib/sales/idempotency";
-import { SETTING_OPTIONS, SETTING_FLAGS, ORDER_ACTIONS, ORDER_STATUS, ORDER_ACTIONS as ACTIONS } from "@/lib/sales/constants";
+import {
+  SETTING_OPTIONS,
+  SETTING_FLAGS,
+  ORDER_ACTIONS,
+  ORDER_STATUS,
+} from "@/lib/sales/constants";
 
 /**
  * O mesmo validador usado por `mutateSales`: `sales_execute` recebe a chave como
