@@ -29,13 +29,16 @@ def run():
 
     admin, fiscal, contador, outsider, org = [uid() for _ in range(5)]
     product, variant, variant2, company = [uid() for _ in range(4)]
+    # Segundo aprovador: a segregacao de funcoes nao se prova com uma pessoa so.
+    aprovador = uid()
     sql(f"INSERT INTO auth.users(id,email) VALUES ({q(admin)},'adm@test'),({q(fiscal)},'fsc@test'),"
-       f"({q(contador)},'ctb@test'),({q(outsider)},'out@test');"
+       f"({q(contador)},'ctb@test'),({q(outsider)},'out@test'),({q(aprovador)},'apr@test');"
        f"INSERT INTO organizations(id,name,slug,created_by) VALUES ({q(org)},'A','a',{q(admin)});"
        # O creator da organização já entra como admin pelo trigger
        # handle_new_organization. Inserir de novo seria duplicar a linha.
        f"INSERT INTO organization_members(organization_id,user_id,role) VALUES"
-       f"({q(org)},{q(fiscal)},'fiscal'),({q(org)},{q(contador)},'financeiro');"
+       f"({q(org)},{q(fiscal)},'fiscal'),({q(org)},{q(contador)},'financeiro'),"
+       f"({q(org)},{q(aprovador)},'gestor');"
        f"INSERT INTO companies(id,organization_id,code,legal_name) VALUES ({q(company)},{q(org)},'CLI-001','Cliente Ltda');"
        f"INSERT INTO products(id,organization_id,code,name) VALUES ({q(product)},{q(org)},'BALLET','Sapatilha');"
        f"INSERT INTO product_variants(id,organization_id,product_id,sku,size,color) VALUES"
@@ -101,13 +104,13 @@ def run():
     save('fiscal_save_product_profile', {
         'product_variant_id': variant, 'ncm': '6403.99.99', 'justification': 'tentativa'},
         rid=prof, fail='só é alterável')
-    # Um segundo gestor (o proprio admin ja criou) libera a classificacao.
     # O admin criou a classificação, então também não pode aprová-la.
-    # A segregação é real: precisa de um terceiro com a permissão.
+    # A segregação é real: precisa de outro usuário com a permissão.
     assert sql(f"SELECT count(*) FROM product_fiscal_profiles "
                f"WHERE organization_id={q(org)} AND id={q(prof)} AND status='DRAFT'") == '1'
+    j('fiscal_profile_action', args, aprovador)
     db.call('fiscal_profile_action', ','.join([q(org), q('nao_existe'), q(prof), q('approve'), q('x')]),
-            admin, 'Tabela de perfil fiscal inválida')
+            aprovador, 'Tabela de perfil fiscal inválida')
     print('PASS AI: autor nao aprova a propria classificacao; perfil aprovado fica imutavel')
 
     # --- AK: ciclo de vida da regra e aprovacao com justificativa ----------
@@ -138,11 +141,11 @@ def run():
             'Sem permissão')
     print('PASS AJ: regra submetida vira imutavel; aprovacao exige permissao e justificativa')
 
-    assert approve(r_nfe, admin)['status'] == 'ACTIVE'
+    assert approve(r_nfe, aprovador)['status'] == 'ACTIVE'
     r_dup = make_rule()
     db.call('fiscal_rule_action', ','.join([q(org), q(r_dup), q('submit'), q('Revisar')]), admin)
-    db.call('fiscal_rule_action', ','.join([q(org), q(r_dup), q('approve'), q('Duplicada')]), admin)
-    db.call('fiscal_rule_action', ','.join([q(org), q(r_dup), q('activate'), q('Duplicada')]), admin,
+    db.call('fiscal_rule_action', ','.join([q(org), q(r_dup), q('approve'), q('Duplicada')]), aprovador)
+    db.call('fiscal_rule_action', ','.join([q(org), q(r_dup), q('activate'), q('Duplicada')]), aprovador,
             'mesmo escopo e vigência sobreposta')
     print('PASS AK: segunda regra ATIVE de mesmo escopo e vigencia e recusada')
 
@@ -162,7 +165,7 @@ def run():
     r_nfce = make_rule(priority=1, model='NFCe', taxes=[
         {'tax_id': icms, 'rate': 0.18, 'base_mode': 'VALOR_LIQUIDO', 'reduction': 3.00,
          'treatment_code': '000'}])
-    approve(r_nfce, admin, 'NFCe com reducao de base aprovada')
+    approve(r_nfce, aprovador, 'NFCe com reducao de base aprovada')
     nfce = {l['tax_code']: l for l in simulate(
         [dict(item[0], discount=5, freight=2)], model='NFCe')['lines']}
     assert nfce['ICMS']['tax_rule_id'] == r_nfce
@@ -184,7 +187,7 @@ def run():
     r_nfse = make_rule(priority=1, model='NFSe', taxes=[
         {'tax_id': taxa, 'base_mode': 'ISOLADO', 'fixed_amount': 25.00, 'rate': 0,
          'treatment_code': '99'}])
-    approve(r_nfse, admin, 'Taxa fixa por documento aprovada')
+    approve(r_nfse, aprovador, 'Taxa fixa por documento aprovada')
     s = {l['tax_code']: l for l in simulate(
         [{'product_variant_id': variant, 'quantity': 100, 'unit_price': 1000}],
         model='NFSe')['lines']}

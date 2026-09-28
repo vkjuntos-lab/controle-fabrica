@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -rn \"CREATE TABLE\" supabase/migrations/20261005100000_crm.sql supabase/migrations/20261008100000_crm_company_services.sql | head -20; echo \"=== customer_profiles ===\"; awk \"/CREATE TABLE.*public.customer_profiles \\(/,/^\\);/\" supabase/migrations/20261005100000_crm.sql | grep -oE \"^\\s*[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790622039312
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20261005100000_crm.sql:9:CREATE TABLE public.commercial_segments (\nsupabase/migrations/20261005100000_crm.sql:17:CREATE TABLE public.commercial_sources (\nsupabase/migrations/20261005100000_crm.sql:25:CREATE TABLE public.commercial_reasons (\nsupabase/migrations/20261005100000_crm.",
-    "is_error": false,
-    "timestamp": 1790622039354
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "for t in account_receivables account_payables; do echo \"=== $t ===\"; awk \"/CREATE TABLE.*public.$t \\(/,/^\\);/\" supabase/migrations/20260928100000_finance.sql | grep -oE \"^\\s*[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; done; echo \"=== outbox / domain events ===\"; grep -rn \"CREATE TABLE.*\\(outbox\\|domain_event\\|domain_audit\\)\" supabase/migrations/*.sql",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1578,5 +1563,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py</path>\n<type>file</type>\n<content>\n31:     product, variant, variant2, company = [uid() for _ in range(4)]\n32:     sql(f\"INSERT INTO auth.users(id,email) VALUES ({q(admin)},'adm@test'),({q(fiscal)},'fsc@test'),\"\n33:        f\"(",
     "is_error": false,
     "timestamp": 1790622896483
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabricas' && python3 - <<'PY'\nimport io\np=\"scripts/test-fiscal-db.py\"\ns=io.open(p,encoding=\"utf-8\").read()\ns=s.replace(\"    product, variant, variant2, company = [uid() for _ in range(4)]\",\n            \"    product, variant, variant2, company = [uid() for _ in range(4)]\\n    # Segundo aprovador: a segregacao de funcoes nao se prova com uma pessoa so.\\n    aprovador = uid()\")\ns=s.replace(\"\"\"({q(contador)},'ctb@test'),({q(outsider)},'out@test');\\\"\"\"\",\n            \"\"\"({q(contador)},'ctb@test'),({q(outsider)},'out@test'),({q(aprovador)},'apr@test');\\\"\"\"\")\ns=s.replace(\"\"\"       f\"({q(org)},{q(fiscal)},'fiscal'),({q(org)},{q(contador)},'financeiro');\\\"\"\"\",\n            \"\"\"       f\"({q(org)},{q(fiscal)},'fiscal'),({q(org)},{q(contador)},'financeiro'),\"\n       f\"({q(org)},{q(aprovador)},'gestor');\\\"\"\"\")\ns=s.replace(\"\"\"    # O admin criou a classificação, então também não pode aprová-la.\n    # A segregação é real: precisa de um terceiro com a permissão.\n    assert sql(f\"SELECT count(*) FROM product_fiscal_profiles \"\n               f\"WHERE organization_id={q(org)} AND id={q(prof)} AND status='DRAFT'\") == '1'\"\"\",\n\"\"\"    # O admin criou a classificação, então também não pode aprová-la.\n    # A segregação é real: precisa de outro usuário com a permissão.\n    assert sql(f\"SELECT count(*) FROM product_fiscal_profiles \"\n               f\"WHERE organization_id={q(org)} AND id={q(prof)} AND status='DRAFT'\") == '1'\n    j('fiscal_profile_action', args, aprovador)\"\"\")\ns=s.replace(\"\"\"    # Um segundo gestor (o proprio admin ja criou) libera a classificacao.\n\"\"\",\"\")\ns=s.replace(\"\"\"    db.call('fiscal_profile_action', ','.join([q(org), q('nao_existe'), q(prof), q('approve'), q('x')]),\n            admin, 'Tabela de perfil fiscal inválida')\"\"\",\n\"\"\"    db.call('fiscal_profile_action', ','.join([q(org), q('nao_existe'), q(prof), q('approve'), q('x')]),\n            aprovador, 'Tabela de perfil fiscal inválida')\"\"\")\ns=s.replace(\"    assert approve(r_nfe, admin)['status'] == 'ACTIVE'\",\"    assert approve(r_nfe, aprovador)['status'] == 'ACTIVE'\")\ns=s.replace(\"    approve(r_nfce, admin, \",\"    approve(r_nfce, aprovador, \")\ns=s.replace(\"    approve(r_nfse, admin, \",\"    approve(r_nfse, aprovador, \")\ns=s.replace(\"\"\"    db.call('fiscal_rule_action', ','.join([q(org), q(r_dup), q('approve'), q('Duplicada')]), admin)\n    db.call('fiscal_rule_action', ','.join([q(org), q(r_dup), q('activate'), q('Duplicada')]), admin,\n            'mesmo escopo e vigência sobreposta')\"\"\",\n\"\"\"    db.call('fiscal_rule_action', ','.join([q(org), q(r_dup), q('approve'), q('Duplicada')]), aprovador)\n    db.call('fiscal_rule_action', ','.join([q(org), q(r_dup), q('activate'), q('Duplicada')]), aprovador,\n            'mesmo escopo e vigência sobreposta')\"\"\")\nio.open(p,\"w\",encoding=\"utf-8\").write(s)\nprint(\"ok\")\nPY\nsu claude-runner -c \"python3 scripts/test-fiscal-db.py > /tmp/opencode/fiscal14.log 2>&1; echo EXIT=\\$?\"; tail -14 /tmp/opencode/fiscal14.log",
+      "timeout": 500000
+    },
+    "timestamp": 1790622907173
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nEXIT=1\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n        rid=prof, fail='só é alterável')\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py\", line 53, in save\n    return j(name, ','",
+    "is_error": false,
+    "timestamp": 1790622909678
   }
 ]
