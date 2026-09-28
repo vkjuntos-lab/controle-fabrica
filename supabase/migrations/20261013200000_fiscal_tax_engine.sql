@@ -533,13 +533,13 @@ BEGIN
   PERFORM public.fiscal_require(_org,'fiscal.configure');
   IF _id IS NULL THEN
     INSERT INTO public.fiscal_taxes(organization_id,code,label,calculation_base,
-      is_tax,is_recoverable_default,applies_to,is_active,created_by)
-    VALUES(_org,_data->>'code',_data->>'label',_data->>'description',
+      is_tax,is_recoverable_default,applies_to,is_active)
+    VALUES(_org,_data->>'code',_data->>'label',
       coalesce(_data->>'calculation_base','BASE_CALCULO'),
       coalesce((_data->>'is_tax')::boolean,true),
       (_data->>'is_recoverable_default')::boolean,
       coalesce(_data->>'applies_to','{}'::jsonb),
-      coalesce((_data->>'is_active')::boolean,true),auth.uid())
+      coalesce((_data->>'is_active')::boolean,true))
     RETURNING * INTO v_row;
   ELSE
     -- Tributo em uso não é renomeado: o código já foi para documento
