@@ -1,14 +1,19 @@
 -- =====================================================================
--- MASTER 013 (continuacao) — correcoes de_settings de vendas.
+-- MASTER 013 (continuacao) — correcoes da tela de vendas.
 --
--- A migration 20261006100000_sales_orders.sql declarava `v_key text` e
+-- 1. A migration 20261006100000_sales_orders.sql declarava `v_key text` e
 -- recebia `cur.id` (uuid). Ao gravar as politicas, a chamada a `sales_audit`
 -- recebia um text onde a assinatura exige uuid e a tela de Configuracoes
 -- falhava sempre com "function public.sales_audit(uuid, unknown, unknown,
 -- text, jsonb) does not exist". Nenhum teste cobria a escrita: o harness
 -- apenas lia as politicas.
 --
--- A migration publicada e preservada; a correcao vem em arquivo novo.
+-- 2. `sales_carrier_save` passava `modality` como NULL explicito no INSERT e
+-- quebrava a coluna NOT NULL sempre que a modalidade nao era informada. O
+-- botao "Nova transportadora" falhava em 100% dos casos. Passou a usar o
+-- default declarado pela tabela e a validar modalidade e documento.
+--
+-- A migration publicada e preservada; as correcoes vem em arquivo novo.
 -- =====================================================================
 
 CREATE OR REPLACE FUNCTION public.sales_settings_save(_org uuid,_data jsonb)
