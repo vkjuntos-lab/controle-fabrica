@@ -554,7 +554,9 @@ Validação local; publicação não verificada.
 - Nenhum segredo de integração externa configurado (requer definir `LOVABLE_CRON_SECRET`,
   `WEBHOOK_SECRET` e service role no Lovable Cloud para ativar cron/webhook/auditoria de sistema).
 - Erros de lint pré-existentes em arquivos fora do escopo desta fundação (439 erros de
-  formatação em arquivos não editados nesta fase) — não introduzidos por esta sessão.
+  formatação em arquivos não editados nesta fase) — não introduzidos por esta sessão. O total
+  global chegou a cerca de 12 mil problemas de Prettier, concentrados em módulos compactados de
+  outros masters; os arquivos de vendas desta revisão estão limpos.
 
 ## NEXT_STEPS
 
