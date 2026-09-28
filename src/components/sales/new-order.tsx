@@ -37,7 +37,7 @@ export function NewOrder({ organizationId }: { organizationId: string }) {
   const [address, setAddress] = useState("");
   const [terms, setTerms] = useState("");
   const [items, setItems] = useState([{ variant: "", quantity: 1 }]);
-  const { key, renew } = useIdempotencyKey();
+  const [incomplete, setIncomplete] = useState(false);
 
   const addresses = useSalesRead(
     organizationId,
