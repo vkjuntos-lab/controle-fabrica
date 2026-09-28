@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261009100000_crm_customer_history.sql').read_text()\nb=re.search(r'CREATE OR REPLACE FUNCTION public\\.crm_query\\(.*?\\n\\$\\$;', t, re.S).group(0)\nfor k in re.finditer(r\"_kind\\s*(?:=|IN)\\s*\\(?'?([a-z_, ']+)\", b):\n    print(k.group(1).strip())\nPY"
-    },
-    "timestamp": 1790618314648
-  },
-  {
-    "role": "tool_result",
-    "content": "Traceback (most recent call last):\n  File \"<stdin>\", line 4, in <module>\nAttributeError: 'NoneType' object has no attribute 'group'\n",
-    "is_error": false,
-    "timestamp": 1790618314715
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261009100000_crm_customer_history.sql').read_text()\ni=t.find('crm_query')\nb=t[i:]\nprint(re.findall(r\"_kind\\s*(?:=|IN)\\s*\\(?'?([a-z_, '\\\"]+)\", b)[:40])\nPY"
     },
     "timestamp": 1790618317802
@@ -1537,5 +1523,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790619065396
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/new-order.tsx",
+      "newString": "import { useIdempotencyKey, useSalesRead, useSalesWrite, object, rows } from \"@/components/sales/shared\";",
+      "oldString": "import { useIdempotencyKey, useSalesRead, useSalesWrite, rows } from \"@/components/sales/shared\";"
+    },
+    "timestamp": 1790619069538
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790619069549
   }
 ]
