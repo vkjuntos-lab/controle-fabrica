@@ -14,10 +14,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useOrganization } from "@/lib/org/org-context";
-import { useOrganization as useOrg } from "@/lib/org/org-context";
-import { useIdempotencyKey, useSalesWrite, text, type Row } from "@/components/sales/shared";
-import { ReferencePicker } from "@/components/sales/reference-picker";
-import type { PickerKind } from "@/components/sales/shared";
+import {
+  useIdempotencyKey,
+  useSalesWrite,
+  text,
+  type PickerKind,
+  type Row,
+} from "@/components/sales/shared";
 import type { Json } from "@/integrations/supabase/types";
 import type { SalesOperation } from "@/lib/sales/sales.functions";
 
