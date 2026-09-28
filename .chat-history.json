@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
-      "limit": 50,
-      "offset": 193
-    },
-    "timestamp": 1790620803880
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx</path>\n<type>file</type>\n<content>\n193: \n194:       <Returns\n195:         organizationId={organizationId}\n196:         returns={rows(data.returns)}\n197:         returnItems={rows(data.return_items)}\n198:         lo",
-    "is_error": false,
-    "timestamp": 1790620803897
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "for t in inventory_movements sales_order_status_history; do echo \"=== $t ===\"; awk \"/CREATE TABLE.*public.$t \\(/,/^\\);/\" supabase/migrations/*.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; done",
@@ -1595,5 +1579,20 @@
     "content": "=== domain_events ===\nCREATE TABLE public.domain_events (\nid uuid PRIMARY KEY DEFAULT gen_random_uuid(),\norganization_id uuid NOT NULL REFERENCES public.organizations,\nevent_type text NOT NULL CHECK(length(trim(event_type))>0),\nevent_source text NOT NULL DEFAULT 'RECONCILIATION',\nevent_key text NOT ",
     "is_error": false,
     "timestamp": 1790622048254
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "echo \"=== sales_execute: como o gateway valida operação ===\"; grep -n \"v_op IN\\|v_op\\s*=\" supabase/migrations/20261010100000_sales_integrity.sql | head -20",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622058361
+  },
+  {
+    "role": "tool_result",
+    "content": "=== sales_execute: como o gateway valida operação ===\n",
+    "is_error": false,
+    "timestamp": 1790622058378
   }
 ]
