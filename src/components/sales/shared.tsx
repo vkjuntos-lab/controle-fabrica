@@ -53,17 +53,38 @@ export function useSalesRead(
 }
 
 /**
- * Chave de idempotência por tentativa.
+ * Chave de idempotência derivada do conteúdo.
  *
- * O gateway recusa a mesma chave com conteúdo diferente. A chave vale por
- * tentativa: nasce nova quando o diálogo abre e é renovada quando a tentativa
- * termina. Uma tentativa que falhou antes de gravar não consumou a chave, e
- * outra que gravou precisa de uma chave nova para não ser tratada como repetição.
+ * O gateway recusa a mesma chave com conteúdo diferente e devolve o mesmo
+ * resultado para a mesma chave com conteúdo igual. A chave enviada é, portanto,
+ * a combinação de um identificador de tentativa (renovado quando a tentativa é
+ * concluída com sucesso) com o resumo do payload:
+ *
+ * - reenviar exatamente o mesmo conteúdo deduplica — protege contra duplo
+ *   clique e contra resposta perdida depois da gravação;
+ * - alterar o conteúdo gera outra chave — o usuário corrige o formulário e a
+ *   tentativa nova executa de fato, sem ser barrada pela chave antiga.
+ *
+ * Renovar a chave no erro seria o caminho perigoso: se o servidor gravou e a
+ * resposta não chegou, uma chave nova executaria a operação uma segunda vez.
  */
+function payloadDigest(input: string): string {
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  return hash.toString(16).padStart(8, "0");
+}
+
 export function useIdempotencyKey() {
-  const [key, setKey] = useState(() => crypto.randomUUID());
-  const renew = useCallback(() => setKey(crypto.randomUUID()), []);
-  return { key, renew };
+  const [attempt, setAttempt] = useState(() => crypto.randomUUID());
+  const renew = useCallback(() => setAttempt(crypto.randomUUID()), []);
+  const keyFor = useCallback(
+    (payload: unknown) => `${attempt}:${payloadDigest(JSON.stringify(payload ?? null))}`,
+    [attempt],
+  );
+  return { keyFor, renew };
 }
 
 export type SalesWriteInput = {
