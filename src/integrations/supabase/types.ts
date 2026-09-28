@@ -1099,6 +1099,7 @@ export type Database = {
       }
     }
     Functions: {
+      __apply_migration_sql: { Args: { _sql: string }; Returns: undefined }
       has_org_role: {
         Args: {
           _organization_id: string
