@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "edit",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx",
-      "newString": "export function useSalesWrite(\n  organizationId: string,\n  options: { alsoCrm?: boolean; onSuccess?: () => void; onError?: () => void } = {},\n): UseMutationResult<unknown, Error, SalesWriteInput> {\n  const api = useServerFn(mutateSales);\n  const client = useQueryClient();\n  const { keyFor, renew } = useIdempotencyKey();\n  const { alsoCrm = false, onSuccess, onError } = options;\n  return useMutation({\n    mutationFn: async (input: SalesWriteInput) =>\n      api({\n        data: {\n          organizationId,\n          operation: input.operation,\n          id: input.id,\n          action: input.action ?? \"\",\n          values: input.values,\n          key: keyFor(input),\n        },\n      }),\n    onSuccess: (data) => {\n      void client.invalidateQueries({ queryKey: [\"sales\", organizationId] });\n      if (alsoCrm) void client.invalidateQueries({ queryKey: [\"crm\", organizationId] });\n      renew();\n      onSuccess?.(data);\n    },\n    onError: () => {\n      // A tentativa não vira tentativa nova aqui: a chave continua a mesma para\n      // que o reenvio do mesmo conteúdo seja deduplicado pelo gateway.\n      onError?.();\n    },\n  });\n}",
-      "oldString": "export function useSalesWrite(\n  organizationId: string,\n  options: { alsoCrm?: boolean; onSuccess?: () => void; onError?: () => void } = {},\n): UseMutationResult<unknown, Error, SalesWriteInput> {\n  const api = useServerFn(mutateSales);\n  const client = useQueryClient();\n  const { key, renew } = useIdempotencyKey();\n  const { alsoCrm = false, onSuccess, onError } = options;\n  return useMutation({\n    mutationFn: async (input: SalesWriteInput) =>\n      api({\n        data: {\n          organizationId,\n          operation: input.operation,\n          id: input.id,\n          action: input.action ?? \"\",\n          values: input.values,\n          key,\n        },\n      }),\n    onSuccess: (data) => {\n      void client.invalidateQueries({ queryKey: [\"sales\", organizationId] });\n      if (alsoCrm) void client.invalidateQueries({ queryKey: [\"crm\", organizationId] });\n      renew();\n      onSuccess?.(data);\n    },\n    onError: () => {\n      renew();\n      onError?.();\n    },\n  });\n}"
-    },
-    "timestamp": 1790619057305
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619057319
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/new-order.tsx",
       "newString": "  const [items, setItems] = useState([{ variant: \"\", quantity: 1 }]);\n  const [incomplete, setIncomplete] = useState(false);",
       "oldString": "  const [items, setItems] = useState([{ variant: \"\", quantity: 1 }]);\n  const { key, renew } = useIdempotencyKey();"
@@ -1556,5 +1540,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790620168632
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/MASTER-013-VALIDATION.md",
+      "newString": "As três migrations originais foram preservadas. A nova migration apenas substitui duas funções; não\ncria nem altera tabela. Total do módulo: 23 tabelas — `sales_orders`, `sales_order_items`,\n`sales_order_settings`, `sales_order_status_history`, `sales_order_operation_keys`,\n`sales_number_counters`, `sales_credit_checks`, `sales_demands`, `inventory_reservations`,\n`fulfillment_orders`, `picking_tasks`, `picking_task_items`, `packing_records`,\n`packing_record_items`, `packing_record_volumes`, `shipments`, `shipment_items`, `shipment_volumes`,\n`shipment_delivery_proofs`, `customer_returns`, `customer_return_items`, `carriers` e\n`logistics_exceptions`.",
+      "oldString": "As três migrations originais foram preservadas. A nova migration apenas substitui duas funções; não\ncria nem altera tabela. Total do módulo: 22 tabelas — `sales_orders`, `sales_order_items`,\n`sales_order_settings`, `sales_order_status_history`, `sales_order_operation_keys`,\n`sales_number_counters`, `sales_credit_checks`, `sales_demands`, `inventory_reservations`,\n`fulfillment_orders`, `picking_tasks`, `picking_task_items`, `packing_records`,\n`packing_record_items`, `packing_record_volumes`, `shipments`, `shipment_items`, `shipment_volumes`,\n`shipment_delivery_proofs`, `customer_returns`, `customer_return_items`, `carriers` e\n`logistics_exceptions`."
+    },
+    "timestamp": 1790620172164
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790620172187
   }
 ]

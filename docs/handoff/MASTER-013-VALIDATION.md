@@ -129,7 +129,7 @@ Modificados: `src/components/sales/workspace.tsx` (reescrito, mesmos quatro expo
 ## 6. Migrations e tabelas
 
 As três migrations originais foram preservadas. A nova migration apenas substitui duas funções; não
-cria nem altera tabela. Total do módulo: 22 tabelas — `sales_orders`, `sales_order_items`,
+cria nem altera tabela. Total do módulo: 23 tabelas — `sales_orders`, `sales_order_items`,
 `sales_order_settings`, `sales_order_status_history`, `sales_order_operation_keys`,
 `sales_number_counters`, `sales_credit_checks`, `sales_demands`, `inventory_reservations`,
 `fulfillment_orders`, `picking_tasks`, `picking_task_items`, `packing_records`,
