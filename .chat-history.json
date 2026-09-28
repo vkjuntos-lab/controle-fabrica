@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -rn \"OPEN_RECEIVABLES_PLUS_QUOTE_AT_APPROVAL\" supabase/migrations/ | cut -c1-200",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790621181944
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20261005100000_crm.sql:303: 'block_over_limit',coalesce(p.block_over_limit,false),'block_overdue',coalesce(p.block_overdue,false),'exposure_policy','OPEN_RECEIVABLES_PLUS_QUOTE_AT_\n",
-    "is_error": false,
-    "timestamp": 1790621181992
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "echo \"=== colunas de sales_order_settings ===\"; awk \"/CREATE TABLE.*sales_order_settings \\(/,/^\\);/\" supabase/migrations/20261006100000_sales_orders.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; echo \"=== tabela de。过\"; grep -c \"\" supabase/migrations/20261006100000_sales_orders.sql",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1633,5 +1618,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/scripts/test-inventory-db.py</path>\n<type>file</type>\n<content>\n1: #!/usr/bin/env python3\n2: \"\"\"Isolated PostgreSQL integration tests. Never connects to a deployed database.\"\"\"\n3: import concurrent.futures\n4: import json\n5: import os\n6: from pathlib im",
     "is_error": false,
     "timestamp": 1790622498113
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"fiscal_require\\|CREATE FUNCTION public.has_permission\" -A14 supabase/migrations/20261013100000_fiscal_core.sql | head -60",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622503435
+  },
+  {
+    "role": "tool_result",
+    "content": "506:--     A checagem real de permissão é server-side, em fiscal_require.\n507--- ---------------------------------------------------------------------\n508-ALTER TABLE public.fiscal_number_sequences ENABLE ROW LEVEL SECURITY;\n509-ALTER TABLE public.fiscal_establishments ENABLE ROW LEVEL SECURITY;\n510",
+    "is_error": false,
+    "timestamp": 1790622503453
   }
 ]
