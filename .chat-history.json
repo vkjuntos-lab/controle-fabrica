@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && npm run test:sales:db\" 2>&1 | tail -8",
-      "timeout": 900000
-    },
-    "timestamp": 1790618609669
-  },
-  {
-    "role": "tool_result",
-    "content": "           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventory-db.py\", line 28, in call\n    def call(name, args, user, fail=None): return sql(f\"SELEC",
-    "is_error": false,
-    "timestamp": 1790618616638
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py",
@@ -1536,5 +1521,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx</path>\n<type>file</type>\n<content>\n55: }\n56: \n57: /**\n58:  * Chave de idempotência derivada do conteúdo.\n59:  *\n60:  * O gateway recusa a mesma chave com conteúdo diferente e devolve o mesmo\n61:  * resultado para a mesma",
     "is_error": false,
     "timestamp": 1790619537072
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx",
+      "newString": "/**\n * Chave de idempotência por tentativa.\n *\n * A chave é derivada do conteúdo em `lib/sales/idempotency.ts`: o mesmo\n * conteúdo reenviado cai na mesma chave e é deduplicado pelo gateway, e um\n * conteúdo corrigido gera outra chave que executa de fato. O identificador da\n * tentativa só é renovado depois de uma gravação, nunca depois de um erro — senão\n * uma resposta perdida repetiria a operação.\n */\nexport function useIdempotencyKey() {\n  const [attempt, setAttempt] = useState(() => crypto.randomUUID());\n  const renew = useCallback(() => setAttempt(crypto.randomUUID()), []);\n  const keyFor = useCallback(\n    (payload: unknown) => keyForPayload(attempt, payload),\n    [attempt],\n  );\n  return { keyFor, renew };\n}",
+      "oldString": "/**\n * Chave de idempotência derivada do conteúdo.\n *\n * O gateway recusa a mesma chave com conteúdo diferente e devolve o mesmo\n * resultado para a mesma chave com conteúdo igual. A chave enviada é, portanto,\n * montada a partir de um identificador de tentativa (renovado quando a tentativa\n * é concluída com sucesso) e do resumo do payload:\n *\n * - reenviar exatamente o mesmo conteúdo deduplica — protege contra duplo\n *   clique e contra resposta perdida depois da gravação;\n * - alterar o conteúdo gera outra chave — o usuário corrige o formulário e a\n *   tentativa nova executa de fato, sem ser barrada pela chave antiga.\n *\n * Renovar a chave no erro seria o caminho perigoso: se o servidor gravou e a\n * resposta não chegou, uma chave nova executaria a operação uma segunda vez.\n */\nfunction payloadDigest(input: string): string {\n  let hash = 0x811c9dc5;\n  for (let index = 0; index < input.length; index += 1) {\n    hash ^= input.charCodeAt(index);\n    hash = Math.imul(hash, 0x01000193) >>> 0;\n  }\n  return hash.toString(16).padStart(8, \"0\");\n}\n\n/**\n * `sales_execute` exige uma chave no formato UUID. A tentativa entra nos\n * grupos fixos e o resumo do conteúdo ocupa o grupo da versão e o da variante,\n * de modo que o resultado continua sendo um UUID válido para o banco.\n */\nfunction keyFrom(attempt: string, digest: string): string {\n  const hex = attempt.replace(/-/g, \"\");\n  const variant = \"89ab\"[Number.parseInt(digest[3], 16) % 4];\n  return [\n    hex.slice(0, 8),\n    hex.slice(8, 12),\n    `4${digest.slice(0, 3)}`,\n    `${variant}${digest.slice(4, 7)}`,\n    hex.slice(12, 24),\n  ].join(\"-\");\n}\n\nexport function useIdempotencyKey() {\n  const [attempt, setAttempt] = useState(() => crypto.randomUUID());\n  const renew = useCallback(() => setAttempt(crypto.randomUUID()), []);\n  const keyFor = useCallback(\n    (payload: unknown) => keyFrom(attempt, payloadDigest(JSON.stringify(payload ?? null))),\n    [attempt],\n  );\n  return { keyFor, renew };\n}"
+    },
+    "timestamp": 1790619543175
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790619543195
   }
 ]

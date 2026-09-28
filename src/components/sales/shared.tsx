@@ -55,52 +55,19 @@ export function useSalesRead(organizationId: string, kind: string, id?: string, 
 }
 
 /**
- * Chave de idempotência derivada do conteúdo.
+ * Chave de idempotência por tentativa.
  *
- * O gateway recusa a mesma chave com conteúdo diferente e devolve o mesmo
- * resultado para a mesma chave com conteúdo igual. A chave enviada é, portanto,
- * montada a partir de um identificador de tentativa (renovado quando a tentativa
- * é concluída com sucesso) e do resumo do payload:
- *
- * - reenviar exatamente o mesmo conteúdo deduplica — protege contra duplo
- *   clique e contra resposta perdida depois da gravação;
- * - alterar o conteúdo gera outra chave — o usuário corrige o formulário e a
- *   tentativa nova executa de fato, sem ser barrada pela chave antiga.
- *
- * Renovar a chave no erro seria o caminho perigoso: se o servidor gravou e a
- * resposta não chegou, uma chave nova executaria a operação uma segunda vez.
+ * A chave é derivada do conteúdo em `lib/sales/idempotency.ts`: o mesmo
+ * conteúdo reenviado cai na mesma chave e é deduplicado pelo gateway, e um
+ * conteúdo corrigido gera outra chave que executa de fato. O identificador da
+ * tentativa só é renovado depois de uma gravação, nunca depois de um erro — senão
+ * uma resposta perdida repetiria a operação.
  */
-function payloadDigest(input: string): string {
-  let hash = 0x811c9dc5;
-  for (let index = 0; index < input.length; index += 1) {
-    hash ^= input.charCodeAt(index);
-    hash = Math.imul(hash, 0x01000193) >>> 0;
-  }
-  return hash.toString(16).padStart(8, "0");
-}
-
-/**
- * `sales_execute` exige uma chave no formato UUID. A tentativa entra nos
- * grupos fixos e o resumo do conteúdo ocupa o grupo da versão e o da variante,
- * de modo que o resultado continua sendo um UUID válido para o banco.
- */
-function keyFrom(attempt: string, digest: string): string {
-  const hex = attempt.replace(/-/g, "");
-  const variant = "89ab"[Number.parseInt(digest[3], 16) % 4];
-  return [
-    hex.slice(0, 8),
-    hex.slice(8, 12),
-    `4${digest.slice(0, 3)}`,
-    `${variant}${digest.slice(4, 7)}`,
-    hex.slice(12, 24),
-  ].join("-");
-}
-
 export function useIdempotencyKey() {
   const [attempt, setAttempt] = useState(() => crypto.randomUUID());
   const renew = useCallback(() => setAttempt(crypto.randomUUID()), []);
   const keyFor = useCallback(
-    (payload: unknown) => keyFrom(attempt, payloadDigest(JSON.stringify(payload ?? null))),
+    (payload: unknown) => keyForPayload(attempt, payload),
     [attempt],
   );
   return { keyFor, renew };
