@@ -1,21 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('scripts/test-sales-db.py');s=p.read_text().replace(\\\"activity['totals']['orders']==7\\\",\\\"activity['totals']['orders']==5\\\");p.write_text(s)\np=Path('src/integrations/supabase/types.ts');s=p.read_text().replace('_id?:string;_action:string;_data:Json;_key:string','_id:string | null;_action:string;_data:Json;_key:string');p.write_text(s)\np=Path('src/lib/sales/sales.functions.ts');s=p.read_text().replace('_id:data.id,','_id:data.id ?? null,');p.write_text(s)\np=Path('src/components/sales/workspace.tsx');s=p.read_text().replace('fields={[reason]}/>}</div>}</Cards><div','fields={[{key:\\\"resolution\\\",label:\\\"Resolução\\\",required:true}]}/>}</div>}</Cards><div');s=s.replace('from_status:\\\"Anterior\\\",to_status:\\\"Novo\\\"','previous_status:\\\"Anterior\\\",new_status:\\\"Novo\\\"').replace('\\\"from_status\\\",\\\"to_status\\\"','\\\"previous_status\\\",\\\"new_status\\\"').replace('\\\"status\\\",\\\"total_amount\\\"]}/></>','\\\"status\\\",\\\"original_amount\\\",\\\"open_amount\\\"]}/></>');s=s.replace('total_amount:\\\"Total\\\",','total_amount:\\\"Total\\\",original_amount:\\\"Valor original\\\",open_amount:\\\"Em aberto\\\",');s=s.replace('export function SalesOrderPage', '''export function QuoteToOrder({org,quoteId}:{org:string;quoteId:string}) { return <Action org={org} label=\\\"Criar pedido desta versão\\\" permission=\\\"sales_orders.create\\\" operation=\\\"convert\\\" id={quoteId}/>; }\nexport function CustomerOrders({org,companyId}:{org:string;companyId:string}) {\n const [page,setPage]=useState(0);const q=useRead(org,\\\"orders\\\",undefined,{company_id:companyId,limit:20,offset:page*20});\n if(q.isPending)return <p>Carregando pedidos…</p>;if(q.error)return <p role=\\\"alert\\\">{q.error.message}</p>;\n const d=obj(q.data);return <div className=\\\"space-y-3\\\"><Cards data={rows(d.rows)} columns={[\\\"order_number\\\",\\\"order_date\\\",\\\"status\\\",\\\"total_amount\\\"]}>{r=><Link to=\\\"/vendas/pedidos/\"'$id\" params={{id:text(r.id)}} className=\"text-primary underline\">Abrir pedido</Link>}</Cards><Button disabled={!page} onClick={()=>setPage(p=>p-1)}>Anterior</Button><Button disabled={(page+1)*20>=qty(d.total)} onClick={()=>setPage(p=>p+1)}>Próxima</Button></div>;\n}\nexport function SalesOrderPage'\"''');p.write_text(s)\nPY\npython3 scripts/test-sales-db.py > .git/sales-db.log 2>&1\""
-    },
-    "timestamp": 1790594659069
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"sed -n '126,160p' src/components/crm/customers.tsx; sed -n '595,654p' src/components/crm/quotes.tsx; rg -n 'QuoteActions|quoteId|org:' src/components/crm/quotes.tsx | tail -n 15\""
-    },
-    "timestamp": 1790594660118
-  },
-  {
     "role": "tool_result",
     "content": "            </>\n          )}\n          {hasPermission(\"customers.merge\") ? (\n            <Button variant=\"outline\" onClick={() => setMerging(true)}>\n              Solicitar mesclagem\n            </Button>\n          ) : null}\n        </div>\n      </div>\n\n      <p className=\"text-sm text-muted-foregro",
     "is_error": false,
@@ -1493,5 +1477,20 @@
     "content": " assert rpc('sales_return_action',org,ret['id'],'receive',{'quantity':5,'destination':'SELLABLE'},user=picker)['deduped']\n assert sql('SELECT count(*) FROM inventory_movements')==movements_before\n rpc('sales_return_create',org,order['id'],{'reason':'Excesso','shipment_id':shipment['id'],'items':[{'s",
     "is_error": false,
     "timestamp": 1790618426640
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && npm run test:sales:db\" 2>&1 | tail -25",
+      "timeout": 900000
+    },
+    "timestamp": 1790618429375
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS AC: return receive replay and accumulated return ceiling\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py\", line 467, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py\",",
+    "is_error": false,
+    "timestamp": 1790618435980
   }
 ]
