@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"tail -n 22 .git/sales-db.log; sed -n '1016,1068p' supabase/migrations/20261006100000_sales_orders.sql; sed -n '2317,2396p' supabase/migrations/20261006100000_sales_orders.sql; sed -n '875,920p' supabase/migrations/20261006100000_sales_orders.sql\""
-    },
-    "timestamp": 1790594082347
-  },
-  {
-    "role": "tool_result",
-    "content": "PASS E: edicao substitui itens e recalcula total; rascunho permanece editavel\nPASS F: aprovacao exige outro usuario, preserva a consulta de credito e gera demanda\nPASS G: DISPONIVEL = SALDO FISICO - RESERVAS; reserva nao cria movimento e e idempotente\nPASS H: reserva de um pedido reduz o disponivel ",
-    "is_error": false,
-    "timestamp": 1790594082353
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"sed -n '1860,1982p' supabase/migrations/20261006100000_sales_orders.sql; sed -n '2398,2544p' supabase/migrations/20261006100000_sales_orders.sql\""
     },
     "timestamp": 1790594086826
@@ -1432,5 +1418,19 @@
     "content": "Traceback (most recent call last):\n  File \"<stdin>\", line 4, in <module>\nAttributeError: 'NoneType' object has no attribute 'group'\n",
     "is_error": false,
     "timestamp": 1790618314715
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261009100000_crm_customer_history.sql').read_text()\ni=t.find('crm_query')\nb=t[i:]\nprint(re.findall(r\"_kind\\s*(?:=|IN)\\s*\\(?'?([a-z_, '\\\"]+)\", b)[:40])\nPY"
+    },
+    "timestamp": 1790618317802
+  },
+  {
+    "role": "tool_result",
+    "content": "[\"approvers' \", \"documents' \", \"timeline' \", \"availability' \", \"members' \", \"finance' \", \"margin' \", \"stock' \", \"commission' \", \"dashboard' \", \"credit_policies' \", \"customers' \", \"customers' \", \"customers' \", \"customers' \"]\n",
+    "is_error": false,
+    "timestamp": 1790618317877
   }
 ]
