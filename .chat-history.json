@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261010100000_sales_integrity.sql').read_text()\nt+=Path('supabase/migrations/20261006100000_sales_orders.sql').read_text()\nfor fn in ['sales_pick_confirm','sales_pack','sales_return_create','sales_shipment_create','sales_fulfillment_create']:\n    b=list(re.finditer(r'CREATE(?: OR REPLACE)? FUNCTION public\\.'+fn+r'\\(.*?\\n\\$\\$;', t, re.S))[-1].group(0)\n    print('#'*12, fn)\n    for ln in b.split('\\n'):\n        s=ln.strip()\n        if 'items' in s and ('->' in s or 'jsonb_array' in s or 'quantity' in s):\n            print('   ', s[:190])\nPY"
-    },
-    "timestamp": 1790618387549
-  },
-  {
-    "role": "tool_result",
-    "content": "############ sales_pick_confirm\n    IF jsonb_array_length(coalesce(_data->'items','[]'::jsonb))=0 THEN\n    FOR v_item IN SELECT * FROM jsonb_array_elements(_data->'items') LOOP\n    IF v_conf<>(SELECT pti.picked_quantity FROM public.picking_task_items pti\n    'picked',(SELECT pti.picked_quantity FROM",
-    "is_error": false,
-    "timestamp": 1790618387608
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261010100000_sales_integrity.sql').read_text()\nt+=Path('supabase/migrations/20261006100000_sales_orders.sql').read_text()\nfor fn,pat in [('sales_pick_confirm',r\"req->>'(confirmed_quantity|picking_task_item_id)'\"),('sales_pack',r\"v_item->>'(sales_order_item_id|quantity)'\"),('sales_return_create',r\"v_i->>'(sales_order_item_id|quantity)'\"),('sales_shipment_create',r\"v_item->>'(sales_order_item_id|quantity)'\"),('sales_fulfillment_create',r\"req->>'(sales_order_item_id|quantity)'\")]:\n    b=list(re.finditer(r'CREATE(?: OR REPLACE)? FUNCTION public\\.'+fn+r'\\(.*?\\n\\$\\$;', t, re.S))[-1].group(0)\n    print(fn, sorted(set(re.findall(pat,b))))\nPY"
     },
     "timestamp": 1790618390710
@@ -1515,5 +1501,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790619171590
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/areas.tsx",
+      "newString": "import { money, str } from \"@/components/crm/shared\";\nimport type { Json } from \"@/integrations/supabase/types\";",
+      "oldString": "import { money, str } from \"@/components/crm/shared\";"
+    },
+    "timestamp": 1790619173686
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790619173695
   }
 ]

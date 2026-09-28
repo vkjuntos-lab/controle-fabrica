@@ -41,6 +41,7 @@ import {
   type Row,
 } from "@/components/sales/shared";
 import { money, str } from "@/components/crm/shared";
+import type { Json } from "@/integrations/supabase/types";
 
 /**
  * Listagens do módulo de vendas.
