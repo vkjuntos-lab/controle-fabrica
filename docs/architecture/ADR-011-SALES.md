@@ -47,7 +47,7 @@ central era tratar esses efeitos como um só e prometer um faturamento que o sis
 
 9. **Ajuste financeiro de devolução é solicitação, não execução.** Receber devolução devolve
    mercadoria ao estoque; o estorno financeiro fica registrado como solicitação, sem execução
-   automática (grupo O). O sistema não baixa,title nem concilia por conta própria.
+   automática (grupo O). O sistema não baixa, titula nem concilia por conta própria.
 
 10. **Devolução danificada não volta para vendável.** Mercadoria com defeito só pode ir para
     quarentena ou inspeção, e saldo em quarentena não atende venda direta (grupo P).
