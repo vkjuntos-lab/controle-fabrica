@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "npm run typecheck 2>&1 | tail -8; npx eslint --fix src/components/sales 2>&1 | tail -4; echo \"=== TESTES ===\"; npm test 2>&1 | grep -E \"Test Files|Tests \"",
-      "timeout": 300000,
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790621082846
-  },
-  {
-    "role": "tool_result",
-    "content": "\n> typecheck\n> tsc --noEmit\n\n  54:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components\n\n✖ 1 problem (0 errors, 1 warning)\n\n=== TESTES ===\n Test Files  7 passed (7)\n      Tests",
-    "is_error": false,
-    "timestamp": 1790621120517
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "ls src/lib/sales/; echo \"=== teste de contrato de migrations no rbac ===\"; grep -n \"readFileSync\\|MIGRATIONS\\|glob\\|readdir\" src/lib/rbac.test.ts | head -12",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1575,5 +1559,20 @@
     "content": "EXIT=1\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py\", line 33, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py\", line 27, in run\n    sql((db.ROOT / 'supabase/migrations' / na",
     "is_error": false,
     "timestamp": 1790622263445
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'EOF'\nimport io\np=\"/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261013100000_fiscal_core.sql\"\ns=io.open(p,encoding=\"utf-8\").read()\ns=s.replace(\"\"\"  UNIQUE(organization_id,code),\n  UNIQUE(organization_id,kind)\n);\"\"\",\"\"\"  UNIQUE(organization_id,code),\n  UNIQUE(organization_id,kind),\n  UNIQUE(organization_id,id)\n);\"\"\")\nio.open(p,\"w\",encoding=\"utf-8\").write(s)\nprint(\"ok\")\nEOF\ncd '/root/Zheus AI Projects/controle-fabricas' && su claude-runner -c \"python3 scripts/test-fiscal-db.py > /tmp/opencode/fiscal.log 2>&1; echo EXIT=\\$?\"; tail -10 /tmp/opencode/fiscal.log",
+      "timeout": 400000
+    },
+    "timestamp": 1790622274113
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nEXIT=1\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py\", line 27, in run\n    sql((db.ROOT / 'supabase/migrations' / name).read_text())\n    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/sc",
+    "is_error": false,
+    "timestamp": 1790622276351
   }
 ]

@@ -196,7 +196,8 @@ CREATE TABLE public.fiscal_operation_types (
   updated_at timestamptz NOT NULL DEFAULT now(),
   created_by uuid REFERENCES public.profiles,
   UNIQUE(organization_id,code),
-  UNIQUE(organization_id,kind)
+  UNIQUE(organization_id,kind),
+  UNIQUE(organization_id,id)
 );
 
 -- ---------------------------------------------------------------------
