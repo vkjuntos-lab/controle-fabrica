@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/action.tsx",
-      "newString": "  const [amounts, setAmounts] = useState<Record<string, string>>({});\n  const [incomplete, setIncomplete] = useState(false);\n  const write = useSalesWrite(organizationId, {\n    onSuccess: () => {\n      toast.success(`${label} — concluído`);\n      setOpen(false);\n      setValues({});\n      setAmounts({});\n      setIncomplete(false);\n      onSuccess?.();\n    },\n  });\n\n  if (!hasPermission(permission)) return null;\n\n  const selected = items?.filter((item) => Number(amounts[item.id] ?? 0) > 0) ?? [];\n  const emptyForm = fields.length === 0 && !items;\n\n  const submit = () => {\n    const payload: Record<string, Json> = { ...(fixed ?? {}) } as Record<string, Json>;\n    // Campo marcado como obrigatório não pode ser enviado vazio: sem esta\n    // checagem o formulário enviaria um payload incompleto e o servidor apenas\n    // recusaria, devolvendo um erro difícil de entender.\n    const missing = fields.some((field) => {\n      if (!field.required) return false;\n      const value = values[field.key] ?? text(initial?.[field.key]);\n      return value === \"\" && !field.picker;\n    });\n    if (missing || (items && selected.length === 0)) {\n      setIncomplete(true);\n      return;\n    }\n    setIncomplete(false);\n    for (const field of fields) {\n      const value = values[field.key] ?? text(initial?.[field.key]);\n      if (value === \"\") continue;\n      payload[field.key] = field.type === \"number\" ? Number(value) : value;\n    }\n    if (items) {\n      payload.items = selected.map((item) => ({\n        [itemField]: item.id,\n        [quantityField ?? \"quantity\"]: Number(amounts[item.id]),\n      }));\n    }\n    write.mutate({ operation, id, action, values: payload });\n  };",
-      "oldString": "  const [amounts, setAmounts] = useState<Record<string, string>>({});\n  const { key, renew } = useIdempotencyKey();\n  const write = useSalesWrite(organizationId, {\n    onSuccess: () => {\n      toast.success(`${label} concluída`);\n      setOpen(false);\n      setValues({});\n      setAmounts({});\n      onSuccess?.();\n    },\n  });\n\n  if (!hasPermission(permission)) return null;\n\n  const selected = items?.filter((item) => Number(amounts[item.id] ?? 0) > 0) ?? [];\n  const emptyForm = fields.length === 0 && !items;\n\n  const submit = () => {\n    const payload: Record<string, Json> = { ...(fixed ?? {}) } as Record<string, Json>;\n    for (const field of fields) {\n      const value = values[field.key] ?? text(initial?.[field.key]);\n      if (value === \"\") continue;\n      payload[field.key] = field.type === \"number\" ? Number(value) : value;\n    }\n    if (items) {\n      payload.items = selected.map((item) => ({\n        [itemField]: item.id,\n        [quantityField ?? \"quantity\"]: Number(amounts[item.id]),\n      }));\n    }\n    write.mutate({ operation, id, action, values: payload });\n  };"
-    },
-    "timestamp": 1790619087492
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619087512
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/action.tsx",
       "newString": "    const missing = fields.some((field) => {\n      if (!field.required) return false;\n      const value = values[field.key] ?? text(initial?.[field.key]);\n      return value === \"\";\n    });",
       "oldString": "    const missing = fields.some((field) => {\n      if (!field.required) return false;\n      const value = values[field.key] ?? text(initial?.[field.key]);\n      return value === \"\" && !field.picker;\n    });"
     },
@@ -1554,5 +1538,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790620213424
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md",
+      "newString": "- Custo ≠ preço ≠ receita ≠ recebimento. Custo é versionado/imutável; preço versiona vigência nas\n  tabelas do MASTER 007; rentabilidade usa snapshot imutável por venda, calculado no fechamento do\n  parceiro com o billable da regra comercial (nunca o gross); conversão de unidade só usa registro\n  oficial — nunca fator implícito. Nenhuma RPC de custo lança AR/despesa ou move estoque.\n- Pedido de venda não é venda recebida: cada etapa do ciclo tem efeito próprio, e nenhum indicador\n  de pedido é apresentado como faturamento. Reserva não movimenta estoque, separação não baixa\n  estoque, expedição baixa uma única vez e entrega não mexe no saldo.\n- Obrigação financeira nasce do gatilho configurado (`NONE`, `ON_APPROVAL`, `ON_DISPATCH`) e reusa\n  `account_receivables`; a reserva nunca cria obrigação e a devolução devolve mercadoria deixando o\n  ajuste financeiro como solicitação.\n- Divergência de separação vira ocorrência, nunca aumento de estoque. A conferência é imutável e\n  peso/dimensão são sempre os medidos, nunca estimados.\n- Toda escrita de vendas passa por `sales_execute` com chave de idempotência derivada do conteúdo da\n  operação. A chave não é renovada em caso de erro: se o servidor gravou e a resposta se perdeu, uma\n  chave nova repetiria a operação.",
+      "oldString": "- Custo ≠ preço ≠ receita ≠ recebimento. Custo é versionado/imutável; preço versiona vigência nas\n  tabelas do MASTER 007; rentabilidade usa snapshot imutável por venda, calculado no fechamento do\n  parceiro com o billable da regra comercial (nunca o gross); conversão de unidade só usa registro\n  oficial — nunca fator implícito. Nenhuma RPC de custo lança AR/despesa ou move estoque."
+    },
+    "timestamp": 1790620220584
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790620220598
   }
 ]

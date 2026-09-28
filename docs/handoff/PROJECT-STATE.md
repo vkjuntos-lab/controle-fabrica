@@ -511,6 +511,17 @@ Validação local; publicação não verificada.
   tabelas do MASTER 007; rentabilidade usa snapshot imutável por venda, calculado no fechamento do
   parceiro com o billable da regra comercial (nunca o gross); conversão de unidade só usa registro
   oficial — nunca fator implícito. Nenhuma RPC de custo lança AR/despesa ou move estoque.
+- Pedido de venda não é venda recebida: cada etapa do ciclo tem efeito próprio, e nenhum indicador
+  de pedido é apresentado como faturamento. Reserva não movimenta estoque, separação não baixa
+  estoque, expedição baixa uma única vez e entrega não mexe no saldo.
+- Obrigação financeira nasce do gatilho configurado (`NONE`, `ON_APPROVAL`, `ON_DISPATCH`) e reusa
+  `account_receivables`; a reserva nunca cria obrigação e a devolução devolve mercadoria deixando o
+  ajuste financeiro como solicitação.
+- Divergência de separação vira ocorrência, nunca aumento de estoque. A conferência é imutável e
+  peso/dimensão são sempre os medidos, nunca estimados.
+- Toda escrita de vendas passa por `sales_execute` com chave de idempotência derivada do conteúdo da
+  operação. A chave não é renovada em caso de erro: se o servidor gravou e a resposta se perdeu, uma
+  chave nova repetiria a operação.
 
 ## KNOWN_LIMITATIONS
 
