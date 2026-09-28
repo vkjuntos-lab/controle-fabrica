@@ -1,18 +1,5 @@
 [
   {
-    "role": "assistant",
-    "content": "A conversão já passou no teste concorrente: duas solicitações retornam o mesmo pedido, preservando os preços da proposta aceita. Estou validando agora o fluxo físico e corrigindo reservas e expedições parciais, para impedir envio acima do pedido e duplicação de recebíveis.\n",
-    "timestamp": 1790594142577
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"tail -n 18 .git/sales-db.log; cat src/lib/org/org-context.tsx | head -n 70; rg -n 'export function|Lookup' src/components/crm/shared.tsx; cat src/routes/_authenticated/comercial/clientes_.'\"'$id'\"'.tsx; sed -n '2889,3028p' supabase/migrations/20261006100000_sales_orders.sql\""
-    },
-    "timestamp": 1790594145743
-  },
-  {
     "role": "tool_result",
     "content": "  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 318, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 117, in run\n    rpc('sales_reserve',org,order['id'],{'items':[{'sales_order_item_id':sql(f\"SE",
     "is_error": false,
@@ -1432,5 +1419,19 @@
     "content": "tab:='customer_credit_policies';perm:='commercial_sensitive.read';\n WHEN 'customers' THEN tab:='customer_profiles';perm:='customers.read';\n WHEN 'companies' THEN tab:='companies';perm:='customers.read';\n WHEN 'contacts' THEN tab:='company_contacts';perm:='customers.read';\n WHEN 'leads' THEN tab:='le",
     "is_error": false,
     "timestamp": 1790618326773
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261009100000_crm_customer_history.sql').read_text()\ni=t.find('crm_query')\nb=t[i:i+20000]\nj=b.find('tab:=')\nprint(b[j:j+2200])\nPY"
+    },
+    "timestamp": 1790618328776
+  },
+  {
+    "role": "tool_result",
+    "content": "tab:='customer_credit_policies';perm:='commercial_sensitive.read';\n WHEN 'customers' THEN tab:='customer_profiles';perm:='customers.read';\n WHEN 'companies' THEN tab:='companies';perm:='customers.read';\n WHEN 'contacts' THEN tab:='company_contacts';perm:='customers.read';\n WHEN 'leads' THEN tab:='le",
+    "is_error": false,
+    "timestamp": 1790618328829
   }
 ]
