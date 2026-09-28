@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261012100000_sales_settings_fixes.sql",
-      "newString": "DECLARE cur public.sales_order_settings; cfg jsonb; v_key uuid;\n v_field text; v_value text;",
-      "oldString": "DECLARE cur public.sales_order_settings; cfg jsonb; v_key uuid;"
-    },
-    "timestamp": 1790618493738
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790618493748
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261012100000_sales_settings_fixes.sql",
       "newString": " -- Um booleano nunca pode ser gravado a partir de texto livre fora de\n -- 'true'/'false'; a tela envia 'true'/'false' e o servidor valida.\n FOR v_field,v_value IN\n  SELECT * FROM (VALUES\n   ('make_to_order_enabled',_data->>'make_to_order_enabled'),\n   ('approval_segregation',_data->>'approval_segregation'),\n   ('allow_partial_fulfillment',_data->>'allow_partial_fulfillment'),\n   ('shipment_requires_full_confirmation',_data->>'shipment_requires_full_confirmation'),\n   ('require_shipping_address',_data->>'require_shipping_address')\n  ) AS v(field,value)\n LOOP\n  IF v_value IS NOT NULL AND nullif(v_value,'') IS NOT NULL\n     AND lower(v_value) NOT IN ('true','false') THEN\n   RAISE EXCEPTION 'Valor booleano invalido em %.',v_field;\n  END IF;\n END LOOP;",
       "oldString": " -- Uma politica de boolean nunca pode ser gravada a partir de texto livre\n -- fora de 'true'/'false'; a tela envia 'true'/'false' e nao o相反.\n FOR v_key,v_action IN\n  SELECT * FROM (VALUES\n   ('make_to_order_enabled',_data->>'make_to_order_enabled'),\n   ('approval_segregation',_data->>'approval_segregation'),\n   ('allow_partial_fulfillment',_data->>'allow_partial_fulfillment'),\n   ('shipment_requires_full_confirmation',_data->>'shipment_requires_full_confirmation'),\n   ('require_shipping_address',_data->>'require_shipping_address')\n  ) AS v(field,value)\n LOOP\n  IF v_action IS NOT NULL AND nullif(v_action,'') IS NOT NULL\n     AND lower(v_action) NOT IN ('true','false') THEN\n   RAISE EXCEPTION 'Valor booleano invalido em %.',v_field;\n  END IF;\n END LOOP;"
     },
@@ -1530,5 +1514,21 @@
     "content": "\n/root/Zheus AI Projects/controle-fabricas/src/components/sales/areas.tsx\n  54:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components\n\n/root/Zheus AI Projects/controle-fabricas/",
     "is_error": false,
     "timestamp": 1790619296404
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx",
+      "newString": "/** Monta a query de leitura de uma área do módulo. */\nexport function useSalesRead(organizationId: string, kind: string, id?: string, filters: Row = {}) {\n  const api = useServerFn(readSales);\n  // O filtro entra na chave já serializado: um objeto novo a cada render não\n  // provoca nova consulta, e um filtro de verdade diferente provoca.\n  const serialized = JSON.stringify(filters);\n  return useQuery({\n    queryKey: [\"sales\", organizationId, kind, id, serialized],\n    queryFn: () =>\n      api({\n        data: {\n          organizationId,\n          kind,\n          id,\n          filters: JSON.parse(serialized) as Record<string, Json>,\n        } as never,\n      }),\n    enabled: Boolean(organizationId),\n  });\n}",
+      "oldString": "/** Monta a query de leitura de uma área do módulo. */\nexport function useSalesRead(\n  organizationId: string,\n  kind: string,\n  id?: string,\n  filters: Row = {},\n) {\n  const api = useServerFn(readSales);\n  const stable = useMemo(() => filters, [JSON.stringify(filters)]);\n  return useQuery({\n    queryKey: [\"sales\", organizationId, kind, id, stable],\n    queryFn: () =>\n      api({\n        data: {\n          organizationId,\n          kind,\n          id,\n          filters: stable as Record<string, Json>,\n        } as never,\n      }),\n    enabled: Boolean(organizationId),\n  });\n}"
+    },
+    "timestamp": 1790619304127
+  },
+  {
+    "role": "tool_result",
+    "content": "",
+    "is_error": true,
+    "timestamp": 1790619304147
   }
 ]
