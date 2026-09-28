@@ -11,31 +11,23 @@ import { PERMISSIONS } from "@/lib/rbac";
 import {
   carrierModalityLabel,
   exceptionSeverityLabel,
+  exceptionStatusLabel,
   orderStatusLabel,
   reservationStatusLabel,
   returnStatusLabel,
   shipmentStatusLabel,
   stockStatusLabel,
   fulfillmentStatusLabel,
-  settingLabel,
   CARRIER_MODALITY,
-  ORDER_STATUS,
-  RESERVATION_STATUS,
-  SHIPMENT_STATUS,
-  RETURN_STATUS,
-  EXCEPTION_STATUS,
-  EXCEPTION_SEVERITY,
-  ACTIVE_RESERVATION_STATUS,
 } from "@/lib/sales/constants";
 import { SalesAction } from "@/components/sales/action";
 import { NewOrder } from "@/components/sales/new-order";
-import { SalesSettings } from "@/components/sales/settings";
 import {
   isMoneyColumn,
   numeric,
+  object,
   rows,
   text,
-  truthy,
   useSalesList,
   useSalesRead,
   type Row,
