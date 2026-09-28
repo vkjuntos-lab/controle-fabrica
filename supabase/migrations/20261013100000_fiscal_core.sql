@@ -557,14 +557,6 @@ VALUES(_org,_type,'FISCAL',_key,_payload||jsonb_build_object('schema_version',1)
 ON CONFLICT (organization_id,event_key) DO NOTHING;
 $$;
 
--- Preferência por organização nas tabelas de configuração: uma linha
--- por organização, com organization_id como chave.
-CREATE FUNCTION public.fiscal_my_org_ids() RETURNS SETOF uuid
-LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
-  SELECT organization_id FROM public.organization_members
-  WHERE user_id=auth.uid() AND is_active;
-$$;
-
 -- Ambientes são separados por DEFAULT. Um documento marcado PRODUCTION
 -- nunca pode ser transmitido em HOMOLOGATION: é o erro que mais custa.
 CREATE FUNCTION public.fiscal_assert_environment(_doc_environment public.fiscal_environment,
