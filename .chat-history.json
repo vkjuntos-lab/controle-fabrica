@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "1364:   RAISE NOTICE 'COLS %',left(v_dbg,2000);\n1374:   RAISE EXCEPTION 'DBGCTX %',v_dbg;\n1376:  RAISE NOTICE 'ITEMS JSON %',items::text;\n  IF NOT FOUND THEN RAISE EXCEPTION 'Itens da proposta não conferem com o catálogo.'; END IF;\n\n  UPDATE public.sales_orders SET subtotal=v_subtotal,discount_total",
-    "is_error": false,
-    "timestamp": 1790593967501
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"sed -n '1280,1395p' supabase/migrations/20261006100000_sales_orders.sql; sed -n '3180,3470p' supabase/migrations/20261006100000_sales_orders.sql\""
-    },
-    "timestamp": 1790593973289
-  },
-  {
-    "role": "tool_result",
     "content": "    coalesce(nullif(_data->>'order_date','')::date,current_date));\n END LOOP;\n out:=public.sales_insert_order(_org,_data,items,NULL);\n RETURN out;\nEND;\n$$;\n\n-- PROPOSTA ACEITA -> CONVERSÃO -> SALES ORDER.\n-- Idempotente por construcao: a chave unica parcial em sales_orders\n-- (sales_quote_id) impede",
     "is_error": false,
     "timestamp": 1790593973293
@@ -1425,5 +1411,19 @@
     "content": "src/components/purchasing:\ntotal 140\ndrwxr-xr-x  2 claude-runner claude-runner   4096 Sep 28 17:21 .\ndrwxr-xr-x 14 claude-runner claude-runner   4096 Sep 28 17:21 ..\n-rw-r--r--  1 claude-runner claude-runner 131394 Sep 28 17:21 pages.tsx\n\nsrc/lib/crm:\ntotal 40\ndrwxr-xr-x  2 claude-runner claude-runn",
     "is_error": false,
     "timestamp": 1790618281869
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261010100000_sales_integrity.sql').read_text()\nm=re.search(r'CREATE OR REPLACE FUNCTION public\\.sales_query\\(.*?\\n\\$\\$;', t, re.S)\nbody=m.group(0)\nprint(body[:4000])\nPY"
+    },
+    "timestamp": 1790618290606
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE OR REPLACE FUNCTION public.sales_query(_org uuid,_kind text DEFAULT 'orders',_filters jsonb DEFAULT '{}')\nRETURNS jsonb LANGUAGE plpgsql STABLE SECURITY DEFINER SET search_path=public AS $$\nDECLARE v_limit int; v_off int; v_status text; v_company uuid; v_from date; v_to date;\n v_search text; ",
+    "is_error": false,
+    "timestamp": 1790618290675
   }
 ]
