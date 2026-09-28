@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md",
-      "newString": "## NEXT_STEPS\n\n1. Aplicar as quatro migrations do MASTER 013 (`20261006100000_sales_orders.sql`,\n   `20261010100000_sales_integrity.sql`, `20261011100000_sales_planning.sql` e\n   `20261012100000_sales_screen_fixes.sql`) no Lovable Cloud e executar smoke test autenticado:\n   novo pedido e conversão de proposta, aprovação com crédito, reserva, separação por código de\n   barras, conferência divergente, embalagem, expedição, entrega com prova, devolução e as doze\n   políticas. Confirmar também que a tela mostra um código de rastreio e um recebedor, e não \"—\".\n2. Aplicar as três migrations do MASTER 011 (`20261002100000_planning.sql`,\n   `20261003100000_planning_engine.sql`, `20261004100000_planning_fixes.sql`) no Lovable Cloud e\n   executar smoke test autenticado (parâmetros, execução, forecast, simulação, sugestão → conversão)\n   no ambiente publicado.\n3. Aplicar a migration do MASTER 010 no Lovable Cloud e executar smoke test autenticado\n   (fornecedores, requisição → cotação → pedido → recebimento → postagem, documento/exceções,\n   reposição) no ambiente publicado.\n4. Aplicar a migration do MASTER 009 no Lovable Cloud e executar smoke test autenticado\n   (custos, precificação, rentabilidade) no ambiente publicado.\n5. Agendar a expiração de reservas vencidas (hoje depende de chamada); ligar um provedor real de\n   rastreamento ao modo `WEBHOOK` das políticas, hoje manual.\n6. Implementar/validar o importador MASTER 005 com o contrato de `marketplace_stores`, vínculo\n   PARTNER → `partner_profiles` e `marketplace_sales` já existentes. Não duplicar o cadastro de lojas.\n7. Financeiro de parceiros: consumir o snapshot/evento `PARTNER_RECONCILIATION_CLOSED` para gerar\n   cobrança (AR) e registrar pagamento; limites de crédito e condições de pagamento.\n8. Ligar produção ao ledger (movimentos `PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`).\n9. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.\n10. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a\n    `/api/webhooks/receiver` quando houver integração externa.\n11. Quitar a dívida de formatação pré-existente do lint global (cerca de 12 mil erros de Prettier em\n    módulos compactados de outros masters e em `auth-middleware`, `csv`, `logger` e rotas antigas),\n    sem misturar com mudanças de domínio.\n\n## VALIDAÇÃO DESTA CONTINUAÇÃO\n\nRelatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-VALIDATION.md`,\n`docs/handoff/MASTER-007-VALIDATION.md`, `docs/handoff/MASTER-009-VALIDATION.md`,\n`docs/handoff/MASTER-010-VALIDATION.md`, `docs/handoff/MASTER-011-VALIDATION.md` e\n`docs/handoff/MASTER-013-VALIDATION.md`.\nMASTER 013: 32 grupos PostgreSQL de vendas (`npm run test:sales:db`, A–AF), 77 testes unitários em\n7 arquivos, TypeScript, build e lint do domínio verificados. A implantação no banco publicado não faz\nparte da evidência local e permanece pendente.",
-      "oldString": "## NEXT_STEPS\n\n1. Aplicar as três migrations do MASTER 011 (`20261002100000_planning.sql`,\n   `20261003100000_planning_engine.sql`, `20261004100000_planning_fixes.sql`) no Lovable Cloud e\n   executar smoke test autenticado (parâmetros, execução, forecast, simulação, sugestão → conversão)\n   no ambiente publicado.\n2. Aplicar a migration do MASTER 010 no Lovable Cloud e executar smoke test autenticado\n   (fornecedores, requisição → cotação → pedido → recebimento → postagem, documento/exceções,\n   reposição) no ambiente publicado.\n3. Aplicar a migration do MASTER 009 no Lovable Cloud e executar smoke test autenticado\n   (custos, precificação, rentabilidade) no ambiente publicado.\n4. Implementar/validar o importador MASTER 005 com o contrato de `marketplace_stores`, vínculo\n   PARTNER → `partner_profiles` e `marketplace_sales` já existentes. Não duplicar o cadastro de lojas.\n5. Financeiro de parceiros: consumir o snapshot/evento `PARTNER_RECONCILIATION_CLOSED` para gerar\n   cobrança (AR) e registrar pagamento; limites de crédito e condições de pagamento.\n6. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,\n   `PURCHASE_RECEIPT`, `PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`).\n7. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.\n8. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a\n   `/api/webhooks/receiver` quando houver integração externa.\n9. Quitar a dívida de formatação pré-existente do lint global (169 erros de Prettier em\n   `auth-middleware`, `csv`, `logger` e rotas antigas), sem misturar com mudanças de domínio.\n\n## VALIDAÇÃO DESTA CONTINUAÇÃO\n\nRelatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-VALIDATION.md`,\n`docs/handoff/MASTER-007-VALIDATION.md`, `docs/handoff/MASTER-009-VALIDATION.md`,\n`docs/handoff/MASTER-010-VALIDATION.md` e `docs/handoff/MASTER-011-VALIDATION.md`.\n39 testes unitários, harness PostgreSQL de estoque, de parceiros, de reconciliação, de custos, de\ncompras e de planejamento (MASTER 011: `npm run test:planning:db`, 20 grupos), TypeScript e lint do\ndomínio verificados. A implantação no banco publicado não faz parte da evidência local e permanece\npendente."
-    },
-    "timestamp": 1790620239006
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790620239024
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -n \"advanced\" docs/handoff/PROJECT-STATE.md",
@@ -1544,5 +1528,20 @@
     "content": "'reservation_policy' 'reservation_policy' 'price_override_policy' 'price_override_policy' 'receivable_trigger' 'receivable_trigger' 'credit_exposure_policy' 'credit_exposure_policy' 'tracking_mode' 'tracking_mode' 'max_discount_percent' 'max_discount_percent' 'max_discount_percent' 'reservation_poli",
     "is_error": false,
     "timestamp": 1790621142919
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "awk '/FUNCTION public.sales_settings_save/,/^\\$\\$/' supabase/migrations/*.sql | grep -nE \"jsonb_object_keys|allowed|_key|raise.*configura|ARRAY\\[\" | head -12",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790621146279
+  },
+  {
+    "role": "tool_result",
+    "content": "3:DECLARE cur public.sales_order_settings; cfg jsonb; v_key text;\n8: v_key:=cur.id;\n48: PERFORM public.sales_audit(_org,'sales_settings.updated','sales_order_settings',v_key,_data);\n132:DECLARE cur public.sales_order_settings; cfg jsonb; v_key uuid;\n139: v_key:=cur.id;\n",
+    "is_error": false,
+    "timestamp": 1790621146320
   }
 ]
