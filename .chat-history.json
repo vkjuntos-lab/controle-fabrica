@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "write",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/sales/constants.test.ts",
-      "content": "import { readFileSync } from \"node:fs\";\nimport { describe, expect, it } from \"vitest\";\n\nimport {\n  CARRIER_MODALITY,\n  EXCEPTION_SEVERITY,\n  EXCEPTION_STATUS,\n  EXCEPTION_TYPE,\n  ORDER_STATUS,\n  PROOF_TYPE,\n  RETURN_DESTINATION,\n  SETTING_FLAGS,\n  SETTING_OPTIONS,\n} from \"@/lib/sales/constants\";\n\n/**\n * Contrato entre as telas de vendas e o banco.\n *\n * Estas regras já custaram defeitos reais: a tela oferecia um valor de política\n * que o servidor rejeitava, e o cartão de crédito lia campos que existem dentro\n * de `position`, não no nível da linha. Nenhum dos dois aparece em typecheck nem\n * em teste de unidade — só em tempo de execução, contra o banco.\n *\n * A verificação aqui é mecânica e barata: as migrations são a fonte, e a tela\n * precisa concordar com elas.\n */\n\nconst migration = readFileSync(\n  new URL(\"../../supabase/migrations/20261006100000_sales_orders.sql\", import.meta.url),\n  \"utf8\",\n);\n\n/** Colunas de uma tabela, na ordem em que a migration declara. */\nconst tableColumns = (table: string): string[] => {\n  const body = migration.match(new RegExp(`CREATE TABLE[^;]*${table} \\\\(([\\\\s\\\\S]*?)\\\\n\\\\);`));\n  if (!body) throw new Error(`Tabela ${table} não encontrada na migration.`);\n  return [...body[1].matchAll(/^\\s{2}([a-z_]+)\\s/gm)].map((match) => match[1]);\n};\n\n/** Valores aceitos por um `CHECK(coluna IN ('A','B'))`. */\nconst checkValues = (column: string): string[] => {\n  const match = migration.match(\n    new RegExp(`CHECK\\\\s*\\\\(\\\\s*${column}\\\\s+IN\\\\s*\\\\(([^)]*)\\\\)`, \"s\"),\n  );\n  if (!match) throw new Error(`CHECK de ${column} não encontrado.`);\n  return [...match[1].matchAll(/'([A-Z_]+)'/g)].map((value) => value[1]);\n};\n\ndescribe(\"políticas editáveis na tela de configurações\", () => {\n  const keys = [\n    ...Object.keys(SETTING_OPTIONS),\n    ...Object.keys(SETTING_FLAGS),\n    \"reservation_expiry_hours\",\n    \"max_discount_percent\",\n  ];\n\n  it(\"cobre exatamente as doze políticas do banco\", () => {\n    expect(keys).toHaveLength(12);\n    expect(new Set(keys).size).toBe(12);\n  });\n\n  it(\"sete chaves correspondem a colunas de sales_order_settings\", () => {\n    // `sales_order_settings` guarda uma linha por organização; a tela lê e\n    // escreve essas mesmas colunas. Sem correspondência, o servidor ignora o\n    // campo ou falha na gravação.\n    const columns = new Set(tableColumns(\"sales_order_settings\"));\n    for (const key of keys) expect(columns.has(key), key).toBe(true);\n  });\n\n  it(\"oferece exatamente os valores que o servidor aceita\", () => {\n    for (const [key, option] of Object.entries(SETTING_OPTIONS)) {\n      const accepted = checkValues(key);\n      expect([...option.options].sort(), key).toEqual([...accepted].sort());\n    }\n  });\n\n  it(\"traduz todo valor aceito, sem valor órfão\", () => {\n    for (const [key, option] of Object.entries(SETTING_OPTIONS)) {\n      const labels = Object.keys(option.labels).sort();\n      expect(labels, key).toEqual([...option.options].sort());\n    }\n  });\n\n  it(\"traduz toda opção de booleanos e de números\", () => {\n    for (const [key, flag] of Object.entries(SETTING_FLAGS)) {\n      expect(typeof flag.label, key).toBe(\"string\");\n      expect(flag.label.length, key).toBeGreaterThan(0);\n      expect(typeof flag.hint, key).toBe(\"string\");\n    }\n  });\n});\n\ndescribe(\"códigos de status e de ocorrência\", () => {\n  const cases: [string, Record<string, string>, string][] = [\n    [\"exception_type\", EXCEPTION_TYPE, \"exception_type\"],\n    [\"proof_type\", PROOF_TYPE, \"proof_type\"],\n    [\"exception severity\", EXCEPTION_SEVERITY, \"severity\"],\n    [\"exception status\", EXCEPTION_STATUS, \"status\"],\n    [\"modality\", CARRIER_MODALITY, \"modality\"],\n  ];\n\n  it.each(cases)(\"traduz todos os valores de %s sem inventar código\", (_name, map, column) => {\n    const accepted = new Set(checkValues(column));\n    // Um código que o banco nunca produz cai no `label()` e vira texto cru na\n    // tela; um código sem tradução mostra `PICKING_DIFFERENCE` ao usuário.\n    for (const value of checkValues(column)) expect(map[value], value).toBeTruthy();\n    for (const value of Object.keys(map)) expect(accepted.has(value), value).toBe(true);\n  });\n\n  it(\"traduz os destinos de devolução\", () => {\n    const accepted = new Set(checkValues(\"destination\"));\n    for (const value of accepted) expect(RETURN_DESTINATION[value], value).toBeTruthy();\n    for (const value of Object.keys(RETURN_DESTINATION)) expect(accepted.has(value), value).toBe(true);\n  });\n\n  it(\"traduz todo status de pedido que o banco aceita\", () => {\n    const accepted = new Set(checkValues(\"status\"));\n    for (const value of Object.keys(ORDER_STATUS)) expect(accepted.has(value), value).toBe(true);\n  });\n});\n"
-    },
-    "timestamp": 1790621213844
-  },
-  {
-    "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1790621213846
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "npx vitest run src/lib/sales/constants.test.ts 2>&1 | tail -40",
@@ -1633,5 +1618,20 @@
     "content": "supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql:206:INSERT INTO public.role_permissions (role, permission) VALUES\nsupabase/migrations/20260917100002_role_permissions_manage.sql:4:INSERT INTO public.role_permissions (role, permission) VALUES\nsupabase/migrations/20260917110",
     "is_error": false,
     "timestamp": 1790622511262
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"sales\\.\" supabase/migrations/20261012100000_sales_screen_fixes.sql | head; echo \"=== como sales inseriu perms ===\"; grep -n \"role_permissions\" -A20 supabase/migrations/20261010100000_sales_integrity.sql | head -30",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622513610
+  },
+  {
+    "role": "tool_result",
+    "content": "24: PERFORM public.sales_require(_org,'sales.configure');\n=== como sales inseriu perms ===\n573:INSERT INTO public.role_permissions(role,permission) SELECT r,'logistics.exceptions' FROM unnest(ARRAY['admin','gestor']::public.app_role[]) r ON CONFLICT DO NOTHING;\n574-\n575-DO $permissions$ DECLARE f re",
+    "is_error": false,
+    "timestamp": 1790622513646
   }
 ]
