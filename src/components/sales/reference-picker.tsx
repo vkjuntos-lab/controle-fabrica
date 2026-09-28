@@ -133,11 +133,6 @@ export function ReferencePicker({
           })
         )}
       </div>
-      {value && !selected ? (
-        <p className="text-xs text-muted-foreground">
-          Registro selecionado fora da busca atual: {describe({ id: value })}
-        </p>
-      ) : null}
       {pages > 1 ? (
         <div className="flex items-center gap-2">
           <Button
