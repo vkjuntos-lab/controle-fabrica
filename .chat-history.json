@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "edit",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261012100000_sales_settings_fixes.sql",
-      "newString": " -- Um booleano nunca pode ser gravado a partir de texto livre fora de\n -- 'true'/'false'; a tela envia 'true'/'false' e o servidor valida.\n FOR v_field,v_value IN\n  SELECT * FROM (VALUES\n   ('make_to_order_enabled',_data->>'make_to_order_enabled'),\n   ('approval_segregation',_data->>'approval_segregation'),\n   ('allow_partial_fulfillment',_data->>'allow_partial_fulfillment'),\n   ('shipment_requires_full_confirmation',_data->>'shipment_requires_full_confirmation'),\n   ('require_shipping_address',_data->>'require_shipping_address')\n  ) AS v(field,value)\n LOOP\n  IF v_value IS NOT NULL AND nullif(v_value,'') IS NOT NULL\n     AND lower(v_value) NOT IN ('true','false') THEN\n   RAISE EXCEPTION 'Valor booleano invalido em %.',v_field;\n  END IF;\n END LOOP;",
-      "oldString": " -- Uma politica de boolean nunca pode ser gravada a partir de texto livre\n -- fora de 'true'/'false'; a tela envia 'true'/'false' e nao o相反.\n FOR v_key,v_action IN\n  SELECT * FROM (VALUES\n   ('make_to_order_enabled',_data->>'make_to_order_enabled'),\n   ('approval_segregation',_data->>'approval_segregation'),\n   ('allow_partial_fulfillment',_data->>'allow_partial_fulfillment'),\n   ('shipment_requires_full_confirmation',_data->>'shipment_requires_full_confirmation'),\n   ('require_shipping_address',_data->>'require_shipping_address')\n  ) AS v(field,value)\n LOOP\n  IF v_action IS NOT NULL AND nullif(v_action,'') IS NOT NULL\n     AND lower(v_action) NOT IN ('true','false') THEN\n   RAISE EXCEPTION 'Valor booleano invalido em %.',v_field;\n  END IF;\n END LOOP;"
-    },
-    "timestamp": 1790618498293
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790618498304
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py",
       "newString": "'20261010100000_sales_integrity.sql','20261011100000_sales_planning.sql','20261012100000_sales_settings_fixes.sql']:",
       "oldString": "'20261010100000_sales_integrity.sql','20261011100000_sales_planning.sql']:"
@@ -1530,5 +1514,21 @@
     "content": "",
     "is_error": true,
     "timestamp": 1790619304147
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx",
+      "limit": 30,
+      "offset": 28
+    },
+    "timestamp": 1790619306469
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx</path>\n<type>file</type>\n<content>\n28:   value === null || value === undefined ? \"\" : String(value);\n29: export const numeric = (value: unknown): number => Number(value ?? 0);\n30: export const truthy = (value: unknown): ",
+    "is_error": false,
+    "timestamp": 1790619306475
   }
 ]
