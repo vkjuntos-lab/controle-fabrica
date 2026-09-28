@@ -8,6 +8,7 @@ import {
 import { useServerFn } from "@tanstack/react-start";
 
 import { readSales, mutateSales, type SalesOperation } from "@/lib/sales/sales.functions";
+import { keyForPayload } from "@/lib/sales/idempotency";
 import { MONEY_COLUMNS } from "@/lib/sales/constants";
 import type { Json } from "@/integrations/supabase/types";
 
