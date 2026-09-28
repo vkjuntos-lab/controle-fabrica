@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"sales_create_receivables\" -A 20 supabase/migrations/20261010100000_sales_integrity.sql | grep -iE \"INSERT INTO|account_receivable|receivable\" | head -8",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620045857
-  },
-  {
-    "role": "tool_result",
-    "content": "300:   PERFORM public.sales_create_receivables(_org,_order,'ON_APPROVAL');\n314-  IF EXISTS(SELECT 1 FROM public.account_receivables WHERE organization_id=_org AND source_type='SALE' AND source_id=_order::text AND status<>'CANCELED') THEN RAISE EXCEPTION 'Regularize a obrigação financeira antes de ca",
-    "is_error": false,
-    "timestamp": 1790620045883
-  },
-  {
-    "role": "tool",
     "tool": "write",
     "input": {
       "content": "# ADR 011 — Vendas e logística integradas ao ERP\nEstado: implementado localmente; revisão em 28/09/2026.\n\n## Contexto\n\nO MASTER 012 entregou o CRM, incluindo propostas versionadas com preço oficial. O aceite de uma\nproposta emitia `SALES_QUOTE_ACCEPTED`, mas não existia consumidor: nenhum pedido de venda nascia\ndo aceite, e nada ligava a necessidade comercial ao MRP. O ERP tinha estoque, ledger, financeiro e\nplanejamento, porém nenhuma tela de venda.\n\nUm pedido de venda não é venda recebida. Essa distinção é o eixo do trabalho: um rascunho é um\npedido comercial sem valor nenhum, e cada etapa seguinte — aprovação, reserva, separação,\nexpedição, entrega, devolução — tem efeito físico, financeiro ou de obligation diferentes. O risco\ncentral era tratar esses efeitos como um só e prometer um faturamento que o sistema não tem.\n\n## Decisões\n\n1. **O banco é a autoridade.** Preço, crédito, estado, estoque, idempotência e transições são\n   decididos por funções `SECURITY DEFINER`. A tela escolhe *qual* operação chamar; nunca *se* ela é\n   permitida. Não existe fonte paralela de preço, disponibilidade ou autorização.\n\n2. **Preço nunca é digitado.** O preço do item vem da tabela oficial vigente na data do pedido. Um\n   preço enviado pelo cliente é ignorado pelo servidor (grupo C). Conversão de proposta preserva o\n   preço aceito (grupo R), porque a tabela vigente pode ter mudado desde o aceite.\n\n3. **Disponível é saldo físico menos reservas.** `DISPONÍVEL = SALDO_FÍSICO − RESERVAS` (grupo G).\n   Reserva torna a mercadoria indisponível para os demais pedidos e **não** movimenta estoque nem\n   gera entrada no ledger. Só a expedição dá baixa oficial, uma única vez (grupo L).\n\n4. **Reserva expira sozinha por validade configurável.** Reserva vencida expira por chamada\n   idempotente e devolve o disponível sem tocar no saldo físico (grupo T). Cancelar pedido libera a\n   reserva e devolve o disponível (grupo S).\n\n5. **Separação não é expedição.** Ler código de barras acumula quantidade separada; conferir\n   confronta separado e conferido. A diferença vira ocorrência, não estoque (grupo J). Conferir é\n   imutável. A Expedição é o único momento que baixa o ledger.\n\n6. **Expedir exige duas permissões.** Despachar exige `shipments.dispatch` **e** permissão de\n   movimentação de inventário (grupo M). A tela mostra o botão; o banco exige as duas.\n\n7. **Entrega não mexe no saldo e não fecha pedido.** Confirmar entrega exige prova de entrega\n   registrada (grupo N). O fechamento do pedido é ato comercial separado.\n\n8. **Obrigação financeira é configurável e não nasce de reserva.** O gatilho é\n   `NONE`, `ON_APPROVAL` ou `ON_DISPATCH`. Com `ON_DISPATCH`, o título é proporcional ao expedido e\n   um pedido gera **um** título, não um por expedição (grupo Q). O gatilho nunca é uma reserva.\n\n9. **Ajuste financeiro de devolução é solicitação, não execução.** Receber devolução devolve\n   mercadoria ao estoque; o estorno financeiro fica registrado como solicitação, sem execução\n   automática (grupo O). O sistema não baixa,title nem concilia por conta própria.\n\n10. **Devolução danificada não volta para vendável.** Mercadoria com defeito só pode ir para\n    quarentena ou inspeção, e saldo em quarentena não atende venda direta (grupo P).\n\n11. **Crédito é avaliado na aprovação, com o valor avaliado.** A política de exposição\n    (`OPEN_RECEIVABLES_ONLY` ou `OPEN_RECEIVABLES_PLUS_OPEN_ORDERS`) é aplicada pelo servidor, e o\n    valor avaliado é preservado (grupo AA). A tela apenas mostra o que foi avaliado.\n\n12. **Aprovação exige outro usuário.** Com segregação ativa, quem cria não aprova (grupo F).\n\n13. **Todas as escritas passam por um único gateway idempotente.** `sales_execute` exige chave no\n    formato UUID, serializa operação, id, ação e payload, e grava chave/payload/resultado na mesma\n    transação. Mesma chave com mesmo conteúdo devolve o mesmo resultado; mesma chave com conteúdo\n    diferente é recusada. A tela deriva a chave do próprio conteúdo da operação (ver\n    `src/lib/sales/idempotency.ts`): reenviar o mesmo conteúdo deduplica, e corrigir o conteúdo\n    gera chave nova que executa de fato. A chave **não** é renovada em caso de erro — se o servidor\n    gravou e a resposta se perdeu, uma chave nova repetiria a operação.\n\n14. **As doze políticas por organização são editáveis e validadas.** Reserva, validade da reserva,\n    sob encomenda, alteração de preço, exposição de crédito, segregação na aprovação, desconto\n    máximo, expedição parcial, conferência integral, endereço obrigatório, rastreamento e gatilho\n    financeiro. A tela edita as doze; o servidor valida e recusa valor fora da lista (grupo AE).\n\n15. **Rastreamento é manual.** O modo `WEBHOOK` existe como opção, mas nenhum provedor externo está\n    conectado. Registrador de recebedor é registro manual de evidência: não há upload de foto nem\n    assinatura digital.\n\n16. **A conversão de proposta é idempotente por chave e por vínculo.** Aceitar a mesma proposta duas\n    vezes não cria dois pedidos (grupo R).\n\n17. **Demanda sincronizada.** A aprovação do pedido publica `SALES_DEMAND` para o MRP, na mesma\n    transação, com sincronização testada (grupo Z).\n\n## Limites\n\nSem NF-e, sem integração fiscal e sem传输 de transportadora externa. A expedição registra código de\nrastreio informado; nenhum serviço externo é simulado como envio real. A reserva expira por\nchamada — não há job de expiração automática em background. Peso e dimensão são os medidos e\nregistrados; o sistema nunca os estima. A empresa do cliente fica presa à organização (grupo W), mas\nnão há múltiplos centros de custo por pedido. Screen de vendas não tem testes de navegador\nautenticado: a cobertura é banco real isolado, Vitest e verificação de build.\n\nEvidências: `scripts/test-sales-db.py` (32 grupos, PostgreSQL descartável),\n`src/lib/sales/idempotency.test.ts`, `src/lib/rbac.test.ts` e o relatório\n`docs/handoff/MASTER-013-VALIDATION.md`. Não confundir build e validação local com aplicação no\nLovable Cloud ou navegação autenticada.\n",
@@ -1539,5 +1524,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790620887633
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
+      "newString": "          render={{ status: (row) => shipmentStatusLabel(row.status) }}\n        >",
+      "oldString": "          render={(row) => shipmentStatusLabel(row.status)}\n        >"
+    },
+    "timestamp": 1790620890206
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790620890220
   }
 ]

@@ -176,7 +176,7 @@ export function OrderDetail({
             ["tracking_code", "Rastreio"],
             ["delivered_quantity", "Entregue"],
           ]}
-          render={(row) => shipmentStatusLabel(row.status)}
+          render={{ status: (row) => shipmentStatusLabel(row.status) }}
         >
           {(shipment) => (
             <ShipmentActions
