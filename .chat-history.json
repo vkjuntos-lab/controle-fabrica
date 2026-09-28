@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sed -n '170,215p' src/lib/rbac.test.ts; echo \"=== imports de constants no teste de idempotência ===\"; sed -n '1,20p' src/lib/sales/idempotency.test.ts",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790621132949
-  },
-  {
-    "role": "tool_result",
-    "content": "      expect(typeof PERMISSION_LABELS[key]).toBe(\"string\");\n      expect(PERMISSION_LABELS[key].length).toBeGreaterThan(0);\n    }\n  });\n});\n\nit(\"alinha as permissões de reconciliação ao contrato do banco\", () => {\n  const migration = readFileSync(\n    new URL(\"../../supabase/migrations/2026092610000",
-    "is_error": false,
-    "timestamp": 1790621132963
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "awk '/FUNCTION public.sales_settings_save/,/^\\$\\$/' supabase/migrations/*.sql | grep -oE \"'[a-z_]+'\" | head -30 | tr '\\n' ' '",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1574,5 +1559,20 @@
     "content": "ok\nEXIT=1\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py\", line 27, in run\n    sql((db.ROOT / 'supabase/migrations' / name).read_text())\n    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventory",
     "is_error": false,
     "timestamp": 1790622282470
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'EOF'\nimport io\np=\"/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261013100000_fiscal_core.sql\"\ns=io.open(p,encoding=\"utf-8\").read()\ns=s.replace(\"\"\"  approved_at timestamptz,\n  UNIQUE(organization_id,document_model,version)\n);\nALTER TABLE public.tax_rules\"\"\",\"\"\"  approved_at timestamptz,\n  UNIQUE(organization_id,document_model,version),\n  UNIQUE(organization_id,id)\n);\nALTER TABLE public.tax_rules\"\"\")\nio.open(p,\"w\",encoding=\"utf-8\").write(s)\nprint(\"ok\")\nEOF\ncd '/root/Zheus AI Projects/controle-fabricas' && su claude-runner -c \"python3 scripts/test-fiscal-db.py > /tmp/opencode/fiscal.log 2>&1; echo EXIT=\\$?\"; tail -8 /tmp/opencode/fiscal.log",
+      "timeout": 400000
+    },
+    "timestamp": 1790622285773
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nEXIT=0\nMIGRATIONS OK\n",
+    "is_error": false,
+    "timestamp": 1790622288046
   }
 ]

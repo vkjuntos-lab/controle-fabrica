@@ -493,7 +493,8 @@ CREATE TABLE public.fiscal_layout_versions (
   created_by uuid REFERENCES public.profiles,
   approved_by uuid REFERENCES public.profiles,
   approved_at timestamptz,
-  UNIQUE(organization_id,document_model,version)
+  UNIQUE(organization_id,document_model,version),
+  UNIQUE(organization_id,id)
 );
 ALTER TABLE public.tax_rules
   ADD CONSTRAINT tax_rules_layout_fk
