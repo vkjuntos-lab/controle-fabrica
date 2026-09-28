@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "",
-    "is_error": true,
-    "timestamp": 1790594864944
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"tail -n 10 .git/sales-db.log; rg --files src/lib | rg 'csv|export'; cat docs/business/INVENTORY.md | head -n 45; cat docs/architecture/ADR-010-CRM.md | head -n 40; sed -n '1185,1260p' supabase/migrations/20261006100000_sales_orders.sql\""
-    },
-    "timestamp": 1790594868149
-  },
-  {
-    "role": "tool_result",
     "content": "    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                                                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n    ",
     "is_error": false,
     "timestamp": 1790594868160
@@ -1509,5 +1495,20 @@
     "content": "ok\n22: IF NOT FOUND THEN RAISE EXCEPTION 'Políticas de vendas não encontradas.'; END IF;\n26:  RAISE EXCEPTION 'Política de reserva inválida.';\n30:  RAISE EXCEPTION 'Política de preço inválida.';\n34:  RAISE EXCEPTION 'Gatilho financeiro inválido.';\n38:  RAISE EXCEPTION 'Política de exposição inválida",
     "is_error": false,
     "timestamp": 1790618518302
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && npm run test:sales:db\" 2>&1 | tail -16",
+      "timeout": 900000
+    },
+    "timestamp": 1790618521658
+  },
+  {
+    "role": "tool_result",
+    "content": "  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py\", line 469, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py\", line 451, in run\n    call('sales_execute',org,'settings',None,'',{**policies,'receivable_trigger",
+    "is_error": false,
+    "timestamp": 1790618528749
   }
 ]
