@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "git diff src/lib/sales/constants.ts; echo \"=== LINT ===\"; npx eslint src/components/sales src/lib/sales 2>&1 | head -12",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790621342962
-  },
-  {
-    "role": "tool_result",
-    "content": "=== LINT ===\n\n/root/Zheus AI Projects/controle-fabricas/src/components/sales/areas.tsx\n  54:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components\n\n/root/Zheus AI Projects/contr",
-    "is_error": false,
-    "timestamp": 1790621346626
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"credit_limit\\|credit_available\\|overdue_amount\" src/lib/sales/constants.ts | head -5; echo \"=== corrigindo formatacao ===\"; npx eslint --fix src/lib/sales/constants.test.ts 2>&1 | tail -3; npx eslint src/components/sales src/lib/sales 2>&1 | tail -3",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1634,5 +1619,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261013200000_fiscal_tax_engine.sql</path>\n<type>file</type>\n<content>\n588:     INSERT INTO public.fiscal_tax_regimes(organization_id,code,label,description,version,\n589:       valid_from,valid_to,is_active,notes,created_by)\n590:  ",
     "is_error": false,
     "timestamp": 1790622567564
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261013200000_fiscal_tax_engine.sql",
+      "newString": "  ELSE\n    -- Alterar regime existente cria versão nova. Editar in-place mudaria\n    -- a interpretação de documentos já emitidos sob a versão antiga.\n    SELECT * INTO v_row FROM public.fiscal_tax_regimes\n    WHERE organization_id=_org AND id=_id FOR UPDATE;\n    IF NOT FOUND THEN RAISE EXCEPTION 'Regime inexistente: %',_id; END IF;\n    -- A versão anterior é encerrada no dia anterior: as duas não podem\n    -- valer na mesma data, ou a resolução ficaria ambígua.\n    UPDATE public.fiscal_tax_regimes SET valid_to=coalesce((_data->>'valid_from')::date,CURRENT_DATE)-1\n    WHERE organization_id=_org AND id=_id;\n    INSERT INTO public.fiscal_tax_regimes(organization_id,code,label,description,version,\n      valid_from,valid_to,is_active,notes,created_by)\n    VALUES(_org,v_row.code,coalesce(_data->>'label',v_row.label),\n      coalesce(_data->>'description',v_row.description),\n      (SELECT max(version)+1 FROM public.fiscal_tax_regimes\n        WHERE organization_id=_org AND code=v_row.code),\n      coalesce((_data->>'valid_from')::date,CURRENT_DATE),\n      nullif(_data->>'valid_to','')::date,\n      coalesce((_data->>'is_active')::boolean,v_row.is_active),\n      coalesce(_data->>'notes',v_row.notes),auth.uid())\n    RETURNING * INTO v_row;\n  END IF;",
+      "oldString": "  ELSE\n    -- Alterar regime existente cria versão nova. Editar in-place mudaria\n    -- a interpretação de documentos já emitidos sob a versão antiga.\n    INSERT INTO public.fiscal_tax_regimes(organization_id,code,label,description,version,\n      valid_from,valid_to,is_active,notes,created_by)\n    SELECT _org,v_row.code,coalesce(_data->>'label',v_row.label),\n      coalesce(_data->>'description',v_row.description),\n      (SELECT max(version)+1 FROM public.fiscal_tax_regimes\n        WHERE organization_id=_org AND code=v_row.code),\n      coalesce((_data->>'valid_from')::date,CURRENT_DATE),\n      nullif(_data->>'valid_to','')::date,\n      coalesce((_data->>'is_active')::boolean,v_row.is_active),\n      coalesce(_data->>'notes',v_row.notes),auth.uid())\n    FROM public.fiscal_tax_regimes WHERE organization_id=_org AND id=_id\n    RETURNING * INTO v_row;\n    IF NOT FOUND THEN RAISE EXCEPTION 'Regime inexistente: %',_id; END IF;\n  END IF;"
+    },
+    "timestamp": 1790622574030
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790622574059
   }
 ]

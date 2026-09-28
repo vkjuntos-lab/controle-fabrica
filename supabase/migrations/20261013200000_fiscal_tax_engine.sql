@@ -596,19 +596,24 @@ BEGIN
   ELSE
     -- Alterar regime existente cria versão nova. Editar in-place mudaria
     -- a interpretação de documentos já emitidos sob a versão antiga.
+    SELECT * INTO v_row FROM public.fiscal_tax_regimes
+    WHERE organization_id=_org AND id=_id FOR UPDATE;
+    IF NOT FOUND THEN RAISE EXCEPTION 'Regime inexistente: %',_id; END IF;
+    -- A versão anterior é encerrada no dia anterior: as duas não podem
+    -- valer na mesma data, ou a resolução ficaria ambígua.
+    UPDATE public.fiscal_tax_regimes SET valid_to=coalesce((_data->>'valid_from')::date,CURRENT_DATE)-1
+    WHERE organization_id=_org AND id=_id;
     INSERT INTO public.fiscal_tax_regimes(organization_id,code,label,description,version,
       valid_from,valid_to,is_active,notes,created_by)
-    SELECT _org,v_row.code,coalesce(_data->>'label',v_row.label),
+    VALUES(_org,v_row.code,coalesce(_data->>'label',v_row.label),
       coalesce(_data->>'description',v_row.description),
       (SELECT max(version)+1 FROM public.fiscal_tax_regimes
         WHERE organization_id=_org AND code=v_row.code),
       coalesce((_data->>'valid_from')::date,CURRENT_DATE),
       nullif(_data->>'valid_to','')::date,
       coalesce((_data->>'is_active')::boolean,v_row.is_active),
-      coalesce(_data->>'notes',v_row.notes),auth.uid()
-    FROM public.fiscal_tax_regimes WHERE organization_id=_org AND id=_id
+      coalesce(_data->>'notes',v_row.notes),auth.uid())
     RETURNING * INTO v_row;
-    IF NOT FOUND THEN RAISE EXCEPTION 'Regime inexistente: %',_id; END IF;
   END IF;
   PERFORM public.fiscal_audit(_org,'fiscal.tax_regime_saved','fiscal_tax_regimes',v_row.id,
     jsonb_build_object('code',v_row.code,'version',v_row.version));
