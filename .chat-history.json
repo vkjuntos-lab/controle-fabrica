@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "git log --oneline -8 2>&1; echo \"---EXPORTS OLD WORKSPACE---\"; grep -n \"^export\\|^function \\|^const \" src/components/sales/workspace.tsx | head -40",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790618981303
-  },
-  {
-    "role": "tool_result",
-    "content": "8aad490 AI: alteracao automatica\n81a97ea AI: alteracao automatica\n91445b2 AI: alteracao automatica\n87e42f0 AI: alteracao automatica\n9762b58 AI: alteracao automatica\n840b159 AI: alteracao automatica\nefe23a2 AI: alteracao automatica\n892e692 AI: alteracao automatica\n---EXPORTS OLD WORKSPACE---\n17:const",
-    "is_error": false,
-    "timestamp": 1790618981322
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx"
@@ -1552,5 +1537,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790620100509
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"[^\\x00-\\x7F]\" docs/business/SALES-ORDERS.md docs/architecture/ADR-011-SALES.md | grep -oP \"^[^:]+:[0-9]+:.*\" | grep -P \"[\\x{4e00}-\\x{9fff}]\" ",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620103235
+  },
+  {
+    "role": "tool_result",
+    "content": "grep: Invalid range end\n",
+    "is_error": false,
+    "timestamp": 1790620103282
   }
 ]
