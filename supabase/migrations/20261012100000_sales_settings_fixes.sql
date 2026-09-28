@@ -49,9 +49,9 @@ BEGIN
     AND (nullif(_data->>'reservation_expiry_hours','')::int<1 OR nullif(_data->>'reservation_expiry_hours','')::int>8760) THEN
   RAISE EXCEPTION 'Validade da reserva deve estar entre 1 e 8760 horas.';
  END IF;
- -- Uma politica de boolean nunca pode ser gravada a partir de texto livre
- -- fora de 'true'/'false'; a tela envia 'true'/'false' e nao o相反.
- FOR v_key,v_action IN
+ -- Um booleano nunca pode ser gravado a partir de texto livre fora de
+ -- 'true'/'false'; a tela envia 'true'/'false' e o servidor valida.
+ FOR v_field,v_value IN
   SELECT * FROM (VALUES
    ('make_to_order_enabled',_data->>'make_to_order_enabled'),
    ('approval_segregation',_data->>'approval_segregation'),
@@ -60,8 +60,8 @@ BEGIN
    ('require_shipping_address',_data->>'require_shipping_address')
   ) AS v(field,value)
  LOOP
-  IF v_action IS NOT NULL AND nullif(v_action,'') IS NOT NULL
-     AND lower(v_action) NOT IN ('true','false') THEN
+  IF v_value IS NOT NULL AND nullif(v_value,'') IS NOT NULL
+     AND lower(v_value) NOT IN ('true','false') THEN
    RAISE EXCEPTION 'Valor booleano invalido em %.',v_field;
   END IF;
  END LOOP;

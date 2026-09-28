@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"rg -n \\\"receivables|role_permissions|fin\\\" scripts/test-sales-db.py | head -n 22; sed -n '290,325p' supabase/migrations/20260928100000_finance.sql; rg -n \\\"receivables.read\\\" supabase/migrations/*.sql\""
-    },
-    "timestamp": 1790594793480
-  },
-  {
-    "role": "tool_result",
-    "content": "11: for name in ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql','20261001100000_purchasing.sql','20261002100000_planning.sql','20261003100000_planning_engine.sql','20261004100000_planning_fixes.sql','20261005100000_crm.sql','20261006100000_c",
-    "is_error": false,
-    "timestamp": 1790594793484
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20261010100000_sales_integrity.sql');s=p.read_text().replace(\\\"'receivables',CASE WHEN public.has_permission(_org,'receivables.read') THEN\\\", \\\"'receivables',CASE WHEN public.has_permission(_org,'receivables.read') AND public.has_permission(_org,'sales_credit.read') THEN\\\");p.write_text(s)\nPY\npython3 scripts/test-sales-db.py > .git/sales-db.log 2>&1\""
     },
     "timestamp": 1790594802678
@@ -1503,5 +1489,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790618493748
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261012100000_sales_settings_fixes.sql",
+      "newString": " -- Um booleano nunca pode ser gravado a partir de texto livre fora de\n -- 'true'/'false'; a tela envia 'true'/'false' e o servidor valida.\n FOR v_field,v_value IN\n  SELECT * FROM (VALUES\n   ('make_to_order_enabled',_data->>'make_to_order_enabled'),\n   ('approval_segregation',_data->>'approval_segregation'),\n   ('allow_partial_fulfillment',_data->>'allow_partial_fulfillment'),\n   ('shipment_requires_full_confirmation',_data->>'shipment_requires_full_confirmation'),\n   ('require_shipping_address',_data->>'require_shipping_address')\n  ) AS v(field,value)\n LOOP\n  IF v_value IS NOT NULL AND nullif(v_value,'') IS NOT NULL\n     AND lower(v_value) NOT IN ('true','false') THEN\n   RAISE EXCEPTION 'Valor booleano invalido em %.',v_field;\n  END IF;\n END LOOP;",
+      "oldString": " -- Uma politica de boolean nunca pode ser gravada a partir de texto livre\n -- fora de 'true'/'false'; a tela envia 'true'/'false' e nao o相反.\n FOR v_key,v_action IN\n  SELECT * FROM (VALUES\n   ('make_to_order_enabled',_data->>'make_to_order_enabled'),\n   ('approval_segregation',_data->>'approval_segregation'),\n   ('allow_partial_fulfillment',_data->>'allow_partial_fulfillment'),\n   ('shipment_requires_full_confirmation',_data->>'shipment_requires_full_confirmation'),\n   ('require_shipping_address',_data->>'require_shipping_address')\n  ) AS v(field,value)\n LOOP\n  IF v_action IS NOT NULL AND nullif(v_action,'') IS NOT NULL\n     AND lower(v_action) NOT IN ('true','false') THEN\n   RAISE EXCEPTION 'Valor booleano invalido em %.',v_field;\n  END IF;\n END LOOP;"
+    },
+    "timestamp": 1790618498293
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790618498304
   }
 ]
