@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/sales/idempotency.test.ts",
-      "newString": "  it(\"tem ação declarada para todo status de pedido\", () => {\n    for (const status of Object.keys(ORDER_STATUS)) {\n      expect(ORDER_ACTIONS[status], status).toBeDefined();\n    }\n  });",
-      "oldString": "  it(\"tem ação declarada para todo status de pedido\", () => {\n    for (const status of Object.keys(ORDER_STATUS)) {\n      expect(ACTIONS[status], status).toBeDefined();\n    }\n  });"
-    },
-    "timestamp": 1790619621018
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619621039
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/reference-picker.tsx"
@@ -1536,5 +1520,20 @@
     "content": "=== exception_type no banco ===\n687: exception_type text NOT NULL CHECK(exception_type IN\n=== proof_type ===\n604:   CHECK(proof_type IN ('RECEIPT','SIGNATURE','DOCUMENT','PHOTO','NOTE')),\n2726:  VALUES(_org,_shipment,v_proof->>'proof_type',nullif(trim(coalesce(v_proof->>'file_path','')),''),\n",
     "is_error": false,
     "timestamp": 1790620774116
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '687,694p' supabase/migrations/20261006100000_sales_orders.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620776569
+  },
+  {
+    "role": "tool_result",
+    "content": " exception_type text NOT NULL CHECK(exception_type IN\n   ('INSUFFICIENT_STOCK','RESERVATION_CONFLICT','INVALID_SKU','WRONG_BATCH','PICKING_DIFFERENCE',\n    'PACKING_DIFFERENCE','SHIPMENT_DUPLICATE','DELIVERY_DELAY','DELIVERY_FAILURE','DAMAGED_GOODS',\n    'CUSTOMER_REFUSAL')),\n severity text NOT NULL",
+    "is_error": false,
+    "timestamp": 1790620776594
   }
 ]
