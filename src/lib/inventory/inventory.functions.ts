@@ -187,7 +187,7 @@ export const listInventoryLocations = createServerFn({ method: "GET" })
       id: row.id,
       code: row.code,
       name: row.name,
-      type: row.type,
+      type: row.type as InventoryLocationRow["type"],
       status: row.status,
       on_hand_total: totals.get(row.id) ?? 0,
       partner_id: row.partner_id,
@@ -1243,7 +1243,7 @@ export const updateInventoryCountItem = createServerFn({ method: "POST" })
       _organization_id: data.organizationId,
       _count_id: data.countId,
       _item_id: data.itemId,
-      _quantity: data.countedQuantity,
+      _quantity: data.countedQuantity as number,
     });
     if (error) throw new Error(error.message);
     return result as unknown as { ok: boolean; difference: number | null };

@@ -158,7 +158,7 @@ export const cancelMarketplaceSale = createServerFn({ method: "POST" })
     const { data: result, error } = await context.supabase.rpc("marketplace_cancel_sale", {
       _org: data.organizationId,
       _sale_id: data.saleId,
-      _reason: data.reason,
+      _reason: data.reason as string,
     });
     if (error) throw new Error(error.message);
     return result as Json;
