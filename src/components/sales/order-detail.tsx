@@ -123,18 +123,18 @@ export function OrderDetail({
 
       <Section
         title="Disponibilidade oficial"
-        description="Saldo físico menos reservas. Consultar disponibilidade não reserva nem movimenta mercadoria."
+        description="Saldo físico menos reservas, como o servidor calcula. Consultar não reserva nem movimenta mercadoria."
       >
+        <p className="text-sm text-muted-foreground">
+          Quantidade necessária: {numeric(object(data.availability).required_quantity)}
+        </p>
+        {/* Só os campos que `sales_availability` devolve. A reserva por item não
+            vem no resultado: deduzi-la aqui seria calcular regra no cliente. */}
         <Table
-          data={rows(object(data.availability).items).map((row) => ({
-            ...row,
-            sku: row.sku ?? row.sku_snapshot,
-            available: row.available ?? row.available_quantity,
-          }))}
+          data={rows(object(data.availability).items)}
           columns={[
             ["sku", "SKU"],
             ["available", "Disponível"],
-            ["reserved", "Reservado"],
             ["on_hand", "Saldo físico"],
           ]}
         />

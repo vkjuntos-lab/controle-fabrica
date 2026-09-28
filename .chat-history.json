@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/areas.tsx",
-      "newString": "/**\n * Renderiza uma célula: dinheiro, rótulo de código ou texto simples.\n *\n * A tradução de cada código de status fica em `constants.ts`; aqui só se decide\n * o formato. Nenhum valor é formatado como código solto para o usuário final.\n */\nfunction Cell({ column, value, area }: { column: string; value: unknown; area: string }) {\n  const asLabel = (label: string) =>\n    label === \"—\" ? <span className=\"text-muted-foreground\">—</span> : label;\n\n  if (column === \"status\") {\n    const label = (AREA_STATUS_LABELS[area] ?? ((v: unknown) => text(v) || \"—\"))(value);\n    return asLabel(label) === \"—\" ? asLabel(\"—\") : <Badge variant=\"outline\" className=\"font-normal\">{asLabel(label)}</Badge>;\n  }\n  if (column === \"severity\") return asLabel(exceptionSeverityLabel(value));\n  if (column === \"modality\") return asLabel(carrierModalityLabel(value));\n  if (column === \"stock_status\") return asLabel(stockStatusLabel(value));\n  if (column === \"fulfillment_status\") return asLabel(fulfillmentStatusLabel(value));\n  if (isMoneyColumn(column)) return <span>{money(value)}</span>;\n  return <span>{str(value)}</span>;\n}",
-      "oldString": "function Cell({ column, value, area }: { column: string; value: unknown; area: string }) {\n  if (column === \"status\" || column === \"severity\" || column === \"modality\") {\n    const map = STATUS_MAPS[area] ?? {};\n    const label = STATUS_LABELS[area]?.(value) ?? map[text(value)] ?? text(value);\n    return label === \"—\" ? (\n      <span className=\"text-muted-foreground\">—</span>\n    ) : (\n      <Badge variant=\"outline\" className=\"font-normal\">\n        {label}\n      </Badge>\n    );\n  }\n  if (column === \"stock_status\") return <span>{stockStatusLabel(value)}</span>;\n  if (column === \"fulfillment_status\") return <span>{fulfillmentStatusLabel(value)}</span>;\n  if (isMoneyColumn(column)) return <span>{money(value)}</span>;\n  return <span>{str(value)}</span>;\n}"
-    },
-    "timestamp": 1790619231765
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619231781
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/areas.tsx",
       "newString": "/**\n * Renderiza uma célula: dinheiro, rótulo de código ou texto simples.\n *\n * A tradução de cada código de status fica em `constants.ts`; aqui só se decide\n * o formato. Nenhum valor é exibido como código solto para o usuário final.\n */\nfunction Cell({ column, value, area }: { column: string; value: unknown; area: string }) {\n  const plain = (label: string) =>\n    label === \"—\" ? <span className=\"text-muted-foreground\">—</span> : <span>{label}</span>;\n\n  if (column === \"status\") {\n    const label = (AREA_STATUS_LABELS[area] ?? ((v: unknown) => text(v) || \"—\"))(value);\n    return label === \"—\" ? (\n      <span className=\"text-muted-foreground\">—</span>\n    ) : (\n      <Badge variant=\"outline\" className=\"font-normal\">\n        {label}\n      </Badge>\n    );\n  }\n  if (column === \"severity\") return plain(exceptionSeverityLabel(value));\n  if (column === \"modality\") return plain(carrierModalityLabel(value));\n  if (column === \"stock_status\") return plain(stockStatusLabel(value));\n  if (column === \"fulfillment_status\") return plain(fulfillmentStatusLabel(value));\n  if (isMoneyColumn(column)) return <span>{money(value)}</span>;\n  return <span>{str(value)}</span>;\n}",
       "oldString": "/**\n * Renderiza uma célula: dinheiro, rótulo de código ou texto simples.\n *\n * A tradução de cada código de status fica em `constants.ts`; aqui só se decide\n * o formato. Nenhum valor é formatado como código solto para o usuário final.\n */\nfunction Cell({ column, value, area }: { column: string; value: unknown; area: string }) {\n  const asLabel = (label: string) =>\n    label === \"—\" ? <span className=\"text-muted-foreground\">—</span> : label;\n\n  if (column === \"status\") {\n    const label = (AREA_STATUS_LABELS[area] ?? ((v: unknown) => text(v) || \"—\"))(value);\n    return asLabel(label) === \"—\" ? asLabel(\"—\") : <Badge variant=\"outline\" className=\"font-normal\">{asLabel(label)}</Badge>;\n  }\n  if (column === \"severity\") return asLabel(exceptionSeverityLabel(value));\n  if (column === \"modality\") return asLabel(carrierModalityLabel(value));\n  if (column === \"stock_status\") return asLabel(stockStatusLabel(value));\n  if (column === \"fulfillment_status\") return asLabel(fulfillmentStatusLabel(value));\n  if (isMoneyColumn(column)) return <span>{money(value)}</span>;\n  return <span>{str(value)}</span>;\n}"
     },
@@ -1549,5 +1533,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx</path>\n<type>file</type>\n<content>\n118:             [\"delivered_quantity\", \"Entregue\"],\n119:             [\"returned_quantity\", \"Devolvido\"],\n120:           ]}\n121:         />\n122:       </Section>\n123: \n124:       ",
     "is_error": false,
     "timestamp": 1790620367540
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
+      "newString": "      <Section\n        title=\"Disponibilidade oficial\"\n        description=\"Saldo físico menos reservas, como o servidor calcula. Consultar não reserva nem movimenta mercadoria.\"\n      >\n        <p className=\"text-sm text-muted-foreground\">\n          Quantidade necessária: {numeric(object(data.availability).required_quantity)}\n        </p>\n        {/* Só os campos que `sales_availability` devolve. A reserva por item não\n            vem no resultado: deduzi-la aqui seria calcular regra no cliente. */}\n        <Table\n          data={rows(object(data.availability).items)}\n          columns={[\n            [\"sku\", \"SKU\"],\n            [\"available\", \"Disponível\"],\n            [\"on_hand\", \"Saldo físico\"],\n          ]}\n        />\n      </Section>",
+      "oldString": "      <Section\n        title=\"Disponibilidade oficial\"\n        description=\"Saldo físico menos reservas. Consultar disponibilidade não reserva nem movimenta mercadoria.\"\n      >\n        <Table\n          data={rows(object(data.availability).items).map((row) => ({\n            ...row,\n            sku: row.sku ?? row.sku_snapshot,\n            available: row.available ?? row.available_quantity,\n          }))}\n          columns={[\n            [\"sku\", \"SKU\"],\n            [\"available\", \"Disponível\"],\n            [\"reserved\", \"Reservado\"],\n            [\"on_hand\", \"Saldo físico\"],\n          ]}\n        />\n      </Section>"
+    },
+    "timestamp": 1790620372072
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790620372091
   }
 ]
