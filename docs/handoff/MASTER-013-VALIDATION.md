@@ -186,11 +186,38 @@ Os 32 grupos do harness de vendas:
 - **AD–AF** todo botão com caminho pelo gateway, as doze políticas, transportadora, ocorrência e
   expiração.
 
-## 10. Limites conhecidos
+## 10. Defeitos corrigidos na revisão de tela
+
+O typecheck e o build não_foundam nada nesta rodada, porque os defeitos abaixo só existem contra o
+banco: campos lidos pela tela que o retorno da RPC não traz, ou trazem com outro nome ou em outro
+nível. Nenhum deles falharia em teste de unidade — aparecia como "—" na tela.
+
+| Defeito | Efeito na tela | Correção |
+| --- | --- | --- |
+| `Table` aplicava `render` a **todas** as colunas da linha | reservas mostravam o rótulo de situação no SKU, no local e na quantidade; devoluções mostravam a destinação no SKU e nas quantidades | `render` virou mapa por chave de coluna; cada coluna sem entrada usa o valor cru |
+| Cartão de crédito lia `credit_limit`, `used_amount`, `available_amount` e `decision` no nível da linha | três campos em branco e uma coluna "decisão" que o servidor nunca devolve | achatado `position`, com os nomes reais `credit_limit`, `open_amount`, `credit_available`, `overdue_amount`; a decisão não é mostrada porque quem bloqueia é o servidor, na aprovação |
+| Movimentos de estoque liam `sku_snapshot` e `created_at` | SKU em branco; `inventory_movements` não tem `sku_snapshot` | passam a mostrar `movement_type`, `direction` e `occurred_at`, com o rótulo de movimento reaproveitado do inventário |
+| Histórico lia `action` e `new_status` | duas colunas em branco; `sales_order_status_history` guarda só `previous_status`, autor e data | passa a mostrar data, autor e estado anterior |
+| Disponibilidade mostrava uma coluna "Reservado" por item | coluna em branco; `sales_availability` devolve `available` e `on_hand`, e a reserva por item não vem no resultado | removida a coluna; a quantidade necessária, que o servidor devolve, passou a ser exibida |
+
+Duas seções de leitura foram adicionadas com dados que `sales_order_detail` já devolvia e a tela não
+mostrava: **embalagens registradas** (`packings`) e **provas de entrega** (`delivery_proofs`), além
+de **ocorrências do pedido** e da **proposta de origem**. Sem elas, o registro do que foi embalado e
+de quem recebeu a mercadoria só existia no instante da ação — que é justamente quando deixa de
+servir de evidência.
+
+Para que essa classe de defeito não dependa de revisão manual, `src/lib/sales/constants.test.ts` compara
+a tela com a migration: as doze chaves de `sales_order_settings`, os valores aceitos por
+`sales_settings_save` e a tradução de todo código de ocorrência, prova, modalidade, destinação e
+status. O teste foi verificado contra três defeitos injetados de propósito — um valor que o servidor
+rejeita, um valor sem tradução e um código que o banco nunca produz — e falhou nos três.
+
+## 11. Limites conhecidos
 
 A cobertura é banco real isolado, testes unitários e verificação de build. Não houve navegação em
 navegador autenticado, o que deixa sem verificação prática o agrupamento dos campos nas telas, o
 comportamento do seletor com muitas opções e a leitura de erro do gateway na interface. Nenhuma
-migration foi aplicada no banco de destino. O repositório já continha cerca de 12 mil problemas de
+migration foi aplicada no banco de destino. A busca de propostas no seletor de referência usa
+`crm_query` e não filtra por número de proposta. O repositório já continha cerca de 12 mil problemas de
 formatação do Prettier em módulos de outros masters, fora do escopo desta revisão; os arquivos de
 vendas estão limpos.
