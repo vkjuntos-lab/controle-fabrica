@@ -967,10 +967,16 @@ GRANT EXECUTE ON FUNCTION public.fiscal_simulate(uuid,uuid,uuid,uuid,text,jsonb,
 -- ---------------------------------------------------------------------
 -- 12. Permissões do módulo.
 --
---     Leitura e consulta de configuração para quem precisa enxergar o
---     resultado; escrita de regra separada de aprovação, porque quem
---     cadastra alíquota não pode ser quem a libera.
+--     Papel novo: 'fiscal' é quem emite e transmite documento. Não é o
+--     mesmo papel de 'financeiro', que concilia. Confundir os dois é o
+--     que permite quem传输 document também apagar a própria divergência.
+--
+--     Nota de execução: o ADD VALUE precisa estar em autocommit para
+--     que o INSERT de permissões abaixo já veja o valor novo. Por isso
+--     ele fica como statement solto, fora de BEGIN.
 -- ---------------------------------------------------------------------
+ALTER TYPE public.app_role ADD VALUE IF NOT EXISTS 'fiscal';
+
 INSERT INTO public.role_permissions(role,permission)
 SELECT r,p FROM unnest(ARRAY['admin','gestor']::public.app_role[]) r CROSS JOIN unnest(ARRAY[
   'fiscal.read','fiscal.dashboard','fiscal.simulate','fiscal.configure',
