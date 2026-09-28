@@ -948,6 +948,10 @@ GRANT EXECUTE ON FUNCTION public.fiscal_simulate(uuid,uuid,uuid,uuid,text,jsonb,
 GRANT EXECUTE ON FUNCTION public.fiscal_rule_action(uuid,uuid,text,text,jsonb) TO authenticated,service_role;
 GRANT EXECUTE ON FUNCTION public.fiscal_profile_action(uuid,text,uuid,text,text) TO authenticated,service_role;
 GRANT EXECUTE ON FUNCTION public.fiscal_save_establishment(uuid,jsonb,uuid) TO authenticated,service_role;
+GRANT EXECUTE ON FUNCTION public.fiscal_save_tax(uuid,jsonb,uuid) TO authenticated,service_role;
+GRANT EXECUTE ON FUNCTION public.fiscal_save_operation(uuid,jsonb,uuid) TO authenticated,service_role;
+GRANT EXECUTE ON FUNCTION public.fiscal_save_nature(uuid,jsonb,uuid) TO authenticated,service_role;
+GRANT EXECUTE ON FUNCTION public.fiscal_save_layout(uuid,jsonb,uuid) TO authenticated,service_role;
 GRANT EXECUTE ON FUNCTION public.fiscal_save_regime(uuid,jsonb,uuid) TO authenticated,service_role;
 GRANT EXECUTE ON FUNCTION public.fiscal_save_rule(uuid,jsonb,uuid) TO authenticated,service_role;
 GRANT EXECUTE ON FUNCTION public.fiscal_save_product_profile(uuid,jsonb,uuid) TO authenticated,service_role;

@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -rn \"77\\|7 arquivos\\|7 arquivos\\|sete arquivos\" docs/handoff/MASTER-013-VALIDATION.md docs/handoff/PROJECT-STATE.md | head",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790621463587
-  },
-  {
-    "role": "tool_result",
-    "content": "docs/handoff/MASTER-013-VALIDATION.md:91:| Testes críticos | IMPLEMENTED | 32 grupos PostgreSQL (A–AF) e 77 testes Vitest |\ndocs/handoff/MASTER-013-VALIDATION.md:170:| `npm test` | 77 testes, 7 arquivos, todos passando |\ndocs/handoff/PROJECT-STATE.md:36:Validação local: 32 grupos PostgreSQL (A–AF), ",
-    "is_error": false,
-    "timestamp": 1790621463612
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md",
@@ -1635,5 +1620,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790622658616
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261013200000_fiscal_tax_engine.sql",
+      "newString": "GRANT EXECUTE ON FUNCTION public.fiscal_save_establishment(uuid,jsonb,uuid) TO authenticated,service_role;\nGRANT EXECUTE ON FUNCTION public.fiscal_save_tax(uuid,jsonb,uuid) TO authenticated,service_role;\nGRANT EXECUTE ON FUNCTION public.fiscal_save_operation(uuid,jsonb,uuid) TO authenticated,service_role;\nGRANT EXECUTE ON FUNCTION public.fiscal_save_nature(uuid,jsonb,uuid) TO authenticated,service_role;\nGRANT EXECUTE ON FUNCTION public.fiscal_save_layout(uuid,jsonb,uuid) TO authenticated,service_role;",
+      "oldString": "GRANT EXECUTE ON FUNCTION public.fiscal_save_establishment(uuid,jsonb,uuid) TO authenticated,service_role;"
+    },
+    "timestamp": 1790622662129
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790622662155
   }
 ]
