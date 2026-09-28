@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"vendas\\|Vendas\\|comercial\" src/components/layout/app-shell.tsx | head -30"
-    },
-    "timestamp": 1790618189144
-  },
-  {
-    "role": "tool_result",
-    "content": "60:  { label: \"Vendas e logística\", to: \"/vendas\", icon: ShoppingCart, permission: \"sales_orders.read\" },\n61:  { label: \"Comercial\", to: \"/comercial\", icon: Users, permission: PERMISSIONS.crmRead },\n",
-    "is_error": false,
-    "timestamp": 1790618189174
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"import\\|PERMISSION\\|categ\\|group\" src/routes/_authenticated/admin.permissoes.tsx | head -30"
     },
     "timestamp": 1790618191905
@@ -1515,5 +1501,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790618757748
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "import { useEffect, useState } from \"react\";\nimport { useQuery } from \"@tanstack/react-query\";\nimport { useServerFn } from \"@tanstack/react-start\";\n\nimport { queryCrm } from \"@/lib/crm/crm.functions\";\nimport { Button } from \"@/components/ui/button\";\nimport { Input } from \"@/components/ui/input\";\nimport { Label } from \"@/components/ui/label\";\nimport { LoadingState } from \"@/components/states\";\nimport { PICKER_LABEL, text, type PickerKind, type Row } from \"@/components/sales/shared\";\n\n/**\n * Seletor de referência das telas de vendas.\n *\n * Consulta `crm_query` — a mesma fonte do CRM, respeitando `organization_id` e\n * a permissão de leitura do kind — e mostra o texto de cada tipo corretamente.\n * O `Picker` do CRM não serve aqui: uma proposta tem `quote_number` e\n * `version`, e não tem `name`, `legal_name` nem `sku`; sem rótulo próprio o\n * usuário veria uma lista de \"—\" indistinguíveis e não saberia o que está\n * escolhendo.\n */\nexport function ReferencePicker({\n  organizationId,\n  kind,\n  value,\n  onChange,\n  label,\n  required,\n  disabled,\n  emptyHint,\n}: {\n  organizationId: string;\n  kind: PickerKind;\n  value: string;\n  onChange: (value: string) => void;\n  label: string;\n  required?: boolean;\n  disabled?: boolean;\n  emptyHint?: string;\n}) {\n  const api = useServerFn(queryCrm);\n  const [term, setTerm] = useState(\"\");\n  const [page, setPage] = useState(1);\n\n  useEffect(() => setPage(1), [term]);\n\n  const options = useQuery({\n    queryKey: [\"sales\", organizationId, \"picker\", kind, term, page],\n    queryFn: async () => {\n      const response = await api({\n        data: { organizationId, kind, filters: term ? { q: term } : {}, page },\n      });\n      return { rows: (response.rows ?? []) as Row[], total: Number(response.total ?? 0) };\n    },\n    enabled: Boolean(organizationId) && !disabled,\n  });\n\n  const describe = PICKER_LABEL[kind];\n  const options_ = options.data?.rows ?? [];\n  const selected = options_.find((row) => text(row.id) === value);\n  const total = options.data?.total ?? 0;\n  const pages = Math.max(1, Math.ceil(total / 50));\n\n  return (\n    <div className=\"space-y-1\">\n      <Label>{label}</Label>\n      <Input\n        placeholder=\"Buscar\"\n        aria-label={`${label}: buscar`}\n        value={term}\n        onChange={(event) => setTerm(event.target.value)}\n        disabled={disabled}\n      />\n      <div className=\"max-h-64 overflow-y-auto rounded-md border\" role=\"listbox\" aria-label={label}>\n        {options.isPending ? (\n          <LoadingState rows={2} label=\"Carregando opções\" />\n        ) : options_.length === 0 ? (\n          <p className=\"p-3 text-sm text-muted-foreground\">\n            {emptyHint ?? `Nenhum registro encontrado para \"${term}\".`}\n          </p>\n        ) : (\n          options_.map((row) => {\n            const id = text(row.id);\n            const active = id === value;\n            return (\n              <button\n                key={id}\n                type=\"button\"\n                role=\"option\"\n                aria-selected={active}\n                className={`block w-full truncate border-b px-3 py-2 text-left text-sm last:border-b-0 ${\n                  active ? \"bg-accent font-medium\" : \"hover:bg-muted\"\n                }`}\n                onClick={() => onChange(active && !required ? \"\" : id)}\n              >\n                {describe(row)}\n              </button>\n            );\n          })\n        )}\n      </div>\n      {value && !selected ? (\n        <p className=\"text-xs text-muted-foreground\">\n          Registro selecionado fora da busca atual: {describe({ id: value })}\n        </p>\n      ) : null}\n      {pages > 1 ? (\n        <div className=\"flex items-center gap-2\">\n          <Button\n            type=\"button\"\n            variant=\"outline\"\n            size=\"sm\"\n            disabled={page === 1}\n            onClick={() => setPage((current) => current - 1)}\n          >\n            Anterior\n          </Button>\n          <span className=\"text-xs text-muted-foreground\">\n            {page} / {pages}\n          </span>\n          <Button\n            type=\"button\"\n            variant=\"outline\"\n            size=\"sm\"\n            disabled={page >= pages}\n            onClick={() => setPage((current) => current + 1)}\n          >\n            Próxima\n          </Button>\n        </div>\n      ) : null}\n      {options.error ? (\n        <p role=\"alert\" className=\"text-sm text-destructive\">\n          {options.error.message}\n        </p>\n      ) : null}\n    </div>\n  );\n}\n",
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/reference-picker.tsx"
+    },
+    "timestamp": 1790618770321
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790618770327
   }
 ]
