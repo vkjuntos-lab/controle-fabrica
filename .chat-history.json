@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
-      "newString": "          render={{\n            movement_type: (row) => movementTypeLabel(row.movement_type as MovementType),\n            direction: (row) =>\n              str(row.direction) === \"IN\"\n                ? \"Entrada\"\n                : str(row.direction) === \"OUT\"\n                  ? \"Saída\"\n                  : str(row.direction) || \"—\",\n          }}\n        />\n      </Section>",
-      "oldString": "          render={(row) => (\n            <>\n              {movementTypeLabel(row.movement_type as MovementType)}\n              {str(row.direction) === \"IN\" ? \" (entrada)\" : str(row.direction) === \"OUT\" ? \" (saída)\" : \"\"}\n            </>\n          )}\n        />\n      </Section>"
-    },
-    "timestamp": 1790620898277
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790620898290
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -n \"^import\\|from \\\"@/lib/inventory\" src/components/sales/order-detail.tsx | head -20",
@@ -1587,5 +1571,20 @@
     "content": "118:CREATE OR REPLACE FUNCTION public.my_organizations()\n119-RETURNS TABLE (organization_id uuid, name text, slug text, role public.app_role)\n120-LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$\n121-  SELECT o.id, o.name, o.slug, m.role\n122-  FROM public.organizations o\n123-  JOIN",
     "is_error": false,
     "timestamp": 1790622180702
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -rn \"CREATE POLICY\" -A 2 supabase/migrations/20260924100000_partners.sql | head -12",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622184101
+  },
+  {
+    "role": "tool_result",
+    "content": "95:  EXECUTE format('CREATE POLICY tenant_read ON public.%I FOR SELECT TO authenticated USING(public.has_permission(organization_id,%L))',t,perm);\n96- END LOOP;\n97-END $$;\n--\n674:CREATE POLICY partner_documents_read ON storage.objects FOR SELECT TO authenticated USING(bucket_id='partner-documents' A",
+    "is_error": false,
+    "timestamp": 1790622184116
   }
 ]
