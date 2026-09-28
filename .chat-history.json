@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "for f in sales_dashboard sales_query; do echo \"=== $f: chaves de topo ===\"; awk \"/FUNCTION public.$f\\\\(/,/^\\\\\\$\\\\\\$/\" supabase/migrations/20261010100000_sales_integrity.sql | grep -oE \"^  '[a-z_]+',\" | tr -d \" ',\" | sort -u | tr '\\n' ' '; echo; done",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620533974
-  },
-  {
-    "role": "tool_result",
-    "content": "=== sales_dashboard: chaves de topo ===\n\n=== sales_query: chaves de topo ===\n\n",
-    "is_error": false,
-    "timestamp": 1790620534027
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -rn \"FUNCTION public.sales_dashboard\\|FUNCTION public.sales_query\" supabase/migrations/*.sql",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1539,5 +1524,21 @@
     "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ✓ src/lib/sales/constants.test.ts (10 tests) 16ms\n\n Test Files  1 passed (1)\n      Tests  10 passed (10)\n   Start at  18:48:03\n   Duration  335ms (transform 77ms, setup 0ms, collect 91ms, tests 16ms, environment 0ms, prepare 70ms)\n\n",
     "is_error": false,
     "timestamp": 1790621283912
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cp src/lib/sales/constants.ts /tmp/opencode/constants.bak\n# 1) código órfão no mapa\nperl -0pi -e \"s/  CUSTOMER_REFUSAL: \\\"Recusa do cliente\\\",/  CUSTOMER_REFUSAL: \\\"Recusa do cliente\\\",\\n  BOGUS_CODE: \\\"Inventado\\\",/\" src/lib/sales/constants.ts\n# 2) política com valor que o servidor rejeita\nperl -0pi -e 's/options: \\[\"MANUAL\", \"WEBHOOK\"\\]/options: [\"MANUAL\", \"WEBHOOK\", \"DRONE\"]/' src/lib/sales/constants.ts\nnpx vitest run src/lib/sales/constants.test.ts 2>&1 | grep -E \"✓|×|FAIL|Tests |BOGUS_CODE|DRONE|exception_type|tracking_mode\" | head -20",
+      "timeout": 180000,
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790621291012
+  },
+  {
+    "role": "tool_result",
+    "content": "   ✓ políticas editáveis na tela de configurações > cobre exatamente as doze políticas do banco 3ms\n   ✓ políticas editáveis na tela de configurações > sete chaves correspondem a colunas de sales_order_settings 1ms\n   × políticas editáveis na tela de configurações > oferece exatamente os valores que",
+    "is_error": false,
+    "timestamp": 1790621292350
   }
 ]
