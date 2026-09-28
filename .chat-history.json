@@ -1,35 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"rg --files src scripts docs | rg -i 'sales|order|pedido|expedi|reservation|picking|013'; head -n 28 supabase/migrations/20261006100000_sales_orders.sql; tail -n 45 supabase/migrations/20261006100000_sales_orders.sql; rg -n 'sales_|shipment|orders|pedidos|expedicao' package.json src/integrations/supabase/types.ts src/components/layout/app-shell.tsx | head -n 35; rg -n '\"'^CREATE (OR REPLACE )?FUNCTION'\"' supabase/migrations/20261006100000_sales_orders.sql | tail -n 15; rg -n '20261006100000_sales_orders|sales_orders' scripts\""
-    },
-    "timestamp": 1790587448095
-  },
-  {
-    "role": "tool_result",
-    "content": "scripts/_check-sales-migration.py\nscripts/_probe-sales.py\nscripts/test-sales-db.py\nsrc/routes/_authenticated/compras/pedidos.$id.tsx\nsrc/routes/_authenticated/compras/pedidos.tsx\ndocs/business/SALES-QUOTES.md\ndocs/business/SALES-PIPELINE.md\ndocs/business/SALES-REPRESENTATIVES.md\n-- MASTER 013: Pedid",
-    "is_error": false,
-    "timestamp": 1790587448101
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc 'python3 scripts/test-sales-db.py > .git/master-013-audit.log 2>&1'"
-    },
-    "timestamp": 1790587460520
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"rg -n -i 'sales_order|sales_query|sales_dashboard|sales_shipment|picking_order|reservations\\\\.' src | head -n 35; tail -n 8 supabase/migrations/20261006100000_sales_orders.sql; ls docs/handoff; head -n 15 scripts/test-sales-db.py\""
-    },
-    "timestamp": 1790587461586
-  },
-  {
     "role": "tool_result",
     "content": "$$;\nGRANT EXECUTE ON FUNCTION public.sales_expire_reservations(uuid,jsonb) TO authenticated,service_role;\n\n-- =====================================================================\n-- 21. Fim da migration.\n-- =====================================================================\nCOMMIT;\n\nMASTER-003-VA",
     "is_error": false,
@@ -1416,5 +1386,33 @@
     "content": "============================== LINHA 88 ==============================\n return <><Button onClick={()=>setOpen(true)}>Novo pedido / proposta aceita</Button><Dialog open={open} onOpenChange={setOpen}><DialogContent className=\"max-h-[90vh] overflow-y-auto\"><DialogHeader><DialogTitle>Novo pedido</Dialog",
     "is_error": false,
     "timestamp": 1790618207846
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -rn \"FUNCTION public.sales_execute\\|FUNCTION public.sales_dashboard\\|FUNCTION public.sales_query\\|FUNCTION public.sales_order_detail\\|FUNCTION public.sales_save\\|FUNCTION public.sales_order_action\" supabase/migrations/*.sql"
+    },
+    "timestamp": 1790618222142
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20261006100000_sales_orders.sql:1185:CREATE FUNCTION public.sales_save(_org uuid,_data jsonb) RETURNS jsonb\nsupabase/migrations/20261006100000_sales_orders.sql:1496:CREATE FUNCTION public.sales_order_action(_org uuid,_order uuid,_action text,_data jsonb DEFAULT '{}')\nsupabase/mig",
+    "is_error": false,
+    "timestamp": 1790618222154
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -rn \"sales_execute\\|sales_dashboard\" supabase/migrations/*.sql | head -20"
+    },
+    "timestamp": 1790618222331
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20261006100000_sales_orders.sql:3399:CREATE FUNCTION public.sales_dashboard(_org uuid,_filters jsonb DEFAULT '{}')\nsupabase/migrations/20261006100000_sales_orders.sql:3698:GRANT EXECUTE ON FUNCTION public.sales_dashboard(uuid,jsonb) TO authenticated,service_role;\nsupabase/migrati",
+    "is_error": false,
+    "timestamp": 1790618222373
   }
 ]
