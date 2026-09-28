@@ -1,17 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/action.tsx</path>\n<type>file</type>\n<content>\n1: import { useState } from \"react\";\n2: import { toast } from \"sonner\";\n3: \n4: import { Button } from \"@/components/ui/button\";\n5: import { Input } from \"@/components/ui/input\";\n6: impo",
-    "is_error": false,
-    "timestamp": 1790619016653
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/new-order.tsx</path>\n<type>file</type>\n<content>\n1: import { useState } from \"react\";\n2: import { useNavigate } from \"@tanstack/react-router\";\n3: import { toast } from \"sonner\";\n4: \n5: import { Button } from \"@/components/ui/button",
-    "is_error": false,
-    "timestamp": 1790619016660
-  },
-  {
     "role": "tool",
     "tool": "edit",
     "input": {
@@ -1554,5 +1542,20 @@
     "content": "public.carriers public.customer_return_items public.customer_returns public.fulfillment_orders public.inventory_reservations public.logistics_exceptions public.packing_record_items public.packing_records public.packing_record_volumes public.picking_task_items public.picking_tasks public.sales_credit",
     "is_error": false,
     "timestamp": 1790620157463
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -ohE \"FUNCTION public\\.sales_[a-z_]+\" supabase/migrations/*.sql | awk '{print $NF}' | sort -u | wc -l; echo \"--- lista sem grant (15 internas) ---\"; grep -oE \"IF p.proname=ANY\\(ARRAY\\[[^]]*\\]\" supabase/migrations/20261010100000_sales_integrity.sql | head -c 600",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620160356
+  },
+  {
+    "role": "tool_result",
+    "content": "45\n--- lista sem grant (15 internas) ---\n",
+    "is_error": false,
+    "timestamp": 1790620160416
   }
 ]
