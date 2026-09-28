@@ -83,7 +83,7 @@ describe("constantes de vendas", () => {
 
   it("tem ação declarada para todo status de pedido", () => {
     for (const status of Object.keys(ORDER_STATUS)) {
-      expect(ACTIONS[status], status).toBeDefined();
+      expect(ORDER_ACTIONS[status], status).toBeDefined();
     }
   });
 
