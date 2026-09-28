@@ -83,11 +83,11 @@ central era tratar esses efeitos como um só e prometer um faturamento que o sis
 
 ## Limites
 
-Sem NF-e, sem integração fiscal e sem传输 de transportadora externa. A expedição registra código de
-rastreio informado; nenhum serviço externo é simulado como envio real. A reserva expira por
-chamada — não há job de expiração automática em background. Peso e dimensão são os medidos e
+Sem NF-e, sem integração fiscal e sem transporte de transportadora externa. A expedição registra
+código de rastreio informado; nenhum serviço externo é simulado como envio real. A reserva expira
+por chamada — não há job de expiração automática em background. Peso e dimensão são os medidos e
 registrados; o sistema nunca os estima. A empresa do cliente fica presa à organização (grupo W), mas
-não há múltiplos centros de custo por pedido. Screen de vendas não tem testes de navegador
+não há múltiplos centros de custo por pedido. A tela de vendas não tem testes de navegador
 autenticado: a cobertura é banco real isolado, Vitest e verificação de build.
 
 Evidências: `scripts/test-sales-db.py` (32 grupos, PostgreSQL descartável),
