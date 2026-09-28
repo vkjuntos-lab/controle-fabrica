@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261010100000_sales_integrity.sql').read_text()\nt+=Path('supabase/migrations/20261006100000_sales_orders.sql').read_text()\nfor fn in ['sales_reserve','sales_fulfillment_create','sales_pick_scan','sales_pick_confirm','sales_pack','sales_shipment_create','sales_return_create','sales_carrier_save','sales_settings_save','sales_expire_reservations','sales_fulfillment_action','sales_shipment_action']:\n    ms=list(re.finditer(r'CREATE(?: OR REPLACE)? FUNCTION public\\.'+fn+r'\\(.*?\\n\\$\\$;', t, re.S))\n    if not ms: continue\n    body=ms[-1].group(0)\n    print(fn, '->', sorted(set(re.findall(r\"_data->>'([a-z_]+)'\", body))))\nPY"
-    },
-    "timestamp": 1790618366400
-  },
-  {
-    "role": "tool_result",
-    "content": "sales_reserve -> ['expires_hours', 'idempotency_key', 'source_location_id']\nsales_fulfillment_create -> ['assigned_user_id', 'planned_date', 'priority', 'source_location_id']\nsales_pick_scan -> ['code', 'quantity']\nsales_pick_confirm -> []\nsales_pack -> ['gross_weight_kg', 'height_cm', 'length_cm', ",
-    "is_error": false,
-    "timestamp": 1790618366450
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261010100000_sales_integrity.sql').read_text()\nt+=Path('supabase/migrations/20261006100000_sales_orders.sql').read_text()\nb=list(re.finditer(r'CREATE(?: OR REPLACE)? FUNCTION public\\.sales_settings_save\\(.*?\\n\\$\\$;', t, re.S))[-1].group(0)\nprint(b)\nPY"
     },
     "timestamp": 1790618372871
@@ -1512,5 +1498,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790619127150
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/workspace.tsx",
+      "newString": "import { numeric, rows, text, useSalesList } from \"@/components/sales/shared\";",
+      "oldString": "import { object, rows, text, useSalesList, numeric } from \"@/components/sales/shared\";"
+    },
+    "timestamp": 1790619130100
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790619130110
   }
 ]

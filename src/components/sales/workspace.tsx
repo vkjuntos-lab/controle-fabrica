@@ -10,7 +10,7 @@ import { RecordCards, SalesArea, SalesCredits, SalesDashboard, AREAS, type Area 
 import { OrderDetail } from "@/components/sales/order-detail";
 import { SalesSettings } from "@/components/sales/settings";
 import { NewOrder } from "@/components/sales/new-order";
-import { object, rows, text, useSalesList, numeric } from "@/components/sales/shared";
+import { numeric, rows, text, useSalesList } from "@/components/sales/shared";
 import { EmptyState } from "@/components/states";
 
 /**
