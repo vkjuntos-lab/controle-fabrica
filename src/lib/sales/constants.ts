@@ -273,6 +273,9 @@ export const MONEY_COLUMNS = [
   "discount_total",
   "freight_amount",
   "tax_amount",
+  "credit_limit",
+  "credit_available",
+  "overdue_amount",
 ] as const;
 
 export const label = (map: Record<string, string>, value: unknown): string => {
