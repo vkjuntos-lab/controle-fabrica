@@ -83,15 +83,20 @@ export function ReferencePicker({
   const pages = Math.max(1, Math.ceil(total / 50));
 
   return (
-    <div className="space-y-1">
-      <Label>{label}</Label>
-      <Input
-        placeholder="Buscar"
-        aria-label={`${label}: buscar`}
-        value={term}
-        onChange={(event) => setTerm(event.target.value)}
-        disabled={disabled}
-      />
+      <div className="space-y-1">
+        <Label>{label}</Label>
+        {value && currentLabel ? (
+          <p className="text-sm">
+            Selecionado: <span className="font-medium">{currentLabel}</span>
+          </p>
+        ) : null}
+        <Input
+          placeholder="Buscar"
+          aria-label={`${label}: buscar`}
+          value={term}
+          onChange={(event) => setTerm(event.target.value)}
+          disabled={disabled}
+        />
       <div className="max-h-64 overflow-y-auto rounded-md border" role="listbox" aria-label={label}>
         {options.isPending ? (
           <LoadingState rows={2} label="Carregando opções" />
