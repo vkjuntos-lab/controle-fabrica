@@ -126,7 +126,6 @@ export const EXCEPTION_TYPE: Record<string, string> = {
   DELIVERY_FAILURE: "Falha na entrega",
   DAMAGED_GOODS: "Mercadoria avariada",
   CUSTOMER_REFUSAL: "Recusa do cliente",
-  BOGUS_CODE: "Inventado",
 };
 
 /** `shipment_delivery_proofs.proof_type`. `PHOTO` existe no banco, mas o
@@ -249,7 +248,7 @@ export const SETTING_OPTIONS = {
   },
   tracking_mode: {
     label: "Rastreamento",
-    options: ["MANUAL", "WEBHOOK", "DRONE"],
+    options: ["MANUAL", "WEBHOOK"],
     labels: { MANUAL: "Manual", WEBHOOK: "Integrado com a transportadora" },
     hint: "Nenhum provedor externo está conectado; o modo integrado ainda exige configuração.",
   },
