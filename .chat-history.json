@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
-      "newString": "      <Section\n        title=\"Movimentos oficiais de estoque\"\n        description=\"Derivados do ledger; nunca editados. Um movimento por vez: expedir e devolver geram os seus.\"\n      >\n        <Table\n          data={rows(data.movements)}\n          columns={[\n            [\"occurred_at\", \"Data\"],\n            [\"movement_type\", \"Tipo\"],\n            [\"direction\", \"Direção\"],\n            [\"quantity\", \"Quantidade\"],\n            [\"status\", \"Situação\"],\n          ]}\n          render={(row) => (\n            <>\n              {movementTypeLabel(row.movement_type as MovementType)}\n              {str(row.direction) === \"IN\" ? \" (entrada)\" : str(row.direction) === \"OUT\" ? \" (saída)\" : \"\"}\n            </>\n          )}\n        />\n      </Section>\n\n      <Section title=\"Histórico\" description=\"Transições registradas pelo servidor.\">\n        {/* A tabela de histórico guarda o estado anterior, o autor e a data; o\n            estado seguinte é o anterior da linha seguinte. */}\n        <Table\n          data={rows(data.history)}\n          columns={[\n            [\"created_at\", \"Data\"],\n            [\"created_by\", \"Autor\"],\n            [\"previous_status\", \"Estado anterior\"],\n          ]}\n        />\n      </Section>",
-      "oldString": "      <Section\n        title=\"Movimentos oficiais de estoque\"\n        description=\"Derivados do ledger; nunca editados.\"\n      >\n        <Table\n          data={rows(data.movements)}\n          columns={[\n            [\"created_at\", \"Data\"],\n            [\"sku_snapshot\", \"SKU\"],\n            [\"quantity\", \"Quantidade\"],\n            [\"status\", \"Situação\"],\n          ]}\n        />\n      </Section>\n\n      <Section title=\"Histórico\" description=\"Transições registradas pelo servidor.\">\n        <Table\n          data={rows(data.history)}\n          columns={[\n            [\"created_at\", \"Data\"],\n            [\"action\", \"Ação\"],\n            [\"previous_status\", \"Anterior\"],\n            [\"new_status\", \"Novo\"],\n          ]}\n        />\n      </Section>"
-    },
-    "timestamp": 1790620839434
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790620839447
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -rn \"function Table\" -A 40 src/components/sales/shared.tsx | head -50",
@@ -1594,5 +1578,20 @@
     "content": "=== companies tem own_company / emissor? ===\n=== como a org guarda a propria identidade fiscal? ===\n22:  document text,\n",
     "is_error": false,
     "timestamp": 1790622074773
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "awk \"/CREATE TABLE.*public.organizations \\(/,/^\\);/\" supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql | sed 's/^ *//' | head -20; echo \"=== ALTER organizations depois ===\"; grep -rn \"ALTER TABLE public.organizations\" supabase/migrations/*.sql | grep -i \"add column\" | head -10",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622077978
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE TABLE public.organizations (\nid uuid PRIMARY KEY DEFAULT gen_random_uuid(),\nname text NOT NULL,\nslug text NOT NULL UNIQUE,\ndocument text,\ncreated_by uuid NOT NULL DEFAULT auth.uid(),\ncreated_at timestamptz NOT NULL DEFAULT now(),\nupdated_at timestamptz NOT NULL DEFAULT now()\n);\n=== ALTER orga",
+    "is_error": false,
+    "timestamp": 1790622078042
   }
 ]
