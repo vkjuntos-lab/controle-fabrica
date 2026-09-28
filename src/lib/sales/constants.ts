@@ -113,6 +113,31 @@ export const EXCEPTION_STATUS: Record<string, string> = {
   IGNORED: "Ignorada",
 };
 
+/** `logistics_exceptions.exception_type`, como o `CHECK` da tabela define. */
+export const EXCEPTION_TYPE: Record<string, string> = {
+  INSUFFICIENT_STOCK: "Estoque insuficiente",
+  RESERVATION_CONFLICT: "Conflito de reserva",
+  INVALID_SKU: "SKU inválido",
+  WRONG_BATCH: "Lote errado",
+  PICKING_DIFFERENCE: "Divergência na separação",
+  PACKING_DIFFERENCE: "Divergência na embalagem",
+  SHIPMENT_DUPLICATE: "Expedição duplicada",
+  DELIVERY_DELAY: "Atraso na entrega",
+  DELIVERY_FAILURE: "Falha na entrega",
+  DAMAGED_GOODS: "Mercadoria avariada",
+  CUSTOMER_REFUSAL: "Recusa do cliente",
+};
+
+/** `shipment_delivery_proofs.proof_type`. `PHOTO` existe no banco, mas o
+ *  registro de evidência é feito por texto: não há upload de arquivo. */
+export const PROOF_TYPE: Record<string, string> = {
+  RECEIPT: "Recibo",
+  SIGNATURE: "Assinatura",
+  DOCUMENT: "Documento",
+  PHOTO: "Foto",
+  NOTE: "Observação",
+};
+
 export const CARRIER_MODALITY: Record<string, string> = {
   ROAD: "Rodoviário",
   AIR: "Aéreo",

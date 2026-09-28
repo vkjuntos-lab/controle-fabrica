@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sed -n '245,330p' src/components/crm/shared.tsx",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790619627815
-  },
-  {
-    "role": "tool_result",
-    "content": "export function Picker({\n  org,\n  kind,\n  value,\n  onChange,\n  label,\n  id,\n}: {\n  org: string;\n  kind: string;\n  value: string;\n  onChange: (value: string) => void;\n  label?: string;\n  id?: string;\n}) {\n  const api = useServerFn(queryCrm);\n  const [term, setTerm] = useState(\"\");\n  const [page, setP",
-    "is_error": false,
-    "timestamp": 1790619627829
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"kind\\|filters\\|z.enum\" src/lib/crm/crm.functions.ts | head -20; echo \"=== crm_query kinds no banco ===\"; grep -n \"WHEN 'quotes'\\|WHEN 'companies'\\|WHEN 'variants'\\|WHEN 'price_tables'\" supabase/migrations/20261005100000_crm.sql | head",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1537,5 +1522,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/lib/sales/constants.ts</path>\n<type>file</type>\n<content>\n100: };\n101: \n102: export const EXCEPTION_SEVERITY: Record<string, string> = {\n103:   INFO: \"Informativa\",\n104:   WARNING: \"Atenção\",\n105:   ERROR: \"Erro\",\n106:   BLOCKING: \"Bloqueante\",\n107",
     "is_error": false,
     "timestamp": 1790620779364
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/sales/constants.ts",
+      "newString": "export const EXCEPTION_STATUS: Record<string, string> = {\n  OPEN: \"Aberta\",\n  IN_REVIEW: \"Em análise\",\n  RESOLVED: \"Resolvida\",\n  IGNORED: \"Ignorada\",\n};\n\n/** `logistics_exceptions.exception_type`, como o `CHECK` da tabela define. */\nexport const EXCEPTION_TYPE: Record<string, string> = {\n  INSUFFICIENT_STOCK: \"Estoque insuficiente\",\n  RESERVATION_CONFLICT: \"Conflito de reserva\",\n  INVALID_SKU: \"SKU inválido\",\n  WRONG_BATCH: \"Lote errado\",\n  PICKING_DIFFERENCE: \"Divergência na separação\",\n  PACKING_DIFFERENCE: \"Divergência na embalagem\",\n  SHIPMENT_DUPLICATE: \"Expedição duplicada\",\n  DELIVERY_DELAY: \"Atraso na entrega\",\n  DELIVERY_FAILURE: \"Falha na entrega\",\n  DAMAGED_GOODS: \"Mercadoria avariada\",\n  CUSTOMER_REFUSAL: \"Recusa do cliente\",\n};\n\n/** `shipment_delivery_proofs.proof_type`. `PHOTO` existe no banco, mas o\n *  registro de evidência é feito por texto: não há upload de arquivo. */\nexport const PROOF_TYPE: Record<string, string> = {\n  RECEIPT: \"Recibo\",\n  SIGNATURE: \"Assinatura\",\n  DOCUMENT: \"Documento\",\n  PHOTO: \"Foto\",\n  NOTE: \"Observação\",\n};\n",
+      "oldString": "export const EXCEPTION_STATUS: Record<string, string> = {\n  OPEN: \"Aberta\",\n  IN_REVIEW: \"Em análise\",\n  RESOLVED: \"Resolvida\",\n  IGNORED: \"Ignorada\",\n};\n"
+    },
+    "timestamp": 1790620788307
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790620788327
   }
 ]
