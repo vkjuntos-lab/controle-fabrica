@@ -1,16 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "# Estado do projeto — handoff contínuo\n\n## Revisão de continuidade — 27/09/2026 (MASTER 012)\n\nCRM corrigido localmente sobre Company, contatos, preços, ledger, financeiro, planejamento e\neventos existentes. Estado integral: PARTIAL. Ainda há pendências de mesclagem,\ngovernança de dados e validação p",
-    "is_error": false,
-    "timestamp": 1790593979334
-  },
-  {
-    "role": "assistant",
-    "content": "Encontrei falhas além da interface: a conversão de proposta contém código de depuração e não preenche corretamente o pedido. Também há validações inconsistentes e consultas que misturam dados operacionais e financeiros. Vou corrigir esses pontos antes de conectar as telas.\n",
-    "timestamp": 1790593985031
-  },
-  {
     "role": "tool",
     "tool": "Bash",
     "input": {
@@ -1425,5 +1414,19 @@
     "content": "KIND: locations\nKIND: addresses\nKIND: orders\nKIND: exceptions\nKIND: shipments\nKIND: returns\nKIND: reservations\nKIND: fulfillment\nKIND: carriers\nKIND: credits\n---- detail keys ----\n['order', 'approval_policy', 'company', 'customer_profile', 'quote', 'id', 'number', 'version', 'status', 'representativ",
     "is_error": false,
     "timestamp": 1790618293790
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261010100000_sales_integrity.sql').read_text()\nd=re.search(r'CREATE OR REPLACE FUNCTION public\\.sales_order_detail\\(.*?\\n\\$\\$;', t, re.S).group(0)\ni=d.find(\"'actions'\")\nprint(d[max(0,i-3000):i+800])\nPY"
+    },
+    "timestamp": 1790618298188
+  },
+  {
+    "role": "tool_result",
+    "content": "(to_jsonb(f) ORDER BY f.created_at),'[]'::jsonb)\n     FROM public.fulfillment_orders f WHERE f.sales_order_id=o.id),\n  'picking_tasks',(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY t.created_at),'[]'::jsonb)\n     FROM public.picking_tasks t WHERE t.sales_order_id=o.id),\n  'picking_items',(SELECT c",
+    "is_error": false,
+    "timestamp": 1790618298229
   }
 ]
