@@ -400,7 +400,9 @@ def run():
  execute('order',cycle_id,'approve',{'reason':'Alcada do gestor'},user=approver)
  execute('reserve',cycle_id,'',{'source_location_id':warehouse},user=commercial)
  reservation=next(x for x in query('reservations',{'status':'ACTIVE'})['rows'] if x['sales_order_id']==cycle_id)
- fulfillment=execute('fulfillment_create',cycle_id,'',{'source_location_id':warehouse},user=picker)
+ fulfillment=execute('fulfillment_create',cycle_id,'',{'source_location_id':warehouse,
+  'items':[{'sales_order_item_id':x['id'],'quantity':x['approved_quantity']-x['fulfilled_quantity']}
+   for x in detail(cycle_id)['items']]},user=picker)
  state=detail(cycle_id);order_state=state['fulfillments'][0]
  task=next(t for t in state['picking_tasks'] if t['fulfillment_order_id']==order_state['id'])
  execute('fulfillment',order_state['id'],'start',{},user=picker)
