@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261009100000_crm_customer_history.sql').read_text()\ni=t.find('crm_query')\nb=t[i:]\n# procura bloco de kinds principais\nj=b.find(\"_kind='lead'\")\nprint(b[max(0,j-2000):j+300])\nPY"
-    },
-    "timestamp": 1790618320452
-  },
-  {
-    "role": "tool_result",
-    "content": "crm_query(_org uuid,_kind text,_filters jsonb DEFAULT '{}',_page integer DEFAULT 1,_export boolean DEFAULT false) RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE tab text; perm text; scope text; result jsonb; cnt integer; offst integer:=greatest(0,_page-1)*50; c\n",
-    "is_error": false,
-    "timestamp": 1790618320497
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261009100000_crm_customer_history.sql').read_text()\ni=t.find('crm_query')\nb=t[i:i+14000]\nm=re.search(r\"CASE\\s+_kind(.*?)END CASE\", b, re.S)\nprint(m.group(1)[:3000] if m else 'sem CASE')\nPY"
     },
     "timestamp": 1790618324115
@@ -1541,5 +1527,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790619071934
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/new-order.tsx",
+      "newString": "        onOpenChange={(next) => {\n          if (write.isPending) return;\n          if (next) setIncomplete(false);\n          setOpen(next);\n        }}",
+      "oldString": "        onOpenChange={(next) => {\n          if (write.isPending) return;\n          if (next) renew();\n          setOpen(next);\n        }}"
+    },
+    "timestamp": 1790619074287
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790619074298
   }
 ]

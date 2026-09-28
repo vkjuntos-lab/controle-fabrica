@@ -103,7 +103,7 @@ export function NewOrder({ organizationId }: { organizationId: string }) {
         open={open}
         onOpenChange={(next) => {
           if (write.isPending) return;
-          if (next) renew();
+          if (next) setIncomplete(false);
           setOpen(next);
         }}
       >
