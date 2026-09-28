@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -rn \"ncm\" supabase/migrations/*.sql | head -20",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790622008683
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20260706150230_5280fbec-723e-429d-8021-3f39cfaab1b7.sql:82:  ADD COLUMN IF NOT EXISTS ncm text,\nsupabase/migrations/20260917110000_catalog_mestre.sql:45:  ncm text,\nsupabase/migrations/20260928121500_ee2e153f-bc2a-4d10-ab0d-de9050371f43.sql:28:  ncm text,\n",
-    "is_error": false,
-    "timestamp": 1790622008702
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "for f in 20260917110000_catalog_mestre 20260928121500_ee2e153f-bc2a-4d10-ab0d-de9050371f43; do echo \"=== $f ===\"; grep -n \"ncm\" -B 12 supabase/migrations/$f.sql | grep -E \"CREATE TABLE|ADD COLUMN|ncm|UNIQUE|organization_id\" | head -12; done",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1576,5 +1561,20 @@
     "content": "2:PASS AG: simulacao sem classificacao vigente bloqueia e se declara nao autoritativa\n24:AssertionError: ERROR:  duplicate key value violates unique constraint \"product_fiscal_profiles_organization_id_product_variant_id__key\"\n=== msg ===\n24:AssertionError: ERROR:  duplicate key value violates unique",
     "is_error": false,
     "timestamp": 1790622865595
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"UNIQUE(organization_id,product_variant_id\" supabase/migrations/20261013100000_fiscal_core.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622869678
+  },
+  {
+    "role": "tool_result",
+    "content": "278:  UNIQUE(organization_id,product_variant_id,version),\n",
+    "is_error": false,
+    "timestamp": 1790622869688
   }
 ]
