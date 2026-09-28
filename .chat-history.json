@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"sales_receivable\\|receivable\" supabase/migrations/20261011100000_sales_planning.sql | head -8; echo \"=== customer_receivables table? ===\"; grep -rn \"CREATE TABLE.*receivable\" supabase/migrations/*.sql | head -5",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620042355
-  },
-  {
-    "role": "tool_result",
-    "content": "=== customer_receivables table? ===\nsupabase/migrations/20260704232506_78c7e9fa-44d3-4179-80f4-0d2c8e6ea2df.sql:124:CREATE TABLE IF NOT EXISTS public.accounts_receivable (\nsupabase/migrations/20260928100000_finance.sql:115:CREATE TABLE public.account_receivables (\nsupabase/migrations/20260928100000_",
-    "is_error": false,
-    "timestamp": 1790620042378
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"sales_create_receivables\" -A 20 supabase/migrations/20261010100000_sales_integrity.sql | grep -iE \"INSERT INTO|account_receivable|receivable\" | head -8",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1538,5 +1523,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790620884915
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
+      "newString": "          render={{ status: (row) => reservationStatusLabel(row.status) }}\n        />",
+      "oldString": "          render={(row) => reservationStatusLabel(row.status)}\n        />"
+    },
+    "timestamp": 1790620887616
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790620887633
   }
 ]

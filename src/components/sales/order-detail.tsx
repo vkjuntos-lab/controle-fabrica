@@ -152,7 +152,7 @@ export function OrderDetail({
             ["quantity", "Reservado"],
             ["status", "Situação"],
           ]}
-          render={(row) => reservationStatusLabel(row.status)}
+          render={{ status: (row) => reservationStatusLabel(row.status) }}
         />
       </Section>
 
