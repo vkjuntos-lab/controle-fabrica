@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "npm run typecheck 2>&1 | head -20; echo \"===LINT SALES===\"; npx eslint src/components/sales src/lib/sales 2>&1 | tail -20; echo \"===TEST===\"; npm test 2>&1 | tail -8",
-      "timeout": 300000,
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790619931031
-  },
-  {
-    "role": "tool_result",
-    "content": "\n> typecheck\n> tsc --noEmit\n\n===LINT SALES===\n  90:1  error  Delete `··`                           prettier/prettier\n  91:9  error  Delete `··`                           prettier/prettier\n  92:1  error  Delete `··`                           prettier/prettier\n  93:7  error  Delete `··`               ",
-    "is_error": false,
-    "timestamp": 1790619968328
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "npx eslint --fix src/components/sales src/lib/sales 2>&1 | tail -10; echo \"===VERIFICACAO===\"; npm run typecheck 2>&1 | head -10 && npx eslint src/components/sales src/lib/sales 2>&1 | tail -8",
       "timeout": 300000,
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
@@ -1537,5 +1521,20 @@
     "content": "=== inventory_movements ===\nid organization_id variant_id location_id batch_id movement_type direction quantity unit reference_type reference_id reason occurred_at created_at created_by status reversal_of_id reversed_by_id idempotency_key source external_reference id organization_id variant_id locat",
     "is_error": false,
     "timestamp": 1790620810558
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "echo \"=== ALTER em sales_order_status_history ===\"; grep -rn \"sales_order_status_history\" supabase/migrations/*.sql | grep -iE \"alter|add column\" | head; echo \"=== movement_type / direction ===\"; awk \"/CREATE TABLE.*public.inventory_movements \\(/,/^\\);/\" supabase/migrations/*.sql | grep -A 6 \"movement_type\\|direction\" | head -20",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620823316
+  },
+  {
+    "role": "tool_result",
+    "content": "=== ALTER em sales_order_status_history ===\nsupabase/migrations/20261006100000_sales_orders.sql:3499:ALTER TABLE public.sales_order_status_history ENABLE ROW LEVEL SECURITY;\n=== movement_type / direction ===\n  movement_type public.inventory_movement_type NOT NULL,\n  direction public.inventory_moveme",
+    "is_error": false,
+    "timestamp": 1790620823357
   }
 ]
