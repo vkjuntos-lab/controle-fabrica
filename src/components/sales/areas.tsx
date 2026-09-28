@@ -154,6 +154,10 @@ const COLUMN_LABELS: Record<string, string> = {
   name: "Nome",
   modality: "Modalidade",
   reason: "Motivo",
+  credit_limit: "Limite de crédito",
+  open_amount: "Valor em aberto",
+  credit_available: "Crédito disponível",
+  overdue_amount: "Valor vencido",
 };
 
 /** Cartão de uma linha de listagem, no formato usado pelas demais áreas. */
