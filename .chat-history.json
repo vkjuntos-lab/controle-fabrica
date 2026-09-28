@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"render={\" -A 1 src/components/sales/order-detail.tsx",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620860028
-  },
-  {
-    "role": "tool_result",
-    "content": "155:          render={(row) => reservationStatusLabel(row.status)}\n156-        />\n--\n179:          render={(row) => shipmentStatusLabel(row.status)}\n180-        >\n--\n230:          render={(row) => (\n231-            <>\n--\n715:                    render={(row) => returnDestinationLabel(row.destination",
-    "is_error": false,
-    "timestamp": 1790620860070
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
@@ -1593,5 +1578,20 @@
     "content": "=== padrão de sales_require / has_permission ===\n=== padrão de audit ===\n",
     "is_error": false,
     "timestamp": 1790622088433
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -rn \"FUNCTION public.sales_require\\|FUNCTION public.sales_audit\" supabase/migrations/*.sql; echo \"---\"; awk '/FUNCTION public.sales_require/,/\\$\\$/' supabase/migrations/20261006100000_sales_orders.sql | sed 's/^ *//' | head -12",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622093595
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20261006100000_sales_orders.sql:726:CREATE FUNCTION public.sales_require(_org uuid,_permission text) RETURNS void\nsupabase/migrations/20261006100000_sales_orders.sql:731:CREATE FUNCTION public.sales_audit(_org uuid,_action text,_table text,_id uuid,_context jsonb DEFAULT '{}') RE",
+    "is_error": false,
+    "timestamp": 1790622093616
   }
 ]
