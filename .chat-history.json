@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"hasPermission\" -A 20 src/lib/org/org-context.tsx | head -50"
-    },
-    "timestamp": 1790618181737
-  },
-  {
-    "role": "tool_result",
-    "content": "21:  hasPermission: (permission: string) => boolean;\n22-  isLoading: boolean;\n23-  error: Error | null;\n24-  refetch: () => void;\n25-};\n26-\n27-const OrgContext = createContext<OrgContextValue | null>(null);\n28-const STORAGE_KEY = \"estrategia.currentOrganizationId\";\n29-\n30-export function Organizatio",
-    "is_error": false,
-    "timestamp": 1790618181767
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"sales_orders\\.\\|reservations\\.\\|shipments\\.\\|fulfillment\\.\\|picking\\.\\|packing\\.\\|returns\\.\\|logistics\\.\\|carriers\\.\\|sales\\.configure\\|sales\\.dashboard\" supabase/migrations/20261006100000_sales_orders.sql | grep -i \"insert\\|permission\" | head -50"
     },
     "timestamp": 1790618185392
@@ -1513,5 +1499,20 @@
     "content": "accordion.tsx\nalert-dialog.tsx\nalert.tsx\naspect-ratio.tsx\navatar.tsx\nbadge.tsx\nbreadcrumb.tsx\nbutton.tsx\ncalendar.tsx\ncard.tsx\ncarousel.tsx\nchart.tsx\ncheckbox.tsx\ncollapsible.tsx\ncommand.tsx\ncontext-menu.tsx\ndialog.tsx\ndrawer.tsx\ndropdown-menu.tsx\nform.tsx\nhover-card.tsx\ninput-otp.tsx\ninput.tsx\nlabe",
     "is_error": false,
     "timestamp": 1790618724460
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "import { useCallback, useMemo, useState } from \"react\";\nimport { useQuery, useQueryClient } from \"@tanstack/react-query\";\nimport { useServerFn } from \"@tanstack/react-start\";\n\nimport { readSales, mutateSales, type SalesOperation } from \"@/lib/sales/sales.functions\";\nimport { MONEY_COLUMNS } from \"@/lib/sales/constants\";\nimport type { Json } from \"@/integrations/supabase/types\";\n\n/**\n * Infraestrutura de leitura e escrita das telas de Vendas.\n *\n * Toda leitura vai para `readSales` e toda escrita para `mutateSales`, que por\n * sua vez chamam as RPCs do banco. A invalidate é sempre do prefixo\n * `[\"sales\", org]`: nenhuma tela deste módulo lê de outra fonte.\n */\n\nexport type Row = Record<string, Json | undefined>;\n\nexport const rows = (value: unknown): Row[] => (Array.isArray(value) ? (value as Row[]) : []);\nexport const object = (value: unknown): Row =>\n  value && typeof value === \"object\" && !Array.isArray(value) ? (value as Row) : {};\nexport const text = (value: unknown): string =>\n  value === null || value === undefined ? \"\" : String(value);\nexport const numeric = (value: unknown): number => Number(value ?? 0);\nexport const truthy = (value: unknown): boolean => value === true || value === \"true\";\n\nexport const asJson = (value: Row): Record<string, Json> => value as Record<string, Json>;\n\n/** Monta a query de leitura de uma área do módulo. */\nexport function useSalesRead(\n  organizationId: string,\n  kind: string,\n  id?: string,\n  filters: Row = {},\n) {\n  const api = useServerFn(readSales);\n  const stable = useMemo(() => filters, [JSON.stringify(filters)]);\n  return useQuery({\n    queryKey: [\"sales\", organizationId, kind, id, stable],\n    queryFn: () =>\n      api({\n        data: {\n          organizationId,\n          kind: kind as never,\n          id,\n          filters: asJson(stable),\n        },\n      }),\n    enabled: Boolean(organizationId),\n  });\n}\n\n/**\n * Chave de idempotência por tentativa.\n *\n * O gateway recusa a mesma chave com conteúdo diferente, então a chave só pode\n * ser renovada quando a tentativa anterior terminou (sucesso ou erro) ou quando\n * o diálogo é fechado e recomeça. Uma falha do servidor não pode deixar a tela\n * presa com uma chave que o servidor já recusou.\n */\nexport function useIdempotencyKey() {\n  const [key, setKey] = useState(() => crypto.randomUUID());\n  const renew = useCallback(() => setKey(crypto.randomUUID()), []);\n  return { key, renew };\n}\n\nexport type MutationOptions = {\n  organizationId: string;\n  operation: SalesOperation;\n  id?: string;\n  action?: string;\n  /** Invalida também o CRM: proposta e cliente 360 compartilham os mesmos fatos. */\n  alsoCrm?: boolean;\n  onDone?: () => void;\n};\n\n/**\n * Escrita padronizada: envia, trata erro e renova a chave de idempotência.\n * Nenhuma tela monta a chamada de `mutateSales` por conta própria.\n */\nexport function useSalesWrite({\n  organizationId,\n  operation,\n  id,\n  action = \"\",\n  alsoCrm = false,\n  onDone,\n}: MutationOptions) {\n  const api = useServerFn(mutateSales);\n  const client = useQueryClient();\n  const { key, renew } = useIdempotencyKey();\n  return useMutation(api, { operation, id, action, key, organizationId, renew, invalidate: client, alsoCrm, onDone });\n}\n\n/** Chamada direta, para formulários que controlam o próprio envio. */\nexport function useSalesSubmit(organizationId: string, alsoCrm = false) {\n  const api = useServerFn(mutateSales);\n  const client = useQueryClient();\n  return useSubmitApi(api, organizationId, client, alsoCrm);\n}\n\nfunction useSubmitApi(\n  api: ReturnType<typeof useServerFn<typeof mutateSales>>,\n  organizationId: string,\n  client: ReturnType<typeof useQueryClient>,\n  alsoCrm: boolean,\n) {\n  return useCallback(\n    async (input: {\n      operation: SalesOperation;\n      id?: string;\n      action?: string;\n      values?: Record<string, Json>;\n      key: string;\n    }) => {\n      const response = await api({\n        data: {\n          organizationId,\n          operation: input.operation,\n          id: input.id,\n          action: input.action ?? \"\",\n          values: input.values ?? {},\n          key: input.key,\n        },\n      });\n      void client.invalidateQueries({ queryKey: [\"sales\", organizationId] });\n      if (alsoCrm) void client.invalidateQueries({ queryKey: [\"crm\", organizationId] });\n      return response;\n    },\n    [api, client, organizationId, alsoCrm],\n  );\n}\n\n/** Colunas que devem ser formatadas como dinheiro, independente da área. */\nexport const isMoneyColumn = (column: string): boolean =>\n  (MONEY_COLUMNS as readonly string[]).includes(column);\n\n/** Linhas e total de uma listagem, com os filtros que o servidor entende. */\nexport function useSalesList(\n  organizationId: string,\n  kind: string,\n  filters: Record<string, Json>,\n) {\n  const query = useSalesRead(organizationId, kind, undefined, filters);\n  const data = object(query.data);\n  return {\n    query,\n    rows: rows(data.rows),\n    total: numeric(data.total),\n    data,\n  };\n}\n",
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx"
+    },
+    "timestamp": 1790618736979
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790618736986
   }
 ]
