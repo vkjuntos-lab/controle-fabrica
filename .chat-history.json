@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "echo \"=== sales_execute: como o gateway valida operação ===\"; grep -n \"v_op IN\\|v_op\\s*=\" supabase/migrations/20261010100000_sales_integrity.sql | head -20",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790622058361
-  },
-  {
-    "role": "tool_result",
-    "content": "=== sales_execute: como o gateway valida operação ===\n",
-    "is_error": false,
-    "timestamp": 1790622058378
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"FUNCTION public.sales_execute\" supabase/migrations/20261010100000_sales_integrity.sql; awk '/FUNCTION public.sales_execute/,/^\\$\\$/' supabase/migrations/20261010100000_sales_integrity.sql | head -60",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1580,5 +1565,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790622923277
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabricas' && su claude-runner -c \"python3 scripts/test-fiscal-db.py > /tmp/opencode/fiscal15.log 2>&1; echo EXIT=\\$?\"; tail -14 /tmp/opencode/fiscal15.log",
+      "timeout": 500000
+    },
+    "timestamp": 1790622927054
+  },
+  {
+    "role": "tool_result",
+    "content": "EXIT=1\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py\", line 252, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py\", line 115, in run\n    db.call('fiscal_profile_action', args, ",
+    "is_error": false,
+    "timestamp": 1790622929592
   }
 ]
