@@ -216,27 +216,35 @@ export function OrderDetail({
 
       <Section
         title="Movimentos oficiais de estoque"
-        description="Derivados do ledger; nunca editados."
+        description="Derivados do ledger; nunca editados. Um movimento por vez: expedir e devolver geram os seus."
       >
         <Table
           data={rows(data.movements)}
           columns={[
-            ["created_at", "Data"],
-            ["sku_snapshot", "SKU"],
+            ["occurred_at", "Data"],
+            ["movement_type", "Tipo"],
+            ["direction", "Direção"],
             ["quantity", "Quantidade"],
             ["status", "Situação"],
           ]}
+          render={(row) => (
+            <>
+              {movementTypeLabel(row.movement_type as MovementType)}
+              {str(row.direction) === "IN" ? " (entrada)" : str(row.direction) === "OUT" ? " (saída)" : ""}
+            </>
+          )}
         />
       </Section>
 
       <Section title="Histórico" description="Transições registradas pelo servidor.">
+        {/* A tabela de histórico guarda o estado anterior, o autor e a data; o
+            estado seguinte é o anterior da linha seguinte. */}
         <Table
           data={rows(data.history)}
           columns={[
             ["created_at", "Data"],
-            ["action", "Ação"],
-            ["previous_status", "Anterior"],
-            ["new_status", "Novo"],
+            ["created_by", "Autor"],
+            ["previous_status", "Estado anterior"],
           ]}
         />
       </Section>

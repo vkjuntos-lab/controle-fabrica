@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "head -60 docs/handoff/MASTER-012-VALIDATION.md; echo \"=========== ADR-010 head ===========\"; head -45 docs/architecture/ADR-010-CRM.md",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620014886
-  },
-  {
-    "role": "tool_result",
-    "content": "# MASTER 012 — Relatório de validação\nRevisão: 27/09/2026. Estado global: PARTIAL. Implementação local; implantação e aceitação visual publicada não verificadas.\n\n## 1. Diagnóstico\nO checkout já tinha Company, contatos, preços versionados, financeiro, ledger, planejamento, eventos e uma primeira imp",
-    "is_error": false,
-    "timestamp": 1790620014913
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"def group_\\|GROUPS = \\|^GROUPS\" -A 2 scripts/test-sales-db.py | grep -E '^\\s*[0-9]+[:-]\\s*\"' | head -40",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1535,5 +1520,21 @@
     "content": "    value: \"REVERSAL\",\n    label: \"Reversão/estorno\",\n    direction: \"FLEX\",\n    permission: \"inventory.reverse\",\n  },\n];\n\nexport function movementTypeLabel(type: MovementType): string {\n  return MOVEMENT_TYPES.find((m) => m.value === type)?.label ?? type;\n}\n\n/** Direção esperada de um tipo de movim",
     "is_error": false,
     "timestamp": 1790620831975
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
+      "newString": "      <Section\n        title=\"Movimentos oficiais de estoque\"\n        description=\"Derivados do ledger; nunca editados. Um movimento por vez: expedir e devolver geram os seus.\"\n      >\n        <Table\n          data={rows(data.movements)}\n          columns={[\n            [\"occurred_at\", \"Data\"],\n            [\"movement_type\", \"Tipo\"],\n            [\"direction\", \"Direção\"],\n            [\"quantity\", \"Quantidade\"],\n            [\"status\", \"Situação\"],\n          ]}\n          render={(row) => (\n            <>\n              {movementTypeLabel(row.movement_type as MovementType)}\n              {str(row.direction) === \"IN\" ? \" (entrada)\" : str(row.direction) === \"OUT\" ? \" (saída)\" : \"\"}\n            </>\n          )}\n        />\n      </Section>\n\n      <Section title=\"Histórico\" description=\"Transições registradas pelo servidor.\">\n        {/* A tabela de histórico guarda o estado anterior, o autor e a data; o\n            estado seguinte é o anterior da linha seguinte. */}\n        <Table\n          data={rows(data.history)}\n          columns={[\n            [\"created_at\", \"Data\"],\n            [\"created_by\", \"Autor\"],\n            [\"previous_status\", \"Estado anterior\"],\n          ]}\n        />\n      </Section>",
+      "oldString": "      <Section\n        title=\"Movimentos oficiais de estoque\"\n        description=\"Derivados do ledger; nunca editados.\"\n      >\n        <Table\n          data={rows(data.movements)}\n          columns={[\n            [\"created_at\", \"Data\"],\n            [\"sku_snapshot\", \"SKU\"],\n            [\"quantity\", \"Quantidade\"],\n            [\"status\", \"Situação\"],\n          ]}\n        />\n      </Section>\n\n      <Section title=\"Histórico\" description=\"Transições registradas pelo servidor.\">\n        <Table\n          data={rows(data.history)}\n          columns={[\n            [\"created_at\", \"Data\"],\n            [\"action\", \"Ação\"],\n            [\"previous_status\", \"Anterior\"],\n            [\"new_status\", \"Novo\"],\n          ]}\n        />\n      </Section>"
+    },
+    "timestamp": 1790620839434
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790620839447
   }
 ]
