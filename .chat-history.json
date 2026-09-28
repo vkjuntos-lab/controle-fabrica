@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "for t in packing_records shipment_delivery_proofs logistics_exceptions; do echo \"=== $t ===\"; awk \"/CREATE TABLE.*public.$t \\(/,/^\\);/\" supabase/migrations/*.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; done",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620763706
-  },
-  {
-    "role": "tool_result",
-    "content": "=== packing_records ===\nid organization_id fulfillment_order_id sales_order_id packed_by packed_at gross_weight_kg weight_informed length_cm width_cm height_cm volume_count notes created_by created_at updated_at \n=== shipment_delivery_proofs ===\nid organization_id shipment_id proof_type file_path si",
-    "is_error": false,
-    "timestamp": 1790620763823
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"EXCEPTION_TYPE\\|PROOF\\|proofType\\|exceptionType\\|EXCEPTION_SEVERITY\" src/lib/sales/constants.ts | head",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1599,5 +1584,20 @@
     "content": "supabase/migrations/20260706125436_ee111f48-9274-4884-9ab0-85cb4733f37e.sql\nsupabase/migrations/20260706150230_5280fbec-723e-429d-8021-3f39cfaab1b7.sql\nsupabase/migrations/20260706150307_3c3cdc57-62e3-4e4d-8caf-1e24cf76c130.sql\nsupabase/migrations/20260706162022_3cfde7e0-0de1-4f59-bba4-6032c1ee1795.",
     "is_error": false,
     "timestamp": 1790622001527
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -rniE \"ncm|cest|cfop|icms|\\bipi\\b|tax_regime\" supabase/migrations/20260917110000_catalog_mestre.sql supabase/migrations/20260924100000_partners.sql supabase/migrations/20261006100000_sales_orders.sql | grep -viE \"^\\s*--\" | head -25",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622005271
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260917110000_catalog_mestre.sql:12:--   * NCM é texto (nunca identificador interno);\nsupabase/migrations/20260917110000_catalog_mestre.sql:45:  ncm text,\n",
+    "is_error": false,
+    "timestamp": 1790622005303
   }
 ]
