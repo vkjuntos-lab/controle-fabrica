@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md",
-      "newString": "- Integração automática de venda/produção/compra com o ledger: o MASTER 013 ligou a venda ao ledger\n  pela expedição e ao MRP pela aprovação, mas a produção ainda não gera movimento\n  (`PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`) — hoje ela é apontada pelas telas de estoque.",
-      "oldString": "- Integração automática de venda/produção/compra com o ledger (hoje os lançamentos são feitos\n  pelas telas de estoque; os módulos de origem ainda não existem)."
-    },
-    "timestamp": 1790620209631
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790620209654
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md",
       "newString": "- Integrações de marketplace por API, pagamentos, e-mail transacional, notificações.\n- Fiscal e NF-e: nada no MASTER 013 emite ou transmite documento fiscal.\n- Rastreamento de transportadora externa: o modo `WEBHOOK` existe como política, mas nenhum\n  provedor está conectado; o rastreio é informado manualmente e o cadastro de recebedor é registro\n  manual de evidência, sem upload de foto nem assinatura digital.\n- Expiração automática de reserva em background: a reserva expira por chamada processada\n  (`sales_expire_reservations`); não há job que a dispare sozinho.\n- Apuração financeira de comissão: não existe no módulo de vendas.\n- Modo DEMO.",
       "oldString": "- Integrações de marketplace por API, pagamentos, e-mail transacional, notificações.\n- Modo DEMO."
     },
@@ -1547,5 +1531,21 @@
     "content": "59:  const data = object(query.data);\n60:  const order = object(data.order);\n61:  const status = text(order.status);\n470:        const status = text(fulfillment.status);\n603:  const status = text(shipment.status);\n",
     "is_error": false,
     "timestamp": 1790621075946
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
+      "newString": "  const data = object(query.data);\n  const order = object(data.order);\n  const quote = object(data.quote);\n  const status = text(order.status);",
+      "oldString": "  const data = object(query.data);\n  const order = object(data.order);\n  const status = text(order.status);"
+    },
+    "timestamp": 1790621079436
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790621079448
   }
 ]

@@ -58,6 +58,7 @@ export function OrderDetail({
 
   const data = object(query.data);
   const order = object(data.order);
+  const quote = object(data.quote);
   const status = text(order.status);
   const actions = orderActions(status);
   const locationChoices = rows(locations.data).map((row) => ({
