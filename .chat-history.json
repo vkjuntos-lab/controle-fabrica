@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "python3 -c \"\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261006100000_sales_orders.sql').read_text()\nprint(re.search(r'CREATE FUNCTION public\\.sales_carrier_save\\(.*?\\n\\\\\\$\\\\\\$;',t,re.S).group(0))\n\""
-    },
-    "timestamp": 1790618551678
-  },
-  {
-    "role": "tool_result",
-    "content": "CREATE FUNCTION public.sales_carrier_save(_org uuid,_data jsonb,_id uuid DEFAULT NULL)\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE c public.carriers; ident uuid; v_name text; v_status text; v_doc jsonb;\nBEGIN\n PERFORM public.sales_require(_org,'carriers.manag",
-    "is_error": false,
-    "timestamp": 1790618551712
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261012100000_sales_settings_fixes.sql",
@@ -1533,5 +1519,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790619438231
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/rbac.test.ts",
+      "newString": "  it(\"reconhece as permissões do domínio de vendas e logística\", () => {\n    expect(PERMISSIONS.salesOrdersRead).toBe(\"sales_orders.read\");\n    expect(PERMISSIONS.salesOrdersCreate).toBe(\"sales_orders.create\");\n    expect(PERMISSIONS.salesOrdersUpdate).toBe(\"sales_orders.update\");\n    expect(PERMISSIONS.salesOrdersApprove).toBe(\"sales_orders.approve\");\n    expect(PERMISSIONS.salesOrdersCancel).toBe(\"sales_orders.cancel\");\n    expect(PERMISSIONS.reservationsRead).toBe(\"reservations.read\");\n    expect(PERMISSIONS.reservationsCreate).toBe(\"reservations.create\");\n    expect(PERMISSIONS.reservationsRelease).toBe(\"reservations.release\");\n    expect(PERMISSIONS.fulfillmentRead).toBe(\"fulfillment.read\");\n    expect(PERMISSIONS.fulfillmentManage).toBe(\"fulfillment.manage\");\n    expect(PERMISSIONS.pickingExecute).toBe(\"picking.execute\");\n    expect(PERMISSIONS.pickingConfirm).toBe(\"picking.confirm\");\n    expect(PERMISSIONS.packingManage).toBe(\"packing.manage\");\n    expect(PERMISSIONS.shipmentsRead).toBe(\"shipments.read\");\n    expect(PERMISSIONS.shipmentsCreate).toBe(\"shipments.create\");\n    expect(PERMISSIONS.shipmentsDispatch).toBe(\"shipments.dispatch\");\n    expect(PERMISSIONS.shipmentsConfirmDelivery).toBe(\"shipments.confirm_delivery\");\n    expect(PERMISSIONS.returnsRead).toBe(\"returns.read\");\n    expect(PERMISSIONS.returnsCreate).toBe(\"returns.create\");\n    expect(PERMISSIONS.returnsApprove).toBe(\"returns.approve\");\n    expect(PERMISSIONS.returnsReceive).toBe(\"returns.receive\");\n    expect(PERMISSIONS.logisticsRead).toBe(\"logistics.read\");\n    expect(PERMISSIONS.logisticsExport).toBe(\"logistics.export\");\n    expect(PERMISSIONS.logisticsExceptions).toBe(\"logistics.exceptions\");\n    expect(PERMISSIONS.salesConfigure).toBe(\"sales.configure\");\n    expect(PERMISSIONS.carriersManage).toBe(\"carriers.manage\");\n    expect(PERMISSIONS.salesCreditRead).toBe(\"sales_credit.read\");\n    expect(PERMISSIONS.salesDashboard).toBe(\"sales.dashboard\");\n  });\n\n  it(\"declara rótulo para todas as chaves reconhecidas\", () => {",
+      "oldString": "  it(\"declara rótulo para todas as chaves reconhecidas\", () => {"
+    },
+    "timestamp": 1790619442728
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790619442732
   }
 ]

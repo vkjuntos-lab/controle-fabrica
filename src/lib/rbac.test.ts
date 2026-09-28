@@ -134,6 +134,37 @@ describe("rbac", () => {
     expect(PERMISSIONS.planningExport).toBe("planning.export");
   });
 
+  it("reconhece as permissões do domínio de vendas e logística", () => {
+    expect(PERMISSIONS.salesOrdersRead).toBe("sales_orders.read");
+    expect(PERMISSIONS.salesOrdersCreate).toBe("sales_orders.create");
+    expect(PERMISSIONS.salesOrdersUpdate).toBe("sales_orders.update");
+    expect(PERMISSIONS.salesOrdersApprove).toBe("sales_orders.approve");
+    expect(PERMISSIONS.salesOrdersCancel).toBe("sales_orders.cancel");
+    expect(PERMISSIONS.reservationsRead).toBe("reservations.read");
+    expect(PERMISSIONS.reservationsCreate).toBe("reservations.create");
+    expect(PERMISSIONS.reservationsRelease).toBe("reservations.release");
+    expect(PERMISSIONS.fulfillmentRead).toBe("fulfillment.read");
+    expect(PERMISSIONS.fulfillmentManage).toBe("fulfillment.manage");
+    expect(PERMISSIONS.pickingExecute).toBe("picking.execute");
+    expect(PERMISSIONS.pickingConfirm).toBe("picking.confirm");
+    expect(PERMISSIONS.packingManage).toBe("packing.manage");
+    expect(PERMISSIONS.shipmentsRead).toBe("shipments.read");
+    expect(PERMISSIONS.shipmentsCreate).toBe("shipments.create");
+    expect(PERMISSIONS.shipmentsDispatch).toBe("shipments.dispatch");
+    expect(PERMISSIONS.shipmentsConfirmDelivery).toBe("shipments.confirm_delivery");
+    expect(PERMISSIONS.returnsRead).toBe("returns.read");
+    expect(PERMISSIONS.returnsCreate).toBe("returns.create");
+    expect(PERMISSIONS.returnsApprove).toBe("returns.approve");
+    expect(PERMISSIONS.returnsReceive).toBe("returns.receive");
+    expect(PERMISSIONS.logisticsRead).toBe("logistics.read");
+    expect(PERMISSIONS.logisticsExport).toBe("logistics.export");
+    expect(PERMISSIONS.logisticsExceptions).toBe("logistics.exceptions");
+    expect(PERMISSIONS.salesConfigure).toBe("sales.configure");
+    expect(PERMISSIONS.carriersManage).toBe("carriers.manage");
+    expect(PERMISSIONS.salesCreditRead).toBe("sales_credit.read");
+    expect(PERMISSIONS.salesDashboard).toBe("sales.dashboard");
+  });
+
   it("declara rótulo para todas as chaves reconhecidas", () => {
     for (const key of Object.values(PERMISSIONS)) {
       expect(typeof PERMISSION_LABELS[key]).toBe("string");
