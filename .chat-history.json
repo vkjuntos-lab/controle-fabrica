@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "for t in inventory_movements sales_order_status_history; do echo \"=== $t ===\"; awk \"/CREATE TABLE.*public.$t \\(/,/^\\);/\" supabase/migrations/*.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; done",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620810490
-  },
-  {
-    "role": "tool_result",
-    "content": "=== inventory_movements ===\nid organization_id variant_id location_id batch_id movement_type direction quantity unit reference_type reference_id reason occurred_at created_at created_by status reversal_of_id reversed_by_id idempotency_key source external_reference id organization_id variant_id locat",
-    "is_error": false,
-    "timestamp": 1790620810558
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "echo \"=== ALTER em sales_order_status_history ===\"; grep -rn \"sales_order_status_history\" supabase/migrations/*.sql | grep -iE \"alter|add column\" | head; echo \"=== movement_type / direction ===\"; awk \"/CREATE TABLE.*public.inventory_movements \\(/,/^\\);/\" supabase/migrations/*.sql | grep -A 6 \"movement_type\\|direction\" | head -20",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1594,5 +1579,20 @@
     "content": "=== sales_execute: como o gateway valida operação ===\n",
     "is_error": false,
     "timestamp": 1790622058378
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"FUNCTION public.sales_execute\" supabase/migrations/20261010100000_sales_integrity.sql; awk '/FUNCTION public.sales_execute/,/^\\$\\$/' supabase/migrations/20261010100000_sales_integrity.sql | head -60",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622061770
+  },
+  {
+    "role": "tool_result",
+    "content": "1807:CREATE FUNCTION public.sales_execute(_org uuid,_operation text,_id uuid,_action text,_data jsonb,_key uuid)\n1861:REVOKE ALL ON FUNCTION public.sales_execute(uuid,text,uuid,text,jsonb,uuid) FROM PUBLIC,anon;\n1862:GRANT EXECUTE ON FUNCTION public.sales_execute(uuid,text,uuid,text,jsonb,uuid) TO a",
+    "is_error": false,
+    "timestamp": 1790622061841
   }
 ]
