@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -rln \"PURCHASE_RECEIPT\" src/ | head; echo \"---\"; grep -rn \"MOVEMENT_TYPE\\|movementTypeLabel\\|MOVEMENT_LABEL\" src/ | head",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620827732
-  },
-  {
-    "role": "tool_result",
-    "content": "src/lib/inventory/inventory.functions.ts\nsrc/lib/inventory/constants.ts\nsrc/components/inventory/movement-dialog.tsx\nsrc/integrations/supabase/types.ts\n---\nsrc/routes/_authenticated/estoque/movimentacoes.tsx:35:  movementTypeLabel,\nsrc/routes/_authenticated/estoque/movimentacoes.tsx:36:  MOVEMENT_TY",
-    "is_error": false,
-    "timestamp": 1790620827766
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sed -n '95,120p' src/lib/inventory/constants.ts; echo \"=== MovementType ===\"; grep -n \"MovementType\" src/lib/inventory/constants.ts | head -4",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1594,5 +1579,20 @@
     "content": "=== purchase_orders ===\nid organization_id order_number supplier_id quotation_id purchase_request_id status issue_date expected_delivery_date currency subtotal discount_amount freight_amount tax_amount other_amount total_amount payment_terms destination_location_id financial_category_id cost_center_",
     "is_error": false,
     "timestamp": 1790622066935
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "echo \"=== company_addresses ===\"; awk \"/CREATE TABLE.*public.company_addresses \\(/,/^\\);/\" supabase/migrations/20260924100000_partners.sql | sed 's/^ *//' | head -14; echo \"=== company_roles ===\"; awk \"/CREATE TABLE.*public.company_roles \\(/,/^\\);/\" supabase/migrations/20260924100000_partners.sql | sed 's/^ *//' | head -10",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622070213
+  },
+  {
+    "role": "tool_result",
+    "content": "=== company_addresses ===\nCREATE TABLE public.company_addresses (\nid uuid PRIMARY KEY DEFAULT gen_random_uuid(),organization_id uuid NOT NULL REFERENCES public.organizations,\ncompany_id uuid NOT NULL,type text NOT NULL DEFAULT 'SHIPPING' CHECK(type IN ('HEADQUARTERS','SHIPPING','BILLING','OTHER')),\n",
+    "is_error": false,
+    "timestamp": 1790622070232
   }
 ]
