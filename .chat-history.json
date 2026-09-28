@@ -1,19 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790594445871
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"cat > .git/sales-extend.py <<'PY'\nfrom pathlib import Path\nimport re\nsrc=Path('supabase/migrations/20261006100000_sales_orders.sql').read_text()\ndef fn(n):return re.search(r'CREATE FUNCTION public\\\\.'+n+r'\\\\(.*?\\\\n\\\\\"'$'\"\\\\\"'$;'\"',src,re.S)[0].replace('CREATE FUNCTION','CREATE OR REPLACE FUNCTION',1)\np=Path('supabase/migrations/20261010100000_sales_integrity.sql');s=p.read_text();a=s.rindex('CREATE OR REPLACE FUNCTION public.sales_shipment_dispatch');b=s.index(' v_carrier:=',a);s=s[:a]+s[a:b].replace('shipment_items si JOIN','shipment_items check_si JOIN').replace('shipment_items si WHERE','shipment_items check_si WHERE').replace('si.sales_order_item_id','check_si.sales_order_item_id').replace('si.shipment_id','check_si.shipment_id').replace('si.quantity','check_si.quantity').replace('si.variant_id','check_si.variant_id').replace('si.batch_id','check_si.batch_id').replace('si.reservation_id','check_si.reservation_id')+s[b:]\ns=s.rsplit('COMMIT;',1)[0]\nf=fn('sales_query');f=f.replace(\\\" IF _kind='orders' THEN\\\",''' IF _kind='settings' THEN\n PERFORM public.sales_require(_org,'sales.configure'); RETURN public.sales_settings(_org);\n ELSIF _kind='locations' THEN\n PERFORM public.sales_require(_org,'sales_orders.read');\n RETURN jsonb_build_object('rows',coalesce((SELECT jsonb_agg(jsonb_build_object('id',id,'name',name,'type',type,'operational_purpose',operational_purpose)) FROM public.inventory_locations WHERE organization_id=_org AND status='ACTIVE' AND partner_id IS NULL AND type NOT IN ('PARTNER','TRANSIT')),'[]'::jsonb));\n ELSIF _kind='addresses' THEN\n PERFORM public.sales_require(_org,'sales_orders.create');\n RETURN jsonb_build_object('rows',coalesce((SELECT jsonb_agg(to_jsonb(a)) FROM public.company_addresses a WHERE organization_id=_org AND company_id=v_company),'[]'::jsonb));\n ELSIF _kind='orders' THEN''')\nf=f.replace('v_limit:=least(', 'v_limit:=greatest(1,least(').replace(\\\"::int,50),500);\\\",\\\"::int,50),500));\\\")\nf=f.replace(\\\"PERFORM public.sales_require(_org,'sales_credit.read');\\\", \\\"PERFORM public.sales_require(_org,'sales_credit.read'); PERFORM public.sales_require(_org,'receivables.read');\\\")\nf=f.replace('public.crm_financial_position(_org,c.id)','public.crm_financial_position(_org,c.company_id)').replace('SELECT c.id AS company_id','SELECT c.company_id AS company_id')\n# deterministic pagination inside subselects\nf=f.replace('   LIMIT v_limit OFFSET v_off) x;', '   ORDER BY id LIMIT v_limit OFFSET v_off) x;')\n# align count and rows filters\nf=f.replace(\\\"WHERE s.organization_id=_org AND (v_status IS NULL OR s.status=v_status)\\\\n\\\", \\\"WHERE s.organization_id=_org AND (v_status IS NULL OR s.status=v_status) AND (v_company IS NULL OR o.company_id=v_company)\\\\n\\\")\nf=f.replace(\\\"WHERE r.organization_id=_org AND (v_status IS NULL OR r.status=v_status)\\\\n   ORDER\\\", \\\"WHERE r.organization_id=_org AND (v_status IS NULL OR r.status=v_status) AND (v_company IS NULL OR r.company_id=v_company)\\\\n   ORDER\\\",1)\nf=f.replace(\\\"WHERE e.organization_id=_org AND (v_status IS NULL OR e.status=v_status)\\\\n\\\", \\\"WHERE e.organization_id=_org AND (v_status IS NULL OR e.status=v_status) AND (v_company IS NULL OR o.company_id=v_company)\\\\n\\\")\ns+=f+'\\\\n'\nf=fn('sales_return_create').replace('SELECT * INTO v_shi FROM','SELECT shi.* INTO v_shi FROM')\nf=f.replace(\\\"v_avail:=coalesce(v_shi.delivered_quantity,0)-coalesce(v_shi.returned_quantity,0);\\\", \\\"v_avail:=coalesce(v_shi.delivered_quantity,0)-coalesce((SELECT sum(ri.quantity) FROM public.customer_return_items ri JOIN public.customer_returns r ON r.id=ri.customer_return_id WHERE ri.shipment_item_id=v_shi.id AND r.status NOT IN ('CANCELED','REJECTED')),0);\\\")\ns+=f+'\\\\n'\nf=fn('sales_return_action').replace(\\\" IF ret.status IN ('COMPLETED','REJECTED','CANCELED') THEN\\\", \\\" IF _action='receive' AND ret.status IN ('RECEIVED','COMPLETED','INSPECTED') THEN RETURN jsonb_build_object('id',_ret,'status',ret.status,'deduped',true); END IF;\\\\n IF ret.status IN ('COMPLETED','REJECTED','CANCELED') THEN\\\")\nf=f.replace(\\\"v_qty:=coalesce(nullif(_data->>'quantity','')::numeric,0);\\\", \\\"v_qty:=coalesce((SELECT (x->>'quantity')::numeric FROM jsonb_array_elements(coalesce(_data->'items','[]'::jsonb)) x WHERE x->>'customer_return_item_id'=v_i.id::text),nullif(_data->>'quantity','')::numeric,0);\\\")\nf=f.replace(\\\"IF v_qty>v_i.quantity-v_i.received_quantity THEN\\\", \\\"IF v_qty<>v_i.quantity-v_i.received_quantity THEN\\\")\nf=f.replace(\\\"   IF v_qty<=0 THEN CONTINUE; END IF;\\\", \\\"   IF v_qty<=0 THEN RAISE EXCEPTION 'Informe a quantidade integral recebida de cada item; divida recebimentos em devoluções distintas.'; END IF;\\\")\nf=f.replace(\\\"  -- Devolucao reduz\\\", \\\"  UPDATE public.shipment_items si SET returned_quantity=coalesce((SELECT sum(ri.received_quantity) FROM public.customer_return_items ri WHERE ri.shipment_item_id=si.id),0) WHERE si.shipment_id=ret.shipment_id;\\\\n  -- Devolucao reduz\\\")\ns+=f+'\\\\n'\np.write_text(s+'COMMIT;\\\\n')\nPY\npython3 .git/sales-extend.py\npython3 scripts/test-sales-db.py > .git/sales-db.log 2>&1\n\""
-    },
-    "timestamp": 1790594482887
-  },
-  {
     "role": "tool",
     "tool": "Bash",
     "input": {
@@ -1481,5 +1467,19 @@
     "content": "sales_reserve _org uuid,_order uuid,_data jsonb DEFAULT '{}'\nsales_fulfillment_create _org uuid,_order uuid,_data jsonb DEFAULT '{}'\nsales_fulfillment_action _org uuid,_fulfillment uuid,_action text,_data jsonb DEFAULT '{}'\nsales_pick_scan _org uuid,_task uuid,_data jsonb DEFAULT '{}'\nsales_pick_con",
     "is_error": false,
     "timestamp": 1790618358891
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261010100000_sales_integrity.sql').read_text()\nt+=Path('supabase/migrations/20261006100000_sales_orders.sql').read_text()\nfor fn in ['sales_fulfillment_action','sales_shipment_action','sales_return_action','sales_exception_action','sales_reservation_action']:\n    ms=list(re.finditer(r'CREATE(?: OR REPLACE)? FUNCTION public\\.'+fn+r'\\(.*?\\n\\$\\$;', t, re.S))\n    body=ms[-1].group(0)\n    print('#'*15, fn)\n    for ln in body.split('\\n'):\n        s=ln.strip()\n        if re.search(r\"_action (IN|=)|RAISE EXCEPTION 'Ação|_action='|v_perm:=\", s):\n            print('  ', s[:200])\nPY"
+    },
+    "timestamp": 1790618362067
+  },
+  {
+    "role": "tool_result",
+    "content": "############### sales_fulfillment_action\n   IF _action='start' THEN\n   ELSIF _action='pick' THEN\n   ELSIF _action='pack' THEN\n   ELSIF _action='ready' THEN\n   ELSIF _action='cancel' THEN\n   ELSE RAISE EXCEPTION 'Ação inválida.'; END IF;\n############### sales_shipment_action\n   PERFORM public.sales_r",
+    "is_error": false,
+    "timestamp": 1790618362144
   }
 ]
