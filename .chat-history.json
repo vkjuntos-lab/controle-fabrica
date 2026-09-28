@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/areas.tsx",
-      "newString": "    </section>\n  );\n}",
-      "oldString": "    </section>\n  );\n}\n\nexport { SalesSettings, truthy, rows, settingLabel, carrierModalityLabel, exceptionSeverityLabel, ACTIVE_RESERVATION_STATUS };"
-    },
-    "timestamp": 1790619245667
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619245680
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/areas.tsx",
       "newString": "import {\n  carrierModalityLabel,\n  exceptionSeverityLabel,\n  exceptionStatusLabel,\n  orderStatusLabel,\n  reservationStatusLabel,\n  returnStatusLabel,\n  shipmentStatusLabel,\n  stockStatusLabel,\n  fulfillmentStatusLabel,\n  CARRIER_MODALITY,\n} from \"@/lib/sales/constants\";\nimport { SalesAction } from \"@/components/sales/action\";\nimport { NewOrder } from \"@/components/sales/new-order\";\nimport {\n  isMoneyColumn,\n  numeric,\n  object,\n  rows,\n  text,\n  useSalesList,\n  useSalesRead,\n  type Row,\n} from \"@/components/sales/shared\";",
       "oldString": "import {\n  carrierModalityLabel,\n  exceptionSeverityLabel,\n  orderStatusLabel,\n  reservationStatusLabel,\n  returnStatusLabel,\n  shipmentStatusLabel,\n  stockStatusLabel,\n  fulfillmentStatusLabel,\n  settingLabel,\n  CARRIER_MODALITY,\n  ORDER_STATUS,\n  RESERVATION_STATUS,\n  SHIPMENT_STATUS,\n  RETURN_STATUS,\n  EXCEPTION_STATUS,\n  EXCEPTION_SEVERITY,\n  ACTIVE_RESERVATION_STATUS,\n} from \"@/lib/sales/constants\";\nimport { SalesAction } from \"@/components/sales/action\";\nimport { NewOrder } from \"@/components/sales/new-order\";\nimport { SalesSettings } from \"@/components/sales/settings\";\nimport {\n  isMoneyColumn,\n  numeric,\n  rows,\n  text,\n  truthy,\n  useSalesList,\n  useSalesRead,\n  type Row,\n} from \"@/components/sales/shared\";"
     },
@@ -1547,5 +1531,20 @@
     "content": "supabase/migrations/20261006100000_sales_orders.sql:3183:CREATE FUNCTION public.sales_query(_org uuid,_kind text DEFAULT 'orders',_filters jsonb DEFAULT '{}')\nsupabase/migrations/20261006100000_sales_orders.sql:3399:CREATE FUNCTION public.sales_dashboard(_org uuid,_filters jsonb DEFAULT '{}')\nsupaba",
     "is_error": false,
     "timestamp": 1790620536872
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '3399,3450p' supabase/migrations/20261006100000_sales_orders.sql | grep -oE \"'[a-z_]+',\" | tr -d \" ',\" | sort -u | tr '\\n' ' '; echo; echo \"=== sales_query kinds e colunas ===\"; sed -n '3183,3398p' supabase/migrations/20261006100000_sales_orders.sql | grep -oE \"_kind='[a-z_]+'|coalesce\\(jsonb_agg\\(to_jsonb\\((\\w+)\\)\" | sed \"s/coalesce(jsonb_agg(to_jsonb(//\" | sort -u | tr '\\n' ' '",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620541545
+  },
+  {
+    "role": "tool_result",
+    "content": "amount_total available_formula awaiting_approval awaiting_stock blocking_exceptions by_status definitions delivered_formula from fulfilled_formula in_fulfillment month open_exceptions orders_total reservations_active reservations_expiring reserved_formula returns_awaiting_financial returns_pending s",
+    "is_error": false,
+    "timestamp": 1790620541585
   }
 ]
