@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "echo \"=== orders (x) ===\"; sed -n '3199,3230p' supabase/migrations/20261006100000_sales_orders.sql | grep -E \"AS (company_name|stock_status|fulfillment_status|total_amount|order_number)\" | sed 's/^ *//'; echo \"=== reservations (x) ===\"; sed -n '3279,3288p' supabase/migrations/20261006100000_sales_orders.sql | sed 's/^ *//'; echo \"=== fulfillment (x) ===\"; sed -n '3293,3302p' supabase/migrations/20261006100000_sales_orders.sql | sed 's/^ *//'",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620579678
-  },
-  {
-    "role": "tool_result",
-    "content": "=== orders (x) ===\nc.trade_name AS company_name,c.id AS company_id,\n=== reservations (x) ===\nELSIF _kind='reservations' THEN\nv_perm:='reservations.read';\nPERFORM public.sales_require(_org,v_perm);\nSELECT count(*) INTO v_total FROM public.inventory_reservations\nWHERE organization_id=_org AND (v_statu",
-    "is_error": false,
-    "timestamp": 1790620579720
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "echo \"=== stock_status / fulfillment_status ===\"; grep -n \"AS stock_status\\|AS fulfillment_status\" supabase/migrations/20261006100000_sales_orders.sql | sed 's/^ *//' | cut -c1-120; echo \"=== shipments: tracking_code + x ===\"; sed -n '3243,3258p' supabase/migrations/20261006100000_sales_orders.sql | sed 's/^ *//'",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1543,5 +1528,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790621466987
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md",
+      "newString": "Validação local: 32 grupos PostgreSQL (A–AF), 87 testes unitários, TypeScript e build sem erro,\nlint do domínio sem erros. Relatório e critérios\nIMPLEMENTED/PARTIAL/NOT_IMPLEMENTED: [MASTER-013-VALIDATION](MASTER-013-VALIDATION.md).",
+      "oldString": "Validação local: 32 grupos PostgreSQL (A–AF), 77 testes unitários, TypeScript e build sem erro,\nlint do domínio sem erros. Relatório e critérios\nIMPLEMENTED/PARTIAL/NOT_IMPLEMENTED: [MASTER-013-VALIDATION](MASTER-013-VALIDATION.md)."
+    },
+    "timestamp": 1790621471027
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790621471040
   }
 ]

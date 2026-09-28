@@ -33,7 +33,7 @@ Migrations novas: `20261012100000_sales_screen_fixes.sql`, que substitui duas fu
 tabela. Documentação criada: [SALES-ORDERS](../business/SALES-ORDERS.md) e
 [ADR 011](../architecture/ADR-011-SALES.md).
 
-Validação local: 32 grupos PostgreSQL (A–AF), 77 testes unitários, TypeScript e build sem erro,
+Validação local: 32 grupos PostgreSQL (A–AF), 87 testes unitários, TypeScript e build sem erro,
 lint do domínio sem erros. Relatório e critérios
 IMPLEMENTED/PARTIAL/NOT_IMPLEMENTED: [MASTER-013-VALIDATION](MASTER-013-VALIDATION.md).
 
