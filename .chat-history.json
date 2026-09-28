@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"SETTING_OPTIONS\" -A 40 src/lib/sales/constants.ts | head -50",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790621152945
-  },
-  {
-    "role": "tool_result",
-    "content": "220:export const SETTING_OPTIONS = {\n221-  reservation_policy: {\n222-    label: \"Reserva de estoque\",\n223-    options: [\"FULL_ONLY\", \"ALLOW_PARTIAL\", \"ALLOW_NEGATIVE_AVAILABLE\"],\n224-    labels: {\n225-      FULL_ONLY: \"Somente a quantidade inteira\",\n226-      ALLOW_PARTIAL: \"Permitir reserva parcial",
-    "is_error": false,
-    "timestamp": 1790621152957
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "echo \"=== CHECK na tabela ===\"; grep -rn \"credit_exposure_policy\" supabase/migrations/20261006100000_sales_orders.sql | grep -iE \"check|IN \\(\" ; echo \"=== todos os valores citados em qualquer migration ===\"; grep -rhoE \"OPEN_RECEIVABLES_[A-Z_]*\" supabase/migrations/ | sort | uniq -c",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1634,5 +1619,20 @@
     "content": "--- sem CJK ---\nharness atualizado\n",
     "is_error": false,
     "timestamp": 1790622368207
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd '/root/Zheus AI Projects/controle-fabricas' && su claude-runner -c \"python3 scripts/test-fiscal-db.py > /tmp/opencode/fiscal2.log 2>&1; echo EXIT=\\$?\"; tail -20 /tmp/opencode/fiscal2.log",
+      "timeout": 400000
+    },
+    "timestamp": 1790622486445
+  },
+  {
+    "role": "tool_result",
+    "content": "EXIT=0\nMIGRATIONS OK\n",
+    "is_error": false,
+    "timestamp": 1790622488630
   }
 ]
