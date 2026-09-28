@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx",
-      "newString": "/** Monta a query de leitura de uma área do módulo. */\nexport function useSalesRead(organizationId: string, kind: string, id?: string, filters: Row = {}) {\n  const api = useServerFn(readSales);\n  // O filtro entra na chave já serializado: um objeto novo a cada render não\n  // provoca nova consulta, e um filtro de verdade diferente provoca.\n  const serialized = JSON.stringify(filters);\n  return useQuery({\n    queryKey: [\"sales\", organizationId, kind, id, serialized],\n    queryFn: () =>\n      api({\n        data: {\n          organizationId,\n          kind,\n          id,\n          filters: JSON.parse(serialized) as Record<string, Json>,\n        } as never,\n      }),\n    enabled: Boolean(organizationId),\n  });\n}",
-      "oldString": "/** Monta a query de leitura de uma área do módulo. */\nexport function useSalesRead(organizationId: string, kind: string, id?: string, filters: Row = {}) {\n  const api = useServerFn(readSales);\n  const stable = useMemo(() => filters, [JSON.stringify(filters)]);\n  return useQuery({\n    queryKey: [\"sales\", organizationId, kind, id, stable],\n    queryFn: () =>\n      api({\n        data: {\n          organizationId,\n          kind,\n          id,\n          filters: stable as Record<string, Json>,\n        } as never,\n      }),\n    enabled: Boolean(organizationId),\n  });\n}"
-    },
-    "timestamp": 1790619310492
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619310506
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx",
       "newString": "import { useCallback, useState } from \"react\";",
       "oldString": "import { useCallback, useMemo, useState } from \"react\";"
     },
@@ -1544,5 +1528,20 @@
     "content": "=== orders (x) ===\nc.trade_name AS company_name,c.id AS company_id,\n=== reservations (x) ===\nELSIF _kind='reservations' THEN\nv_perm:='reservations.read';\nPERFORM public.sales_require(_org,v_perm);\nSELECT count(*) INTO v_total FROM public.inventory_reservations\nWHERE organization_id=_org AND (v_statu",
     "is_error": false,
     "timestamp": 1790620579720
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "echo \"=== stock_status / fulfillment_status ===\"; grep -n \"AS stock_status\\|AS fulfillment_status\" supabase/migrations/20261006100000_sales_orders.sql | sed 's/^ *//' | cut -c1-120; echo \"=== shipments: tracking_code + x ===\"; sed -n '3243,3258p' supabase/migrations/20261006100000_sales_orders.sql | sed 's/^ *//'",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620583787
+  },
+  {
+    "role": "tool_result",
+    "content": "=== stock_status / fulfillment_status ===\n=== shipments: tracking_code + x ===\nELSIF _kind='shipments' THEN\nv_perm:='shipments.read';\nPERFORM public.sales_require(_org,v_perm);\nSELECT count(*) INTO v_total FROM public.shipments\nWHERE organization_id=_org AND (v_status IS NULL OR status=v_status)\nAND",
+    "is_error": false,
+    "timestamp": 1790620583808
   }
 ]
