@@ -456,20 +456,20 @@ def run():
  print('PASS AE: all twelve policies are editable from the screen and validated by the server')
 
  # Transportadora e ocorrencia tambem passam pelo gateway da tela.
-  carrier=execute('carrier',None,'',{'name':'Transportes Rapidos','document_number':'12345678000199',
-   'document_type':'CNPJ','contact_name':'Central'},user=commercial)
-  assert carrier['modality']=='COURIER'
-  assert any(x['id']==carrier['id'] for x in query('carriers')['rows'])
-  updated=execute('carrier',carrier['id'],'',{'name':'Transportes Rapidos','modality':'ROAD'},user=commercial)
-  assert updated['modality']=='ROAD' and updated['document_type']=='CNPJ'
-  call('sales_execute',org,'carrier',None,'',{'name':'Invalida','document_type':'CNPJ','document_number':'123'},uid(),user=commercial,fail='CNPJ inválido')
-  call('sales_execute',org,'carrier',None,'',{'name':'Modalidade','modality':'TELETRANSPORTE'},uid(),user=commercial,fail='Modalidade de transporte inválida')
-  call('sales_execute',org,'carrier',None,'',{'name':'Sem nome'},uid(),user=commercial,fail='Informe o nome')
-  call('sales_execute',org,'carrier',None,'',{'name':'Negado'},uid(),user=picker,fail='Sem permiss')
+ carrier=execute('carrier',None,'',{'name':'Transportes Rapidos','document_number':'12345678000199',
+  'document_type':'CNPJ','contact_name':'Central'},user=commercial)
+ assert carrier['modality']=='COURIER'
+ assert any(x['id']==carrier['id'] for x in query('carriers')['rows'])
+ updated=execute('carrier',carrier['id'],'',{'name':'Transportes Rapidos','modality':'ROAD'},user=commercial)
+ assert updated['modality']=='ROAD' and updated['document_type']=='CNPJ'
+ call('sales_execute',org,'carrier',None,'',{'name':'Invalida','document_type':'CNPJ','document_number':'123'},uid(),user=commercial,fail='CNPJ inválido')
+ call('sales_execute',org,'carrier',None,'',{'name':'Modalidade','modality':'TELETRANSPORTE'},uid(),user=commercial,fail='Modalidade de transporte inválida')
+ call('sales_execute',org,'carrier',None,'',{'name':'Sem nome'},uid(),user=commercial,fail='Informe o nome')
+ call('sales_execute',org,'carrier',None,'',{'name':'Negado'},uid(),user=picker,fail='Sem permiss')
  pending=next((x for x in query('exceptions')['rows'] if x['status']=='OPEN'),None)
  if pending:
-  execute('exception',pending['id'],'resolve',{'resolution':'Conferido com o transportador'},user=picker)
-  assert sql(f"SELECT status FROM logistics_exceptions WHERE id={q(pending['id'])}")=='RESOLVED'
+ execute('exception',pending['id'],'resolve',{'resolution':'Conferido com o transportador'},user=picker)
+ assert sql(f"SELECT status FROM logistics_exceptions WHERE id={q(pending['id'])}")=='RESOLVED'
  execute('expire',None,'',{},user=picker)
  print('PASS AF: carrier, exception resolution and reservation expiry work from the screen gateway')
 

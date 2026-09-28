@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "python3 -c \"\nimport json\nd=json.load(open('.chat-history.json'))\nfor i,m in enumerate(d):\n    if m.get('role')=='assistant' and 99<=i<=186:\n        c=m.get('content')\n        t=c if isinstance(c,str) else ' '.join(str(b.get('text',b.get('thinking',''))) for b in c)\n        if t.strip():\n            print('='*70); print('IDX',i); print(t[:3000])\n\""
-    },
-    "timestamp": 1790618086252
-  },
-  {
-    "role": "tool_result",
-    "content": "======================================================================\nIDX 111\nA conversão já passou no teste concorrente: duas solicitações retornam o mesmo pedido, preservando os preços da proposta aceita. Estou validando agora o fluxo físico e corrigindo reservas e expedições parciais, para imped",
-    "is_error": false,
-    "timestamp": 1790618086296
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "git status --porcelain | head -80; echo \"--- COUNT ---\"; git status --porcelain | wc -l"
     },
     "timestamp": 1790618089805
@@ -1526,5 +1512,19 @@
     "content": "> test:sales:db\n> python3 scripts/test-sales-db.py\n\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py\", line 459\n    carrier=execute('carrier',None,'',{'name':'Transportes Rapidos','document_number':'12345678000199',\nIndentationError: unexpected indent\n",
     "is_error": false,
     "timestamp": 1790618595810
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np=Path('scripts/test-sales-db.py')\nlines=p.read_text().split('\\n')\nstart=458\nout=[l[1:] if i>=start and l.startswith('  ') else l for i,l in enumerate(lines)]\np.write_text('\\n'.join(out))\nPY\nsed -n '455,470p' scripts/test-sales-db.py"
+    },
+    "timestamp": 1790618598708
+  },
+  {
+    "role": "tool_result",
+    "content": " assert query('settings')['reservation_policy']=='ALLOW_PARTIAL'\n print('PASS AE: all twelve policies are editable from the screen and validated by the server')\n\n # Transportadora e ocorrencia tambem passam pelo gateway da tela.\n carrier=execute('carrier',None,'',{'name':'Transportes Rapidos','docum",
+    "is_error": false,
+    "timestamp": 1790618598765
   }
 ]
