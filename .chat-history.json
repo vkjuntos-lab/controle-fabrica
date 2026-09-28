@@ -1,19 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"tail -n 20 .git/sales-db.log; tail -n 8 .git/sales-build.log; sed -n '2822,2888p' supabase/migrations/20261006100000_sales_orders.sql; sed -n '2135,2185p' supabase/migrations/20261006100000_sales_orders.sql; sed -n '1740,1788p' supabase/migrations/20261008100000_crm_company_services.sql\""
-    },
-    "timestamp": 1790594435047
-  },
-  {
-    "role": "tool_result",
-    "content": "        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 167, in run\n    dispatched=rpc('sales_shipment_dispatch',org,shipment['id'],{'dispatch_key':'DISP-1'},user=picker)\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 24, in rp",
-    "is_error": false,
-    "timestamp": 1790594435062
-  },
-  {
     "role": "tool_result",
     "content": "",
     "is_error": false,
@@ -1481,5 +1467,19 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py</path>\n<type>file</type>\n<content>\n300:  full=detail(order['id'])\n301:  assert len(full['items'])==1 and len(full['shipments'])==1 and len(full['returns'])==2\n302:  assert len(full['movements'])==3 and len(full['receivables'])=",
     "is_error": false,
     "timestamp": 1790618352432
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261010100000_sales_integrity.sql').read_text()\nt+=Path('supabase/migrations/20261006100000_sales_orders.sql').read_text()\nfns=['sales_reserve','sales_fulfillment_create','sales_fulfillment_action','sales_pick_scan','sales_pick_confirm','sales_pack','sales_shipment_create','sales_shipment_dispatch','sales_shipment_action','sales_return_create','sales_return_action','sales_exception_action','sales_carrier_save','sales_settings_save','sales_expire_reservations','sales_convert_quote','sales_reservation_action']\nfor fn in fns:\n    ms=list(re.finditer(r'CREATE(?: OR REPLACE)? FUNCTION public\\.'+fn+r'\\(([^)]*)\\)', t))\n    if not ms: print(fn,'-> NAO ENCONTRADA'); continue\n    print(fn, ms[-1].group(1)[:150])\nPY"
+    },
+    "timestamp": 1790618358838
+  },
+  {
+    "role": "tool_result",
+    "content": "sales_reserve _org uuid,_order uuid,_data jsonb DEFAULT '{}'\nsales_fulfillment_create _org uuid,_order uuid,_data jsonb DEFAULT '{}'\nsales_fulfillment_action _org uuid,_fulfillment uuid,_action text,_data jsonb DEFAULT '{}'\nsales_pick_scan _org uuid,_task uuid,_data jsonb DEFAULT '{}'\nsales_pick_con",
+    "is_error": false,
+    "timestamp": 1790618358891
   }
 ]
