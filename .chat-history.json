@@ -1,21 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('src/components/crm/customers.tsx');s=p.read_text();p.rename('.git/customers-before-sales.tsx');s='import { CustomerOrders } from \\\"@/components/sales/workspace\\\";\\\\n'+s;s=s.replace('[\\\"documents\\\", \\\"Documentos\\\"],','[\\\"documents\\\", \\\"Documentos\\\"],\\\\n            ...(hasPermission(\\\"sales_orders.read\\\") ? [[\\\"orders\\\", \\\"Pedidos\\\"]] : []),');s=s.replace('<TabsContent value=\\\"overview\\\">','{hasPermission(\\\"sales_orders.read\\\") && <TabsContent value=\\\"orders\\\"><CustomerOrders org={org} companyId={companyId}/></TabsContent>}\\\\n        <TabsContent value=\\\"overview\\\">');p.write_text(s)\np=Path('src/components/crm/quotes.tsx');s=p.read_text();p.rename('.git/quotes-before-sales.tsx');s='import { QuoteToOrder } from \\\"@/components/sales/workspace\\\";\\\\n'+s;s=s.replace('<div className=\\\"flex flex-wrap items-center gap-2\\\">','<div className=\\\"flex flex-wrap items-center gap-2\\\">\\\\n      {status === \\\"ACCEPTED\\\" && <QuoteToOrder org={org} quoteId={quote.id}/>}');p.write_text(s)\np=Path('package.json');s=p.read_text();p.rename('.git/package-before-sales.json');p.write_text(s.replace('\\\"test:crm:db\\\": \\\"python3 scripts/test-crm-db.py\\\"','\\\"test:crm:db\\\": \\\"python3 scripts/test-crm-db.py\\\",\\\\n    \\\"test:sales:db\\\": \\\"python3 scripts/test-sales-db.py\\\"'))\nPY\nnpm run typecheck > .git/sales-ts.log 2>&1\""
-    },
-    "timestamp": 1790594678089
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"tail -n 22 .git/sales-db.log; cat .git/sales-ts.log; sed -n '186,198p' scripts/test-sales-db.py; rg -n 'source_type.*CHECK|planning_source_facts' supabase/migrations/20261002100000_planning.sql | head; sed -n '58,68p' supabase/migrations/20261004100000_planning_fixes.sql; rg -n 'line_total|subtotal|v_subtotal' supabase/migrations/20261006100000_sales_orders.sql | head -n 20\""
-    },
-    "timestamp": 1790594686048
-  },
-  {
     "role": "tool_result",
     "content": "PASS G: DISPONIVEL = SALDO FISICO - RESERVAS; reserva nao cria movimento e e idempotente\nPASS H: reserva de um pedido reduz o disponivel do outro; quarentena nao atende venda direta\nPASS I: leitura por codigo de barras e SKU; item errado e excesso recusados; separar nao baixa estoque\nPASS J: diverge",
     "is_error": false,
@@ -1496,5 +1480,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790618440386
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && npm run test:sales:db\" 2>&1 | tail -20",
+      "timeout": 900000
+    },
+    "timestamp": 1790618442633
+  },
+  {
+    "role": "tool_result",
+    "content": "      'gross_weight_kg':12.5,'length_cm':40,'width_cm':30,'height_cm':20},user=picker)\n      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py\", line 34, in execute\n    def execute(operation,ide",
+    "is_error": false,
+    "timestamp": 1790618449386
   }
 ]
