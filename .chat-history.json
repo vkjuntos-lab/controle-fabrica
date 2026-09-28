@@ -1,19 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "    def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n                                                  ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-inventory-db.py\", line 24, in sql\n    ",
-    "is_error": false,
-    "timestamp": 1790594868160
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('scripts/test-sales-db.py');s=p.read_text().replace(\\\"crm('credit',{'company_id':company,'credit_limit':100000\\\", \\\"crm('credit',{'id':sql(f\\\\\\\"SELECT id FROM customer_credit_policies WHERE company_id={q(company)}\\\\\\\"),'company_id':company,'credit_limit':100000\\\");p.write_text(s)\nPY\npython3 scripts/test-sales-db.py > .git/sales-db.log 2>&1\""
-    },
-    "timestamp": 1790594877908
-  },
-  {
     "role": "user",
     "content": "termine o 13",
     "timestamp": 1790594923369
@@ -1510,5 +1496,21 @@
     "content": "  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py\", line 469, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py\", line 451, in run\n    call('sales_execute',org,'settings',None,'',{**policies,'receivable_trigger",
     "is_error": false,
     "timestamp": 1790618528749
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py",
+      "newString": " call('sales_execute',org,'settings',None,'',{**policies,'receivable_trigger':'INVALID'},uid(),user=a,fail='financeiro inválido')\n call('sales_execute',org,'settings',None,'',{**policies,'max_discount_percent':'150'},uid(),user=a,fail='entre 0 e 100')\n call('sales_execute',org,'settings',None,'',{**policies,'reservation_expiry_hours':'0'},uid(),user=a,fail='entre 1 e 8760')\n call('sales_execute',org,'settings',None,'',{**policies,'approval_segregation':'sim'},uid(),user=a,fail='booleano inválido')",
+      "oldString": " call('sales_execute',org,'settings',None,'',{**policies,'receivable_trigger':'INVALID'},uid(),user=a,fail='Gatilho inválido')\n call('sales_execute',org,'settings',None,'',{**policies,'max_discount_percent':'150'},uid(),user=a,fail='entre 0 e 100')"
+    },
+    "timestamp": 1790618533840
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790618533856
   }
 ]

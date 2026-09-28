@@ -448,8 +448,10 @@ def run():
   expected='true' if value=='true' else 'false' if value=='false' else value
   actual=saved[key]
   assert str(actual).lower().replace('.00','')==str(expected).lower().replace('.00','') or float(actual)==float(expected), (key,actual,expected)
- call('sales_execute',org,'settings',None,'',{**policies,'receivable_trigger':'INVALID'},uid(),user=a,fail='Gatilho inválido')
+ call('sales_execute',org,'settings',None,'',{**policies,'receivable_trigger':'INVALID'},uid(),user=a,fail='financeiro inválido')
  call('sales_execute',org,'settings',None,'',{**policies,'max_discount_percent':'150'},uid(),user=a,fail='entre 0 e 100')
+ call('sales_execute',org,'settings',None,'',{**policies,'reservation_expiry_hours':'0'},uid(),user=a,fail='entre 1 e 8760')
+ call('sales_execute',org,'settings',None,'',{**policies,'approval_segregation':'sim'},uid(),user=a,fail='booleano inválido')
  assert query('settings')['reservation_policy']=='ALLOW_PARTIAL'
  print('PASS AE: all twelve policies are editable from the screen and validated by the server')
 
