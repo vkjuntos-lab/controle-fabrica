@@ -464,7 +464,7 @@ def run():
  assert updated['modality']=='ROAD' and updated['document_type']=='CNPJ'
  call('sales_execute',org,'carrier',None,'',{'name':'Invalida','document_type':'CNPJ','document_number':'123'},uid(),user=commercial,fail='CNPJ inválido')
  call('sales_execute',org,'carrier',None,'',{'name':'Modalidade','modality':'TELETRANSPORTE'},uid(),user=commercial,fail='Modalidade de transporte inválida')
- call('sales_execute',org,'carrier',None,'',{'name':'Sem nome'},uid(),user=commercial,fail='Informe o nome')
+ call('sales_execute',org,'carrier',None,'',{'name':'   '},uid(),user=commercial,fail='Informe o nome')
  call('sales_execute',org,'carrier',None,'',{'name':'Negado'},uid(),user=picker,fail='Sem permiss')
  pending=next((x for x in query('exceptions')['rows'] if x['status']=='OPEN'),None)
  if pending:
