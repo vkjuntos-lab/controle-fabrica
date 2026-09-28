@@ -87,7 +87,9 @@ export const Route = createFileRoute("/api/public/migrations-bootstrap")({
             try {
               await client.begin(async (tx) => {
                 await tx.unsafe(text);
-                await tx`insert into supabase_migrations.schema_migrations(version, name) values (${version}, ${file})`;
+                await tx`create table if not exists public._bootstrap_migrations(version text primary key, name text, applied_at timestamptz not null default now())`;
+                await tx`insert into public._bootstrap_migrations(version, name) values (${version}, ${file}) on conflict (version) do nothing`;
+                await tx`insert into supabase_migrations.schema_migrations(version, name) values (${version}, ${file})`.catch(() => {});
               });
               results.push({ file, status: "ok", bytes: text.length });
             } catch (e) {
