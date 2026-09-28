@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py",
-      "oldString": " def raw(name,args,user,fail=None):return db.call(name,args,user,fail)\n def arg(x):return q(json.dumps(x)) if isinstance(x,(dict,list)) else q(x)",
-      "newString": " def raw(name,args,user,fail=None):return db.call(name,args,user,fail)\n def arg(x):return q(json.dumps(x)) if isinstance(x,(dict,list)) else q(x)\n def execute(operation,identifier=None,verb='',data={},user=a,**kw):return rpc('sales_execute',org,operation,identifier,verb,data,uid(),user=user,**kw)"
-    },
-    "timestamp": 1790618380930
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790618380979
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261010100000_sales_integrity.sql').read_text()\nt+=Path('supabase/migrations/20261006100000_sales_orders.sql').read_text()\nfor fn in ['sales_pick_confirm','sales_pack','sales_return_create','sales_shipment_create','sales_fulfillment_create']:\n    b=list(re.finditer(r'CREATE(?: OR REPLACE)? FUNCTION public\\.'+fn+r'\\(.*?\\n\\$\\$;', t, re.S))[-1].group(0)\n    print('#'*12, fn)\n    for ln in b.split('\\n'):\n        s=ln.strip()\n        if 'items' in s and ('->' in s or 'jsonb_array' in s or 'quantity' in s):\n            print('   ', s[:190])\nPY"
@@ -1515,5 +1499,21 @@
     "content": "\n> typecheck\n> tsc --noEmit\n\nsrc/components/sales/areas.tsx(442,53): error TS2552: Cannot find name 'Json'. Did you mean 'JSON'?\nsrc/components/sales/new-order.tsx(51,5): error TS2322: Type '(data: any) => void' is not assignable to type '() => void'.\n  Target signature provides too few arguments. E",
     "is_error": false,
     "timestamp": 1790619166055
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx",
+      "newString": "  options: { alsoCrm?: boolean; onSuccess?: (data: unknown) => void; onError?: () => void } = {},",
+      "oldString": "  options: { alsoCrm?: boolean; onSuccess?: () => void; onError?: () => void } = {},"
+    },
+    "timestamp": 1790619171570
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790619171590
   }
 ]

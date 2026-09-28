@@ -100,7 +100,7 @@ export type SalesWriteInput = {
  */
 export function useSalesWrite(
   organizationId: string,
-  options: { alsoCrm?: boolean; onSuccess?: () => void; onError?: () => void } = {},
+  options: { alsoCrm?: boolean; onSuccess?: (data: unknown) => void; onError?: () => void } = {},
 ): UseMutationResult<unknown, Error, SalesWriteInput> {
   const api = useServerFn(mutateSales);
   const client = useQueryClient();
