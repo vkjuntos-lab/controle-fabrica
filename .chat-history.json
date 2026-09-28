@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sed -n '1807,1862p' supabase/migrations/20261010100000_sales_integrity.sql",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790619514481
-  },
-  {
-    "role": "tool_result",
-    "content": "CREATE FUNCTION public.sales_execute(_org uuid,_operation text,_id uuid,_action text,_data jsonb,_key uuid)\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE prior public.sales_order_operation_keys; payload jsonb; result jsonb; perm text;\nBEGIN\n IF _key IS NULL THE",
-    "is_error": false,
-    "timestamp": 1790619514501
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx",
@@ -1543,5 +1528,21 @@
     "content": "1:import { useState, type ReactNode } from \"react\";\n2:import { Link } from \"@tanstack/react-router\";\n4:import { Button } from \"@/components/ui/button\";\n5:import { Input } from \"@/components/ui/input\";\n6:import { Label } from \"@/components/ui/label\";\n7:import { Badge } from \"@/components/ui/badge\";\n8",
     "is_error": false,
     "timestamp": 1790620667274
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "echo \"=== TYPECHECK ===\"; npm run typecheck 2>&1 | tail -6; echo \"=== LINT ===\"; npx eslint src/components/sales src/lib/sales 2>&1 | tail -4; echo \"=== TESTES ===\"; npm test 2>&1 | grep -E \"Test Files|Tests \"",
+      "timeout": 300000,
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620670364
+  },
+  {
+    "role": "tool_result",
+    "content": "=== TYPECHECK ===\n\n> typecheck\n> tsc --noEmit\n\n=== LINT ===\n\n✖ 3 problems (2 errors, 1 warning)\n  2 errors and 0 warnings potentially fixable with the `--fix` option.\n\n=== TESTES ===\n Test Files  7 passed (7)\n      Tests  77 passed (77)\n",
+    "is_error": false,
+    "timestamp": 1790620707759
   }
 ]
