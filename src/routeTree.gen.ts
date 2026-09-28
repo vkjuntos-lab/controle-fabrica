@@ -88,6 +88,7 @@ import { Route as AuthenticatedReconciliacaoVendasRouteImport } from './routes/_
 import { Route as AuthenticatedRelatoriosRentabilidadeRouteImport } from './routes/_authenticated/relatorios/rentabilidade'
 import { Route as AuthenticatedVendasIndexRouteImport } from './routes/_authenticated/vendas/index'
 import { Route as ApiCronHealthRouteImport } from './routes/api/cron.health'
+import { Route as ApiPublicMigrationsBootstrapRouteImport } from './routes/api/public/migrations-bootstrap'
 import { Route as ApiWebhooksReceiverRouteImport } from './routes/api/webhooks.receiver'
 import { Route as AuthenticatedComercialClientesIdRouteImport } from './routes/_authenticated/comercial/clientes_.$id'
 import { Route as AuthenticatedComercialConfiguracoesSectionRouteImport } from './routes/_authenticated/comercial/configuracoes.$section'
@@ -571,6 +572,12 @@ const ApiCronHealthRoute = ApiCronHealthRouteImport.update({
   path: '/api/cron/health',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicMigrationsBootstrapRoute =
+  ApiPublicMigrationsBootstrapRouteImport.update({
+    id: '/api/public/migrations-bootstrap',
+    path: '/api/public/migrations-bootstrap',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiWebhooksReceiverRoute = ApiWebhooksReceiverRouteImport.update({
   id: '/api/webhooks/receiver',
   path: '/api/webhooks/receiver',
@@ -760,6 +767,7 @@ export interface FileRoutesByFullPath {
   '/reconciliacao/vendas': typeof AuthenticatedReconciliacaoVendasRoute
   '/relatorios/rentabilidade': typeof AuthenticatedRelatoriosRentabilidadeRoute
   '/api/cron/health': typeof ApiCronHealthRoute
+  '/api/public/migrations-bootstrap': typeof ApiPublicMigrationsBootstrapRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
   '/comercial/': typeof AuthenticatedComercialIndexRoute
   '/compras/': typeof AuthenticatedComprasIndexRoute
@@ -860,6 +868,7 @@ export interface FileRoutesByTo {
   '/reconciliacao/vendas': typeof AuthenticatedReconciliacaoVendasRoute
   '/relatorios/rentabilidade': typeof AuthenticatedRelatoriosRentabilidadeRoute
   '/api/cron/health': typeof ApiCronHealthRoute
+  '/api/public/migrations-bootstrap': typeof ApiPublicMigrationsBootstrapRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
   '/comercial': typeof AuthenticatedComercialIndexRoute
   '/compras': typeof AuthenticatedComprasIndexRoute
@@ -962,6 +971,7 @@ export interface FileRoutesById {
   '/_authenticated/reconciliacao/vendas': typeof AuthenticatedReconciliacaoVendasRoute
   '/_authenticated/relatorios/rentabilidade': typeof AuthenticatedRelatoriosRentabilidadeRoute
   '/api/cron/health': typeof ApiCronHealthRoute
+  '/api/public/migrations-bootstrap': typeof ApiPublicMigrationsBootstrapRoute
   '/api/webhooks/receiver': typeof ApiWebhooksReceiverRoute
   '/_authenticated/comercial/': typeof AuthenticatedComercialIndexRoute
   '/_authenticated/compras/': typeof AuthenticatedComprasIndexRoute
@@ -1064,6 +1074,7 @@ export interface FileRouteTypes {
     | '/reconciliacao/vendas'
     | '/relatorios/rentabilidade'
     | '/api/cron/health'
+    | '/api/public/migrations-bootstrap'
     | '/api/webhooks/receiver'
     | '/comercial/'
     | '/compras/'
@@ -1164,6 +1175,7 @@ export interface FileRouteTypes {
     | '/reconciliacao/vendas'
     | '/relatorios/rentabilidade'
     | '/api/cron/health'
+    | '/api/public/migrations-bootstrap'
     | '/api/webhooks/receiver'
     | '/comercial'
     | '/compras'
@@ -1265,6 +1277,7 @@ export interface FileRouteTypes {
     | '/_authenticated/reconciliacao/vendas'
     | '/_authenticated/relatorios/rentabilidade'
     | '/api/cron/health'
+    | '/api/public/migrations-bootstrap'
     | '/api/webhooks/receiver'
     | '/_authenticated/comercial/'
     | '/_authenticated/compras/'
@@ -1304,6 +1317,7 @@ export interface RootRouteChildren {
   ConvidarRoute: typeof ConvidarRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   ApiCronHealthRoute: typeof ApiCronHealthRoute
+  ApiPublicMigrationsBootstrapRoute: typeof ApiPublicMigrationsBootstrapRoute
   ApiWebhooksReceiverRoute: typeof ApiWebhooksReceiverRoute
 }
 
@@ -1862,6 +1876,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiCronHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/migrations-bootstrap': {
+      id: '/api/public/migrations-bootstrap'
+      path: '/api/public/migrations-bootstrap'
+      fullPath: '/api/public/migrations-bootstrap'
+      preLoaderRoute: typeof ApiPublicMigrationsBootstrapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/webhooks/receiver': {
       id: '/api/webhooks/receiver'
       path: '/api/webhooks/receiver'
@@ -2321,6 +2342,7 @@ const rootRouteChildren: RootRouteChildren = {
   ConvidarRoute: ConvidarRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   ApiCronHealthRoute: ApiCronHealthRoute,
+  ApiPublicMigrationsBootstrapRoute: ApiPublicMigrationsBootstrapRoute,
   ApiWebhooksReceiverRoute: ApiWebhooksReceiverRoute,
 }
 export const routeTree = rootRouteImport
