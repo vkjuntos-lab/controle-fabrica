@@ -113,7 +113,7 @@ export function SalesAction({
     const missing = fields.some((field) => {
       if (!field.required) return false;
       const value = values[field.key] ?? text(initial?.[field.key]);
-      return value === "" && !field.picker;
+      return value === "";
     });
     if (missing || (items && selected.length === 0)) {
       setIncomplete(true);

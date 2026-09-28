@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sed -n '60,100p' src/components/crm/shared.tsx"
-    },
-    "timestamp": 1790618336107
-  },
-  {
-    "role": "tool_result",
-    "content": "};\n\nexport const selectClass = \"h-10 w-full rounded-md border border-input bg-background px-3 text-sm\";\nconst inputClass = \"w-full rounded-md border border-input bg-background px-3 py-2 text-sm\";\n\n/** Exibe qualquer valor vindo de `crm_query` sem quebrar a tabela. */\nexport const str = (value: unkno",
-    "is_error": false,
-    "timestamp": 1790618336118
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"CREATE TABLE public.sales_quotes\" -A 20 supabase/migrations/20261005100000_crm.sql | head -25"
     },
     "timestamp": 1790618336146
@@ -1549,5 +1535,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790619087512
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/action.tsx",
+      "newString": "    const missing = fields.some((field) => {\n      if (!field.required) return false;\n      const value = values[field.key] ?? text(initial?.[field.key]);\n      return value === \"\";\n    });",
+      "oldString": "    const missing = fields.some((field) => {\n      if (!field.required) return false;\n      const value = values[field.key] ?? text(initial?.[field.key]);\n      return value === \"\" && !field.picker;\n    });"
+    },
+    "timestamp": 1790619092115
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790619092130
   }
 ]
