@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md",
-      "newString": "- Custo ≠ preço ≠ receita ≠ recebimento. Custo é versionado/imutável; preço versiona vigência nas\n  tabelas do MASTER 007; rentabilidade usa snapshot imutável por venda, calculado no fechamento do\n  parceiro com o billable da regra comercial (nunca o gross); conversão de unidade só usa registro\n  oficial — nunca fator implícito. Nenhuma RPC de custo lança AR/despesa ou move estoque.\n- Pedido de venda não é venda recebida: cada etapa do ciclo tem efeito próprio, e nenhum indicador\n  de pedido é apresentado como faturamento. Reserva não movimenta estoque, separação não baixa\n  estoque, expedição baixa uma única vez e entrega não mexe no saldo.\n- Obrigação financeira nasce do gatilho configurado (`NONE`, `ON_APPROVAL`, `ON_DISPATCH`) e reusa\n  `account_receivables`; a reserva nunca cria obrigação e a devolução devolve mercadoria deixando o\n  ajuste financeiro como solicitação.\n- Divergência de separação vira ocorrência, nunca aumento de estoque. A conferência é imutável e\n  peso/dimensão são sempre os medidos, nunca estimados.\n- Toda escrita de vendas passa por `sales_execute` com chave de idempotência derivada do conteúdo da\n  operação. A chave não é renovada em caso de erro: se o servidor gravou e a resposta se perdeu, uma\n  chave nova repetiria a operação.",
-      "oldString": "- Custo ≠ preço ≠ receita ≠ recebimento. Custo é versionado/imutável; preço versiona vigência nas\n  tabelas do MASTER 007; rentabilidade usa snapshot imutável por venda, calculado no fechamento do\n  parceiro com o billable da regra comercial (nunca o gross); conversão de unidade só usa registro\n  oficial — nunca fator implícito. Nenhuma RPC de custo lança AR/despesa ou move estoque."
-    },
-    "timestamp": 1790620220584
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790620220598
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md",
       "newString": "- Nova migration validada localmente, não aplicada ao Lovable Cloud nesta execução. Falta smoke\n  test autenticado publicado. Ver relatórios `docs/handoff/MASTER-003-VALIDATION.md`,\n  `docs/handoff/MASTER-006-VALIDATION.md`, `docs/handoff/MASTER-007-VALIDATION.md`,\n  `docs/handoff/MASTER-009-VALIDATION.md`, `docs/handoff/MASTER-010-VALIDATION.md`,\n  `docs/handoff/MASTER-011-VALIDATION.md` e `docs/handoff/MASTER-013-VALIDATION.md`.\n- O MASTER 013 é o caso mais advanced de cobertura de interface: a cobertura é banco real isolado,\n  testes unitários e build, sem navegação em navegador autenticado. Ficam sem verificação prática o\n  agrupamento dos campos nas telas, o seletor com muitas opções e a leitura de erro do gateway na\n  interface.",
       "oldString": "- Nova migration validada localmente, não aplicada ao Lovable Cloud nesta execução. Falta smoke\n  test autenticado publicado. Ver relatórios `docs/handoff/MASTER-003-VALIDATION.md`,\n  `docs/handoff/MASTER-006-VALIDATION.md`, `docs/handoff/MASTER-007-VALIDATION.md`,\n  `docs/handoff/MASTER-009-VALIDATION.md` e `docs/handoff/MASTER-010-VALIDATION.md`."
     },
@@ -1547,5 +1531,20 @@
     "content": "\n> typecheck\n> tsc --noEmit\n\n  54:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components\n\n✖ 1 problem (0 errors, 1 warning)\n\n=== TESTES ===\n Test Files  7 passed (7)\n      Tests",
     "is_error": false,
     "timestamp": 1790621120517
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "ls src/lib/sales/; echo \"=== teste de contrato de migrations no rbac ===\"; grep -n \"readFileSync\\|MIGRATIONS\\|glob\\|readdir\" src/lib/rbac.test.ts | head -12",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790621130240
+  },
+  {
+    "role": "tool_result",
+    "content": "constants.ts\nidempotency.test.ts\nidempotency.ts\nsales.functions.ts\n=== teste de contrato de migrations no rbac ===\n1:import { readFileSync } from \"node:fs\";\n177:  const migration = readFileSync(\n194:  const migration = readFileSync(\n207:  const migration = readFileSync(\n242:  ].map((path) => readFil",
+    "is_error": false,
+    "timestamp": 1790621130261
   }
 ]
