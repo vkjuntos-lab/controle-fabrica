@@ -3,36 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"PASS Y\" -A 25 scripts/test-sales-db.py"
-    },
-    "timestamp": 1790618228850
-  },
-  {
-    "role": "tool_result",
-    "content": "339: print('PASS Y: UI creation gateway idempotency, explicit terms and real lookup contracts')\n340-\n341- # Pedido com duas variantes diferentes, expedições parciais, obrigação monetária proporcional.\n342- multi=save({'company_id':company,'price_table_id':table,'shipping_address_id':address,'payment",
-    "is_error": false,
-    "timestamp": 1790618228866
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261010100000_sales_integrity.sql",
-      "offset": 1800,
-      "limit": 70
-    },
-    "timestamp": 1790618233018
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261010100000_sales_integrity.sql</path>\n<type>file</type>\n<content>\n1800:  UPDATE public.fulfillment_orders f SET status=CASE WHEN f.status IN ('PICKING','PICKED') THEN 'PACKING' ELSE f.status END,\n1801:   updated_at=v_now WHERE f",
-    "is_error": false,
-    "timestamp": 1790618233058
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261010100000_sales_integrity.sql').read_text()\nfor fn in ['sales_order_action','sales_shipment_action','sales_return_action']:\n    for m in re.finditer(r'CREATE OR REPLACE FUNCTION public\\.'+fn+r'\\(.*?\\n\\$\\$;', t, re.S):\n        body=m.group(0)\n        print('='*25, fn, '='*25)\n        for ln in body.split('\\n'):\n            if 'sales_require' in ln or 'CREATE OR REPLACE' in ln:\n                print(ln.strip()[:200])\nPY"
     },
     "timestamp": 1790618241796
@@ -1529,5 +1499,34 @@
     "content": " M .chat-history.json\n",
     "is_error": false,
     "timestamp": 1790618977007
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "git log --oneline -8 2>&1; echo \"---EXPORTS OLD WORKSPACE---\"; grep -n \"^export\\|^function \\|^const \" src/components/sales/workspace.tsx | head -40",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790618981303
+  },
+  {
+    "role": "tool_result",
+    "content": "8aad490 AI: alteracao automatica\n81a97ea AI: alteracao automatica\n91445b2 AI: alteracao automatica\n87e42f0 AI: alteracao automatica\n9762b58 AI: alteracao automatica\n840b159 AI: alteracao automatica\nefe23a2 AI: alteracao automatica\n892e692 AI: alteracao automatica\n---EXPORTS OLD WORKSPACE---\n17:const",
+    "is_error": false,
+    "timestamp": 1790618981322
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx"
+    },
+    "timestamp": 1790618981407
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx</path>\n<type>file</type>\n<content>\n1: import { useCallback, useMemo, useState } from \"react\";\n2: import { useMutation, useQuery, useQueryClient, type UseMutationResult } from \"@tanstack/react-query\";\n3: import { useServe",
+    "is_error": false,
+    "timestamp": 1790618981420
   }
 ]
