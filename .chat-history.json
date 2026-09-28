@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/rbac.test.ts",
-      "newString": "  it(\"reconhece as permissões do domínio de vendas e logística\", () => {\n    expect(PERMISSIONS.salesOrdersRead).toBe(\"sales_orders.read\");\n    expect(PERMISSIONS.salesOrdersCreate).toBe(\"sales_orders.create\");\n    expect(PERMISSIONS.salesOrdersUpdate).toBe(\"sales_orders.update\");\n    expect(PERMISSIONS.salesOrdersApprove).toBe(\"sales_orders.approve\");\n    expect(PERMISSIONS.salesOrdersCancel).toBe(\"sales_orders.cancel\");\n    expect(PERMISSIONS.reservationsRead).toBe(\"reservations.read\");\n    expect(PERMISSIONS.reservationsCreate).toBe(\"reservations.create\");\n    expect(PERMISSIONS.reservationsRelease).toBe(\"reservations.release\");\n    expect(PERMISSIONS.fulfillmentRead).toBe(\"fulfillment.read\");\n    expect(PERMISSIONS.fulfillmentManage).toBe(\"fulfillment.manage\");\n    expect(PERMISSIONS.pickingExecute).toBe(\"picking.execute\");\n    expect(PERMISSIONS.pickingConfirm).toBe(\"picking.confirm\");\n    expect(PERMISSIONS.packingManage).toBe(\"packing.manage\");\n    expect(PERMISSIONS.shipmentsRead).toBe(\"shipments.read\");\n    expect(PERMISSIONS.shipmentsCreate).toBe(\"shipments.create\");\n    expect(PERMISSIONS.shipmentsDispatch).toBe(\"shipments.dispatch\");\n    expect(PERMISSIONS.shipmentsConfirmDelivery).toBe(\"shipments.confirm_delivery\");\n    expect(PERMISSIONS.returnsRead).toBe(\"returns.read\");\n    expect(PERMISSIONS.returnsCreate).toBe(\"returns.create\");\n    expect(PERMISSIONS.returnsApprove).toBe(\"returns.approve\");\n    expect(PERMISSIONS.returnsReceive).toBe(\"returns.receive\");\n    expect(PERMISSIONS.logisticsRead).toBe(\"logistics.read\");\n    expect(PERMISSIONS.logisticsExport).toBe(\"logistics.export\");\n    expect(PERMISSIONS.logisticsExceptions).toBe(\"logistics.exceptions\");\n    expect(PERMISSIONS.salesConfigure).toBe(\"sales.configure\");\n    expect(PERMISSIONS.carriersManage).toBe(\"carriers.manage\");\n    expect(PERMISSIONS.salesCreditRead).toBe(\"sales_credit.read\");\n    expect(PERMISSIONS.salesDashboard).toBe(\"sales.dashboard\");\n  });\n\n  it(\"declara rótulo para todas as chaves reconhecidas\", () => {",
-      "oldString": "  it(\"declara rótulo para todas as chaves reconhecidas\", () => {"
-    },
-    "timestamp": 1790619442728
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619442732
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/rbac.test.ts",
       "newString": "it(\"alinha as permissões de compras ao contrato do banco\", () => {\n  const migration = readFileSync(\n    new URL(\"../../supabase/migrations/20261001100000_purchasing.sql\", import.meta.url),\n    \"utf8\",\n  );\n  const databaseKeys = new Set(\n    [\n      ...migration.matchAll(\n        /'(?:suppliers|purchase_requests|quotations|purchase_orders|goods_receipts|supplier_returns|supplier_documents|purchase_exceptions)\\.[a-z_]+'/g,\n      ),\n      ...migration.matchAll(/'(purchasing\\.(?:read|dashboard))'/g),\n    ].map((match) => match[0].replace(/'/g, \"\")),\n  );\n  const keys = Object.entries(PERMISSIONS).filter(\n    ([key]) =>\n      key.startsWith(\"suppliers\") ||\n      key.startsWith(\"purchaseRequests\") ||\n      key.startsWith(\"quotations\") ||\n      key.startsWith(\"purchaseOrders\") ||\n      key.startsWith(\"goodsReceipts\") ||\n      key.startsWith(\"supplierReturns\") ||\n      key.startsWith(\"supplierDocuments\") ||\n      key.startsWith(\"purchaseExceptions\") ||\n      key.startsWith(\"purchasing\"),\n  );\n  expect(keys.length).toBeGreaterThan(0);\n  for (const [, value] of keys) expect(databaseKeys.has(value), value).toBe(true);\n});\n\nit(\"alinha as permissões de vendas ao contrato do banco\", () => {\n  // As vendas foram criadas ao longo de três migrations; a permissão precisa\n  // existir no banco, senão o botão aparece e a operação é recusada.\n  const migrations = [\n    \"../../supabase/migrations/20261006100000_sales_orders.sql\",\n    \"../../supabase/migrations/20261010100000_sales_integrity.sql\",\n    \"../../supabase/migrations/20261011100000_sales_planning.sql\",\n  ].map((path) => readFileSync(new URL(path, import.meta.url), \"utf8\"));\n  const databaseKeys = new Set(\n    migrations.flatMap((sql) =>\n      [\n        ...sql.matchAll(\n          /'(?:sales_orders|reservations|fulfillment|picking|packing|shipments|returns|logistics|carriers|sales_credit)\\.[a-z_]+'/g,\n        ),\n        ...sql.matchAll(/'(sales\\.(?:configure|dashboard))'/g),\n      ].map((match) => match[0].replace(/'/g, \"\")),\n    ),\n  );\n  const keys = Object.entries(PERMISSIONS).filter(\n    ([key]) =>\n      key.startsWith(\"sales\") ||\n      key.startsWith(\"reservations\") ||\n      key.startsWith(\"fulfillment\") ||\n      key.startsWith(\"picking\") ||\n      key.startsWith(\"packing\") ||\n      key.startsWith(\"shipments\") ||\n      key.startsWith(\"returns\") ||\n      key.startsWith(\"logistics\") ||\n      key.startsWith(\"carriers\"),\n  );\n  expect(keys.length).toBeGreaterThan(0);\n  for (const [, value] of keys) expect(databaseKeys.has(value), value).toBe(true);\n});",
       "oldString": "it(\"alinha as permissões de compras ao contrato do banco\", () => {\n  const migration = readFileSync(\n    new URL(\"../../supabase/migrations/20261001100000_purchasing.sql\", import.meta.url),\n    \"utf8\",\n  );\n  const databaseKeys = new Set(\n    [\n      ...migration.matchAll(\n        /'(?:suppliers|purchase_requests|quotations|purchase_orders|goods_receipts|supplier_returns|supplier_documents|purchase_exceptions)\\.[a-z_]+'/g,\n      ),\n      ...migration.matchAll(/'(purchasing\\.(?:read|dashboard))'/g),\n    ].map((match) => match[0].replace(/'/g, \"\")),\n  );\n  const keys = Object.entries(PERMISSIONS).filter(\n    ([key]) =>\n      key.startsWith(\"suppliers\") ||\n      key.startsWith(\"purchaseRequests\") ||\n      key.startsWith(\"quotations\") ||\n      key.startsWith(\"purchaseOrders\") ||\n      key.startsWith(\"goodsReceipts\") ||\n      key.startsWith(\"supplierReturns\") ||\n      key.startsWith(\"supplierDocuments\") ||\n      key.startsWith(\"purchaseExceptions\") ||\n      key.startsWith(\"purchasing\"),\n  );\n  expect(keys.length).toBeGreaterThan(0);\n  for (const [, value] of keys) expect(databaseKeys.has(value), value).toBe(true);\n});"
     },
@@ -1542,5 +1526,20 @@
     "content": "135:const COLUMN_LABELS: Record<string, string> = {\n136-  order_number: \"Pedido\",\n137-  shipment_number: \"Expedição\",\n138-  return_number: \"Devolução\",\n139-  fulfillment_number: \"Atendimento\",\n140-  company_name: \"Cliente\",\n141-  order_date: \"Data do pedido\",\n142-  status: \"Status\",\n143-  stock_stat",
     "is_error": false,
     "timestamp": 1790620629861
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"MONEY_COLUMNS\" -A 12 src/components/sales/shared.tsx | head -18",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620632549
+  },
+  {
+    "role": "tool_result",
+    "content": "12:import { MONEY_COLUMNS } from \"@/lib/sales/constants\";\n13-import type { Json } from \"@/integrations/supabase/types\";\n14-\n15-/**\n16- * Infraestrutura de leitura e escrita das telas de Vendas.\n17- *\n18- * Toda leitura vai para `readSales` e toda escrita para `mutateSales`, que por\n19- * sua vez cha",
+    "is_error": false,
+    "timestamp": 1790620632561
   }
 ]
