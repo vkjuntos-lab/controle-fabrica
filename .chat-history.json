@@ -1,18 +1,5 @@
 [
   {
-    "role": "assistant",
-    "content": "Vou concluir o MASTER 013 a partir do backend existente: corrigir a conversão de propostas, integrar as telas ao fluxo comercial e validar estoque, permissões e operações de venda.\n",
-    "timestamp": 1790593953379
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"pwd; git status --short; rg --files -g 'AGENTS.md' -g '*sales*' -g '*SALES*' -g 'package.json' -g 'PROJECT-STATE.md' -g '*013*'\""
-    },
-    "timestamp": 1790593955543
-  },
-  {
     "role": "tool_result",
     "content": "/root/Zheus AI Projects/controle-fabrica\n M .chat-history.json\nAGENTS.md\ndocs/business/SALES-QUOTES.md\ndocs/business/SALES-PIPELINE.md\ndocs/business/SALES-REPRESENTATIVES.md\ndocs/handoff/PROJECT-STATE.md\nsupabase/migrations/20260810135314_cf0f5018-9f94-4ed7-93e4-f8c74a8bcdbe.sql\nsupabase/migrations/",
     "is_error": false,
@@ -1422,5 +1409,19 @@
     "content": "========================= sales_order_action =========================\nCREATE OR REPLACE FUNCTION public.sales_order_action(_org uuid,_order uuid,_action text,_data jsonb DEFAULT '{}')\nPERFORM public.sales_require(_org,v_perm);\n========================= sales_return_action =========================\n",
     "is_error": false,
     "timestamp": 1790618241844
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nfor f in ['20261010100000_sales_integrity.sql','20261006100000_sales_orders.sql']:\n    t=Path('supabase/migrations/'+f).read_text()\n    for fn in ['sales_order_action','sales_shipment_action','sales_return_action']:\n        for m in re.finditer(r'CREATE(?: OR REPLACE)? FUNCTION public\\.'+fn+r'\\(.*?\\n\\$\\$;', t, re.S):\n            body=m.group(0)\n            print('#'*20, f, fn)\n            for ln in body.split('\\n'):\n                s=ln.strip()\n                if 'v_perm' in s or 'sales_require' in s:\n                    print('   ', s[:220])\nPY"
+    },
+    "timestamp": 1790618245541
+  },
+  {
+    "role": "tool_result",
+    "content": "#################### 20261010100000_sales_integrity.sql sales_order_action\n    v_perm text; v_reason text; v_policy jsonb; v_cfg jsonb; v_item jsonb;\n    v_perm:=CASE _action\n    IF v_perm IS NULL THEN RAISE EXCEPTION 'Ação inválida.'; END IF;\n    PERFORM public.sales_require(_org,v_perm);\n#########",
+    "is_error": false,
+    "timestamp": 1790618245595
   }
 ]
