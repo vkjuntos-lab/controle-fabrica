@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"FUNCTION public.sales_order_detail\" -A 45 supabase/migrations/20261010100000_sales_integrity.sql | grep -oE \"'(order|items|availability|reservations|fulfillments|picking_tasks|picking_items|shipments|shipment_items|returns|return_items|receivables|movements|history|company)'\" | sort -u | tr '\\n' ' '; echo; echo \"=== sales_query filtros aceitos ===\"; grep -n \"FUNCTION public.sales_query\" -A 40 supabase/migrations/20261010100000_sales_integrity.sql | grep -oE \"'(search|q|status|company_id|limit|offset|from|to|page)'\" | sort -u | tr '\\n' ' '",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620330591
-  },
-  {
-    "role": "tool_result",
-    "content": "'company' 'fulfillments' 'history' 'items' 'order' 'picking_items' 'picking_tasks' 'receivables' 'reservations' 'return_items' 'returns' 'shipment_items' 'shipments' \n=== sales_query filtros aceitos ===\n'company_id' 'from' 'limit' 'offset' 'search' 'status' 'to' ",
-    "is_error": false,
-    "timestamp": 1790620330639
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"FUNCTION public.sales_order_detail\" -A 60 supabase/migrations/20261010100000_sales_integrity.sql | grep -oE \"jsonb_build_object|'[a-z_]+'\\s*\\)\" | head -40",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1539,5 +1524,20 @@
     "content": "=== colunas de sales_order_settings ===\nid organization_id reservation_policy reservation_expiry_hours make_to_order_enabled credit_exposure_policy approval_segregation max_discount_percent price_override_policy receivable_trigger allow_partial_fulfillment shipment_requires_full_confirmation trackin",
     "is_error": false,
     "timestamp": 1790621193104
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '1,60p' src/lib/sales/idempotency.test.ts | grep -nE \"describe|it\\(\" ; echo \"=== fim do arquivo de teste ===\"; tail -20 src/lib/sales/idempotency.test.ts",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790621196298
+  },
+  {
+    "role": "tool_result",
+    "content": "1:import { describe, expect, it } from \"vitest\";\n15:describe(\"chave de idempotência de vendas\", () => {\n16:  it(\"gera uma chave no formato UUID exigido pelo gateway\", () => {\n21:  it(\"mantém o formato UUID para qualquer tentativa\", () => {\n30:  it(\"repetir o mesmo conteúdo reenvia a mesma chave\", ()",
+    "is_error": false,
+    "timestamp": 1790621196338
   }
 ]
