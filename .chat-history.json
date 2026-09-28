@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/rbac.ts",
-      "newString": "  {\n    key: \"comercial\",\n    label: \"Comercial\",\n    description: \"Clientes, pedidos e vendas B2B.\",\n    status: \"available\",\n  },\n  {\n    key: \"vendas\",\n    label: \"Vendas e logística\",\n    description: \"Pedidos, reservas, separação, expedição, entregas e devoluções.\",\n    status: \"available\",\n  },",
-      "oldString": "  {\n    key: \"comercial\",\n    label: \"Comercial\",\n    description: \"Clientes, pedidos e vendas B2B.\",\n    status: \"available\",\n  },"
-    },
-    "timestamp": 1790618712677
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790618712696
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '55,66p' src/components/layout/app-shell.tsx"
@@ -1546,5 +1530,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790619916655
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/reference-picker.tsx",
+      "newString": "          options_.map((row) => {\n            const id = text(row.id);\n            const active = id === value;\n            return (\n              <button\n                key={id}\n                type=\"button\"\n                role=\"option\"\n                aria-selected={active}\n                className={`block w-full truncate border-b px-3 py-2 text-left text-sm last:border-b-0 ${\n                  active ? \"bg-accent font-medium\" : \"hover:bg-muted\"\n                }`}\n                onClick={() => {\n                  if (active && !required) {\n                    setChosen(null);\n                    onChange(\"\");\n                    return;\n                  }\n                  setChosen({ id, label: describe(row) });\n                  onChange(id);\n                }}\n              >\n                {describe(row)}\n              </button>\n            );\n          })",
+      "oldString": "          options_.map((row) => {\n            const id = text(row.id);\n            const active = id === value;\n            return (\n              <button\n                key={id}\n                type=\"button\"\n                role=\"option\"\n                aria-selected={active}\n                className={`block w-full truncate border-b px-3 py-2 text-left text-sm last:border-b-0 ${\n                  active ? \"bg-accent font-medium\" : \"hover:bg-muted\"\n                }`}\n                onClick={() => onChange(active && !required ? \"\" : id)}\n              >\n                {describe(row)}\n              </button>\n            );\n          })"
+    },
+    "timestamp": 1790619925566
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790619925581
   }
 ]

@@ -117,7 +117,15 @@ export function ReferencePicker({
                 className={`block w-full truncate border-b px-3 py-2 text-left text-sm last:border-b-0 ${
                   active ? "bg-accent font-medium" : "hover:bg-muted"
                 }`}
-                onClick={() => onChange(active && !required ? "" : id)}
+                onClick={() => {
+                  if (active && !required) {
+                    setChosen(null);
+                    onChange("");
+                    return;
+                  }
+                  setChosen({ id, label: describe(row) });
+                  onChange(id);
+                }}
               >
                 {describe(row)}
               </button>
