@@ -60,7 +60,8 @@ const checkValues = (table: string, column: string): string[] => {
 const expectAligned = (table: string, column: string, map: Record<string, string>): void => {
   const accepted = checkValues(table, column);
   for (const value of accepted) expect(map[value], `${table}.${column}:${value}`).toBeTruthy();
-  for (const value of Object.keys(map)) expect(accepted, `${table}.${column}:${value}`).toContain(value);
+  for (const value of Object.keys(map))
+    expect(accepted, `${table}.${column}:${value}`).toContain(value);
 };
 
 describe("políticas editáveis na tela de configurações", () => {
@@ -87,7 +88,9 @@ describe("políticas editáveis na tela de configurações", () => {
     // Um valor a mais na tela é erro de escrita em tempo de execução: o
     // `sales_settings_save` responde "política inválida" e nada é salvo.
     for (const [key, option] of Object.entries(SETTING_OPTIONS)) {
-      expect([...option.options].sort(), key).toEqual([...checkValues("sales_order_settings", key)].sort());
+      expect([...option.options].sort(), key).toEqual(
+        [...checkValues("sales_order_settings", key)].sort(),
+      );
     }
   });
 
