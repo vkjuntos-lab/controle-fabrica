@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"sku_snapshot\\|description_snapshot\\|ordered_quantity\\|unit_price\" supabase/migrations/20261006100000_sales_orders.sql | grep -m2 \"\" >/dev/null; awk \"/CREATE TABLE.*public.sales_order_items \\(/,/^\\);/\" supabase/migrations/*.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620950174
-  },
-  {
-    "role": "tool_result",
-    "content": "id organization_id sales_order_id product_variant_id sku_snapshot description_snapshot unit_snapshot price_snapshot ordered_quantity approved_quantity reserved_quantity picked_quantity fulfilled_quantity delivered_quantity returned_quantity unit_price discount_amount tax_amount line_total expected_d",
-    "is_error": false,
-    "timestamp": 1790620950225
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
@@ -1584,5 +1569,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790622206320
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "head -40 scripts/test-sales-db.py",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622209504
+  },
+  {
+    "role": "tool_result",
+    "content": "#!/usr/bin/env python3\n\"\"\"MASTER 013 integration tests in disposable PostgreSQL. Never uses a published database.\"\"\"\nimport importlib.util,json,datetime\nfrom pathlib import Path\nfrom concurrent.futures import ThreadPoolExecutor\nspec=importlib.util.spec_from_file_location('inventory',Path(__file__).w",
+    "is_error": false,
+    "timestamp": 1790622209514
   }
 ]
