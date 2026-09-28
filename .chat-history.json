@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "awk '/FUNCTION public.sales_settings_save/,/^\\$\\$/' supabase/migrations/*.sql | grep -oE \"'[a-z_]+'\" | head -30 | tr '\\n' ' '",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790621142871
-  },
-  {
-    "role": "tool_result",
-    "content": "'reservation_policy' 'reservation_policy' 'price_override_policy' 'price_override_policy' 'receivable_trigger' 'receivable_trigger' 'credit_exposure_policy' 'credit_exposure_policy' 'tracking_mode' 'tracking_mode' 'max_discount_percent' 'max_discount_percent' 'max_discount_percent' 'reservation_poli",
-    "is_error": false,
-    "timestamp": 1790621142919
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "awk '/FUNCTION public.sales_settings_save/,/^\\$\\$/' supabase/migrations/*.sql | grep -nE \"jsonb_object_keys|allowed|_key|raise.*configura|ARRAY\\[\" | head -12",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1574,5 +1559,80 @@
     "content": "ok\nEXIT=0\nMIGRATIONS OK\n",
     "is_error": false,
     "timestamp": 1790622288046
+  },
+  {
+    "role": "tool",
+    "tool": "todowrite",
+    "input": {
+      "todos": [
+        {
+          "content": "Auditoria: inventariar migrations, organizações/unidades, Company, ProductVariant, PurchaseOrder/GoodsReceipt, SalesOrder/Shipment, PartnerShipment/Reconciliation, Ledger, Receivable/Payable, Domain Events/Outbox, e qualquer fiscal preexistente",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Migration 1 — Fiscal Master Data + Tax Rule Engine versionado + classificação fiscal de produtos + tipos/naturezas de operação",
+          "priority": "high",
+          "status": "completed"
+        },
+        {
+          "content": "Migration 2 — Motor de cálculo, TaxCalculationSnapshot, simulação fiscal e aprovações de regra",
+          "priority": "high",
+          "status": "in_progress"
+        },
+        {
+          "content": "Migration 3 — FiscalDocument/Item, máquina de estados, numeração transacional, preparação a partir de venda/remessa/devolução",
+          "priority": "high",
+          "status": "pending"
+        },
+        {
+          "content": "Migration 4 — FiscalProviderAdapter, transmissão idempotente, eventos, cancelamento, contingência, storage privado",
+          "priority": "high",
+          "status": "pending"
+        },
+        {
+          "content": "Migration 5 — InboundFiscalDocument, importação de XML, conferência de compras e financeira, FiscalReconciliation, FiscalException, auditoria",
+          "priority": "high",
+          "status": "pending"
+        },
+        {
+          "content": "Gateway fiscal no servidor (readFiscal/mutateFiscal) com requireSupabaseAuth e Zod",
+          "priority": "high",
+          "status": "pending"
+        },
+        {
+          "content": "Permissões fiscal.* no rbac.ts + módulo disponível + teste de contrato contra migrations",
+          "priority": "high",
+          "status": "pending"
+        },
+        {
+          "content": "Telas /fiscal: dashboard, emitidos, recebidos, eventos, cancelamentos, divergências, configurações, simulação",
+          "priority": "high",
+          "status": "pending"
+        },
+        {
+          "content": "Harness PostgreSQL fiscal (grupos AG em diante) cobrindo os testes 61 a 71",
+          "priority": "high",
+          "status": "pending"
+        },
+        {
+          "content": "Documentação: FISCAL, TAX-RULES, FISCAL-DOCUMENTS, INBOUND-FISCAL-DOCUMENTS, FISCAL-RECONCILIATION, TAX-REFORM-READINESS, FISCAL-PROVIDER-ADAPTER, FISCAL-EVENTS, ADR, PROJECT-STATE",
+          "priority": "high",
+          "status": "pending"
+        },
+        {
+          "content": "Validação final: typecheck, testes, build, lint do escopo e harness completo",
+          "priority": "high",
+          "status": "pending"
+        }
+      ]
+    },
+    "timestamp": 1790622294968
+  },
+  {
+    "role": "tool_result",
+    "content": "[\n  {\n    \"content\": \"Auditoria: inventariar migrations, organizações/unidades, Company, ProductVariant, PurchaseOrder/GoodsReceipt, SalesOrder/Shipment, PartnerShipment/Reconciliation, Ledger, Receivable/Payable, Domain Events/Outbox, e qualquer fiscal preexistente\",\n    \"status\": \"completed\",\n    ",
+    "is_error": false,
+    "timestamp": 1790622294971
   }
 ]
