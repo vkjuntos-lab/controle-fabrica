@@ -88,13 +88,14 @@ export function SalesAction({
   const [open, setOpen] = useState(false);
   const [values, setValues] = useState<Record<string, string>>({});
   const [amounts, setAmounts] = useState<Record<string, string>>({});
-  const { key, renew } = useIdempotencyKey();
+  const [incomplete, setIncomplete] = useState(false);
   const write = useSalesWrite(organizationId, {
     onSuccess: () => {
-      toast.success(`${label} concluída`);
+      toast.success(`${label} — concluído`);
       setOpen(false);
       setValues({});
       setAmounts({});
+      setIncomplete(false);
       onSuccess?.();
     },
   });
@@ -106,6 +107,19 @@ export function SalesAction({
 
   const submit = () => {
     const payload: Record<string, Json> = { ...(fixed ?? {}) } as Record<string, Json>;
+    // Campo marcado como obrigatório não pode ser enviado vazio: sem esta
+    // checagem o formulário enviaria um payload incompleto e o servidor apenas
+    // recusaria, devolvendo um erro difícil de entender.
+    const missing = fields.some((field) => {
+      if (!field.required) return false;
+      const value = values[field.key] ?? text(initial?.[field.key]);
+      return value === "" && !field.picker;
+    });
+    if (missing || (items && selected.length === 0)) {
+      setIncomplete(true);
+      return;
+    }
+    setIncomplete(false);
     for (const field of fields) {
       const value = values[field.key] ?? text(initial?.[field.key]);
       if (value === "") continue;

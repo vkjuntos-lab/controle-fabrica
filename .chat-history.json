@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261009100000_crm_customer_history.sql').read_text()\ni=t.find('crm_query')\nb=t[i:i+20000]\nj=b.find('tab:=')\nprint(b[j:j+2200])\nPY"
-    },
-    "timestamp": 1790618328776
-  },
-  {
-    "role": "tool_result",
-    "content": "tab:='customer_credit_policies';perm:='commercial_sensitive.read';\n WHEN 'customers' THEN tab:='customer_profiles';perm:='customers.read';\n WHEN 'companies' THEN tab:='companies';perm:='customers.read';\n WHEN 'contacts' THEN tab:='company_contacts';perm:='customers.read';\n WHEN 'leads' THEN tab:='le",
-    "is_error": false,
-    "timestamp": 1790618328829
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sed -n '60,100p' src/components/crm/shared.tsx"
     },
     "timestamp": 1790618336107
@@ -1547,5 +1533,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790619081565
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/action.tsx",
+      "newString": "  const [amounts, setAmounts] = useState<Record<string, string>>({});\n  const [incomplete, setIncomplete] = useState(false);\n  const write = useSalesWrite(organizationId, {\n    onSuccess: () => {\n      toast.success(`${label} — concluído`);\n      setOpen(false);\n      setValues({});\n      setAmounts({});\n      setIncomplete(false);\n      onSuccess?.();\n    },\n  });\n\n  if (!hasPermission(permission)) return null;\n\n  const selected = items?.filter((item) => Number(amounts[item.id] ?? 0) > 0) ?? [];\n  const emptyForm = fields.length === 0 && !items;\n\n  const submit = () => {\n    const payload: Record<string, Json> = { ...(fixed ?? {}) } as Record<string, Json>;\n    // Campo marcado como obrigatório não pode ser enviado vazio: sem esta\n    // checagem o formulário enviaria um payload incompleto e o servidor apenas\n    // recusaria, devolvendo um erro difícil de entender.\n    const missing = fields.some((field) => {\n      if (!field.required) return false;\n      const value = values[field.key] ?? text(initial?.[field.key]);\n      return value === \"\" && !field.picker;\n    });\n    if (missing || (items && selected.length === 0)) {\n      setIncomplete(true);\n      return;\n    }\n    setIncomplete(false);\n    for (const field of fields) {\n      const value = values[field.key] ?? text(initial?.[field.key]);\n      if (value === \"\") continue;\n      payload[field.key] = field.type === \"number\" ? Number(value) : value;\n    }\n    if (items) {\n      payload.items = selected.map((item) => ({\n        [itemField]: item.id,\n        [quantityField ?? \"quantity\"]: Number(amounts[item.id]),\n      }));\n    }\n    write.mutate({ operation, id, action, values: payload });\n  };",
+      "oldString": "  const [amounts, setAmounts] = useState<Record<string, string>>({});\n  const { key, renew } = useIdempotencyKey();\n  const write = useSalesWrite(organizationId, {\n    onSuccess: () => {\n      toast.success(`${label} concluída`);\n      setOpen(false);\n      setValues({});\n      setAmounts({});\n      onSuccess?.();\n    },\n  });\n\n  if (!hasPermission(permission)) return null;\n\n  const selected = items?.filter((item) => Number(amounts[item.id] ?? 0) > 0) ?? [];\n  const emptyForm = fields.length === 0 && !items;\n\n  const submit = () => {\n    const payload: Record<string, Json> = { ...(fixed ?? {}) } as Record<string, Json>;\n    for (const field of fields) {\n      const value = values[field.key] ?? text(initial?.[field.key]);\n      if (value === \"\") continue;\n      payload[field.key] = field.type === \"number\" ? Number(value) : value;\n    }\n    if (items) {\n      payload.items = selected.map((item) => ({\n        [itemField]: item.id,\n        [quantityField ?? \"quantity\"]: Number(amounts[item.id]),\n      }));\n    }\n    write.mutate({ operation, id, action, values: payload });\n  };"
+    },
+    "timestamp": 1790619087492
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790619087512
   }
 ]
