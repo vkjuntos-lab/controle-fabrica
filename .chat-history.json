@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"PERMISSION_LABELS\\|PERMISSIONS\\|PERMISSION_CATEGORIES\" -r src/routes src/components src/lib --include=*.tsx --include=*.ts | grep -v \"rbac.ts\" | head -20"
-    },
-    "timestamp": 1790618189084
-  },
-  {
-    "role": "tool_result",
-    "content": "src/routes/_authenticated/produtos.$id.tsx:73:import { PERMISSIONS } from \"@/lib/rbac\";\nsrc/routes/_authenticated/produtos.$id.tsx:325:  const canManage = hasPermission(PERMISSIONS.productsManage);\nsrc/routes/_authenticated/produtos.$id.tsx:334:      ) : !hasPermission(PERMISSIONS.productsRead) ? (\n",
-    "is_error": false,
-    "timestamp": 1790618189115
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"vendas\\|Vendas\\|comercial\" src/components/layout/app-shell.tsx | head -30"
     },
     "timestamp": 1790618189144
@@ -1514,5 +1500,20 @@
     "content": "4:import { useMutation, useQueryClient } from \"@tanstack/react-query\";\n5-import { useServerFn } from \"@tanstack/react-start\";\n6-import { toast } from \"sonner\";\n7-\n8-import { Button } from \"@/components/ui/button\";\n9-import { Card, CardContent } from \"@/components/ui/card\";\n10-import {\n11-  Dialog,\n1",
     "is_error": false,
     "timestamp": 1790618745161
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "import { useCallback, useMemo, useState } from \"react\";\nimport { useMutation, useQuery, useQueryClient, type UseMutationResult } from \"@tanstack/react-query\";\nimport { useServerFn } from \"@tanstack/react-start\";\n\nimport { readSales, mutateSales, type SalesOperation } from \"@/lib/sales/sales.functions\";\nimport { MONEY_COLUMNS } from \"@/lib/sales/constants\";\nimport type { Json } from \"@/integrations/supabase/types\";\n\n/**\n * Infraestrutura de leitura e escrita das telas de Vendas.\n *\n * Toda leitura vai para `readSales` e toda escrita para `mutateSales`, que por\n * sua vez chamam as RPCs do banco. A invalidação é sempre do prefixo\n * `[\"sales\", org]`: nenhuma tela deste módulo lê de outra fonte.\n */\n\nexport type Row = Record<string, Json | undefined>;\n\nexport const rows = (value: unknown): Row[] => (Array.isArray(value) ? (value as Row[]) : []);\nexport const object = (value: unknown): Row =>\n  value && typeof value === \"object\" && !Array.isArray(value) ? (value as Row) : {};\nexport const text = (value: unknown): string =>\n  value === null || value === undefined ? \"\" : String(value);\nexport const numeric = (value: unknown): number => Number(value ?? 0);\nexport const truthy = (value: unknown): boolean => value === true || value === \"true\";\n\n/** Colunas formatadas como dinheiro, independentemente da área. */\nexport const isMoneyColumn = (column: string): boolean =>\n  (MONEY_COLUMNS as readonly string[]).includes(column);\n\n/** Monta a query de leitura de uma área do módulo. */\nexport function useSalesRead(\n  organizationId: string,\n  kind: string,\n  id?: string,\n  filters: Row = {},\n) {\n  const api = useServerFn(readSales);\n  const stable = useMemo(() => filters, [JSON.stringify(filters)]);\n  return useQuery({\n    queryKey: [\"sales\", organizationId, kind, id, stable],\n    queryFn: () =>\n      api({\n        data: {\n          organizationId,\n          kind,\n          id,\n          filters: stable as Record<string, Json>,\n        } as never,\n      }),\n    enabled: Boolean(organizationId),\n  });\n}\n\n/**\n * Chave de idempotência por tentativa.\n *\n * O gateway recusa a mesma chave com conteúdo diferente. Por isso a chave é\n * renovada quando a tentativa termina — inclusive quando ela falha — e quando o\n * diálogo é reaberto. Reutilizar a chave depois de um erro deixaria a tela\n * Unable para sempre com um conteúdo que o servidor já recusou.\n */\nexport function useIdempotencyKey() {\n  const [key, setKey] = useState(() => crypto.randomUUID());\n  const renew = useCallback(() => setKey(crypto.randomUUID()), []);\n  return { key, renew };\n}\n\nexport type SalesWriteInput = {\n  operation: SalesOperation;\n  id?: string;\n  action?: string;\n  values: Record<string, Json>;\n};\n\n/**\n * Escrita padronizada do módulo: envia pelo gateway, renova a chave ao terminar\n * e invalida as leituras de vendas — e do CRM, quando o fato também aparece lá.\n */\nexport function useSalesWrite(\n  organizationId: string,\n  options: { alsoCrm?: boolean; onSuccess?: () => void; onError?: () => void } = {},\n): UseMutationResult<unknown, Error, SalesWriteInput> {\n  const api = useServerFn(mutateSales);\n  const client = useQueryClient();\n  const { key, renew } = useIdempotencyKey();\n  const { alsoCrm = false, onSuccess, onError } = options;\n  return useMutation({\n    mutationFn: async (input: SalesWriteInput) =>\n      api({\n        data: {\n          organizationId,\n          operation: input.operation,\n          id: input.id,\n          action: input.action ?? \"\",\n          values: input.values,\n          key,\n        },\n      }),\n    onSuccess: (data) => {\n      void client.invalidateQueries({ queryKey: [\"sales\", organizationId] });\n      if (alsoCrm) void client.invalidateQueries({ queryKey: [\"crm\", organizationId] });\n      renew();\n      onSuccess?.(data);\n    },\n    onError: () => {\n      renew();\n      onError?.();\n    },\n  });\n}\n\n/** Linhas e total de uma listagem, com os filtros que o servidor entende. */\nexport function useSalesList(\n  organizationId: string,\n  kind: string,\n  filters: Record<string, Json>,\n) {\n  const query = useSalesRead(organizationId, kind, undefined, filters);\n  const data = object(query.data);\n  return { query, rows: rows(data.rows), total: numeric(data.total), data };\n}\n\n/**\n * Seletor de referência com o rótulo correto de cada tipo.\n *\n * O `Picker` do CRM mostra `name`/`legal_name`/`sku`; uma proposta e uma\n * transportadora não têm nenhum desses campos e apareceriam como \"—\" para o\n * usuário, sem forma de distinguir uma opção da outra. Aqui cada `kind` declara\n * de onde vem o texto.\n */\nexport type PickerKind = \"quotes\" | \"companies\" | \"variants\" | \"price_tables\";\n\nexport const PICKER_LABEL: Record<PickerKind, (row: Row) => string> = {\n  quotes: (row) => `Proposta ${text(row.quote_number)} · versão ${text(row.version)}`,\n  companies: (row) => text(row.trade_name) || text(row.legal_name) || text(row.id),\n  variants: (row) =>\n    [text(row.sku) || text(row.id), text(row.name)].filter(Boolean).join(\" · \") || text(row.id),\n  price_tables: (row) => text(row.name) || text(row.code) || text(row.id),\n};\n",
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/shared.tsx"
+    },
+    "timestamp": 1790618757731
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790618757748
   }
 ]

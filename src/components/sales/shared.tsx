@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type UseMutationResult } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 
 import { readSales, mutateSales, type SalesOperation } from "@/lib/sales/sales.functions";
@@ -10,7 +10,7 @@ import type { Json } from "@/integrations/supabase/types";
  * Infraestrutura de leitura e escrita das telas de Vendas.
  *
  * Toda leitura vai para `readSales` e toda escrita para `mutateSales`, que por
- * sua vez chamam as RPCs do banco. A invalidate é sempre do prefixo
+ * sua vez chamam as RPCs do banco. A invalidação é sempre do prefixo
  * `["sales", org]`: nenhuma tela deste módulo lê de outra fonte.
  */
 
@@ -24,7 +24,9 @@ export const text = (value: unknown): string =>
 export const numeric = (value: unknown): number => Number(value ?? 0);
 export const truthy = (value: unknown): boolean => value === true || value === "true";
 
-export const asJson = (value: Row): Record<string, Json> => value as Record<string, Json>;
+/** Colunas formatadas como dinheiro, independentemente da área. */
+export const isMoneyColumn = (column: string): boolean =>
+  (MONEY_COLUMNS as readonly string[]).includes(column);
 
 /** Monta a query de leitura de uma área do módulo. */
 export function useSalesRead(
@@ -41,10 +43,10 @@ export function useSalesRead(
       api({
         data: {
           organizationId,
-          kind: kind as never,
+          kind,
           id,
-          filters: asJson(stable),
-        },
+          filters: stable as Record<string, Json>,
+        } as never,
       }),
     enabled: Boolean(organizationId),
   });
@@ -53,10 +55,10 @@ export function useSalesRead(
 /**
  * Chave de idempotência por tentativa.
  *
- * O gateway recusa a mesma chave com conteúdo diferente, então a chave só pode
- * ser renovada quando a tentativa anterior terminou (sucesso ou erro) ou quando
- * o diálogo é fechado e recomeça. Uma falha do servidor não pode deixar a tela
- * presa com uma chave que o servidor já recusou.
+ * O gateway recusa a mesma chave com conteúdo diferente. Por isso a chave é
+ * renovada quando a tentativa termina — inclusive quando ela falha — e quando o
+ * diálogo é reaberto. Reutilizar a chave depois de um erro deixaria a tela
+ * Unable para sempre com um conteúdo que o servidor já recusou.
  */
 export function useIdempotencyKey() {
   const [key, setKey] = useState(() => crypto.randomUUID());
@@ -64,76 +66,49 @@ export function useIdempotencyKey() {
   return { key, renew };
 }
 
-export type MutationOptions = {
-  organizationId: string;
+export type SalesWriteInput = {
   operation: SalesOperation;
   id?: string;
   action?: string;
-  /** Invalida também o CRM: proposta e cliente 360 compartilham os mesmos fatos. */
-  alsoCrm?: boolean;
-  onDone?: () => void;
+  values: Record<string, Json>;
 };
 
 /**
- * Escrita padronizada: envia, trata erro e renova a chave de idempotência.
- * Nenhuma tela monta a chamada de `mutateSales` por conta própria.
+ * Escrita padronizada do módulo: envia pelo gateway, renova a chave ao terminar
+ * e invalida as leituras de vendas — e do CRM, quando o fato também aparece lá.
  */
-export function useSalesWrite({
-  organizationId,
-  operation,
-  id,
-  action = "",
-  alsoCrm = false,
-  onDone,
-}: MutationOptions) {
+export function useSalesWrite(
+  organizationId: string,
+  options: { alsoCrm?: boolean; onSuccess?: () => void; onError?: () => void } = {},
+): UseMutationResult<unknown, Error, SalesWriteInput> {
   const api = useServerFn(mutateSales);
   const client = useQueryClient();
   const { key, renew } = useIdempotencyKey();
-  return useMutation(api, { operation, id, action, key, organizationId, renew, invalidate: client, alsoCrm, onDone });
-}
-
-/** Chamada direta, para formulários que controlam o próprio envio. */
-export function useSalesSubmit(organizationId: string, alsoCrm = false) {
-  const api = useServerFn(mutateSales);
-  const client = useQueryClient();
-  return useSubmitApi(api, organizationId, client, alsoCrm);
-}
-
-function useSubmitApi(
-  api: ReturnType<typeof useServerFn<typeof mutateSales>>,
-  organizationId: string,
-  client: ReturnType<typeof useQueryClient>,
-  alsoCrm: boolean,
-) {
-  return useCallback(
-    async (input: {
-      operation: SalesOperation;
-      id?: string;
-      action?: string;
-      values?: Record<string, Json>;
-      key: string;
-    }) => {
-      const response = await api({
+  const { alsoCrm = false, onSuccess, onError } = options;
+  return useMutation({
+    mutationFn: async (input: SalesWriteInput) =>
+      api({
         data: {
           organizationId,
           operation: input.operation,
           id: input.id,
           action: input.action ?? "",
-          values: input.values ?? {},
-          key: input.key,
+          values: input.values,
+          key,
         },
-      });
+      }),
+    onSuccess: (data) => {
       void client.invalidateQueries({ queryKey: ["sales", organizationId] });
       if (alsoCrm) void client.invalidateQueries({ queryKey: ["crm", organizationId] });
-      return response;
+      renew();
+      onSuccess?.(data);
     },
-    [api, client, organizationId, alsoCrm],
-  );
+    onError: () => {
+      renew();
+      onError?.();
+    },
+  });
 }
-
-/** Colunas que devem ser formatadas como dinheiro, independente da área. */
-export const isMoneyColumn = (column: string): boolean =>
-  (MONEY_COLUMNS as readonly string[]).includes(column);
 
 /** Linhas e total de uma listagem, com os filtros que o servidor entende. */
 export function useSalesList(
@@ -143,10 +118,23 @@ export function useSalesList(
 ) {
   const query = useSalesRead(organizationId, kind, undefined, filters);
   const data = object(query.data);
-  return {
-    query,
-    rows: rows(data.rows),
-    total: numeric(data.total),
-    data,
-  };
+  return { query, rows: rows(data.rows), total: numeric(data.total), data };
 }
+
+/**
+ * Seletor de referência com o rótulo correto de cada tipo.
+ *
+ * O `Picker` do CRM mostra `name`/`legal_name`/`sku`; uma proposta e uma
+ * transportadora não têm nenhum desses campos e apareceriam como "—" para o
+ * usuário, sem forma de distinguir uma opção da outra. Aqui cada `kind` declara
+ * de onde vem o texto.
+ */
+export type PickerKind = "quotes" | "companies" | "variants" | "price_tables";
+
+export const PICKER_LABEL: Record<PickerKind, (row: Row) => string> = {
+  quotes: (row) => `Proposta ${text(row.quote_number)} · versão ${text(row.version)}`,
+  companies: (row) => text(row.trade_name) || text(row.legal_name) || text(row.id),
+  variants: (row) =>
+    [text(row.sku) || text(row.id), text(row.name)].filter(Boolean).join(" · ") || text(row.id),
+  price_tables: (row) => text(row.name) || text(row.code) || text(row.id),
+};
