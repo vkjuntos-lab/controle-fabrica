@@ -231,3 +231,37 @@ it("alinha as permissões de compras ao contrato do banco", () => {
   expect(keys.length).toBeGreaterThan(0);
   for (const [, value] of keys) expect(databaseKeys.has(value), value).toBe(true);
 });
+
+it("alinha as permissões de vendas ao contrato do banco", () => {
+  // As vendas foram criadas ao longo de três migrations; a permissão precisa
+  // existir no banco, senão o botão aparece e a operação é recusada.
+  const migrations = [
+    "../../supabase/migrations/20261006100000_sales_orders.sql",
+    "../../supabase/migrations/20261010100000_sales_integrity.sql",
+    "../../supabase/migrations/20261011100000_sales_planning.sql",
+  ].map((path) => readFileSync(new URL(path, import.meta.url), "utf8"));
+  const databaseKeys = new Set(
+    migrations.flatMap((sql) =>
+      [
+        ...sql.matchAll(
+          /'(?:sales_orders|reservations|fulfillment|picking|packing|shipments|returns|logistics|carriers|sales_credit)\.[a-z_]+'/g,
+        ),
+        ...sql.matchAll(/'(sales\.(?:configure|dashboard))'/g),
+      ].map((match) => match[0].replace(/'/g, "")),
+    ),
+  );
+  const keys = Object.entries(PERMISSIONS).filter(
+    ([key]) =>
+      key.startsWith("sales") ||
+      key.startsWith("reservations") ||
+      key.startsWith("fulfillment") ||
+      key.startsWith("picking") ||
+      key.startsWith("packing") ||
+      key.startsWith("shipments") ||
+      key.startsWith("returns") ||
+      key.startsWith("logistics") ||
+      key.startsWith("carriers"),
+  );
+  expect(keys.length).toBeGreaterThan(0);
+  for (const [, value] of keys) expect(databaseKeys.has(value), value).toBe(true);
+});

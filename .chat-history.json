@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261012100000_sales_settings_fixes.sql",
-      "limit": 16,
-      "offset": 78
-    },
-    "timestamp": 1790618555999
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261012100000_sales_settings_fixes.sql</path>\n<type>file</type>\n<content>\n78:    shipment_requires_full_confirmation=coalesce(nullif(_data->>'shipment_requires_full_confirmation','')::boolean,shipment_requires_full_confirmation),\n7",
-    "is_error": false,
-    "timestamp": 1790618556014
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261012100000_sales_settings_fixes.sql",
@@ -1535,5 +1519,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790619442732
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/rbac.test.ts",
+      "newString": "it(\"alinha as permissões de compras ao contrato do banco\", () => {\n  const migration = readFileSync(\n    new URL(\"../../supabase/migrations/20261001100000_purchasing.sql\", import.meta.url),\n    \"utf8\",\n  );\n  const databaseKeys = new Set(\n    [\n      ...migration.matchAll(\n        /'(?:suppliers|purchase_requests|quotations|purchase_orders|goods_receipts|supplier_returns|supplier_documents|purchase_exceptions)\\.[a-z_]+'/g,\n      ),\n      ...migration.matchAll(/'(purchasing\\.(?:read|dashboard))'/g),\n    ].map((match) => match[0].replace(/'/g, \"\")),\n  );\n  const keys = Object.entries(PERMISSIONS).filter(\n    ([key]) =>\n      key.startsWith(\"suppliers\") ||\n      key.startsWith(\"purchaseRequests\") ||\n      key.startsWith(\"quotations\") ||\n      key.startsWith(\"purchaseOrders\") ||\n      key.startsWith(\"goodsReceipts\") ||\n      key.startsWith(\"supplierReturns\") ||\n      key.startsWith(\"supplierDocuments\") ||\n      key.startsWith(\"purchaseExceptions\") ||\n      key.startsWith(\"purchasing\"),\n  );\n  expect(keys.length).toBeGreaterThan(0);\n  for (const [, value] of keys) expect(databaseKeys.has(value), value).toBe(true);\n});\n\nit(\"alinha as permissões de vendas ao contrato do banco\", () => {\n  // As vendas foram criadas ao longo de três migrations; a permissão precisa\n  // existir no banco, senão o botão aparece e a operação é recusada.\n  const migrations = [\n    \"../../supabase/migrations/20261006100000_sales_orders.sql\",\n    \"../../supabase/migrations/20261010100000_sales_integrity.sql\",\n    \"../../supabase/migrations/20261011100000_sales_planning.sql\",\n  ].map((path) => readFileSync(new URL(path, import.meta.url), \"utf8\"));\n  const databaseKeys = new Set(\n    migrations.flatMap((sql) =>\n      [\n        ...sql.matchAll(\n          /'(?:sales_orders|reservations|fulfillment|picking|packing|shipments|returns|logistics|carriers|sales_credit)\\.[a-z_]+'/g,\n        ),\n        ...sql.matchAll(/'(sales\\.(?:configure|dashboard))'/g),\n      ].map((match) => match[0].replace(/'/g, \"\")),\n    ),\n  );\n  const keys = Object.entries(PERMISSIONS).filter(\n    ([key]) =>\n      key.startsWith(\"sales\") ||\n      key.startsWith(\"reservations\") ||\n      key.startsWith(\"fulfillment\") ||\n      key.startsWith(\"picking\") ||\n      key.startsWith(\"packing\") ||\n      key.startsWith(\"shipments\") ||\n      key.startsWith(\"returns\") ||\n      key.startsWith(\"logistics\") ||\n      key.startsWith(\"carriers\"),\n  );\n  expect(keys.length).toBeGreaterThan(0);\n  for (const [, value] of keys) expect(databaseKeys.has(value), value).toBe(true);\n});",
+      "oldString": "it(\"alinha as permissões de compras ao contrato do banco\", () => {\n  const migration = readFileSync(\n    new URL(\"../../supabase/migrations/20261001100000_purchasing.sql\", import.meta.url),\n    \"utf8\",\n  );\n  const databaseKeys = new Set(\n    [\n      ...migration.matchAll(\n        /'(?:suppliers|purchase_requests|quotations|purchase_orders|goods_receipts|supplier_returns|supplier_documents|purchase_exceptions)\\.[a-z_]+'/g,\n      ),\n      ...migration.matchAll(/'(purchasing\\.(?:read|dashboard))'/g),\n    ].map((match) => match[0].replace(/'/g, \"\")),\n  );\n  const keys = Object.entries(PERMISSIONS).filter(\n    ([key]) =>\n      key.startsWith(\"suppliers\") ||\n      key.startsWith(\"purchaseRequests\") ||\n      key.startsWith(\"quotations\") ||\n      key.startsWith(\"purchaseOrders\") ||\n      key.startsWith(\"goodsReceipts\") ||\n      key.startsWith(\"supplierReturns\") ||\n      key.startsWith(\"supplierDocuments\") ||\n      key.startsWith(\"purchaseExceptions\") ||\n      key.startsWith(\"purchasing\"),\n  );\n  expect(keys.length).toBeGreaterThan(0);\n  for (const [, value] of keys) expect(databaseKeys.has(value), value).toBe(true);\n});"
+    },
+    "timestamp": 1790619449895
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790619449910
   }
 ]
