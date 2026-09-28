@@ -93,6 +93,12 @@ export function OrderDetail({
             Previsão de entrega: {str(order.expected_delivery_date)}
           </p>
         ) : null}
+        {text(quote.id) ? (
+          <p className="text-sm text-muted-foreground">
+            Proposta de origem: {str(quote.number)} (versão {str(quote.version)},{" "}
+            {str(quote.status)}). O preço aceito é o da proposta; a tela não o recalcula.
+          </p>
+        ) : null}
         {str(order.commercial_notes) === "—" ? null : (
           <p className="text-sm text-muted-foreground">
             Observações: {str(order.commercial_notes)}
