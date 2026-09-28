@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "ls src/lib/sales/; echo \"=== teste de contrato de migrations no rbac ===\"; grep -n \"readFileSync\\|MIGRATIONS\\|glob\\|readdir\" src/lib/rbac.test.ts | head -12",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790621130240
-  },
-  {
-    "role": "tool_result",
-    "content": "constants.ts\nidempotency.test.ts\nidempotency.ts\nsales.functions.ts\n=== teste de contrato de migrations no rbac ===\n1:import { readFileSync } from \"node:fs\";\n177:  const migration = readFileSync(\n194:  const migration = readFileSync(\n207:  const migration = readFileSync(\n242:  ].map((path) => readFil",
-    "is_error": false,
-    "timestamp": 1790621130261
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sed -n '170,215p' src/lib/rbac.test.ts; echo \"=== imports de constants no teste de idempotência ===\"; sed -n '1,20p' src/lib/sales/idempotency.test.ts",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1574,5 +1559,20 @@
     "content": "ok\nEXIT=1\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py\", line 27, in run\n    sql((db.ROOT / 'supabase/migrations' / name).read_text())\n    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/sc",
     "is_error": false,
     "timestamp": 1790622276351
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'EOF'\nimport io\np=\"/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261013100000_fiscal_core.sql\"\ns=io.open(p,encoding=\"utf-8\").read()\ns=s.replace(\"\"\"  is_active boolean NOT NULL DEFAULT true,\n  created_at timestamptz NOT NULL DEFAULT now(),\n  updated_at timestamptz NOT NULL DEFAULT now(),\n  UNIQUE(organization_id,code)\n);\"\"\",\"\"\"  is_active boolean NOT NULL DEFAULT true,\n  created_at timestamptz NOT NULL DEFAULT now(),\n  updated_at timestamptz NOT NULL DEFAULT now(),\n  UNIQUE(organization_id,code),\n  UNIQUE(organization_id,id)\n);\"\"\")\nio.open(p,\"w\",encoding=\"utf-8\").write(s)\nprint(\"ok\")\nEOF\ncd '/root/Zheus AI Projects/controle-fabricas' && su claude-runner -c \"python3 scripts/test-fiscal-db.py > /tmp/opencode/fiscal.log 2>&1; echo EXIT=\\$?\"; tail -8 /tmp/opencode/fiscal.log",
+      "timeout": 400000
+    },
+    "timestamp": 1790622280249
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nEXIT=1\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py\", line 27, in run\n    sql((db.ROOT / 'supabase/migrations' / name).read_text())\n    ~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventory",
+    "is_error": false,
+    "timestamp": 1790622282470
   }
 ]
