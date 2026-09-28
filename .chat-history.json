@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/sales/constants.ts",
-      "newString": "export const EXCEPTION_STATUS: Record<string, string> = {\n  OPEN: \"Aberta\",\n  IN_REVIEW: \"Em análise\",\n  RESOLVED: \"Resolvida\",\n  IGNORED: \"Ignorada\",\n};\n\n/** `logistics_exceptions.exception_type`, como o `CHECK` da tabela define. */\nexport const EXCEPTION_TYPE: Record<string, string> = {\n  INSUFFICIENT_STOCK: \"Estoque insuficiente\",\n  RESERVATION_CONFLICT: \"Conflito de reserva\",\n  INVALID_SKU: \"SKU inválido\",\n  WRONG_BATCH: \"Lote errado\",\n  PICKING_DIFFERENCE: \"Divergência na separação\",\n  PACKING_DIFFERENCE: \"Divergência na embalagem\",\n  SHIPMENT_DUPLICATE: \"Expedição duplicada\",\n  DELIVERY_DELAY: \"Atraso na entrega\",\n  DELIVERY_FAILURE: \"Falha na entrega\",\n  DAMAGED_GOODS: \"Mercadoria avariada\",\n  CUSTOMER_REFUSAL: \"Recusa do cliente\",\n};\n\n/** `shipment_delivery_proofs.proof_type`. `PHOTO` existe no banco, mas o\n *  registro de evidência é feito por texto: não há upload de arquivo. */\nexport const PROOF_TYPE: Record<string, string> = {\n  RECEIPT: \"Recibo\",\n  SIGNATURE: \"Assinatura\",\n  DOCUMENT: \"Documento\",\n  PHOTO: \"Foto\",\n  NOTE: \"Observação\",\n};\n",
-      "oldString": "export const EXCEPTION_STATUS: Record<string, string> = {\n  OPEN: \"Aberta\",\n  IN_REVIEW: \"Em análise\",\n  RESOLVED: \"Resolvida\",\n  IGNORED: \"Ignorada\",\n};\n"
-    },
-    "timestamp": 1790620788307
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790620788327
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -n \"export const exceptionSeverityLabel\\|export const exceptionStatusLabel\" -A 2 src/lib/sales/constants.ts",
@@ -1598,5 +1582,20 @@
     "content": "=== organizations ===\nsupabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql:18:CREATE TABLE public.organizations (\n=== companies ===\nsupabase/migrations/20260924100000_partners.sql:3:CREATE TABLE public.companies (\n=== business_units ===\n",
     "is_error": false,
     "timestamp": 1790622020229
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "echo \"=== organizations ===\"; awk \"/CREATE TABLE.*public.organizations \\(/,/^\\);/\" supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; echo \"=== companies ===\"; awk \"/CREATE TABLE.*public.companies \\(/,/^\\);/\" supabase/migrations/20260924100000_partners.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; echo \"=== business_unit em qualquer lugar ===\"; grep -rn \"business_unit\" supabase/migrations/*.sql | head -5",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622025334
+  },
+  {
+    "role": "tool_result",
+    "content": "=== organizations ===\nid name slug document created_by created_at updated_at \n=== companies ===\nid code trade_name state_registration notes created_at created_by \n=== business_unit em qualquer lugar ===\n",
+    "is_error": false,
+    "timestamp": 1790622025372
   }
 ]
