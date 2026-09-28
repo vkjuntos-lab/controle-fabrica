@@ -1,18 +1,5 @@
 [
   {
-    "role": "assistant",
-    "content": "O fluxo principal já passou nos testes: criação, aprovação, reserva sem baixa física, picking, expedição, entrega e devolução. Estou ampliando a validação para envios parciais com vários SKUs, crédito e disputa simultânea pelo mesmo estoque. Também integrei os pedidos ao Customer 360 e a conversão à proposta aceita.\n",
-    "timestamp": 1790594808348
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"tail -n 18 .git/sales-db.log; rg -n 'from_status|ConvertQuote|resolution|permission=|quantity' src/components/sales/workspace.tsx | tail -n 3; git diff --stat\""
-    },
-    "timestamp": 1790594810441
-  },
-  {
     "role": "tool_result",
     "content": "  File \"/root/Zheus AI Projects/controle-fabrica/scripts/test-sales-db.py\", line 22, in call\n    return db.call(name,','.join(q(json.dumps(x) if isinstance(x,(dict,list)) else x) if x is not None else 'NULL' for x in args),user,fail)\n           ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^",
     "is_error": false,
@@ -1507,5 +1494,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790618501133
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && npm run test:sales:db\" 2>&1 | tail -16",
+      "timeout": 900000
+    },
+    "timestamp": 1790618504253
+  },
+  {
+    "role": "tool_result",
+    "content": "  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py\", line 469, in <module>\n    try:run()\n        ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py\", line 451, in run\n    call('sales_execute',org,'settings',None,'',{**policies,'receivable_trigger",
+    "is_error": false,
+    "timestamp": 1790618511318
   }
 ]
