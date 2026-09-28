@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md"
-    },
-    "timestamp": 1790618085898
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md</path>\n<type>file</type>\n<content>\n1: # Estado do projeto — handoff contínuo\n2: \n3: ## Revisão de continuidade — 27/09/2026 (MASTER 012)\n4: \n5: CRM corrigido localmente sobre Company, contatos, preços, ledger, financeiro, ",
-    "is_error": false,
-    "timestamp": 1790618085939
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "python3 -c \"\nimport json\nd=json.load(open('.chat-history.json'))\nfor i,m in enumerate(d):\n    if m.get('role')=='assistant' and 99<=i<=186:\n        c=m.get('content')\n        t=c if isinstance(c,str) else ' '.join(str(b.get('text',b.get('thinking',''))) for b in c)\n        if t.strip():\n            print('='*70); print('IDX',i); print(t[:3000])\n\""
@@ -1525,5 +1511,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790618592262
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && npm run test:sales:db\" 2>&1 | tail -6",
+      "timeout": 900000
+    },
+    "timestamp": 1790618595461
+  },
+  {
+    "role": "tool_result",
+    "content": "> test:sales:db\n> python3 scripts/test-sales-db.py\n\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py\", line 459\n    carrier=execute('carrier',None,'',{'name':'Transportes Rapidos','document_number':'12345678000199',\nIndentationError: unexpected indent\n",
+    "is_error": false,
+    "timestamp": 1790618595810
   }
 ]
