@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
-      "newString": "      <Fulfillments\n        organizationId={organizationId}\n        orderId={orderId}\n        fulfillments={rows(data.fulfillments)}\n        tasks={rows(data.picking_tasks)}\n        picks={rows(data.picking_items)}\n      />\n\n      {/* `packaging_records` e `shipment_delivery_proofs` vêm no mesmo retorno de\n          `sales_order_detail`. Sem esta seção, o registro do que foi embalado e\n          de quem recebeu a mercadoria ficaria visível só na ação, e não depois\n          dela — que é quando ele serve de evidência. */}\n      <Section\n        title=\"Embalagens registradas\"\n        description=\"Peso e dimensão são os medidos no momento da embalagem, não estimados.\"\n      >\n        <Table\n          data={rows(data.packings)}\n          columns={[\n            [\"packed_at\", \"Data\"],\n            [\"packed_by\", \"Registrado por\"],\n            [\"gross_weight_kg\", \"Peso bruto (kg)\"],\n            [\"weight_informed\", \"Peso informado\"],\n            [\"length_cm\", \"Comprimento (cm)\"],\n            [\"width_cm\", \"Largura (cm)\"],\n            [\"height_cm\", \"Altura (cm)\"],\n            [\"volume_count\", \"Volumes\"],\n          ]}\n        />\n      </Section>\n\n      <Section\n        title=\"Expedições e entregas\"\n        description=\"A expedição é a etapa que dá baixa oficial no estoque, uma única vez.\"\n      >\n        <Table\n          data={rows(data.shipments)}\n          columns={[\n            [\"shipment_number\", \"Expedição\"],\n            [\"status\", \"Situação\"],\n            [\"tracking_code\", \"Rastreio\"],\n            [\"delivered_quantity\", \"Entregue\"],\n          ]}\n          render={{ status: (row) => shipmentStatusLabel(row.status) }}\n        >\n          {(shipment) => (\n            <ShipmentActions\n              organizationId={organizationId}\n              orderId={orderId}\n              shipment={shipment}\n              shipmentItems={rows(data.shipment_items).filter(\n                (item) => text(item.shipment_id) === text(shipment.id),\n              )}\n            />\n          )}\n        </Table>\n      </Section>\n\n      <Section\n        title=\"Provas de entrega\"\n        description=\"Registro manual de evidência de recebimento. Não há upload de foto nem assinatura digital.\"\n      >\n        <Table\n          data={rows(data.delivery_proofs)}\n          columns={[\n            [\"occurred_at\", \"Data\"],\n            [\"proof_type\", \"Tipo\"],\n            [\"signature_name\", \"Recebedor\"],\n            [\"notes\", \"Observação\"],\n          ]}\n          render={{\n            proof_type: (row) => proofTypeLabel(row.proof_type),\n          }}\n        />\n      </Section>\n",
-      "oldString": "      <Fulfillments\n        organizationId={organizationId}\n        orderId={orderId}\n        fulfillments={rows(data.fulfillments)}\n        tasks={rows(data.picking_tasks)}\n        picks={rows(data.picking_items)}\n      />\n\n      <Section\n        title=\"Expedições e entregas\"\n        description=\"A expedição é a etapa que dá baixa oficial no estoque, uma única vez.\"\n      >\n        <Table\n          data={rows(data.shipments)}\n          columns={[\n            [\"shipment_number\", \"Expedição\"],\n            [\"status\", \"Situação\"],\n            [\"tracking_code\", \"Rastreio\"],\n            [\"delivered_quantity\", \"Entregue\"],\n          ]}\n          render={{ status: (row) => shipmentStatusLabel(row.status) }}\n        >\n          {(shipment) => (\n            <ShipmentActions\n              organizationId={organizationId}\n              orderId={orderId}\n              shipment={shipment}\n              shipmentItems={rows(data.shipment_items).filter(\n                (item) => text(item.shipment_id) === text(shipment.id),\n              )}\n            />\n          )}\n        </Table>\n      </Section>\n"
-    },
-    "timestamp": 1790620970272
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790620970276
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
       "newString": "      <Section\n        title=\"Ocorrências deste pedido\"\n        description=\"Divergência de separação, atraso e problema de entrega. Ocorrência não corrige estoque: registrar a divergência é o caminho.\"\n      >\n        <Table\n          data={rows(data.exceptions)}\n          columns={[\n            [\"created_at\", \"Data\"],\n            [\"exception_type\", \"Tipo\"],\n            [\"severity\", \"Gravidade\"],\n            [\"message\", \"Descrição\"],\n            [\"status\", \"Situação\"],\n          ]}\n          render={{\n            exception_type: (row) => exceptionTypeLabel(row.exception_type),\n            severity: (row) => exceptionSeverityLabel(row.severity),\n            status: (row) => exceptionStatusLabel(row.status),\n          }}\n        />\n      </Section>\n\n      <Section\n        title=\"Movimentos oficiais de estoque\"",
       "oldString": "      <Section\n        title=\"Movimentos oficiais de estoque\""
     },
@@ -1582,5 +1566,20 @@
     "content": "#!/usr/bin/env python3\n\"\"\"Isolated PostgreSQL integration tests. Never connects to a deployed database.\"\"\"\nimport concurrent.futures\nimport json\nimport os\nfrom pathlib import Path\nimport shutil\nimport subprocess\nimport tempfile\nimport uuid\n\nROOT = Path(__file__).resolve().parents[1]\nBIN = Path(os.en",
     "is_error": false,
     "timestamp": 1790622218319
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "#!/usr/bin/env python3\n\"\"\"MASTER 014 integration tests in disposable PostgreSQL. Never uses a published database.\"\"\"\nimport importlib.util, json, datetime\nfrom pathlib import Path\n\nspec = importlib.util.spec_from_file_location('inventory', Path(__file__).with_name('test-inventory-db.py'))\ndb = importlib.util.module_from_spec(spec)\nspec.loader.exec_module(db)\nq, sql, uid = db.q, db.sql, db.uid\n\nMIGRATIONS = [\n    '20260926100000_partner_reconciliation.sql', '20260928100000_finance.sql',\n    '20260930100000_cost_engine.sql', '20261001100000_purchasing.sql',\n    '20261002100000_planning.sql', '20261003100000_planning_engine.sql',\n    '20261004100000_planning_fixes.sql', '20261005100000_crm.sql',\n    '20261006100000_crm_integrity.sql', '20261006100000_sales_orders.sql',\n    '20261007100000_crm_documents.sql', '20261008100000_crm_company_services.sql',\n    '20261009100000_crm_customer_history.sql', '20261010100000_sales_integrity.sql',\n    '20261011100000_sales_planning.sql', '20261012100000_sales_screen_fixes.sql',\n    '20261013100000_fiscal_core.sql',\n]\n\n\ndef run():\n    db.setup()\n    for name in MIGRATIONS:\n        sql((db.ROOT / 'supabase/migrations' / name).read_text())\n    print(\"MIGRATIONS OK\")\n",
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py"
+    },
+    "timestamp": 1790622222529
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790622222536
   }
 ]
