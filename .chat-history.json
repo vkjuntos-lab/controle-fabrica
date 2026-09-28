@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
-      "limit": 22,
-      "offset": 703
-    },
-    "timestamp": 1790620873254
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx</path>\n<type>file</type>\n<content>\n703:                         ]}\n704:                       />\n705:                     ) : null}\n706:                   </div>\n707:                   <Table\n708:                  ",
-    "is_error": false,
-    "timestamp": 1790620873267
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
@@ -1593,5 +1577,20 @@
     "content": "supabase/migrations/20261006100000_sales_orders.sql:726:CREATE FUNCTION public.sales_require(_org uuid,_permission text) RETURNS void\nsupabase/migrations/20261006100000_sales_orders.sql:731:CREATE FUNCTION public.sales_audit(_org uuid,_action text,_table text,_id uuid,_context jsonb DEFAULT '{}') RE",
     "is_error": false,
     "timestamp": 1790622093616
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '720,740p' supabase/migrations/20261006100000_sales_orders.sql; echo \"=== audit_log tabela ===\"; awk \"/CREATE TABLE.*public.audit_log \\(/,/^\\);/\" supabase/migrations/*.sql | sed 's/^ *//' | head -14",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622097877
+  },
+  {
+    "role": "tool_result",
+    "content": "  ON public.logistics_exceptions(organization_id,exception_type,shipment_id,picking_task_id,sales_order_item_id)\n  WHERE shipment_id IS NOT NULL OR picking_task_id IS NOT NULL OR sales_order_item_id IS NOT NULL;\n\n-- =====================================================================\n-- 9. Helpers ",
+    "is_error": false,
+    "timestamp": 1790622097925
   }
 ]
