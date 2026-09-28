@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "python3 -c \"\nimport json\nd=json.load(open('.chat-history.json'))\nfor i,m in enumerate(d):\n    if m.get('role')=='assistant' and 60<=i<=110:\n        c=m.get('content')\n        t=c if isinstance(c,str) else ' '.join(str(b.get('text',b.get('thinking',''))) for b in c)\n        if t.strip():\n            print('='*70); print('IDX',i); print(t[:4000])\n\""
-    },
-    "timestamp": 1790618082595
-  },
-  {
-    "role": "tool_result",
-    "content": "======================================================================\nIDX 68\nAvancei no MASTER 012:\n\n- Customer 360 com paginação e links para registros de origem.\n- Reconciliações na timeline, protegidas por permissões.\n- 15 grupos de testes de banco passaram; TypeScript e build passaram.\n\n[Relató",
-    "is_error": false,
-    "timestamp": 1790618082642
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "ls -R docs | head -60; echo \"---STATE---\"; ls -la docs; find . -name \"PROJECT-STATE.md\" -not -path \"./node_modules/*\""
     },
     "timestamp": 1790618083034
@@ -1522,5 +1508,20 @@
     "content": "11: for name in ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql','20261001100000_purchasing.sql','20261002100000_planning.sql','20261003100000_planning_engine.sql','20261004100000_planning_fixes.sql','20261005100000_crm.sql','20261006100000_c",
     "is_error": false,
     "timestamp": 1790618575152
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && npm run test:sales:db\" 2>&1 | tail -16",
+      "timeout": 900000
+    },
+    "timestamp": 1790618577705
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS Q: gatilho ON_DISPATCH gera UM titulo por pedido, proporcional ao expedido; repetir nao duplica\nPASS R: proposta aceita -> conversao idempotente por chave e por vinculo; preco aceito preservado\nPASS S: cancelar libera a reserva e devolve o disponivel sem tocar no saldo fisico\nPASS T: reserva ve",
+    "is_error": false,
+    "timestamp": 1790618584935
   }
 ]
