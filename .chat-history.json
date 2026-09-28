@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "python3 - <<'PY'\nimport re\nfrom pathlib import Path\nt=Path('supabase/migrations/20261010100000_sales_integrity.sql').read_text()\nb=list(re.finditer(r'CREATE(?: OR REPLACE)? FUNCTION public\\.sales_pick_confirm\\(.*?\\n\\$\\$;', t, re.S))[-1].group(0)\ni=b.find(\"jsonb_array_elements(_data->'items')\")\nprint(b[max(0,i-400):i+700])\nprint('=== PACK items ===')\nt2=Path('supabase/migrations/20261006100000_sales_orders.sql').read_text()\nc=list(re.finditer(r'CREATE(?: OR REPLACE)? FUNCTION public\\.sales_pack\\(.*?\\n\\$\\$;', t2, re.S))[-1].group(0)\nj=c.find(\"jsonb_array_elements(coalesce(_data->'items'\")\nprint(c[max(0,j-300):j+600])\nPY"
-    },
-    "timestamp": 1790618394529
-  },
-  {
-    "role": "tool_result",
-    "content": "ND organization_id=_org FOR UPDATE;\n IF NOT FOUND THEN RAISE EXCEPTION 'Tarefa de separação não encontrada.'; END IF;\n IF t.status NOT IN ('IN_PROGRESS','PICKED','PENDING') THEN RAISE EXCEPTION 'Tarefa não está em conferência.'; END IF;\n IF jsonb_array_length(coalesce(_data->'items','[]'::jsonb))=0 ",
-    "is_error": false,
-    "timestamp": 1790618394580
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sed -n '30,90p' supabase/migrations/20261006100000_sales_orders.sql"
     },
     "timestamp": 1790618399634
@@ -1519,5 +1505,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790619177218
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "npm run typecheck 2>&1 | head -60",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790619179494
+  },
+  {
+    "role": "tool_result",
+    "content": "\n> typecheck\n> tsc --noEmit\n\n",
+    "is_error": false,
+    "timestamp": 1790619210326
   }
 ]
