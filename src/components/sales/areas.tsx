@@ -127,25 +127,16 @@ export const AREAS: Area[] = [
   },
 ];
 
-const STATUS_LABELS: Record<string, (value: unknown) => string> = {
+/** Rótulo do código de `status` depende da área; as demais colunas são fixas. */
+const AREA_STATUS_LABELS: Record<string, (value: unknown) => string> = {
   orders: orderStatusLabel,
   reservations: reservationStatusLabel,
   fulfillment: fulfillmentStatusLabel,
   shipments: shipmentStatusLabel,
   returns: returnStatusLabel,
-  exceptions: (value) =>
-    text(value) === "" ? "—" : (EXCEPTION_STATUS[text(value)] ?? text(value)),
-  carriers: (value) => (text(value) === "ACTIVE" ? "Ativa" : text(value) === "INACTIVE" ? "Inativa" : "—"),
-};
-
-const STATUS_MAPS: Record<string, Record<string, string>> = {
-  orders: { ...ORDER_STATUS, stock_status: "", fulfillment_status: "" },
-  reservations: RESERVATION_STATUS,
-  fulfillment: {},
-  shipments: SHIPMENT_STATUS,
-  returns: RETURN_STATUS,
-  exceptions: { ...EXCEPTION_STATUS, ...EXCEPTION_SEVERITY },
-  carriers: {},
+  exceptions: exceptionStatusLabel,
+  carriers: (value) =>
+    text(value) === "ACTIVE" ? "Ativa" : text(value) === "INACTIVE" ? "Inativa" : "—",
 };
 
 const COLUMN_LABELS: Record<string, string> = {

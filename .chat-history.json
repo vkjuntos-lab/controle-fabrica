@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py",
-      "limit": 14,
-      "offset": 384
-    },
-    "timestamp": 1790618422738
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/scripts/test-sales-db.py</path>\n<type>file</type>\n<content>\n384: \n385:  # Recebimento de devolução repetido e limite acumulado.\n386:  movements_before=sql('SELECT count(*) FROM inventory_movements')\n387:  assert rpc('sales_return_action',org,ret['id'],",
-    "is_error": false,
-    "timestamp": 1790618422751
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np=Path('scripts/test-sales-db.py')\nlines=p.read_text().split('\\n')\n# linhas 390..end do bloco novo (indices 389..)\nstart=389\nout=[]\nfor i,l in enumerate(lines):\n    if i>=start and l.startswith('  '):\n        out.append(l[1:])\n    else:\n        out.append(l)\np.write_text('\\n'.join(out))\nprint('\\n'.join(out[386:400]))\nPY"
@@ -1523,5 +1507,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/areas.tsx</path>\n<type>file</type>\n<content>\n161:   total_amount: \"Valor do pedido\",\n162:   sku_snapshot: \"SKU\",\n163:   location_name: \"Local\",\n164:   source_location_name: \"Origem\",\n165:   quantity: \"Quantidade\",\n166:   delivered_",
     "is_error": false,
     "timestamp": 1790619221051
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/areas.tsx",
+      "newString": "/** Rótulo do código de `status` depende da área; as demais colunas são fixas. */\nconst AREA_STATUS_LABELS: Record<string, (value: unknown) => string> = {\n  orders: orderStatusLabel,\n  reservations: reservationStatusLabel,\n  fulfillment: fulfillmentStatusLabel,\n  shipments: shipmentStatusLabel,\n  returns: returnStatusLabel,\n  exceptions: exceptionStatusLabel,\n  carriers: (value) =>\n    text(value) === \"ACTIVE\" ? \"Ativa\" : text(value) === \"INACTIVE\" ? \"Inativa\" : \"—\",\n};\n\nconst COLUMN_LABELS: Record<string, string> = {",
+      "oldString": "const STATUS_LABELS: Record<string, (value: unknown) => string> = {\n  orders: orderStatusLabel,\n  reservations: reservationStatusLabel,\n  fulfillment: fulfillmentStatusLabel,\n  shipments: shipmentStatusLabel,\n  returns: returnStatusLabel,\n  exceptions: (value) =>\n    text(value) === \"\" ? \"—\" : (EXCEPTION_STATUS[text(value)] ?? text(value)),\n  carriers: (value) => (text(value) === \"ACTIVE\" ? \"Ativa\" : text(value) === \"INACTIVE\" ? \"Inativa\" : \"—\"),\n};\n\nconst STATUS_MAPS: Record<string, Record<string, string>> = {\n  orders: { ...ORDER_STATUS, stock_status: \"\", fulfillment_status: \"\" },\n  reservations: RESERVATION_STATUS,\n  fulfillment: {},\n  shipments: SHIPMENT_STATUS,\n  returns: RETURN_STATUS,\n  exceptions: { ...EXCEPTION_STATUS, ...EXCEPTION_SEVERITY },\n  carriers: {},\n};\n\nconst COLUMN_LABELS: Record<string, string> = {"
+    },
+    "timestamp": 1790619226401
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790619226413
   }
 ]
