@@ -265,6 +265,7 @@ function ActionInput({
       ) : field.type === "textarea" ? (
         <Textarea
           aria-label={field.label}
+          required={field.required}
           value={value}
           onChange={(event) => onChange(event.target.value)}
         />
