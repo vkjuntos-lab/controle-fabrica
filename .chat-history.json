@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "echo \"=== TYPECHECK ===\"; npm run typecheck 2>&1 | tail -3; echo \"=== LINT ===\"; npx eslint src/components/sales 2>&1 | tail -4; echo \"=== TESTES ===\"; npm test 2>&1 | grep -E \"Test Files|Tests \"",
-      "timeout": 300000,
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620489720
-  },
-  {
-    "role": "tool_result",
-    "content": "=== TYPECHECK ===\n> typecheck\n> tsc --noEmit\n\n=== LINT ===\n  54:14  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components\n\n✖ 1 problem (0 errors, 1 warning)\n\n=== TESTES ===\n Test F",
-    "is_error": false,
-    "timestamp": 1790620526548
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "for f in sales_dashboard sales_query; do echo \"=== $f: chaves de topo ===\"; awk \"/FUNCTION public.$f\\\\(/,/^\\\\\\$\\\\\\$/\" supabase/migrations/20261010100000_sales_integrity.sql | grep -oE \"^  '[a-z_]+',\" | tr -d \" ',\" | sort -u | tr '\\n' ' '; echo; done",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1539,5 +1523,21 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790621279897
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "npx vitest run src/lib/sales/constants.test.ts 2>&1 | tail -35",
+      "timeout": 180000,
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790621282554
+  },
+  {
+    "role": "tool_result",
+    "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ✓ src/lib/sales/constants.test.ts (10 tests) 16ms\n\n Test Files  1 passed (1)\n      Tests  10 passed (10)\n   Start at  18:48:03\n   Duration  335ms (transform 77ms, setup 0ms, collect 91ms, tests 16ms, environment 0ms, prepare 70ms)\n\n",
+    "is_error": false,
+    "timestamp": 1790621283912
   }
 ]
