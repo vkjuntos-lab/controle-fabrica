@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/reference-picker.tsx",
-      "newString": "      {pages > 1 ? (",
-      "oldString": "      {value && !selected ? (\n        <p className=\"text-xs text-muted-foreground\">\n          Registro selecionado fora da busca atual: {describe({ id: value })}\n        </p>\n      ) : null}\n      {pages > 1 ? ("
-    },
-    "timestamp": 1790619928262
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790619928271
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "npm run typecheck 2>&1 | head -20; echo \"===LINT SALES===\"; npx eslint src/components/sales src/lib/sales 2>&1 | tail -20; echo \"===TEST===\"; npm test 2>&1 | tail -8",
@@ -1538,5 +1522,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx</path>\n<type>file</type>\n<content>\n193: \n194:       <Returns\n195:         organizationId={organizationId}\n196:         returns={rows(data.returns)}\n197:         returnItems={rows(data.return_items)}\n198:         lo",
     "is_error": false,
     "timestamp": 1790620803897
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "for t in inventory_movements sales_order_status_history; do echo \"=== $t ===\"; awk \"/CREATE TABLE.*public.$t \\(/,/^\\);/\" supabase/migrations/*.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; done",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620810490
+  },
+  {
+    "role": "tool_result",
+    "content": "=== inventory_movements ===\nid organization_id variant_id location_id batch_id movement_type direction quantity unit reference_type reference_id reason occurred_at created_at created_by status reversal_of_id reversed_by_id idempotency_key source external_reference id organization_id variant_id locat",
+    "is_error": false,
+    "timestamp": 1790620810558
   }
 ]
