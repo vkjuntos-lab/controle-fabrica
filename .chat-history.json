@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
-      "limit": 40,
-      "offset": 160
-    },
-    "timestamp": 1790620960509
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx</path>\n<type>file</type>\n<content>\n160:       <Fulfillments\n161:         organizationId={organizationId}\n162:         orderId={orderId}\n163:         fulfillments={rows(data.fulfillments)}\n164:         tasks={rows(d",
-    "is_error": false,
-    "timestamp": 1790620960522
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
@@ -1583,5 +1567,20 @@
     "content": "12:ROOT = Path(__file__).resolve().parents[1]\n18:def sql(query, user=None, fail=None):\n27:def uid(): return str(uuid.uuid4())\n28:def call(name, args, user, fail=None): return sql(f\"SELECT public.{name}({args});\", user, fail)\n29:def q(s): return \"'\"+str(s).replace(\"'\", \"''\")+\"'\"\n31:def setup():\n32:  ",
     "is_error": false,
     "timestamp": 1790622214443
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '1,60p' scripts/test-inventory-db.py",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622218297
+  },
+  {
+    "role": "tool_result",
+    "content": "#!/usr/bin/env python3\n\"\"\"Isolated PostgreSQL integration tests. Never connects to a deployed database.\"\"\"\nimport concurrent.futures\nimport json\nimport os\nfrom pathlib import Path\nimport shutil\nimport subprocess\nimport tempfile\nimport uuid\n\nROOT = Path(__file__).resolve().parents[1]\nBIN = Path(os.en",
+    "is_error": false,
+    "timestamp": 1790622218319
   }
 ]
