@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
-      "limit": 22,
-      "offset": 9
-    },
-    "timestamp": 1790620903928
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx</path>\n<type>file</type>\n<content>\n9: import {\n10:   CARRIER_MODALITY,\n11:   DELIVERED_SHIPMENT_STATUS,\n12:   IN_TRANSIT_SHIPMENT_STATUS,\n13:   OPEN_ORDER_STATUS,\n14:   RETURN_DESTINATION,\n15:   fulfillmentActions,",
-    "is_error": false,
-    "timestamp": 1790620903943
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
@@ -1586,5 +1570,20 @@
     "content": "ok\n--- sem CJK ---\n",
     "is_error": false,
     "timestamp": 1790622189509
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'EOF'\nimport io, re\np = \"/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261013100000_fiscal_core.sql\"\ns = io.open(p, encoding=\"utf-8\").read()\n# Substitui o bloco de policies pelo padrão do projeto: has_permission por tabela.\nstart = s.index(\"-- Releitura de dados fiscais\")\nend = s.index(\"-- =====================================================================\\n-- 15. Helpers.\")\nnovo = \"\"\"-- Leitura liberada conforme a permissão do módulo; escrita é negada aqui\n-- e só acontece por função SECURITY DEFINER que já validou a permissão.\n-- Sem isso o frontend escreveria direto na tabela fiscal.\nDO $policies$ DECLARE t text; perm text; BEGIN\n  FOREACH t IN ARRAY ARRAY[\n    'fiscal_establishments','fiscal_tax_regimes','fiscal_establishment_regime_history',\n    'fiscal_operation_types','fiscal_operation_natures','product_fiscal_profiles',\n    'company_fiscal_profiles','fiscal_region_profiles','fiscal_taxes','tax_rules',\n    'tax_rule_items','fiscal_layout_versions'] LOOP\n    perm := CASE WHEN t IN ('tax_rules','tax_rule_items') THEN 'fiscal.tax_rules.read'\n                 WHEN t IN ('fiscal_establishments','fiscal_tax_regimes',\n                            'fiscal_establishment_regime_history','fiscal_operation_types',\n                            'fiscal_operation_natures','fiscal_layout_versions') THEN 'fiscal.read'\n                 ELSE 'fiscal.read' END;\n    EXECUTE format(\n      'CREATE POLICY fiscal_read ON public.%I FOR SELECT TO authenticated USING(public.has_permission(organization_id,%L))',\n      t,perm);\n  END LOOP;\nEND $policies$;\n\n-- Numeração é estado interno do contador: sem leitura direta nem escrita.\nCREATE POLICY fiscal_no_direct_access ON public.fiscal_number_sequences\n  FOR ALL TO authenticated USING(false) WITH CHECK(false);\n\n\"\"\"\ns = s[:start] + novo + s[end:]\nio.open(p, \"w\", encoding=\"utf-8\").write(s)\nprint(\"ok\")\nEOF\ngrep -c \"CREATE POLICY\" supabase/migrations/20261013100000_fiscal_core.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622195947
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n2\n",
+    "is_error": false,
+    "timestamp": 1790622195997
   }
 ]

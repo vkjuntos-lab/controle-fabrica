@@ -509,36 +509,29 @@ ALTER TABLE public.tax_rules ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tax_rule_items ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.fiscal_layout_versions ENABLE ROW LEVEL SECURITY;
 
--- Releitura de dados fiscais é permitida a quem autenticou; escrita é
--- negada aqui e só acontece por função SECURITY DEFINER que já
--- validou a permissão. Sem isso o frontend escreveria direto.
-CREATE POLICY fiscal_select ON public.fiscal_establishments
-  FOR SELECT TO authenticated USING (organization_id IN (SELECT public.my_org_ids()));
-CREATE POLICY fiscal_select ON public.fiscal_tax_regimes
-  FOR SELECT TO authenticated USING (organization_id IN (SELECT public.my_org_ids()));
-CREATE POLICY fiscal_select ON public.fiscal_establishment_regime_history
-  FOR SELECT TO authenticated USING (organization_id IN (SELECT public.my_org_ids()));
-CREATE POLICY fiscal_select ON public.fiscal_operation_types
-  FOR SELECT TO authenticated USING (organization_id IN (SELECT public.my_org_ids()));
-CREATE POLICY fiscal_select ON public.fiscal_operation_natures
-  FOR SELECT TO authenticated USING (organization_id IN (SELECT public.my_org_ids()));
-CREATE POLICY fiscal_select ON public.product_fiscal_profiles
-  FOR SELECT TO authenticated USING (organization_id IN (SELECT public.my_org_ids()));
-CREATE POLICY fiscal_select ON public.company_fiscal_profiles
-  FOR SELECT TO authenticated USING (organization_id IN (SELECT public.my_org_ids()));
-CREATE POLICY fiscal_select ON public.fiscal_region_profiles
-  FOR SELECT TO authenticated USING (organization_id IN (SELECT public.my_org_ids()));
-CREATE POLICY fiscal_select ON public.fiscal_taxes
-  FOR SELECT TO authenticated USING (organization_id IN (SELECT public.my_org_ids()));
-CREATE POLICY fiscal_select ON public.tax_rules
-  FOR SELECT TO authenticated USING (organization_id IN (SELECT public.my_org_ids()));
-CREATE POLICY fiscal_select ON public.tax_rule_items
-  FOR SELECT TO authenticated USING (organization_id IN (SELECT public.my_org_ids()));
-CREATE POLICY fiscal_select ON public.fiscal_layout_versions
-  FOR SELECT TO authenticated USING (organization_id IN (SELECT public.my_org_ids()));
--- Numeração é estado interno do contador: sem leitura direta.
-CREATE POLICY fiscal_none ON public.fiscal_number_sequences
-  FOR ALL TO authenticated USING (false) WITH CHECK (false);
+-- Leitura liberada conforme a permissão do módulo; escrita é negada aqui
+-- e só acontece por função SECURITY DEFINER que já validou a permissão.
+-- Sem isso o frontend escreveria direto na tabela fiscal.
+DO $policies$ DECLARE t text; perm text; BEGIN
+  FOREACH t IN ARRAY ARRAY[
+    'fiscal_establishments','fiscal_tax_regimes','fiscal_establishment_regime_history',
+    'fiscal_operation_types','fiscal_operation_natures','product_fiscal_profiles',
+    'company_fiscal_profiles','fiscal_region_profiles','fiscal_taxes','tax_rules',
+    'tax_rule_items','fiscal_layout_versions'] LOOP
+    perm := CASE WHEN t IN ('tax_rules','tax_rule_items') THEN 'fiscal.tax_rules.read'
+                 WHEN t IN ('fiscal_establishments','fiscal_tax_regimes',
+                            'fiscal_establishment_regime_history','fiscal_operation_types',
+                            'fiscal_operation_natures','fiscal_layout_versions') THEN 'fiscal.read'
+                 ELSE 'fiscal.read' END;
+    EXECUTE format(
+      'CREATE POLICY fiscal_read ON public.%I FOR SELECT TO authenticated USING(public.has_permission(organization_id,%L))',
+      t,perm);
+  END LOOP;
+END $policies$;
+
+-- Numeração é estado interno do contador: sem leitura direta nem escrita.
+CREATE POLICY fiscal_no_direct_access ON public.fiscal_number_sequences
+  FOR ALL TO authenticated USING(false) WITH CHECK(false);
 
 -- =====================================================================
 -- 15. Helpers.
