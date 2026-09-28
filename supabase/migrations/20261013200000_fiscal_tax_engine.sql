@@ -392,6 +392,7 @@ DECLARE
   v_rule public.tax_rules;
   v_perm text;
   v_to public.tax_rule_status;
+  v_from public.tax_rule_status;
 BEGIN
   v_perm := CASE _action
     WHEN 'submit' THEN 'fiscal.tax_rules.manage'
