@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/sales/sales.functions.ts"
-    },
-    "timestamp": 1790618119864
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/lib/sales/sales.functions.ts</path>\n<type>file</type>\n<content>\n1: import { createServerFn } from \"@tanstack/react-start\";\n2: import { z } from \"zod\";\n3: import { requireSupabaseAuth } from \"@/integrations/supabase/auth-middleware\";\n4: const uuid =",
-    "is_error": false,
-    "timestamp": 1790618119876
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/routes/_authenticated/vendas/index.tsx"
     },
     "timestamp": 1790618120276
@@ -1505,5 +1491,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790618671262
+  },
+  {
+    "role": "tool",
+    "tool": "write",
+    "input": {
+      "content": "import { createServerFn } from \"@tanstack/react-start\";\nimport { z } from \"zod\";\n\nimport { requireSupabaseAuth } from \"@/integrations/supabase/auth-middleware\";\n\n/**\n * Porta de entrada do módulo de Vendas e logística (MASTER 013).\n *\n * Leitura e escrita passam por RPCs `SECURITY DEFINER` do banco, que validam\n * tenant, permissão, estado e idempotência. O cliente nunca decide regra de\n * negócio:这里的 `kind`/`operation` apenas escolhem qual RPC chamar.\n */\n\nconst uuid = z.string().uuid();\nconst values = z.record(z.string(), z.json());\n\n/** `detail` e `dashboard` têm RPC própria; os demais kinds usam `sales_query`. */\nconst readKinds = [\n  \"orders\",\n  \"reservations\",\n  \"fulfillment\",\n  \"shipments\",\n  \"returns\",\n  \"exceptions\",\n  \"carriers\",\n  \"credits\",\n  \"settings\",\n  \"locations\",\n  \"addresses\",\n] as const;\n\n/**\n * Operações do gateway `sales_execute`. A lista espelha o `CASE` da RPC: uma\n * operação fora daqui é recusada pelo servidor, e a tela não deve oferecer\n * botão para operação inexistente.\n */\nconst operations = [\n  \"save\",\n  \"convert\",\n  \"order\",\n  \"reserve\",\n  \"reservation\",\n  \"fulfillment_create\",\n  \"fulfillment\",\n  \"scan\",\n  \"confirm\",\n  \"pack\",\n  \"shipment_create\",\n  \"dispatch\",\n  \"shipment\",\n  \"return_create\",\n  \"return\",\n  \"exception\",\n  \"carrier\",\n  \"settings\",\n  \"expire\",\n] as const;\n\nexport type SalesOperation = (typeof operations)[number];\nexport type SalesKind = (typeof readKinds)[number];\n\nexport const readSales = createServerFn({ method: \"GET\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: uuid,\n        kind: z.enum(readKinds),\n        id: uuid.optional(),\n        filters: values.default({}),\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const result =\n      data.kind === \"detail\"\n        ? await context.supabase.rpc(\"sales_order_detail\", {\n            _org: data.organizationId,\n            _order: uuid.parse(data.id),\n          })\n        : data.kind === \"dashboard\"\n          ? await context.supabase.rpc(\"sales_dashboard\", {\n              _org: data.organizationId,\n              _filters: data.filters,\n            })\n          : await context.supabase.rpc(\"sales_query\", {\n              _org: data.organizationId,\n              _kind: data.kind,\n              _filters: data.filters,\n            });\n    if (result.error) throw new Error(result.error.message);\n    return result.data;\n  });\n\n/**\n * Escrita sempre pelo gateway `sales_execute`, que exige `key` de idempotência:\n * a mesma chave com o mesmo conteúdo devolve o mesmo resultado, e com conteúdo\n * diferente é recusada. É o que impede pedido duplicado por duplo clique.\n */\nexport const mutateSales = createServerFn({ method: \"POST\" })\n  .middleware([requireSupabaseAuth])\n  .inputValidator((input) =>\n    z\n      .object({\n        organizationId: uuid,\n        operation: z.enum(operations),\n        id: uuid.optional(),\n        action: z.string().max(40).default(\"\"),\n        values: values.default({}),\n        key: uuid,\n      })\n      .parse(input),\n  )\n  .handler(async ({ data, context }) => {\n    const result = await context.supabase.rpc(\"sales_execute\", {\n      _org: data.organizationId,\n      _operation: data.operation,\n      _id: (data.id ?? null) as string,\n      _action: data.action,\n      _data: data.values,\n      _key: data.key,\n    });\n    if (result.error) throw new Error(result.error.message);\n    return result.data;\n  });\n",
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/sales/sales.functions.ts"
+    },
+    "timestamp": 1790618680225
+  },
+  {
+    "role": "tool_result",
+    "content": "Wrote file successfully.",
+    "is_error": false,
+    "timestamp": 1790618680233
   }
 ]
