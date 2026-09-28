@@ -712,7 +712,7 @@ function Returns({
                       ["received_quantity", "Recebido"],
                       ["destination", "Destinação"],
                     ]}
-                    render={(row) => returnDestinationLabel(row.destination)}
+                    render={{ destination: (row) => returnDestinationLabel(row.destination) }}
                   />
                 </CardContent>
               </Card>
