@@ -560,33 +560,41 @@ Validação local; publicação não verificada.
 
 ## NEXT_STEPS
 
-1. Aplicar as três migrations do MASTER 011 (`20261002100000_planning.sql`,
+1. Aplicar as quatro migrations do MASTER 013 (`20261006100000_sales_orders.sql`,
+   `20261010100000_sales_integrity.sql`, `20261011100000_sales_planning.sql` e
+   `20261012100000_sales_screen_fixes.sql`) no Lovable Cloud e executar smoke test autenticado:
+   novo pedido e conversão de proposta, aprovação com crédito, reserva, separação por código de
+   barras, conferência divergente, embalagem, expedição, entrega com prova, devolução e as doze
+   políticas. Confirmar também que a tela mostra um código de rastreio e um recebedor, e não "—".
+2. Aplicar as três migrations do MASTER 011 (`20261002100000_planning.sql`,
    `20261003100000_planning_engine.sql`, `20261004100000_planning_fixes.sql`) no Lovable Cloud e
    executar smoke test autenticado (parâmetros, execução, forecast, simulação, sugestão → conversão)
    no ambiente publicado.
-2. Aplicar a migration do MASTER 010 no Lovable Cloud e executar smoke test autenticado
+3. Aplicar a migration do MASTER 010 no Lovable Cloud e executar smoke test autenticado
    (fornecedores, requisição → cotação → pedido → recebimento → postagem, documento/exceções,
    reposição) no ambiente publicado.
-3. Aplicar a migration do MASTER 009 no Lovable Cloud e executar smoke test autenticado
+4. Aplicar a migration do MASTER 009 no Lovable Cloud e executar smoke test autenticado
    (custos, precificação, rentabilidade) no ambiente publicado.
-4. Implementar/validar o importador MASTER 005 com o contrato de `marketplace_stores`, vínculo
+5. Agendar a expiração de reservas vencidas (hoje depende de chamada); ligar um provedor real de
+   rastreamento ao modo `WEBHOOK` das políticas, hoje manual.
+6. Implementar/validar o importador MASTER 005 com o contrato de `marketplace_stores`, vínculo
    PARTNER → `partner_profiles` e `marketplace_sales` já existentes. Não duplicar o cadastro de lojas.
-5. Financeiro de parceiros: consumir o snapshot/evento `PARTNER_RECONCILIATION_CLOSED` para gerar
+7. Financeiro de parceiros: consumir o snapshot/evento `PARTNER_RECONCILIATION_CLOSED` para gerar
    cobrança (AR) e registrar pagamento; limites de crédito e condições de pagamento.
-6. Ligar venda, recebimento de compra e produção ao ledger (movimentos automáticos `SALE`,
-   `PURCHASE_RECEIPT`, `PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`).
-7. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.
-8. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a
-   `/api/webhooks/receiver` quando houver integração externa.
-9. Quitar a dívida de formatação pré-existente do lint global (169 erros de Prettier em
-   `auth-middleware`, `csv`, `logger` e rotas antigas), sem misturar com mudanças de domínio.
+8. Ligar produção ao ledger (movimentos `PRODUCTION_OUTPUT`/`PRODUCTION_CONSUMPTION`).
+9. Valorização do estoque (custo por movimento, CMV) e relatórios de quantidade + valor.
+10. Definir `LOVABLE_CRON_SECRET`/`WEBHOOK_SECRET` e ligar um provedor real a
+    `/api/webhooks/receiver` quando houver integração externa.
+11. Quitar a dívida de formatação pré-existente do lint global (cerca de 12 mil erros de Prettier em
+    módulos compactados de outros masters e em `auth-middleware`, `csv`, `logger` e rotas antigas),
+    sem misturar com mudanças de domínio.
 
 ## VALIDAÇÃO DESTA CONTINUAÇÃO
 
 Relatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-VALIDATION.md`,
 `docs/handoff/MASTER-007-VALIDATION.md`, `docs/handoff/MASTER-009-VALIDATION.md`,
-`docs/handoff/MASTER-010-VALIDATION.md` e `docs/handoff/MASTER-011-VALIDATION.md`.
-39 testes unitários, harness PostgreSQL de estoque, de parceiros, de reconciliação, de custos, de
-compras e de planejamento (MASTER 011: `npm run test:planning:db`, 20 grupos), TypeScript e lint do
-domínio verificados. A implantação no banco publicado não faz parte da evidência local e permanece
-pendente.
+`docs/handoff/MASTER-010-VALIDATION.md`, `docs/handoff/MASTER-011-VALIDATION.md` e
+`docs/handoff/MASTER-013-VALIDATION.md`.
+MASTER 013: 32 grupos PostgreSQL de vendas (`npm run test:sales:db`, A–AF), 77 testes unitários em
+7 arquivos, TypeScript, build e lint do domínio verificados. A implantação no banco publicado não faz
+parte da evidência local e permanece pendente.
