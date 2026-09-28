@@ -31,6 +31,7 @@ def run():
  def detail(order,**kw):return rpc('sales_order_detail',org,order,**kw)
  def raw(name,args,user,fail=None):return db.call(name,args,user,fail)
  def arg(x):return q(json.dumps(x)) if isinstance(x,(dict,list)) else q(x)
+ def execute(operation,identifier=None,verb='',data={},user=a,**kw):return rpc('sales_execute',org,operation,identifier,verb,data,uid(),user=user,**kw)
  def nw(variant,loc):return raw('inventory_post_movement',','.join(map(q,[org,variant,loc,'OPENING_BALANCE',100]))+",_reason=>'Saldo inicial'",a)
  def balance(variant,loc):return float(sql(f"SELECT inventory_get_balance({q(org)},{q(variant)},{q(loc)})",a))
 
