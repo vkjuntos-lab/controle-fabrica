@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"EXCEPTION_TYPE\\|PROOF\\|proofType\\|exceptionType\\|EXCEPTION_SEVERITY\" src/lib/sales/constants.ts | head",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620770683
-  },
-  {
-    "role": "tool_result",
-    "content": "102:export const EXCEPTION_SEVERITY: Record<string, string> = {\n294:export const exceptionSeverityLabel = (value: unknown) => label(EXCEPTION_SEVERITY, value);\n",
-    "is_error": false,
-    "timestamp": 1790620770726
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "echo \"=== exception_type no banco ===\"; grep -n \"exception_type\" supabase/migrations/20261006100000_sales_orders.sql | grep -iE \"check|values\" | head -3; echo \"=== proof_type ===\"; grep -n \"proof_type\" supabase/migrations/20261006100000_sales_orders.sql | grep -iE \"check|values\" | head -3",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1599,5 +1584,20 @@
     "content": "supabase/migrations/20260917110000_catalog_mestre.sql:12:--   * NCM é texto (nunca identificador interno);\nsupabase/migrations/20260917110000_catalog_mestre.sql:45:  ncm text,\n",
     "is_error": false,
     "timestamp": 1790622005303
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -rn \"ncm\" supabase/migrations/*.sql | head -20",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622008683
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260706150230_5280fbec-723e-429d-8021-3f39cfaab1b7.sql:82:  ADD COLUMN IF NOT EXISTS ncm text,\nsupabase/migrations/20260917110000_catalog_mestre.sql:45:  ncm text,\nsupabase/migrations/20260928121500_ee2e153f-bc2a-4d10-ab0d-de9050371f43.sql:28:  ncm text,\n",
+    "is_error": false,
+    "timestamp": 1790622008702
   }
 ]
