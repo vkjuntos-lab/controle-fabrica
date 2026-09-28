@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/action.tsx",
-      "newString": "import { useState } from \"react\";\nimport { toast } from \"sonner\";",
-      "oldString": "import { useState, type ReactNode } from \"react\";\nimport { toast } from \"sonner\";"
-    },
-    "timestamp": 1790618788462
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790618788480
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/action.tsx",
       "newString": "import { useOrganization } from \"@/lib/org/org-context\";\nimport {\n  useIdempotencyKey,\n  useSalesWrite,\n  text,\n  type PickerKind,\n  type Row,\n} from \"@/components/sales/shared\";",
       "oldString": "import { useOrganization } from \"@/lib/org/org-context\";\nimport { useOrganization as useOrg } from \"@/lib/org/org-context\";\nimport { useIdempotencyKey, useSalesWrite, text, type Row } from \"@/components/sales/shared\";\nimport { ReferencePicker } from \"@/components/sales/reference-picker\";\nimport type { PickerKind } from \"@/components/sales/shared\";"
     },
@@ -1552,5 +1536,21 @@
     "content": "54: print('PASS A: cenario montado; saldo fisico oficial em 100')\n64: print('PASS B: pedido nasce com preco oficial da tabela e subtotal correto; nenhum movimento')\n70: print('PASS C: preco enviado pelo cliente e ignorado; a tabela oficial prevalece')\n365: print('PASS AA: credit policy enforced with",
     "is_error": false,
     "timestamp": 1790620024368
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && npm run test:sales:db\" 2>&1 | grep -E \"^(PASS|FAIL)\" ",
+      "timeout": 900000,
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620026628
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS A: cenario montado; saldo fisico oficial em 100\nPASS B: pedido nasce com preco oficial da tabela e subtotal correto; nenhum movimento\nPASS C: preco enviado pelo cliente e ignorado; a tabela oficial prevalece\nPASS D: variante descontinuada bloqueada e permissao aplicada no servidor\nPASS E: edica",
+    "is_error": false,
+    "timestamp": 1790620033840
   }
 ]
