@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cat > /tmp/opencode/dbg.mjs <<'EOF'\nimport { readFileSync } from \"node:fs\";\nconst m = readFileSync(\"/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261006100000_sales_orders.sql\",\"utf8\");\nconst body = m.match(new RegExp(`CREATE TABLE[^;]*sales_order_settings \\\\(([\\\\s\\\\S]*?)\\\\n\\\\);`));\nconsole.log(\"match:\", !!body);\nif (body) {\n  console.log(\"--- primeiras 12 linhas do corpo ---\");\n  console.log(body[1].split(\"\\n\").slice(0,12).map(l=>JSON.stringify(l)).join(\"\\n\"));\n  console.log(\"--- colunas via /^\\s{2}([a-z_]+)\\s/gm ---\");\n  console.log([...body[1].matchAll(/^\\s{2}([a-z_]+)\\s/gm)].map(x=>x[1]).join(\" \"));\n}\nconsole.log(\"--- onde casa CHECK(status IN ---\");\nconsole.log([...m.matchAll(/CHECK\\s*\\(\\s*status\\s+IN\\s*\\(([^)]*)\\)/gs)].map(x=>x[0].slice(0,120)).join(\"\\n\"));\nEOF\nnode /tmp/opencode/dbg.mjs",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790621242374
-  },
-  {
-    "role": "tool_result",
-    "content": "match: true\n--- primeiras 12 linhas do corpo ---\n\"\"\n\" id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\"\n\" organization_id uuid NOT NULL REFERENCES public.organizations UNIQUE,\"\n\" -- FULL_ONLY: reserva exige a quantidade inteira; ALLOW_PARTIAL: reserva o\"\n\" -- disponivel e deixa o saldo pendente; ALLOW",
-    "is_error": false,
-    "timestamp": 1790621242444
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "for t in carriers customer_returns; do echo \"=== $t ===\"; awk \"/CREATE TABLE.*public.$t \\(/,/^\\);/\" supabase/migrations/20261006100000_sales_orders.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; done",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1631,5 +1616,20 @@
     "content": "=== fiscal_taxes ===\n\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations,\n  code text NOT NULL CHECK(length(trim(code))>0),\n  label text NOT NULL CHECK(length(trim(label))>0),\n  -- BASE_REDUCAO: tributa subtotal; VALOR_LIQUIDO: tributa lí",
     "is_error": false,
     "timestamp": 1790622529328
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"Enquadramento de\" supabase/migrations/20261013100000_fiscal_core.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622541743
+  },
+  {
+    "role": "tool_result",
+    "content": "266:  -- Enquadramento deLauncher é opt-in: padrão é 'DEFAULT'.\n",
+    "is_error": false,
+    "timestamp": 1790622541762
   }
 ]
