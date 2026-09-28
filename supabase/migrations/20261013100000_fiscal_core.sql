@@ -263,7 +263,7 @@ CREATE TABLE public.product_fiscal_profiles (
   tax_classification text,
   -- Extensível para IBS/CBS sem criar coluna por tributo.
   additional_classification jsonb NOT NULL DEFAULT '{}'::jsonb,
-  -- Enquadramento deLauncher é opt-in: padrão é 'DEFAULT'.
+  -- EnquadramentoLauncher é opt-in: o padrão é 'DEFAULT'.
   tax_treatment text NOT NULL DEFAULT 'DEFAULT',
   version integer NOT NULL DEFAULT 1 CHECK(version>0),
   effective_from date NOT NULL DEFAULT CURRENT_DATE,

@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "for t in carriers customer_returns; do echo \"=== $t ===\"; awk \"/CREATE TABLE.*public.$t \\(/,/^\\);/\" supabase/migrations/20261006100000_sales_orders.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; done",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790621254344
-  },
-  {
-    "role": "tool_result",
-    "content": "=== carriers ===\nid organization_id name document_type document_number contact_name modality status notes created_by created_at updated_at \n=== customer_returns ===\nid organization_id return_number company_id sales_order_id shipment_id reason status requested_at approved_by approved_at received_at d",
-    "is_error": false,
-    "timestamp": 1790621254405
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "awk \"/CREATE TABLE.*customer_return_items \\(/,/^\\);/\" supabase/migrations/20261006100000_sales_orders.sql | grep -oE \"^\\s+[a-z_]+ \" | tr -d ' ' | tr '\\n' ' '; echo; echo \"=== RETURN_DESTINATION no servidor ===\"; grep -n \"RETURN_DESTINATION\\|destination\" supabase/migrations/20261006100000_sales_orders.sql | grep -iE \"IN \\(|check|destination IN\" | head -5",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1631,5 +1616,21 @@
     "content": "266:  -- Enquadramento deLauncher é opt-in: padrão é 'DEFAULT'.\n",
     "is_error": false,
     "timestamp": 1790622541762
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261013100000_fiscal_core.sql",
+      "newString": "  -- EnquadramentoLauncher é opt-in: o padrão é 'DEFAULT'.",
+      "oldString": "  -- Enquadramento deLauncher é opt-in: padrão é 'DEFAULT'."
+    },
+    "timestamp": 1790622544634
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790622544646
   }
 ]
