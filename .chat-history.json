@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "awk '/FUNCTION public.sales_availability/,/^\\$\\$/' supabase/migrations/20261010100000_sales_integrity.sql | grep -oE \"'(sku|available|reserved|on_hand|items|variant_id|location)'\" | sort -u | tr '\\n' ' '; echo; echo \"=== harness ja cobre? ===\"; grep -n \"availability\" scripts/test-sales-db.py | head -5",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620358903
-  },
-  {
-    "role": "tool_result",
-    "content": "'available' 'items' 'on_hand' 'sku' 'variant_id' \n=== harness ja cobre? ===\n105: avail=rpc('sales_availability',org,order['id'],None,user=a)\n122: a2=rpc('sales_availability',org,order2['id'],None,user=a)\n304: assert full['availability']['required_quantity']==20\n",
-    "is_error": false,
-    "timestamp": 1790620358956
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/order-detail.tsx",
@@ -1542,5 +1527,20 @@
     "content": "\n FAIL  src/lib/sales/constants.test.ts > políticas editáveis na tela de configurações > sete chaves correspondem a colunas de sales_order_settings\nAssertionError: reservation_policy: expected false to be true // Object.is equality\n\n\u001b[32m- Expected\u001b[39m\n\u001b[31m+ Received\u001b[39m\n\n\u001b[32m- true\u001b[39m\n\u001b[31m+ ",
     "is_error": false,
     "timestamp": 1790621226032
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cat > /tmp/opencode/dbg.mjs <<'EOF'\nimport { readFileSync } from \"node:fs\";\nconst m = readFileSync(\"/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261006100000_sales_orders.sql\",\"utf8\");\nconst body = m.match(new RegExp(`CREATE TABLE[^;]*sales_order_settings \\\\(([\\\\s\\\\S]*?)\\\\n\\\\);`));\nconsole.log(\"match:\", !!body);\nif (body) {\n  console.log(\"--- primeiras 12 linhas do corpo ---\");\n  console.log(body[1].split(\"\\n\").slice(0,12).map(l=>JSON.stringify(l)).join(\"\\n\"));\n  console.log(\"--- colunas via /^\\s{2}([a-z_]+)\\s/gm ---\");\n  console.log([...body[1].matchAll(/^\\s{2}([a-z_]+)\\s/gm)].map(x=>x[1]).join(\" \"));\n}\nconsole.log(\"--- onde casa CHECK(status IN ---\");\nconsole.log([...m.matchAll(/CHECK\\s*\\(\\s*status\\s+IN\\s*\\(([^)]*)\\)/gs)].map(x=>x[0].slice(0,120)).join(\"\\n\"));\nEOF\nnode /tmp/opencode/dbg.mjs",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790621242374
+  },
+  {
+    "role": "tool_result",
+    "content": "match: true\n--- primeiras 12 linhas do corpo ---\n\"\"\n\" id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\"\n\" organization_id uuid NOT NULL REFERENCES public.organizations UNIQUE,\"\n\" -- FULL_ONLY: reserva exige a quantidade inteira; ALLOW_PARTIAL: reserva o\"\n\" -- disponivel e deixa o saldo pendente; ALLOW",
+    "is_error": false,
+    "timestamp": 1790621242444
   }
 ]
