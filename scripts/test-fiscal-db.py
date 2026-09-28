@@ -47,7 +47,7 @@ def run():
         return json.loads(out) if out is not None and not fail else out
 
     def save(name, data, user=admin, rid=None, fail=None):
-        return j(name, ','.join([q(org), json.dumps(data)] + ([q(rid)] if rid else [])), user, fail)
+        return j(name, ','.join([q(org), q(json.dumps(data))] + ([q(rid)] if rid else [])), user, fail)
 
     # --- AG: base, alíquota e arredondamento -----------------------------
     #     3 x 33.33 = 99.99. ICMS 18% = 17.9982. O snapshot guarda o
@@ -72,7 +72,7 @@ def run():
 
     def simulate(items, user=fiscal, est_id=est, model='NFe', op_id=None, fail=None):
         return j('fiscal_simulate', ','.join([q(org), q(est_id), q(op_id or op), q(company),
-            q(model), json.dumps(items)]), user, fail)
+            q(model), q(json.dumps(items))]), user, fail)
 
     # --- AH: sem classificacao fiscal, nao ha calculo ---------------------
     item = [{'product_variant_id': variant, 'quantity': 3, 'unit_price': 33.33}]
@@ -213,7 +213,7 @@ def run():
     # --- AR: o motor nao inventa enquadramento ------------------------------
     assert sql(f"SELECT count(*) FROM tax_rule_items WHERE organization_id={q(org)} AND tax_id NOT IN "
                f"(SELECT id FROM fiscal_taxes WHERE organization_id={q(org)})") == '0'
-    db.call('fiscal_save_tax', ','.join([q(org), json.dumps({'code': 'X', 'label': ''})]),
+    db.call('fiscal_save_tax', ','.join([q(org), q(json.dumps({'code': 'X', 'label': ''}))]),
             admin, 'fiscal.configure')
     assert sql(f"SELECT count(*) FROM fiscal_taxes WHERE organization_id={q(org)} AND code LIKE '%PADRAO%'") == '0'
     print('PASS AR: nenhum tributo nasce sem cadastro; o banco nao semeia aliquota')
@@ -222,7 +222,7 @@ def run():
     assert sql(f"SELECT count(*) FROM fiscal_establishments WHERE organization_id={q(org)}", outsider) == '0'
     assert sql(f"SELECT count(*) FROM tax_rules WHERE organization_id={q(org)}", outsider) == '0'
     assert sql(f"SELECT count(*) FROM tax_rule_reviews WHERE organization_id={q(org)}", outsider) == '0'
-    db.call('fiscal_simulate', ','.join([q(org), q(est), q(op), q(company), q('NFe'), json.dumps(item)]),
+    db.call('fiscal_simulate', ','.join([q(org), q(est), q(op), q(company), q('NFe'), q(json.dumps(item))]),
             outsider, 'Sem permissao')
     print('PASS AS: RLS isola a organizacao e usuario sem permissao nao simula')
 
