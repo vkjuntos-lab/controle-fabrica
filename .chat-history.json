@@ -4,22 +4,6 @@
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/areas.tsx",
-      "limit": 120,
-      "offset": 41
-    },
-    "timestamp": 1790619215725
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/sales/areas.tsx</path>\n<type>file</type>\n<content>\n41:   type Row,\n42: } from \"@/components/sales/shared\";\n43: import { money, str } from \"@/components/crm/shared\";\n44: import type { Json } from \"@/integrations/supabase/types\";\n45: \n46: ",
-    "is_error": false,
-    "timestamp": 1790619215735
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/areas.tsx",
       "limit": 80,
       "offset": 161
     },
@@ -1550,5 +1534,20 @@
     "content": "  'receivables',CASE WHEN public.has_permission(_org,'receivables.read') AND public.has_permission(_org,'sales_credit.read') THEN (SELECT coalesce(jsonb_agg(to_jsonb(ar) ORDER BY ar.installment_number),'[]'::jsonb)\n     FROM public.account_receivables ar WHERE ar.organization_id=_org\n       AND ar.s",
     "is_error": false,
     "timestamp": 1790620353365
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "awk '/FUNCTION public.sales_availability/,/^\\$\\$/' supabase/migrations/20261010100000_sales_integrity.sql | grep -oE \"'(sku|available|reserved|on_hand|items|variant_id|location)'\" | sort -u | tr '\\n' ' '; echo; echo \"=== harness ja cobre? ===\"; grep -n \"availability\" scripts/test-sales-db.py | head -5",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790620358903
+  },
+  {
+    "role": "tool_result",
+    "content": "'available' 'items' 'on_hand' 'sku' 'variant_id' \n=== harness ja cobre? ===\n105: avail=rpc('sales_availability',org,order['id'],None,user=a)\n122: a2=rpc('sales_availability',org,order2['id'],None,user=a)\n304: assert full['availability']['required_quantity']==20\n",
+    "is_error": false,
+    "timestamp": 1790620358956
   }
 ]
