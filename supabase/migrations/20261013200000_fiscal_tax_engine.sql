@@ -521,6 +521,162 @@ END $$;
 -- ---------------------------------------------------------------------
 -- 10. Cadastro fiscal de configuração, com versão implícita.
 -- ---------------------------------------------------------------------
+
+-- Tributo do catálogo. O banco NÃO semeia nenhum tributo: o código de
+-- ICMS, PIS, COFINS, ISS e os demais entra por configuração, porque a
+-- lista aplicável depende do regime e do produto da operação. Criar
+-- 'ICMS' aqui 'por padrão' seria o software affirmando direito.
+CREATE OR REPLACE FUNCTION public.fiscal_save_tax(_org uuid,_data jsonb,_id uuid DEFAULT NULL)
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE v_row public.fiscal_taxes;
+BEGIN
+  PERFORM public.fiscal_require(_org,'fiscal.configure');
+  IF _id IS NULL THEN
+    INSERT INTO public.fiscal_taxes(organization_id,code,label,description,calculation_base,
+      is_tax,is_recoverable_default,applies_to,is_active,created_by)
+    VALUES(_org,_data->>'code',_data->>'label',_data->>'description',
+      coalesce(_data->>'calculation_base','BASE_CALCULO'),
+      coalesce((_data->>'is_tax')::boolean,true),
+      (_data->>'is_recoverable_default')::boolean,
+      coalesce(_data->>'applies_to','{}'::jsonb),
+      coalesce((_data->>'is_active')::boolean,true),auth.uid())
+    RETURNING * INTO v_row;
+  ELSE
+    -- Tributo em uso não é renomeado: o código já foi para documento
+    -- emitido. Desativar é o caminho; renomear quebraria a leitura
+    -- histórica.
+    SELECT * INTO v_row FROM public.fiscal_taxes
+    WHERE organization_id=_org AND id=_id FOR UPDATE;
+    IF NOT FOUND THEN RAISE EXCEPTION 'Tributo inexistente: %',_id; END IF;
+    IF _data->>'code' IS DISTINCT FROM v_row.code
+       AND EXISTS(SELECT 1 FROM public.tax_calculation_snapshots s
+                  WHERE s.organization_id=_org AND s.tax_id=_id) THEN
+      RAISE EXCEPTION 'Tributo já usado em cálculo não pode trocar de código.';
+    END IF;
+    UPDATE public.fiscal_taxes SET
+      code=coalesce(nullif(_data->>'code',''),code),
+      label=coalesce(_data->>'label',label),
+      description=_data->>'description',
+      calculation_base=coalesce(_data->>'calculation_base',calculation_base),
+      is_tax=coalesce((_data->>'is_tax')::boolean,is_tax),
+      is_recoverable_default=coalesce((_data->>'is_recoverable_default')::boolean,is_recoverable_default),
+      applies_to=coalesce(_data->>'applies_to',applies_to),
+      is_active=coalesce((_data->>'is_active')::boolean,is_active), updated_at=now()
+    WHERE organization_id=_org AND id=_id RETURNING * INTO v_row;
+  END IF;
+  PERFORM public.fiscal_audit(_org,'fiscal.tax_saved','fiscal_taxes',v_row.id,
+    jsonb_build_object('code',v_row.code));
+  RETURN to_jsonb(v_row);
+END $$;
+
+-- Tipo de operação: separa o que é venda do que é consumo interno.
+-- requires_inventory_effect existe para o caso de operação interna que
+-- ainda consome estoque sem virar documento fiscal.
+CREATE OR REPLACE FUNCTION public.fiscal_save_operation(_org uuid,_data jsonb,_id uuid DEFAULT NULL)
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE v_row public.fiscal_operation_types;
+BEGIN
+  PERFORM public.fiscal_require(_org,'fiscal.configure');
+  IF _id IS NULL THEN
+    INSERT INTO public.fiscal_operation_types(organization_id,kind,code,label,description,
+      requires_document,requires_inventory_effect,is_active,created_by)
+    VALUES(_org,(_data->>'kind')::public.fiscal_operation_kind,_data->>'code',_data->>'label',
+      _data->>'description',coalesce((_data->>'requires_document')::boolean,true),
+      coalesce((_data->>'requires_inventory_effect')::boolean,false),
+      coalesce((_data->>'is_active')::boolean,true),auth.uid())
+    RETURNING * INTO v_row;
+  ELSE
+    UPDATE public.fiscal_operation_types SET
+      label=coalesce(_data->>'label',label), description=_data->>'description',
+      requires_document=coalesce((_data->>'requires_document')::boolean,requires_document),
+      requires_inventory_effect=coalesce((_data->>'requires_inventory_effect')::boolean,requires_inventory_effect),
+      is_active=coalesce((_data->>'is_active')::boolean,is_active), updated_at=now()
+    WHERE organization_id=_org AND id=_id RETURNING * INTO v_row;
+    IF NOT FOUND THEN RAISE EXCEPTION 'Tipo de operação inexistente: %',_id; END IF;
+  END IF;
+  PERFORM public.fiscal_audit(_org,'fiscal.operation_type_saved','fiscal_operation_types',v_row.id,
+    jsonb_build_object('code',v_row.code,'kind',v_row.kind));
+  RETURN to_jsonb(v_row);
+END $$;
+
+CREATE OR REPLACE FUNCTION public.fiscal_save_nature(_org uuid,_data jsonb,_id uuid DEFAULT NULL)
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE v_row public.fiscal_operation_natures;
+BEGIN
+  PERFORM public.fiscal_require(_org,'fiscal.configure');
+  IF _id IS NULL THEN
+    INSERT INTO public.fiscal_operation_natures(organization_id,code,label,description,
+      operation_type_id,is_active,created_by)
+    VALUES(_org,_data->>'code',_data->>'label',_data->>'description',
+      nullif(_data->>'operation_type_id','')::uuid,
+      coalesce((_data->>'is_active')::boolean,true),auth.uid())
+    RETURNING * INTO v_row;
+  ELSE
+    UPDATE public.fiscal_operation_natures SET label=coalesce(_data->>'label',label),
+      description=_data->>'description',
+      is_active=coalesce((_data->>'is_active')::boolean,is_active), updated_at=now()
+    WHERE organization_id=_org AND id=_id RETURNING * INTO v_row;
+    IF NOT FOUND THEN RAISE EXCEPTION 'Natureza da operação inexistente: %',_id; END IF;
+  END IF;
+  PERFORM public.fiscal_audit(_org,'fiscal.operation_nature_saved','fiscal_operation_natures',
+    v_row.id,jsonb_build_object('code',v_row.code));
+  RETURN to_jsonb(v_row);
+END $$;
+
+CREATE OR REPLACE FUNCTION public.fiscal_save_layout(_org uuid,_data jsonb,_id uuid DEFAULT NULL)
+RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+DECLARE
+  v_row public.fiscal_layout_versions; v_to text;
+BEGIN
+  PERFORM public.fiscal_require(_org,'fiscal.configure');
+  IF _id IS NULL THEN
+    INSERT INTO public.fiscal_layout_versions(organization_id,document_model,version,
+      source_reference,published_at,valid_from,valid_to,implanted_at,required_fields,
+      reform_fields,status,homologation_notes,created_by)
+    VALUES(_org,_data->>'document_model',_data->>'version',_data->>'source_reference',
+      nullif(_data->>'published_at','')::date,coalesce((_data->>'valid_from')::date,CURRENT_DATE),
+      nullif(_data->>'valid_to','')::date,nullif(_data->>'implanted_at','')::date,
+      coalesce(_data->>'required_fields','[]'::jsonb),coalesce(_data->>'reform_fields','{}'::jsonb),
+      'DRAFT',_data->>'homologation_notes',auth.uid())
+    RETURNING * INTO v_row;
+  ELSE
+    SELECT * INTO v_row FROM public.fiscal_layout_versions
+    WHERE organization_id=_org AND id=_id FOR UPDATE;
+    IF NOT FOUND THEN RAISE EXCEPTION 'Versão de leiaute inexistente: %',_id; END IF;
+    IF v_row.status<>'DRAFT' THEN
+      RAISE EXCEPTION 'Leiaute em % só muda criando nova versão.',v_row.status;
+    END IF;
+    UPDATE public.fiscal_layout_versions SET
+      source_reference=coalesce(_data->>'source_reference',source_reference),
+      published_at=coalesce(nullif(_data->>'published_at','')::date,published_at),
+      valid_from=coalesce((_data->>'valid_from')::date,valid_from),
+      valid_to=coalesce(nullif(_data->>'valid_to','')::date,valid_to),
+      required_fields=coalesce(_data->>'required_fields',required_fields),
+      reform_fields=coalesce(_data->>'reform_fields',reform_fields),
+      homologation_notes=_data->>'homologation_notes', updated_at=now()
+    WHERE organization_id=_org AND id=_id RETURNING * INTO v_row;
+  END IF;
+  IF _data ? 'status' THEN
+    v_to := _data->>'status';
+    IF v_to NOT IN ('HOMOLOGATION','ACTIVE','RETIRED') THEN
+      RAISE EXCEPTION 'Transição de leiaute inválida: %',v_to;
+    END IF;
+    -- Leiaute só fica ACTIVE depois de implantado. Ativar um leiaute
+    -- não implantado faz o documento nascer com formato que ninguém
+    -- homologou.
+    IF v_to='ACTIVE' AND v_row.implanted_at IS NULL THEN
+      RAISE EXCEPTION 'Leiaute exige data de implantação antes de virar ACTIVE.';
+    END IF;
+    UPDATE public.fiscal_layout_versions SET status=v_to, updated_at=now(),
+      approved_by=CASE WHEN v_to='ACTIVE' THEN auth.uid() ELSE approved_by END,
+      approved_at=CASE WHEN v_to='ACTIVE' THEN now() ELSE approved_at END
+    WHERE organization_id=_org AND id=_id RETURNING * INTO v_row;
+  END IF;
+  PERFORM public.fiscal_audit(_org,'fiscal.layout_saved','fiscal_layout_versions',v_row.id,
+    jsonb_build_object('model',v_row.document_model,'version',v_row.version,'status',v_row.status));
+  RETURN to_jsonb(v_row);
+END $$;
+
 CREATE OR REPLACE FUNCTION public.fiscal_save_establishment(
   _org uuid, _data jsonb, _id uuid DEFAULT NULL)
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
