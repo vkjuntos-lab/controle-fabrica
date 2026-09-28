@@ -439,27 +439,31 @@ BEGIN
   INSERT INTO public.tax_rule_reviews(
     organization_id,tax_rule_id,from_status,to_status,decision,justification,
     regression_evidence,reviewed_by)
-  VALUES(_org,_rule_id,
-    (SELECT status FROM public.tax_rules WHERE organization_id=_org AND id=_rule_id),
-    v_to,
+  VALUES(_org,_rule_id,v_from,v_to,
     CASE _action WHEN 'retire' THEN 'RETIRED' WHEN 'review' THEN 'REQUESTED_CHANGES' ELSE 'APPROVED' END,
     coalesce(_justification,'Ajuste do ciclo de revisão.'),_regression_evidence,auth.uid());
 
   PERFORM public.fiscal_audit(_org,'fiscal.tax_rule.'||_action,'tax_rules',_rule_id,
-    jsonb_build_object('to_status',v_to,'justification',_justification));
+    jsonb_build_object('from_status',v_from,'to_status',v_to,'justification',_justification));
 
-  -- Só uma regra ACTIVE por escopo e vigência. Duas ativas para o mesmo
-  -- caso tornam o resultado dependente da ordem de leitura.
+  -- Duas regras ACTIVE com o MESMO escopo e vigência sobreposta tornam
+  -- o resultado dependente da ordem de leitura. Escopos diferentes são
+  -- legítimos: fiscal_resolve_rule desempata por especificidade.
   IF v_to='ACTIVE' THEN
-    PERFORM 1 FROM public.tax_rules r
-    WHERE r.organization_id=_org AND r.status='ACTIVE' AND r.id<>v_rule.id
-      AND r.operation_type_id=v_rule.operation_type_id
-      AND (r.valid_from<=v_rule.valid_from)
-      AND (r.valid_to IS NULL OR v_rule.valid_to IS NULL OR r.valid_to>=v_rule.valid_from)
-      AND (r.establishment_id IS NULL OR r.establishment_id=v_rule.establishment_id)
-      AND (r.tax_regime_id IS NULL OR r.tax_regime_id=v_rule.tax_regime_id)
-      AND coalesce(r.product_classification,'')=coalesce(v_rule.product_classification,'')
-      AND coalesce(r.document_model,'')=coalesce(v_rule.document_model,'');
+    IF EXISTS(SELECT 1 FROM public.tax_rules r
+      WHERE r.organization_id=_org AND r.status='ACTIVE' AND r.id<>v_rule.id
+        AND r.operation_type_id=v_rule.operation_type_id
+        AND (r.valid_from<=v_rule.valid_from)
+        AND (r.valid_to IS NULL OR v_rule.valid_to IS NULL OR r.valid_to>=v_rule.valid_from)
+        AND coalesce(r.establishment_id::text,'')=coalesce(v_rule.establishment_id::text,'')
+        AND coalesce(r.tax_regime_id::text,'')=coalesce(v_rule.tax_regime_id::text,'')
+        AND coalesce(r.product_classification,'')=coalesce(v_rule.product_classification,'')
+        AND coalesce(r.origin_region_id::text,'')=coalesce(v_rule.origin_region_id::text,'')
+        AND coalesce(r.destination_region_id::text,'')=coalesce(v_rule.destination_region_id::text,'')
+        AND coalesce(r.customer_company_id::text,'')=coalesce(v_rule.customer_company_id::text,'')
+        AND coalesce(r.document_model,'')=coalesce(v_rule.document_model,'')) THEN
+      RAISE EXCEPTION 'Já existe regra ATIVE com o mesmo escopo e vigência sobreposta.';
+    END IF;
   END IF;
 
   RETURN to_jsonb(v_rule);
