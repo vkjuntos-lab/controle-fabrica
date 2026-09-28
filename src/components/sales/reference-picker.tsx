@@ -19,6 +19,17 @@ import { PICKER_LABEL, text, type PickerKind, type Row } from "@/components/sale
  * usuário veria uma lista de "—" indistinguíveis e não saberia o que está
  * escolhendo.
  */
+/**
+ * Filtros fixos por tipo.
+ *
+ * Só a proposta aceita vira pedido: converter uma proposta em rascunho ou
+ * recusada não é conversão, é um desvio do fluxo comercial. O filtro vai no
+ * servidor porque a tela não pode decidir quem é elegível.
+ */
+const PICKER_FILTERS: Partial<Record<PickerKind, Record<string, string>>> = {
+  quotes: { status: "ACCEPTED" },
+};
+
 export function ReferencePicker({
   organizationId,
   kind,
@@ -41,14 +52,23 @@ export function ReferencePicker({
   const api = useServerFn(queryCrm);
   const [term, setTerm] = useState("");
   const [page, setPage] = useState(1);
+  // Rótulo da escolha corrente: quando a opção sai da busca, o valor continua
+  // selecionado e precisa continuar legível — o UUID não ajuda ninguém.
+  const [chosen, setChosen] = useState<{ id: string; label: string } | null>(null);
 
   useEffect(() => setPage(1), [term]);
 
+  const fixed = PICKER_FILTERS[kind] ?? {};
   const options = useQuery({
-    queryKey: ["sales", organizationId, "picker", kind, term, page],
+    queryKey: ["sales", organizationId, "picker", kind, term, page, fixed],
     queryFn: async () => {
       const response = await api({
-        data: { organizationId, kind, filters: term ? { q: term } : {}, page },
+        data: {
+          organizationId,
+          kind,
+          filters: { ...fixed, ...(term ? { q: term } : {}) },
+          page,
+        },
       });
       return { rows: (response.rows ?? []) as Row[], total: Number(response.total ?? 0) };
     },
@@ -57,7 +77,8 @@ export function ReferencePicker({
 
   const describe = PICKER_LABEL[kind];
   const options_ = options.data?.rows ?? [];
-  const selected = options_.find((row) => text(row.id) === value);
+  const current = options_.find((row) => text(row.id) === value);
+  const currentLabel = current ? describe(current) : chosen?.id === value ? chosen.label : "";
   const total = options.data?.total ?? 0;
   const pages = Math.max(1, Math.ceil(total / 50));
 

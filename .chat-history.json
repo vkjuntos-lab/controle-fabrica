@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '396,406p' src/lib/rbac.ts"
-    },
-    "timestamp": 1790618698407
-  },
-  {
-    "role": "tool_result",
-    "content": "  \"activities.manage\": \"Gerenciar atividades comerciais\",\n  \"representatives.read\": \"Ver representantes\",\n  \"representatives.manage\": \"Gerenciar representantes\",\n  \"portfolios.manage\": \"Transferir carteiras\",\n  \"commercial_sensitive.read\":\n    \"Ver dados comerciais sensíveis (limite de crédito, marg",
-    "is_error": false,
-    "timestamp": 1790618698426
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/rbac.ts",
@@ -1544,5 +1530,21 @@
     "content": "   FROM sales_opportunities o WHERE organization_id=_org AND status='OPEN' AND public.crm_visible(_org,'sales_opportunities',to_jsonb(o))\n    AND (_filters->>'from' IS NULL OR created_at>=(_filters->>'from')::date) AND (_filters->>'to' IS NULL OR created_at<(_filters->>'to')::date+1);\n  SELECT resul",
     "is_error": false,
     "timestamp": 1790619892383
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/sales/reference-picker.tsx",
+      "newString": "/**\n * Filtros fixos por tipo.\n *\n * Só a proposta aceita vira pedido: converter uma proposta em rascunho ou\n * recusada não é conversão, é um desvio do fluxo comercial. O filtro vai no\n * servidor porque a tela não pode decidir quem é elegível.\n */\nconst PICKER_FILTERS: Partial<Record<PickerKind, Record<string, string>>> = {\n  quotes: { status: \"ACCEPTED\" },\n};\n\nexport function ReferencePicker({\n  organizationId,\n  kind,\n  value,\n  onChange,\n  label,\n  required,\n  disabled,\n  emptyHint,\n}: {\n  organizationId: string;\n  kind: PickerKind;\n  value: string;\n  onChange: (value: string) => void;\n  label: string;\n  required?: boolean;\n  disabled?: boolean;\n  emptyHint?: string;\n}) {\n  const api = useServerFn(queryCrm);\n  const [term, setTerm] = useState(\"\");\n  const [page, setPage] = useState(1);\n  // Rótulo da escolha corrente: quando a opção sai da busca, o valor continua\n  // selecionado e precisa continuar legível — o UUID não ajuda ninguém.\n  const [chosen, setChosen] = useState<{ id: string; label: string } | null>(null);\n\n  useEffect(() => setPage(1), [term]);\n\n  const fixed = PICKER_FILTERS[kind] ?? {};\n  const options = useQuery({\n    queryKey: [\"sales\", organizationId, \"picker\", kind, term, page, fixed],\n    queryFn: async () => {\n      const response = await api({\n        data: {\n          organizationId,\n          kind,\n          filters: { ...fixed, ...(term ? { q: term } : {}) },\n          page,\n        },\n      });\n      return { rows: (response.rows ?? []) as Row[], total: Number(response.total ?? 0) };\n    },\n    enabled: Boolean(organizationId) && !disabled,\n  });\n\n  const describe = PICKER_LABEL[kind];\n  const options_ = options.data?.rows ?? [];\n  const current = options_.find((row) => text(row.id) === value);\n  const currentLabel = current ? describe(current) : chosen?.id === value ? chosen.label : \"\";\n  const total = options.data?.total ?? 0;\n  const pages = Math.max(1, Math.ceil(total / 50));",
+      "oldString": "export function ReferencePicker({\n  organizationId,\n  kind,\n  value,\n  onChange,\n  label,\n  required,\n  disabled,\n  emptyHint,\n}: {\n  organizationId: string;\n  kind: PickerKind;\n  value: string;\n  onChange: (value: string) => void;\n  label: string;\n  required?: boolean;\n  disabled?: boolean;\n  emptyHint?: string;\n}) {\n  const api = useServerFn(queryCrm);\n  const [term, setTerm] = useState(\"\");\n  const [page, setPage] = useState(1);\n\n  useEffect(() => setPage(1), [term]);\n\n  const options = useQuery({\n    queryKey: [\"sales\", organizationId, \"picker\", kind, term, page],\n    queryFn: async () => {\n      const response = await api({\n        data: { organizationId, kind, filters: term ? { q: term } : {}, page },\n      });\n      return { rows: (response.rows ?? []) as Row[], total: Number(response.total ?? 0) };\n    },\n    enabled: Boolean(organizationId) && !disabled,\n  });\n\n  const describe = PICKER_LABEL[kind];\n  const options_ = options.data?.rows ?? [];\n  const selected = options_.find((row) => text(row.id) === value);\n  const total = options.data?.total ?? 0;\n  const pages = Math.max(1, Math.ceil(total / 50));"
+    },
+    "timestamp": 1790619912749
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790619912763
   }
 ]
