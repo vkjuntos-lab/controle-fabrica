@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "awk '/FUNCTION public.sales_settings_save/,/^\\$\\$/' supabase/migrations/*.sql | sed -n '10,30p' | sed 's/^ *//'",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790621148458
-  },
-  {
-    "role": "tool_result",
-    "content": "AND _data->>'reservation_policy' NOT IN ('FULL_ONLY','ALLOW_PARTIAL','ALLOW_NEGATIVE_AVAILABLE') THEN\nRAISE EXCEPTION 'Política de reserva inválida.';\nEND IF;\nIF nullif(_data->>'price_override_policy','') IS NOT NULL\nAND _data->>'price_override_policy' NOT IN ('BLOCK','ALLOW_WITH_AUTHORIZATION') THE",
-    "is_error": false,
-    "timestamp": 1790621148492
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"SETTING_OPTIONS\" -A 40 src/lib/sales/constants.ts | head -50",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1634,5 +1619,20 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790622360834
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -nP \"[\\x{4e00}-\\x{9fff}]\" supabase/migrations/20261013200000_fiscal_tax_engine.sql; echo \"--- sem CJK ---\"; python3 - <<'EOF'\nimport io\np=\"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py\"\ns=io.open(p,encoding=\"utf-8\").read()\ns=s.replace(\"    '20261013100000_fiscal_core.sql',\\n\",\"    '20261013100000_fiscal_core.sql', '20261013200000_fiscal_tax_engine.sql',\\n\")\nio.open(p,\"w\",encoding=\"utf-8\").write(s)\nprint(\"harness atualizado\")\nEOF",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622368166
+  },
+  {
+    "role": "tool_result",
+    "content": "--- sem CJK ---\nharness atualizado\n",
+    "is_error": false,
+    "timestamp": 1790622368207
   }
 ]

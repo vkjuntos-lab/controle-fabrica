@@ -17,7 +17,7 @@ MIGRATIONS = [
     '20261007100000_crm_documents.sql', '20261008100000_crm_company_services.sql',
     '20261009100000_crm_customer_history.sql', '20261010100000_sales_integrity.sql',
     '20261011100000_sales_planning.sql', '20261012100000_sales_screen_fixes.sql',
-    '20261013100000_fiscal_core.sql',
+    '20261013100000_fiscal_core.sql', '20261013200000_fiscal_tax_engine.sql',
 ]
 
 
