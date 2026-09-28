@@ -1,21 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc 'npm run typecheck > .git/crm-typecheck.log 2>&1\nnpm test > .git/crm-unit.log 2>&1\nnpx eslint src/components/crm src/lib/crm src/routes/_authenticated/comercial > .git/crm-lint.log 2>&1'"
-    },
-    "timestamp": 1790535598365
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc 'npm run build > .git/crm-build.log 2>&1'"
-    },
-    "timestamp": 1790535598373
-  },
-  {
     "role": "tool_result",
     "content": "",
     "is_error": false,
@@ -1402,5 +1386,20 @@
     "content": "root\nuid=0(root) gid=0(root) groups=0(root)\n---\n#!/usr/bin/env python3\n\"\"\"MASTER 013 integration tests in disposable PostgreSQL. Never uses a published database.\"\"\"\nimport importlib.util,json,datetime\nfrom pathlib import Path\nfrom concurrent.futures import ThreadPoolExecutor\nspec=importlib.util.spec",
     "is_error": false,
     "timestamp": 1790618159252
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && npm run test:sales:db\" 2>&1 | tail -40",
+      "timeout": 900000
+    },
+    "timestamp": 1790618161908
+  },
+  {
+    "role": "tool_result",
+    "content": "\n> test:sales:db\n> python3 scripts/test-sales-db.py\n\nPASS A: cenario montado; saldo fisico oficial em 100\nPASS B: pedido nasce com preco oficial da tabela e subtotal correto; nenhum movimento\nPASS C: preco enviado pelo cliente e ignorado; a tabela oficial prevalece\nPASS D: variante descontinuada blo",
+    "is_error": false,
+    "timestamp": 1790618168420
   }
 ]
