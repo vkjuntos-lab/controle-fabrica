@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "npm run typecheck 2>&1 | tail -12",
-      "timeout": 300000,
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790620987249
-  },
-  {
-    "role": "tool_result",
-    "content": "\n> typecheck\n> tsc --noEmit\n\n",
-    "is_error": false,
-    "timestamp": 1790621016788
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "npx eslint src/components/sales src/lib/sales 2>&1 | head -20",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1579,5 +1563,20 @@
     "content": "-rw-rw-r-- 1 claude-runner claude-runner 0 Sep 28 19:03 /tmp/opencode/fiscal.log\n0 /tmp/opencode/fiscal.log\n",
     "is_error": false,
     "timestamp": 1790622234166
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "tail -12 scripts/test-inventory-db.py; echo \"=== como o sales invoca ===\"; tail -8 scripts/test-sales-db.py",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790622237727
+  },
+  {
+    "role": "tool_result",
+    "content": "    assert len(json.loads(call('inventory_search_variants',q(org)+\",'123456'\",a)))==1\n    print('PASS: more than 1000 SKUs, pagination, zero-stock dashboard, barcode search')\n\n\ndef cleanup():\n    if (TMP/'data/postmaster.pid').exists():\n        subprocess.run([str(BIN/'pg_ctl'),'-D',str(TMP/'data'),",
+    "is_error": false,
+    "timestamp": 1790622237748
   }
 ]
