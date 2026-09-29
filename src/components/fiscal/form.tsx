@@ -39,6 +39,11 @@ export function Reference({
     queryFn: () =>
       readFiscal({ data: { organizationId: org, kind, filters: search ? { search } : {} } }),
   });
+  const options = rows(result.data);
+  // A opção escolhida só existe no resultado quando a pesquisa atual a traz.
+  // Sem esta linha, digitar no campo de pesquisa some a escolha do `<select>`
+  // e o formulário passa a enviar vazio onde havia um registro válido.
+  const current = options.find((r) => String(r.id) === value);
   return (
     <div className="space-y-1">
       <input
@@ -50,12 +55,20 @@ export function Reference({
       />
       <select className={inputClass} value={value} onChange={(e) => onChange(e.target.value)}>
         <option value="">Selecione…</option>
-        {rows(result.data).map((r) => (
-          <option key={String(r.id)} value={String(r.id)}>
-            {label(r)}
-            {r.status ? ` · ${r.status}` : ""}
+        {current && (
+          <option value={value}>
+            {label(current)}
+            {current.status ? ` · ${String(current.status)}` : ""}
           </option>
-        ))}
+        )}
+        {options
+          .filter((r) => String(r.id) !== value)
+          .map((r) => (
+            <option key={String(r.id)} value={String(r.id)}>
+              {label(r)}
+              {r.status ? ` · ${String(r.status)}` : ""}
+            </option>
+          ))}
       </select>
       {result.error && <p role="alert">{result.error.message}</p>}
       <small>Até 50 resultados; use a pesquisa para localizar.</small>
