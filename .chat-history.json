@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '60,125p' scripts/test-fiscal-migration-chain.py"
-    },
-    "timestamp": 1790683146807
-  },
-  {
-    "role": "tool_result",
-    "content": "]\n\n\n# Objetos de que as migrations legadas dependem. Não fazem parte do que\n# está sendo testado: existem só para que o legado de julho aplique e a\n# colisão de nome aconteça de verdade.\nPRECONDICAOES = \"\"\"\nCREATE TABLE public.stores(id uuid PRIMARY KEY, name text);\nCREATE TABLE public.customers(id ",
-    "is_error": false,
-    "timestamp": 1790683146819
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '20,60p' scripts/test-fiscal-migration-chain.py"
     },
     "timestamp": 1790683150296
@@ -1455,5 +1441,19 @@
     "content": "FN reconciliation_require ( _org uuid,_permission text )\nFN reconciliation_audit ( _org uuid,_action text,_table text,_id uuid,_context jsonb DEFAULT '{}' )\nFN reconciliation_guard_relations (  )\nFN reconciliation_guard (  )\nFN reconciliation_insert_exception ( _org uuid,_rec uuid,_item uuid,_sale u",
     "is_error": false,
     "timestamp": 1790684101557
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\nimport re\ns = Path('supabase/migrations/20260926100000_partner_reconciliation.sql').read_text()\n# nome da função que contém esse insert\nidx = s.find('INSERT INTO public.partner_reconciliations')\nstart = s.rfind('CREATE OR REPLACE FUNCTION', 0, idx)\nprint(s[start:start+300])\ni = s.find('CREATE FUNCTION', idx)\n# achar nome logo antes do insert\nhead = s[:idx]\nm = list(re.finditer(r'CREATE OR REPLACE FUNCTION public\\.(\\w+)', head))[-1]\nprint('FUNCAO:', m.group(1))\nprint(s[m.start():m.start()+900])\nPY"
+    },
+    "timestamp": 1790684105069
+  },
+  {
+    "role": "tool_result",
+    "content": "\nTraceback (most recent call last):\n  File \"<stdin>\", line 11, in <module>\nIndexError: list index out of range\n",
+    "is_error": false,
+    "timestamp": 1790684105137
   }
 ]
