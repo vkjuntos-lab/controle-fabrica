@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"role_permissions\" supabase/migrations/20261013100000_fiscal_core.sql supabase/migrations/20261013200000_fiscal_tax_engine.sql supabase/migrations/20261014100000_fiscal_integrity.sql supabase/migrations/20261014200000_fiscal_documents.sql supabase/migrations/20261014300000_fiscal_inbound.sql supabase/migrations/20261014400000_fiscal_workspace.sql",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790680001502
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20261013200000_fiscal_tax_engine.sql:1070:INSERT INTO public.role_permissions(role,permission)\nsupabase/migrations/20261013200000_fiscal_tax_engine.sql:1081:INSERT INTO public.role_permissions(role,permission)\nsupabase/migrations/20261013200000_fiscal_tax_engine.sql:1090:INSERT I",
-    "is_error": false,
-    "timestamp": 1790680001512
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sed -n '1060,1100p' supabase/migrations/20261013200000_fiscal_tax_engine.sql",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1581,5 +1566,20 @@
     "content": "=== colunas legadas referenciadas depois? ===\nsupabase/migrations/20261001100000_purchasing.sql:511:  total_value numeric(20,6) NOT NULL CHECK(total_value>=0),\nsupabase/migrations/20261001100000_purchasing.sql:1034:  INSERT INTO public.purchase_receipt_costs(organization_id,variant_id,goods_receipt_",
     "is_error": false,
     "timestamp": 1790681286543
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "node -e '\nconst {readdirSync,readFileSync}=require(\"fs\");\nconst dir=\"supabase/migrations\";\nconst SQL=readdirSync(dir).filter(f=>f.endsWith(\".sql\")).sort().map(f=>readFileSync(dir+\"/\"+f,\"utf8\")).join(\"\\n\");\nfunction body(t){const h=new RegExp(\"CREATE TABLE (?:IF NOT EXISTS )?public\\\\.\"+t+\"\\\\s*\\\\(\",\"i\").exec(SQL);if(!h)return null;let d=1;for(let i=h.index+h[0].length;i<SQL.length;i++){if(SQL[i]===\"(\")d++;else if(SQL[i]===\")\"){d--;if(!d)return SQL.slice(h.index+h[0].length,i)}}return null}\nfor(const t of [\"fiscal_documents\",\"inbound_fiscal_documents\",\"fiscal_events\",\"fiscal_exceptions\",\"fiscal_reconciliations\",\"product_fiscal_profiles\",\"company_fiscal_profiles\",\"fiscal_simulations\",\"fiscal_providers\",\"fiscal_layout_versions\",\"tax_rules\",\"fiscal_rule_regressions\"]){\n const b=body(t); if(!b){console.log(t+\": NAO ENCONTRADA\");continue}\n const parts=[];let d=0,c=\"\";\n for(const ch of b){if(ch===\"(\")d++;if(ch===\")\")d--;if(ch===\",\"&&!d){parts.push(c);c=\"\";continue}c+=ch}\n parts.push(c);\n const cols=parts.map(p=>p.trim()).filter(p=>!/^(PRIMARY|FOREIGN|UNIQUE|CHECK|CONSTRAINT|EXCLUDE)\\b/i.test(p)).map(p=>(/^([a-z_][a-z0-9_]*)\\s/i.exec(p)||[])[1]||\"\").filter(Boolean);\n console.log(t+\":\\n  \"+cols.join(\", \")+\"\\n\");\n}'",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681294179
+  },
+  {
+    "role": "tool_result",
+    "content": "fiscal_documents:\n  id, store_id, sale_id, customer_id, kind, serie, numero, chave, status, environment, protocolo, xml_authorized, xml_cancelled, qrcode_url, danfe_url, total_value, reference, provider, provider_ref, error_msg, retry_count, emitted_at, cancelled_at, created_at, updated_at\n\ninbound_",
+    "is_error": false,
+    "timestamp": 1790681294276
   }
 ]
