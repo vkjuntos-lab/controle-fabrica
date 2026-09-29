@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('src/components/fiscal/workspace.tsx');s=p.read_text().replace('<AppShell>','<AppShell title=\\\"Fiscal\\\">');p.write_text(s)\np=Path('scripts/test-fiscal-workflow-db.py');s=p.read_text();marker=\\\" print('FISCAL WORKFLOW OK')\\\"\nextra='''\n # Accepted XML remains UNVERIFIED. Supplier and recipient must belong to the selected operation.\n supplier,po,poi,receipt,ri,pay=[db.uid() for _ in range(6)]\n sql(f\\\"UPDATE companies SET document_number='12345678000195' WHERE id={q(company)};\\\")\n sql(f\\\"INSERT INTO supplier_profiles(id,organization_id,company_id,supplier_code) VALUES({q(supplier)},{q(org)},{q(company)},'WF-SUP');\\\")\n sql(f\\\"INSERT INTO purchase_orders(id,organization_id,supplier_id,order_number) VALUES({q(po)},{q(org)},{q(supplier)},'WF-PO');\\\")\n sql(f\\\"INSERT INTO purchase_order_items(id,organization_id,purchase_order_id,variant_id,ordered_quantity,unit_price,line_total) VALUES({q(poi)},{q(org)},{q(po)},{q(variant)},60,10,600);\\\")\n sql(f\\\"INSERT INTO goods_receipts(id,organization_id,purchase_order_id,supplier_id,receipt_number,status) VALUES({q(receipt)},{q(org)},{q(po)},{q(supplier)},'WF-GR','POSTED');\\\")\n sql(f\\\"INSERT INTO goods_receipt_items(id,organization_id,goods_receipt_id,purchase_order_item_id,variant_id,received_quantity,accepted_quantity,unit_cost,line_total) VALUES({q(ri)},{q(org)},{q(receipt)},{q(poi)},{q(variant)},60,60,10,600);\\\")\n sql(f\\\"INSERT INTO account_payables(id,organization_id,company_id,source_type,source_id,document_number,description,issue_date,due_date,original_amount) VALUES({q(pay)},{q(org)},{q(company)},'GOODS_RECEIPT',{q(receipt)},'WF-AP','Fixture',current_date,current_date,600);\\\")\n prefix='3526091234567800019555001000000001100000000'\n assert len(prefix)==43\n acc=sum(int(c)*(2+i%8) for i,c in enumerate(reversed(prefix)));dv=11-acc%11;key=prefix+str(0 if dv>=10 else dv)\n xml=f\\\\'''<nfeProc xmlns=\\\"http://www.portalfiscal.inf.br/nfe\\\" versao=\\\"4.00\\\"><NFe><infNFe Id=\\\"NFe{key}\\\" versao=\\\"4.00\\\"><ide><mod>55</mod><tpAmb>2</tpAmb><dhEmi>2026-09-29T12:00:00Z</dhEmi></ide><emit><CNPJ>12345678000195</CNPJ></emit><dest><CNPJ>00000000000191</CNPJ></dest><det nItem=\\\"1\\\"><prod><cProd>FIXTURE</cProd><xProd>Teste</xProd><qCom>60</qCom><vUnCom>10</vUnCom><vProd>600</vProd><uCom>PAR</uCom><NCM>00000000</NCM></prod><imposto/></det><total><ICMSTot><vNF>600</vNF><vFrete>0</vFrete></ICMSTot></total></infNFe></NFe><protNFe><infProt><chNFe>{key}</chNFe><cStat>100</cStat><nProt>FIXTURE</nProt></infProt></protNFe></nfeProc>\\\\'''\n inbound=call('fiscal_import_xml',[org,est,supplier,xml]);assert inbound['authenticity_status']=='UNVERIFIED'\n assert call('fiscal_import_xml',[org,est,supplier,xml])['id']==inbound['id']\n call('fiscal_import_xml',[org,est,supplier,xml.replace('<vNF>600','<vNF>601')],fail='XML diferente')\n path=inbound['xml_storage_path']\n sql(f\\\"INSERT INTO storage.objects(bucket_id,name) VALUES('fiscal-private',{q(path)})\\\",admin)\n assert sql(f\\\"SELECT count(*) FROM storage.objects WHERE name={q(path)}\\\",outsider)=='0'\n sql(f\\\"INSERT INTO storage.objects(bucket_id,name) VALUES('fiscal-private',{q(path)})\\\",outsider,'row-level security')\n before=sql('SELECT (SELECT count(*) FROM inventory_movements)||\\\\',\\\\'||(SELECT count(*) FROM account_payables)')\n result=execute('reconcile',{'inbound':True,'goods_receipt_id':receipt,'account_payable_id':pay,'item_mapping':{'1':{'receipt_item_id':ri}}},inbound['id'])\n assert result['status']=='PENDING' and all(i['type']\"'!='\"'QUANTITY_OR_PRICE_MISMATCH' for i in result['findings'])\n assert before==sql('SELECT (SELECT count(*) FROM inventory_movements)||\\\\',\\\\'||(SELECT count(*) FROM account_payables)')\n print('PASS W5: XML estruturado, duplicidade por chave/hash, Storage entre organizações negado, vínculo com recebimento/título sem duplicação')\n for kind in ['company_options','variant_options','address_options','supplier_options','shipment_options','receipt_options']:\n  call('fiscal_query',[org,kind,{}])\n exception=sql(\\\"SELECT id FROM fiscal_exceptions LIMIT 1\\\")\n execute('exception',{'status':'IN_REVIEW','reason':'Atribuição','responsible_id':admin},exception)\n print('PASS W6: seletores de cadastro e atribuição auditada de exceções')\n'''\n# Preserve Python quoting for SQL concatenation.\nextra=extra.replace(\\\"||','||\\\", \\\"||chr(44)||\\\")\ns=s.replace(marker,extra+marker);p.write_text(s)\nPY\nnpm run test:fiscal:db\""
-    },
-    "timestamp": 1790669190359
-  },
-  {
-    "role": "tool_result",
-    "content": "\n> test:fiscal:db\n> python3 scripts/test-fiscal-workflow-db.py\n\nMIGRATIONS OK\nPASS AG: simulacao sem classificacao vigente bloqueia e se declara nao autoritativa\nPASS AH: classificacao em DRAFT nao entra no calculo; falta de regra nomeia a pendencia\nPASS AI: autor nao aprova a propria classificacao;",
-    "is_error": true,
-    "timestamp": 1790669194698
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc 'npm run build'"
     },
     "timestamp": 1790669200759
@@ -1460,5 +1446,20 @@
     "content": "  File \"/root/Zheus AI Projects/controle-fabricas/scripts/_probe-fiscal.py\", line 81\n    if __name__=='__main__':\n    ^^\nIndentationError: expected an indented block after 'if' statement on line 79\n",
     "is_error": false,
     "timestamp": 1790680238937
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "tail -8 scripts/_probe-fiscal.py",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790680241225
+  },
+  {
+    "role": "tool_result",
+    "content": "    print('--- B3: tabelas fiscais sem created_at (filtro de data as esconde) ---')\n    print(' ', [t for t in tabelas if t not in comdata])\n\nif __name__=='__main__':\n\nif __name__=='__main__':\n    try: run()\n    finally: db.cleanup()",
+    "is_error": false,
+    "timestamp": 1790680241242
   }
 ]
