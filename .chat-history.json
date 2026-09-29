@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -rn \"CREATE TABLE.*organization_members\" -A 12 supabase/migrations/ | head -16; echo \"=== PROFILES ===\"; grep -rn \"CREATE TABLE.*public.profiles\\|CREATE TABLE.*profiles \" -A 14 supabase/migrations/ | head -20",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790680872313
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql:45:CREATE TABLE public.organization_members (\nsupabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql-46-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\nsupabase/migrations/20260915210457_59fe8633-bfbe-4",
-    "is_error": false,
-    "timestamp": 1790680872360
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -rn \"FROM profiles\\|JOIN profiles\" supabase/migrations/20261014400000_fiscal_workspace.sql supabase/migrations/20261013200000_fiscal_tax_engine.sql | head -5; echo \"=== colunas ===\"; grep -rn \"profiles\" src/integrations/supabase/types.ts | grep -i \"full_name\\|email\" | head -5",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1537,5 +1522,20 @@
     "content": "tmpfs           1.9G  1.9G   44K 100% /tmp\ntmpfs           1.9G  898M 1011M  48% /tmp\n",
     "is_error": false,
     "timestamp": 1790681974635
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "tail -12 scripts/test-inventory-db.py",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681985062
+  },
+  {
+    "role": "tool_result",
+    "content": "    assert len(json.loads(call('inventory_search_variants',q(org)+\",'123456'\",a)))==1\n    print('PASS: more than 1000 SKUs, pagination, zero-stock dashboard, barcode search')\n\n\ndef cleanup():\n    if (TMP/'data/postmaster.pid').exists():\n        subprocess.run([str(BIN/'pg_ctl'),'-D',str(TMP/'data'),",
+    "is_error": false,
+    "timestamp": 1790681985077
   }
 ]
