@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql 20261015110000_bi_marts.sql 20261015120000_bi_queries.sql\" 2>&1 | tail -30",
-      "timeout": 600000
-    },
-    "timestamp": 1790683661271
-  },
-  {
-    "role": "tool_result",
-    "content": "Traceback (most recent call last):\n  File \"/tmp/opencode/apply.py\", line 17, in <module>\n    db.sql(prefix + (db.ROOT/'supabase/migrations'/name).read_text())\n    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventor",
-    "is_error": false,
-    "timestamp": 1790683663958
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && rg -n \"ORDER BY [^)]*LIMIT\" supabase/migrations/20261015120000_bi_queries.sql"
     },
     "timestamp": 1790683666909
@@ -1464,5 +1449,19 @@
     "content": "CONTEXT:  PL/pgSQL assignment \"v_rules := coalesce((SELECT jsonb_agg(jsonb_build_object('store_ownership_type',store_ownership_type,\n      'partner_bound',partner_bound,'channel',channel,'priority',priority) ORDER BY priority)\n      FROM public.bi_channel_rules r WHERE (r.organization_id IS NULL OR ",
     "is_error": false,
     "timestamp": 1790684339235
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\ns=Path('supabase/migrations/20261015110000_bi_marts.sql').read_text()\ni=s.find('CREATE FUNCTION public.bi_classify_channel'); j=s.find('\\n-- ---', i)\nprint(s[i:j])\nPY"
+    },
+    "timestamp": 1790684343320
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE FUNCTION public.bi_classify_channel(_org uuid,_nature text,_store uuid,_partner uuid,_company uuid)\nRETURNS text LANGUAGE plpgsql STABLE AS $$\nDECLARE r record; own text; linked boolean; v_channel text; v_rules jsonb;\nBEGIN\n  own := (SELECT s.ownership_type FROM public.marketplace_stores s WH",
+    "is_error": false,
+    "timestamp": 1790684343361
   }
 ]
