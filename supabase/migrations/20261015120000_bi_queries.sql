@@ -191,7 +191,7 @@ BEGIN
         RETURN result;
       WHEN 'series' THEN
         SELECT coalesce(jsonb_agg(rrec ORDER BY bucket),'[]') INTO result FROM (
-          SELECT bucket,jsonb_build_object('bucket',bucket,'value',value,'available',available) row FROM (
+          SELECT bucket,jsonb_build_object('bucket',bucket,'value',value,'available',available) rrec FROM (
             SELECT b.bucket,
               CASE v_metric
                 WHEN 'sales.quantity_reconciled' THEN sum(CASE WHEN b.fact_nature='RECONCILED_SALE' AND b.status='RECONCILED' THEN b.quantity END)
