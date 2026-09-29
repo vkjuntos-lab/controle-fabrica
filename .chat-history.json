@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"supabase/migrations/20261015100000_bi_core.sql\")\ns = p.read_text(encoding=\"utf8\")\nfixes = [\n (\"度量 e dashboards privados continuam restritos.\",\n  \"métricas e dashboards privados continuam restritos.\"),\n (\"-- Definições globais são visíveis a qualquer membro que tenha bi.read em\\n-- alguma organização;度量 e dashboards privados continuam restritos.\\n\",\n  \"-- Definições globais são visíveis a qualquer membro da plataforma; a\\n-- personalização de uma organização nunca altera a definição global.\\n\"),\n (\"CREATE POLICY bi_metrics_global_read ON public.bi_metric_definitions FOR SELECT TO authenticated\\n  USING (organization_id IS NULL AND public.is_org_member_any());\",\n  \"CREATE POLICY bi_metrics_global_read ON public.bi_metric_definitions FOR SELECT TO authenticated\\n  USING (organization_id IS NULL AND EXISTS(SELECT 1 FROM public.organization_members m\\n          WHERE m.user_id=auth.uid() AND m.is_active));\"),\n (\"'Estoque em terceiros',\\n  'Saldo físico em locais de合作伙伴, apurado pelo Inventory Ledger.'\",\n  \"'Estoque em terceiros',\\n  'Saldo físico em locais de parceiros, apurado pelo Inventory Ledger.'\"),\n (\"'Documento preparado NÃO éNF-e autorizada e não comprova dude.'\",\n  \"'Documento preparado nao e NF-e autorizada e nao comprova duvida.'\"),\n (\"'INVENTORY','SUM(balance) de bi_inventory_daily_balance com location_type=PARTNER na data mais recente.'\",\n  \"'INVENTORY','SUM(balance) de bi_inventory_daily_balance com location_type=PARTNER na data mais recente.'\"),\n (\"  consolidation_requires bi.read text,\\n\", \"\"),\n (\"periodicity text NOT NULL CHECK (periodicity IN ('DAILY','WEEKLY','MONTHLY','QUARTERLY','YEARLY')),\",\n  \"periodicity text NOT NULL CHECK (periodicity IN ('DAILY','WEEKLY','MONTHLY','QUARTERLY','YEARLY','ON_DEMAND')),\"),\n (\"'Documento preparado NÃO éNF-e autorizada e não comprova dude.'\",\"x\"),\n]\nfor a,b in fixes:\n    s = s.replace(a,b)\ns = s.replace(\"'Documento preparado NÃO éNF-e autorizada e não comprova dude.'\",\n              \"'Documento preparado nao e NF-e autorizada e nao comprova duvida.'\")\ns = s.replace(\"'Documento preparado NÃO é NF-e autorizada\", \"'Documento preparado nao e NF-e autorizada\")\np.write_text(s, encoding=\"utf8\")\nprint(\"ok\")\nPY\ngrep -n \"度量\\|合作伙伴\\|dude\\|éNF-e\\|FISCAL_SALE\\|ON_DEMAND\\|is_org_member\" supabase/migrations/20261015100000_bi_core.sql"
-    },
-    "timestamp": 1790683120328
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n63:  periodicity text NOT NULL CHECK (periodicity IN ('DAILY','WEEKLY','MONTHLY','QUARTERLY','YEARLY','ON_DEMAND')),\n950:  'ON_DEMAND','DAY','Convenção de gestão configurável. Não é avaliação universal de importância do produto.',  'ACTIVE'),\n958:  'ON_DEMAND','DAY','Exige histórico suficiente. S",
-    "is_error": false,
-    "timestamp": 1790683120386
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -n \"Documento preparado\" supabase/migrations/20261015100000_bi_core.sql; grep -n \"locais de\" supabase/migrations/20261015100000_bi_core.sql"
     },
     "timestamp": 1790683123006
@@ -1454,5 +1440,20 @@
     "content": "    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventory-db.py\", line 24, in sql\n    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  syntax error at or near \"FROM\"\nLINE 342:   ",
     "is_error": false,
     "timestamp": 1790684066866
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np = Path('supabase/migrations/20261015120000_bi_queries.sql')\ns = p.read_text()\ns = s.replace(\"\"\"          'orders',oc.cnt,'value',oc.value,'rejected',coalesce(g.rejected,0)) ORDER BY oc.value DESC\n        FROM public.companies c\"\"\",\n\"\"\"          'orders',oc.cnt,'value',oc.value,'rejected',coalesce(g.rejected,0)) ORDER BY oc.value DESC)\n        FROM public.companies c\"\"\")\ns = s.replace(\"        WHERE c.organization_id=_org AND oc.cnt IS NOT NULL),'[]'::jsonb)));\",\n              \"        WHERE c.organization_id=_org AND oc.cnt IS NOT NULL),'[]'::jsonb));\")\np.write_text(s)\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql 20261015110000_bi_marts.sql 20261015120000_bi_queries.sql\" 2>&1 | tail -8",
+      "timeout": 900000
+    },
+    "timestamp": 1790684071582
+  },
+  {
+    "role": "tool_result",
+    "content": "APLICADO OK\n",
+    "is_error": false,
+    "timestamp": 1790684074254
   }
 ]

@@ -542,7 +542,7 @@ BEGIN
         WHERE o.organization_id=_org AND o.status IN ('APPROVED','SENT','RECEIVING')
           AND o.expected_delivery_date IS NOT NULL AND o.expected_delivery_date<(v_to-1)),'[]'::jsonb),
       'suppliers',coalesce((SELECT jsonb_agg(jsonb_build_object('id',c.id,'name',c.legal_name,
-          'orders',oc.cnt,'value',oc.value,'rejected',coalesce(g.rejected,0)) ORDER BY oc.value DESC
+          'orders',oc.cnt,'value',oc.value,'rejected',coalesce(g.rejected,0)) ORDER BY oc.value DESC)
         FROM public.companies c
         JOIN public.supplier_profiles sp ON sp.company_id=c.id AND sp.organization_id=c.organization_id
         JOIN (SELECT supplier_id,count(*) cnt,sum(total_amount) value FROM public.purchase_orders
@@ -552,7 +552,7 @@ BEGIN
                    FROM public.goods_receipts gr JOIN public.supplier_profiles sp2 ON sp2.id=gr.supplier_id
                    WHERE gr.organization_id=_org AND gr.received_at>=v_from AND gr.received_at<v_to GROUP BY 1) g
           ON g.supplier=c.id
-        WHERE c.organization_id=_org AND oc.cnt IS NOT NULL),'[]'::jsonb)));
+        WHERE c.organization_id=_org AND oc.cnt IS NOT NULL),'[]'::jsonb));
 
   ELSIF _kind='production' THEN
     PERFORM public.bi_require(_org,'bi.production');
