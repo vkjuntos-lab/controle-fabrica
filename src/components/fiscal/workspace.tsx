@@ -422,15 +422,20 @@ function RecordDetail({
   const { hasPermission } = useOrganization();
   const [reason, setReason] = useState("");
   const [evidence, setEvidence] = useState("");
+  const [responsible, setResponsible] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const detail = useQuery({
-    queryKey: ["fiscal", org, "detail", row.id],
+    queryKey: ["fiscal", org, view === "rules" ? "rule_detail" : "detail", row.id],
     queryFn: () =>
       readFiscal({
-        data: { organizationId: org, kind: "detail", filters: { id: row.id ?? null } },
+        data: {
+          organizationId: org,
+          kind: view === "rules" ? "rule_detail" : "detail",
+          filters: { id: row.id ?? null },
+        },
       }),
-    enabled: view === "documents",
+    enabled: view === "documents" || view === "rules",
   });
   async function action(operation: string, values: Record<string, Json>) {
     setBusy(true);
