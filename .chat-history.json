@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790668628139
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"cat > scripts/test-fiscal-workflow-db.py <<'PY'\n#\"'!/usr/bin/env python3\n\"\"\"Fiscal workflow integration tests; isolated PostgreSQL only.\"\"\"\nimport importlib.util, json\nfrom pathlib import Path\nspec=importlib.util.spec_from_file_location('\"'fiscal',Path(__file__).with_name('test-fiscal-db.py'))\nf=importlib.util.module_from_spec(spec);spec.loader.exec_module(f)\ndb=f.db;sql=db.sql;q=db.q\n\ndef run():\n f.run()\n for name in ['20261014100000_fiscal_integrity.sql','20261014200000_fiscal_documents.sql','20261014300000_fiscal_inbound.sql','20261014400000_fiscal_workspace.sql']:\n  sql((db.ROOT/'supabase/migrations'/name).read_text())\n print('WORKFLOW MIGRATIONS OK')\n org=sql('SELECT id FROM organizations LIMIT 1');admin=sql(\\\"SELECT id FROM auth.users WHERE email='adm@test'\\\")\n reviewer=sql(\\\"SELECT id FROM auth.users WHERE email='apr@test'\\\");outsider=sql(\\\"SELECT id FROM auth.users WHERE email='out@test'\\\")\n est=sql('SELECT id FROM fiscal_establishments LIMIT 1'); company=sql('SELECT id FROM companies LIMIT 1')\n variant=sql(\\\"SELECT id FROM product_variants WHERE sku='BAL-34-ROSA'\\\")\n op=sql(\\\"SELECT id FROM fiscal_operation_types WHERE kind='DIRECT_SALE'\\\")\n def call(name,args,user=admin,fail=None):\n  r=db.call(name,','.join(q(json.dumps(a)) if isinstance(a,(dict,list)) else ('NULL' if a is None else q(a)) for a in args),user,fail)\n  return json.loads(r) if r and not fail else r\n def execute(operation,data,id=None,user=admin,fail=None): return call('fiscal_execute',[org,operation,id,data],user,fail)\n # Legacy data passes after the additive repair; the new lifecycle cannot skip review.\n rule=execute('rule',{'operation_type_id':op,'document_model':'NFe','version':9,'taxes':[]})['rule']['id']\n execute('rule_action',{'action':'approve','reason':'Teste'},rule,reviewer,'não pode ser aprovada')\n execute('rule_action',{'action':'submit','reason':'Revisão'},rule)\n execute('rule_action',{'action':'approve','reason':'Teste'},rule,reviewer)\n execute('rule_action',{'action':'activate','reason':'Teste'},rule,reviewer,'regressão')\n print('PASS W1: revisão obrigatória e ativação exige evidência de regressão')\n layout=execute('layout',{'document_model':'NFe','version':'TEST-1','source_reference':'Fixture interna, não homologação oficial',\n 'valid_from':'2020-01-01','implanted_at':'2020-01-01','required_fields':['establishment.tax_registration','recipient.tax_registration'],\n 'homologation_notes':'Fixture validada apenas no teste','status':'ACTIVE'})['id']\n nature=execute('nature',{'operation_type_id':op,'cfop_code':'TEST','fiscal_nature':'Teste','version':1})['id']\n for action in ['submit','approve','activate']: execute('nature_action',{'action':action,'reason':'Teste'},nature,reviewer if action\"'!='\"'submit' else admin)\n cp=execute('company',{'company_id':company,'tax_registration':'TEST'})['id']\n execute('profile_action',{'table':'company_fiscal_profiles','action':'approve','reason':'Teste'},cp,reviewer)\n execute('company',{'tax_registration':'EDIT'},cp,admin,'imutável')\n # Operational fixture: 100 ordered, exactly 60 officially dispatched.\n order,oi,shipment,si,loc=[db.uid() for _ in range(5)]\n sql(f\\\"INSERT INTO inventory_locations(id,organization_id,code,name,type) VALUES({q(loc)},{q(org)},'WF','WF','FACTORY');\\\")\n sql(f\\\"INSERT INTO sales_orders(id,organization_id,company_id,order_number,status) VALUES({q(order)},{q(org)},{q(company)},'WF100','APPROVED');\\\")\n sql(f\\\"INSERT INTO sales_order_items(id,organization_id,sales_order_id,product_variant_id,sku_snapshot,description_snapshot,ordered_quantity,approved_quantity,unit_price,line_total) VALUES({q(oi)},{q(org)},{q(order)},{q(variant)},'WF','Fixture',100,100,10,1000);\\\")\n sql(f\\\"INSERT INTO shipments(id,organization_id,sales_order_id,shipment_number,source_location_id,status,dispatched_at) VALUES({q(shipment)},{q(org)},{q(order)},'WF60',{q(loc)},'DISPATCHED',now());\\\")\n sql(f\\\"INSERT INTO shipment_items(id,organization_id,shipment_id,sales_order_item_id,variant_id,sku_snapshot,description_snapshot,quantity) VALUES({q(si)},{q(org)},{q(shipment)},{q(oi)},{q(variant)},'WF','Fixture',60);\\\")\n counts=sql('SELECT (SELECT count(*) FROM inventory_movements)||\\\\',\\\\'||(SELECT count(*) FROM account_receivables)||\\\\',\\\\'||(SELECT count(*) FROM account_payables)')\n data={'source_type':'SHIPMENT','source_id':shipment,'establishment_id':est,'operation_type_id':op,'layout_version_id':layout,'nature_id':nature}\n doc=execute('prepare',data);assert doc['status']=='DRAFT';assert execute('prepare',data)['id']==doc['id']\n assert sql(f\\\"SELECT quantity FROM fiscal_document_items WHERE document_id={q(doc['id'])}\\\")=='60.000000'\n assert execute('document_action',{'action':'validate'},doc['id'])['status']=='VALIDATED'\n assert execute('document_action',{'action':'approve','reason':'Conferido'},doc['id'])['status']=='READY_TO_SEND'\n result=execute('document_action',{'action':'submit'},doc['id']);assert result['blocked'] and result['status']=='READY_TO_SEND'\n execute('document_action',{'action':'submit'},doc['id'],outsider,'Sem permissão')\n assert sql(f\\\"SELECT count(*) FROM fiscal_documents WHERE organization_id={q(org)}\\\",outsider)=='0'\n assert counts==sql('SELECT (SELECT count(*) FROM inventory_movements)||\\\\',\\\\'||(SELECT count(*) FROM account_receivables)||\\\\',\\\\'||(SELECT count(*) FROM account_payables)')\n assert sql(f\\\"SELECT count(*) FROM tax_calculation_snapshots WHERE document_id={q(doc['id'])}\\\")=='3'\n print('PASS W2: 100/60, origem deduplicada, snapshot, conferência, transmissão bloqueada, RLS, nenhum efeito físico/financeiro')\n result=execute('reconcile',{},doc['id']);assert result['status']=='PENDING'\n assert any(i['type']=='COMMERCIAL_BALANCE' and i['ordered_quantity']==100 and i['covered_quantity']==60 for i in result['findings'])\n for kind in ['dashboard','documents','inbound','events','exceptions','reconciliations','establishments','regimes','operations','natures','products','companies','taxes','layouts','rules','reviews','providers','simulations']:\n  call('fiscal_query',[org,kind,{}])\n print('PASS W3: saldo comercial 40 preservado; consultas e dashboard executáveis')\n call('fiscal_import_xml',[org,est,db.uid(),'<\"'!DOCTYPE x><x/>'\"'],fail='DTD')\n call('fiscal_import_xml',[org,est,db.uid(),'<x/>'],fail='Somente')\n sql(f\\\"UPDATE fiscal_documents SET status='AUTHORIZED' WHERE id={q(doc['id'])}\\\",admin,'permission denied')\n assert sql(f\\\"SELECT fiscal_storage_allowed({q(org+'/unknown.xml')},false)\\\",outsider)=='f'\n print('PASS W4: XML arbitrário, DTD, autorização forjada e acesso a arquivo recusados')\n print('FISCAL WORKFLOW OK')\n\nif __name__=='__main__':\n try: run()\n finally: db.cleanup()\nPY\npython3 scripts/test-fiscal-workflow-db.py\""
-    },
-    "timestamp": 1790668690708
-  },
-  {
-    "role": "tool_result",
     "content": "MIGRATIONS OK\nPASS AG: simulacao sem classificacao vigente bloqueia e se declara nao autoritativa\nPASS AH: classificacao em DRAFT nao entra no calculo; falta de regra nomeia a pendencia\nPASS AI: autor nao aprova a propria classificacao; perfil aprovado fica imutavel\nPASS AJ: regra submetida vira imu",
     "is_error": true,
     "timestamp": 1790668693960
@@ -1435,5 +1421,21 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790680175940
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cp /tmp/opencode/probe-fiscal.py scripts/_probe-fiscal.py && chmod a+r scripts/_probe-fiscal.py && su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/_probe-fiscal.py\" 2>&1 | tail -60",
+      "timeout": 900000,
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790680178626
+  },
+  {
+    "role": "tool_result",
+    "content": "--- B2: permissoes concedidas fora do catalogo ---\nORFAS: ['fiscal.documents.prepare', 'fiscal.documents.read', 'fiscal.documents.transmit', 'fiscal.export']\n--- catalogo sem nenhuma concessao ---\nSEM CONCESSAO: []\n--- B1: kind de configuracao lido por quem so tem fiscal.configure ---\nTraceback (mos",
+    "is_error": false,
+    "timestamp": 1790680181370
   }
 ]
