@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && ls src/lib/ && echo \"=== ROTAS ===\" && ls src/routes/ -R | head -60 && echo \"=== RBAC ===\" && ls src/lib/permissions* 2>/dev/null; grep -rn \"bi\\.\\|analytics\" src/lib/permissions* 2>/ bi -R 2>/dev/null | head"
-    },
-    "timestamp": 1790682899109
-  },
-  {
-    "role": "tool_result",
-    "content": "ai-gateway.server.ts\naudit\nconfig\ncosts\ncrm\ncron-auth.server.ts\ncsv.test.ts\ncsv.ts\nerror-capture.ts\nerror-page.ts\nfinance\nfiscal\ninventory\nlovable-error-reporting.ts\nmiddleware\nmonitoring\norg\npartners\nplanning\nproducts\npurchasing\nrbac.test.ts\nrbac.ts\nreconciliation\nsales\nutils.ts\nwebhook\n=== ROTAS =",
-    "is_error": false,
-    "timestamp": 1790682899165
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && ls src/routes/_authenticated/relatorios/ && echo \"=== RBAC ===\" && head -80 src/lib/rbac.ts && echo \"...\" && grep -c \"\" src/lib/rbac.ts"
     },
     "timestamp": 1790682901639
@@ -1492,5 +1478,19 @@
     "content": "CREATE FUNCTION public.bi_resolve_metric(_org uuid,_key text,_version integer DEFAULT NULL)\nRETURNS TABLE(metric_key text,metric_name text,description text,business_domain text,formula text,unit text,\n              aggregation_method text,date_dimension text,source_description text,limitations text,",
     "is_error": false,
     "timestamp": 1790683840332
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\nimport re\ns = Path('supabase/migrations/20261015110000_bi_marts.sql').read_text()\ni = s.find('CREATE FUNCTION public.bi_sync_sales')\nj = s.find('CREATE FUNCTION', i+10)\nprint(s[i:j])\nPY"
+    },
+    "timestamp": 1790683863116
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE FUNCTION public.bi_sync_sales(_org uuid,_from date,_to date,_run uuid DEFAULT NULL) RETURNS integer\nLANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE n integer:=0; r record; v_cost record; v_channel text; v_bill numeric; v_qty numeric;\nBEGIN\n  FOR r IN\n    SELECT s.id,s.o",
+    "is_error": false,
+    "timestamp": 1790683863172
   }
 ]
