@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"supabase/migrations/20261015110000_bi_marts.sql\")\ns = p.read_text(encoding=\"utf8\")\ns = s.replace(\"DECLARE cfg jsonb; x numeric; y numeric; minobs integer; v_buckets integer;\",\n              \"DECLARE cfg jsonb; x numeric; y numeric; minobs integer; v_buckets integer; v_buckets_json jsonb;\")\np.write_text(s, encoding=\"utf8\")\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql 20261015110000_bi_marts.sql\" 2>&1 | tail -8"
-    },
-    "timestamp": 1790683310622
-  },
-  {
-    "role": "tool_result",
-    "content": "    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventory-db.py\", line 24, in sql\n    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  syntax error at or near \"EXCEPTION\"\nLINE 8:",
-    "is_error": false,
-    "timestamp": 1790683313345
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"supabase/migrations/20261015110000_bi_marts.sql\")\ns = p.read_text(encoding=\"utf8\")\ns = s.replace(\"\"\"  v_mode := CASE WHEN _mode IN ('INCREMENTAL','FULL') THEN _mode ELSE RAISE EXCEPTION 'Modo inválido: %',_mode END;\"\"\",\n\"\"\"  IF _mode NOT IN ('INCREMENTAL','FULL') THEN RAISE EXCEPTION 'Modo inválido: %',_mode; END IF;\n  v_mode:=_mode;\"\"\")\np.write_text(s, encoding=\"utf8\")\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql 20261015110000_bi_marts.sql\" 2>&1 | tail -8"
     },
     "timestamp": 1790683316443
@@ -1460,5 +1446,19 @@
     "content": "       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<18 lines>...\n       f\"({q(org)},{q(loja_parceiro)},'EXT-3',{q(v1)});\"\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n       f\"INSERT INTO sales_representatives(id,organiz",
     "is_error": false,
     "timestamp": 1790684247133
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport re, subprocess\nfrom pathlib import Path\nout = subprocess.run(['grep','-rl','CREATE TABLE public.sales_representatives ','supabase/migrations/'],capture_output=True,text=True).stdout.split()\ns=Path(out[0]).read_text(); i=s.find('CREATE TABLE public.sales_representatives ')\nprint(re.sub(r'\\s+',' ',s[i:s.find(');',i)+2])[:700])\nPY"
+    },
+    "timestamp": 1790684249559
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE TABLE public.sales_representatives ( id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES public.organizations, representative_code text NOT NULL, name text NOT NULL, user_id uuid REFERENCES public.profiles, representative_type text NOT NULL CHECK(representa",
+    "is_error": false,
+    "timestamp": 1790684249623
   }
 ]
