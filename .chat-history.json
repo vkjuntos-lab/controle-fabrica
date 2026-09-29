@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/workspace.tsx",
-      "newString": "/** Valor de uma coluna da listagem, traduzindo código e formatando número. */\n",
-      "oldString": "/** Valor de uma coluna, traduzindo código e阵列特殊. */\n"
-    },
-    "timestamp": 1790680697854
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790680697870
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -rnP \"[\\x{4e00}-\\x{9fff}\\x{0400}-\\x{04FF}]|slice\\(0\" src/components/fiscal/ src/lib/fiscal/ supabase/migrations/20261014500000_fiscal_screen_fixes.sql || echo \"sem artefatos\"; grep -n \"^import\\|^} from\\|FINDING_TYPE\\|const liveSections\\|lifecycleActions\" src/components/fiscal/workspace.tsx",
@@ -1535,5 +1519,21 @@
     "content": "47:  fiscalRead: \"fiscal.read\",\n48:  fiscalDashboard: \"fiscal.dashboard\",\n49:  fiscalConfigure: \"fiscal.configure\",\n50:  fiscalSimulate: \"fiscal.simulate\",\n51:  fiscalTaxRulesRead: \"fiscal.tax_rules.read\",\n52:  fiscalTaxRulesManage: \"fiscal.tax_rules.manage\",\n53:  fiscalTaxRulesApprove: \"fiscal.tax_",
     "is_error": false,
     "timestamp": 1790681894969
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py",
+      "newString": "    # Nenhuma permissão `fiscal.*` pode existir no banco sem estar no\n    # catálogo de `src/lib/rbac.ts`. O caminho inverso — permissão de catálogo\n    # sem uso — é o que a 145 corrige ao remover as quatro órfãs.\n    import re\n    rbac = (db.ROOT / 'src/lib/rbac.ts').read_text()\n    catalogo = sorted(set(re.findall(r'\"(fiscal\\.[a-z_.]+)\"', rbac)))\n    assert len(catalogo) >= 20, f'catálogo fiscal lido com {len(catalogo)} permissões'\n    orfas = sql(\"SELECT coalesce(string_agg(DISTINCT permission, ','),'') FROM role_permissions \"\n                \"WHERE permission LIKE 'fiscal.%' AND permission <> ALL (ARRAY[\"\n                + ','.join(q(p) for p in catalogo) + \"]);\")\n    assert not orfas, f'permissões fiscais fora do catálogo RBAC: {orfas}'\n    print('RBAC CONSISTENTE OK')\n",
+      "oldString": "    catalogo = sql(\"SELECT string_agg(permission, ',' ORDER BY permission) FROM role_permissions rp \"\n                   \"WHERE NOT EXISTS (SELECT 1 FROM (VALUES \"\n                   \"('fiscal.read'),('fiscal.dashboard'),('fiscal.configure'),('fiscal.simulate'),\"\n                   \"('fiscal.reports.export'),('fiscal.documents.create'),('fiscal.documents.validate'),\"\n                   \"('fiscal.documents.issue'),('fiscal.documents.download'),('fiscal.inbound.read'),\"\n                   \"('fiscal.inbound.import'),('fiscal.inbound.review'),('fiscal.exceptions.read'),\"\n                   \"('fiscal.exceptions.manage'),('fiscal.events.read'),('fiscal.reconciliation.read'),\"\n                   \"('fiscal.reconciliation.manage'),('fiscal.tax_rules.read'),('fiscal.tax_rules.manage'),\"\n                   \"('fiscal.tax_rules.approve'),('fiscal.provider.manage')) v(permission) \"\n                   \"WHERE v.permission=rp.permission);\")\n    assert not catalogo, f'permissões fora do catálogo RBAC: {catalogo}'\n    print('RBAC CONSISTENTE OK')\n"
+    },
+    "timestamp": 1790681901136
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790681901151
   }
 ]

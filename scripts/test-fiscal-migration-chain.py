@@ -155,17 +155,17 @@ def run():
                 "'fiscal.documents.transmit','fiscal.export');")
     assert orfas == '0', f'permissões órfãs ainda concedidas: {orfas}'
 
-    catalogo = sql("SELECT string_agg(permission, ',' ORDER BY permission) FROM role_permissions rp "
-                   "WHERE NOT EXISTS (SELECT 1 FROM (VALUES "
-                   "('fiscal.read'),('fiscal.dashboard'),('fiscal.configure'),('fiscal.simulate'),"
-                   "('fiscal.reports.export'),('fiscal.documents.create'),('fiscal.documents.validate'),"
-                   "('fiscal.documents.issue'),('fiscal.documents.download'),('fiscal.inbound.read'),"
-                   "('fiscal.inbound.import'),('fiscal.inbound.review'),('fiscal.exceptions.read'),"
-                   "('fiscal.exceptions.manage'),('fiscal.events.read'),('fiscal.reconciliation.read'),"
-                   "('fiscal.reconciliation.manage'),('fiscal.tax_rules.read'),('fiscal.tax_rules.manage'),"
-                   "('fiscal.tax_rules.approve'),('fiscal.provider.manage')) v(permission) "
-                   "WHERE v.permission=rp.permission);")
-    assert not catalogo, f'permissões fora do catálogo RBAC: {catalogo}'
+    # Nenhuma permissão `fiscal.*` pode existir no banco sem estar no
+    # catálogo de `src/lib/rbac.ts`. O caminho inverso — permissão de catálogo
+    # sem uso — é o que a 145 corrige ao remover as quatro órfãs.
+    import re
+    rbac = (db.ROOT / 'src/lib/rbac.ts').read_text()
+    catalogo = sorted(set(re.findall(r'"(fiscal\.[a-z_.]+)"', rbac)))
+    assert len(catalogo) >= 20, f'catálogo fiscal lido com {len(catalogo)} permissões'
+    orfas = sql("SELECT coalesce(string_agg(DISTINCT permission, ','),'') FROM role_permissions "
+                "WHERE permission LIKE 'fiscal.%' AND permission <> ALL (ARRAY["
+                + ','.join(q(p) for p in catalogo) + "]);")
+    assert not orfas, f'permissões fiscais fora do catálogo RBAC: {orfas}'
     print('RBAC CONSISTENTE OK')
 
     # Leitura por `products` e `simulations` no caminho declarado pela tela.
