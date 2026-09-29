@@ -1,0 +1,220 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+import {
+  DOCUMENT_STATUS,
+  EVENT_TYPE,
+  EXCEPTION_STATUS,
+  EXCEPTION_TYPE,
+  FINDING_TYPE,
+  ORIGIN_CODE,
+  RECONCILIATION_STATUS,
+  listings,
+  readPermission,
+} from "./constants";
+import { sections } from "@/components/fiscal/config";
+
+/**
+ * Lê as migrations em vez de confiar em tipos gerados: os tipos do Supabase
+ * são gerados antes destas tabelas existirem, e o objetivo é prender a tela
+ * ao SQL que roda, não ao que foi gerado uma vez.
+ */
+function migrations(): string {
+  const dir = "supabase/migrations";
+  return readdirSync(dir)
+    .filter((file) => file.endsWith(".sql"))
+    .sort()
+    .map((file) => readFileSync(join(dir, file), "utf8"))
+    .join("\n");
+}
+
+const SQL = migrations();
+
+/** Corpo entre parênteses, respeitando CHECK(...) e defaults com parênteses. */
+function createTableBody(table: string): string | null {
+  const head = new RegExp(
+    `CREATE TABLE(?: IF NOT EXISTS)? public\\.${table}\\s*\\(`,
+    "i",
+  ).exec(SQL);
+  if (!head) return null;
+  let depth = 1;
+  for (let index = head.index + head[0].length; index < SQL.length; index += 1) {
+    if (SQL[index] === "(") depth += 1;
+    else if (SQL[index] === ")") {
+      depth -= 1;
+      if (depth === 0) return SQL.slice(head.index + head[0].length, index);
+    }
+  }
+  return null;
+}
+
+/** Colunas declaradas em `CREATE TABLE public.<tabela>`. */
+function tableColumns(table: string): string[] {
+  const body = createTableBody(table);
+  if (!body) return [];
+  const parts: string[] = [];
+  let depth = 0;
+  let current = "";
+  for (const char of body) {
+    if (char === "(") depth += 1;
+    if (char === ")") depth -= 1;
+    if (char === "," && depth === 0) {
+      parts.push(current);
+      current = "";
+      continue;
+    }
+    current += char;
+  }
+  parts.push(current);
+  return parts
+    .map((part) => part.trim())
+    .filter((part) => !/^(PRIMARY|FOREIGN|UNIQUE|CHECK|CONSTRAINT|EXCLUDE)\b/i.test(part))
+    .map((part) => /^([a-z_][a-z0-9_]*)\s/i.exec(part)?.[1] ?? "")
+    .filter(Boolean);
+}
+
+/** Tabela de listagem declarada pelo `CASE` mais recente de `fiscal_query`. */
+function serverTable(kind: string): string | undefined {
+  const definition = [...SQL.matchAll(/CREATE OR REPLACE FUNCTION public\.fiscal_query[\s\S]*?\$\$;/g)].at(-1);
+  const block = definition?.[0];
+  if (!block) return undefined;
+  return new RegExp(`WHEN '${kind}' THEN '([a-z_]+)'`, "i").exec(block)?.[1];
+}
+
+/** Permissão cobrada pelo `CASE` mais recente de `fiscal_query`. */
+function serverPermission(kind: string): string | undefined {
+  const definition = [...SQL.matchAll(/CREATE OR REPLACE FUNCTION public\.fiscal_query[\s\S]*?\$\$;/g)].at(-1);
+  const block = definition?.[0];
+  if (!block) return undefined;
+  const branch = new RegExp(`WHEN _kind='${kind}'`).exec(block);
+  if (!branch) return new RegExp("ELSE '([a-z_.]+)' END").exec(block)?.[1];
+  const rest = block.slice(branch.index);
+  return /THEN '([a-z_.]+)'/.exec(rest)?.[1];
+}
+
+/** Colunas calculadas na tela, que não são colunas de tabela. */
+const CALCULADAS = new Set(["findings", "result"]);
+
+describe("contrato entre a listagem e o banco", () => {
+  const areas = Object.entries(listings);
+
+  it("toda área com listagem aponta para uma tabela que existe", () => {
+    for (const [area] of areas) {
+      const table = serverTable(area);
+      expect(table, `área "${area}" sem tabela no fiscal_query`).toBeTruthy();
+      expect(tableColumns(String(table)).length, `tabela ${String(table)} não declarada`).toBeGreaterThan(0);
+    }
+  });
+
+  it("toda coluna listada existe na tabela da área", () => {
+    for (const [area, listing] of areas) {
+      const table = serverTable(area);
+      const columns = tableColumns(String(table));
+      for (const column of listing.columns) {
+        if (CALCULADAS.has(column.key)) continue;
+        expect(
+          columns,
+          `coluna "${column.key}" listada em "${area}" não existe em ${String(table)}`,
+        ).toContain(column.key);
+      }
+    }
+  });
+
+  it("nenhuma área de listagem mostra identificador interno como coluna principal", () => {
+    for (const [area, listing] of areas) {
+      const first = listing.columns[0]?.key;
+      expect(first, `área "${area}" sem coluna de identificação`).toBeTruthy();
+      expect(
+        first === "id" || first === "code",
+        `área "${area}" abre com "${String(first)}"; identificador interno não identifica registro para o usuário`,
+      ).toBe(true);
+    }
+  });
+
+  it("toda área de listagem tem coluna de situação ou de quantidade", () => {
+    for (const [area, listing] of areas) {
+      const keys = listing.columns.map((column) => column.key);
+      expect(
+        keys.some((key) => /^(status|passed|severity|event_type|exception_type)/.test(key)),
+        `área "${area}" sem coluna que diga a situação do registro`,
+      ).toBe(true);
+    }
+  });
+});
+
+describe("contrato de permissões entre navegação e servidor", () => {
+  it("toda área liberada pela navegação é aceita pelo servidor", () => {
+    for (const [area, permission] of sections) {
+      const expected = readPermission[area];
+      expect(expected, `área "${area}" sem permissão de leitura declarada`).toBeTruthy();
+      expect(
+        serverPermission(area),
+        `servidor não resolve a permissão da área "${area}"`,
+      ).toBeDefined();
+      expect(
+        serverPermission(area) === expected || serverPermission(area) === permission,
+        `área "${area}": navegação usa ${permission},Constants declara ${String(expected)}, servidor exige ${String(serverPermission(area))}`,
+      ).toBe(true);
+    }
+  });
+
+  it("a permissão de leitura nunca é a de gravação", () => {
+    for (const [area, permission] of Object.entries(readPermission)) {
+      expect(permission, `área "${area}" sem permissão de leitura`).not.toMatch(
+        /configure$|manage$|create$|issue$|validate$|import$|approve$/,
+      );
+    }
+  });
+});
+
+describe("rótulos de códigos", () => {
+  it("traduz todos os estados de documento permitidos pelo banco", () => {
+    const check = /status text NOT NULL CHECK\(status IN \(([^)]*)\)\)/.exec(
+      createTableBody("fiscal_documents") ?? "",
+    );
+    const allowed = (check?.[1] ?? "").match(/'([A-Z_]+)'/g) ?? [];
+    expect(allowed.length).toBeGreaterThan(0);
+    for (const code of allowed) {
+      expect(DOCUMENT_STATUS[code.replaceAll("'", "")], `estado ${code} sem rótulo`).toBeTruthy();
+    }
+  });
+
+  it("traduz todas as origens permitidas pelo banco", () => {
+    const check = /origem int NOT NULL DEFAULT 0 CHECK\(origem BETWEEN (\d+) AND (\d+)\)/.exec(
+      createTableBody("fiscal_tax_profiles") ?? "",
+    );
+    const [from, to] = [Number(check?.[1] ?? -1), Number(check?.[2] ?? -1)];
+    expect(from).toBe(0);
+    for (let code = from; code <= to; code += 1) {
+      expect(ORIGIN_CODE[String(code)], `origem ${code} sem rótulo`).toBeTruthy();
+    }
+  });
+
+  it("traduz todos os tipos de pendência permitidos pelo banco", () => {
+    const body = createTableBody("fiscal_exceptions") ?? "";
+    const types = (body.match(/'([A-Z_]{6,})'/g) ?? []).map((value) => value.replaceAll("'", ""));
+    const expected = new Set(types);
+    expect(expected.size).toBeGreaterThan(5);
+    for (const type of expected) {
+      expect(EXCEPTION_TYPE[type], `pendência ${type} sem rótulo`).toBeTruthy();
+    }
+  });
+
+  it("não deixa código em inglês nas listas de tradução", () => {
+    for (const [group, map] of Object.entries({
+      DOCUMENT_STATUS,
+      EVENT_TYPE,
+      EXCEPTION_STATUS,
+      EXCEPTION_TYPE,
+      FINDING_TYPE,
+      RECONCILIATION_STATUS,
+      ORIGIN_CODE,
+    })) {
+      for (const [code, text] of Object.entries(map)) {
+        expect(code, `chave vazia em ${group}`).toBeTruthy();
+        expect(text, `rótulo vazio para ${code} em ${group}`).toBeTruthy();
+        expect(text.trim(), `rótulo em branco para ${code} em ${group}`).not.toBe("");
+      }
+    }
+  });
+});
