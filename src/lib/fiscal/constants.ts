@@ -425,9 +425,8 @@ export const listings: Record<string, Listing> = {
   regressions: {
     table: "fiscal_rule_regressions",
     title: "Regressão",
-    identity: ["fingerprint"],
+    identity: ["rule_version"],
     columns: [
-      { key: "fingerprint", title: "Impressão da regra", empty: money },
       { key: "rule_version", title: "Versão testada", empty: money },
       { key: "passed", title: "Resultado", empty: "Reprovada" },
       { key: "created_at", title: "Executada em", empty: money },

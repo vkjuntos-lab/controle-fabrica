@@ -98,10 +98,19 @@ function serverPermission(kind: string): string | undefined {
   const definition = [...SQL.matchAll(/CREATE OR REPLACE FUNCTION public\.fiscal_query[\s\S]*?\$\$;/g)].at(-1);
   const block = definition?.[0];
   if (!block) return undefined;
-  const branch = new RegExp(`WHEN _kind='${kind}'`).exec(block);
-  if (!branch) return new RegExp("ELSE '([a-z_.]+)' END").exec(block)?.[1];
-  const rest = block.slice(branch.index);
-  return /THEN '([a-z_.]+)'/.exec(rest)?.[1];
+  // A permissão vem tanto de `WHEN _kind='x' THEN 'p'` quanto de
+  // `WHEN _kind IN ('x','y') THEN 'p'`. Ler só a primeira forma dava
+  // `fiscal.read` para toda área agrupada.
+  const direct = new RegExp(
+    `WHEN _kind='${kind}' THEN '([a-z_.]+)'|WHEN _kind IN \\(([^)]*)\\) THEN '([a-z_.]+)'`,
+  ).exec(block);
+  if (direct) {
+    if (direct[1]) return direct[1];
+    const grouped = (direct[2] ?? "").match(/'([a-z_]+)'/g) ?? [];
+    if (grouped.map((value) => value.replaceAll("'", "")).includes(kind)) return direct[3];
+    return undefined;
+  }
+  return new RegExp("ELSE '([a-z_.]+)' END").exec(block)?.[1];
 }
 
 /** Colunas calculadas na tela, que não são colunas de tabela. */
@@ -157,7 +166,7 @@ describe("contrato entre a listagem e o banco", () => {
       const keys = listing.columns.map((column) => column.key);
       expect(
         keys.some((key) =>
-          /^(status|passed|severity|event_type|exception_type|has_blocking_issue|authenticity_status)/.test(
+          /^(status|is_active|passed|severity|event_type|exception_type|has_blocking_issue|authenticity_status|requires_document)$/.test(
             key,
           ),
         ),

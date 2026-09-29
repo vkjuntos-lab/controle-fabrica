@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/_probe-fiscal.py",
-      "limit": 30,
-      "offset": 58
-    },
-    "timestamp": 1790680233310
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/scripts/_probe-fiscal.py</path>\n<type>file</type>\n<content>\n58:     sql(f\"INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(uid)},'fiscal');\")\n59:     sql(f\"DELETE FROM role_permissions WHERE role='fiscal';\")\n60:     sql",
-    "is_error": false,
-    "timestamp": 1790680233317
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/_probe-fiscal.py",
@@ -1581,5 +1565,20 @@
     "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ❯ src/lib/fiscal/constants.test.ts (12 tests | 3 failed) 386ms\n   ✓ contrato entre a listagem e o banco > toda área com listagem aponta para uma tabela que existe 150ms\n   ✓ contrato entre a listagem e o banco > toda coluna listada existe na ",
     "is_error": false,
     "timestamp": 1790681421823
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"src/lib/fiscal/constants.test.ts\")\ns = p.read_text(encoding=\"utf8\")\ns = s.replace('''  const branch = new RegExp(`WHEN _kind='${kind}'`).exec(block);\n  if (!branch) return new RegExp(\"ELSE '([a-z_.]+)' END\").exec(block)?.[1];\n  const rest = block.slice(branch.index);\n  return /THEN '([a-z_.]+)'/.exec(rest)?.[1];''', '''  // A permissão vem tanto de `WHEN _kind='x' THEN 'p'` quanto de\n  // `WHEN _kind IN ('x','y') THEN 'p'`. Ler só a primeira forma dava\n  // `fiscal.read` para toda área agrupada.\n  const direct = new RegExp(\n    `WHEN _kind='${kind}' THEN '([a-z_.]+)'|WHEN _kind IN \\\\\\\\(([^)]*)\\\\\\\\) THEN '([a-z_.]+)'`,\n  ).exec(block);\n  if (direct) {\n    if (direct[1]) return direct[1];\n    const grouped = (direct[2] ?? \"\").match(/'([a-z_]+)'/g) ?? [];\n    if (grouped.map((value) => value.replaceAll(\"'\", \"\")).includes(kind)) return direct[3];\n    return undefined;\n  }\n  return new RegExp(\"ELSE '([a-z_.]+)' END\").exec(block)?.[1];''')\ns = s.replace('''        keys.some((key) =>\n          /^(status|passed|severity|event_type|exception_type|has_blocking_issue|authenticity_status)/.test(\n            key,\n          ),\n        ),''', '''        keys.some((key) =>\n          /^(status|is_active|passed|severity|event_type|exception_type|has_blocking_issue|authenticity_status|requires_document)$/.test(\n            key,\n          ),\n        ),''')\np.write_text(s, encoding=\"utf8\")\n\nc = pathlib.Path(\"src/lib/fiscal/constants.ts\")\nt = c.read_text(encoding=\"utf8\")\nt = t.replace('''    identity: [\"fingerprint\"],\n    columns: [\n      { key: \"fingerprint\", title: \"Impressão da regra\", empty: money },\n      { key: \"rule_version\", title: \"Versão testada\", empty: money },\n      { key: \"passed\", title: \"Resultado\", empty: \"Reprovada\" },\n      { key: \"created_at\", title: \"Executada em\", empty: money },\n    ],''', '''    identity: [\"rule_version\"],\n    columns: [\n      { key: \"rule_version\", title: \"Versão testada\", empty: money },\n      { key: \"passed\", title: \"Resultado\", empty: \"Reprovada\" },\n      { key: \"created_at\", title: \"Executada em\", empty: money },\n    ],''')\nc.write_text(t, encoding=\"utf8\")\nprint(\"ok\")\nPY\nnpx vitest run src/lib/fiscal/constants.test.ts 2>&1 | head -25",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681432068
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ❯ src/lib/fiscal/constants.test.ts (12 tests | 1 failed) 334ms\n   ✓ contrato entre a listagem e o banco > toda área com listagem aponta para uma tabela que existe 153ms\n   ✓ contrato entre a listagem e o banco > toda coluna listada existe ",
+    "is_error": false,
+    "timestamp": 1790681433870
   }
 ]
