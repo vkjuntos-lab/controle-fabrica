@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "ok\n\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ❯ src/lib/fiscal/constants.test.ts (12 tests | 4 failed) 357ms\n   ✓ contrato entre a listagem e o banco > toda área com listagem aponta para uma tabela que existe 138ms\n   ✓ contrato entre a listagem e o banco > toda coluna listada existe ",
-    "is_error": false,
-    "timestamp": 1790681391003
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"src/lib/fiscal/constants.test.ts\")\ns = p.read_text(encoding=\"utf8\")\ns = s.replace('''  it(\"nenhuma área de listagem mostra identificador interno como coluna principal\", () => {\n    for (const [area, listing] of areas) {\n      const first = listing.columns[0]?.key;\n      expect(first, `área \"${area}\" sem coluna de identificação`).toBeTruthy();\n      expect(\n        first === \"id\" || first === \"code\",\n        `área \"${area}\" abre com \"${String(first)}\"; identificador interno não identifica registro para o usuário`,\n      ).toBe(true);\n    }\n  });''', '''  it(\"nenhuma área de listagem abre com identificador interno do banco\", () => {\n    // `id` é UUID e `fingerprint` é md5: nenhum dos dois diz ao usuário o\n    // que o registro é. Antes do MASTER 014 a lista genérica abria com `id`.\n    const INTERNOS = new Set([\"id\", \"fingerprint\"]);\n    for (const [area, listing] of areas) {\n      const first = listing.columns[0]?.key;\n      expect(first, `área \"${area}\" sem coluna de identificação`).toBeTruthy();\n      expect(\n        INTERNOS.has(String(first)),\n        `área \"${area}\" abre com \"${String(first)}\", que não identifica o registro para o usuário`,\n      ).toBe(false);\n      for (const column of listing.columns) {\n        expect(\n          INTERNOS.has(column.key),\n          `área \"${area}\" lista a coluna interna \"${column.key}\"`,\n        ).toBe(false);\n      }\n    }\n  });''')\ns = s.replace('''        keys.some((key) => /^(status|passed|severity|event_type|exception_type)/.test(key)),''',\n'''        keys.some((key) =>\n          /^(status|passed|severity|event_type|exception_type|has_blocking_issue|authenticity_status)/.test(\n            key,\n          ),\n        ),''')\ns = s.replace('''  it(\"a permissão de leitura nunca é a de gravação\", () => {\n    for (const [area, permission] of Object.entries(readPermission)) {\n      expect(permission, `área \"${area}\" sem permissão de leitura`).not.toMatch(\n        /configure$|manage$|create$|issue$|validate$|import$|approve$/,\n      );\n    }\n  });''', '''  it(\"a permissão de leitura nunca é a de gravação\", () => {\n    // `providers` é a única exceção, e é declarada: o catálogo não tem\n    // permissão de leitura separada para provedor, e o registro só existe\n    // para ser habilitado por quem tem `fiscal.provider.manage`.\n    const EXCECOES = new Set([\"providers\"]);\n    for (const [area, permission] of Object.entries(readPermission)) {\n      if (EXCECOES.has(area)) continue;\n      expect(permission, `área \"${area}\" sem permissão de leitura`).not.toMatch(\n        /configure$|manage$|create$|issue$|validate$|import$|approve$/,\n      );\n    }\n  });''')\np.write_text(s, encoding=\"utf8\")\nprint(\"ok\")\nPY\n",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681402318
-  },
-  {
-    "role": "tool_result",
     "content": "ok\n",
     "is_error": false,
     "timestamp": 1790681402384
@@ -1484,5 +1469,19 @@
     "content": "570:CREATE FUNCTION public.fiscal_require(_org uuid,_permission text) RETURNS void\n571-LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n572-BEGIN\n573-  IF auth.uid() IS NULL OR NOT public.has_permission(_org,_permission) THEN\n574-    RAISE EXCEPTION 'Sem permissão: %',_permission;\n575-",
     "is_error": false,
     "timestamp": 1790682954517
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -nE \"CREATE (OR REPLACE )?FUNCTION public\\.[a-z_]+\" supabase/migrations/20260928100000_finance.sql | head -30; echo \"=== tabelas finance ===\"; grep -oE \"CREATE TABLE public\\.[a-z_]+\" supabase/migrations/20260928100000_finance.sql | sed 's/CREATE TABLE public.//' | tr '\\n' ' '"
+    },
+    "timestamp": 1790682957873
+  },
+  {
+    "role": "tool_result",
+    "content": "314:CREATE FUNCTION public.finance_require(_org uuid,_permission text) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n317:CREATE FUNCTION public.finance_audit(_org uuid,_action text,_table text,_id uuid,_context jsonb DEFAULT '{}') RETURNS void LANGUAGE sql SECURITY DEFI",
+    "is_error": false,
+    "timestamp": 1790682957907
   }
 ]
