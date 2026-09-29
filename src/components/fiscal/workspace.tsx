@@ -795,12 +795,35 @@ function RecordDetail({
         {view === "exceptions" &&
           hasPermission("fiscal.exceptions.manage") &&
           row.status !== "RESOLVED" && (
-            <Button
-              disabled={busy || !reason}
-              onClick={() => action("exception", { status: "RESOLVED" })}
-            >
-              Registrar resolução
-            </Button>
+            <>
+              <div className="w-full max-w-md text-sm">
+                Responsável
+                <Reference
+                  org={org}
+                  kind="assignees"
+                  value={responsible || String(row.responsible_id ?? "")}
+                  onChange={setResponsible}
+                />
+                <Button
+                  variant="outline"
+                  disabled={busy || !reason || !responsible}
+                  onClick={() =>
+                    action("exception", {
+                      status: row.status === "IN_REVIEW" ? "RESOLVED" : "IN_REVIEW",
+                      responsible_id: responsible || String(row.responsible_id ?? ""),
+                    })
+                  }
+                >
+                  {row.status === "IN_REVIEW" ? "Concluir pendência" : "Atribuir e iniciar"}
+                </Button>
+              </div>
+              <Button
+                disabled={busy || !reason}
+                onClick={() => action("exception", { status: "RESOLVED" })}
+              >
+                Registrar resolução
+              </Button>
+            </>
           )}
         {typeof row.xml_storage_path === "string" && hasPermission("fiscal.documents.download") && (
           <Button
