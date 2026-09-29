@@ -1,36 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"AssertionError\\|PASS \\|Error\" /tmp/opencode/fiscal12.log | head -6; echo \"=== msg ===\"; grep -n \"ERROR:\" /tmp/opencode/fiscal12.log | head -3",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790622865576
-  },
-  {
-    "role": "tool_result",
-    "content": "2:PASS AG: simulacao sem classificacao vigente bloqueia e se declara nao autoritativa\n24:AssertionError: ERROR:  duplicate key value violates unique constraint \"product_fiscal_profiles_organization_id_product_variant_id__key\"\n=== msg ===\n24:AssertionError: ERROR:  duplicate key value violates unique",
-    "is_error": false,
-    "timestamp": 1790622865595
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"UNIQUE(organization_id,product_variant_id\" supabase/migrations/20261013100000_fiscal_core.sql",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790622869678
-  },
-  {
-    "role": "tool_result",
-    "content": "278:  UNIQUE(organization_id,product_variant_id,version),\n",
-    "is_error": false,
-    "timestamp": 1790622869688
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py",
@@ -1400,5 +1370,35 @@
     "content": "\n> test:fiscal:db\n> python3 scripts/test-fiscal-workflow-db.py\n\ninitdb: error: cannot be run as root\ninitdb: hint: Please log in (using, e.g., \"su\") as the (unprivileged) user that will own the server process.\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scrip",
     "is_error": false,
     "timestamp": 1790679764574
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"su - claude-runner\\|sudo\\|chown\\|chmod\" docs/handoff/MASTER-013-VALIDATION.md docs/handoff/MASTER-006-VALIDATION.md | head -20",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790679767694
+  },
+  {
+    "role": "tool_result",
+    "content": "docs/handoff/MASTER-006-VALIDATION.md:166:como usuário não root (`initdb` recusa root); para reproduzir: `su - claude-runner -c \"cd '<raiz-do-projeto>' && python3 scripts/test-partners-db.py\"`.\n",
+    "is_error": false,
+    "timestamp": 1790679767711
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "id claude-runner; ls -la /root/ | head -5; echo \"---\"; grep -n \"TMP\\|/tmp/\" scripts/test-inventory-db.py | head -20",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790679768499
+  },
+  {
+    "role": "tool_result",
+    "content": "uid=1000(claude-runner) gid=1000(claude-runner) groups=1000(claude-runner)\ntotal 140\ndrwx-----x 13 root          root           4096 Sep 24 20:30 .\ndrwxr-xr-x 20 root          root           4096 Sep 10 00:23 ..\n-rw-r--r--  1 root          root           3106 Apr 20 08:46 .bashrc\ndrwxr-xr-x  3 root ",
+    "is_error": false,
+    "timestamp": 1790679768540
   }
 ]
