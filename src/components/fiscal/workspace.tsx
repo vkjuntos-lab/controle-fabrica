@@ -11,10 +11,23 @@ import {
   downloadFiscalFile,
   exportFiscal,
 } from "@/lib/fiscal/fiscal.functions";
-import { forms, sections } from "./config";
+import { forms, sections, lifecycleActions } from "./config";
 import { Regression } from "./regression";
 import { Preparation, InboundReview, LocationMapping } from "./operations";
 import { FiscalForm, Reference, rows, label, type Row } from "./form";
+import {
+  listings,
+  readPermission,
+  translate,
+  DOCUMENT_STATUS,
+  EXCEPTION_STATUS,
+  EXCEPTION_TYPE,
+  FINDING_TYPE,
+  RECONCILIATION_STATUS,
+  EVENT_TYPE,
+  ORIGIN_CODE,
+  type Column,
+} from "@/lib/fiscal/constants";
 import type { Json } from "@/integrations/supabase/types";
 const inputClass = "rounded-md border bg-background px-3 py-2 text-sm";
 export function FiscalPage({ view = "dashboard" }: { view?: string }) {
