@@ -30,19 +30,26 @@ function migrations(): string {
 
 const SQL = migrations();
 
+/** Sem comentários: o SQL do projeto comenta colunas com vírgula e parênteses,
+ * e um "-- ... , ..." lido como coluna vira coluna fantasma no teste. */
+function sqlSemComentarios(sql: string): string {
+  return sql.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/--[^\n]*/g, " ");
+}
+
 /** Corpo entre parênteses, respeitando CHECK(...) e defaults com parênteses. */
 function createTableBody(table: string): string | null {
+  const source = sqlSemComentarios(SQL);
   const head = new RegExp(
     `CREATE TABLE(?: IF NOT EXISTS)? public\\.${table}\\s*\\(`,
     "i",
-  ).exec(SQL);
+  ).exec(source);
   if (!head) return null;
   let depth = 1;
-  for (let index = head.index + head[0].length; index < SQL.length; index += 1) {
-    if (SQL[index] === "(") depth += 1;
-    else if (SQL[index] === ")") {
+  for (let index = head.index + head[0].length; index < source.length; index += 1) {
+    if (source[index] === "(") depth += 1;
+    else if (source[index] === ")") {
       depth -= 1;
-      if (depth === 0) return SQL.slice(head.index + head[0].length, index);
+      if (depth === 0) return source.slice(head.index + head[0].length, index);
     }
   }
   return null;
