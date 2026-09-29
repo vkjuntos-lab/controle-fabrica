@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Traceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py\", line 152, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py\", line 79, in run\n    aplicar(nome)\n    ~~~",
-    "is_error": false,
-    "timestamp": 1790681813885
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -nE \"REFERENCES|CREATE (TABLE|TYPE|FUNCTION|TRIGGER|INDEX|POLICY)|INSERT INTO|storage\\.|auth\\.\" supabase/migrations/20260706150230_5280fbec-723e-429d-8021-3f39cfaab1b7.sql supabase/migrations/20260706150307_3c3cdc57-62e3-4e4d-8caf-1e24cf76c130.sql | grep -oE \"REFERENCES [a-z_.]+|storage\\.[a-z_]+|auth\\.[a-z_]+\" | sort -u",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681819209
-  },
-  {
-    "role": "tool_result",
     "content": "REFERENCES public.customers\nREFERENCES public.fiscal_documents\nREFERENCES public.fiscal_tax_profiles\nREFERENCES public.sales\nREFERENCES public.stores\n",
     "is_error": false,
     "timestamp": 1790681819245
@@ -1513,5 +1498,19 @@
     "content": "Traceback (most recent call last):\n  File \"/tmp/opencode/apply.py\", line 26, in <module>\n    db.sql(prefix + (db.ROOT/'supabase/migrations'/name).read_text())\n    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventor",
     "is_error": false,
     "timestamp": 1790683141333
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -n \"migration\\|MIGRATIONS\\|glob\\|sorted\" scripts/test-fiscal-migration-chain.py | head -20"
+    },
+    "timestamp": 1790683144547
+  },
+  {
+    "role": "tool_result",
+    "content": "3:Prova que as migrations do MASTER 014 são aplicáveis sobre o histórico real.\n5:O harness dos módulos anteriores aplica um recorte curado de migrations e\n9:o MASTER 014 abortava em duas migrations — e nenhuma delas aparece em teste\n12:Este script sobe um PostgreSQL descartável, aplica as migrations",
+    "is_error": false,
+    "timestamp": 1790683144578
   }
 ]
