@@ -63,6 +63,7 @@ BEGIN
  perm:=CASE WHEN _kind='dashboard' THEN 'fiscal.dashboard'
   WHEN _kind IN ('rules','rule_items','reviews','regressions','products') THEN 'fiscal.tax_rules.read'
   WHEN _kind='simulations' THEN 'fiscal.simulate'
+  WHEN _kind='providers' THEN 'fiscal.provider.manage'
   WHEN _kind='reconciliations' THEN 'fiscal.reconciliation.read' WHEN _kind='inbound' THEN 'fiscal.inbound.read'
   WHEN _kind='exceptions' THEN 'fiscal.exceptions.read' WHEN _kind='events' THEN 'fiscal.events.read' ELSE 'fiscal.read' END;
  PERFORM fiscal_require(_org,perm);

@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "tail -8 scripts/_probe-fiscal.py",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790680241225
-  },
-  {
-    "role": "tool_result",
-    "content": "    print('--- B3: tabelas fiscais sem created_at (filtro de data as esconde) ---')\n    print(' ', [t for t in tabelas if t not in comdata])\n\nif __name__=='__main__':\n\nif __name__=='__main__':\n    try: run()\n    finally: db.cleanup()",
-    "is_error": false,
-    "timestamp": 1790680241242
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/_probe-fiscal.py')\ns=p.read_text()\ns=s.replace(\"if __name__=='__main__':\\n\\nif __name__=='__main__':\\n    try: run()\",\"if __name__=='__main__':\\n    try: run()\")\np.write_text(s)\nPY\nchmod a+r scripts/_probe-fiscal.py && su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/_probe-fiscal.py\" 2>&1 | tail -25",
       "timeout": 900000,
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
@@ -1579,5 +1564,21 @@
     "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ❯ src/lib/fiscal/constants.test.ts (12 tests | 1 failed) 395ms\n   ✓ contrato entre a listagem e o banco > toda área com listagem aponta para uma tabela que existe 133ms\n   ✓ contrato entre a listagem e o banco > toda coluna listada existe na ",
     "is_error": false,
     "timestamp": 1790681732074
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261014500000_fiscal_screen_fixes.sql",
+      "newString": "  WHEN _kind IN ('rules','rule_items','reviews','regressions','products') THEN 'fiscal.tax_rules.read'\n  WHEN _kind='simulations' THEN 'fiscal.simulate'\n  WHEN _kind='providers' THEN 'fiscal.provider.manage'\n",
+      "oldString": "  WHEN _kind IN ('rules','rule_items','reviews','regressions','products') THEN 'fiscal.tax_rules.read'\n  WHEN _kind='simulations' THEN 'fiscal.simulate'\n"
+    },
+    "timestamp": 1790681736140
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790681736145
   }
 ]
