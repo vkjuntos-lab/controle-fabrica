@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/form.tsx"
-    },
-    "timestamp": 1790679912870
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/form.tsx</path>\n<type>file</type>\n<content>\n1: import { useState } from \"react\";\n2: import { useQuery } from \"@tanstack/react-query\";\n3: import { Button } from \"@/components/ui/button\";\n4: import { readFiscal, mutateFiscal } from ",
-    "is_error": false,
-    "timestamp": 1790679912892
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/operations.tsx"
     },
     "timestamp": 1790679913287
@@ -1580,5 +1566,20 @@
     "content": "\nDO $$ BEGIN\n  CREATE TYPE public.fiscal_doc_kind AS ENUM ('nfce', 'nfe', 'cfe_sat', 'nfe_devolucao');\nEXCEPTION WHEN duplicate_object THEN NULL; END $$;\n\nDO $$ BEGIN\n  CREATE TYPE public.fiscal_doc_status AS ENUM ('pending', 'processing', 'authorized', 'rejected', 'cancelled', 'contingency', 'inuti",
     "is_error": false,
     "timestamp": 1790681202328
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '1,16p' supabase/migrations/20261014200000_fiscal_documents.sql; echo \"=== DROP em 131/142/143/144 ===\"; grep -rn \"DROP TABLE\" supabase/migrations/20261013*.sql supabase/migrations/20261014*.sql | head -20",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681207812
+  },
+  {
+    "role": "tool_result",
+    "content": "-- Fiscal document workflow: no inventory or financial writer is called here.\nBEGIN;\nALTER TABLE inventory_locations ADD COLUMN fiscal_establishment_id uuid;\nALTER TABLE inventory_locations ADD CONSTRAINT inventory_fiscal_establishment_fk\n FOREIGN KEY(organization_id,fiscal_establishment_id) REFEREN",
+    "is_error": false,
+    "timestamp": 1790681207828
   }
 ]
