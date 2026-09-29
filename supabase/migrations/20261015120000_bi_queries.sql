@@ -148,10 +148,10 @@ BEGIN
     )
     CASE _kind
       WHEN 'metric_value' THEN
-        SELECT coalesce(jsonb_agg(row),'[]') INTO result FROM (
+        SELECT coalesce(jsonb_agg(rrec),'[]') INTO result FROM (
           SELECT jsonb_build_object('metric_key',v_metric,'value',value,'unit',def.unit,
             'available',available,'definition',to_jsonb(def),'limitations',def.limitations,
-            'period_start',v_from,'period_end',v_to,'row_count',cnt) row FROM (
+            'period_start',v_from,'period_end',v_to,'row_count',cnt) rrec FROM (
             SELECT
               CASE v_metric
                 WHEN 'sales.quantity_reconciled' THEN sum(CASE WHEN b.fact_nature='RECONCILED_SALE' AND b.status='RECONCILED' THEN b.quantity END)
@@ -190,7 +190,7 @@ BEGIN
               count(*) cnt FROM base b) v;
         RETURN result;
       WHEN 'series' THEN
-        SELECT coalesce(jsonb_agg(row ORDER BY bucket),'[]') INTO result FROM (
+        SELECT coalesce(jsonb_agg(rrec ORDER BY bucket),'[]') INTO result FROM (
           SELECT bucket,jsonb_build_object('bucket',bucket,'value',value,'available',available) row FROM (
             SELECT b.bucket,
               CASE v_metric
@@ -214,8 +214,8 @@ BEGIN
             FROM base b GROUP BY b.bucket) s) q;
         RETURN result;
       WHEN 'dimension' THEN
-        SELECT coalesce(jsonb_agg(row ORDER BY value DESC NULLS LAST,label),'[]') INTO result FROM (
-          SELECT jsonb_build_object('label',label,'value',value,'available',available,'id',id) row FROM (
+        SELECT coalesce(jsonb_agg(rrec ORDER BY value DESC NULLS LAST,label),'[]') INTO result FROM (
+          SELECT jsonb_build_object('label',label,'value',value,'available',available,'id',id) rrec FROM (
             SELECT CASE v_dim
                 WHEN 'PARTNER' THEN (SELECT p.partner_code FROM public.partner_profiles p WHERE p.id=b.partner_id)
                 WHEN 'STORE' THEN (SELECT st.name FROM public.marketplace_stores st WHERE st.id=b.store_id)
