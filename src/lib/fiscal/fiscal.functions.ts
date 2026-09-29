@@ -36,7 +36,7 @@ export const mutateFiscal = createServerFn({ method: "POST" })
     const r = await context.supabase.rpc("fiscal_execute", {
       _org: data.organizationId,
       _operation: data.operation,
-      _id: data.id ?? null,
+      _id: data.id ?? undefined,
       _data: data.values,
     });
     if (r.error) throw new Error(r.error.message);
