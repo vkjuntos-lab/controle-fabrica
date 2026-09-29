@@ -1,5 +1,50 @@
 # Estado do projeto — handoff contínuo
 
+## Revisão de continuidade — 29/09/2026 (MASTER 014)
+
+Fiscal. A entrega inicial já estava no repositório (commit `48631ed`, seis migrations, gateway e
+interface `/fiscal`), e este arquivo dizia que o módulo não tinha sido iniciado. Esta revisão
+corrigiu a entrega. Estado global: **PARTIAL**. Não declarar conclusão integral: nenhuma migration
+foi aplicada no banco publicado, nenhum provedor fiscal está homologado e não houve navegação em
+navegador autenticado.
+
+O defeito mais grave não era de tela: **a cadeia de migrations do MASTER 014 não era aplicável sobre
+o histórico real**. O harness aplicava um recorte começando em `20260926`, e o histórico de julho
+ocupa dois nomes usados pelo fiscal — `fiscal_environment` (com rótulos minúsculos) e
+`fiscal_documents` (com outro desenho). Aplicada sobre o histórico completo, a `20261013100000`
+abortava com `type "fiscal_environment" already exists` e a `20261014200000` com
+`relation "fiscal_documents" already exists`. Nenhum teste de unidade, typecheck ou build detecta uma
+migration que aborta. O novo `npm run test:fiscal:chain` reproduz a colisão, aplica as predecessoras e
+só então aplica `20261013` a `202610145`. As duas migrations corrigidas foram corrigidas **no local**:
+ainda não foram aplicadas em nenhum ambiente, e uma migration posterior chegaria tarde demais.
+
+A navegação e o servidor discordavam de permissões nos dois sentidos: `products`, `simulations` e
+`providers` caíam no `ELSE 'fiscal.read'` do `fiscal_query` enquanto a tela usava
+`fiscal.tax_rules.read`, `fiscal.simulate` e `fiscal.provider.manage`; e sete áreas de cadastro eram
+liberadas na tela por `fiscal.configure`, que é permissão de gravação, para quem só queria consultar.
+Nenhuma permissão de leitura foi removida. Quatro permissões órfãs concedidas pela
+`20261013200000` (`fiscal.documents.read`, `.prepare`, `.transmit` e `fiscal.export`) não existem no
+catálogo e foram removidas.
+
+Evidência que o banco gravava e a tela não mostrava: o snapshot de cálculo tributário por item, a
+trilha de regressão e de revisão da regra, e o responsável da pendência. A regra já podia voltar a
+ajuste pela ação `review` do banco, sem botão na tela. A listagem genérica mostrava UUID em seis áreas
+e apenas número de versão em outras; agora cada área declara as colunas que existem na sua tabela.
+
+O teste de contrato `src/lib/fiscal/constants.test.ts` compara a tela com as migrations — não com os
+tipos gerados do Supabase, anteriores às tabelas fiscais. Cada uma das doze asserções falhou contra o
+código anterior durante esta revisão.
+
+Fora do escopo: transmissão, cancelamento, contingência e evento oficial dependem de provedor
+homologado, e nenhum está configurado. Simulação e XML importado não comprovam autorização oficial.
+As colisões de nome entre migrations **anteriores** ao fiscal continuam no histórico; o novo harness
+as registra, e corrigi-las é trabalho de outro módulo.
+
+Validação local: `npm run test:fiscal:db` (grupos A–AT e W1–W10), `npm run test:fiscal:chain`
+(cadeia aplicável sobre o histórico), 103 testes unitários, TypeScript, lint do domínio e build sem
+erro. Relatório e critérios
+IMPLEMENTED/PARTIAL/NOT_IMPLEMENTED: [MASTER-014-VALIDATION](MASTER-014-VALIDATION.md).
+
 ## Revisão de continuidade — 28/09/2026 (MASTER 013)
 
 Vendas e logística. O ciclo físico já existia no banco desde três migrations, mas não havia nenhuma
