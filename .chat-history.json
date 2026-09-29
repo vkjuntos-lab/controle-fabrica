@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20261014100000_fiscal_integrity.sql');s=p.read_text().replace('tax_rule_id uuid NOT NULL, rule_version integer NOT NULL, cases', 'tax_rule_id uuid NOT NULL, rule_version integer NOT NULL, fingerprint text NOT NULL, cases')\nmarker='CREATE FUNCTION public.fiscal_test_rule('\nhelper='''CREATE FUNCTION public.fiscal_rule_fingerprint(_org uuid,_id uuid) RETURNS text\nLANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS \"'$$\n SELECT md5((to_jsonb(r)-ARRAY['\"'status','updated_at','reviewed_by','reviewed_at','approved_by','approved_at','retired_at'])::text\n   ||coalesce((SELECT jsonb_agg(to_jsonb(i) ORDER BY i.id)::text FROM tax_rule_items i WHERE i.organization_id=_org AND i.tax_rule_id=_id),'[]'))\n FROM tax_rules r WHERE r.organization_id=_org AND r.id=_id\n\"'$$;\nREVOKE ALL ON FUNCTION fiscal_rule_fingerprint(uuid,uuid) FROM PUBLIC,anon,authenticated;\n'\"'''\ns=s.replace(marker,helper+marker)\ns=s.replace('tax_rule_id,rule_version,cases,results,passed,created_by)', 'tax_rule_id,rule_version,fingerprint,cases,results,passed,created_by)').replace('VALUES(_org,r.id,r.version,_cases,result,passed,auth.uid())','VALUES(_org,r.id,r.version,fiscal_rule_fingerprint(_org,r.id),_cases,result,passed,auth.uid())')\ns=s.replace('AND rule_version=v_rule.version AND passed AND id::text=', 'AND rule_version=v_rule.version AND passed AND fingerprint=fiscal_rule_fingerprint(_org,_rule_id) AND id::text=')\np.write_text(s)\nPY\""
-    },
-    "timestamp": 1790669668942
-  },
-  {
-    "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790669668954
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('scripts/test-fiscal-workflow-db.py');s=p.read_text();marker=\\\" print('FISCAL WORKFLOW OK')\\\";extra='''\n # Exercise each additional source resolver with real tenant-bound operational records.\n cr,cri,sr,sri,pr,pri,tr,tri=[db.uid() for _ in range(8)]\n sql(f\\\"INSERT INTO customer_returns(id,organization_id,company_id,sales_order_id,shipment_id,return_number,reason) VALUES({q(cr)},{q(org)},{q(company)},{q(order)},{q(shipment)},'WF-CR','Teste');\\\")\n sql(f\\\"INSERT INTO customer_return_items(id,organization_id,customer_return_id,sales_order_item_id,shipment_item_id,variant_id,sku_snapshot,quantity,received_quantity) VALUES({q(cri)},{q(org)},{q(cr)},{q(oi)},{q(si)},{q(variant)},'WF',5,5);\\\")\n sql(f\\\"UPDATE customer_returns SET status='RECEIVED',received_at=now() WHERE id={q(cr)};\\\")\n sql(f\\\"INSERT INTO supplier_returns(id,organization_id,supplier_id,goods_receipt_id,return_number) VALUES({q(sr)},{q(org)},{q(supplier)},{q(receipt)},'WF-SR');\\\")\n sql(f\\\"INSERT INTO supplier_return_items(id,organization_id,supplier_return_id,variant_id,quantity) VALUES({q(sri)},{q(org)},{q(sr)},{q(variant)},5);\\\")\n sql(f\\\"UPDATE supplier_returns SET status='POSTED' WHERE id={q(sr)};\\\")\n sql(f\\\"INSERT INTO partner_returns(id,organization_id,partner_id,shipment_id,source_location_id,destination_location_id,return_number,transfer_id) VALUES({q(pr)},{q(org)},{q(partner)},{q(rem)},{q(dest)},{q(loc)},'WF-PR',{q(transfer)});\\\")\n sql(f\\\"INSERT INTO partner_return_items(id,organization_id,return_id,variant_id,quantity,condition,reason) VALUES({q(pri)},{q(org)},{q(pr)},{q(variant)},5,'SELLABLE','Teste');\\\")\n sql(f\\\"UPDATE partner_returns SET status='RECEIVED' WHERE id={q(pr)};\\\")\n destest=execute('establishment',{'legal_name':'Destino fiscal','company_id':company})['id']\n execute('location_establishment',{'establishment_id':est},loc);execute('location_establishment',{'establishment_id':destest},dest)\n sql(f\\\"INSERT INTO inventory_transfers(id,organization_id,source_location_id,destination_location_id) VALUES({q(tr)},{q(org)},{q(loc)},{q(dest)});\\\")\n sql(f\\\"INSERT INTO inventory_transfer_items(id,organization_id,transfer_id,variant_id,quantity) VALUES({q(tri)},{q(org)},{q(tr)},{q(variant)},5);\\\")\n sql(f\\\"UPDATE inventory_transfers SET status='COMPLETED' WHERE id={q(tr)};\\\")\n for typ,origin,item in [('CUSTOMER_RETURN',cr,cri),('SUPPLIER_RETURN',sr,sri),('PARTNER_RETURN',pr,pri),('INTERNAL_TRANSFER',tr,tri)]:\n  oper=execute('operation',{'kind':typ,'code':typ,'label':typ})['id']\n  rule2=execute('rule',{'operation_type_id':oper,'document_model':'NFe','valid_from':str(start),'valid_to':str(end),'taxes':[{'tax_id':tax,'rate':0.1,'treatment_code':'TEST'}]})['rule']['id']\n  execute('rule_action',{'action':'submit','reason':'Teste'},rule2)\n  rg=execute('test_rule',{'cases':cases},rule2)\n  execute('rule_action',{'action':'approve','reason':'Teste'},rule2,reviewer)\n  execute('rule_action',{'action':'activate','reason':'Teste','regression_evidence':{'reference':rg['id']}},rule2,reviewer)\n  nt=execute('nature',{'operation_type_id':oper,'cfop_code':'TEST','fiscal_nature':'Teste'})['id']\n  for a in ['submit','approve','activate']:execute('nature_action',{'action':a,'reason':'Teste'},nt,reviewer if a\"'!='\"'submit' else admin)\n  out=execute('prepare',{'source_type':typ,'source_id':origin,'establishment_id':est,'operation_type_id':oper,'layout_version_id':layout,'nature_id':nt,'remittance_prices':{item:10},'valuation_reason':'Valor aprovado','original_document_id':doc['id']})\n  assert out['total_amount']==50 and out['total_taxes']==5\n  assert len(call('fiscal_query',[org,'source_options',{'source_type':typ}]))>0\n assert call('fiscal_query',[org,'inbound_context',{'receipt_id':receipt}])['receipt_items']\n print('PASS W10: devoluções de cliente/fornecedor/parceiro e transferência usam fatos e regras próprias')\n''';p.write_text(s.replace(marker,extra+marker))\nPY\nnpm run test:fiscal:db\""
     },
     "timestamp": 1790669716163
@@ -1546,5 +1532,20 @@
     "content": "---REGRESSIONS---\nsupabase/migrations/20261014100000_fiscal_integrity.sql:24:CREATE TABLE public.fiscal_rule_regressions (\nsupabase/migrations/20261014100000_fiscal_integrity.sql-25- id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES organizations,\nsupabase/migra",
     "is_error": false,
     "timestamp": 1790680719720
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"fiscal_exceptions\" -A 20 supabase/migrations/20261014300000_fiscal_inbound.sql | head -30",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790680846931
+  },
+  {
+    "role": "tool_result",
+    "content": "147:  INSERT INTO fiscal_exceptions(organization_id,document_id,exception_type,source_type,source_id,details)\n148-  VALUES(_org,CASE WHEN NOT _inbound THEN _id END,CASE WHEN _inbound THEN 'INBOUND_DOCUMENT_MISMATCH' ELSE 'FISCAL_INVENTORY_MISMATCH' END,\n149-    CASE WHEN _inbound THEN 'INBOUND' ELSE",
+    "is_error": false,
+    "timestamp": 1790680846952
   }
 ]
