@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Traceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py\", line 163, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py\", line 94, in run\n    assert ambiente == 'H",
-    "is_error": false,
-    "timestamp": 1790681829971
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py",
-      "newString": "    for nome in LEGADOS:\n        aplicar(nome)\n    ambiente = sql(\"SELECT string_agg(e.enumlabel, ',' ORDER BY e.enumsortorder) \"\n                   \"FROM pg_enum e JOIN pg_type t ON t.oid=e.enumtypid \"\n                   \"WHERE t.typname='fiscal_environment';\")\n    assert ambiente == 'homologacao,producao', \\\n        f'legado de 2026-07 não reproduzido: fiscal_environment ficou {ambiente!r}'\n    assert sql(\"SELECT to_regclass('public.fiscal_documents') IS NOT NULL;\") == 't', \\\n        'a tabela fiscal_documents legada não foi criada: o teste não está reproduzindo a colisão'\n    print('COLISAO REPRODUZIDA OK')\n\n    for nome in PREDECESSORAS:\n        aplicar(nome)\n    print('PREDECESSORAS OK')\n\n    # Primeira migration do MASTER 014. Ela redeclara `fiscal_environment` com\n    # rótulos maiúsculos; sem o tratamento da colisão, aborta aqui.\n    aplicar(FISCAL[0])\n    ambiente = sql(\"SELECT string_agg(e.enumlabel, ',' ORDER BY e.enumsortorder) \"\n                   \"FROM pg_enum e JOIN pg_type t ON t.oid=e.enumtypid \"\n                   \"WHERE t.typname='fiscal_environment';\")\n    assert ambiente == 'HOMOLOGATION,PRODUCTION', \\\n        f'o enum fiscal_environment ficou com {ambiente!r} após a colisão com o legado'\n\n    for nome in FISCAL[1:]:\n        aplicar(nome)\n    print('MASTER 014 APLICAVEL OK')\n",
-      "oldString": "    for nome in LEGADOS:\n        aplicar(nome)\n    ambiente = sql(\"SELECT string_agg(e.enumlabel, ',' ORDER BY e.enumsortorder) \"\n                   \"FROM pg_enum e JOIN pg_type t ON t.oid=e.enumtypid \"\n                   \"WHERE t.typname='fiscal_environment';\")\n    assert ambiente == 'HOMOLOGATION,PRODUCTION', \\\n        f'o enum fiscal_environment ficou com {ambiente!r} após a colisão com o legado'\n    assert sql(\"SELECT to_regclass('public.fiscal_documents') IS NOT NULL;\") == 't', \\\n        'a tabela fiscal_documents legada não foi criada: o teste não está reproduzindo a colisão'\n    print('COLISAO REPRODUZIDA OK')\n\n    for nome in PREDECESSORAS:\n        aplicar(nome)\n    print('PREDECESSORAS OK')\n\n    for nome in FISCAL:\n        aplicar(nome)\n    print('MASTER 014 APLICAVEL OK')\n"
-    },
-    "timestamp": 1790681838159
-  },
-  {
-    "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790681838175
@@ -1507,5 +1491,19 @@
     "content": "Traceback (most recent call last):\n  File \"/tmp/opencode/apply.py\", line 17, in <module>\n    db.sql(prefix + (db.ROOT/'supabase/migrations'/name).read_text())\n    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventor",
     "is_error": false,
     "timestamp": 1790683157445
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"supabase/migrations/20261015100000_bi_core.sql\")\ns = p.read_text(encoding=\"utf8\")\nold = \"\"\"CREATE FUNCTION public.bi_get_settings(_org uuid) RETURNS public.bi_settings\nLANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n  SELECT coalesce((SELECT s FROM public.bi_settings s WHERE s.organization_id=_org), s0.*)\n  FROM (SELECT 'America/Sao_Paulo'::text timezone,true period_end_exclusive,'LAST_30_DAYS'::text default_period,\n               .80::numeric abc_a_limit,.95::numeric abc_b_limit,.50::numeric xyz_x_limit,\n               2.00::numeric xyz_y_limit,3::integer xyz_min_observations,_org organization_id) s0;\n$$;\"\"\"\nnew = \"\"\"CREATE FUNCTION public.bi_get_settings(_org uuid) RETURNS jsonb\nLANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n  SELECT to_jsonb(coalesce(\n    (SELECT s FROM public.bi_settings s WHERE s.organization_id=_org),\n    (SELECT r FROM (SELECT 'America/Sao_Paulo'::text timezone,true period_end_exclusive,\n       'LAST_30_DAYS'::text default_period,.80::numeric abc_a_limit,.95::numeric abc_b_limit,\n       .50::numeric xyz_x_limit,2.00::numeric xyz_y_limit,3::integer xyz_min_observations,\n       _org organization_id,NULL::timestamptz updated_at) r)\n  ));\n$$;\"\"\"\nassert old in s\ns = s.replace(old, new)\np.write_text(s, encoding=\"utf8\")\nprint(\"ok\")\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790683162106
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventory-db.py\", line 24, in sql\n    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  COALESCE types bi_settings and record ca",
+    "is_error": false,
+    "timestamp": 1790683164770
   }
 ]

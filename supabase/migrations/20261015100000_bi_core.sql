@@ -599,12 +599,15 @@ BEGIN
  period_start:=s::date; period_end:=e::date; RETURN NEXT;
 END $$;
 
-CREATE FUNCTION public.bi_get_settings(_org uuid) RETURNS public.bi_settings
+CREATE FUNCTION public.bi_get_settings(_org uuid) RETURNS jsonb
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
-  SELECT coalesce((SELECT s FROM public.bi_settings s WHERE s.organization_id=_org), s0.*)
-  FROM (SELECT 'America/Sao_Paulo'::text timezone,true period_end_exclusive,'LAST_30_DAYS'::text default_period,
-               .80::numeric abc_a_limit,.95::numeric abc_b_limit,.50::numeric xyz_x_limit,
-               2.00::numeric xyz_y_limit,3::integer xyz_min_observations,_org organization_id) s0;
+  SELECT to_jsonb(coalesce(
+    (SELECT s FROM public.bi_settings s WHERE s.organization_id=_org),
+    (SELECT r FROM (SELECT 'America/Sao_Paulo'::text timezone,true period_end_exclusive,
+       'LAST_30_DAYS'::text default_period,.80::numeric abc_a_limit,.95::numeric abc_b_limit,
+       .50::numeric xyz_x_limit,2.00::numeric xyz_y_limit,3::integer xyz_min_observations,
+       _org organization_id,NULL::timestamptz updated_at) r)
+  ));
 $$;
 
 -- ---------------------------------------------------------------------
