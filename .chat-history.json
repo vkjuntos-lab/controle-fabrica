@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "27:        sql((db.ROOT / 'supabase/migrations' / name).read_text())\n",
-    "is_error": false,
-    "timestamp": 1790681214524
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sed -n '1,45p' scripts/test-fiscal-db.py",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681216724
-  },
-  {
-    "role": "tool_result",
     "content": "#!/usr/bin/env python3\n\"\"\"MASTER 014 integration tests in disposable PostgreSQL. Never uses a published database.\"\"\"\nimport importlib.util, json\nfrom pathlib import Path\n\nspec = importlib.util.spec_from_file_location('inventory', Path(__file__).with_name('test-inventory-db.py'))\ndb = importlib.util.",
     "is_error": false,
     "timestamp": 1790681216735
@@ -1512,5 +1497,19 @@
     "content": "20240808143900_batch_persistence.sql\n20260704200957_3b50bcb9-45d5-4eb1-a45e-6d9609dc094e.sql\n20260704201919_2a9ff92d-3a4a-4e77-9c8c-2edc7ed0b932.sql\n20260704202929_6c31ee79-2216-4144-8888-f1705b13cbd8.sql\n20260704204138_1df89ff1-df28-4fc9-a56b-0cee656b538b.sql\n20260704204908_585578f4-c955-42c8-9097-",
     "is_error": false,
     "timestamp": 1790682881298
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport re, glob, pathlib\nfiles = sorted(glob.glob(\"supabase/migrations/*.sql\"))\ntargets = [\"products\",\"product_variants\",\"product_categories\",\"organizations\",\"profiles\",\n           \"marketplace_sales\",\"marketplace_stores\",\"marketplace_imports\",\"marketplace_import_rows\",\n           \"partner_reconciliations\",\"partner_reconciliation_items\",\"partner_profiles\",\"partner_shipments\",\n           \"financial_transactions\",\"financial_accounts\",\"financial_categories\",\n           \"production_orders\",\"production_outputs\",\"production_consumptions\",\"production_losses\",\n           \"sales_orders\",\"sales_order_items\",\"fiscal_documents\",\"fiscal_document_items\",\n           \"purchase_orders\",\"purchase_order_items\",\"goods_receipts\",\n           \"sales_opportunities\",\"quotes\",\"leads\",\"account_receivables\",\"account_payables\",\n           \"product_cost_versions\",\"sale_cost_snapshots\",\"material_cost_versions\",\n           \"inventory_movements\",\"inventory_locations\",\"inventory_reservations\",\"unit_conversions\",\n           \"inventory_batches\",\"cost_calculation_runs\",\"company_relationships\",\"reconciliation_exceptions\"]\nfound={}\nfor f in files:\n    t=pathlib.Path(f).read_text(encoding=\"utf8\",errors=\"ignore\")\n    for name in targets:\n        m=re.search(r\"create table(?: if not exists)? (?:public\\.)?\"+name+r\"\\s*\\((.*?)\\n\\);\", t, re.S|re.I)\n        if m and name not in found:\n            cols=[l.strip() for l in m.group(1).split(\"\\n\") if l.strip() and not l.strip().upper().startswith((\"CONSTRAINT\",\"--\"))]\n            found[name]=(f,cols)\nfor name in targets:\n    if name in found:\n        f,cols=found[name]\n        print(f\"### {name}  [{f.split('/')[-1]}]\")\n        print(\"   \"+\" | \".join(c.rstrip(\",\") for c in cols))\n    else:\n        print(f\"### {name}  [NAO ENCONTRADO]\")\nPY"
+    },
+    "timestamp": 1790682886284
+  },
+  {
+    "role": "tool_result",
+    "content": "### products  [20260704200957_3b50bcb9-45d5-4eb1-a45e-6d9609dc094e.sql]\n   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY | sku TEXT NOT NULL UNIQUE | ean TEXT | name TEXT NOT NULL | unit_price NUMERIC(12, 2) NOT NULL DEFAULT 0 CHECK (unit_price >= 0) | active BOOLEAN NOT NULL DEFAULT true |",
+    "is_error": false,
+    "timestamp": 1790682887333
   }
 ]
