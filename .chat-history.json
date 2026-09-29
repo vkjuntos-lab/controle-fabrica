@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport pathlib, re\np = pathlib.Path(\"supabase/migrations/20261015120000_bi_queries.sql\")\ns = p.read_text(encoding=\"utf8\")\n# 'row' e palavra reservada em PL/pgSQL: renomear alias/variável de registro.\ns = s.replace(\"'row_count',cnt) row FROM (\", \"'row_count',cnt) rrec FROM (\")\ns = s.replace(\"'available',available) row FROM (b.bucket\", \"'available',available) rrec FROM (b.bucket\")\ns = s.replace(\"'available',available,'id',id) row FROM (\", \"'available',available,'id',id) rrec FROM (\")\ns = s.replace(\"SELECT coalesce(jsonb_agg(row ORDER BY bucket),'[]') INTO result FROM (\", \"SELECT coalesce(jsonb_agg(rrec ORDER BY bucket),'[]') INTO result FROM (\")\ns = s.replace(\"SELECT coalesce(jsonb_agg(row ORDER BY value DESC NULLS LAST,label),'[]') INTO result FROM (\", \"SELECT coalesce(jsonb_agg(rrec ORDER BY value DESC NULLS LAST,label),'[]') INTO result FROM (\")\ns = s.replace(\"SELECT coalesce(jsonb_agg(row),'[]') INTO result FROM (\\n          SELECT jsonb_build_object('metric_key'\", \"SELECT coalesce(jsonb_agg(rrec),'[]') INTO result FROM (\\n          SELECT jsonb_build_object('metric_key'\")\np.write_text(s, encoding=\"utf8\")\nprint(\"row\" in s.split(\"metric_value' THEN\")[1][:400])\nPY\ngrep -n \"jsonb_agg(row\\|) row FROM\\|) row,\" supabase/migrations/20261015120000_bi_queries.sql"
-    },
-    "timestamp": 1790683416276
-  },
-  {
-    "role": "tool_result",
-    "content": "True\n194:          SELECT bucket,jsonb_build_object('bucket',bucket,'value',value,'available',available) row FROM (\n",
-    "is_error": false,
-    "timestamp": 1790683416344
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"supabase/migrations/20261015120000_bi_queries.sql\")\ns = p.read_text(encoding=\"utf8\")\ns = s.replace(\"SELECT bucket,jsonb_build_object('bucket',bucket,'value',value,'available',available) row FROM (\",\n              \"SELECT bucket,jsonb_build_object('bucket',bucket,'value',value,'available',available) rrec FROM (\")\np.write_text(s, encoding=\"utf8\")\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql 20261015110000_bi_marts.sql 20261015120000_bi_queries.sql\" 2>&1 | tail -8"
     },
     "timestamp": 1790683420334
@@ -1462,5 +1448,20 @@
     "content": "organization_id uuid NOT NULL REFERENCES public.organizations\nvariant_id uuid NOT NULL REFERENCES public.product_variants\nversion integer NOT NULL\ncosting_method text NOT NULL CHECK(costing_method IN ('STANDARD','ACTUAL_PRODUCTION'))\nmaterial_cost numeric(20,6) NOT NULL\ncomponent_cost numeric(20,6) ",
     "is_error": false,
     "timestamp": 1790684272308
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np=Path('scripts/test-bi-db.py'); s=p.read_text()\nantigo = s[s.find('    sql(f\"INSERT INTO product_cost_versions'):s.find('print(\\'BASE OK\\')')]\nnovo = '''    def custo_publicado(variant, valor):\n        return (f\"INSERT INTO product_cost_versions(id,organization_id,variant_id,version,costing_method,\"\n                f\"material_cost,component_cost,packaging_cost,labor_cost,loss_cost,overhead_cost,status,\"\n                f\"effective_from,total_unit_cost,completeness,source_reference,input_fingerprint) VALUES \"\n                f\"({q(uid())},{q(org)},{q(variant)},1,'STANDARD',0,0,0,{valor},0,0,'ACTIVE',\"\n                f\"{q('2026-01-01')},{valor},'COMPLETE','{{}}'::jsonb,{q('fp-' + str(variant))[:1] + str(len(str(variant)))});\")\n    sql(custo_publicado(v1, 40))\n    sql(custo_publicado(v2, 25))\n'''\ns = s.replace(antigo, novo)\np.write_text(s)\nprint(antigo[:200])\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/test-bi-db.py\" 2>&1 | tail -12",
+      "timeout": 900000
+    },
+    "timestamp": 1790684278058
+  },
+  {
+    "role": "tool_result",
+    "content": "    sql(f\"INSERT INTO product_cost_versions(id,organization_id,variant_id,version,costing_method,status,effective_from,\"\n       f\"total_unit_cost) VALUES ({q(custo)},{q(org)},{q(v1)},1,'STANDARD','ACT\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-bi-db.py\", line 152\n    janela = {'f",
+    "is_error": false,
+    "timestamp": 1790684278180
   }
 ]

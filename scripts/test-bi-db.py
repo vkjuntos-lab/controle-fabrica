@@ -136,10 +136,15 @@ def run():
     # Custo publicado na data das vendas: sem ele a margem fica
     # INCOMPLETE e a auditoria de qualidade tem o que acusar.
     custo = uid()
-    sql(f"INSERT INTO product_cost_versions(id,organization_id,variant_id,version,costing_method,status,effective_from,"
-       f"total_unit_cost) VALUES ({q(custo)},{q(org)},{q(v1)},1,'STANDARD','ACTIVE',{q('2026-01-01')},40),"
-       f"({q(uid())},{q(org)},{q(v2)},1,'STANDARD','ACTIVE',{q('2026-01-01')},25);")
-    print('BASE OK')
+    def custo_publicado(variant, valor):
+        return (f"INSERT INTO product_cost_versions(id,organization_id,variant_id,version,costing_method,"
+                f"material_cost,component_cost,packaging_cost,labor_cost,loss_cost,overhead_cost,status,"
+                f"effective_from,total_unit_cost,completeness,source_reference,input_fingerprint) VALUES "
+                f"({q(uid())},{q(org)},{q(variant)},1,'STANDARD',0,0,0,{valor},0,0,'ACTIVE',"
+                f"{q('2026-01-01')},{valor},'COMPLETE','{{}}'::jsonb,{q('fp-' + str(variant))[:1] + str(len(str(variant)))});")
+    sql(custo_publicado(v1, 40))
+    sql(custo_publicado(v2, 25))
+print('BASE OK')
 
     # ------------------------------------------------------------------
     # §66 — venda importada vira reconciliada sem dobrar quantidade
