@@ -39,10 +39,15 @@ function sqlSemComentarios(sql: string): string {
 /** Corpo entre parênteses, respeitando CHECK(...) e defaults com parênteses. */
 function createTableBody(table: string): string | null {
   const source = sqlSemComentarios(SQL);
-  const head = new RegExp(
+  // A última declaração vence. O histórico tem um `fiscal_documents` legado
+  // de 2026-07 com outro desenho; ler a primeira faria o teste validar a
+  // tabela que o MASTER 014 substituiu.
+  const pattern = new RegExp(
     `CREATE TABLE(?: IF NOT EXISTS)? public\\.${table}\\s*\\(`,
-    "i",
-  ).exec(source);
+    "gi",
+  );
+  let head: RegExpExecArray | null = null;
+  for (const found of source.matchAll(pattern)) head = found;
   if (!head) return null;
   let depth = 1;
   for (let index = head.index + head[0].length; index < source.length; index += 1) {
@@ -176,7 +181,9 @@ describe("contrato de permissões entre navegação e servidor", () => {
 
 describe("rótulos de códigos", () => {
   it("traduz todos os estados de documento permitidos pelo banco", () => {
-    const type = /CREATE TYPE public\.fiscal_document_status AS ENUM \(([^;]*?)\);/i.exec(SQL)?.[1];
+    const type = /CREATE TYPE public\.fiscal_document_status AS ENUM \(([^;]*?)\);/i.exec(
+      sqlSemComentarios(SQL),
+    )?.[1];
     const allowed = (type ?? "").match(/'([A-Z_]+)'/g) ?? [];
     expect(allowed.length, "estado de documento não lido das migrations").toBeGreaterThan(5);
     for (const code of allowed) {
@@ -207,14 +214,18 @@ describe("rótulos de códigos", () => {
     }
   });
 
-  it("traduz todos os eventos permitidos pelo banco", () => {
-    const types =
-      /event_type text NOT NULL CHECK\(event_type IN \(([^)]*)\)\)/.exec(
-        createTableBody("fiscal_events") ?? "",
-      )?.[1]?.match(/'[A-Z_]+'/g) ?? [];
-    expect(types.length, "evento não lido de fiscal_events").toBeGreaterThan(0);
-    for (const type of types) {
-      expect(EVENT_TYPE[type.replaceAll("'", "")], `evento ${type} sem rótulo`).toBeTruthy();
+  it("traduz exatamente os eventos que o banco emite", () => {
+    // `fiscal_events.event_type` é texto livre: o contrato é o que o servidor
+    // grava via `fiscal_emit`, e a lista de rótulos tem que acompanhar.
+    const emitted = new Set(
+      [...SQL.matchAll(/fiscal_emit\([^,]+,'([A-Z_]+)'/g)].map((match) => match[1]),
+    );
+    expect(emitted.size, "nenhum evento emitido lido das migrations").toBeGreaterThan(0);
+    for (const event of emitted) {
+      expect(EVENT_TYPE[event], `evento ${event} sem rótulo`).toBeTruthy();
+    }
+    for (const event of Object.keys(EVENT_TYPE)) {
+      expect(emitted.has(event), `rótulo ${event} sem evento correspondente no banco`).toBe(true);
     }
   });
 
