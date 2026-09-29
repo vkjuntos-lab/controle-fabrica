@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql",
-      "limit": 14,
-      "offset": 206
-    },
-    "timestamp": 1790683694315
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql</path>\n<type>file</type>\n<content>\n206: -- 3. `bi_query` — leitura analítica autorizada\n207: -- ---------------------------------------------------------------------\n208: CREATE FUNCTION public.bi_query",
-    "is_error": false,
-    "timestamp": 1790683694335
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql",
@@ -1459,5 +1443,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/scripts/test-bi-db.py</path>\n<type>file</type>\n<content>\n150:     # ------------------------------------------------------------------\n151:     janela = {'from': INICIO, 'to': '2026-06-30'}\n152:     def registrar(sku, qtd, bruto, data, evento):\n153:   ",
     "is_error": false,
     "timestamp": 1790684470629
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-bi-db.py",
+      "oldString": "    print('DEBUG fatos:', sql(f\"SELECT fact_nature||'/'||status||'/'||quantity::text||'/'||fact_date::text FROM bi_facts WHERE organization_id={q(org)} ORDER BY fact_date\"))\n    print('DEBUG agg:', sql(f\"SELECT public.bi_aggregate({q(org)},'sales.quantity_imported',{q('2026-01-01')},{q('2026-07-01')},NULL,'MONTH','{{}}'::jsonb)::text\"))\n    importado, disp = valor(org, 'sales.quantity_imported', janela, admin)",
+      "newString": "    importado, disp = valor(org, 'sales.quantity_imported', janela, admin)"
+    },
+    "timestamp": 1790684474485
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790684474495
   }
 ]
