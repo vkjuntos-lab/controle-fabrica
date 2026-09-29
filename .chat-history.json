@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": " print('PASS W10: devoluções de cliente/fornecedor/parceiro e transferência usam fatos e regras próprias')\n print('FISCAL WORKFLOW OK')\n\nif __name__=='__main__':\n try: run()\n finally: db.cleanup()\n=== head workflow ===\n#!/usr/bin/env python3\n\"\"\"Fiscal workflow integration tests; isolated PostgreSQL ",
-    "is_error": false,
-    "timestamp": 1790681994167
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"scripts/test-fiscal-workflow-db.py\")\ns = p.read_text(encoding=\"utf8\")\ns = s.replace(\"'20261014400000_fiscal_workspace.sql']:\",\n              \"'20261014400000_fiscal_workspace.sql','20261014500000_fiscal_screen_fixes.sql']:\")\np.write_text(s, encoding=\"utf8\")\n\nc = pathlib.Path(\"scripts/test-fiscal-migration-chain.py\")\nt = c.read_text(encoding=\"utf8\")\nt = t.replace(\"\"\"if __name__ == '__main__':\n    run()\"\"\", \"\"\"if __name__ == '__main__':\n    try:\n        run()\n    finally:\n        # O harness compartilhado só limpa quando roda como programa; sem\n        # isto o diretório do cluster fica em /tmp e a segunda rodada falha\n        # com `No space left on device`.\n        db.cleanup()\"\"\")\nc.write_text(t, encoding=\"utf8\")\nprint(\"ok\")\nPY\nrm -f scripts/_check-sales-migration.py scripts/_probe-sales.py && ls scripts/ | head -30",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681999297
-  },
-  {
-    "role": "tool_result",
     "content": "ok\n__pycache__\ntest-costs-db.py\ntest-crm-db.py\ntest-finance-db.py\ntest-fiscal-db.py\ntest-fiscal-migration-chain.py\ntest-fiscal-workflow-db.py\ntest-inventory-db.py\ntest-partner-store-integration-db.py\ntest-partners-db.py\ntest-planning-db.py\ntest-purchasing-db.py\ntest-reconciliation-db.py\ntest-sales-d",
     "is_error": false,
     "timestamp": 1790681999369
@@ -1479,5 +1464,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790683658980
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql 20261015110000_bi_marts.sql 20261015120000_bi_queries.sql\" 2>&1 | tail -30",
+      "timeout": 600000
+    },
+    "timestamp": 1790683661271
+  },
+  {
+    "role": "tool_result",
+    "content": "Traceback (most recent call last):\n  File \"/tmp/opencode/apply.py\", line 17, in <module>\n    db.sql(prefix + (db.ROOT/'supabase/migrations'/name).read_text())\n    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventor",
+    "is_error": false,
+    "timestamp": 1790683663958
   }
 ]
