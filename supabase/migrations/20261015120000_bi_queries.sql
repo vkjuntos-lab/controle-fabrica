@@ -594,11 +594,10 @@ BEGIN
   IF jsonb_array_length(v_rows)=0 THEN RAISE EXCEPTION 'Nada a exportar para o filtro informado.'; END IF;
   SELECT string_agg(k,',') INTO headers FROM (SELECT string_agg(e.key,',' ORDER BY e.key) k
     FROM jsonb_object_keys(v_rows->0) e) s;
-  out := '';
   IF _format='CSV' THEN
     v_out := headers||E'\n';
     FOR r IN SELECT * FROM jsonb_array_elements(v_rows) LOOP
-      line := '';
+      v_line := '';
       FOR i IN 1..array_length(string_to_array(headers,','),1) LOOP
         v_line := v_line||CASE WHEN i>1 THEN ';' ELSE '' END||
           coalesce(replace(replace(r->>split_part(headers,',',i),';',','),E'\n',' '),'');

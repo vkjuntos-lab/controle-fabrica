@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rhoiE \"create table( if not exists)? [\\\"a-z_.0-9]+\" supabase/migrations/*.sql | sed -E 's/[Cc][Rr][Ee][Aa][Tt][Ee] [Tt][Aa][Bb][Ll][Ee]( [Ii][Ff] [Nn][Oo][Tt] [Ee][Xx][Ii][Ss][Tt][Ss])?//' | tr -d '\"' | sort -u > /tmp/opencode/tables.txt; wc -l /tmp/opencode/tables.txt; grep -iE \"ledger|marketplace|reconcil|production|cost|partner|financial|receivable|payable\" /tmp/opencode/tables.txt | tr '\\n' ' '"
-    },
-    "timestamp": 1790682866651
-  },
-  {
-    "role": "tool_result",
-    "content": "255 /tmp/opencode/tables.txt\n public.account_payables  public.account_receivables  public.accounts_payable  public.accounts_receivable  public.cost_calculation_runs  public.cost_centers  public.cost_routing_steps  public.financial_accounts  public.financial_categories  public.financial_periods  publ",
-    "is_error": false,
-    "timestamp": 1790682866687
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -iE \"inventory|stock|unit|product|categor|brand\" /tmp/opencode/tables.txt | tr '\\n' ' '"
     },
     "timestamp": 1790682869131
@@ -1490,5 +1476,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql</path>\n<type>file</type>\n<content>\n588: BEGIN\n589:   PERFORM public.bi_require(_org,'bi.exports');\n590:   IF _format NOT IN ('CSV','XLSX') THEN RAISE EXCEPTION 'Formato inválido: %',_format; END IF;\n591",
     "is_error": false,
     "timestamp": 1790683793774
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np = Path('supabase/migrations/20261015120000_bi_queries.sql')\ns = p.read_text()\ns = s.replace(\"  out := '';\\n  IF _format='CSV' THEN\", \"  IF _format='CSV' THEN\")\ns = s.replace(\"    FOR r IN SELECT * FROM jsonb_array_elements(v_rows) LOOP\\n      line := '';\\n\",\n              \"    FOR r IN SELECT * FROM jsonb_array_elements(v_rows) LOOP\\n      v_line := '';\\n\")\np.write_text(s)\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql 20261015110000_bi_marts.sql 20261015120000_bi_queries.sql\" 2>&1 | tail -20",
+      "timeout": 900000
+    },
+    "timestamp": 1790683796456
+  },
+  {
+    "role": "tool_result",
+    "content": "Traceback (most recent call last):\n  File \"/tmp/opencode/apply.py\", line 17, in <module>\n    db.sql(prefix + (db.ROOT/'supabase/migrations'/name).read_text())\n    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventor",
+    "is_error": false,
+    "timestamp": 1790683798981
   }
 ]
