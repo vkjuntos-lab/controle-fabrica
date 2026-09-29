@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "\n/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/form.tsx\n   9:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components\n  12:17  warning  Fast refresh only works w",
-    "is_error": false,
-    "timestamp": 1790682110170
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "npm run build 2>&1 | tail -15",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790682114919
-  },
-  {
-    "role": "tool_result",
     "content": "  \"globIgnores\": [\n    \"**/node_modules/**/*\",\n    \"sw.js\",\n    \"workbox-*.js\"\n  ]\n}\n\n[nitro] ℹ Using auto generated worker name: vkjuntos-lab-controle-fabrica\nℹ Generated .output/server/wrangler.json\nℹ Generated .wrangler/deploy/config.json\nℹ Generated .output/public/_headers\nℹ Generated .output/ni",
     "is_error": false,
     "timestamp": 1790682137505
@@ -1480,5 +1465,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790683675561
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql",
+      "newString": "    RETURN coalesce((SELECT jsonb_agg(to_jsonb(t) ORDER BY array_position(ARRAY['ERROR','WARNING','INFO']::public.bi_severity[],t.severity),t.last_seen_at DESC) FROM (\n        SELECT q.check_key,q.domain,q.severity,q.status,q.entity,q.message,q.details,q.last_seen_at\n        FROM public.bi_quality_issues q WHERE q.organization_id=_org AND q.status<>'RESOLVED'\n        LIMIT 200) t),'[]'::jsonb);",
+      "oldString": "    RETURN coalesce((SELECT jsonb_agg(jsonb_build_object('key',q.check_key,'domain',q.domain,'severity',q.severity,\n      'status',q.status,'entity',q.entity,'message',q.message,'details',q.details,'last_seen',q.last_seen_at)\n      ORDER BY array_position(ARRAY['ERROR','WARNING','INFO']::public.bi_severity[],q.severity),q.last_seen_at DESC LIMIT 200)\n      FROM public.bi_quality_issues q WHERE q.organization_id=_org AND q.status<>'RESOLVED'),'[]'::jsonb);"
+    },
+    "timestamp": 1790683678724
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790683678737
   }
 ]

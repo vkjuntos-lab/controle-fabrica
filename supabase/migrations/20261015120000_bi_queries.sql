@@ -350,10 +350,10 @@ BEGIN
 
   ELSIF _kind='quality' THEN
     PERFORM public.bi_require(_org,'bi.read');
-    RETURN coalesce((SELECT jsonb_agg(jsonb_build_object('key',q.check_key,'domain',q.domain,'severity',q.severity,
-      'status',q.status,'entity',q.entity,'message',q.message,'details',q.details,'last_seen',q.last_seen_at)
-      ORDER BY array_position(ARRAY['ERROR','WARNING','INFO']::public.bi_severity[],q.severity),q.last_seen_at DESC LIMIT 200)
-      FROM public.bi_quality_issues q WHERE q.organization_id=_org AND q.status<>'RESOLVED'),'[]'::jsonb);
+    RETURN coalesce((SELECT jsonb_agg(to_jsonb(t) ORDER BY array_position(ARRAY['ERROR','WARNING','INFO']::public.bi_severity[],t.severity),t.last_seen_at DESC) FROM (
+        SELECT q.check_key,q.domain,q.severity,q.status,q.entity,q.message,q.details,q.last_seen_at
+        FROM public.bi_quality_issues q WHERE q.organization_id=_org AND q.status<>'RESOLVED'
+        LIMIT 200) t),'[]'::jsonb);
 
   ELSIF _kind='processing_state' THEN
     -- §14: frescor e atraso. A tela mostra aviso quando o último
