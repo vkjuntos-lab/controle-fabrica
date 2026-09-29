@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sed -n '70,190p' supabase/migrations/20261014100000_fiscal_integrity.sql",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790680116259
-  },
-  {
-    "role": "tool_result",
-    "content": " OR NOT EXISTS(SELECT 1 FROM jsonb_array_elements(_cases) test_case WHERE (test_case->>'on_date')::date>coalesce(r.valid_to,r.valid_from)) THEN\n RAISE EXCEPTION 'Inclua cenários antes da vigência, no início e após o fim (ou após o início se vigência aberta).'; END IF;\n INSERT INTO fiscal_rule_regres",
-    "is_error": false,
-    "timestamp": 1790680116270
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sed -n '112,150p' supabase/migrations/20261013200000_fiscal_tax_engine.sql; echo \"=== REGRESSIONS ===\"; grep -n \"CREATE TABLE public.fiscal_rule_regressions\" -A 20 supabase/migrations/20261014100000_fiscal_integrity.sql",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1586,5 +1571,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790681329385
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "npx vitest run src/lib/fiscal/constants.test.ts 2>&1 | head -40",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681331641
+  },
+  {
+    "role": "tool_result",
+    "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ❯ src/lib/fiscal/constants.test.ts (12 tests | 7 failed) 230ms\n   ✓ contrato entre a listagem e o banco > toda área com listagem aponta para uma tabela que existe 140ms\n   × contrato entre a listagem e o banco > toda coluna listada existe na ",
+    "is_error": false,
+    "timestamp": 1790681333422
   }
 ]
