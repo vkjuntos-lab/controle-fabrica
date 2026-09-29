@@ -147,7 +147,7 @@ export function FiscalForm({
     {
       key: "base_mode",
       label: "Base aprovada",
-      options: ["BASE_CALCULO", "VALOR_LIQUIDO", "ISOLADO"],
+      options: ["BASE_CALCULO", "VALOR_LIQUIDO", "ISOLATED"],
     },
     { key: "reduction", label: "Redução de base em valor", type: "number", optional: true },
     { key: "fixed_amount", label: "Valor fixo por item", type: "number", optional: true },
@@ -155,11 +155,31 @@ export function FiscalForm({
     { key: "is_withheld", label: "Retenção", type: "checkbox" },
     { key: "is_recoverable", label: "Recuperável", type: "checkbox" },
   ];
+  // O `required` do HTML só vale para `<input>` e `<select>` nativos. Campo de
+  // referência é um `<select>` dentro de um `<div>`, então o navegador não
+  // bloqueia o envio e o servidor recebia a chave omitida — erro cru, sem
+  // dizer qual campo faltou.
+  function missing(fields: Field[], source: Record<string, string | boolean>): string[] {
+    return fields
+      .filter((f) => !f.optional)
+      .filter((f) => f.type !== "checkbox")
+      .filter((f) => String(source[f.key] ?? "").trim() === "")
+      .map((f) => f.label);
+  }
+  const requiredRule = [...definition.fields, ...(definition.operation === "rule" ? taxFields : [])];
   return (
     <form
       className="space-y-4 rounded-xl border p-5"
       onSubmit={async (e) => {
         e.preventDefault();
+        const absent = [...missing(definition.fields, values)];
+        if (definition.operation === "rule")
+          for (const [index, row] of taxes.entries())
+            absent.push(...missing(taxFields, row).map((label) => `Tratamento ${index + 1}: ${label}`));
+        if (absent.length) {
+          setError(`Preencha antes de salvar: ${absent.join(", ")}.`);
+          return;
+        }
         setPending(true);
         setError("");
         try {
@@ -190,6 +210,7 @@ export function FiscalForm({
         }
       }}
     >
+
       <h2 className="text-lg font-semibold">{definition.title}</h2>
       <div className="grid gap-4 md:grid-cols-2">
         {definition.fields.map((f) => (

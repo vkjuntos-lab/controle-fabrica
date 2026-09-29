@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790669468603
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"sed -n '45,55p' supabase/migrations/20260918100000_inventory_ledger.sql; tail -8 /tmp/master014-build.log\""
-    },
-    "timestamp": 1790669473244
-  },
-  {
-    "role": "tool_result",
     "content": "CREATE TYPE public.inventory_transfer_status AS ENUM (\n  'DRAFT', 'PENDING', 'APPROVED', 'IN_TRANSIT', 'COMPLETED', 'CANCELED'\n);\nCREATE TYPE public.inventory_batch_status AS ENUM ('ACTIVE', 'EXPIRED', 'DISABLED');\nCREATE TYPE public.inventory_count_status AS ENUM (\n  'DRAFT', 'IN_PROGRESS', 'REVIEW",
     "is_error": false,
     "timestamp": 1790669473250
@@ -1525,5 +1511,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790680576507
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/form.tsx",
+      "newString": "export function FiscalForm({\n  org,\n  definition,\n  onSaved,\n}: {\n  org: string;\n  definition: FormDefinition;\n  onSaved: () => void;\n}) {\n  const [values, setValues] = useState<Record<string, string | boolean>>({});\n  const [taxes, setTaxes] = useState<Record<string, string | boolean>[]>([{}]);\n  const [error, setError] = useState(\"\");\n  const [pending, setPending] = useState(false);\n  const taxFields: Field[] = [\n    { key: \"tax_id\", label: \"Tributo\", reference: \"taxes\" },\n    { key: \"rate\", label: \"Alíquota em fração (ex.: 0,01 = 1%)\", type: \"number\" },\n    {\n      key: \"base_mode\",\n      label: \"Base aprovada\",\n      options: [\"BASE_CALCULO\", \"VALOR_LIQUIDO\", \"ISOLATED\"],\n    },\n    { key: \"reduction\", label: \"Redução de base em valor\", type: \"number\", optional: true },\n    { key: \"fixed_amount\", label: \"Valor fixo por item\", type: \"number\", optional: true },\n    { key: \"treatment_code\", label: \"Código de tratamento aprovado\" },\n    { key: \"is_withheld\", label: \"Retenção\", type: \"checkbox\" },\n    { key: \"is_recoverable\", label: \"Recuperável\", type: \"checkbox\" },\n  ];\n  // O `required` do HTML só vale para `<input>` e `<select>` nativos. Campo de\n  // referência é um `<select>` dentro de um `<div>`, então o navegador não\n  // bloqueia o envio e o servidor recebia a chave omitida — erro cru, sem\n  // dizer qual campo faltou.\n  function missing(fields: Field[], source: Record<string, string | boolean>): string[] {\n    return fields\n      .filter((f) => !f.optional)\n      .filter((f) => f.type !== \"checkbox\")\n      .filter((f) => String(source[f.key] ?? \"\").trim() === \"\")\n      .map((f) => f.label);\n  }\n  const requiredRule = [...definition.fields, ...(definition.operation === \"rule\" ? taxFields : [])];\n  return (\n    <form\n      className=\"space-y-4 rounded-xl border p-5\"\n      onSubmit={async (e) => {\n        e.preventDefault();\n        const absent = [...missing(definition.fields, values)];\n        if (definition.operation === \"rule\")\n          for (const [index, row] of taxes.entries())\n            absent.push(...missing(taxFields, row).map((label) => `Tratamento ${index + 1}: ${label}`));\n        if (absent.length) {\n          setError(`Preencha antes de salvar: ${absent.join(\", \")}.`);\n          return;\n        }\n        setPending(true);\n        setError(\"\");\n        try {\n          const data: Record<string, Json> = {};\n          for (const [k, v] of Object.entries(values)) if (v !== \"\") data[k] = v;\n          if (definition.operation === \"prepare\") data.source_type = \"SHIPMENT\";\n          if (definition.operation === \"rule\")\n            data.taxes = taxes.map((t) =>\n              Object.fromEntries(Object.entries(t).filter(([, v]) => v !== \"\")),\n            );\n          if (definition.operation === \"layout\")\n            data.required_fields = [\n              \"establishment.tax_registration\",\n              \"issuer_address.street\",\n              \"issuer_address.city\",\n              \"recipient.tax_registration\",\n              \"recipient_address.street\",\n              \"recipient_address.city\",\n            ];\n          await mutateFiscal({\n            data: { organizationId: org, operation: definition.operation, values: data },\n          });\n          onSaved();\n        } catch (err) {\n          setError(err instanceof Error ? err.message : \"Falha ao salvar\");\n        } finally {\n          setPending(false);\n        }\n      }}\n    >\n",
+      "oldString": "export function FiscalForm({\n  org,\n  definition,\n  onSaved,\n}: {\n  org: string;\n  definition: FormDefinition;\n  onSaved: () => void;\n}) {\n  const [values, setValues] = useState<Record<string, string | boolean>>({});\n  const [taxes, setTaxes] = useState<Record<string, string | boolean>[]>([{}]);\n  const [error, setError] = useState(\"\");\n  const [pending, setPending] = useState(false);\n  const taxFields: Field[] = [\n    { key: \"tax_id\", label: \"Tributo\", reference: \"taxes\" },\n    { key: \"rate\", label: \"Alíquota em fração (ex.: 0,01 = 1%)\", type: \"number\" },\n    {\n      key: \"base_mode\",\n      label: \"Base aprovada\",\n      options: [\"BASE_CALCULO\", \"VALOR_LIQUIDO\", \"ISOLATED\"],\n    },\n    { key: \"reduction\", label: \"Redução de base em valor\", type: \"number\", optional: true },\n    { key: \"fixed_amount\", label: \"Valor fixo por item\", type: \"number\", optional: true },\n    { key: \"treatment_code\", label: \"Código de tratamento aprovado\" },\n    { key: \"is_withheld\", label: \"Retenção\", type: \"checkbox\" },\n    { key: \"is_recoverable\", label: \"Recuperável\", type: \"checkbox\" },\n  ];\n  return (\n    <form\n      className=\"space-y-4 rounded-xl border p-5\"\n      onSubmit={async (e) => {\n        e.preventDefault();\n        setPending(true);\n        setError(\"\");\n        try {\n          const data: Record<string, Json> = {};\n          for (const [k, v] of Object.entries(values)) if (v !== \"\") data[k] = v;\n          if (definition.operation === \"prepare\") data.source_type = \"SHIPMENT\";\n          if (definition.operation === \"rule\")\n            data.taxes = taxes.map((t) =>\n              Object.fromEntries(Object.entries(t).filter(([, v]) => v !== \"\")),\n            );\n          if (definition.operation === \"layout\")\n            data.required_fields = [\n              \"establishment.tax_registration\",\n              \"issuer_address.street\",\n              \"issuer_address.city\",\n              \"recipient.tax_registration\",\n              \"recipient_address.street\",\n              \"recipient_address.city\",\n            ];\n          await mutateFiscal({\n            data: { organizationId: org, operation: definition.operation, values: data },\n          });\n          onSaved();\n        } catch (err) {\n          setError(err instanceof Error ? err.message : \"Falha ao salvar\");\n        } finally {\n          setPending(false);\n        }\n      }}\n    >\n"
+    },
+    "timestamp": 1790680595407
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790680595431
   }
 ]
