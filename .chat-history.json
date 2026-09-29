@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc 'npm run build'"
-    },
-    "timestamp": 1790669200759
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc 'npm test'"
-    },
-    "timestamp": 1790669200770
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc 'npm run typecheck'"
     },
     "timestamp": 1790669200787
@@ -1461,5 +1445,21 @@
     "content": "    print('--- B3: tabelas fiscais sem created_at (filtro de data as esconde) ---')\n    print(' ', [t for t in tabelas if t not in comdata])\n\nif __name__=='__main__':\n\nif __name__=='__main__':\n    try: run()\n    finally: db.cleanup()",
     "is_error": false,
     "timestamp": 1790680241242
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/_probe-fiscal.py')\ns=p.read_text()\ns=s.replace(\"if __name__=='__main__':\\n\\nif __name__=='__main__':\\n    try: run()\",\"if __name__=='__main__':\\n    try: run()\")\np.write_text(s)\nPY\nchmod a+r scripts/_probe-fiscal.py && su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/_probe-fiscal.py\" 2>&1 | tail -25",
+      "timeout": 900000,
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790680244737
+  },
+  {
+    "role": "tool_result",
+    "content": "  establishments -> RECUSADO\n  regimes        -> RECUSADO\n  operations     -> RECUSADO\n  natures        -> RECUSADO\n  taxes          -> RECUSADO\n  layouts        -> RECUSADO\n  companies      -> RECUSADO\n  products       -> RECUSADO\n  rules          -> RECUSADO\n  simulations    -> RECUSADO\n  document",
+    "is_error": false,
+    "timestamp": 1790680247784
   }
 ]

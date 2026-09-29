@@ -77,7 +77,5 @@ def run():
     print(' ', [t for t in tabelas if t not in comdata])
 
 if __name__=='__main__':
-
-if __name__=='__main__':
     try: run()
     finally: db.cleanup()
