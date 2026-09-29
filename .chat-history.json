@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd /tmp/opencode && cat > diag.py <<'PY'\nimport importlib.util, re, sys\nfrom pathlib import Path\nspec = importlib.util.spec_from_file_location('inv', Path('/root/Zheus AI Projects/controle-fabricas/scripts/test-inventory-db.py'))\ndb = importlib.util.util if False else None\nPY\npython3 - <<'PY'\nfrom pathlib import Path\ns = Path('/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql').read_text()\n# find each function and try to compile individually against a live db later; here just report plpgsql body BEGIN/END balance\nimport re\nparts = re.split(r'(?m)^(?=CREATE FUNCTION)', s)\nfor p in parts:\n    if not p.startswith('CREATE FUNCTION'): continue\n    name = re.search(r'public\\.(\\w+)\\(', p).group(1)\n    print(name, 'BEGIN' in p, len(re.findall(r'\\bBEGIN\\b', p)), len(re.findall(r'\\bEND\\b', p)))\nPY"
-    },
-    "timestamp": 1790683739580
-  },
-  {
-    "role": "tool_result",
-    "content": "bi_dimension_permission False 0 1\nbi_metric_permission False 0 1\nbi_aggregate False 0 5\nbi_metric_value False 0 0\nbi_query True 1 22\nbi_export True 1 10\nbi_save_metric True 1 2\nbi_save_target True 1 2\nbi_save_dashboard True 1 4\nbi_save_settings True 1 3\nbi_save_preferences True 1 3\nbi_dashboards Tru",
-    "is_error": false,
-    "timestamp": 1790683739628
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cat > /tmp/opencode/bi_lab.py <<'PY'\nimport importlib.util, os, sys, subprocess\nfrom pathlib import Path\nROOT = Path('/root/Zheus AI Projects/controle-fabricas')\nspec = importlib.util.spec_from_file_location('inv', ROOT/'scripts/test-inventory-db.py')\ndb = importlib.util.module_from_spec(spec); spec.loader.exec_module(db)\nPRED = ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql',\n '20261001100000_purchasing.sql','20261002100000_planning.sql','20261003100000_planning_engine.sql',\n '20261004100000_planning_fixes.sql','20261005100000_crm.sql','20261006100000_crm_integrity.sql',\n '20261006100000_sales_orders.sql','20261007100000_crm_documents.sql','20261008100000_crm_company_services.sql',\n '20261009100000_crm_customer_history.sql','20261010100000_sales_integrity.sql','20261011100000_sales_planning.sql',\n '20261012100000_sales_screen_fixes.sql','20261013100000_fiscal_core.sql','20261013200000_fiscal_tax_engine.sql',\n '20261014100000_fiscal_integrity.sql','20261014200000_fiscal_documents.sql','20261014300000_fiscal_inbound.sql',\n '20261014400000_fiscal_workspace.sql','20261014500000_fiscal_screen_fixes.sql']\nmode = sys.argv[1]\nif mode == 'up':\n    db.setup()\n    for n in PRED + ['20261015100000_bi_core.sql','20261015110000_bi_marts.sql']:\n        db.sql('SET check_function_bodies=off;' + (ROOT/'supabase/migrations'/n).read_text())\n    print('LAB PRONTO', db.TMP)\nelse:\n    src = (ROOT/'supabase/migrations'/sys.argv[2]).read_text()\n    p = subprocess.run(db.BASE, input='BEGIN;\\n'+src+'\\nROLLBACK;', text=True, capture_output=True)\n    sys.stdout.write(p.stdout); sys.stderr.write(p.stderr)\n    print('RC', p.returncode)\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/bi_lab.py up\" 2>&1 | tail -5",
       "timeout": 900000
     },
@@ -1457,5 +1443,19 @@
     "content": "DBG mv: {\"value\": null, \"available\": false}\nDBG ag: [{\"id\": null, \"label\": null, \"value\": 10.000000, \"bucket\": \"2026-05-01\", \"is_total\": false, \"available\": true}, {\"id\": null, \"label\": null, \"value\": 5.000000, \"bucket\": \"2026-06-01\", \"is_total\": false, \"available\": true}, {\"id\": null, \"label\": null",
     "is_error": false,
     "timestamp": 1790684527696
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -n \"FROM public.bi_[a-z_]*(.*) r\" supabase/migrations/20261015120000_bi_queries.sql"
+    },
+    "timestamp": 1790684538624
+  },
+  {
+    "role": "tool_result",
+    "content": "197:  SELECT coalesce((SELECT r FROM public.bi_aggregate(_org,_metric,_from,_to,NULL,'MONTH',_scope) r\n350:        FROM public.bi_metric_value(_org,t.metric_key,t.period_start,t.period_end) r) a ON true\n",
+    "is_error": false,
+    "timestamp": 1790684538649
   }
 ]
