@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-workflow-db.py"
-    },
-    "timestamp": 1790680066845
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-workflow-db.py</path>\n<type>file</type>\n<content>\n1: #!/usr/bin/env python3\n2: \"\"\"Fiscal workflow integration tests; isolated PostgreSQL only.\"\"\"\n3: import importlib.util, json\n4: from pathlib import Path\n5: spec=importlib.util.spec",
-    "is_error": false,
-    "timestamp": 1790680066884
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "sed -n '1,80p' supabase/migrations/20261014200000_fiscal_documents.sql; echo \"=== INBOUND ===\"; sed -n '1,30p' supabase/migrations/20261014300000_fiscal_inbound.sql",
@@ -1581,5 +1567,21 @@
     "content": "CREATE TABLE public.fiscal_simulations (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations,\n  establishment_id uuid,\n  operation_type_id uuid,\n  company_id uuid,\n  -- Snapshot de entrada da simulação, para reprodutibilidade.\n  input_snap",
     "is_error": false,
     "timestamp": 1790681299686
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261013100000_fiscal_core.sql",
+      "newString": "-- `fiscal_environment` já existe desde 2026-07, com os rótulos minúsculos\n-- ('homologacao', 'producao'). Sem o bloco abaixo esta migration aborta com\n-- `type \"fiscal_environment\" already exists` no banco real, e o teste não\n-- enxerga a colisão porque o harness aplica um recorte de migrations e não o\n-- histórico completo. Os valores são renomeados, não recriados: assim a\n-- coluna legada que ainda usa o tipo continua válida.\nDO $$ BEGIN\n  CREATE TYPE public.fiscal_environment AS ENUM ('HOMOLOGATION','PRODUCTION');\nEXCEPTION WHEN duplicate_object THEN NULL; END $$;\nDO $$ BEGIN EXECUTE 'ALTER TYPE public.fiscal_environment RENAME VALUE ''homologacao'' TO ''HOMOLOGATION''';\nEXCEPTION WHEN undefined_object THEN NULL; END $$;\nDO $$ BEGIN EXECUTE 'ALTER TYPE public.fiscal_environment RENAME VALUE ''producao'' TO ''PRODUCTION''';\nEXCEPTION WHEN undefined_object THEN NULL; END $$;\n",
+      "oldString": "CREATE TYPE public.fiscal_environment AS ENUM ('HOMOLOGATION','PRODUCTION');\n"
+    },
+    "timestamp": 1790681308044
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790681308088
   }
 ]

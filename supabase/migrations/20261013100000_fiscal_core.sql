@@ -53,7 +53,19 @@ CREATE TYPE public.fiscal_operation_kind AS ENUM (
   'OTHER'
 );
 
-CREATE TYPE public.fiscal_environment AS ENUM ('HOMOLOGATION','PRODUCTION');
+-- `fiscal_environment` já existe desde 2026-07, com os rótulos minúsculos
+-- ('homologacao', 'producao'). Sem o bloco abaixo esta migration aborta com
+-- `type "fiscal_environment" already exists` no banco real, e o teste não
+-- enxerga a colisão porque o harness aplica um recorte de migrations e não o
+-- histórico completo. Os valores são renomeados, não recriados: assim a
+-- coluna legada que ainda usa o tipo continua válida.
+DO $$ BEGIN
+  CREATE TYPE public.fiscal_environment AS ENUM ('HOMOLOGATION','PRODUCTION');
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+DO $$ BEGIN EXECUTE 'ALTER TYPE public.fiscal_environment RENAME VALUE ''homologacao'' TO ''HOMOLOGATION''';
+EXCEPTION WHEN undefined_object THEN NULL; END $$;
+DO $$ BEGIN EXECUTE 'ALTER TYPE public.fiscal_environment RENAME VALUE ''producao'' TO ''PRODUCTION''';
+EXCEPTION WHEN undefined_object THEN NULL; END $$;
 
 -- ---------------------------------------------------------------------
 -- 2. Sequence de numeração por estabelecimento/modelo/série.
