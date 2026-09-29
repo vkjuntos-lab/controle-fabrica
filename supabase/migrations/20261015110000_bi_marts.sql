@@ -619,7 +619,7 @@ END $$;
 -- ---------------------------------------------------------------------
 CREATE FUNCTION public.bi_classify_xyz(_org uuid,_from date,_to date,_granularity text DEFAULT 'MONTH',_metric text DEFAULT 'sales.quantity_reconciled')
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
-DECLARE cfg jsonb; x numeric; y numeric; minobs integer; v_buckets integer;
+DECLARE cfg jsonb; x numeric; y numeric; minobs integer; v_buckets integer; v_buckets_json jsonb;
   xyz_row record; v_series jsonb; v_mean numeric; v_sd numeric; v_cv numeric; v_n integer; v_total numeric:=0;
 BEGIN
   PERFORM public.bi_require(_org,'bi.read');
