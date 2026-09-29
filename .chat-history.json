@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1790681807904
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "chmod +x scripts/test-fiscal-migration-chain.py && su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/test-fiscal-migration-chain.py\" 2>&1 | tail -25",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681812573
-  },
-  {
-    "role": "tool_result",
     "content": "Traceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py\", line 152, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py\", line 79, in run\n    aplicar(nome)\n    ~~~",
     "is_error": false,
     "timestamp": 1790681813885
@@ -1514,5 +1499,19 @@
     "content": "  'DAILY','DAY','Documento preparado não é NF-e autorizada e não comprova criação de dívida.',  'ACTIVE'),\n",
     "is_error": false,
     "timestamp": 1790683129921
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && cat > /tmp/opencode/apply.py <<'PY'\nimport importlib.util, subprocess, sys\nfrom pathlib import Path\nspec = importlib.util.spec_from_file_location('inv', Path('scripts/test-inventory-db.py').resolve())\ndb = importlib.util.module_from_spec(spec); spec.loader.exec_module(db)\ntry:\n    db.setup()\n    base = ['20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql','20260917110000_catalog_mestre.sql',\n      '20260918100000_inventory_ledger.sql','20260921100000_inventory_integrity.sql','20260922100000_production.sql',\n      '20260923100000_inventory_workflows.sql','20260924100000_partners.sql','20260926100000_partner_reconciliation.sql',\n      '20260928100000_finance.sql','20260928121252_07821f7f-ba22-4f6e-8fb9-94acc5bdfa48.sql',\n      '20260928121427_f5ff7756-ed48-4d53-90ab-18ac78718334.sql','20260928121500_ee2e153f-bc2a-4d10-ab0d-de9050371f43.sql',\n      '20260928122015_9f021b86-6f60-414a-9848-8422b02a0ba1.sql','20260928124515_158f08c9-8db7-45f6-bd23-1c787c8187c6.sql',\n      '20260928124613_e555c625-2a5b-4f57-9529-ccf10be7d4e9.sql','20260930100000_cost_engine.sql','20261001100000_purchasing.sql',\n      '20261002100000_planning.sql','20261003100000_planning_engine.sql','20261004100000_planning_fixes.sql',\n      '20261005100000_crm.sql','20261006100000_crm_integrity.sql','20261006100000_sales_orders.sql',\n      '20261007100000_crm_documents.sql','20261008100000_crm_company_services.sql','20261009100000_crm_customer_history.sql',\n      '20261010100000_sales_integrity.sql','20261011100000_sales_planning.sql','20261012100000_sales_screen_fixes.sql',\n      '20261013100000_fiscal_core.sql','20261013200000_fiscal_tax_engine.sql','20261014100000_fiscal_integrity.sql',\n      '20261014200000_fiscal_documents.sql','20261014300000_fiscal_inbound.sql','20261014400000_fiscal_workspace.sql',\n      '20261014500000_fiscal_screen_fixes.sql']\n    import os\n    if os.environ.get('SKIP'):\n        base = [b for b in base if not any(k in b for k in os.environ['SKIP'].split(','))]\n    for name in base:\n        prefix = 'SET check_function_bodies=off;' if name.startswith('20260918100000') else ''\n        db.sql(prefix + (db.ROOT/'supabase/migrations'/name).read_text())\n    for name in sys.argv[1:]:\n        prefix = 'SET check_function_bodies=off;' if name.startswith('20260918') else ''\n        db.sql(prefix + (db.ROOT/'supabase/migrations'/name).read_text())\n    print(\"APLICADO OK\")\nfinally:\n    db.cleanup()\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql\" 2>&1 | tail -20"
+    },
+    "timestamp": 1790683139450
+  },
+  {
+    "role": "tool_result",
+    "content": "Traceback (most recent call last):\n  File \"/tmp/opencode/apply.py\", line 26, in <module>\n    db.sql(prefix + (db.ROOT/'supabase/migrations'/name).read_text())\n    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventor",
+    "is_error": false,
+    "timestamp": 1790683141333
   }
 ]
