@@ -3,22 +3,6 @@
     "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
-    "timestamp": 1790681313784
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/fiscal/constants.test.ts",
-      "newString": "const SQL = migrations();\n\n/** Sem comentários: o SQL do projeto comenta colunas com vírgula e parênteses,\n * e um \"-- ... , ...\" lido como coluna vira coluna fantasma no teste. */\nfunction sqlSemComentarios(sql: string): string {\n  return sql.replace(/\\/\\*[\\s\\S]*?\\*\\//g, \" \").replace(/--[^\\n]*/g, \" \");\n}\n\n/** Corpo entre parênteses, respeitando CHECK(...) e defaults com parênteses. */\nfunction createTableBody(table: string): string | null {\n  const source = sqlSemComentarios(SQL);\n  const head = new RegExp(\n    `CREATE TABLE(?: IF NOT EXISTS)? public\\\\.${table}\\\\s*\\\\(`,\n    \"i\",\n  ).exec(source);\n  if (!head) return null;\n  let depth = 1;\n  for (let index = head.index + head[0].length; index < source.length; index += 1) {\n    if (source[index] === \"(\") depth += 1;\n    else if (source[index] === \")\") {\n      depth -= 1;\n      if (depth === 0) return source.slice(head.index + head[0].length, index);\n    }\n  }\n  return null;\n}\n",
-      "oldString": "const SQL = migrations();\n\n/** Corpo entre parênteses, respeitando CHECK(...) e defaults com parênteses. */\nfunction createTableBody(table: string): string | null {\n  const head = new RegExp(\n    `CREATE TABLE(?: IF NOT EXISTS)? public\\\\.${table}\\\\s*\\\\(`,\n    \"i\",\n  ).exec(SQL);\n  if (!head) return null;\n  let depth = 1;\n  for (let index = head.index + head[0].length; index < SQL.length; index += 1) {\n    if (SQL[index] === \"(\") depth += 1;\n    else if (SQL[index] === \")\") {\n      depth -= 1;\n      if (depth === 0) return SQL.slice(head.index + head[0].length, index);\n    }\n  }\n  return null;\n}\n"
-    },
-    "timestamp": 1790681319989
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
     "timestamp": 1790681320018
   },
   {
@@ -1497,5 +1481,19 @@
     "content": "import { Link, useNavigate, useRouterState } from \"@tanstack/react-router\";\nimport { useQueryClient } from \"@tanstack/react-query\";\nimport {\n  ArrowLeftRight,\n  Building2,\n  ChevronsUpDown,\n  ClipboardList,\n  Handshake,\n  LayoutDashboard,\n  LogOut,\n  MapPin,\n  Package,\n  Scale,\n  ScrollText,\n  Shiel",
     "is_error": false,
     "timestamp": 1790682925792
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '120,240p' src/components/layout/app-shell.tsx"
+    },
+    "timestamp": 1790682928092
+  },
+  {
+    "role": "tool_result",
+    "content": "  {\n    label: \"Pedidos de compra\",\n    to: \"/compras/pedidos\",\n    icon: ShoppingCart,\n    permission: PERMISSIONS.purchaseOrdersRead,\n  },\n  {\n    label: \"Recebimentos\",\n    to: \"/compras/recebimentos\",\n    icon: Package,\n    permission: PERMISSIONS.goodsReceiptsRead,\n  },\n  {\n    label: \"Devoluçõ",
+    "is_error": false,
+    "timestamp": 1790682928104
   }
 ]
