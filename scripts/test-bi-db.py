@@ -132,7 +132,7 @@ def run():
        f"INSERT INTO external_sku_mappings(organization_id,store_id,external_sku,variant_id) VALUES"
        f"({q(org)},{q(loja_parceiro)},'EXT-1',{q(v1)}),({q(org)},{q(loja_parceiro)},'EXT-2',{q(v2)}),"
        f"({q(org)},{q(loja_parceiro)},'EXT-3',{q(v1)});"
-       f"INSERT INTO sales_representatives(id,organization_id,representative_code,name,status) VALUES ({q(representante)},{q(org)},'REP-1','Rep. Ana','ACTIVE');")
+       f"INSERT INTO sales_representatives(id,organization_id,representative_code,name,representative_type,status) VALUES ({q(representante)},{q(org)},'REP-1','Rep. Ana','EXTERNAL','ACTIVE');")
     # Custo publicado na data das vendas: sem ele a margem fica
     # INCOMPLETE e a auditoria de qualidade tem o que acusar.
     custo = uid()
