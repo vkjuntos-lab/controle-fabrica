@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && ls src/routes/_authenticated/relatorios/ && echo \"=== RBAC ===\" && head -80 src/lib/rbac.ts && echo \"...\" && grep -c \"\" src/lib/rbac.ts"
-    },
-    "timestamp": 1790682901639
-  },
-  {
-    "role": "tool_result",
-    "content": "rentabilidade.tsx\n=== RBAC ===\n/**\n * RBAC central — papéis, permissões e módulos.\n *\n * As permissões vivem no banco (public.role_permissions) e são a fonte de\n * verdade para autorização. Este arquivo apenas descreve as chaves conhecidas\n * pelo frontend e os rótulos exibidos ao usuário. Nunca use",
-    "is_error": false,
-    "timestamp": 1790682901689
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '80,330p' src/lib/rbac.ts"
     },
     "timestamp": 1790682904329
@@ -1492,5 +1478,19 @@
     "content": "CREATE FUNCTION public.bi_sync_sales(_org uuid,_from date,_to date,_run uuid DEFAULT NULL) RETURNS integer\nLANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE n integer:=0; r record; v_cost record; v_channel text; v_bill numeric; v_qty numeric;\nBEGIN\n  FOR r IN\n    SELECT s.id,s.o",
     "is_error": false,
     "timestamp": 1790683863172
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\nimport re\ns = Path('supabase/migrations/20260926100000_partner_reconciliation.sql').read_text()\nfor t in ['partner_reconciliations','partner_reconciliation_items']:\n    i = s.find('CREATE TABLE public.'+t)\n    if i<0: print('MISSING',t); continue\n    j = s.find(');', i)\n    print(s[i:j+2]); print('---')\nPY"
+    },
+    "timestamp": 1790683868742
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE TABLE public.partner_reconciliations (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations,\n  partner_id uuid NOT NULL,\n  period_start date NOT NULL,\n  period_end date NOT NULL,\n  frequency text NOT NULL DEFAULT 'MONTHLY' CHECK(freq",
+    "is_error": false,
+    "timestamp": 1790683868784
   }
 ]
