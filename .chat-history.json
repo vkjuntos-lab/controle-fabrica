@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rn \"create table\" supabase/migrations/*.sql | grep -iE \"inventory_movements|marketplace_sales|partner_reconciliations|financial_transactions\" | head"
-    },
-    "timestamp": 1790682874143
-  },
-  {
-    "role": "tool_result",
-    "content": "(no output)",
-    "is_error": false,
-    "timestamp": 1790682874177
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rlni \"inventory_movements\" supabase/migrations/ | head -20"
     },
     "timestamp": 1790682876561
@@ -1491,5 +1477,19 @@
     "content": "-- ---------------------------------------------------------------------\nCREATE FUNCTION public.bi_export(_org uuid,_kind text,_filters jsonb DEFAULT '{}',_format text DEFAULT 'CSV')\nRETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\npsql:/tmp/opencode/bi_export.sql:43: ",
     "is_error": false,
     "timestamp": 1790683819792
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\nimport re\np = Path('supabase/migrations/20261015120000_bi_queries.sql')\ns = p.read_text()\ns = s.replace(\"RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\",\n              \"RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\")\np.write_text(s)\nfor i,l in enumerate(s.split('\\n'),1):\n    if 'LANGUAGE' in l: print(i, l.strip()[:100])\nPY"
+    },
+    "timestamp": 1790683823327
+  },
+  {
+    "role": "tool_result",
+    "content": "21 LANGUAGE sql STABLE AS $$\n37 LANGUAGE sql IMMUTABLE AS $$\n57 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n200 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n209 LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n586 RETURNS",
+    "is_error": false,
+    "timestamp": 1790683823398
   }
 ]
