@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20261014200000_fiscal_documents.sql');s=p.read_text()\ns=s.replace('CREATE TABLE public.fiscal_documents (','ALTER TABLE fiscal_operation_natures ADD CONSTRAINT fiscal_nature_org_id UNIQUE(organization_id,id);\\\\nCREATE TABLE public.fiscal_documents (',1)\ns=s.replace(' FOREIGN KEY(organization_id,layout_version_id)', ' FOREIGN KEY(organization_id,nature_id) REFERENCES fiscal_operation_natures(organization_id,id),\\\\n FOREIGN KEY(organization_id,layout_version_id)',1)\ns=s.replace(' IF FOUND THEN RETURN to_jsonb(doc); END IF;', ''' IF FOUND THEN\n  IF doc.establishment_id IS DISTINCT FROM (_data->>'establishment_id')::uuid OR doc.operation_type_id IS DISTINCT FROM (_data->>'operation_type_id')::uuid\n   OR doc.layout_version_id IS DISTINCT FROM (_data->>'layout_version_id')::uuid OR doc.nature_id IS DISTINCT FROM (_data->>'nature_id')::uuid THEN\n   RAISE EXCEPTION 'Operação já vinculada a documento com outra configuração. Consulte o documento existente.'; END IF;\n  RETURN to_jsonb(doc);\n END IF;''',1)\np.write_text(s)\np=Path('supabase/migrations/20261014400000_fiscal_workspace.sql');s=p.read_text();s=s.replace('COMMIT;', '''CREATE FUNCTION public.fiscal_evidence_immutable() RETURNS trigger LANGUAGE plpgsql AS \"'$$\nBEGIN RAISE EXCEPTION '\"'Evidência fiscal é imutável; registre nova versão ou evento.'; END \"'$$;\nREVOKE ALL ON FUNCTION fiscal_evidence_immutable() FROM PUBLIC,anon,authenticated;\nDO $$ DECLARE t text; BEGIN FOREACH t IN ARRAY ARRAY['\"'fiscal_document_items','fiscal_events','fiscal_rule_regressions','fiscal_reconciliations','tax_rule_reviews'] LOOP\n EXECUTE format('CREATE TRIGGER fiscal_evidence_guard BEFORE UPDATE OR DELETE ON %I FOR EACH ROW EXECUTE FUNCTION fiscal_evidence_immutable()',t);\nEND LOOP; END \"'$$;\nCOMMIT;'\"''');p.write_text(s)\nPY\""
-    },
-    "timestamp": 1790669798140
-  },
-  {
-    "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790669798149
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20261014100000_fiscal_integrity.sql');s=p.read_text().replace('CHECK(reduction>=0 AND fixed_amount>=0);','CHECK(reduction>=0 AND fixed_amount>=0 AND rate::text NOT IN (\\\\'NaN\\\\',\\\\'Infinity\\\\',\\\\'-Infinity\\\\') AND reduction::text NOT IN (\\\\'NaN\\\\',\\\\'Infinity\\\\',\\\\'-Infinity\\\\') AND fixed_amount::text NOT IN (\\\\'NaN\\\\',\\\\'Infinity\\\\',\\\\'-Infinity\\\\'));')\ns=s.replace('CREATE TABLE public.fiscal_rule_regressions', '''CREATE OR REPLACE FUNCTION public.fiscal_compute_tax(_base numeric,_rate numeric,_reduction numeric,_fixed numeric)\nRETURNS TABLE(raw_value numeric,rounded_value numeric) LANGUAGE plpgsql IMMUTABLE AS \"'$$\nBEGIN\n IF _base IS NULL OR _rate IS NULL OR _reduction IS NULL OR _fixed IS NULL\n OR _base::text IN ('\"'NaN','Infinity','-Infinity') OR _rate::text IN ('NaN','Infinity','-Infinity')\n OR _reduction::text IN ('NaN','Infinity','-Infinity') OR _fixed::text IN ('NaN','Infinity','-Infinity')\n OR _base<0 OR _rate<0 OR _reduction<0 OR _fixed<0 OR _reduction>_base THEN\n RAISE EXCEPTION 'Parâmetros de cálculo inválidos ou redução superior à base.'; END IF;\n RETURN QUERY SELECT round((_base-_reduction)*_rate+_fixed,6),round(round((_base-_reduction)*_rate+_fixed,6),2);\nEND \"'$$;\nCREATE TABLE public.fiscal_rule_regressions'\"''',1)\np.write_text(s)\nPY\nnpx prettier --write src/components/fiscal src/lib/fiscal > /tmp/master014-format.log\nnpm run typecheck > /tmp/master014-typecheck.log 2>&1\""
     },
     "timestamp": 1790669824779
@@ -1549,5 +1535,20 @@
     "content": "(no output)",
     "is_error": false,
     "timestamp": 1790680853859
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -rn \"exception\" supabase/migrations/20261014200000_fiscal_documents.sql | head -20; echo \"=== execute ===\"; grep -rn \"'exception'\" supabase/migrations/*.sql | head",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790680856581
+  },
+  {
+    "role": "tool_result",
+    "content": "66:CREATE TABLE public.fiscal_exceptions (\n68: document_id uuid, exception_type text NOT NULL CHECK(exception_type IN (\n245:  INSERT INTO fiscal_exceptions(organization_id,document_id,exception_type,details)\n304:ALTER TABLE fiscal_exceptions ENABLE ROW LEVEL SECURITY;\n305:REVOKE ALL ON fiscal_except",
+    "is_error": false,
+    "timestamp": 1790680856604
   }
 ]
