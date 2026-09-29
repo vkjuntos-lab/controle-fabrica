@@ -413,7 +413,7 @@ BEGIN
         AND x.period_start=a.period_start AND x.period_end=a.period_end
       WHERE a.organization_id=_org AND a.period_start=v_from AND a.period_end=v_to
         AND a.metric_key=coalesce(v_metric,'sales.quantity_reconciled')),'[]'::jsonb),
-      'distribution',coalesce((SELECT jsonb_object_agg(cell,n),'{}') FROM (
+      'distribution',coalesce((SELECT jsonb_object_agg(cell,n) FROM (
         SELECT (CASE WHEN a.class='UNCLASSIFIED' OR x.class IS NULL OR x.class='UNCLASSIFIED' THEN 'UNCLASSIFIED'
                      ELSE a.class||x.class END) cell,count(*) n
         FROM public.bi_abc_classification a
