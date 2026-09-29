@@ -165,7 +165,9 @@ def run():
     assert run1['status'] == 'COMPLETED', f"processamento falhou: {run1['errors']}"
     assert run1['records'] > 0
 
-    print('DBG q:', consulta(org, 'metric_value', dict(janela, metric_key='sales.quantity_imported'), admin))
+    print('DBG mv:', sql(f"SELECT public.bi_metric_value({q(org)},'sales.quantity_imported',{q('2026-01-01')},{q('2026-07-01')})::text"))
+    print('DBG ag:', sql(f"SELECT public.bi_aggregate({q(org)},'sales.quantity_imported',{q('2026-01-01')},{q('2026-07-01')},NULL,'MONTH',{{}})::text"))
+    print('DBG per:', sql(f"SELECT public.bi_resolve_period('CUSTOM',{q('2026-01-01')},{q('2026-06-30')})::text"))
     importado, disp = valor(org, 'sales.quantity_imported', janela, admin)
     assert importado == 15 and disp is True, f'vendas importadas = {importado} (disponível={disp})'
     recon, disp = valor(org, 'sales.quantity_reconciled', janela, admin)
