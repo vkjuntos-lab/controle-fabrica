@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql",
-      "newString": "    RETURN coalesce((SELECT jsonb_agg(to_jsonb(t) ORDER BY array_position(ARRAY['ERROR','WARNING','INFO']::public.bi_severity[],t.severity),t.last_seen_at DESC) FROM (\n        SELECT q.check_key,q.domain,q.severity,q.status,q.entity,q.message,q.details,q.last_seen_at\n        FROM public.bi_quality_issues q WHERE q.organization_id=_org AND q.status<>'RESOLVED'\n        LIMIT 200) t),'[]'::jsonb);",
-      "oldString": "    RETURN coalesce((SELECT jsonb_agg(jsonb_build_object('key',q.check_key,'domain',q.domain,'severity',q.severity,\n      'status',q.status,'entity',q.entity,'message',q.message,'details',q.details,'last_seen',q.last_seen_at)\n      ORDER BY array_position(ARRAY['ERROR','WARNING','INFO']::public.bi_severity[],q.severity),q.last_seen_at DESC LIMIT 200)\n      FROM public.bi_quality_issues q WHERE q.organization_id=_org AND q.status<>'RESOLVED'),'[]'::jsonb);"
-    },
-    "timestamp": 1790683678724
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790683678737
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql",
       "newString": "    RETURN coalesce((SELECT jsonb_agg(to_jsonb(t) ORDER BY t.started_at DESC) FROM (\n        SELECT r.id,r.domain,r.status,r.mode,r.period_start AS \"from\",r.period_end AS \"to\",\n          r.started_at,r.finished_at,r.processed_records AS \"records\",r.error_details AS \"errors\"\n        FROM public.bi_processing_runs r WHERE r.organization_id=_org\n        ORDER BY r.started_at DESC LIMIT 20) t),'[]'::jsonb);",
       "oldString": "    RETURN coalesce((SELECT jsonb_agg(to_jsonb(t) ORDER BY t.started_at DESC) FROM (\n        SELECT r.id,r.domain,r.status,r.mode,r.period_start,r.period_end,r.started_at,r.finished_at,\n          r.processed_records,r.error_details\n        FROM public.bi_processing_runs r WHERE r.organization_id=_org\n        ORDER BY r.started_at DESC LIMIT 20) t),'[]'::jsonb);"
     },
@@ -1461,5 +1445,20 @@
     "content": "DEBUG fatos: IMPORTED_SALE/IMPORTED/0.000000/2026-05-10\nDEBUG agg: [{\"id\": null, \"label\": null, \"value\": 0.000000, \"bucket\": \"2026-05-01\", \"is_total\": false, \"available\": true}, {\"id\": null, \"label\": null, \"value\": 0.000000, \"bucket\": \"2026-06-01\", \"is_total\": false, \"available\": true}, {\"id\": null,",
     "is_error": false,
     "timestamp": 1790684379903
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np=Path('scripts/test-bi-db.py'); s=p.read_text()\ns=s.replace(\"\"\"    print('DEBUG fatos:'\"\"\",\"\"\"    print('DEBUG vendas:', sql(f\"SELECT external_event_id||'/'||sale_date::text||'/'||status FROM marketplace_sales WHERE organization_id={q(org)} ORDER BY sale_date\"))\n    print('DEBUG fatos:'\"\"\")\n# corrigir a quantidade da venda importada\nm=Path('supabase/migrations/20261015110000_bi_marts.sql'); t=m.read_text()\nt=t.replace(\"      v_channel,coalesce(v_qty,0),r.gross_amount,v_bill,\",\n            \"      v_channel,coalesce(v_qty,r.quantity),r.gross_amount,v_bill,\")\nt=t.replace(\"\"\"        cogs=v_cost.cost*(coalesce(v_qty,0)),\n        margin=coalesce(v_bill,0)-(v_cost.cost*coalesce(v_qty,0)),\n        margin_percent=CASE WHEN coalesce(v_bill,0)<>0\n          THEN ((coalesce(v_bill,0)-(v_cost.cost*coalesce(v_qty,0)))/coalesce(v_bill,0))*100 END,\"\"\",\n\"\"\"        cogs=v_cost.cost*(coalesce(v_qty,r.quantity)),\n        margin=coalesce(v_bill,0)-(v_cost.cost*coalesce(v_qty,r.quantity)),\n        margin_percent=CASE WHEN coalesce(v_bill,0)<>0\n          THEN ((coalesce(v_bill,0)-(v_cost.cost*coalesce(v_qty,r.quantity)))/coalesce(v_bill,0))*100 END,\"\"\")\nm.write_text(t)\nprint('ok')\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/test-bi-db.py\" 2>&1 | grep -E \"DEBUG|Assertion\"",
+      "timeout": 900000
+    },
+    "timestamp": 1790684389738
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nDEBUG fatos: IMPORTED_SALE/IMPORTED/10.000000/2026-05-10\nDEBUG agg: [{\"id\": null, \"label\": null, \"value\": 10.000000, \"bucket\": \"2026-05-01\", \"is_total\": false, \"available\": true}, {\"id\": null, \"label\": null, \"value\": 5.000000, \"bucket\": \"2026-06-01\", \"is_total\": false, \"available\": true}, {\"id\": ",
+    "is_error": false,
+    "timestamp": 1790684392793
   }
 ]

@@ -128,7 +128,7 @@ BEGIN
            ELSE 'IMPORTED'::public.bi_fact_status END,
       (SELECT v.product_id FROM public.product_variants v WHERE v.id=r.variant_id),r.variant_id,r.store_id,
       r.store_partner_id,
-      v_channel,coalesce(v_qty,0),r.gross_amount,v_bill,
+      v_channel,coalesce(v_qty,r.quantity),r.gross_amount,v_bill,
       coalesce(r.gross_amount-r.shipping_fee-r.discount_amount-r.platform_fee,0),
       r.platform_fee,r.shipping_fee,0,0,v_cost.version_id,v_cost.methodology,
       CASE WHEN r.reconciled_items>0 AND v_cost.cost IS NULL THEN 'INCOMPLETE' ELSE 'COMPLETE' END,
@@ -149,10 +149,10 @@ BEGIN
     -- Custo e margem, só quando existe versão publicada na data do fato.
     IF r.reconciled_items>0 AND v_cost.cost IS NOT NULL THEN
       UPDATE public.bi_facts SET
-        cogs=v_cost.cost*(coalesce(v_qty,0)),
-        margin=coalesce(v_bill,0)-(v_cost.cost*coalesce(v_qty,0)),
+        cogs=v_cost.cost*(coalesce(v_qty,r.quantity)),
+        margin=coalesce(v_bill,0)-(v_cost.cost*coalesce(v_qty,r.quantity)),
         margin_percent=CASE WHEN coalesce(v_bill,0)<>0
-          THEN ((coalesce(v_bill,0)-(v_cost.cost*coalesce(v_qty,0)))/coalesce(v_bill,0))*100 END,
+          THEN ((coalesce(v_bill,0)-(v_cost.cost*coalesce(v_qty,r.quantity)))/coalesce(v_bill,0))*100 END,
         updated_at=now()
       WHERE organization_id=r.organization_id AND domain='SALES' AND source_id=r.id;
     END IF;
