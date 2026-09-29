@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"fiscal\" src/components/layout/app-shell.tsx src/lib/rbac.test.ts",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790679983275
-  },
-  {
-    "role": "tool_result",
-    "content": "src/components/layout/app-shell.tsx:60:  { label: \"Fiscal\", to: \"/fiscal\", icon: ScrollText, permission: \"fiscal.read\" },\nsrc/lib/rbac.test.ts:22:      \"fiscal\",\nsrc/lib/rbac.test.ts:45:      \"fiscal\",\n",
-    "is_error": false,
-    "timestamp": 1790679983287
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"role_permissions\" supabase/migrations/20261013100000_fiscal_core.sql supabase/migrations/20261013200000_fiscal_tax_engine.sql supabase/migrations/20261014100000_fiscal_integrity.sql supabase/migrations/20261014200000_fiscal_documents.sql supabase/migrations/20261014300000_fiscal_inbound.sql supabase/migrations/20261014400000_fiscal_workspace.sql",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1581,5 +1566,20 @@
     "content": "=== fiscal_tax_profiles em 131-145 ===\n=== em src ===\nsrc/lib/fiscal/constants.test.ts:184:      createTableBody(\"fiscal_tax_profiles\") ?? \"\",\n=== colunas legacy citadas nas 131-145 ===\n14\n",
     "is_error": false,
     "timestamp": 1790681276167
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "echo \"=== colunas legadas referenciadas depois? ===\"; grep -rn \"danfe_url\\|xml_authorized\\|qrcode_url\\|provider_ref\\|retry_count\\|emitted_at\\|error_msg\\|total_value\\|fiscal_doc_kind\\|fiscal_doc_status\" supabase/migrations/2026091*.sql supabase/migrations/2026100*.sql supabase/migrations/2026101*.sql src/ 2>/dev/null | grep -v \"202607\\|202608\" | head; echo \"(vazio = nada depende do legado)\"; echo; echo \"=== product_fiscal_profiles ===\"; grep -rn \"CREATE TABLE public.product_fiscal_profiles\" -A 18 supabase/migrations/ | head -22",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681286507
+  },
+  {
+    "role": "tool_result",
+    "content": "=== colunas legadas referenciadas depois? ===\nsupabase/migrations/20261001100000_purchasing.sql:511:  total_value numeric(20,6) NOT NULL CHECK(total_value>=0),\nsupabase/migrations/20261001100000_purchasing.sql:1034:  INSERT INTO public.purchase_receipt_costs(organization_id,variant_id,goods_receipt_",
+    "is_error": false,
+    "timestamp": 1790681286543
   }
 ]
