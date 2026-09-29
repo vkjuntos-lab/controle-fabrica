@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && head -75 scripts/test-costs-db.py; echo \"=== FIM ===\"; tail -30 scripts/test-costs-db.py"
-    },
-    "timestamp": 1790682947909
-  },
-  {
-    "role": "tool_result",
-    "content": "#!/usr/bin/env python3\n\"\"\"Cost engine acceptance, actual PostgreSQL/RLS, isolated disposable database.\"\"\"\nimport importlib.util\nimport json\nfrom pathlib import Path\nspec = importlib.util.spec_from_file_location('inventory_db',Path(__file__).with_name('test-inventory-db.py'))\ndb = importlib.util.modu",
-    "is_error": false,
-    "timestamp": 1790682947924
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '1,80p' scripts/test-inventory-db.py"
     },
     "timestamp": 1790682950343
@@ -1493,5 +1479,20 @@
     "content": "### bi_abc_classification\nCREATE TABLE public.bi_abc_classification ( id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE, period_start date NOT NULL, period_end date NOT NULL, metric_key text NOT NULL, granularity text N",
     "is_error": false,
     "timestamp": 1790683968877
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np = Path('supabase/migrations/20261015110000_bi_marts.sql')\ns = p.read_text()\ni = s.find('CREATE FUNCTION public.bi_classify_abc')\nj = s.find('CREATE FUNCTION public.bi_classify_xyz')\nnovo = r'''CREATE FUNCTION public.bi_classify_abc(_org uuid,_from date,_to date,_metric text,_granularity text DEFAULT 'VARIANT')\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE cfg jsonb; a numeric; b numeric; total numeric:=0; v_n integer; classified jsonb;\n  abc_row record; v_share numeric; v_cum numeric:=0;\nBEGIN\n  PERFORM public.bi_require(_org,'bi.read');\n  -- Só bases de FLUXO entram na curva. Curva por saldo de estoque\n  -- (\"quanto parado\") é outra curva e não é esta: aceitar a chave e\n  -- devolver zero seria inventar um resultado.\n  IF _metric NOT IN ('sales.quantity_reconciled','sales.billable_revenue','sales.margin_industrial',\n                     'production.loss_quantity') THEN\n    RAISE EXCEPTION 'Base ABC inválida para curva ABC: %',_metric;\n  END IF;\n  IF _granularity NOT IN ('PRODUCT','VARIANT') THEN\n    RAISE EXCEPTION 'Granularidade ABC inválida: % (use PRODUCT ou VARIANT).',_granularity;\n  END IF;\n  cfg := public.bi_get_settings(_org);\n  a := (cfg->>'abc_a_limit')::numeric; b := (cfg->>'abc_b_limit')::numeric;\n\n  -- A base vem da métrica, não de um filtro fixo em \"vendas\".\n  WITH base AS (\n    SELECT f.variant_id,\n      CASE _metric\n        WHEN 'sales.quantity_reconciled' THEN sum(f.quantity)\n        WHEN 'sales.billable_revenue' THEN sum(coalesce(f.billable_amount,0))\n        WHEN 'sales.margin_industrial' THEN sum(coalesce(f.margin,0))\n        WHEN 'production.loss_quantity' THEN sum(coalesce(f.quantity,0)) END AS value\n    FROM public.bi_facts f\n    WHERE f.organization_id=_org\n      AND (CASE _metric\n        WHEN 'sales.quantity_reconciled' THEN f.fact_nature='RECONCILED_SALE' AND f.status='RECONCILED'\n        WHEN 'sales.billable_revenue' THEN f.fact_nature='RECONCILED_SALE' AND f.status='RECONCILED'\n        WHEN 'sales.margin_industrial' THEN f.fact_nature='RECONCILED_SALE' AND f.status='RECONCILED'\n        WHEN 'production.loss_quantity' THEN f.fact_nature='PRODUCTION_ORDER' END)\n      AND f.fact_date>=_from AND f.fact_date<_to AND f.variant_id IS NOT NULL\n    GROUP BY f.variant_id\n  )\n  SELECT count(*),coalesce(sum(value),0) INTO v_n,total FROM base WHERE value>0;\n\n  IF v_n IS NULL OR v_n=0 OR total=0 THEN\n    PERFORM public.bi_audit(_org,'bi.abc.empty','bi_abc_classification',NULL,\n      jsonb_build_object('metric',_metric,'from',_from,'to',_to));\n    RETURN jsonb_build_object('metric',_metric,'granularity',_granularity,'period_start',_from,'period_end',_to,\n      'total',0,'items',0,'a_limit',a,'b_limit',b,'rows','[]'::jsonb,\n      'reason','Sem valor positivo no período para a base escolhida.');\n  END IF;\n\n  -- Empate resolvido pelo total e depois pelo id: reprocessar dá o\n  -- mesmo resultado, senão a curva mudaria de classe sozinha.\n  WITH base AS (\n    SELECT f.variant_id,\n      CASE _metric\n        WHEN 'sales.quantity_reconciled' THEN sum(f.quantity)\n        WHEN 'sales.billable_revenue' THEN sum(coalesce(f.billable_amount,0))\n        WHEN 'sales.margin_industrial' THEN sum(coalesce(f.margin,0))\n        WHEN 'production.loss_quantity' THEN sum(coalesce(f.quantity,0)) END AS value\n    FROM public.bi_facts f\n    WHERE f.organization_id=_org\n      AND (CASE _metric\n        WHEN 'sales.quantity_reconciled' THEN f.fact_nature='RECONCILED_SALE' AND f.status='RECONCILED'\n        WHEN 'sales.billable_revenue' THEN f.fact_nature='RECONCILED_SALE' AND f.status='RECONCILED'\n        WHEN 'sales.margin_industrial' THEN f.fact_nature='RECONCILED_SALE' AND f.status='RECONCILED'\n        WHEN 'production.loss_quantity' THEN f.fact_nature='PRODUCTION_ORDER' END)\n      AND f.fact_date>=_from AND f.fact_date<_to AND f.variant_id IS NOT NULL\n    GROUP BY f.variant_id\n  ), ranked AS (\n    SELECT variant_id,value FROM base WHERE value>0 ORDER BY value DESC,variant_id)\n  SELECT jsonb_agg(x) INTO classified FROM (\n    SELECT jsonb_build_object('variant_id',variant_id,'value',value,\n      'share',(value/sum(value) OVER ())::numeric,\n      'cum',(sum(value) OVER (ORDER BY value DESC,variant_id ROWS UNBOUNDED PRECEDING)/sum(value) OVER ())::numeric) x\n    FROM ranked) q;\n\n  DELETE FROM public.bi_abc_classification\n  WHERE organization_id=_org AND period_start=_from AND period_end=_to\n    AND metric_key=_metric AND granularity=_granularity;\n\n  FOR abc_row IN SELECT * FROM jsonb_to_recordset(classified)\n      x(variant_id uuid,value numeric,share numeric,cum numeric) ORDER BY x.cum,x.variant_id LOOP\n    v_share := abc_row.value/total;\n    v_cum := v_cum+abc_row.value;\n    INSERT INTO public.bi_abc_classification(organization_id,period_start,period_end,metric_key,granularity,\n      variant_id,product_id,metric_value,total_value,share,cumulative_share,class,parameters,created_by)\n    VALUES (_org,_from,_to,_metric,_granularity,abc_row.variant_id,\n      (SELECT v.product_id FROM public.product_variants v WHERE v.id=abc_row.variant_id),\n      abc_row.value,total,v_share,v_cum/total,\n      CASE WHEN (v_cum/total)<=a THEN 'A'::public.bi_abc_class\n           WHEN (v_cum/total)<=b THEN 'B'::public.bi_abc_class\n           ELSE 'C'::public.bi_abc_class END,\n      jsonb_build_object('a_limit',a,'b_limit',b,'metric',_metric,'granularity',_granularity,\n        'period_start',_from,'period_end',_to,'rule','cumulativo crescente',\n        'months_in_period',((_to-_from)/30)),auth.uid());\n  END LOOP;\n\n  PERFORM public.bi_audit(_org,'bi.abc.classified','bi_abc_classification',NULL,\n    jsonb_build_object('metric',_metric,'from',_from,'to',_to,'a_limit',a,'b_limit',b,'items',v_n));\n  RETURN jsonb_build_object('metric',_metric,'granularity',_granularity,'period_start',_from,'period_end',_to,\n    'total',total,'items',v_n,'a_limit',a,'b_limit',b,'rows',classified);\nEND $$;\n\n'''\np.write_text(s[:i] + novo + s[j:])\nprint('ok')\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql 20261015110000_bi_marts.sql 20261015120000_bi_queries.sql\" 2>&1 | tail -8",
+      "timeout": 900000
+    },
+    "timestamp": 1790683982456
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nAPLICADO OK\n",
+    "is_error": false,
+    "timestamp": 1790683985190
   }
 ]

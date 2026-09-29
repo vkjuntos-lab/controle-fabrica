@@ -553,53 +553,67 @@ END $$;
 CREATE FUNCTION public.bi_classify_abc(_org uuid,_from date,_to date,_metric text,_granularity text DEFAULT 'VARIANT')
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE cfg jsonb; a numeric; b numeric; total numeric:=0; v_n integer; classified jsonb;
-  abc_row record; v_metric_value numeric; v_share numeric; v_cum numeric:=0;
+  abc_row record; v_share numeric; v_cum numeric:=0;
 BEGIN
   PERFORM public.bi_require(_org,'bi.read');
+  -- Só bases de FLUXO entram na curva. Curva por saldo de estoque
+  -- ("quanto parado") é outra curva e não é esta: aceitar a chave e
+  -- devolver zero seria inventar um resultado.
   IF _metric NOT IN ('sales.quantity_reconciled','sales.billable_revenue','sales.margin_industrial',
-                     'inventory.total_balance','production.loss_quantity') THEN
+                     'production.loss_quantity') THEN
     RAISE EXCEPTION 'Base ABC inválida para curva ABC: %',_metric;
+  END IF;
+  IF _granularity NOT IN ('PRODUCT','VARIANT') THEN
+    RAISE EXCEPTION 'Granularidade ABC inválida: % (use PRODUCT ou VARIANT).',_granularity;
   END IF;
   cfg := public.bi_get_settings(_org);
   a := (cfg->>'abc_a_limit')::numeric; b := (cfg->>'abc_b_limit')::numeric;
 
+  -- A base vem da métrica, não de um filtro fixo em "vendas".
   WITH base AS (
     SELECT f.variant_id,
       CASE _metric
         WHEN 'sales.quantity_reconciled' THEN sum(f.quantity)
         WHEN 'sales.billable_revenue' THEN sum(coalesce(f.billable_amount,0))
         WHEN 'sales.margin_industrial' THEN sum(coalesce(f.margin,0))
-        WHEN 'production.loss_quantity' THEN sum(f.quantity)
-        ELSE NULL END AS value
+        WHEN 'production.loss_quantity' THEN sum(coalesce(f.quantity,0)) END AS value
     FROM public.bi_facts f
-    WHERE f.organization_id=_org AND f.domain='SALES' AND f.fact_nature='RECONCILED_SALE'
-      AND f.status='RECONCILED' AND f.fact_date>=_from AND f.fact_date<_to
-      AND f.variant_id IS NOT NULL
+    WHERE f.organization_id=_org
+      AND (CASE _metric
+        WHEN 'sales.quantity_reconciled' THEN f.fact_nature='RECONCILED_SALE' AND f.status='RECONCILED'
+        WHEN 'sales.billable_revenue' THEN f.fact_nature='RECONCILED_SALE' AND f.status='RECONCILED'
+        WHEN 'sales.margin_industrial' THEN f.fact_nature='RECONCILED_SALE' AND f.status='RECONCILED'
+        WHEN 'production.loss_quantity' THEN f.fact_nature='PRODUCTION_ORDER' END)
+      AND f.fact_date>=_from AND f.fact_date<_to AND f.variant_id IS NOT NULL
     GROUP BY f.variant_id
-    HAVING sum(CASE _metric
-        WHEN 'sales.quantity_reconciled' THEN f.quantity
-        WHEN 'sales.billable_revenue' THEN coalesce(f.billable_amount,0)
-        WHEN 'sales.margin_industrial' THEN coalesce(f.margin,0) END) IS NOT NULL
-  ), ranked AS (
-    SELECT variant_id,value, sum(value) OVER () total FROM base)
-  SELECT count(*),sum(value) INTO v_n,total FROM ranked WHERE value>0;
+  )
+  SELECT count(*),coalesce(sum(value),0) INTO v_n,total FROM base WHERE value>0;
 
-  IF v_n IS NULL OR total IS NULL OR total=0 THEN
+  IF v_n IS NULL OR v_n=0 OR total=0 THEN
     PERFORM public.bi_audit(_org,'bi.abc.empty','bi_abc_classification',NULL,
       jsonb_build_object('metric',_metric,'from',_from,'to',_to));
-    RETURN jsonb_build_object('rows','[]'::jsonb,'total',0,'items',0,
+    RETURN jsonb_build_object('metric',_metric,'granularity',_granularity,'period_start',_from,'period_end',_to,
+      'total',0,'items',0,'a_limit',a,'b_limit',b,'rows','[]'::jsonb,
       'reason','Sem valor positivo no período para a base escolhida.');
   END IF;
 
+  -- Empate resolvido pelo total e depois pelo id: reprocessar dá o
+  -- mesmo resultado, senão a curva mudaria de classe sozinha.
   WITH base AS (
     SELECT f.variant_id,
       CASE _metric
         WHEN 'sales.quantity_reconciled' THEN sum(f.quantity)
         WHEN 'sales.billable_revenue' THEN sum(coalesce(f.billable_amount,0))
-        WHEN 'sales.margin_industrial' THEN sum(coalesce(f.margin,0)) END AS value
+        WHEN 'sales.margin_industrial' THEN sum(coalesce(f.margin,0))
+        WHEN 'production.loss_quantity' THEN sum(coalesce(f.quantity,0)) END AS value
     FROM public.bi_facts f
-    WHERE f.organization_id=_org AND f.domain='SALES' AND f.fact_nature='RECONCILED_SALE'
-      AND f.status='RECONCILED' AND f.fact_date>=_from AND f.fact_date<_to AND f.variant_id IS NOT NULL
+    WHERE f.organization_id=_org
+      AND (CASE _metric
+        WHEN 'sales.quantity_reconciled' THEN f.fact_nature='RECONCILED_SALE' AND f.status='RECONCILED'
+        WHEN 'sales.billable_revenue' THEN f.fact_nature='RECONCILED_SALE' AND f.status='RECONCILED'
+        WHEN 'sales.margin_industrial' THEN f.fact_nature='RECONCILED_SALE' AND f.status='RECONCILED'
+        WHEN 'production.loss_quantity' THEN f.fact_nature='PRODUCTION_ORDER' END)
+      AND f.fact_date>=_from AND f.fact_date<_to AND f.variant_id IS NOT NULL
     GROUP BY f.variant_id
   ), ranked AS (
     SELECT variant_id,value FROM base WHERE value>0 ORDER BY value DESC,variant_id)
@@ -609,11 +623,12 @@ BEGIN
       'cum',(sum(value) OVER (ORDER BY value DESC,variant_id ROWS UNBOUNDED PRECEDING)/sum(value) OVER ())::numeric) x
     FROM ranked) q;
 
-  -- Grava com parâmetros: sem eles, dois meses de ABC não são comparáveis.
   DELETE FROM public.bi_abc_classification
-  WHERE organization_id=_org AND period_start=_from AND period_end=_to AND metric_key=_metric AND granularity=_granularity;
+  WHERE organization_id=_org AND period_start=_from AND period_end=_to
+    AND metric_key=_metric AND granularity=_granularity;
 
-  FOR abc_row IN SELECT * FROM jsonb_to_recordset(classified) x(variant_id uuid,value numeric,share numeric,cum numeric) ORDER BY x.cum,x.variant_id LOOP
+  FOR abc_row IN SELECT * FROM jsonb_to_recordset(classified)
+      x(variant_id uuid,value numeric,share numeric,cum numeric) ORDER BY x.cum,x.variant_id LOOP
     v_share := abc_row.value/total;
     v_cum := v_cum+abc_row.value;
     INSERT INTO public.bi_abc_classification(organization_id,period_start,period_end,metric_key,granularity,
@@ -625,8 +640,8 @@ BEGIN
            WHEN (v_cum/total)<=b THEN 'B'::public.bi_abc_class
            ELSE 'C'::public.bi_abc_class END,
       jsonb_build_object('a_limit',a,'b_limit',b,'metric',_metric,'granularity',_granularity,
-        'period_start',_from,'period_end',_to,'rule','cumulativo crescente'),auth.uid())
-    ON CONFLICT DO NOTHING;
+        'period_start',_from,'period_end',_to,'rule','cumulativo crescente',
+        'months_in_period',((_to-_from)/30)),auth.uid());
   END LOOP;
 
   PERFORM public.bi_audit(_org,'bi.abc.classified','bi_abc_classification',NULL,
@@ -635,13 +650,6 @@ BEGIN
     'total',total,'items',v_n,'a_limit',a,'b_limit',b,'rows',classified);
 END $$;
 
--- ---------------------------------------------------------------------
--- 8. CURVA XYZ (§28–§29)
---
--- CV = desvio-padrão / média, sobre o histórico de quantidades por
--- período. Sem observações suficientes OU média zero, a classificação é
--- INDISPONÍVEL com justificativa — nunca "X" por omissão.
--- ---------------------------------------------------------------------
 CREATE FUNCTION public.bi_classify_xyz(_org uuid,_from date,_to date,_granularity text DEFAULT 'MONTH',_metric text DEFAULT 'sales.quantity_reconciled')
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE cfg jsonb; x numeric; y numeric; minobs integer; v_buckets integer; v_buckets_json jsonb;
