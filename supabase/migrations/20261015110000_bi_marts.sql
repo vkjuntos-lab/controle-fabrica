@@ -100,7 +100,8 @@ BEGIN
       (SELECT min(i.unit_reference_value) FROM public.partner_reconciliation_items i
         WHERE i.organization_id=s.organization_id AND i.marketplace_sale_id=s.id
           AND i.status='RECONCILED') unit_reference_value,
-      (SELECT max(i.reconciliation_id) FROM public.partner_reconciliation_items i
+      (SELECT (array_agg(i.reconciliation_id ORDER BY i.created_at DESC,i.id DESC))[1]
+        FROM public.partner_reconciliation_items i
         WHERE i.organization_id=s.organization_id AND i.marketplace_sale_id=s.id
           AND i.status='RECONCILED') reconciliation_id
     FROM public.marketplace_sales s

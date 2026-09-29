@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "ls /tmp/opencode/ 2>/dev/null | head -20; ls \"/root/Zheus AI Projects/controle-fabricas/scripts\" | grep -i -E \"bi|test\" | head -20"
-    },
-    "timestamp": 1790683642729
-  },
-  {
-    "role": "tool_result",
-    "content": "all_policies.txt\napply.py\nativ23.log\nativaqr-dev.log\nbootstrap_inv.sql\nbuild.log\nbuild_final.log\ncheck-migration.py\nconstants.bak\ncycle.json\ndbg.mjs\nfiscal.log\nfiscal10.log\nfiscal11.log\nfiscal12.log\nfiscal13.log\nfiscal14.log\nfiscal15.log\nfiscal16.log\nfiscal17.log\ntest-costs-db.py\ntest-crm-db.py\ntest",
-    "is_error": false,
-    "timestamp": 1790683642750
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/tmp/opencode/apply.py"
@@ -1466,5 +1452,20 @@
     "content": "CADEIA M015 APLICAVEL OK\nBASE OK\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-bi-db.py\", line 444, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-bi-db.py\", line 158, in run\n    assert run1['status']",
     "is_error": false,
     "timestamp": 1790684295912
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20261015110000_bi_marts.sql'); s=p.read_text()\ns=s.replace(\"\"\"      (SELECT max(i.reconciliation_id) FROM public.partner_reconciliation_items i\n        WHERE i.organization_id=s.organization_id AND i.marketplace_sale_id=s.id\n          AND i.status='RECONCILED') reconciliation_id\"\"\",\n\"\"\"      (SELECT (array_agg(i.reconciliation_id ORDER BY i.created_at DESC,i.id DESC))[1]\n        FROM public.partner_reconciliation_items i\n        WHERE i.organization_id=s.organization_id AND i.marketplace_sale_id=s.id\n          AND i.status='RECONCILED') reconciliation_id\"\"\")\np.write_text(s)\nprint('ok')\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/test-bi-db.py\" 2>&1 | tail -10",
+      "timeout": 900000
+    },
+    "timestamp": 1790684299600
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nCADEIA M015 APLICAVEL OK\nBASE OK\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-bi-db.py\", line 444, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-bi-db.py\", line 158, in run\n    assert run1['statu",
+    "is_error": false,
+    "timestamp": 1790684302285
   }
 ]
