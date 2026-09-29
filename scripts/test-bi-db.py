@@ -154,8 +154,13 @@ def run():
 
     s1 = registrar('EXT-1', 10, 1000, MES1, 'EV-1')
     s2 = registrar('EXT-2', 5, 500, MES2, 'EV-2')
+    # Domínio por domínio: um erro de sincronização precisa dizer QUAL
+    # sincronização falhou, não "o BI quebrou".
+    for dominio in ['SALES', 'PARTNERS', 'INVENTORY', 'PRODUCTION', 'PROCUREMENT', 'FINANCIAL', 'CRM', 'FISCAL']:
+        passo = json.loads(bi('bi_process', f"{q(org)},{q(dominio)},{q(INICIO)},{q('2026-06-30')}", admin))
+        assert passo['status'] == 'COMPLETED', f"sincronização {dominio} falhou: {passo['errors']}"
     run1 = json.loads(bi('bi_process', f"{q(org)},NULL,{q(INICIO)},{q('2026-06-30')}", admin))
-    assert run1['status'] == 'COMPLETED', f"processamento falhou: {run1}"
+    assert run1['status'] == 'COMPLETED', f"processamento falhou: {run1['errors']}"
     assert run1['records'] > 0
 
     importado, disp = valor(org, 'sales.quantity_imported', janela, admin)

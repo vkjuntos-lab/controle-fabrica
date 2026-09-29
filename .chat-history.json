@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/tmp/opencode/apply.py"
-    },
-    "timestamp": 1790683644655
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/tmp/opencode/apply.py</path>\n<type>file</type>\n<content>\n1: import importlib.util, os, sys\n2: from pathlib import Path\n3: spec = importlib.util.spec_from_file_location('inv', Path('scripts/test-inventory-db.py').resolve())\n4: db = importlib.util.module_from_spec(spec); spec.loader.exec_module",
-    "is_error": false,
-    "timestamp": 1790683644666
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql 20261015110000_bi_marts.sql 20261015120000_bi_queries.sql\" 2>&1 | tail -30",
@@ -1467,5 +1453,20 @@
     "content": "ok\nCADEIA M015 APLICAVEL OK\nBASE OK\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-bi-db.py\", line 444, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-bi-db.py\", line 158, in run\n    assert run1['statu",
     "is_error": false,
     "timestamp": 1790684302285
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np=Path('scripts/test-bi-db.py'); s=p.read_text()\ns=s.replace(\"\"\"    run1 = json.loads(bi('bi_process', f\"{q(org)},NULL,{q(INICIO)},{q('2026-06-30')}\", admin))\n    assert run1['status'] == 'COMPLETED', f\"processamento falhou: {run1}\"\n    assert run1['records'] > 0\"\"\",\n\"\"\"    # Domínio por domínio: um erro de sincronização precisa dizer QUAL\n    # sincronização falhou, não \"o BI quebrou\".\n    for dominio in ['SALES', 'PARTNERS', 'INVENTORY', 'PRODUCTION', 'PROCUREMENT', 'FINANCIAL', 'CRM', 'FISCAL']:\n        passo = json.loads(bi('bi_process', f\"{q(org)},{q(dominio)},{q(INICIO)},{q('2026-06-30')}\", admin))\n        assert passo['status'] == 'COMPLETED', f\"sincronização {dominio} falhou: {passo['errors']}\"\n    run1 = json.loads(bi('bi_process', f\"{q(org)},NULL,{q(INICIO)},{q('2026-06-30')}\", admin))\n    assert run1['status'] == 'COMPLETED', f\"processamento falhou: {run1['errors']}\"\n    assert run1['records'] > 0\"\"\")\np.write_text(s)\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/test-bi-db.py\" 2>&1 | tail -8",
+      "timeout": 900000
+    },
+    "timestamp": 1790684311942
+  },
+  {
+    "role": "tool_result",
+    "content": "Traceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-bi-db.py\", line 449, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-bi-db.py\", line 161, in run\n    assert passo['status'] == 'COMPLETED', f\"sincronização",
+    "is_error": false,
+    "timestamp": 1790684314705
   }
 ]
