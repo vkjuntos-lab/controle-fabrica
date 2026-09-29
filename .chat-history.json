@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql 20261015110000_bi_marts.sql 20261015120000_bi_queries.sql\" 2>&1 | tail -30",
-      "timeout": 600000
-    },
-    "timestamp": 1790683712305
-  },
-  {
-    "role": "tool_result",
-    "content": "Traceback (most recent call last):\n  File \"/tmp/opencode/apply.py\", line 17, in <module>\n    db.sql(prefix + (db.ROOT/'supabase/migrations'/name).read_text())\n    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventor",
-    "is_error": false,
-    "timestamp": 1790683714961
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport re\np='supabase/migrations/20261015120000_bi_queries.sql'\ns=open(p).read()\nprint('dollars:', s.count('$$'))\nfor i,l in enumerate(s.split('\\n'),1):\n    if '$$' in l: print(i, l.strip()[:90])\nPY"
     },
     "timestamp": 1790683726589
@@ -1455,5 +1440,20 @@
     "content": "    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-bi-db.py\", line 170, in run\n    assert importado == 15 and disp is True, f'vendas importadas = {importado} (disponível={disp})'\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: vendas importadas = None (disponível=Fa",
     "is_error": false,
     "timestamp": 1790684502183
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/test-bi-db.py\" 2>&1 | grep \"DBG q\"",
+      "timeout": 900000
+    },
+    "timestamp": 1790684504166
+  },
+  {
+    "role": "tool_result",
+    "content": "DBG q: {\"unit\": \"UNIT\", \"value\": null, \"period\": {\"to\": \"2026-06-30\", \"from\": \"2026-01-01\"}, \"available\": false, \"definition\": {\"unit\": \"UNIT\", \"status\": \"ACTIVE\", \"formula\": \"SUM(quantity) de bi_facts com fact_nature=IMPORTED_SALE e status<>CANCELED.\", \"version\": 1, \"is_global\": true, \"metric_key\":",
+    "is_error": false,
+    "timestamp": 1790684507351
   }
 ]
