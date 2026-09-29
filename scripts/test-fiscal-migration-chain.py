@@ -176,8 +176,9 @@ def run():
        f"INSERT INTO products(id,organization_id,code,name) VALUES ({q(produto)},{q(org)},'P1','Produto');"
        f"INSERT INTO product_variants(id,organization_id,product_id,sku) "
        f"VALUES ({q(variante)},{q(org)},{q(produto)},'P1-1');"
-       f"INSERT INTO product_fiscal_profiles(organization_id,product_variant_id,ncm,fiscal_unit) "
-       f"VALUES ({q(org)},{q(variante)},'1234.56.78','UN');")
+       # A 141 remove o DEFAULT de `origin_code`: origem declarada ou nada.
+       f"INSERT INTO product_fiscal_profiles(organization_id,product_variant_id,ncm,origin_code,fiscal_unit) "
+       f"VALUES ({q(org)},{q(variante)},'1234.56.78',0,'UN');")
     saida = db.call('fiscal_query', f"{q(org)},'products','{{}}'::jsonb", admin)
     assert '"ncm"' in saida, f'a área de classificações não devolveu a lista: {saida}'
     assert saida.count('"ncm"') >= 1

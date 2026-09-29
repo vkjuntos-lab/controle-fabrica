@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"fiscal_exceptions\" -A 20 supabase/migrations/20261014300000_fiscal_inbound.sql | head -30",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790680846931
-  },
-  {
-    "role": "tool_result",
-    "content": "147:  INSERT INTO fiscal_exceptions(organization_id,document_id,exception_type,source_type,source_id,details)\n148-  VALUES(_org,CASE WHEN NOT _inbound THEN _id END,CASE WHEN _inbound THEN 'INBOUND_DOCUMENT_MISMATCH' ELSE 'FISCAL_INVENTORY_MISMATCH' END,\n149-    CASE WHEN _inbound THEN 'INBOUND' ELSE",
-    "is_error": false,
-    "timestamp": 1790680846952
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -rn \"CREATE TABLE.*fiscal_exceptions\" -A 18 supabase/migrations/ | head -25; echo \"=== REVIEW ACTION ===\"; grep -rn \"REQUESTED_CHANGES\\|'review'\\|_a='review'\\|a = 'review'\" supabase/migrations/20261014100000_fiscal_integrity.sql | head -20",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1534,5 +1519,21 @@
     "content": "supabase/migrations/20261014100000_fiscal_integrity.sql:10:ALTER TABLE public.product_fiscal_profiles ALTER COLUMN origin_code DROP DEFAULT;\nsupabase/migrations/20261014100000_fiscal_integrity.sql:300:      origin_code,fiscal_unit,tax_classification,additional_classification,tax_treatment,\nsupabase/",
     "is_error": false,
     "timestamp": 1790681934078
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py",
+      "newString": "       # A 141 remove o DEFAULT de `origin_code`: origem declarada ou nada.\n       f\"INSERT INTO product_fiscal_profiles(organization_id,product_variant_id,ncm,origin_code,fiscal_unit) \"\n       f\"VALUES ({q(org)},{q(variante)},'1234.56.78',0,'UN');\")\n",
+      "oldString": "       f\"INSERT INTO product_fiscal_profiles(organization_id,product_variant_id,ncm,fiscal_unit) \"\n       f\"VALUES ({q(org)},{q(variante)},'1234.56.78','UN');\")\n"
+    },
+    "timestamp": 1790681939594
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790681939609
   }
 ]
