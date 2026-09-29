@@ -613,7 +613,7 @@ BEGIN
       out := out||'<Row>';
       FOR i IN 1..array_length(string_to_array(headers,','),1) LOOP
         out := out||'<Cell><Data ss:Type="String">'||
-          xmlelement(name x, value coalesce(r->>split_part(headers,',',i),''))::text||'</Data></Cell>';
+          xmlelement(name x, coalesce(r->>split_part(headers,',',i),''))::text||'</Data></Cell>';
       END LOOP;
       out := out||'</Row>'||E'\n';
     END LOOP;
