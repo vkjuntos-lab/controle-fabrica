@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/_probe-fiscal.py')\nlines=p.read_text().split('\\n')\nnovo=lines[:65]+[\n\"    print('--- I1: colunas reais por area (o que a tabela generica tenta ler) ---')\",\n\"    for t in ['fiscal_documents','inbound_fiscal_documents','fiscal_events','fiscal_exceptions',\",\n\"              'fiscal_reconciliations','product_fiscal_profiles','company_fiscal_profiles',\",\n\"              'fiscal_simulations','tax_rules','fiscal_layout_versions','fiscal_providers']:\",\n\"        cols=sql(\\\"SELECT string_agg(column_name,',' ORDER BY column_name) FROM information_schema.columns WHERE table_schema='public' AND table_name=%s\\\" % q(t))\",\n\"        mostrados=['label','legal_name','fiscal_nature','sku','name','version','id']\",\n\"        tem=[c for c in mostrados if (','+cols+',').find(','+c+',')>=0]\",\n\"        print('  %-30s label cai em %s' % (t, tem))\",\n\"    tabelas=sql(\\\"SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND (table_name LIKE '%fiscal%' OR table_name LIKE 'tax_rule%' OR table_name LIKE 'tax_calc%') ORDER BY 1\\\").split('\\\\n')\",\n\"    comdata=set(sql(\\\"SELECT table_name FROM information_schema.columns WHERE table_schema='public' AND column_name='created_at'\\\").split('\\\\n'))\",\n\"    print('--- B3: tabelas fiscais sem created_at (filtro de data as esconde) ---')\",\n\"    print(' ', [t for t in tabelas if t not in comdata])\",\n\"}\",\n\"\",\n\"if __name__=='__main__':\",\n\"    try: run()\",\n\"    finally: db.cleanup()\",\n]\np.write_text('\\n'.join(novo))\nPY\nchmod a+r scripts/_probe-fiscal.py && su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/_probe-fiscal.py\" 2>&1 | tail -25",
-      "timeout": 900000,
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790680230713
-  },
-  {
-    "role": "tool_result",
-    "content": "  File \"/root/Zheus AI Projects/controle-fabricas/scripts/_probe-fiscal.py\", line 78\n    }\n    ^\nSyntaxError: unmatched '}'\n",
-    "is_error": false,
-    "timestamp": 1790680230852
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/_probe-fiscal.py",
@@ -1582,5 +1566,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790681412315
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "npx vitest run src/lib/fiscal/constants.test.ts 2>&1 | head -25",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681420054
+  },
+  {
+    "role": "tool_result",
+    "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ❯ src/lib/fiscal/constants.test.ts (12 tests | 3 failed) 386ms\n   ✓ contrato entre a listagem e o banco > toda área com listagem aponta para uma tabela que existe 150ms\n   ✓ contrato entre a listagem e o banco > toda coluna listada existe na ",
+    "is_error": false,
+    "timestamp": 1790681421823
   }
 ]
