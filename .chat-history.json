@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -n \"FUNCTION public.fiscal_require\" -A 8 supabase/migrations/20261013100000_fiscal_core.sql | head -12; echo \"=== financeiro 009 ===\"; ls supabase/migrations/ | grep -E \"2026092[89]|finance\""
-    },
-    "timestamp": 1790682954488
-  },
-  {
-    "role": "tool_result",
-    "content": "570:CREATE FUNCTION public.fiscal_require(_org uuid,_permission text) RETURNS void\n571-LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n572-BEGIN\n573-  IF auth.uid() IS NULL OR NOT public.has_permission(_org,_permission) THEN\n574-    RAISE EXCEPTION 'Sem permissão: %',_permission;\n575-",
-    "is_error": false,
-    "timestamp": 1790682954517
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -nE \"CREATE (OR REPLACE )?FUNCTION public\\.[a-z_]+\" supabase/migrations/20260928100000_finance.sql | head -30; echo \"=== tabelas finance ===\"; grep -oE \"CREATE TABLE public\\.[a-z_]+\" supabase/migrations/20260928100000_finance.sql | sed 's/CREATE TABLE public.//' | tr '\\n' ' '"
     },
     "timestamp": 1790682957873
@@ -1494,5 +1480,19 @@
     "content": "ok\n",
     "is_error": false,
     "timestamp": 1790683992280
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np = Path('supabase/migrations/20261015100000_bi_core.sql')\ns = p.read_text()\ns = s.replace(\"\"\" ORDER BY (m.organization_id IS NOT NULL) ASC,m.metric_key,m.version DESC;\"\"\",\n\"\"\" -- DISTINCT ON: o catálogo lista uma linha por métrica (a versão mais\n -- nova), e a definição da organização sempre vence a global.\n ORDER BY m.metric_key,(m.organization_id IS NULL) ASC,m.version DESC;\"\"\")\ns = s.replace(\" SELECT m.metric_key,m.metric_name\", \" SELECT DISTINCT ON (m.metric_key) m.metric_key,m.metric_name\")\np.write_text(s)\nprint('ok')\nPY\ngrep -n \"DISTINCT ON\" supabase/migrations/20261015100000_bi_core.sql"
+    },
+    "timestamp": 1790684000693
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n567: SELECT DISTINCT ON (m.metric_key) m.metric_key,m.metric_name,m.description,m.business_domain::text,m.formula,m.unit::text,m.aggregation_method,\n575: -- DISTINCT ON: o catálogo lista uma linha por métrica (a versão mais\n",
+    "is_error": false,
+    "timestamp": 1790684000754
   }
 ]

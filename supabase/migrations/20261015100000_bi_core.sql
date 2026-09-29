@@ -564,7 +564,7 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
  -- `_key` nulo devolve o catálogo inteiro: é assim que a tela de
  -- métricas lista o que existe, inclusive o catálogo global.
  -- A versão da organização tem precedência sobre a global (§5).
- SELECT m.metric_key,m.metric_name,m.description,m.business_domain::text,m.formula,m.unit::text,m.aggregation_method,
+ SELECT DISTINCT ON (m.metric_key) m.metric_key,m.metric_name,m.description,m.business_domain::text,m.formula,m.unit::text,m.aggregation_method,
    m.date_dimension,m.source_description,m.limitations,m.periodicity,m.granularity,m.version,m.status::text,
    coalesce(m.available_filters,'{}'::text[]),coalesce(m.compatible_dimensions,'{}'::text[]),
    (m.organization_id IS NULL)
@@ -572,7 +572,9 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
  WHERE (_key IS NULL OR m.metric_key=_key) AND m.status='ACTIVE'
    AND (m.organization_id IS NULL OR m.organization_id=_org)
    AND (_version IS NULL OR m.version=_version)
- ORDER BY (m.organization_id IS NOT NULL) ASC,m.metric_key,m.version DESC;
+ -- DISTINCT ON: o catálogo lista uma linha por métrica (a versão mais
+ -- nova), e a definição da organização sempre vence a global.
+ ORDER BY m.metric_key,(m.organization_id IS NULL) ASC,m.version DESC;
 $$;
 
 -- Período canônico, em metadados. §7: todo recorte é
