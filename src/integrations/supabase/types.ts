@@ -348,6 +348,1280 @@ export type Database = {
           },
         ]
       }
+      bi_abc_classification: {
+        Row: {
+          class: Database["public"]["Enums"]["bi_abc_class"]
+          created_at: string
+          created_by: string | null
+          cumulative_share: number
+          granularity: string
+          id: string
+          metric_key: string
+          metric_value: number
+          organization_id: string
+          parameters: Json
+          period_end: string
+          period_start: string
+          product_id: string | null
+          share: number
+          total_value: number
+          variant_id: string | null
+        }
+        Insert: {
+          class: Database["public"]["Enums"]["bi_abc_class"]
+          created_at?: string
+          created_by?: string | null
+          cumulative_share: number
+          granularity: string
+          id?: string
+          metric_key: string
+          metric_value: number
+          organization_id: string
+          parameters: Json
+          period_end: string
+          period_start: string
+          product_id?: string | null
+          share: number
+          total_value: number
+          variant_id?: string | null
+        }
+        Update: {
+          class?: Database["public"]["Enums"]["bi_abc_class"]
+          created_at?: string
+          created_by?: string | null
+          cumulative_share?: number
+          granularity?: string
+          id?: string
+          metric_key?: string
+          metric_value?: number
+          organization_id?: string
+          parameters?: Json
+          period_end?: string
+          period_start?: string
+          product_id?: string | null
+          share?: number
+          total_value?: number
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_abc_classification_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_abc_classification_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_abc_classification_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_positions"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "bi_abc_classification_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_abc_classification_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_positions"
+            referencedColumns: ["variant_id"]
+          },
+          {
+            foreignKeyName: "bi_abc_classification_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bi_audit: {
+        Row: {
+          action: string
+          actor_id: string | null
+          context: Json
+          created_at: string
+          entity: string
+          entity_id: string | null
+          id: string
+          organization_id: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          context?: Json
+          created_at?: string
+          entity: string
+          entity_id?: string | null
+          id?: string
+          organization_id: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          context?: Json
+          created_at?: string
+          entity?: string
+          entity_id?: string | null
+          id?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_audit_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_audit_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bi_channel_rules: {
+        Row: {
+          channel: string
+          created_at: string
+          description: string
+          fact_nature: string
+          id: string
+          organization_id: string | null
+          partner_bound: boolean
+          priority: number
+          store_ownership_type: string | null
+        }
+        Insert: {
+          channel: string
+          created_at?: string
+          description: string
+          fact_nature: string
+          id?: string
+          organization_id?: string | null
+          partner_bound?: boolean
+          priority?: number
+          store_ownership_type?: string | null
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          description?: string
+          fact_nature?: string
+          id?: string
+          organization_id?: string | null
+          partner_bound?: boolean
+          priority?: number
+          store_ownership_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_channel_rules_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bi_dashboard_widgets: {
+        Row: {
+          chart: string
+          created_at: string
+          dashboard_id: string
+          dimension: string | null
+          domain: Database["public"]["Enums"]["bi_domain"]
+          filters: Json
+          id: string
+          metric_key: string
+          organization_id: string
+          position: number
+          title: string
+          updated_at: string
+          widget_key: string
+          width: string
+        }
+        Insert: {
+          chart?: string
+          created_at?: string
+          dashboard_id: string
+          dimension?: string | null
+          domain: Database["public"]["Enums"]["bi_domain"]
+          filters?: Json
+          id?: string
+          metric_key: string
+          organization_id: string
+          position?: number
+          title: string
+          updated_at?: string
+          widget_key: string
+          width?: string
+        }
+        Update: {
+          chart?: string
+          created_at?: string
+          dashboard_id?: string
+          dimension?: string | null
+          domain?: Database["public"]["Enums"]["bi_domain"]
+          filters?: Json
+          id?: string
+          metric_key?: string
+          organization_id?: string
+          position?: number
+          title?: string
+          updated_at?: string
+          widget_key?: string
+          width?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_dashboard_widgets_dashboard_id_fkey"
+            columns: ["dashboard_id"]
+            isOneToOne: false
+            referencedRelation: "bi_dashboards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_dashboard_widgets_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bi_dashboards: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          default_filters: Json
+          description: string
+          id: string
+          is_default: boolean
+          name: string
+          organization_id: string
+          owner_id: string | null
+          updated_at: string
+          visibility: Database["public"]["Enums"]["bi_visibility"]
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          default_filters?: Json
+          description?: string
+          id?: string
+          is_default?: boolean
+          name: string
+          organization_id: string
+          owner_id?: string | null
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["bi_visibility"]
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          default_filters?: Json
+          description?: string
+          id?: string
+          is_default?: boolean
+          name?: string
+          organization_id?: string
+          owner_id?: string | null
+          updated_at?: string
+          visibility?: Database["public"]["Enums"]["bi_visibility"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_dashboards_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_dashboards_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_dashboards_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bi_facts: {
+        Row: {
+          billable_amount: number | null
+          channel: string | null
+          cogs: number | null
+          commission: number | null
+          company_id: string | null
+          cost_methodology: string | null
+          cost_version_id: string | null
+          created_at: string
+          domain: Database["public"]["Enums"]["bi_domain"]
+          extra: Json
+          fact_date: string
+          fact_nature: string
+          fees: number | null
+          freight: number | null
+          gross_amount: number
+          id: string
+          location_id: string | null
+          margin: number | null
+          margin_percent: number | null
+          net_amount: number | null
+          occurred_at: string | null
+          opportunity_id: string | null
+          organization_id: string
+          other_cost: number | null
+          partner_id: string | null
+          product_id: string | null
+          quality: string
+          quality_notes: string
+          quantity: number
+          reconciliation_id: string | null
+          representative_id: string | null
+          sales_order_id: string | null
+          source_id: string
+          source_table: string
+          source_watermark: string
+          status: Database["public"]["Enums"]["bi_fact_status"]
+          store_id: string | null
+          tax: number | null
+          updated_at: string
+          variant_id: string | null
+        }
+        Insert: {
+          billable_amount?: number | null
+          channel?: string | null
+          cogs?: number | null
+          commission?: number | null
+          company_id?: string | null
+          cost_methodology?: string | null
+          cost_version_id?: string | null
+          created_at?: string
+          domain: Database["public"]["Enums"]["bi_domain"]
+          extra?: Json
+          fact_date: string
+          fact_nature: string
+          fees?: number | null
+          freight?: number | null
+          gross_amount?: number
+          id?: string
+          location_id?: string | null
+          margin?: number | null
+          margin_percent?: number | null
+          net_amount?: number | null
+          occurred_at?: string | null
+          opportunity_id?: string | null
+          organization_id: string
+          other_cost?: number | null
+          partner_id?: string | null
+          product_id?: string | null
+          quality?: string
+          quality_notes?: string
+          quantity?: number
+          reconciliation_id?: string | null
+          representative_id?: string | null
+          sales_order_id?: string | null
+          source_id: string
+          source_table: string
+          source_watermark?: string
+          status?: Database["public"]["Enums"]["bi_fact_status"]
+          store_id?: string | null
+          tax?: number | null
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Update: {
+          billable_amount?: number | null
+          channel?: string | null
+          cogs?: number | null
+          commission?: number | null
+          company_id?: string | null
+          cost_methodology?: string | null
+          cost_version_id?: string | null
+          created_at?: string
+          domain?: Database["public"]["Enums"]["bi_domain"]
+          extra?: Json
+          fact_date?: string
+          fact_nature?: string
+          fees?: number | null
+          freight?: number | null
+          gross_amount?: number
+          id?: string
+          location_id?: string | null
+          margin?: number | null
+          margin_percent?: number | null
+          net_amount?: number | null
+          occurred_at?: string | null
+          opportunity_id?: string | null
+          organization_id?: string
+          other_cost?: number | null
+          partner_id?: string | null
+          product_id?: string | null
+          quality?: string
+          quality_notes?: string
+          quantity?: number
+          reconciliation_id?: string | null
+          representative_id?: string | null
+          sales_order_id?: string | null
+          source_id?: string
+          source_table?: string
+          source_watermark?: string
+          status?: Database["public"]["Enums"]["bi_fact_status"]
+          store_id?: string | null
+          tax?: number | null
+          updated_at?: string
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_facts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_facts_cost_version_id_fkey"
+            columns: ["cost_version_id"]
+            isOneToOne: false
+            referencedRelation: "product_cost_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_facts_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_facts_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_positions"
+            referencedColumns: ["location_id"]
+          },
+          {
+            foreignKeyName: "bi_facts_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "sales_opportunities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_facts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_facts_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partner_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_facts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_positions"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "bi_facts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_facts_reconciliation_id_fkey"
+            columns: ["reconciliation_id"]
+            isOneToOne: false
+            referencedRelation: "partner_reconciliations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_facts_representative_id_fkey"
+            columns: ["representative_id"]
+            isOneToOne: false
+            referencedRelation: "sales_representatives"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_facts_sales_order_id_fkey"
+            columns: ["sales_order_id"]
+            isOneToOne: false
+            referencedRelation: "sales_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_facts_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_facts_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_positions"
+            referencedColumns: ["variant_id"]
+          },
+          {
+            foreignKeyName: "bi_facts_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bi_inventory_daily_balance: {
+        Row: {
+          available: number
+          balance: number
+          balance_date: string
+          created_at: string
+          id: string
+          last_movement_at: string | null
+          last_sale_at: string | null
+          location_id: string
+          location_type: Database["public"]["Enums"]["inventory_location_type"]
+          movements_in: number
+          movements_out: number
+          organization_id: string
+          partner_id: string | null
+          reserved: number
+          source_watermark: string
+          unit: string
+          updated_at: string
+          valuation_amount: number
+          valuation_quantity: number
+          variant_id: string
+        }
+        Insert: {
+          available?: number
+          balance?: number
+          balance_date: string
+          created_at?: string
+          id?: string
+          last_movement_at?: string | null
+          last_sale_at?: string | null
+          location_id: string
+          location_type: Database["public"]["Enums"]["inventory_location_type"]
+          movements_in?: number
+          movements_out?: number
+          organization_id: string
+          partner_id?: string | null
+          reserved?: number
+          source_watermark?: string
+          unit?: string
+          updated_at?: string
+          valuation_amount?: number
+          valuation_quantity?: number
+          variant_id: string
+        }
+        Update: {
+          available?: number
+          balance?: number
+          balance_date?: string
+          created_at?: string
+          id?: string
+          last_movement_at?: string | null
+          last_sale_at?: string | null
+          location_id?: string
+          location_type?: Database["public"]["Enums"]["inventory_location_type"]
+          movements_in?: number
+          movements_out?: number
+          organization_id?: string
+          partner_id?: string | null
+          reserved?: number
+          source_watermark?: string
+          unit?: string
+          updated_at?: string
+          valuation_amount?: number
+          valuation_quantity?: number
+          variant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_inventory_daily_balance_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_inventory_daily_balance_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_positions"
+            referencedColumns: ["location_id"]
+          },
+          {
+            foreignKeyName: "bi_inventory_daily_balance_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_inventory_daily_balance_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_positions"
+            referencedColumns: ["variant_id"]
+          },
+          {
+            foreignKeyName: "bi_inventory_daily_balance_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bi_metric_definitions: {
+        Row: {
+          aggregation_method: string
+          available_filters: string[]
+          business_domain: Database["public"]["Enums"]["bi_domain"]
+          compatible_dimensions: string[]
+          created_at: string
+          created_by: string | null
+          date_dimension: string
+          description: string
+          formula: string
+          granularity: string
+          id: string
+          limitations: string
+          metric_key: string
+          metric_name: string
+          organization_id: string | null
+          periodicity: string
+          source_description: string
+          status: Database["public"]["Enums"]["bi_metric_status"]
+          unit: string
+          updated_at: string
+          updated_by: string | null
+          version: number
+        }
+        Insert: {
+          aggregation_method: string
+          available_filters?: string[]
+          business_domain: Database["public"]["Enums"]["bi_domain"]
+          compatible_dimensions?: string[]
+          created_at?: string
+          created_by?: string | null
+          date_dimension: string
+          description: string
+          formula: string
+          granularity?: string
+          id?: string
+          limitations?: string
+          metric_key: string
+          metric_name: string
+          organization_id?: string | null
+          periodicity: string
+          source_description: string
+          status?: Database["public"]["Enums"]["bi_metric_status"]
+          unit: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Update: {
+          aggregation_method?: string
+          available_filters?: string[]
+          business_domain?: Database["public"]["Enums"]["bi_domain"]
+          compatible_dimensions?: string[]
+          created_at?: string
+          created_by?: string | null
+          date_dimension?: string
+          description?: string
+          formula?: string
+          granularity?: string
+          id?: string
+          limitations?: string
+          metric_key?: string
+          metric_name?: string
+          organization_id?: string | null
+          periodicity?: string
+          source_description?: string
+          status?: Database["public"]["Enums"]["bi_metric_status"]
+          unit?: string
+          updated_at?: string
+          updated_by?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_metric_definitions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_metric_definitions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_metric_definitions_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bi_metric_revisions: {
+        Row: {
+          change_reason: string
+          created_at: string
+          created_by: string | null
+          formula: string
+          id: string
+          metric_definition_id: string
+          organization_id: string
+          snapshot: Json
+          version: number
+        }
+        Insert: {
+          change_reason: string
+          created_at?: string
+          created_by?: string | null
+          formula: string
+          id?: string
+          metric_definition_id: string
+          organization_id: string
+          snapshot?: Json
+          version: number
+        }
+        Update: {
+          change_reason?: string
+          created_at?: string
+          created_by?: string | null
+          formula?: string
+          id?: string
+          metric_definition_id?: string
+          organization_id?: string
+          snapshot?: Json
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_metric_revisions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_metric_revisions_metric_definition_id_fkey"
+            columns: ["metric_definition_id"]
+            isOneToOne: false
+            referencedRelation: "bi_metric_definitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_metric_revisions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bi_processed_events: {
+        Row: {
+          domain: Database["public"]["Enums"]["bi_domain"]
+          event_key: string
+          id: string
+          organization_id: string
+          processed_at: string
+          processing_run_id: string | null
+          result: string
+        }
+        Insert: {
+          domain: Database["public"]["Enums"]["bi_domain"]
+          event_key: string
+          id?: string
+          organization_id: string
+          processed_at?: string
+          processing_run_id?: string | null
+          result?: string
+        }
+        Update: {
+          domain?: Database["public"]["Enums"]["bi_domain"]
+          event_key?: string
+          id?: string
+          organization_id?: string
+          processed_at?: string
+          processing_run_id?: string | null
+          result?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_processed_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_processed_events_processing_run_id_fkey"
+            columns: ["processing_run_id"]
+            isOneToOne: false
+            referencedRelation: "bi_processing_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bi_processing_runs: {
+        Row: {
+          domain: Database["public"]["Enums"]["bi_domain"] | null
+          error_details: Json
+          finished_at: string | null
+          id: string
+          mode: string
+          organization_id: string
+          period_end: string | null
+          period_start: string | null
+          processed_records: number
+          source_watermark: string | null
+          started_at: string
+          started_by: string | null
+          status: Database["public"]["Enums"]["bi_run_status"]
+        }
+        Insert: {
+          domain?: Database["public"]["Enums"]["bi_domain"] | null
+          error_details?: Json
+          finished_at?: string | null
+          id?: string
+          mode: string
+          organization_id: string
+          period_end?: string | null
+          period_start?: string | null
+          processed_records?: number
+          source_watermark?: string | null
+          started_at?: string
+          started_by?: string | null
+          status?: Database["public"]["Enums"]["bi_run_status"]
+        }
+        Update: {
+          domain?: Database["public"]["Enums"]["bi_domain"] | null
+          error_details?: Json
+          finished_at?: string | null
+          id?: string
+          mode?: string
+          organization_id?: string
+          period_end?: string | null
+          period_start?: string | null
+          processed_records?: number
+          source_watermark?: string | null
+          started_at?: string
+          started_by?: string | null
+          status?: Database["public"]["Enums"]["bi_run_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_processing_runs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_processing_runs_started_by_fkey"
+            columns: ["started_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bi_quality_issues: {
+        Row: {
+          check_key: string
+          details: Json
+          domain: Database["public"]["Enums"]["bi_domain"]
+          entity: string
+          entity_id: string
+          first_seen_at: string
+          id: string
+          last_seen_at: string
+          message: string
+          organization_id: string
+          resolved_at: string | null
+          severity: Database["public"]["Enums"]["bi_severity"]
+          status: Database["public"]["Enums"]["bi_issue_status"]
+        }
+        Insert: {
+          check_key: string
+          details?: Json
+          domain: Database["public"]["Enums"]["bi_domain"]
+          entity: string
+          entity_id: string
+          first_seen_at?: string
+          id?: string
+          last_seen_at?: string
+          message: string
+          organization_id: string
+          resolved_at?: string | null
+          severity: Database["public"]["Enums"]["bi_severity"]
+          status?: Database["public"]["Enums"]["bi_issue_status"]
+        }
+        Update: {
+          check_key?: string
+          details?: Json
+          domain?: Database["public"]["Enums"]["bi_domain"]
+          entity?: string
+          entity_id?: string
+          first_seen_at?: string
+          id?: string
+          last_seen_at?: string
+          message?: string
+          organization_id?: string
+          resolved_at?: string | null
+          severity?: Database["public"]["Enums"]["bi_severity"]
+          status?: Database["public"]["Enums"]["bi_issue_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_quality_issues_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bi_settings: {
+        Row: {
+          abc_a_limit: number
+          abc_b_limit: number
+          default_period: string
+          organization_id: string
+          period_end_exclusive: boolean
+          timezone: string
+          updated_at: string
+          updated_by: string | null
+          xyz_min_observations: number
+          xyz_x_limit: number
+          xyz_y_limit: number
+        }
+        Insert: {
+          abc_a_limit?: number
+          abc_b_limit?: number
+          default_period?: string
+          organization_id: string
+          period_end_exclusive?: boolean
+          timezone?: string
+          updated_at?: string
+          updated_by?: string | null
+          xyz_min_observations?: number
+          xyz_x_limit?: number
+          xyz_y_limit?: number
+        }
+        Update: {
+          abc_a_limit?: number
+          abc_b_limit?: number
+          default_period?: string
+          organization_id?: string
+          period_end_exclusive?: boolean
+          timezone?: string
+          updated_at?: string
+          updated_by?: string | null
+          xyz_min_observations?: number
+          xyz_x_limit?: number
+          xyz_y_limit?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_settings_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_settings_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bi_targets: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string | null
+          dimension: string
+          dimension_value: string | null
+          id: string
+          metric_key: string
+          note: string
+          organization_id: string
+          period: string
+          period_end: string
+          period_start: string
+          status: string
+          target_value: number
+          unit: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          dimension?: string
+          dimension_value?: string | null
+          id?: string
+          metric_key: string
+          note?: string
+          organization_id: string
+          period: string
+          period_end: string
+          period_start: string
+          status?: string
+          target_value: number
+          unit: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          dimension?: string
+          dimension_value?: string | null
+          id?: string
+          metric_key?: string
+          note?: string
+          organization_id?: string
+          period?: string
+          period_end?: string
+          period_start?: string
+          status?: string
+          target_value?: number
+          unit?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_targets_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_targets_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_targets_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bi_user_preferences: {
+        Row: {
+          default_channels: string[]
+          default_location_ids: string[]
+          default_period: string | null
+          favorite_metric_keys: string[]
+          id: string
+          organization_id: string
+          updated_at: string
+          user_id: string
+          widget_order: Json
+        }
+        Insert: {
+          default_channels?: string[]
+          default_location_ids?: string[]
+          default_period?: string | null
+          favorite_metric_keys?: string[]
+          id?: string
+          organization_id: string
+          updated_at?: string
+          user_id: string
+          widget_order?: Json
+        }
+        Update: {
+          default_channels?: string[]
+          default_location_ids?: string[]
+          default_period?: string | null
+          favorite_metric_keys?: string[]
+          id?: string
+          organization_id?: string
+          updated_at?: string
+          user_id?: string
+          widget_order?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_user_preferences_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_user_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bi_xyz_classification: {
+        Row: {
+          class: Database["public"]["Enums"]["bi_xyz_class"]
+          coefficient_of_variation: number | null
+          created_at: string
+          created_by: string | null
+          id: string
+          mean_value: number | null
+          observations: number
+          organization_id: string
+          parameters: Json
+          period_end: string
+          period_granularity: string
+          period_start: string
+          product_id: string | null
+          reason: string
+          stddev_value: number | null
+          variant_id: string | null
+        }
+        Insert: {
+          class: Database["public"]["Enums"]["bi_xyz_class"]
+          coefficient_of_variation?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          mean_value?: number | null
+          observations: number
+          organization_id: string
+          parameters: Json
+          period_end: string
+          period_granularity: string
+          period_start: string
+          product_id?: string | null
+          reason?: string
+          stddev_value?: number | null
+          variant_id?: string | null
+        }
+        Update: {
+          class?: Database["public"]["Enums"]["bi_xyz_class"]
+          coefficient_of_variation?: number | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          mean_value?: number | null
+          observations?: number
+          organization_id?: string
+          parameters?: Json
+          period_end?: string
+          period_granularity?: string
+          period_start?: string
+          product_id?: string | null
+          reason?: string
+          stddev_value?: number | null
+          variant_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bi_xyz_classification_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_xyz_classification_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_xyz_classification_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_positions"
+            referencedColumns: ["product_id"]
+          },
+          {
+            foreignKeyName: "bi_xyz_classification_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bi_xyz_classification_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_positions"
+            referencedColumns: ["variant_id"]
+          },
+          {
+            foreignKeyName: "bi_xyz_classification_variant_id_fkey"
+            columns: ["variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bill_of_materials: {
         Row: {
           approved_at: string | null
@@ -1280,6 +2554,114 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_fiscal_profiles: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          effective_from: string
+          effective_to: string | null
+          email_fiscal: string | null
+          id: string
+          ie_status: string | null
+          is_final_consumer: boolean
+          municipal_registration: string | null
+          notes: string | null
+          organization_id: string
+          phone_fiscal: string | null
+          state_registration: string | null
+          status: Database["public"]["Enums"]["tax_rule_status"]
+          tax_regime_id: string | null
+          tax_registration: string | null
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          email_fiscal?: string | null
+          id?: string
+          ie_status?: string | null
+          is_final_consumer?: boolean
+          municipal_registration?: string | null
+          notes?: string | null
+          organization_id: string
+          phone_fiscal?: string | null
+          state_registration?: string | null
+          status?: Database["public"]["Enums"]["tax_rule_status"]
+          tax_regime_id?: string | null
+          tax_registration?: string | null
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          email_fiscal?: string | null
+          id?: string
+          ie_status?: string | null
+          is_final_consumer?: boolean
+          municipal_registration?: string | null
+          notes?: string | null
+          organization_id?: string
+          phone_fiscal?: string | null
+          state_registration?: string | null
+          status?: Database["public"]["Enums"]["tax_rule_status"]
+          tax_regime_id?: string | null
+          tax_registration?: string | null
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_fiscal_profiles_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_fiscal_profiles_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_fiscal_profiles_organization_id_company_id_fkey"
+            columns: ["organization_id", "company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "company_fiscal_profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_fiscal_profiles_organization_id_tax_regime_id_fkey"
+            columns: ["organization_id", "tax_regime_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_tax_regimes"
+            referencedColumns: ["organization_id", "id"]
           },
         ]
       }
@@ -2994,6 +4376,1320 @@ export type Database = {
           },
         ]
       }
+      fiscal_document_items: {
+        Row: {
+          classification_snapshot: Json
+          description: string
+          discount: number
+          document_id: string
+          fiscal_unit: string
+          freight: number
+          id: string
+          organization_id: string
+          product_variant_id: string
+          quantity: number
+          source_item_id: string
+          tax_snapshot: Json
+          total_amount: number
+          unit_price: number
+        }
+        Insert: {
+          classification_snapshot: Json
+          description: string
+          discount?: number
+          document_id: string
+          fiscal_unit: string
+          freight?: number
+          id?: string
+          organization_id: string
+          product_variant_id: string
+          quantity: number
+          source_item_id: string
+          tax_snapshot: Json
+          total_amount: number
+          unit_price: number
+        }
+        Update: {
+          classification_snapshot?: Json
+          description?: string
+          discount?: number
+          document_id?: string
+          fiscal_unit?: string
+          freight?: number
+          id?: string
+          organization_id?: string
+          product_variant_id?: string
+          quantity?: number
+          source_item_id?: string
+          tax_snapshot?: Json
+          total_amount?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_document_items_organization_id_document_id_fkey"
+            columns: ["organization_id", "document_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_documents"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fiscal_document_items_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_document_items_organization_id_product_variant_id_fkey"
+            columns: ["organization_id", "product_variant_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_positions"
+            referencedColumns: ["organization_id", "variant_id"]
+          },
+          {
+            foreignKeyName: "fiscal_document_items_organization_id_product_variant_id_fkey"
+            columns: ["organization_id", "product_variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      fiscal_documents: {
+        Row: {
+          access_key: string | null
+          approved_by: string | null
+          authorization_protocol: string | null
+          authorized_at: string | null
+          company_id: string
+          created_at: string
+          created_by: string
+          document_model: string
+          document_number: number | null
+          environment: Database["public"]["Enums"]["fiscal_environment"]
+          establishment_id: string
+          id: string
+          input_snapshot: Json
+          issue_date: string
+          layout_version_id: string
+          nature_id: string
+          operation_type_id: string
+          organization_id: string
+          pdf_storage_path: string | null
+          provider_id: string | null
+          series: string | null
+          source_id: string
+          source_type: string
+          status: Database["public"]["Enums"]["fiscal_document_status"]
+          total_amount: number
+          total_taxes: number
+          updated_at: string
+          validation_issues: Json
+          xml_storage_path: string | null
+        }
+        Insert: {
+          access_key?: string | null
+          approved_by?: string | null
+          authorization_protocol?: string | null
+          authorized_at?: string | null
+          company_id: string
+          created_at?: string
+          created_by: string
+          document_model: string
+          document_number?: number | null
+          environment: Database["public"]["Enums"]["fiscal_environment"]
+          establishment_id: string
+          id?: string
+          input_snapshot: Json
+          issue_date?: string
+          layout_version_id: string
+          nature_id: string
+          operation_type_id: string
+          organization_id: string
+          pdf_storage_path?: string | null
+          provider_id?: string | null
+          series?: string | null
+          source_id: string
+          source_type: string
+          status?: Database["public"]["Enums"]["fiscal_document_status"]
+          total_amount?: number
+          total_taxes?: number
+          updated_at?: string
+          validation_issues?: Json
+          xml_storage_path?: string | null
+        }
+        Update: {
+          access_key?: string | null
+          approved_by?: string | null
+          authorization_protocol?: string | null
+          authorized_at?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string
+          document_model?: string
+          document_number?: number | null
+          environment?: Database["public"]["Enums"]["fiscal_environment"]
+          establishment_id?: string
+          id?: string
+          input_snapshot?: Json
+          issue_date?: string
+          layout_version_id?: string
+          nature_id?: string
+          operation_type_id?: string
+          organization_id?: string
+          pdf_storage_path?: string | null
+          provider_id?: string | null
+          series?: string | null
+          source_id?: string
+          source_type?: string
+          status?: Database["public"]["Enums"]["fiscal_document_status"]
+          total_amount?: number
+          total_taxes?: number
+          updated_at?: string
+          validation_issues?: Json
+          xml_storage_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_documents_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_documents_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_documents_organization_id_company_id_fkey"
+            columns: ["organization_id", "company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fiscal_documents_organization_id_establishment_id_fkey"
+            columns: ["organization_id", "establishment_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_establishments"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fiscal_documents_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_documents_organization_id_layout_version_id_fkey"
+            columns: ["organization_id", "layout_version_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_layout_versions"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fiscal_documents_organization_id_nature_id_fkey"
+            columns: ["organization_id", "nature_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_operation_natures"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fiscal_documents_organization_id_operation_type_id_fkey"
+            columns: ["organization_id", "operation_type_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_operation_types"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fiscal_documents_organization_id_provider_id_fkey"
+            columns: ["organization_id", "provider_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_providers"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      fiscal_establishment_regime_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string
+          establishment_id: string
+          id: string
+          organization_id: string
+          reason: string | null
+          tax_regime_id: string | null
+          valid_from: string
+          valid_to: string | null
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string
+          establishment_id: string
+          id?: string
+          organization_id: string
+          reason?: string | null
+          tax_regime_id?: string | null
+          valid_from: string
+          valid_to?: string | null
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string
+          establishment_id?: string
+          id?: string
+          organization_id?: string
+          reason?: string | null
+          tax_regime_id?: string | null
+          valid_from?: string
+          valid_to?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_establishment_regime_h_organization_id_establishmen_fkey"
+            columns: ["organization_id", "establishment_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_establishments"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fiscal_establishment_regime_h_organization_id_tax_regime_i_fkey"
+            columns: ["organization_id", "tax_regime_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_tax_regimes"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fiscal_establishment_regime_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_establishment_regime_history_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiscal_establishments: {
+        Row: {
+          business_unit_id: string | null
+          company_id: string | null
+          created_at: string
+          created_by: string | null
+          environment: Database["public"]["Enums"]["fiscal_environment"]
+          fiscal_address_id: string | null
+          id: string
+          legal_name: string
+          municipal_registration: string | null
+          notes: string | null
+          organization_id: string
+          state_registration: string | null
+          status: string
+          tax_regime_id: string | null
+          tax_registration: string | null
+          trade_name: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          business_unit_id?: string | null
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          environment?: Database["public"]["Enums"]["fiscal_environment"]
+          fiscal_address_id?: string | null
+          id?: string
+          legal_name: string
+          municipal_registration?: string | null
+          notes?: string | null
+          organization_id: string
+          state_registration?: string | null
+          status?: string
+          tax_regime_id?: string | null
+          tax_registration?: string | null
+          trade_name?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          business_unit_id?: string | null
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          environment?: Database["public"]["Enums"]["fiscal_environment"]
+          fiscal_address_id?: string | null
+          id?: string
+          legal_name?: string
+          municipal_registration?: string | null
+          notes?: string | null
+          organization_id?: string
+          state_registration?: string | null
+          status?: string
+          tax_regime_id?: string | null
+          tax_registration?: string | null
+          trade_name?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_est_address_fk"
+            columns: ["organization_id", "fiscal_address_id"]
+            isOneToOne: false
+            referencedRelation: "company_addresses"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fiscal_est_company_fk"
+            columns: ["organization_id", "company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fiscal_establishments_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_establishments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_establishments_regime_fk"
+            columns: ["organization_id", "tax_regime_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_tax_regimes"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fiscal_establishments_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiscal_events: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          details: Json
+          document_id: string
+          event_type: string
+          evidence_path: string | null
+          from_status:
+            | Database["public"]["Enums"]["fiscal_document_status"]
+            | null
+          id: string
+          official_protocol: string | null
+          organization_id: string
+          to_status:
+            | Database["public"]["Enums"]["fiscal_document_status"]
+            | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          details?: Json
+          document_id: string
+          event_type: string
+          evidence_path?: string | null
+          from_status?:
+            | Database["public"]["Enums"]["fiscal_document_status"]
+            | null
+          id?: string
+          official_protocol?: string | null
+          organization_id: string
+          to_status?:
+            | Database["public"]["Enums"]["fiscal_document_status"]
+            | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          details?: Json
+          document_id?: string
+          event_type?: string
+          evidence_path?: string | null
+          from_status?:
+            | Database["public"]["Enums"]["fiscal_document_status"]
+            | null
+          id?: string
+          official_protocol?: string | null
+          organization_id?: string
+          to_status?:
+            | Database["public"]["Enums"]["fiscal_document_status"]
+            | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_events_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_events_organization_id_document_id_fkey"
+            columns: ["organization_id", "document_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_documents"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fiscal_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiscal_exceptions: {
+        Row: {
+          created_at: string
+          details: Json
+          document_id: string | null
+          exception_type: string
+          history: Json
+          id: string
+          organization_id: string
+          resolution: string | null
+          responsible_id: string | null
+          severity: string
+          source_id: string | null
+          source_type: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          details: Json
+          document_id?: string | null
+          exception_type: string
+          history?: Json
+          id?: string
+          organization_id: string
+          resolution?: string | null
+          responsible_id?: string | null
+          severity?: string
+          source_id?: string | null
+          source_type?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json
+          document_id?: string | null
+          exception_type?: string
+          history?: Json
+          id?: string
+          organization_id?: string
+          resolution?: string | null
+          responsible_id?: string | null
+          severity?: string
+          source_id?: string | null
+          source_type?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_exceptions_organization_id_document_id_fkey"
+            columns: ["organization_id", "document_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_documents"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fiscal_exceptions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_exceptions_responsible_id_fkey"
+            columns: ["responsible_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiscal_layout_versions: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string | null
+          document_model: string
+          homologation_notes: string | null
+          id: string
+          implanted_at: string | null
+          organization_id: string
+          published_at: string | null
+          reform_fields: Json
+          required_fields: Json
+          source_reference: string
+          status: string
+          updated_at: string
+          valid_from: string
+          valid_to: string | null
+          version: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          document_model: string
+          homologation_notes?: string | null
+          id?: string
+          implanted_at?: string | null
+          organization_id: string
+          published_at?: string | null
+          reform_fields?: Json
+          required_fields?: Json
+          source_reference: string
+          status?: string
+          updated_at?: string
+          valid_from: string
+          valid_to?: string | null
+          version: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          document_model?: string
+          homologation_notes?: string | null
+          id?: string
+          implanted_at?: string | null
+          organization_id?: string
+          published_at?: string | null
+          reform_fields?: Json
+          required_fields?: Json
+          source_reference?: string
+          status?: string
+          updated_at?: string
+          valid_from?: string
+          valid_to?: string | null
+          version?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_layout_versions_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_layout_versions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_layout_versions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiscal_number_sequences: {
+        Row: {
+          document_model: string
+          environment: Database["public"]["Enums"]["fiscal_environment"]
+          establishment_id: string
+          next_number: number
+          organization_id: string
+          series: string
+          updated_at: string
+        }
+        Insert: {
+          document_model: string
+          environment?: Database["public"]["Enums"]["fiscal_environment"]
+          establishment_id: string
+          next_number?: number
+          organization_id: string
+          series: string
+          updated_at?: string
+        }
+        Update: {
+          document_model?: string
+          environment?: Database["public"]["Enums"]["fiscal_environment"]
+          establishment_id?: string
+          next_number?: number
+          organization_id?: string
+          series?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_number_sequences_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiscal_operation_natures: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          cfop_code: string | null
+          created_at: string
+          created_by: string | null
+          document_model: string
+          establishment_id: string | null
+          fiscal_nature: string | null
+          id: string
+          justification: string | null
+          operation_type_id: string
+          organization_id: string
+          purpose: string | null
+          status: Database["public"]["Enums"]["tax_rule_status"]
+          updated_at: string
+          valid_from: string
+          valid_to: string | null
+          version: number
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          cfop_code?: string | null
+          created_at?: string
+          created_by?: string | null
+          document_model: string
+          establishment_id?: string | null
+          fiscal_nature?: string | null
+          id?: string
+          justification?: string | null
+          operation_type_id: string
+          organization_id: string
+          purpose?: string | null
+          status?: Database["public"]["Enums"]["tax_rule_status"]
+          updated_at?: string
+          valid_from?: string
+          valid_to?: string | null
+          version?: number
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          cfop_code?: string | null
+          created_at?: string
+          created_by?: string | null
+          document_model?: string
+          establishment_id?: string | null
+          fiscal_nature?: string | null
+          id?: string
+          justification?: string | null
+          operation_type_id?: string
+          organization_id?: string
+          purpose?: string | null
+          status?: Database["public"]["Enums"]["tax_rule_status"]
+          updated_at?: string
+          valid_from?: string
+          valid_to?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_operation_natures_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_operation_natures_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_operation_natures_organization_id_establishment_id_fkey"
+            columns: ["organization_id", "establishment_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_establishments"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fiscal_operation_natures_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_operation_natures_organization_id_operation_type_id_fkey"
+            columns: ["organization_id", "operation_type_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_operation_types"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      fiscal_operation_types: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          kind: Database["public"]["Enums"]["fiscal_operation_kind"]
+          label: string
+          organization_id: string
+          requires_document: boolean
+          requires_inventory_effect: boolean
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          kind: Database["public"]["Enums"]["fiscal_operation_kind"]
+          label: string
+          organization_id: string
+          requires_document?: boolean
+          requires_inventory_effect?: boolean
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          kind?: Database["public"]["Enums"]["fiscal_operation_kind"]
+          label?: string
+          organization_id?: string
+          requires_document?: boolean
+          requires_inventory_effect?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_operation_types_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_operation_types_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiscal_providers: {
+        Row: {
+          adapter_code: string
+          certificate_expires_at: string | null
+          created_at: string
+          environment: Database["public"]["Enums"]["fiscal_environment"]
+          establishment_id: string
+          id: string
+          name: string
+          organization_id: string
+          responsible_id: string | null
+          status: string
+        }
+        Insert: {
+          adapter_code: string
+          certificate_expires_at?: string | null
+          created_at?: string
+          environment: Database["public"]["Enums"]["fiscal_environment"]
+          establishment_id: string
+          id?: string
+          name: string
+          organization_id: string
+          responsible_id?: string | null
+          status?: string
+        }
+        Update: {
+          adapter_code?: string
+          certificate_expires_at?: string | null
+          created_at?: string
+          environment?: Database["public"]["Enums"]["fiscal_environment"]
+          establishment_id?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          responsible_id?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_providers_organization_id_establishment_id_fkey"
+            columns: ["organization_id", "establishment_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_establishments"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fiscal_providers_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_providers_responsible_id_fkey"
+            columns: ["responsible_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiscal_reconciliations: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          document_id: string | null
+          findings: Json
+          id: string
+          inbound_id: string | null
+          organization_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          document_id?: string | null
+          findings: Json
+          id?: string
+          inbound_id?: string | null
+          organization_id: string
+          status: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          document_id?: string | null
+          findings?: Json
+          id?: string
+          inbound_id?: string | null
+          organization_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_reconciliations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_reconciliations_organization_id_document_id_fkey"
+            columns: ["organization_id", "document_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_documents"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fiscal_reconciliations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_reconciliations_organization_id_inbound_id_fkey"
+            columns: ["organization_id", "inbound_id"]
+            isOneToOne: false
+            referencedRelation: "inbound_fiscal_documents"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      fiscal_region_profiles: {
+        Row: {
+          country_code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          organization_id: string
+          region_class: string | null
+          state_code: string | null
+          updated_at: string
+        }
+        Insert: {
+          country_code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          organization_id: string
+          region_class?: string | null
+          state_code?: string | null
+          updated_at?: string
+        }
+        Update: {
+          country_code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          organization_id?: string
+          region_class?: string | null
+          state_code?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_region_profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiscal_rule_regressions: {
+        Row: {
+          cases: Json
+          created_at: string
+          created_by: string
+          fingerprint: string
+          id: string
+          organization_id: string
+          passed: boolean
+          results: Json
+          rule_version: number
+          tax_rule_id: string
+        }
+        Insert: {
+          cases: Json
+          created_at?: string
+          created_by: string
+          fingerprint: string
+          id?: string
+          organization_id: string
+          passed: boolean
+          results: Json
+          rule_version: number
+          tax_rule_id: string
+        }
+        Update: {
+          cases?: Json
+          created_at?: string
+          created_by?: string
+          fingerprint?: string
+          id?: string
+          organization_id?: string
+          passed?: boolean
+          results?: Json
+          rule_version?: number
+          tax_rule_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_rule_regressions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_rule_regressions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_rule_regressions_organization_id_tax_rule_id_fkey"
+            columns: ["organization_id", "tax_rule_id"]
+            isOneToOne: false
+            referencedRelation: "tax_rules"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      fiscal_simulations: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          establishment_id: string | null
+          has_blocking_issue: boolean
+          id: string
+          input_snapshot: Json
+          operation_type_id: string | null
+          organization_id: string
+          requested_by: string | null
+          result: Json
+          warnings: Json
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          establishment_id?: string | null
+          has_blocking_issue?: boolean
+          id?: string
+          input_snapshot?: Json
+          operation_type_id?: string | null
+          organization_id: string
+          requested_by?: string | null
+          result?: Json
+          warnings?: Json
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          establishment_id?: string | null
+          has_blocking_issue?: boolean
+          id?: string
+          input_snapshot?: Json
+          operation_type_id?: string | null
+          organization_id?: string
+          requested_by?: string | null
+          result?: Json
+          warnings?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_simulations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_simulations_requested_by_fkey"
+            columns: ["requested_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiscal_tax_regimes: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          code: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          justification: string | null
+          label: string
+          notes: string | null
+          organization_id: string
+          updated_at: string
+          valid_from: string
+          valid_to: string | null
+          version: number
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          code: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          justification?: string | null
+          label: string
+          notes?: string | null
+          organization_id: string
+          updated_at?: string
+          valid_from?: string
+          valid_to?: string | null
+          version?: number
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          justification?: string | null
+          label?: string
+          notes?: string | null
+          organization_id?: string
+          updated_at?: string
+          valid_from?: string
+          valid_to?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_tax_regimes_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_tax_regimes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_tax_regimes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiscal_taxes: {
+        Row: {
+          applies_to: Json
+          calculation_base: string
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          is_recoverable_default: boolean | null
+          is_tax: boolean
+          label: string
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          applies_to?: Json
+          calculation_base?: string
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_recoverable_default?: boolean | null
+          is_tax?: boolean
+          label: string
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          applies_to?: Json
+          calculation_base?: string
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          is_recoverable_default?: boolean | null
+          is_tax?: boolean
+          label?: string
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_taxes_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fiscal_transmission_attempts: {
+        Row: {
+          created_at: string
+          document_id: string
+          environment: Database["public"]["Enums"]["fiscal_environment"]
+          id: string
+          idempotency_key: string
+          operation: string
+          organization_id: string
+          provider_id: string | null
+          remote_id: string | null
+          response_code: string | null
+          state: string
+        }
+        Insert: {
+          created_at?: string
+          document_id: string
+          environment: Database["public"]["Enums"]["fiscal_environment"]
+          id?: string
+          idempotency_key: string
+          operation: string
+          organization_id: string
+          provider_id?: string | null
+          remote_id?: string | null
+          response_code?: string | null
+          state: string
+        }
+        Update: {
+          created_at?: string
+          document_id?: string
+          environment?: Database["public"]["Enums"]["fiscal_environment"]
+          id?: string
+          idempotency_key?: string
+          operation?: string
+          organization_id?: string
+          provider_id?: string | null
+          remote_id?: string | null
+          response_code?: string | null
+          state?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_transmission_attempts_organization_id_document_id_fkey"
+            columns: ["organization_id", "document_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_documents"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fiscal_transmission_attempts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fiscal_transmission_attempts_organization_id_provider_id_fkey"
+            columns: ["organization_id", "provider_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_providers"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
       forecast_adjustments: {
         Row: {
           adjustment_date: string
@@ -3379,6 +6075,122 @@ export type Database = {
           },
         ]
       }
+      inbound_fiscal_documents: {
+        Row: {
+          access_key: string
+          account_payable_id: string | null
+          authenticity_status: string
+          created_at: string
+          created_by: string | null
+          document_type: string
+          environment: Database["public"]["Enums"]["fiscal_environment"]
+          establishment_id: string
+          goods_receipt_id: string | null
+          id: string
+          issue_date: string
+          organization_id: string
+          parsed_snapshot: Json
+          status: string
+          supplier_document_id: string | null
+          supplier_id: string
+          total_amount: number
+          xml_hash: string
+          xml_storage_path: string
+        }
+        Insert: {
+          access_key: string
+          account_payable_id?: string | null
+          authenticity_status?: string
+          created_at?: string
+          created_by?: string | null
+          document_type?: string
+          environment: Database["public"]["Enums"]["fiscal_environment"]
+          establishment_id: string
+          goods_receipt_id?: string | null
+          id?: string
+          issue_date: string
+          organization_id: string
+          parsed_snapshot: Json
+          status?: string
+          supplier_document_id?: string | null
+          supplier_id: string
+          total_amount: number
+          xml_hash: string
+          xml_storage_path: string
+        }
+        Update: {
+          access_key?: string
+          account_payable_id?: string | null
+          authenticity_status?: string
+          created_at?: string
+          created_by?: string | null
+          document_type?: string
+          environment?: Database["public"]["Enums"]["fiscal_environment"]
+          establishment_id?: string
+          goods_receipt_id?: string | null
+          id?: string
+          issue_date?: string
+          organization_id?: string
+          parsed_snapshot?: Json
+          status?: string
+          supplier_document_id?: string | null
+          supplier_id?: string
+          total_amount?: number
+          xml_hash?: string
+          xml_storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inbound_fiscal_documents_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inbound_fiscal_documents_goods_receipt_id_fkey"
+            columns: ["goods_receipt_id"]
+            isOneToOne: false
+            referencedRelation: "goods_receipts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inbound_fiscal_documents_organization_id_account_payable_i_fkey"
+            columns: ["organization_id", "account_payable_id"]
+            isOneToOne: false
+            referencedRelation: "account_payables"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "inbound_fiscal_documents_organization_id_establishment_id_fkey"
+            columns: ["organization_id", "establishment_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_establishments"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "inbound_fiscal_documents_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inbound_fiscal_documents_supplier_document_id_fkey"
+            columns: ["supplier_document_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_documents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inbound_fiscal_documents_supplier_id_fkey"
+            columns: ["supplier_id"]
+            isOneToOne: false
+            referencedRelation: "supplier_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       inventory_batches: {
         Row: {
           batch_code: string
@@ -3596,6 +6408,7 @@ export type Database = {
           code: string
           created_at: string
           created_by: string | null
+          fiscal_establishment_id: string | null
           id: string
           marketplace_store_id: string | null
           name: string
@@ -3612,6 +6425,7 @@ export type Database = {
           code: string
           created_at?: string
           created_by?: string | null
+          fiscal_establishment_id?: string | null
           id?: string
           marketplace_store_id?: string | null
           name: string
@@ -3628,6 +6442,7 @@ export type Database = {
           code?: string
           created_at?: string
           created_by?: string | null
+          fiscal_establishment_id?: string | null
           id?: string
           marketplace_store_id?: string | null
           name?: string
@@ -3640,6 +6455,13 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "inventory_fiscal_establishment_fk"
+            columns: ["organization_id", "fiscal_establishment_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_establishments"
+            referencedColumns: ["organization_id", "id"]
+          },
           {
             foreignKeyName: "inventory_locations_created_by_fkey"
             columns: ["created_by"]
@@ -7901,6 +10723,111 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "product_variants"
             referencedColumns: ["id"]
+          },
+        ]
+      }
+      product_fiscal_profiles: {
+        Row: {
+          additional_classification: Json
+          approved_at: string | null
+          approved_by: string | null
+          cest: string | null
+          created_at: string
+          created_by: string | null
+          effective_from: string
+          effective_to: string | null
+          fiscal_unit: string
+          id: string
+          justification: string | null
+          ncm: string
+          organization_id: string
+          origin_code: number
+          product_variant_id: string
+          status: Database["public"]["Enums"]["tax_rule_status"]
+          tax_classification: string | null
+          tax_treatment: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          additional_classification?: Json
+          approved_at?: string | null
+          approved_by?: string | null
+          cest?: string | null
+          created_at?: string
+          created_by?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          fiscal_unit: string
+          id?: string
+          justification?: string | null
+          ncm: string
+          organization_id: string
+          origin_code: number
+          product_variant_id: string
+          status?: Database["public"]["Enums"]["tax_rule_status"]
+          tax_classification?: string | null
+          tax_treatment?: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          additional_classification?: Json
+          approved_at?: string | null
+          approved_by?: string | null
+          cest?: string | null
+          created_at?: string
+          created_by?: string | null
+          effective_from?: string
+          effective_to?: string | null
+          fiscal_unit?: string
+          id?: string
+          justification?: string | null
+          ncm?: string
+          organization_id?: string
+          origin_code?: number
+          product_variant_id?: string
+          status?: Database["public"]["Enums"]["tax_rule_status"]
+          tax_classification?: string | null
+          tax_treatment?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_fiscal_profiles_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_fiscal_profiles_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_fiscal_profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_fiscal_profiles_organization_id_product_variant_id_fkey"
+            columns: ["organization_id", "product_variant_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_positions"
+            referencedColumns: ["organization_id", "variant_id"]
+          },
+          {
+            foreignKeyName: "product_fiscal_profiles_organization_id_product_variant_id_fkey"
+            columns: ["organization_id", "product_variant_id"]
+            isOneToOne: false
+            referencedRelation: "product_variants"
+            referencedColumns: ["organization_id", "id"]
           },
         ]
       }
@@ -12637,6 +15564,402 @@ export type Database = {
           },
         ]
       }
+      tax_calculation_snapshots: {
+        Row: {
+          base_amount: number
+          base_mode: string | null
+          created_at: string
+          document_id: string | null
+          document_item_id: string | null
+          fixed_amount: number
+          id: string
+          is_recoverable: boolean | null
+          is_simulation: boolean
+          is_withheld: boolean
+          layout_version_id: string | null
+          organization_id: string
+          parameter_origin: Json
+          rate: number | null
+          raw_amount: number | null
+          reduction: number | null
+          rounded_amount: number | null
+          simulation_id: string | null
+          tax_id: string | null
+          tax_rule_id: string | null
+          tax_rule_valid_from: string | null
+          tax_rule_version: number | null
+          treatment_code: string | null
+        }
+        Insert: {
+          base_amount?: number
+          base_mode?: string | null
+          created_at?: string
+          document_id?: string | null
+          document_item_id?: string | null
+          fixed_amount?: number
+          id?: string
+          is_recoverable?: boolean | null
+          is_simulation?: boolean
+          is_withheld?: boolean
+          layout_version_id?: string | null
+          organization_id: string
+          parameter_origin?: Json
+          rate?: number | null
+          raw_amount?: number | null
+          reduction?: number | null
+          rounded_amount?: number | null
+          simulation_id?: string | null
+          tax_id?: string | null
+          tax_rule_id?: string | null
+          tax_rule_valid_from?: string | null
+          tax_rule_version?: number | null
+          treatment_code?: string | null
+        }
+        Update: {
+          base_amount?: number
+          base_mode?: string | null
+          created_at?: string
+          document_id?: string | null
+          document_item_id?: string | null
+          fixed_amount?: number
+          id?: string
+          is_recoverable?: boolean | null
+          is_simulation?: boolean
+          is_withheld?: boolean
+          layout_version_id?: string | null
+          organization_id?: string
+          parameter_origin?: Json
+          rate?: number | null
+          raw_amount?: number | null
+          reduction?: number | null
+          rounded_amount?: number | null
+          simulation_id?: string | null
+          tax_id?: string | null
+          tax_rule_id?: string | null
+          tax_rule_valid_from?: string | null
+          tax_rule_version?: number | null
+          treatment_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fiscal_snapshot_document_fk"
+            columns: ["organization_id", "document_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_documents"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "fiscal_snapshot_item_fk"
+            columns: ["organization_id", "document_item_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_document_items"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "tax_calculation_snapshots_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tax_rule_items: {
+        Row: {
+          base_mode: string
+          created_at: string
+          fixed_amount: number
+          id: string
+          is_recoverable: boolean | null
+          is_withheld: boolean
+          notes: string | null
+          organization_id: string
+          rate: number
+          reduction: number
+          tax_id: string
+          tax_rule_id: string
+          treatment_code: string | null
+        }
+        Insert: {
+          base_mode?: string
+          created_at?: string
+          fixed_amount?: number
+          id?: string
+          is_recoverable?: boolean | null
+          is_withheld?: boolean
+          notes?: string | null
+          organization_id: string
+          rate?: number
+          reduction?: number
+          tax_id: string
+          tax_rule_id: string
+          treatment_code?: string | null
+        }
+        Update: {
+          base_mode?: string
+          created_at?: string
+          fixed_amount?: number
+          id?: string
+          is_recoverable?: boolean | null
+          is_withheld?: boolean
+          notes?: string | null
+          organization_id?: string
+          rate?: number
+          reduction?: number
+          tax_id?: string
+          tax_rule_id?: string
+          treatment_code?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_rule_items_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_rule_items_organization_id_tax_id_fkey"
+            columns: ["organization_id", "tax_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_taxes"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "tax_rule_items_organization_id_tax_rule_id_fkey"
+            columns: ["organization_id", "tax_rule_id"]
+            isOneToOne: false
+            referencedRelation: "tax_rules"
+            referencedColumns: ["organization_id", "id"]
+          },
+        ]
+      }
+      tax_rule_reviews: {
+        Row: {
+          created_at: string
+          decision: string
+          from_status: Database["public"]["Enums"]["tax_rule_status"]
+          id: string
+          justification: string
+          organization_id: string
+          regression_evidence: Json
+          reviewed_by: string | null
+          tax_rule_id: string
+          to_status: Database["public"]["Enums"]["tax_rule_status"]
+        }
+        Insert: {
+          created_at?: string
+          decision: string
+          from_status: Database["public"]["Enums"]["tax_rule_status"]
+          id?: string
+          justification: string
+          organization_id: string
+          regression_evidence?: Json
+          reviewed_by?: string | null
+          tax_rule_id: string
+          to_status: Database["public"]["Enums"]["tax_rule_status"]
+        }
+        Update: {
+          created_at?: string
+          decision?: string
+          from_status?: Database["public"]["Enums"]["tax_rule_status"]
+          id?: string
+          justification?: string
+          organization_id?: string
+          regression_evidence?: Json
+          reviewed_by?: string | null
+          tax_rule_id?: string
+          to_status?: Database["public"]["Enums"]["tax_rule_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_rule_reviews_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_rule_reviews_organization_id_tax_rule_id_fkey"
+            columns: ["organization_id", "tax_rule_id"]
+            isOneToOne: false
+            referencedRelation: "tax_rules"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "tax_rule_reviews_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tax_rules: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          created_by: string | null
+          customer_company_id: string | null
+          destination_region_id: string | null
+          document_model: string | null
+          establishment_id: string | null
+          id: string
+          justification: string | null
+          layout_version_id: string | null
+          operation_type_id: string
+          organization_id: string
+          origin_region_id: string | null
+          priority: number
+          product_classification: string | null
+          retired_at: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["tax_rule_status"]
+          tax_parameters: Json
+          tax_regime_id: string | null
+          updated_at: string
+          valid_from: string
+          valid_to: string | null
+          version: number
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_company_id?: string | null
+          destination_region_id?: string | null
+          document_model?: string | null
+          establishment_id?: string | null
+          id?: string
+          justification?: string | null
+          layout_version_id?: string | null
+          operation_type_id: string
+          organization_id: string
+          origin_region_id?: string | null
+          priority?: number
+          product_classification?: string | null
+          retired_at?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["tax_rule_status"]
+          tax_parameters?: Json
+          tax_regime_id?: string | null
+          updated_at?: string
+          valid_from?: string
+          valid_to?: string | null
+          version?: number
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          created_by?: string | null
+          customer_company_id?: string | null
+          destination_region_id?: string | null
+          document_model?: string | null
+          establishment_id?: string | null
+          id?: string
+          justification?: string | null
+          layout_version_id?: string | null
+          operation_type_id?: string
+          organization_id?: string
+          origin_region_id?: string | null
+          priority?: number
+          product_classification?: string | null
+          retired_at?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["tax_rule_status"]
+          tax_parameters?: Json
+          tax_regime_id?: string | null
+          updated_at?: string
+          valid_from?: string
+          valid_to?: string | null
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tax_rules_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_rules_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_rules_layout_fk"
+            columns: ["organization_id", "layout_version_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_layout_versions"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "tax_rules_organization_id_customer_company_id_fkey"
+            columns: ["organization_id", "customer_company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "tax_rules_organization_id_destination_region_id_fkey"
+            columns: ["organization_id", "destination_region_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_region_profiles"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "tax_rules_organization_id_establishment_id_fkey"
+            columns: ["organization_id", "establishment_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_establishments"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "tax_rules_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tax_rules_organization_id_operation_type_id_fkey"
+            columns: ["organization_id", "operation_type_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_operation_types"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "tax_rules_organization_id_origin_region_id_fkey"
+            columns: ["organization_id", "origin_region_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_region_profiles"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "tax_rules_organization_id_tax_regime_id_fkey"
+            columns: ["organization_id", "tax_regime_id"]
+            isOneToOne: false
+            referencedRelation: "fiscal_tax_regimes"
+            referencedColumns: ["organization_id", "id"]
+          },
+          {
+            foreignKeyName: "tax_rules_reviewed_by_fkey"
+            columns: ["reviewed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       unit_conversions: {
         Row: {
           created_at: string
@@ -12895,6 +16218,183 @@ export type Database = {
       }
     }
     Functions: {
+      bi_aggregate: {
+        Args: {
+          _dim?: string
+          _from: string
+          _grain?: string
+          _metric: string
+          _org: string
+          _scope?: Json
+          _to: string
+        }
+        Returns: Json
+      }
+      bi_audit: {
+        Args: {
+          _action: string
+          _context?: Json
+          _entity: string
+          _entity_id: string
+          _org: string
+        }
+        Returns: undefined
+      }
+      bi_check_quality: { Args: { _org: string }; Returns: number }
+      bi_classify_abc: {
+        Args: {
+          _from: string
+          _granularity?: string
+          _metric: string
+          _org: string
+          _to: string
+        }
+        Returns: Json
+      }
+      bi_classify_channel: {
+        Args: {
+          _company: string
+          _nature: string
+          _org: string
+          _partner: string
+          _store: string
+        }
+        Returns: string
+      }
+      bi_classify_xyz: {
+        Args: {
+          _from: string
+          _granularity?: string
+          _metric?: string
+          _org: string
+          _to: string
+        }
+        Returns: Json
+      }
+      bi_cost_at: {
+        Args: { _at: string; _org: string; _variant: string }
+        Returns: {
+          cost: number
+          methodology: string
+          version_id: string
+        }[]
+      }
+      bi_dashboards: { Args: { _org: string }; Returns: Json }
+      bi_dimension_permission: {
+        Args: { _dimension: string; _org: string }
+        Returns: string
+      }
+      bi_export: {
+        Args: { _filters?: Json; _format?: string; _kind: string; _org: string }
+        Returns: Json
+      }
+      bi_get_settings: { Args: { _org: string }; Returns: Json }
+      bi_metric_permission: { Args: { _domain: string }; Returns: string }
+      bi_metric_value: {
+        Args: {
+          _from: string
+          _metric: string
+          _org: string
+          _scope?: Json
+          _to: string
+        }
+        Returns: Json
+      }
+      bi_process: {
+        Args: {
+          _domain?: Database["public"]["Enums"]["bi_domain"]
+          _from?: string
+          _mode?: string
+          _org: string
+          _to?: string
+        }
+        Returns: Json
+      }
+      bi_query: {
+        Args: { _filters?: Json; _kind: string; _org: string }
+        Returns: Json
+      }
+      bi_require: {
+        Args: { _org: string; _permission: string }
+        Returns: undefined
+      }
+      bi_resolve_metric: {
+        Args: { _key?: string; _org: string; _version?: number }
+        Returns: {
+          aggregation_method: string
+          available_filters: string[]
+          business_domain: string
+          compatible_dimensions: string[]
+          date_dimension: string
+          description: string
+          formula: string
+          granularity: string
+          is_global: boolean
+          limitations: string
+          metric_key: string
+          metric_name: string
+          periodicity: string
+          source_description: string
+          status: string
+          unit: string
+          version: number
+        }[]
+      }
+      bi_resolve_period: {
+        Args: { _from?: string; _preset: string; _to?: string }
+        Returns: {
+          period_end: string
+          period_start: string
+          preset: string
+        }[]
+      }
+      bi_save_dashboard: { Args: { _data: Json; _org: string }; Returns: Json }
+      bi_save_metric: {
+        Args: { _data: Json; _id?: string; _org: string }
+        Returns: Json
+      }
+      bi_save_preferences: {
+        Args: { _data: Json; _org: string }
+        Returns: Json
+      }
+      bi_save_settings: { Args: { _data: Json; _org: string }; Returns: Json }
+      bi_save_target: { Args: { _data: Json; _org: string }; Returns: Json }
+      bi_sync_b2b: {
+        Args: { _from: string; _org: string; _to: string }
+        Returns: number
+      }
+      bi_sync_crm: {
+        Args: { _from: string; _org: string; _to: string }
+        Returns: number
+      }
+      bi_sync_financial: {
+        Args: { _from: string; _org: string; _to: string }
+        Returns: number
+      }
+      bi_sync_fiscal: {
+        Args: { _from: string; _org: string; _to: string }
+        Returns: number
+      }
+      bi_sync_inventory: {
+        Args: { _from: string; _org: string; _to: string }
+        Returns: number
+      }
+      bi_sync_partners: {
+        Args: { _from: string; _org: string; _to: string }
+        Returns: number
+      }
+      bi_sync_procurement: {
+        Args: { _from: string; _org: string; _to: string }
+        Returns: number
+      }
+      bi_sync_production: {
+        Args: { _from: string; _org: string; _to: string }
+        Returns: number
+      }
+      bi_sync_sales: {
+        Args: { _from: string; _org: string; _run?: string; _to: string }
+        Returns: number
+      }
       company_detail_core: {
         Args: {
           _company: string
@@ -13149,6 +16649,239 @@ export type Database = {
       finance_require: {
         Args: { _org: string; _permission: string }
         Returns: undefined
+      }
+      fiscal_allocate_number: {
+        Args: {
+          _env: Database["public"]["Enums"]["fiscal_environment"]
+          _est: string
+          _model: string
+          _org: string
+          _series: string
+        }
+        Returns: number
+      }
+      fiscal_assert_environment: {
+        Args: {
+          _doc_environment: Database["public"]["Enums"]["fiscal_environment"]
+          _provider_environment: Database["public"]["Enums"]["fiscal_environment"]
+        }
+        Returns: undefined
+      }
+      fiscal_audit: {
+        Args: {
+          _action: string
+          _context?: Json
+          _id: string
+          _org: string
+          _table: string
+        }
+        Returns: undefined
+      }
+      fiscal_calculate_item: {
+        Args: {
+          _company_id: string
+          _destination_region_id?: string
+          _discount: number
+          _document_model: string
+          _establishment_id: string
+          _freight: number
+          _on_date?: string
+          _operation_type_id: string
+          _org: string
+          _origin_region_id?: string
+          _quantity: number
+          _tax_regime_id?: string
+          _unit_price: number
+          _variant_id: string
+        }
+        Returns: {
+          base_amount: number
+          base_mode: string | null
+          created_at: string
+          document_id: string | null
+          document_item_id: string | null
+          fixed_amount: number
+          id: string
+          is_recoverable: boolean | null
+          is_simulation: boolean
+          is_withheld: boolean
+          layout_version_id: string | null
+          organization_id: string
+          parameter_origin: Json
+          rate: number | null
+          raw_amount: number | null
+          reduction: number | null
+          rounded_amount: number | null
+          simulation_id: string | null
+          tax_id: string | null
+          tax_rule_id: string | null
+          tax_rule_valid_from: string | null
+          tax_rule_version: number | null
+          treatment_code: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "tax_calculation_snapshots"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      fiscal_compute_tax: {
+        Args: {
+          _base: number
+          _fixed: number
+          _rate: number
+          _reduction: number
+        }
+        Returns: {
+          raw_value: number
+          rounded_value: number
+        }[]
+      }
+      fiscal_document_action: {
+        Args: { _action: string; _data?: Json; _id: string; _org: string }
+        Returns: Json
+      }
+      fiscal_emit: {
+        Args: { _key: string; _org: string; _payload: Json; _type: string }
+        Returns: undefined
+      }
+      fiscal_exception_action: {
+        Args: { _data: Json; _id: string; _org: string }
+        Returns: Json
+      }
+      fiscal_execute: {
+        Args: { _data?: Json; _id?: string; _operation: string; _org: string }
+        Returns: Json
+      }
+      fiscal_import_xml: {
+        Args: { _est: string; _org: string; _supplier: string; _xml: string }
+        Returns: Json
+      }
+      fiscal_nature_action: {
+        Args: { _action: string; _id: string; _org: string; _reason: string }
+        Returns: Json
+      }
+      fiscal_prepare: { Args: { _data: Json; _org: string }; Returns: Json }
+      fiscal_product_profile: {
+        Args: { _on_date?: string; _org: string; _variant_id: string }
+        Returns: string
+      }
+      fiscal_profile_action: {
+        Args: {
+          _action: string
+          _justification: string
+          _org: string
+          _profile_id: string
+          _profile_table: string
+        }
+        Returns: Json
+      }
+      fiscal_query: {
+        Args: { _filters?: Json; _kind: string; _org: string }
+        Returns: Json
+      }
+      fiscal_reconcile: {
+        Args: { _data?: Json; _id: string; _inbound: boolean; _org: string }
+        Returns: Json
+      }
+      fiscal_record_download: { Args: { _path: string }; Returns: undefined }
+      fiscal_require: {
+        Args: { _org: string; _permission: string }
+        Returns: undefined
+      }
+      fiscal_resolve_rule: {
+        Args: {
+          _customer_company_id?: string
+          _destination_region_id?: string
+          _document_model?: string
+          _establishment_id?: string
+          _on_date?: string
+          _operation_type_id: string
+          _org: string
+          _origin_region_id?: string
+          _product_classification?: string
+          _tax_regime_id?: string
+        }
+        Returns: string
+      }
+      fiscal_rule_action: {
+        Args: {
+          _action: string
+          _justification: string
+          _org: string
+          _regression_evidence?: Json
+          _rule_id: string
+        }
+        Returns: Json
+      }
+      fiscal_rule_fingerprint: {
+        Args: { _id: string; _org: string }
+        Returns: string
+      }
+      fiscal_save_company_profile: {
+        Args: { _data: Json; _id?: string; _org: string }
+        Returns: Json
+      }
+      fiscal_save_establishment: {
+        Args: { _data: Json; _id?: string; _org: string }
+        Returns: Json
+      }
+      fiscal_save_layout: {
+        Args: { _data: Json; _id?: string; _org: string }
+        Returns: Json
+      }
+      fiscal_save_nature: {
+        Args: { _data: Json; _id?: string; _org: string }
+        Returns: Json
+      }
+      fiscal_save_operation: {
+        Args: { _data: Json; _id?: string; _org: string }
+        Returns: Json
+      }
+      fiscal_save_product_profile: {
+        Args: { _data: Json; _id?: string; _org: string }
+        Returns: Json
+      }
+      fiscal_save_regime: {
+        Args: { _data: Json; _id?: string; _org: string }
+        Returns: Json
+      }
+      fiscal_save_rule: {
+        Args: { _data: Json; _id?: string; _org: string }
+        Returns: Json
+      }
+      fiscal_save_tax: {
+        Args: { _data: Json; _id?: string; _org: string }
+        Returns: Json
+      }
+      fiscal_simulate: {
+        Args: {
+          _company_id: string
+          _document_model: string
+          _establishment_id: string
+          _items: Json
+          _on_date?: string
+          _operation_type_id: string
+          _org: string
+        }
+        Returns: Json
+      }
+      fiscal_source: {
+        Args: { _id: string; _org: string; _type: string }
+        Returns: Json
+      }
+      fiscal_storage_allowed: {
+        Args: { _name: string; _write: boolean }
+        Returns: boolean
+      }
+      fiscal_test_rule: {
+        Args: { _cases: Json; _id: string; _org: string }
+        Returns: Json
+      }
+      fiscal_xml_value: {
+        Args: { _path: string; _xml: unknown }
+        Returns: string
       }
       has_org_role: {
         Args: {
@@ -14211,7 +17944,59 @@ export type Database = {
         | "producao"
         | "comercial"
         | "marketplace"
+        | "fiscal"
+      bi_abc_class: "A" | "B" | "C" | "UNCLASSIFIED"
+      bi_domain:
+        | "SALES"
+        | "PARTNERS"
+        | "INVENTORY"
+        | "PRODUCTION"
+        | "PROCUREMENT"
+        | "FINANCIAL"
+        | "CRM"
+        | "FISCAL"
+        | "COSTS"
+      bi_fact_status:
+        | "IMPORTED"
+        | "VALIDATED"
+        | "RECONCILED"
+        | "CANCELED"
+        | "EXCEPTION"
+        | "POSTED"
+        | "OPEN"
+        | "SETTLED"
+        | "OVERDUE"
+      bi_issue_status: "OPEN" | "ACKNOWLEDGED" | "RESOLVED"
+      bi_metric_status: "ACTIVE" | "DEPRECATED" | "DRAFT"
+      bi_run_status: "RUNNING" | "COMPLETED" | "PARTIAL" | "FAILED"
+      bi_severity: "INFO" | "WARNING" | "ERROR"
+      bi_visibility: "PRIVATE" | "ORGANIZATION"
+      bi_xyz_class: "X" | "Y" | "Z" | "UNCLASSIFIED"
       bom_status: "DRAFT" | "ACTIVE" | "INACTIVE" | "ARCHIVED"
+      fiscal_document_status:
+        | "DRAFT"
+        | "PENDING_VALIDATION"
+        | "VALIDATED"
+        | "READY_TO_SEND"
+        | "SENDING"
+        | "PROCESSING"
+        | "AUTHORIZED"
+        | "REJECTED"
+        | "CANCELLATION_REQUESTED"
+        | "CANCELED"
+        | "DENIED"
+        | "CONTINGENCY_PENDING"
+      fiscal_environment: "HOMOLOGATION" | "PRODUCTION"
+      fiscal_operation_kind:
+        | "DIRECT_SALE"
+        | "PARTNER_REMITTANCE"
+        | "PARTNER_RETURN"
+        | "CUSTOMER_RETURN"
+        | "SUPPLIER_PURCHASE"
+        | "SUPPLIER_RETURN"
+        | "INTERNAL_TRANSFER"
+        | "PRODUCTION_CONSUMPTION"
+        | "OTHER"
       inventory_batch_status: "ACTIVE" | "EXPIRED" | "DISABLED"
       inventory_count_item_status: "PENDING" | "COUNTED" | "ADJUSTED"
       inventory_count_status:
@@ -14271,6 +18056,7 @@ export type Database = {
         | "IN_PROGRESS"
         | "COMPLETED"
         | "CANCELED"
+      tax_rule_status: "DRAFT" | "REVIEW" | "APPROVED" | "ACTIVE" | "RETIRED"
       unit_category:
         | "COUNT"
         | "MASS"
@@ -14415,8 +18201,64 @@ export const Constants = {
         "producao",
         "comercial",
         "marketplace",
+        "fiscal",
       ],
+      bi_abc_class: ["A", "B", "C", "UNCLASSIFIED"],
+      bi_domain: [
+        "SALES",
+        "PARTNERS",
+        "INVENTORY",
+        "PRODUCTION",
+        "PROCUREMENT",
+        "FINANCIAL",
+        "CRM",
+        "FISCAL",
+        "COSTS",
+      ],
+      bi_fact_status: [
+        "IMPORTED",
+        "VALIDATED",
+        "RECONCILED",
+        "CANCELED",
+        "EXCEPTION",
+        "POSTED",
+        "OPEN",
+        "SETTLED",
+        "OVERDUE",
+      ],
+      bi_issue_status: ["OPEN", "ACKNOWLEDGED", "RESOLVED"],
+      bi_metric_status: ["ACTIVE", "DEPRECATED", "DRAFT"],
+      bi_run_status: ["RUNNING", "COMPLETED", "PARTIAL", "FAILED"],
+      bi_severity: ["INFO", "WARNING", "ERROR"],
+      bi_visibility: ["PRIVATE", "ORGANIZATION"],
+      bi_xyz_class: ["X", "Y", "Z", "UNCLASSIFIED"],
       bom_status: ["DRAFT", "ACTIVE", "INACTIVE", "ARCHIVED"],
+      fiscal_document_status: [
+        "DRAFT",
+        "PENDING_VALIDATION",
+        "VALIDATED",
+        "READY_TO_SEND",
+        "SENDING",
+        "PROCESSING",
+        "AUTHORIZED",
+        "REJECTED",
+        "CANCELLATION_REQUESTED",
+        "CANCELED",
+        "DENIED",
+        "CONTINGENCY_PENDING",
+      ],
+      fiscal_environment: ["HOMOLOGATION", "PRODUCTION"],
+      fiscal_operation_kind: [
+        "DIRECT_SALE",
+        "PARTNER_REMITTANCE",
+        "PARTNER_RETURN",
+        "CUSTOMER_RETURN",
+        "SUPPLIER_PURCHASE",
+        "SUPPLIER_RETURN",
+        "INTERNAL_TRANSFER",
+        "PRODUCTION_CONSUMPTION",
+        "OTHER",
+      ],
       inventory_batch_status: ["ACTIVE", "EXPIRED", "DISABLED"],
       inventory_count_item_status: ["PENDING", "COUNTED", "ADJUSTED"],
       inventory_count_status: [
@@ -14482,6 +18324,7 @@ export const Constants = {
         "COMPLETED",
         "CANCELED",
       ],
+      tax_rule_status: ["DRAFT", "REVIEW", "APPROVED", "ACTIVE", "RETIRED"],
       unit_category: [
         "COUNT",
         "MASS",

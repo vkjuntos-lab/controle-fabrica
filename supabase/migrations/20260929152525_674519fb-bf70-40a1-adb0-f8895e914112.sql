@@ -1,0 +1,1 @@
+SELECT 1; -- no-op: sincroniza a regeneração de tipos com o schema já aplicado
