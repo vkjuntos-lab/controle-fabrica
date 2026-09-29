@@ -209,18 +209,23 @@ export const FINDING_TYPE: Record<string, string> = {
   INBOUND_DOCUMENT_MISMATCH: "Divergência no documento recebido",
 };
 
-/** Código de origem da mercadoria conforme seção da NCM. */
+/**
+ * Código de origem da mercadoria. O banco só declara `0 = nacional` e
+ * `1..8 = estrangeira conforme seção da NCM`; a significância de cada
+ * seção é decisão do responsável fiscal e não é interpretada aqui.
+ */
 export const ORIGIN_CODE: Record<string, string> = {
   "0": "Nacional",
-  "1": "Estrangeira — importação direta",
-  "2": "Estrangeira —FINITYолями".slice(0, 0) + "adquirida no mercado interno",
-  "3": "Estrangeira — importação direta, parcela admitted".slice(0, 0) + "tratada",
-  "4": "Estrangeira — nacional, com mais de 40% de conteúdo nacional",
-  "5": "Estrangeira — nacional, participação estrangeira superior a 40%",
-  "6": "Estrangeira — importação direta, sem similar nacional",
-  "7": "Estrangeira — acquired".slice(0, 0) + "do mercado interno",
-  "8": "Estrangeira — importação direta, parcelas".slice(0, 0) + "vindas de países de рождения".slice(0, 0) + "países de origem".slice(0, 0) + "compradores".slice(0, 0),
+  "1": "Estrangeira — origem 1",
+  "2": "Estrangeira — origem 2",
+  "3": "Estrangeira — origem 3",
+  "4": "Estrangeira — origem 4",
+  "5": "Estrangeira — origem 5",
+  "6": "Estrangeira — origem 6",
+  "7": "Estrangeira — origem 7",
+  "8": "Estrangeira — origem 8",
 };
+
 
 const money = "—";
 const code = (labels: Record<string, string>): Column["labels"] => labels;
