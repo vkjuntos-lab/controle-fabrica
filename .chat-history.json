@@ -3,22 +3,6 @@
     "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
-    "timestamp": 1790681823230
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py",
-      "newString": "    db.setup()\n    sql(PRECONDICAOES)\n\n    for nome in LEGADOS:\n",
-      "oldString": "    db.setup()\n\n    for nome in LEGADOS:\n"
-    },
-    "timestamp": 1790681826104
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
     "timestamp": 1790681826124
   },
   {
@@ -1510,5 +1494,19 @@
     "content": "]\n\n\n# Objetos de que as migrations legadas dependem. Não fazem parte do que\n# está sendo testado: existem só para que o legado de julho aplique e a\n# colisão de nome aconteça de verdade.\nPRECONDICAOES = \"\"\"\nCREATE TABLE public.stores(id uuid PRIMARY KEY, name text);\nCREATE TABLE public.customers(id ",
     "is_error": false,
     "timestamp": 1790683146819
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '20,60p' scripts/test-fiscal-migration-chain.py"
+    },
+    "timestamp": 1790683150296
+  },
+  {
+    "role": "tool_result",
+    "content": "spec = importlib.util.spec_from_file_location('inventory', Path(__file__).with_name('test-inventory-db.py'))\ndb = importlib.util.module_from_spec(spec)\nspec.loader.exec_module(db)\nsql, uid, q = db.sql, db.uid, db.q\n\n# Legados de 2026-07 que já ocupam os nomes usados pelo MASTER 014.\nLEGADOS = [\n    ",
+    "is_error": false,
+    "timestamp": 1790683150319
   }
 ]
