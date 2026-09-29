@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('src/components/fiscal/workspace.tsx');s=p.read_text().replace('{showForm && definition && <FiscalForm org={org} definition={definition} onSaved={refresh} />}', '{showForm && definition && (view === \\\"documents\\\" ? <Preparation org={org} onSaved={refresh}/> : <FiscalForm org={org} definition={definition} onSaved={refresh}/>)}');p.write_text(s)\nPY\""
-    },
-    "timestamp": 1790669644640
-  },
-  {
-    "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790669644646
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20261014100000_fiscal_integrity.sql');s=p.read_text().replace('tax_rule_id uuid NOT NULL, rule_version integer NOT NULL, cases', 'tax_rule_id uuid NOT NULL, rule_version integer NOT NULL, fingerprint text NOT NULL, cases')\nmarker='CREATE FUNCTION public.fiscal_test_rule('\nhelper='''CREATE FUNCTION public.fiscal_rule_fingerprint(_org uuid,_id uuid) RETURNS text\nLANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS \"'$$\n SELECT md5((to_jsonb(r)-ARRAY['\"'status','updated_at','reviewed_by','reviewed_at','approved_by','approved_at','retired_at'])::text\n   ||coalesce((SELECT jsonb_agg(to_jsonb(i) ORDER BY i.id)::text FROM tax_rule_items i WHERE i.organization_id=_org AND i.tax_rule_id=_id),'[]'))\n FROM tax_rules r WHERE r.organization_id=_org AND r.id=_id\n\"'$$;\nREVOKE ALL ON FUNCTION fiscal_rule_fingerprint(uuid,uuid) FROM PUBLIC,anon,authenticated;\n'\"'''\ns=s.replace(marker,helper+marker)\ns=s.replace('tax_rule_id,rule_version,cases,results,passed,created_by)', 'tax_rule_id,rule_version,fingerprint,cases,results,passed,created_by)').replace('VALUES(_org,r.id,r.version,_cases,result,passed,auth.uid())','VALUES(_org,r.id,r.version,fiscal_rule_fingerprint(_org,r.id),_cases,result,passed,auth.uid())')\ns=s.replace('AND rule_version=v_rule.version AND passed AND id::text=', 'AND rule_version=v_rule.version AND passed AND fingerprint=fiscal_rule_fingerprint(_org,_rule_id) AND id::text=')\np.write_text(s)\nPY\""
     },
     "timestamp": 1790669668942
@@ -1545,5 +1531,20 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/workspace.tsx</path>\n<type>file</type>\n<content>\n409:     setError(\"\");\n410:     try {\n411:       const r = await mutateFiscal({\n412:         data: { organizationId: org, operation, id: String(row.id), values: { ...values, reason ",
     "is_error": false,
     "timestamp": 1790680713352
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"CREATE TABLE.*fiscal_exceptions\" -A 22 supabase/migrations/20261013200000_fiscal_tax_engine.sql supabase/migrations/20261014400000_fiscal_workspace.sql 2>/dev/null | head -40; echo \"---REGRESSIONS---\"; grep -n \"CREATE TABLE.*fiscal_rule_regressions\" -A 16 supabase/migrations/*.sql | head -30; echo \"---REVIEWS---\"; grep -n \"CREATE TABLE.*tax_rule_reviews\" -A 16 supabase/migrations/*.sql | head -30",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790680719676
+  },
+  {
+    "role": "tool_result",
+    "content": "---REGRESSIONS---\nsupabase/migrations/20261014100000_fiscal_integrity.sql:24:CREATE TABLE public.fiscal_rule_regressions (\nsupabase/migrations/20261014100000_fiscal_integrity.sql-25- id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES organizations,\nsupabase/migra",
+    "is_error": false,
+    "timestamp": 1790680719720
   }
 ]
