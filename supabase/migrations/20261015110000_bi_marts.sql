@@ -298,7 +298,7 @@ END $$;
 -- ---------------------------------------------------------------------
 CREATE FUNCTION public.bi_sync_production(_org uuid,_from date,_to date) RETURNS integer
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
-DECLARE n integer:=0; r record; v_good numeric; v_rej numeric; v_cost numeric; v_std numeric;
+DECLARE n integer:=0; r record; v_good numeric; v_rej numeric; v_std numeric;
 BEGIN
   FOR r IN
     SELECT o.id,o.organization_id,o.product_variant_id,o.planned_quantity,o.rejected_quantity,o.status,
@@ -320,7 +320,6 @@ BEGIN
   LOOP
     v_good:=coalesce(r.good,0); v_rej:=coalesce(r.rejected,r.rejected_quantity,0);
     v_std:=coalesce(r.std_cost,0)*coalesce(v_good+v_rej,0);
-    v_cost:=NULL;
     INSERT INTO public.bi_facts(organization_id,domain,source_table,source_id,fact_nature,fact_date,status,
       product_id,variant_id,quantity,net_amount,other_cost,quality,quality_notes,extra,source_watermark)
     VALUES (r.organization_id,'PRODUCTION','production_orders',r.id,'PRODUCTION_ORDER',r.ref_date,
@@ -421,10 +420,6 @@ CREATE FUNCTION public.bi_sync_crm(_org uuid,_from date,_to date) RETURNS intege
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE n integer:=0; r record;
 BEGIN
-  FOR r IN
-    SELECT o.id,o.organization_id,o.created_at::date ref,o.estimated_value,o.status,o.representative_id,
-      o.company_id,o.opportunity_stage_history FROM public.sales_opportunities o WHERE false
-  LOOP NULL; END LOOP;
   FOR r IN
     SELECT o.id,o.organization_id,o.created_at::date ref,o.estimated_value,o.status,o.representative_id,o.company_id,
       (SELECT s.name FROM public.sales_pipeline_stages s
@@ -583,25 +578,24 @@ BEGIN
     GROUP BY f.variant_id
   ), ranked AS (
     SELECT variant_id,value FROM base WHERE value>0 ORDER BY value DESC,variant_id)
-  SELECT jsonb_agg(row),sum(value) OVER () FROM (
-    SELECT variant_id,value,
-      (value/sum(value) OVER ())::numeric share,
-      sum(value) OVER (ORDER BY value DESC,variant_id ROWS UNBOUNDED PRECEDING)/sum(value) OVER () cum
-    FROM ranked) row INTO classified,v_metric_value;
-  v_metric_value := total;
+  SELECT jsonb_agg(x) INTO classified FROM (
+    SELECT jsonb_build_object('variant_id',variant_id,'value',value,
+      'share',(value/sum(value) OVER ())::numeric,
+      'cum',(sum(value) OVER (ORDER BY value DESC,variant_id ROWS UNBOUNDED PRECEDING)/sum(value) OVER ())::numeric) x
+    FROM ranked) q;
 
   -- Grava com parâmetros: sem eles, dois meses de ABC não são comparáveis.
   DELETE FROM public.bi_abc_classification
   WHERE organization_id=_org AND period_start=_from AND period_end=_to AND metric_key=_metric AND granularity=_granularity;
 
-  FOR row IN SELECT * FROM jsonb_to_recordset(classified) x(variant_id uuid,value numeric,share numeric,cum numeric) ORDER BY x.cum,x.variant_id LOOP
-    v_share := row.value/total;
-    v_cum := v_cum+row.value;
+  FOR abc_row IN SELECT * FROM jsonb_to_recordset(classified) x(variant_id uuid,value numeric,share numeric,cum numeric) ORDER BY x.cum,x.variant_id LOOP
+    v_share := abc_row.value/total;
+    v_cum := v_cum+abc_row.value;
     INSERT INTO public.bi_abc_classification(organization_id,period_start,period_end,metric_key,granularity,
       variant_id,product_id,metric_value,total_value,share,cumulative_share,class,parameters,created_by)
-    VALUES (_org,_from,_to,_metric,_granularity,row.variant_id,
-      (SELECT v.product_id FROM public.product_variants v WHERE v.id=row.variant_id),
-      row.value,total,v_share,v_cum/total,
+    VALUES (_org,_from,_to,_metric,_granularity,abc_row.variant_id,
+      (SELECT v.product_id FROM public.product_variants v WHERE v.id=abc_row.variant_id),
+      abc_row.value,total,v_share,v_cum/total,
       CASE WHEN (v_cum/total)<=a THEN 'A'::public.bi_abc_class
            WHEN (v_cum/total)<=b THEN 'B'::public.bi_abc_class
            ELSE 'C'::public.bi_abc_class END,
@@ -661,29 +655,29 @@ BEGIN
       -- desvio-padrão amostral (n-1). Com n=1 não há desvio: série inútil.
       CASE WHEN count(*)>1 THEN stddev_samp(value) END sd
     FROM base GROUP BY variant_id)
-  SELECT coalesce(jsonb_agg(row ORDER BY row.variant_id),'[]'),count(*) INTO v_series,v_n
-  FROM (SELECT variant_id,n,mean,sd FROM stats) row;
-  SELECT count(*),sum(n) INTO v_n,v_total FROM (SELECT jsonb_array_elements(v_series) e) s,
-    LATERAL (SELECT (e->>'n')::int n) c;
+  SELECT coalesce(jsonb_agg(x ORDER BY x.variant_id),'[]') INTO v_series FROM (
+    SELECT jsonb_build_object('variant_id',variant_id,'n',n,'mean',mean,'sd',sd) x FROM stats) q;
+  SELECT count(*),coalesce(sum((e->>'n')::int),0) INTO v_n,v_total
+    FROM jsonb_array_elements(v_series) e;
 
   DELETE FROM public.bi_xyz_classification
   WHERE organization_id=_org AND period_start=_from AND period_end=_to AND period_granularity=_granularity;
 
-  FOR row IN SELECT * FROM jsonb_to_recordset(v_series) x(variant_id uuid,n int,mean numeric,sd numeric) LOOP
-    v_mean:=row.mean; v_sd:=row.sd;
-    v_cv := CASE WHEN row.mean IS NOT NULL AND row.mean>0 AND row.sd IS NOT NULL THEN row.sd/row.mean END;
+  FOR xyz_row IN SELECT * FROM jsonb_to_recordset(v_series) x(variant_id uuid,n int,mean numeric,sd numeric) LOOP
+    v_mean:=xyz_row.mean; v_sd:=xyz_row.sd;
+    v_cv := CASE WHEN xyz_row.mean IS NOT NULL AND xyz_row.mean>0 AND xyz_row.sd IS NOT NULL THEN xyz_row.sd/xyz_row.mean END;
     INSERT INTO public.bi_xyz_classification(organization_id,period_start,period_end,period_granularity,
       variant_id,product_id,observations,mean_value,stddev_value,coefficient_of_variation,class,reason,parameters,created_by)
-    VALUES (_org,_from,_to,_granularity,row.variant_id,
-      (SELECT v.product_id FROM public.product_variants v WHERE v.id=row.variant_id),
-      row.n,v_mean,v_sd,v_cv,
-      CASE WHEN row.mean IS NULL OR row.mean=0 THEN 'UNCLASSIFIED'::public.bi_xyz_class
-           WHEN row.n<minobs THEN 'UNCLASSIFIED'::public.bi_xyz_class
+    VALUES (_org,_from,_to,_granularity,xyz_row.variant_id,
+      (SELECT v.product_id FROM public.product_variants v WHERE v.id=xyz_row.variant_id),
+      xyz_row.n,v_mean,v_sd,v_cv,
+      CASE WHEN xyz_row.mean IS NULL OR xyz_row.mean=0 THEN 'UNCLASSIFIED'::public.bi_xyz_class
+           WHEN xyz_row.n<minobs THEN 'UNCLASSIFIED'::public.bi_xyz_class
            WHEN v_cv<=x THEN 'X'::public.bi_xyz_class
            WHEN v_cv<=y THEN 'Y'::public.bi_xyz_class
            ELSE 'Z'::public.bi_xyz_class END,
-      CASE WHEN row.mean IS NULL OR row.mean=0 THEN 'Média zero no período: coeficiente de variação indefinido.'
-           WHEN row.n<minobs THEN 'Histórico insuficiente ('||row.n||' de '||minobs||' períodos).'
+      CASE WHEN xyz_row.mean IS NULL OR xyz_row.mean=0 THEN 'Média zero no período: coeficiente de variação indefinido.'
+           WHEN xyz_row.n<minobs THEN 'Histórico insuficiente ('||xyz_row.n||' de '||minobs||' períodos).'
            ELSE 'CV='||round(v_cv,4)::text END,
       jsonb_build_object('x_limit',x,'y_limit',y,'min_observations',minobs,'granularity',_granularity,
         'method','coeficiente de variacao (desvio amostral / media)','periods_available',v_buckets,
@@ -790,8 +784,7 @@ DECLARE run uuid; n integer:=0; v_from date; v_to date; v_mode text; v_status pu
 BEGIN
   PERFORM public.bi_require(_org,'bi.reprocess');
   v_mode := CASE WHEN _mode IN ('INCREMENTAL','FULL') THEN _mode ELSE RAISE EXCEPTION 'Modo inválido: %',_mode END;
-  SELECT * INTO v_period FROM public.bi_resolve_period('CUSTOM',_from,_to);
-  v_from:=v_period.period_start; v_to:=v_period.period_end;
+  SELECT p.period_start,p.period_end INTO v_from,v_to FROM public.bi_resolve_period('CUSTOM',_from,_to) p;
   IF v_from IS NULL OR v_to IS NULL OR v_to<=v_from THEN RAISE EXCEPTION 'Período inválido.'; END IF;
   IF v_from<v_min THEN v_from:=v_min; END IF;
 
@@ -816,7 +809,7 @@ BEGIN
 
   UPDATE public.bi_processing_runs SET status=v_status,finished_at=now(),processed_records=n,error_details=errors
   WHERE id=run;
-  -- Reconcile:_stock para o período processado, só se terminou bem.
+  -- Reconcile de qualidade só quando o processamento terminou bem.
   IF v_status='COMPLETED' THEN PERFORM public.bi_check_quality(_org); END IF;
   PERFORM public.bi_audit(_org,'bi.process','bi_processing_runs',run::text,
     jsonb_build_object('domain',_domain,'from',v_from,'to',v_to,'mode',v_mode,'status',v_status,'records',n));
