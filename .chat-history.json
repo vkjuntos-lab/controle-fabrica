@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sed -n '112,150p' supabase/migrations/20261013200000_fiscal_tax_engine.sql; echo \"=== REGRESSIONS ===\"; grep -n \"CREATE TABLE public.fiscal_rule_regressions\" -A 20 supabase/migrations/20261014100000_fiscal_integrity.sql",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790680147550
-  },
-  {
-    "role": "tool_result",
-    "content": "CREATE TABLE public.tax_rule_reviews (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations,\n  tax_rule_id uuid NOT NULL,\n  from_status public.tax_rule_status NOT NULL,\n  to_status public.tax_rule_status NOT NULL,\n  decision text NOT NULL C",
-    "is_error": false,
-    "timestamp": 1790680147584
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"role_permissions\\|permission\" src/routes/_authenticated/admin.permissoes.tsx | head -30",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1586,5 +1571,20 @@
     "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ❯ src/lib/fiscal/constants.test.ts (12 tests | 7 failed) 230ms\n   ✓ contrato entre a listagem e o banco > toda área com listagem aponta para uma tabela que existe 140ms\n   × contrato entre a listagem e o banco > toda coluna listada existe na ",
     "is_error": false,
     "timestamp": 1790681333422
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"fiscal_document_status AS ENUM\" -A 20 supabase/migrations/20261013100000_fiscal_core.sql | head -24; echo \"=== events ===\"; grep -n \"CREATE TABLE public.fiscal_events\" -A 12 supabase/migrations/20261014200000_fiscal_documents.sql | head -14",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681339190
+  },
+  {
+    "role": "tool_result",
+    "content": "24:CREATE TYPE public.fiscal_document_status AS ENUM (\n25-  'DRAFT',                -- montado na tela, ainda sem conferência\n26-  'PENDING_VALIDATION',   -- entrou na validação cadastral\n27-  'VALIDATED',            -- passou na validação; ainda não calculado\n28-  'READY_TO_SEND',        -- calcula",
+    "is_error": false,
+    "timestamp": 1790681339224
   }
 ]
