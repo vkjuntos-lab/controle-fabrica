@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/_probe-fiscal.py",
-      "offset": 62,
-      "limit": 40
-    },
-    "timestamp": 1790680223554
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/scripts/_probe-fiscal.py</path>\n<type>file</type>\n<content>\n62:                  'companies', 'products', 'rules', 'simulations', 'documents']:\n63:         out = db.call('fiscal_query', ','.join([q(org), q(kind), q('{}')]), uid, 'permiss')\n64:         ",
-    "is_error": false,
-    "timestamp": 1790680223568
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/_probe-fiscal.py')\nlines=p.read_text().split('\\n')\nnovo=lines[:65]+[\n\"    print('--- I1: colunas reais por area (o que a tabela generica tenta ler) ---')\",\n\"    for t in ['fiscal_documents','inbound_fiscal_documents','fiscal_events','fiscal_exceptions',\",\n\"              'fiscal_reconciliations','product_fiscal_profiles','company_fiscal_profiles',\",\n\"              'fiscal_simulations','tax_rules','fiscal_layout_versions','fiscal_providers']:\",\n\"        cols=sql(\\\"SELECT string_agg(column_name,',' ORDER BY column_name) FROM information_schema.columns WHERE table_schema='public' AND table_name=%s\\\" % q(t))\",\n\"        mostrados=['label','legal_name','fiscal_nature','sku','name','version','id']\",\n\"        tem=[c for c in mostrados if (','+cols+',').find(','+c+',')>=0]\",\n\"        print('  %-30s label cai em %s' % (t, tem))\",\n\"    tabelas=sql(\\\"SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND (table_name LIKE '%fiscal%' OR table_name LIKE 'tax_rule%' OR table_name LIKE 'tax_calc%') ORDER BY 1\\\").split('\\\\n')\",\n\"    comdata=set(sql(\\\"SELECT table_name FROM information_schema.columns WHERE table_schema='public' AND column_name='created_at'\\\").split('\\\\n'))\",\n\"    print('--- B3: tabelas fiscais sem created_at (filtro de data as esconde) ---')\",\n\"    print(' ', [t for t in tabelas if t not in comdata])\",\n\"}\",\n\"\",\n\"if __name__=='__main__':\",\n\"    try: run()\",\n\"    finally: db.cleanup()\",\n]\np.write_text('\\n'.join(novo))\nPY\nchmod a+r scripts/_probe-fiscal.py && su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/_probe-fiscal.py\" 2>&1 | tail -25",
@@ -1582,5 +1566,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790681406719
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261014500000_fiscal_screen_fixes.sql",
+      "newString": "-- (a) `products` caía no `ELSE 'fiscal.read'`, mas a tela libera a área\n--     \"Classificações\" por `fiscal.tax_rules.read` e o formulário exige\n--     `fiscal.tax_rules.manage`. Quem administrava classificação sem a\n--     leitura ampla abria a área e não conseguia abrir um seletor.\n--     Todo papel que lia essa tabela hoje (`admin`, `gestor`, `fiscal`,\n--     `financeiro`) já tem `fiscal.tax_rules.read`, então o ajuste não\n--     tira leitura de ninguém.\n--\n-- (a.1) `simulations` caía no mesmo `ELSE`. A tela libera a área por\n--     `fiscal.simulate` e é essa mesma permissão que `fiscal_simulate`\n--     exige para executar. Ler a lista de simulações por outra permissão\n--     que não a da execução seria um vão: a tela mostra o histórico de\n--     simulações que o usuário não pode reproduzir.\n",
+      "oldString": "-- (a) `products` caía no `ELSE 'fiscal.read'`, mas a tela libera a área\n--     \"Classificações\" por `fiscal.tax_rules.read` e o formulário exige\n--     `fiscal.tax_rules.manage`. Quem administrava classificação sem a\n--     leitura ampla abria a área e não conseguia abrir um seletor.\n--     Todo papel que lia essa tabela hoje (`admin`, `gestor`, `fiscal`,\n--     `financeiro`) já tem `fiscal.tax_rules.read`, então o ajuste não\n--     tira leitura de ninguém.\n"
+    },
+    "timestamp": 1790681412302
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790681412315
   }
 ]
