@@ -47,7 +47,8 @@ WHERE permission IN (
 -- (c) `regressions` entra como área: `fiscal_rule_regressions` é a prova de
 --     que a regra foi testada no servidor antes de virar vigente, e era
 --     invisível. Sem ela, "ativação exige regressão" era verdade sem
---     evidência visível.
+--     evidência visível. `rule_detail` e `assignees` dão à tela a trilha de
+--     revisão e a lista de responsáveis.
 -- ---------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION public.fiscal_query(_org uuid,_kind text,_filters jsonb DEFAULT '{}') RETURNS jsonb
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
