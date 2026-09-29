@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"cat > src/lib/fiscal/provider.ts <<'TS'\n/** Server adapter contract. No vendor, endpoint or credentials are configured by this module. */\nexport type FiscalEnvironment = \\\"HOMOLOGATION\\\" | \\\"PRODUCTION\\\";\nexport type RemoteResult =\n | { status: \\\"PROCESSING\\\"; remoteId: string }\n | { status: \\\"REJECTED\\\"; code: string }\n | { status: \\\"AUTHORIZED\\\"; remoteId: string; accessKey: string; protocol: string; authorizedAt: string; officialXml: string }\n | { status: \\\"NOT_FOUND\\\" };\nexport interface FiscalProviderAdapter {\n readonly environment: FiscalEnvironment;\n readonly code: string;\n submit(request: { idempotencyKey: string; preparedPayload: string }): Promise<RemoteResult>;\n queryStatus?(idempotencyKey: string): Promise<RemoteResult>;\n cancel?(request: { remoteId: string; reason: string; idempotencyKey: string }): Promise<RemoteResult>;\n downloadXml?(remoteId: string): Promise<string>;\n downloadPdf?(remoteId: string): Promise<Uint8Array>;\n}\nexport type Attempt = { idempotencyKey: string; environment: FiscalEnvironment; preparedPayload: string; previouslyAttempted: boolean };\nexport type TransmissionOutcome = { state: \\\"PROCESSING\\\" | \\\"REJECTED\\\" | \\\"PENDING_EVIDENCE\\\" | \\\"PENDING_REMOTE_QUERY\\\"; result?: RemoteResult };\n/** Caller must persist/lock an attempt before entering; this function never asserts official authorization.\n * A separate vendor-specific verifier must authenticate and archive official evidence before AUTHORIZED.\n * No registered adapter exists, and this coordinator is deliberately not wired to a public endpoint.\n */\nexport async function coordinateTransmission(adapter: FiscalProviderAdapter, attempt: Attempt): Promise<TransmissionOutcome> {\n if (adapter.environment \"'!== attempt.environment) throw new Error(\"Ambientes fiscais incompatíveis.\");\n try {\n  let result: RemoteResult;\n  if (attempt.previouslyAttempted) {\n   if (!adapter.queryStatus) return { state: \"PENDING_REMOTE_QUERY\" };\n   result = await adapter.queryStatus(attempt.idempotencyKey);\n   // Even NOT_FOUND may be eventual consistency. Human reconciliation is required; never resubmit automatically.\n   if (result.status === \"NOT_FOUND\") return { state: \"PENDING_REMOTE_QUERY\", result };\n  } else {\n   result = await adapter.submit({ idempotencyKey: attempt.idempotencyKey, preparedPayload: attempt.preparedPayload });\n  }\n  if (result.status === \"AUTHORIZED\") {\n   if (!result.protocol.trim() || !/''^'\"\\\\d{44}\"'$/.test(result.accessKey) || !result.officialXml.trim() || !Number.isFinite(Date.parse(result.authorizedAt))) throw new Error(\"Evidência oficial incompleta.\");\n   return { state: \"PENDING_EVIDENCE\", result };\n  }\n  return { state: result.status === \"REJECTED\" ? \"REJECTED\" : result.status === \"PROCESSING\" ? \"PROCESSING\" : \"PENDING_REMOTE_QUERY\", result };\n } catch {\n  // Transport errors and incomplete evidence are not fiscal rejection.\n  return { state: \"PENDING_REMOTE_QUERY\" };\n }\n}\nTS\ncat > src/lib/fiscal/provider.test.ts <<'\"'TS'\nimport { describe, it, expect, vi } from \\\"vitest\\\";\nimport { coordinateTransmission, type FiscalProviderAdapter } from \\\"./provider\\\";\nconst attempt = { idempotencyKey: \\\"same-request\\\", environment: \\\"HOMOLOGATION\\\" as const, preparedPayload: \\\"fixture\\\", previouslyAttempted: false };\ndescribe(\\\"fiscal provider coordination contract\\\", () => {\n it(\\\"queries after timeout without issuing another document\\\", async () => {\n  const adapter: FiscalProviderAdapter = { code: \\\"TEST_ONLY\\\", environment: \\\"HOMOLOGATION\\\", submit: vi.fn().mockRejectedValue(new Error(\\\"timeout\\\")), queryStatus: vi.fn().mockResolvedValue({ status: \\\"PROCESSING\\\", remoteId: \\\"one\\\" }) };\n  expect((await coordinateTransmission(adapter,attempt)).state).toBe(\\\"PENDING_REMOTE_QUERY\\\");\n  expect((await coordinateTransmission(adapter,{...attempt,previouslyAttempted:true})).state).toBe(\\\"PROCESSING\\\");\n  expect(adapter.submit).toHaveBeenCalledTimes(1); expect(adapter.queryStatus).toHaveBeenCalledWith(\\\"same-request\\\");\n });\n it(\\\"does not resubmit when query is unsupported or inconclusive\\\", async () => {\n  const adapter: FiscalProviderAdapter={code:\\\"TEST_ONLY\\\",environment:\\\"HOMOLOGATION\\\",submit:vi.fn()};\n  expect((await coordinateTransmission(adapter,{...attempt,previouslyAttempted:true})).state).toBe(\\\"PENDING_REMOTE_QUERY\\\");\n  adapter.queryStatus=vi.fn().mockResolvedValue({status:\\\"NOT_FOUND\\\"});\n  await coordinateTransmission(adapter,{...attempt,previouslyAttempted:true});expect(adapter.submit).not.toHaveBeenCalled();\n });\n it(\\\"rejects production/homologation mismatch before transport\\\", async()=>{\n  const adapter: FiscalProviderAdapter={code:\\\"TEST_ONLY\\\",environment:\\\"PRODUCTION\\\",submit:vi.fn()};\n  await expect(coordinateTransmission(adapter,attempt)).rejects.toThrow(\\\"Ambientes\\\");expect(adapter.submit).not.toHaveBeenCalled();\n });\n it(\\\"requires verification and archival even when provider claims authorization\\\",async()=>{\n  const adapter: FiscalProviderAdapter={code:\\\"TEST_ONLY\\\",environment:\\\"HOMOLOGATION\\\",submit:vi.fn().mockResolvedValue({status:\\\"AUTHORIZED\\\",remoteId:\\\"one\\\",protocol:\\\"fixture\\\",accessKey:\\\"1\\\".repeat(44),authorizedAt:\\\"2026-09-29T12:00:00Z\\\",officialXml:\\\"<fixture/>\\\"})};\n  expect((await coordinateTransmission(adapter,attempt)).state).toBe(\\\"PENDING_EVIDENCE\\\");\n });\n});\nTS\npython3 - <<'PY'\nfrom pathlib import Path\np=Path('src/lib/rbac.test.ts');s=p.read_text().replace('      \\\"marketplace\\\",','      \\\"marketplace\\\",\\\\n      \\\"fiscal\\\",',1).replace('      \\\"vendas\\\",','      \\\"vendas\\\",\\\\n      \\\"fiscal\\\",',1);p.write_text(s)\nPY\nnpx prettier --write src/lib/fiscal src/components/fiscal src/routes/_authenticated/fiscal.tsx src/lib/rbac.ts src/lib/rbac.test.ts src/components/layout/app-shell.tsx src/integrations/supabase/types.ts\""
-    },
-    "timestamp": 1790669129205
-  },
-  {
-    "role": "tool_result",
-    "content": "src/lib/fiscal/fiscal.functions.ts 148ms\nsrc/lib/fiscal/provider.test.ts 27ms\nsrc/lib/fiscal/provider.ts 30ms\nsrc/components/fiscal/config.ts 84ms\nsrc/components/fiscal/form.tsx 89ms\nsrc/components/fiscal/workspace.tsx 190ms\nsrc/routes/_authenticated/fiscal.tsx 5ms\nsrc/lib/rbac.ts 40ms\nsrc/lib/rbac.",
-    "is_error": false,
-    "timestamp": 1790669131712
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"rg -n 'CREATE TABLE public.(customer_return|supplier_return|inventory_transfers|inventory_transfer_items)' supabase/migrations/*.sql; sed -n '418,450p' supabase/migrations/20261001100000_purchasing.sql; sed -n '650,745p' supabase/migrations/20261006100000_sales_orders.sql; sed -n '344,369p' supabase/migrations/20261001100000_purchasing.sql; rg -n 'supplier_code|CREATE TABLE public.supplier_profiles' supabase/migrations/20261001100000_purchasing.sql | head\""
     },
     "timestamp": 1790669139745
@@ -1456,5 +1442,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/scripts/_probe-fiscal.py</path>\n<type>file</type>\n<content>\n58:     sql(f\"INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(uid)},'fiscal');\")\n59:     sql(f\"DELETE FROM role_permissions WHERE role='fiscal';\")\n60:     sql",
     "is_error": false,
     "timestamp": 1790680233317
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/_probe-fiscal.py",
+      "oldString": "    print(' ', [t for t in tabelas if t not in comdata])\n}\n",
+      "newString": "    print(' ', [t for t in tabelas if t not in comdata])\n\nif __name__=='__main__':\n"
+    },
+    "timestamp": 1790680235851
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790680235861
   }
 ]

@@ -75,7 +75,8 @@ def run():
     comdata=set(sql("SELECT table_name FROM information_schema.columns WHERE table_schema='public' AND column_name='created_at'").split('\n'))
     print('--- B3: tabelas fiscais sem created_at (filtro de data as esconde) ---')
     print(' ', [t for t in tabelas if t not in comdata])
-}
+
+if __name__=='__main__':
 
 if __name__=='__main__':
     try: run()
