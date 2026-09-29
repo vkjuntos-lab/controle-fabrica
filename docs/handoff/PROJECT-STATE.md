@@ -654,3 +654,7 @@ Relatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-V
 MASTER 013: 32 grupos PostgreSQL de vendas (`npm run test:sales:db`, A–AF), 87 testes unitários em
 8 arquivos, TypeScript, build e lint do domínio verificados. A implantação no banco publicado não faz
 parte da evidência local e permanece pendente.
+MASTER 014: grupos A–AT e W1–W10 do harness fiscal (`npm run test:fiscal:db`), cadeia de migrations
+aplicável sobre o histórico reproduzido (`npm run test:fiscal:chain`), 103 testes unitários em
+10 arquivos, TypeScript, build e lint do domínio verificados. A implantação no banco publicado, a
+homologação de provedor fiscal e o smoke test em navegador autenticado permanecem pendentes.
