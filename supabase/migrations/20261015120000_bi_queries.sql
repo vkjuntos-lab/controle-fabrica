@@ -420,7 +420,7 @@ BEGIN
         LEFT JOIN public.bi_xyz_classification x ON x.organization_id=a.organization_id
           AND x.variant_id=a.variant_id AND x.period_start=a.period_start AND x.period_end=a.period_end
         WHERE a.organization_id=_org AND a.period_start=v_from AND a.period_end=v_to
-          AND a.metric_key=coalesce(v_metric,'sales.quantity_reconciled') GROUP BY 1) t),
+          AND a.metric_key=coalesce(v_metric,'sales.quantity_reconciled') GROUP BY 1) t),'{}'::jsonb),
       'abc_parameters',(SELECT parameters FROM public.bi_abc_classification
         WHERE organization_id=_org AND period_start=v_from AND period_end=v_to
           AND metric_key=coalesce(v_metric,'sales.quantity_reconciled') LIMIT 1),

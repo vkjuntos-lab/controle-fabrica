@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "# Estado do projeto — handoff contínuo\n\n## Revisão de continuidade — 28/09/2026 (MASTER 013)\n\nVendas e logística. O ciclo físico já existia no banco desde três migrations, mas não havia nenhuma\ntela, o RBAC do domínio não existia e duas funções do servidor eram incapazes de gravar. Esta revisão\nentr",
-    "is_error": false,
-    "timestamp": 1790682350174
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md",
-      "newString": "# Estado do projeto — handoff contínuo\n\n## Revisão de continuidade — 29/09/2026 (MASTER 014)\n\nFiscal. A entrega inicial já estava no repositório (commit `48631ed`, seis migrations, gateway e\ninterface `/fiscal`), e este arquivo dizia que o módulo não tinha sido iniciado. Esta revisão\ncorrigiu a entrega. Estado global: **PARTIAL**. Não declarar conclusão integral: nenhuma migration\nfoi aplicada no banco publicado, nenhum provedor fiscal está homologado e não houve navegação em\nnavegador autenticado.\n\nO defeito mais grave não era de tela: **a cadeia de migrations do MASTER 014 não era aplicável sobre\no histórico real**. O harness aplicava um recorte começando em `20260926`, e o histórico de julho\nocupa dois nomes usados pelo fiscal — `fiscal_environment` (com rótulos minúsculos) e\n`fiscal_documents` (com outro desenho). Aplicada sobre o histórico completo, a `20261013100000`\nabortava com `type \"fiscal_environment\" already exists` e a `20261014200000` com\n`relation \"fiscal_documents\" already exists`. Nenhum teste de unidade, typecheck ou build detecta uma\nmigration que aborta. O novo `npm run test:fiscal:chain` reproduz a colisão, aplica as predecessoras e\nsó então aplica `20261013` a `202610145`. As duas migrations corrigidas foram corrigidas **no local**:\nainda não foram aplicadas em nenhum ambiente, e uma migration posterior chegaria tarde demais.\n\nA navegação e o servidor discordavam de permissões nos dois sentidos: `products`, `simulations` e\n`providers` caíam no `ELSE 'fiscal.read'` do `fiscal_query` enquanto a tela usava\n`fiscal.tax_rules.read`, `fiscal.simulate` e `fiscal.provider.manage`; e sete áreas de cadastro eram\nliberadas na tela por `fiscal.configure`, que é permissão de gravação, para quem só queria consultar.\nNenhuma permissão de leitura foi removida. Quatro permissões órfãs concedidas pela\n`20261013200000` (`fiscal.documents.read`, `.prepare`, `.transmit` e `fiscal.export`) não existem no\ncatálogo e foram removidas.\n\nEvidência que o banco gravava e a tela não mostrava: o snapshot de cálculo tributário por item, a\ntrilha de regressão e de revisão da regra, e o responsável da pendência. A regra já podia voltar a\najuste pela ação `review` do banco, sem botão na tela. A listagem genérica mostrava UUID em seis áreas\ne apenas número de versão em outras; agora cada área declara as colunas que existem na sua tabela.\n\nO teste de contrato `src/lib/fiscal/constants.test.ts` compara a tela com as migrations — não com os\ntipos gerados do Supabase, anteriores às tabelas fiscais. Cada uma das doze asserções falhou contra o\ncódigo anterior durante esta revisão.\n\nFora do escopo: transmissão, cancelamento, contingência e evento oficial dependem de provedor\nhomologado, e nenhum está configurado. Simulação e XML importado não comprovam autorização oficial.\nAs colisões de nome entre migrations **anteriores** ao fiscal continuam no histórico; o novo harness\nas registra, e corrigi-las é trabalho de outro módulo.\n\nValidação local: `npm run test:fiscal:db` (grupos A–AT e W1–W10), `npm run test:fiscal:chain`\n(cadeia aplicável sobre o histórico), 103 testes unitários, TypeScript, lint do domínio e build sem\nerro. Relatório e critérios\nIMPLEMENTED/PARTIAL/NOT_IMPLEMENTED: [MASTER-014-VALIDATION](MASTER-014-VALIDATION.md).\n\n## Revisão de continuidade — 28/09/2026 (MASTER 013)\n",
-      "oldString": "# Estado do projeto — handoff contínuo\n\n## Revisão de continuidade — 28/09/2026 (MASTER 013)\n"
-    },
-    "timestamp": 1790682364278
-  },
-  {
-    "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790682364301
@@ -1486,5 +1470,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql</path>\n<type>file</type>\n<content>\n420:         LEFT JOIN public.bi_xyz_classification x ON x.organization_id=a.organization_id\n421:           AND x.variant_id=a.variant_id AND x.period_start=a.period_s",
     "is_error": false,
     "timestamp": 1790683698758
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql",
+      "newString": "          AND a.metric_key=coalesce(v_metric,'sales.quantity_reconciled') GROUP BY 1) t),'{}'::jsonb),",
+      "oldString": "          AND a.metric_key=coalesce(v_metric,'sales.quantity_reconciled') GROUP BY 1) t),"
+    },
+    "timestamp": 1790683700744
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790683700776
   }
 ]
