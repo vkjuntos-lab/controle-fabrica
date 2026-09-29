@@ -176,34 +176,56 @@ describe("contrato de permissões entre navegação e servidor", () => {
 
 describe("rótulos de códigos", () => {
   it("traduz todos os estados de documento permitidos pelo banco", () => {
-    const check = /status text NOT NULL CHECK\(status IN \(([^)]*)\)\)/.exec(
-      createTableBody("fiscal_documents") ?? "",
-    );
-    const allowed = (check?.[1] ?? "").match(/'([A-Z_]+)'/g) ?? [];
-    expect(allowed.length).toBeGreaterThan(0);
+    const type = /CREATE TYPE public\.fiscal_document_status AS ENUM \(([^;]*?)\);/i.exec(SQL)?.[1];
+    const allowed = (type ?? "").match(/'([A-Z_]+)'/g) ?? [];
+    expect(allowed.length, "estado de documento não lido das migrations").toBeGreaterThan(5);
     for (const code of allowed) {
       expect(DOCUMENT_STATUS[code.replaceAll("'", "")], `estado ${code} sem rótulo`).toBeTruthy();
     }
   });
 
   it("traduz todas as origens permitidas pelo banco", () => {
-    const check = /origem int NOT NULL DEFAULT 0 CHECK\(origem BETWEEN (\d+) AND (\d+)\)/.exec(
-      createTableBody("fiscal_tax_profiles") ?? "",
+    const check = /origin_code smallint NOT NULL DEFAULT 0 CHECK\(origin_code BETWEEN (\d+) AND (\d+)\)/.exec(
+      createTableBody("product_fiscal_profiles") ?? "",
     );
-    const [from, to] = [Number(check?.[1] ?? -1), Number(check?.[2] ?? -1)];
-    expect(from).toBe(0);
+    const from = Number(check?.[1] ?? -1);
+    const to = Number(check?.[2] ?? -1);
+    expect(from, "faixa de origem não lida de product_fiscal_profiles").toBe(0);
     for (let code = from; code <= to; code += 1) {
       expect(ORIGIN_CODE[String(code)], `origem ${code} sem rótulo`).toBeTruthy();
     }
   });
 
   it("traduz todos os tipos de pendência permitidos pelo banco", () => {
-    const body = createTableBody("fiscal_exceptions") ?? "";
-    const types = (body.match(/'([A-Z_]{6,})'/g) ?? []).map((value) => value.replaceAll("'", ""));
-    const expected = new Set(types);
-    expect(expected.size).toBeGreaterThan(5);
-    for (const type of expected) {
-      expect(EXCEPTION_TYPE[type], `pendência ${type} sem rótulo`).toBeTruthy();
+    const types =
+      /exception_type text NOT NULL CHECK\(exception_type IN \(([^)]*)\)\)/.exec(
+        createTableBody("fiscal_exceptions") ?? "",
+      )?.[1]?.match(/'[A-Z_]+'/g) ?? [];
+    expect(types.length, "tipo de pendência não lido de fiscal_exceptions").toBeGreaterThan(5);
+    for (const type of types) {
+      expect(EXCEPTION_TYPE[type.replaceAll("'", "")], `pendência ${type} sem rótulo`).toBeTruthy();
+    }
+  });
+
+  it("traduz todos os eventos permitidos pelo banco", () => {
+    const types =
+      /event_type text NOT NULL CHECK\(event_type IN \(([^)]*)\)\)/.exec(
+        createTableBody("fiscal_events") ?? "",
+      )?.[1]?.match(/'[A-Z_]+'/g) ?? [];
+    expect(types.length, "evento não lido de fiscal_events").toBeGreaterThan(0);
+    for (const type of types) {
+      expect(EVENT_TYPE[type.replaceAll("'", "")], `evento ${type} sem rótulo`).toBeTruthy();
+    }
+  });
+
+  it("traduz todos os estados de conciliação permitidos pelo banco", () => {
+    const types =
+      /status text NOT NULL CHECK\(status IN \(([^)]*)\)\)/.exec(
+        createTableBody("fiscal_reconciliations") ?? "",
+      )?.[1]?.match(/'[A-Z_]+'/g) ?? [];
+    expect(types.length, "estado de conciliação não lido").toBeGreaterThan(0);
+    for (const type of types) {
+      expect(RECONCILIATION_STATUS[type.replaceAll("'", "")], `conciliação ${type} sem rótulo`).toBeTruthy();
     }
   });
 

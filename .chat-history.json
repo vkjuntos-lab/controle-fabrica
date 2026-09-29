@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sed -n '1,80p' scripts/test-fiscal-db.py",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790680115577
-  },
-  {
-    "role": "tool_result",
-    "content": "#!/usr/bin/env python3\n\"\"\"MASTER 014 integration tests in disposable PostgreSQL. Never uses a published database.\"\"\"\nimport importlib.util, json\nfrom pathlib import Path\n\nspec = importlib.util.spec_from_file_location('inventory', Path(__file__).with_name('test-inventory-db.py'))\ndb = importlib.util.",
-    "is_error": false,
-    "timestamp": 1790680115607
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sed -n '70,190p' supabase/migrations/20261014100000_fiscal_integrity.sql",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1585,5 +1570,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790681320018
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/fiscal/constants.test.ts",
+      "newString": "describe(\"rótulos de códigos\", () => {\n  it(\"traduz todos os estados de documento permitidos pelo banco\", () => {\n    const type = /CREATE TYPE public\\.fiscal_document_status AS ENUM \\(([^;]*?)\\);/i.exec(SQL)?.[1];\n    const allowed = (type ?? \"\").match(/'([A-Z_]+)'/g) ?? [];\n    expect(allowed.length, \"estado de documento não lido das migrations\").toBeGreaterThan(5);\n    for (const code of allowed) {\n      expect(DOCUMENT_STATUS[code.replaceAll(\"'\", \"\")], `estado ${code} sem rótulo`).toBeTruthy();\n    }\n  });\n\n  it(\"traduz todas as origens permitidas pelo banco\", () => {\n    const check = /origin_code smallint NOT NULL DEFAULT 0 CHECK\\(origin_code BETWEEN (\\d+) AND (\\d+)\\)/.exec(\n      createTableBody(\"product_fiscal_profiles\") ?? \"\",\n    );\n    const from = Number(check?.[1] ?? -1);\n    const to = Number(check?.[2] ?? -1);\n    expect(from, \"faixa de origem não lida de product_fiscal_profiles\").toBe(0);\n    for (let code = from; code <= to; code += 1) {\n      expect(ORIGIN_CODE[String(code)], `origem ${code} sem rótulo`).toBeTruthy();\n    }\n  });\n\n  it(\"traduz todos os tipos de pendência permitidos pelo banco\", () => {\n    const types =\n      /exception_type text NOT NULL CHECK\\(exception_type IN \\(([^)]*)\\)\\)/.exec(\n        createTableBody(\"fiscal_exceptions\") ?? \"\",\n      )?.[1]?.match(/'[A-Z_]+'/g) ?? [];\n    expect(types.length, \"tipo de pendência não lido de fiscal_exceptions\").toBeGreaterThan(5);\n    for (const type of types) {\n      expect(EXCEPTION_TYPE[type.replaceAll(\"'\", \"\")], `pendência ${type} sem rótulo`).toBeTruthy();\n    }\n  });\n\n  it(\"traduz todos os eventos permitidos pelo banco\", () => {\n    const types =\n      /event_type text NOT NULL CHECK\\(event_type IN \\(([^)]*)\\)\\)/.exec(\n        createTableBody(\"fiscal_events\") ?? \"\",\n      )?.[1]?.match(/'[A-Z_]+'/g) ?? [];\n    expect(types.length, \"evento não lido de fiscal_events\").toBeGreaterThan(0);\n    for (const type of types) {\n      expect(EVENT_TYPE[type.replaceAll(\"'\", \"\")], `evento ${type} sem rótulo`).toBeTruthy();\n    }\n  });\n\n  it(\"traduz todos os estados de conciliação permitidos pelo banco\", () => {\n    const types =\n      /status text NOT NULL CHECK\\(status IN \\(([^)]*)\\)\\)/.exec(\n        createTableBody(\"fiscal_reconciliations\") ?? \"\",\n      )?.[1]?.match(/'[A-Z_]+'/g) ?? [];\n    expect(types.length, \"estado de conciliação não lido\").toBeGreaterThan(0);\n    for (const type of types) {\n      expect(RECONCILIATION_STATUS[type.replaceAll(\"'\", \"\")], `conciliação ${type} sem rótulo`).toBeTruthy();\n    }\n  });\n\n  it(\"não deixa código em inglês nas listas de tradução\", () => {\n",
+      "oldString": "describe(\"rótulos de códigos\", () => {\n  it(\"traduz todos os estados de documento permitidos pelo banco\", () => {\n    const check = /status text NOT NULL CHECK\\(status IN \\(([^)]*)\\)\\)/.exec(\n      createTableBody(\"fiscal_documents\") ?? \"\",\n    );\n    const allowed = (check?.[1] ?? \"\").match(/'([A-Z_]+)'/g) ?? [];\n    expect(allowed.length).toBeGreaterThan(0);\n    for (const code of allowed) {\n      expect(DOCUMENT_STATUS[code.replaceAll(\"'\", \"\")], `estado ${code} sem rótulo`).toBeTruthy();\n    }\n  });\n\n  it(\"traduz todas as origens permitidas pelo banco\", () => {\n    const check = /origem int NOT NULL DEFAULT 0 CHECK\\(origem BETWEEN (\\d+) AND (\\d+)\\)/.exec(\n      createTableBody(\"fiscal_tax_profiles\") ?? \"\",\n    );\n    const [from, to] = [Number(check?.[1] ?? -1), Number(check?.[2] ?? -1)];\n    expect(from).toBe(0);\n    for (let code = from; code <= to; code += 1) {\n      expect(ORIGIN_CODE[String(code)], `origem ${code} sem rótulo`).toBeTruthy();\n    }\n  });\n\n  it(\"traduz todos os tipos de pendência permitidos pelo banco\", () => {\n    const body = createTableBody(\"fiscal_exceptions\") ?? \"\";\n    const types = (body.match(/'([A-Z_]{6,})'/g) ?? []).map((value) => value.replaceAll(\"'\", \"\"));\n    const expected = new Set(types);\n    expect(expected.size).toBeGreaterThan(5);\n    for (const type of expected) {\n      expect(EXCEPTION_TYPE[type], `pendência ${type} sem rótulo`).toBeTruthy();\n    }\n  });\n\n  it(\"não deixa código em inglês nas listas de tradução\", () => {\n"
+    },
+    "timestamp": 1790681329368
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790681329385
   }
 ]
