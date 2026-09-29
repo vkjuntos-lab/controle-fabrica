@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "ok\n228:const money = \"—\";\n",
-    "is_error": false,
-    "timestamp": 1790681380178
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"src/lib/fiscal/constants.test.ts\")\ns = p.read_text(encoding=\"utf8\")\ns = s.replace('''function createTableBody(table: string): string | null {\n  const source = sqlSemComentarios(SQL);\n  const head = new RegExp(\n    `CREATE TABLE(?: IF NOT EXISTS)? public\\\\\\\\.${table}\\\\\\\\s*\\\\\\\\(`,\n    \"i\",\n  ).exec(source);\n  if (!head) return null;\n  let depth = 1;\n  for (let index = head.index + head[0].length; index < source.length; index += 1) {\n    if (source[index] === \"(\") depth += 1;\n    else if (source[index] === \")\") {\n      depth -= 1;\n      if (depth === 0) return source.slice(head.index + head[0].length, index);\n    }\n  }\n  return null;\n}''', '''function createTableBody(table: string): string | null {\n  const source = sqlSemComentarios(SQL);\n  // A última declaração vence. O histórico tem um `fiscal_documents` legado\n  // de 2026-07 com outro desenho; ler a primeira faria o teste validar a\n  // tabela que o MASTER 014 substituiu.\n  const pattern = new RegExp(\n    `CREATE TABLE(?: IF NOT EXISTS)? public\\\\\\\\.${table}\\\\\\\\s*\\\\\\\\(`,\n    \"gi\",\n  );\n  let head: RegExpExecArray | null = null;\n  for (const found of source.matchAll(pattern)) head = found;\n  if (!head) return null;\n  let depth = 1;\n  for (let index = head.index + head[0].length; index < source.length; index += 1) {\n    if (source[index] === \"(\") depth += 1;\n    else if (source[index] === \")\") {\n      depth -= 1;\n      if (depth === 0) return source.slice(head.index + head[0].length, index);\n    }\n  }\n  return null;\n}''')\ns = s.replace('''    const type = /CREATE TYPE public\\\\.fiscal_document_status AS ENUM \\\\(([^;]*?)\\\\);/i.exec(SQL)?.[1];''',\n'''    const type = /CREATE TYPE public\\\\.fiscal_document_status AS ENUM \\\\(([^;]*?)\\\\);/i.exec(\n      sqlSemComentarios(SQL),\n    )?.[1];''')\ns = s.replace('''  it(\"traduz todos os eventos permitidos pelo banco\", () => {\n    const types =\n      /event_type text NOT NULL CHECK\\\\(event_type IN \\\\(([^)]*)\\\\)\\\\)/.exec(\n        createTableBody(\"fiscal_events\") ?? \"\",\n      )?.[1]?.match(/'[A-Z_]+'/g) ?? [];\n    expect(types.length, \"evento não lido de fiscal_events\").toBeGreaterThan(0);\n    for (const type of types) {\n      expect(EVENT_TYPE[type.replaceAll(\"'\", \"\")], `evento ${type} sem rótulo`).toBeTruthy();\n    }\n  });''', '''  it(\"traduz exatamente os eventos que o banco emite\", () => {\n    // `fiscal_events.event_type` é texto livre: o contrato é o que o servidor\n    // grava via `fiscal_emit`, e a lista de rótulos tem que acompanhar.\n    const emitted = new Set(\n      [...SQL.matchAll(/fiscal_emit\\\\([^,]+,'([A-Z_]+)'/g)].map((match) => match[1]),\n    );\n    expect(emitted.size, \"nenhum evento emitido lido das migrations\").toBeGreaterThan(0);\n    for (const event of emitted) {\n      expect(EVENT_TYPE[event], `evento ${event} sem rótulo`).toBeTruthy();\n    }\n    for (const event of Object.keys(EVENT_TYPE)) {\n      expect(emitted.has(event), `rótulo ${event} sem evento correspondente no banco`).toBe(true);\n    }\n  });''')\np.write_text(s, encoding=\"utf8\")\nprint(\"ok\")\nPY\nnpx vitest run src/lib/fiscal/constants.test.ts 2>&1 | head -35",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681389257
-  },
-  {
-    "role": "tool_result",
     "content": "ok\n\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ❯ src/lib/fiscal/constants.test.ts (12 tests | 4 failed) 357ms\n   ✓ contrato entre a listagem e o banco > toda área com listagem aponta para uma tabela que existe 138ms\n   ✓ contrato entre a listagem e o banco > toda coluna listada existe ",
     "is_error": false,
     "timestamp": 1790681391003
@@ -1485,5 +1470,19 @@
     "content": "#!/usr/bin/env python3\n\"\"\"Isolated PostgreSQL integration tests. Never connects to a deployed database.\"\"\"\nimport concurrent.futures\nimport json\nimport os\nfrom pathlib import Path\nimport shutil\nimport subprocess\nimport tempfile\nimport uuid\n\nROOT = Path(__file__).resolve().parents[1]\nBIN = Path(os.en",
     "is_error": false,
     "timestamp": 1790682950358
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -n \"FUNCTION public.fiscal_require\" -A 8 supabase/migrations/20261013100000_fiscal_core.sql | head -12; echo \"=== financeiro 009 ===\"; ls supabase/migrations/ | grep -E \"2026092[89]|finance\""
+    },
+    "timestamp": 1790682954488
+  },
+  {
+    "role": "tool_result",
+    "content": "570:CREATE FUNCTION public.fiscal_require(_org uuid,_permission text) RETURNS void\n571-LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n572-BEGIN\n573-  IF auth.uid() IS NULL OR NOT public.has_permission(_org,_permission) THEN\n574-    RAISE EXCEPTION 'Sem permissão: %',_permission;\n575-",
+    "is_error": false,
+    "timestamp": 1790682954517
   }
 ]
