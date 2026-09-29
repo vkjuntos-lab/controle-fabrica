@@ -8,7 +8,7 @@ db=f.db;sql=db.sql;q=db.q
 
 def run():
  f.run()
- for name in ['20261014100000_fiscal_integrity.sql','20261014200000_fiscal_documents.sql','20261014300000_fiscal_inbound.sql','20261014400000_fiscal_workspace.sql']:
+ for name in ['20261014100000_fiscal_integrity.sql','20261014200000_fiscal_documents.sql','20261014300000_fiscal_inbound.sql','20261014400000_fiscal_workspace.sql','20261014500000_fiscal_screen_fixes.sql']:
   sql((db.ROOT/'supabase/migrations'/name).read_text())
  print('WORKFLOW MIGRATIONS OK')
  org=sql('SELECT id FROM organizations LIMIT 1');admin=sql("SELECT id FROM auth.users WHERE email='adm@test'")

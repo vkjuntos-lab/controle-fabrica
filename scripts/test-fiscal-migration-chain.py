@@ -199,4 +199,10 @@ def run():
 
 
 if __name__ == '__main__':
-    run()
+    try:
+        run()
+    finally:
+        # O harness compartilhado só limpa quando roda como programa; sem
+        # isto o diretório do cluster fica em /tmp e a segunda rodada falha
+        # com `No space left on device`.
+        db.cleanup()

@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261014500000_fiscal_screen_fixes.sql",
-      "newString": " ELSIF _kind='rule_detail' THEN\n  subject:=(_filters->>'id')::uuid;\n  RETURN jsonb_build_object(\n    'reviews',(SELECT coalesce(jsonb_agg(to_jsonb(r) ORDER BY r.created_at),'[]') FROM tax_rule_reviews r WHERE organization_id=_org AND r.tax_rule_id=subject),\n    'regressions',(SELECT coalesce(jsonb_agg(to_jsonb(g) ORDER BY g.created_at),'[]') FROM fiscal_rule_regressions g WHERE organization_id=_org AND g.tax_rule_id=subject),\n    'items',(SELECT coalesce(jsonb_agg(to_jsonb(i) ORDER BY i.tax_id),'[]') FROM tax_rule_items i WHERE organization_id=_org AND i.tax_rule_id=subject));\n ELSIF _kind='assignees' THEN\n  -- Responsáveis de pendência. Sem isto a tela tinha como registrar resolução\n  -- mas não como atribuir o caso: `fiscal_exception_action` grava\n  -- `responsible_id` e a coluna ficava sempre nula.\n  PERFORM fiscal_require(_org,'fiscal.exceptions.manage');\n  SELECT coalesce(jsonb_agg(jsonb_build_object('id',m.user_id,'name',coalesce(p.full_name,p.email,m.user_id::text),'role',m.role) ORDER BY p.full_name),'[]') INTO result\n  FROM organization_members m LEFT JOIN profiles p ON p.id=m.user_id\n  WHERE m.organization_id=_org AND m.is_active;\n  RETURN result;\n END IF;\n",
-      "oldString": " ELSIF _kind='rule_detail' THEN\n  subject:=(_filters->>'id')::uuid;\n  RETURN jsonb_build_object(\n    'reviews',(SELECT coalesce(jsonb_agg(to_jsonb(r) ORDER BY r.created_at),'[]') FROM tax_rule_reviews r WHERE organization_id=_org AND r.tax_rule_id=subject),\n    'regressions',(SELECT coalesce(jsonb_agg(to_jsonb(g) ORDER BY g.created_at),'[]') FROM fiscal_rule_regressions g WHERE organization_id=_org AND g.tax_rule_id=subject),\n    'items',(SELECT coalesce(jsonb_agg(to_jsonb(i) ORDER BY i.tax_id),'[]') FROM tax_rule_items i WHERE organization_id=_org AND i.tax_rule_id=subject));\n END IF;\n"
-    },
-    "timestamp": 1790680886694
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790680886708
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261014500000_fiscal_screen_fixes.sql",
       "newString": "-- (c) `regressions` entra como área: `fiscal_rule_regressions` é a prova de\n--     que a regra foi testada no servidor antes de virar vigente, e era\n--     invisível. Sem ela, \"ativação exige regressão\" era verdade sem\n--     evidência visível. `rule_detail` e `assignees` dão à tela a trilha de\n--     revisão e a lista de responsáveis.\n-- ---------------------------------------------------------------------\n",
       "oldString": "-- (c) `regressions` entra como área: `fiscal_rule_regressions` é a prova de\n--     que a regra foi testada no servidor antes de virar vigente, e era\n--     invisível. Sem ela, \"ativação exige regressão\" era verdade sem\n--     evidência visível.\n-- ---------------------------------------------------------------------\n"
     },
@@ -1537,5 +1521,20 @@
     "content": " print('PASS W10: devoluções de cliente/fornecedor/parceiro e transferência usam fatos e regras próprias')\n print('FISCAL WORKFLOW OK')\n\nif __name__=='__main__':\n try: run()\n finally: db.cleanup()\n=== head workflow ===\n#!/usr/bin/env python3\n\"\"\"Fiscal workflow integration tests; isolated PostgreSQL ",
     "is_error": false,
     "timestamp": 1790681994167
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"scripts/test-fiscal-workflow-db.py\")\ns = p.read_text(encoding=\"utf8\")\ns = s.replace(\"'20261014400000_fiscal_workspace.sql']:\",\n              \"'20261014400000_fiscal_workspace.sql','20261014500000_fiscal_screen_fixes.sql']:\")\np.write_text(s, encoding=\"utf8\")\n\nc = pathlib.Path(\"scripts/test-fiscal-migration-chain.py\")\nt = c.read_text(encoding=\"utf8\")\nt = t.replace(\"\"\"if __name__ == '__main__':\n    run()\"\"\", \"\"\"if __name__ == '__main__':\n    try:\n        run()\n    finally:\n        # O harness compartilhado só limpa quando roda como programa; sem\n        # isto o diretório do cluster fica em /tmp e a segunda rodada falha\n        # com `No space left on device`.\n        db.cleanup()\"\"\")\nc.write_text(t, encoding=\"utf8\")\nprint(\"ok\")\nPY\nrm -f scripts/_check-sales-migration.py scripts/_probe-sales.py && ls scripts/ | head -30",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681999297
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n__pycache__\ntest-costs-db.py\ntest-crm-db.py\ntest-finance-db.py\ntest-fiscal-db.py\ntest-fiscal-migration-chain.py\ntest-fiscal-workflow-db.py\ntest-inventory-db.py\ntest-partner-store-integration-db.py\ntest-partners-db.py\ntest-planning-db.py\ntest-purchasing-db.py\ntest-reconciliation-db.py\ntest-sales-d",
+    "is_error": false,
+    "timestamp": 1790681999369
   }
 ]
