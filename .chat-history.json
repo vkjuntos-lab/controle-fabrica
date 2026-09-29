@@ -1,21 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20261014400000_fiscal_workspace.sql');s=p.read_text().replace(' AND active)', ' AND is_active)')\nmarker=\\\" tbl:=CASE _kind\\\"\ninsert=\\\"\\\"\\\" IF _kind IN ('company_options','variant_options','address_options','supplier_options','shipment_options','receipt_options') THEN\n  IF _kind='company_options' THEN\n   SELECT coalesce(jsonb_agg(row),'[]') INTO result FROM (SELECT jsonb_build_object('id',id,'label',legal_name||' · '||code) row\n   FROM companies WHERE organization_id=_org AND (coalesce(_filters->>'search','')='' OR legal_name ILIKE '%'||(_filters->>'search')||'%') ORDER BY legal_name LIMIT 50) s;\n  ELSIF _kind='variant_options' THEN\n   SELECT coalesce(jsonb_agg(row),'[]') INTO result FROM (SELECT jsonb_build_object('id',id,'label',sku) row\n   FROM product_variants WHERE organization_id=_org AND sku ILIKE '%'||coalesce(_filters->>'search','')||'%' ORDER BY sku LIMIT 50) s;\n  ELSIF _kind='address_options' THEN\n   SELECT coalesce(jsonb_agg(row),'[]') INTO result FROM (SELECT jsonb_build_object('id',a.id,'label',c.legal_name||' · '||a.street||' · '||a.city) row\n   FROM company_addresses a JOIN companies c ON c.organization_id=a.organization_id AND c.id=a.company_id\n   WHERE a.organization_id=_org AND (c.legal_name||' '||a.street) ILIKE '%'||coalesce(_filters->>'search','')||'%' ORDER BY a.id LIMIT 50) s;\n  ELSIF _kind='supplier_options' THEN\n   SELECT coalesce(jsonb_agg(row),'[]') INTO result FROM (SELECT jsonb_build_object('id',s.id,'label',c.legal_name) row\n   FROM supplier_profiles s JOIN companies c ON c.organization_id=s.organization_id AND c.id=s.company_id\n   WHERE s.organization_id=_org AND c.legal_name ILIKE '%'||coalesce(_filters->>'search','')||'%' ORDER BY c.legal_name LIMIT 50) s;\n  ELSIF _kind='receipt_options' THEN\n   SELECT coalesce(jsonb_agg(row),'[]') INTO result FROM (SELECT jsonb_build_object('id',id,'label',receipt_number) row FROM goods_receipts\n   WHERE organization_id=_org AND receipt_number ILIKE '%'||coalesce(_filters->>'search','')||'%' ORDER BY created_at DESC LIMIT 50) s;\n  ELSE\n   SELECT coalesce(jsonb_agg(row),'[]') INTO result FROM (SELECT jsonb_build_object('id',s.id,'label',s.shipment_number||' · '||c.legal_name) row\n   FROM shipments s JOIN sales_orders o ON o.organization_id=s.organization_id AND o.id=s.sales_order_id\n   JOIN companies c ON c.organization_id=o.organization_id AND c.id=o.company_id\n   WHERE s.organization_id=_org AND s.dispatched_at IS NOT NULL AND s.status<>'CANCELED'\n   AND (s.shipment_number||' '||c.legal_name) ILIKE '%'||coalesce(_filters->>'search','')||'%' ORDER BY s.created_at DESC LIMIT 50) s;\n  END IF;\n  RETURN result;\n END IF;\n\\\"\\\"\\\"\ns=s.replace(marker,insert+marker)\np.write_text(s)\nPY\nnpm run typecheck\""
-    },
-    "timestamp": 1790669058036
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"sed -n '1,72p' src/lib/rbac.test.ts; sed -n '1,65p' supabase/migrations/20261001100000_purchasing.sql; sed -n '266,318p' supabase/migrations/20261001100000_purchasing.sql; rg -n 'CREATE TABLE public.purchase_order_items' supabase/migrations/20261001100000_purchasing.sql\""
-    },
-    "timestamp": 1790669081433
-  },
-  {
     "role": "tool_result",
     "content": "import { readFileSync } from \"node:fs\";\nimport { describe, expect, it } from \"vitest\";\n\nimport {\n  APP_ROLES,\n  PERMISSIONS,\n  PERMISSION_LABELS,\n  PLATFORM_MODULES,\n  ROLE_LABELS,\n} from \"@/lib/rbac\";\n\ndescribe(\"rbac\", () => {\n  it(\"define os papéis iniciais da plataforma\", () => {\n    expect(APP_R",
     "is_error": false,
@@ -1452,5 +1436,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/scripts/_probe-fiscal.py</path>\n<type>file</type>\n<content>\n62:                  'companies', 'products', 'rules', 'simulations', 'documents']:\n63:         out = db.call('fiscal_query', ','.join([q(org), q(kind), q('{}')]), uid, 'permiss')\n64:         ",
     "is_error": false,
     "timestamp": 1790680223568
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'PY'\nimport pathlib\np=pathlib.Path('scripts/_probe-fiscal.py')\nlines=p.read_text().split('\\n')\nnovo=lines[:65]+[\n\"    print('--- I1: colunas reais por area (o que a tabela generica tenta ler) ---')\",\n\"    for t in ['fiscal_documents','inbound_fiscal_documents','fiscal_events','fiscal_exceptions',\",\n\"              'fiscal_reconciliations','product_fiscal_profiles','company_fiscal_profiles',\",\n\"              'fiscal_simulations','tax_rules','fiscal_layout_versions','fiscal_providers']:\",\n\"        cols=sql(\\\"SELECT string_agg(column_name,',' ORDER BY column_name) FROM information_schema.columns WHERE table_schema='public' AND table_name=%s\\\" % q(t))\",\n\"        mostrados=['label','legal_name','fiscal_nature','sku','name','version','id']\",\n\"        tem=[c for c in mostrados if (','+cols+',').find(','+c+',')>=0]\",\n\"        print('  %-30s label cai em %s' % (t, tem))\",\n\"    tabelas=sql(\\\"SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND (table_name LIKE '%fiscal%' OR table_name LIKE 'tax_rule%' OR table_name LIKE 'tax_calc%') ORDER BY 1\\\").split('\\\\n')\",\n\"    comdata=set(sql(\\\"SELECT table_name FROM information_schema.columns WHERE table_schema='public' AND column_name='created_at'\\\").split('\\\\n'))\",\n\"    print('--- B3: tabelas fiscais sem created_at (filtro de data as esconde) ---')\",\n\"    print(' ', [t for t in tabelas if t not in comdata])\",\n\"}\",\n\"\",\n\"if __name__=='__main__':\",\n\"    try: run()\",\n\"    finally: db.cleanup()\",\n]\np.write_text('\\n'.join(novo))\nPY\nchmod a+r scripts/_probe-fiscal.py && su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/_probe-fiscal.py\" 2>&1 | tail -25",
+      "timeout": 900000,
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790680230713
+  },
+  {
+    "role": "tool_result",
+    "content": "  File \"/root/Zheus AI Projects/controle-fabricas/scripts/_probe-fiscal.py\", line 78\n    }\n    ^\nSyntaxError: unmatched '}'\n",
+    "is_error": false,
+    "timestamp": 1790680230852
   }
 ]
