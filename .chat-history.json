@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rn \"role_permissions\" supabase/migrations/20261013100000_fiscal_core.sql | head -6; echo \"---\"; grep -rn \"INSERT INTO role_permissions\" -A 12 supabase/migrations/20261013100000_fiscal_core.sql | head -24; echo \"=== role_permissions schema ===\"; python3 -c \"\nimport re,pathlib\nt=pathlib.Path('supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql').read_text()\nm=re.search(r'create table(?: if not exists)? (?:public\\.)?role_permissions\\s*\\((.*?)\\n\\);',t,re.S|re.I)\nprint(m.group(1) if m else 'nao')\""
-    },
-    "timestamp": 1790682982744
-  },
-  {
-    "role": "tool_result",
-    "content": "---\n=== role_permissions schema ===\n\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  role public.app_role NOT NULL,\n  permission text NOT NULL,\n  created_at timestamptz NOT NULL DEFAULT now(),\n  UNIQUE (role, permission)\n",
-    "is_error": false,
-    "timestamp": 1790682982798
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rn \"role_permissions\" supabase/migrations/*.sql | grep -iE \"insert|insert into\" | head -5; echo \"---\"; grep -rn \"'fiscal.read'\" supabase/migrations/*.sql | head -5"
     },
     "timestamp": 1790682985480
@@ -1494,5 +1480,20 @@
     "content": "ok\n480:          'opportunities',coalesce(oc.cnt,0),'quotes',coalesce(qc.cnt,0),'orders',coalesce(od.cnt,0),\n533:          'orders',oc.cnt,'value',oc.value,'rejected',coalesce(g.rejected,0))\n543:        WHERE c.organization_id=_org AND oc.cnt IS NOT NULL ORDER BY oc.value DESC),'[]'::jsonb));\n556:  ",
     "is_error": false,
     "timestamp": 1790684018645
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np = Path('supabase/migrations/20261015120000_bi_queries.sql')\ns = p.read_text()\nantigo = \"\"\"    IF _kind='metric_value' THEN\n      v_cur := public.bi_aggregate(_org,v_metric,v_from,v_to,NULL,'MONTH',v_scope);\n      RETURN jsonb_build_array(coalesce((SELECT r FROM jsonb_array_elements(v_cur) r\n        WHERE r->>'bucket' IS NULL),jsonb_build_object('value',NULL,'available',false)))\n        || jsonb_build_object('definition',to_jsonb(def));\n    ELSIF _kind='series' THEN\n      RETURN public.bi_aggregate(_org,v_metric,v_from,v_to,NULL,v_grain,v_scope);\n    ELSE\n      RETURN public.bi_aggregate(_org,v_metric,v_from,v_to,v_dim,v_grain,v_scope);\n    END IF;\"\"\"\nnovo = \"\"\"    IF _kind='metric_value' THEN\n      v_cur := public.bi_metric_value(_org,v_metric,v_from,v_to,v_scope);\n      RETURN jsonb_build_object('metric_key',v_metric,'value',v_cur->'value',\n        'available',v_cur->'available','unit',def.unit,\n        'period',jsonb_build_object('from',v_from,'to',v_to-1),\n        'definition',to_jsonb(def));\n    ELSIF _kind='series' THEN\n      v_cur := public.bi_aggregate(_org,v_metric,v_from,v_to,NULL,v_grain,v_scope);\n      RETURN jsonb_build_object('metric_key',v_metric,'granularity',v_grain,'unit',def.unit,\n        'period',jsonb_build_object('from',v_from,'to',v_to-1),\n        'points',(SELECT coalesce(jsonb_agg(p),'[]'::jsonb)\n          FROM jsonb_array_elements(v_cur) p WHERE NOT coalesce((p->>'is_total')::boolean,false)),\n        'total',(SELECT p FROM jsonb_array_elements(v_cur) p\n          WHERE coalesce((p->>'is_total')::boolean,false)));\n    ELSE\n      v_cur := public.bi_aggregate(_org,v_metric,v_from,v_to,v_dim,v_grain,v_scope);\n      RETURN jsonb_build_object('metric_key',v_metric,'dimension',v_dim,'unit',def.unit,\n        'period',jsonb_build_object('from',v_from,'to',v_to-1),\n        'rows',(SELECT coalesce(jsonb_agg(p),'[]'::jsonb) FROM jsonb_array_elements(v_cur) p\n          WHERE NOT coalesce((p->>'is_total')::boolean,false)),\n        'total',(SELECT p FROM jsonb_array_elements(v_cur) p\n          WHERE coalesce((p->>'is_total')::boolean,false)));\n    END IF;\"\"\"\nassert antigo in s\ns = s.replace(antigo, novo)\n# bi_metric_value: pega a linha total\ns = s.replace(\"\"\"  SELECT coalesce((SELECT r FROM public.bi_aggregate(_org,_metric,_from,_to,NULL,'MONTH',_scope) r\n                   WHERE r->>'bucket' IS NULL),'{}'::jsonb);\"\"\",\n\"\"\"  SELECT coalesce((SELECT r FROM public.bi_aggregate(_org,_metric,_from,_to,NULL,'MONTH',_scope) r\n                   WHERE coalesce((r->>'is_total')::boolean,false)),\n                  '{\"value\":null,\"available\":false}'::jsonb);\"\"\")\n# compare usa bi_metric_value\ns = s.replace(\"\"\"    v_cur := (SELECT r FROM jsonb_array_elements(public.bi_aggregate(_org,v_metric,v_from,v_to,NULL,'MONTH',v_scope)) r\n              WHERE r->>'bucket' IS NULL);\n    v_prev := (SELECT r FROM jsonb_array_elements(public.bi_aggregate(_org,v_metric,v_pf,v_pt,NULL,'MONTH',v_scope)) r\n               WHERE r->>'bucket' IS NULL);\"\"\",\n\"\"\"    v_cur := public.bi_metric_value(_org,v_metric,v_from,v_to,v_scope);\n    v_prev := public.bi_metric_value(_org,v_metric,v_pf,v_pt,v_scope);\"\"\")\n# targets usa bi_metric_value\ns = s.replace(\"\"\"      LEFT JOIN LATERAL (SELECT (r->>'value')::numeric value, coalesce((r->>'available')::boolean,false) available\n        FROM public.bi_aggregate(_org,t.metric_key,t.period_start,t.period_end,NULL,'MONTH') r\n        WHERE r->>'bucket' IS NULL) a ON true\"\"\",\n\"\"\"      LEFT JOIN LATERAL (SELECT (r->>'value')::numeric value, coalesce((r->>'available')::boolean,false) available\n        FROM public.bi_metric_value(_org,t.metric_key,t.period_start,t.period_end) r) a ON true\"\"\")\n# export: aceita os novos envelopes\ns = s.replace(\"\"\"  v_rows := CASE WHEN jsonb_typeof(raw)='array' THEN raw\n               WHEN raw ? 'records' THEN raw->'records' ELSE '[]'::jsonb END;\"\"\",\n\"\"\"  v_rows := CASE WHEN jsonb_typeof(raw)='array' THEN raw\n               WHEN raw ? 'records' THEN raw->'records'\n               WHEN raw ? 'rows' THEN raw->'rows'\n               WHEN raw ? 'points' THEN raw->'points'\n               WHEN raw ? 'value' THEN jsonb_build_array(raw)\n               ELSE '[]'::jsonb END;\"\"\")\np.write_text(s)\nprint('ok')\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql 20261015110000_bi_marts.sql 20261015120000_bi_queries.sql\" 2>&1 | tail -8",
+      "timeout": 900000
+    },
+    "timestamp": 1790684026608
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventory-db.py\", line 24, in sql\n    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  column \"label\" does not exist\nLINE 133: ",
+    "is_error": false,
+    "timestamp": 1790684029271
   }
 ]

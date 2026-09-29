@@ -194,7 +194,8 @@ $$;
 CREATE FUNCTION public.bi_metric_value(_org uuid,_metric text,_from date,_to date,_scope jsonb DEFAULT '{}'::jsonb)
 RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
   SELECT coalesce((SELECT r FROM public.bi_aggregate(_org,_metric,_from,_to,NULL,'MONTH',_scope) r
-                   WHERE r->>'bucket' IS NULL),'{}'::jsonb);
+                   WHERE coalesce((r->>'is_total')::boolean,false)),
+                  '{"value":null,"available":false}'::jsonb);
 $$;
 
 -- ---------------------------------------------------------------------
@@ -236,14 +237,27 @@ BEGIN
       END IF;
     END IF;
     IF _kind='metric_value' THEN
-      v_cur := public.bi_aggregate(_org,v_metric,v_from,v_to,NULL,'MONTH',v_scope);
-      RETURN jsonb_build_array(coalesce((SELECT r FROM jsonb_array_elements(v_cur) r
-        WHERE r->>'bucket' IS NULL),jsonb_build_object('value',NULL,'available',false)))
-        || jsonb_build_object('definition',to_jsonb(def));
+      v_cur := public.bi_metric_value(_org,v_metric,v_from,v_to,v_scope);
+      RETURN jsonb_build_object('metric_key',v_metric,'value',v_cur->'value',
+        'available',v_cur->'available','unit',def.unit,
+        'period',jsonb_build_object('from',v_from,'to',v_to-1),
+        'definition',to_jsonb(def));
     ELSIF _kind='series' THEN
-      RETURN public.bi_aggregate(_org,v_metric,v_from,v_to,NULL,v_grain,v_scope);
+      v_cur := public.bi_aggregate(_org,v_metric,v_from,v_to,NULL,v_grain,v_scope);
+      RETURN jsonb_build_object('metric_key',v_metric,'granularity',v_grain,'unit',def.unit,
+        'period',jsonb_build_object('from',v_from,'to',v_to-1),
+        'points',(SELECT coalesce(jsonb_agg(p),'[]'::jsonb)
+          FROM jsonb_array_elements(v_cur) p WHERE NOT coalesce((p->>'is_total')::boolean,false)),
+        'total',(SELECT p FROM jsonb_array_elements(v_cur) p
+          WHERE coalesce((p->>'is_total')::boolean,false)));
     ELSE
-      RETURN public.bi_aggregate(_org,v_metric,v_from,v_to,v_dim,v_grain,v_scope);
+      v_cur := public.bi_aggregate(_org,v_metric,v_from,v_to,v_dim,v_grain,v_scope);
+      RETURN jsonb_build_object('metric_key',v_metric,'dimension',v_dim,'unit',def.unit,
+        'period',jsonb_build_object('from',v_from,'to',v_to-1),
+        'rows',(SELECT coalesce(jsonb_agg(p),'[]'::jsonb) FROM jsonb_array_elements(v_cur) p
+          WHERE NOT coalesce((p->>'is_total')::boolean,false)),
+        'total',(SELECT p FROM jsonb_array_elements(v_cur) p
+          WHERE coalesce((p->>'is_total')::boolean,false)));
     END IF;
 
   ELSIF _kind='drill' THEN
@@ -305,10 +319,8 @@ BEGIN
     PERFORM public.bi_require(_org,public.bi_metric_permission(def.business_domain));
     SELECT p.period_start,p.period_end INTO v_pf,v_pt
       FROM public.bi_resolve_period('CUSTOM',v_from-(v_to-v_from),v_from-1) p;
-    v_cur := (SELECT r FROM jsonb_array_elements(public.bi_aggregate(_org,v_metric,v_from,v_to,NULL,'MONTH',v_scope)) r
-              WHERE r->>'bucket' IS NULL);
-    v_prev := (SELECT r FROM jsonb_array_elements(public.bi_aggregate(_org,v_metric,v_pf,v_pt,NULL,'MONTH',v_scope)) r
-               WHERE r->>'bucket' IS NULL);
+    v_cur := public.bi_metric_value(_org,v_metric,v_from,v_to,v_scope);
+    v_prev := public.bi_metric_value(_org,v_metric,v_pf,v_pt,v_scope);
     v_curnum := (v_cur->>'value')::numeric; v_prevnum := (v_prev->>'value')::numeric;
     RETURN jsonb_build_object('metric_key',v_metric,
       'current',v_cur,'previous',v_prev,
@@ -330,8 +342,7 @@ BEGIN
       ORDER BY t.metric_key)
       FROM public.bi_targets t
       LEFT JOIN LATERAL (SELECT (r->>'value')::numeric value, coalesce((r->>'available')::boolean,false) available
-        FROM public.bi_aggregate(_org,t.metric_key,t.period_start,t.period_end,NULL,'MONTH') r
-        WHERE r->>'bucket' IS NULL) a ON true
+        FROM public.bi_metric_value(_org,t.metric_key,t.period_start,t.period_end) r) a ON true
       WHERE t.organization_id=_org AND t.status='ACTIVE'
         AND t.period_start<v_to AND t.period_end>=v_from),'[]'::jsonb);
 
@@ -584,7 +595,11 @@ BEGIN
   IF _format NOT IN ('CSV','XLSX') THEN RAISE EXCEPTION 'Formato inválido: %',_format; END IF;
   raw := public.bi_query(_org,_kind,_filters);
   v_rows := CASE WHEN jsonb_typeof(raw)='array' THEN raw
-               WHEN raw ? 'records' THEN raw->'records' ELSE '[]'::jsonb END;
+               WHEN raw ? 'records' THEN raw->'records'
+               WHEN raw ? 'rows' THEN raw->'rows'
+               WHEN raw ? 'points' THEN raw->'points'
+               WHEN raw ? 'value' THEN jsonb_build_array(raw)
+               ELSE '[]'::jsonb END;
   IF jsonb_array_length(v_rows)=0 THEN RAISE EXCEPTION 'Nada a exportar para o filtro informado.'; END IF;
   SELECT string_agg(k,',') INTO headers FROM (SELECT string_agg(e.key,',' ORDER BY e.key) k
     FROM jsonb_object_keys(v_rows->0) e) s;
