@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && head -60 src/routes/_authenticated/relatorios/rentabilidade.tsx; echo \"=== FISCAL ROTA ===\"; head -50 src/routes/_authenticated/fiscal.tsx; echo \"=== FISCAL WORKSPACE head ===\"; head -80 src/components/fiscal/workspace.tsx"
-    },
-    "timestamp": 1790682931221
-  },
-  {
-    "role": "tool_result",
-    "content": "import { createFileRoute } from \"@tanstack/react-router\";\nimport { ProfitabilityPage } from \"@/components/costs/commercial\";\nexport const Route = createFileRoute(\"/_authenticated/relatorios/rentabilidade\")({\n  head: () => ({\n    meta: [\n      { title: \"Custos e rentabilidade — Estratégia\" },\n      {",
-    "is_error": false,
-    "timestamp": 1790682931266
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -iE \"event\" /tmp/opencode/tables.txt | tr '\\n' ' '; echo; echo \"=== AUDIT ===\"; grep -iE \"audit\" /tmp/opencode/tables.txt | tr '\\n' ' '; echo; echo \"=== fiscal_audit def ===\"; grep -n \"CREATE OR REPLACE FUNCTION public.fiscal_audit\" -A 12 supabase/migrations/20261014400000_fiscal_workspace.sql | head -20"
     },
     "timestamp": 1790682934315
@@ -1492,5 +1478,19 @@
     "content": "CREATE TABLE public.fiscal_documents ( id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES organizations, establishment_id uuid NOT NULL, company_id uuid NOT NULL, document_model text NOT NULL CHECK(document_model='NFe'), operation_type_id uuid NOT NULL, source_ty",
     "is_error": false,
     "timestamp": 1790683920351
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\nimport re\ns = Path('supabase/migrations/20261015110000_bi_marts.sql').read_text()\n# show each function name and lines after the FOR r IN ... LOOP that reference a bare alias.<col>\nfor m in re.finditer(r'CREATE FUNCTION public\\.(\\w+)\\(', s):\n    start = m.start()\n    nxt = s.find('CREATE FUNCTION', start+10)\n    body = s[start: nxt if nxt>0 else len(s)]\n    lines = body.split('\\n')\n    aliases = set()\n    for l in lines:\n        mm = re.search(r'(?:FROM|JOIN)\\s+(?:public\\.)?\\w+\\s+(?:AS\\s+)?(\\w+)', l)\n        if mm: aliases.add(mm.group(1))\n    for i,l in enumerate(lines):\n        for a in aliases:\n            if re.search(rf'(?<![\\w.]){a}\\.\\w+', l) and 'SELECT' not in l and 'FROM' not in l and 'JOIN' not in l and 'LEFT JOIN' not in l:\n                print(m.group(1), '|', l.strip()[:150]); break\nPY"
+    },
+    "timestamp": 1790683926003
+  },
+  {
+    "role": "tool_result",
+    "content": "bi_cost_at | WHERE v.organization_id=_org AND v.variant_id=_variant AND v.status='ACTIVE'\nbi_cost_at | AND v.effective_from<=_at AND (v.effective_to IS NULL OR v.effective_to>_at)\nbi_cost_at | ORDER BY v.effective_from DESC,v.version DESC LIMIT 1;\nbi_classify_channel | IF (r.store_ownership_type IS ",
+    "is_error": false,
+    "timestamp": 1790683926091
   }
 ]
