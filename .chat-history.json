@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sed -n '1060,1100p' supabase/migrations/20261013200000_fiscal_tax_engine.sql",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790680004221
-  },
-  {
-    "role": "tool_result",
-    "content": "--     mesmo papel de 'financeiro', que concilia. Confundir os dois é o\n--     que permite quem transmite o documento também apagar a própria\n--     divergência.\n--\n--     Nota de execução: o ADD VALUE precisa estar em autocommit para\n--     que o INSERT de permissões abaixo já veja o valor novo. Po",
-    "is_error": false,
-    "timestamp": 1790680004242
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-workflow-db.py"
@@ -1581,5 +1566,20 @@
     "content": "fiscal_documents:\n  id, store_id, sale_id, customer_id, kind, serie, numero, chave, status, environment, protocolo, xml_authorized, xml_cancelled, qrcode_url, danfe_url, total_value, reference, provider, provider_ref, error_msg, retry_count, emitted_at, cancelled_at, created_at, updated_at\n\ninbound_",
     "is_error": false,
     "timestamp": 1790681294276
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '25,40p' supabase/migrations/20261013200000_fiscal_tax_engine.sql; echo \"=== layout ===\"; grep -n \"com\\b\" supabase/migrations/20261013100000_fiscal_core.sql | head -5; echo \"=== tax_rules ===\"; grep -n \"versionado\" supabase/migrations/20261013*.sql | head -5",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681299647
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE TABLE public.fiscal_simulations (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations,\n  establishment_id uuid,\n  operation_type_id uuid,\n  company_id uuid,\n  -- Snapshot de entrada da simulação, para reprodutibilidade.\n  input_snap",
+    "is_error": false,
+    "timestamp": 1790681299686
   }
 ]
