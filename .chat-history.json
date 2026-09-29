@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ❯ src/lib/fiscal/constants.test.ts (12 tests | 1 failed) 395ms\n   ✓ contrato entre a listagem e o banco > toda área com listagem aponta para uma tabela que existe 133ms\n   ✓ contrato entre a listagem e o banco > toda coluna listada existe na ",
-    "is_error": false,
-    "timestamp": 1790681732074
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261014500000_fiscal_screen_fixes.sql",
-      "newString": "  WHEN _kind IN ('rules','rule_items','reviews','regressions','products') THEN 'fiscal.tax_rules.read'\n  WHEN _kind='simulations' THEN 'fiscal.simulate'\n  WHEN _kind='providers' THEN 'fiscal.provider.manage'\n",
-      "oldString": "  WHEN _kind IN ('rules','rule_items','reviews','regressions','products') THEN 'fiscal.tax_rules.read'\n  WHEN _kind='simulations' THEN 'fiscal.simulate'\n"
-    },
-    "timestamp": 1790681736140
-  },
-  {
-    "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790681736145
@@ -1521,5 +1505,19 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790683106228
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rn \"FUNCTION public.is_org_member\" supabase/migrations/*.sql | head"
+    },
+    "timestamp": 1790683113792
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql:90:CREATE OR REPLACE FUNCTION public.is_org_member(_organization_id uuid, _user_id uuid DEFAULT auth.uid())\nsupabase/migrations/20260915211508_ec17904b-1fc9-4516-b4e2-b37ba9be6436.sql:1:REVOKE EXECUTE ON FUNCTION public.is_o",
+    "is_error": false,
+    "timestamp": 1790683113840
   }
 ]
