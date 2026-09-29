@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "write",
-    "input": {
-      "filePath": "/tmp/opencode/probe-fiscal.py",
-      "content": "#!/usr/bin/env python3\n\"\"\"Sonda descartavel: confirma divergencias de permissao e leitura por kind.\"\"\"\nimport importlib.util, json, sys\nfrom pathlib import Path\n\nROOT = Path('/root/Zheus AI Projects/controle-fabricas')\nspec = importlib.util.spec_from_file_location('wf', ROOT / 'scripts/test-fiscal-workflow-db.py')\nwf = importlib.util.module_from_spec(spec)\nspec.loader.exec_module(wf)\ndb = wf.db\nsql = db.sql\nq = db.q\n\nMIGRATIONS = [\n    '20260926100000_partner_reconciliation.sql', '20260928100000_finance.sql',\n    '20260930100000_cost_engine.sql', '20261001100000_purchasing.sql',\n    '20261002100000_planning.sql', '20261003100000_planning_engine.sql',\n    '20261004100000_planning_fixes.sql', '20261005100000_crm.sql',\n    '20261006100000_crm_integrity.sql', '20261006100000_sales_orders.sql',\n    '20261007100000_crm_documents.sql', '20261008100000_crm_company_services.sql',\n    '20261009100000_crm_customer_history.sql', '20261010100000_sales_integrity.sql',\n    '20261011100000_sales_planning.sql', '20261012100000_sales_screen_fixes.sql',\n    '20261013100000_fiscal_core.sql', '20261013200000_fiscal_tax_engine.sql',\n    '20261014100000_fiscal_integrity.sql', '20261014200000_fiscal_documents.sql',\n    '20261014300000_fiscal_inbound.sql', '20261014400000_fiscal_workspace.sql',\n]\n\nCATALOG = [\n 'fiscal.read','fiscal.dashboard','fiscal.configure','fiscal.simulate','fiscal.tax_rules.read',\n 'fiscal.tax_rules.manage','fiscal.tax_rules.approve','fiscal.documents.create',\n 'fiscal.documents.validate','fiscal.documents.issue','fiscal.documents.cancel',\n 'fiscal.documents.download','fiscal.inbound.read','fiscal.inbound.import','fiscal.inbound.review',\n 'fiscal.reconciliation.read','fiscal.reconciliation.manage','fiscal.exceptions.read',\n 'fiscal.exceptions.manage','fiscal.events.read','fiscal.reports.export','fiscal.provider.manage',\n]\n\ndef run():\n    db.setup()\n    for name in MIGRATIONS:\n        sql((db.ROOT / 'supabase/migrations' / name).read_text())\n    org = sql('SELECT id FROM organizations LIMIT 1')\n\n    print('--- B2: permissoes concedidas fora do catalogo ---')\n    rows = sql(\"SELECT DISTINCT permission FROM role_permissions WHERE permission LIKE 'fiscal%' ORDER BY 1\").split('\\n')\n    orfa = [p for p in rows if p not in CATALOG]\n    print('ORFAS:', orfa)\n\n    print('--- catalogo sem nenhuma concessao ---')\n    conceded = set(rows)\n    print('SEM CONCESSAO:', [p for p in CATALOG if p not in conceded])\n\n    print('--- B1: kind de configuracao lido por quem so tem fiscal.configure ---')\n    uid = db.uid()\n    sql(f\"INSERT INTO auth.users(id,email) VALUES({q(uid)},'cfg@test');\")\n    sql(f\"INSERT INTO organization_members(organization_id,user_id,role) VALUES({q(org)},{q(uid)},'fiscal');\")\n    sql(f\"DELETE FROM role_permissions WHERE role='fiscal';\")\n    sql(f\"INSERT INTO role_permissions(role,permission) VALUES('fiscal','fiscal.configure');\")\n    for kind in ['establishments', 'regimes', 'operations', 'natures', 'taxes', 'layouts',\n                 'companies', 'products', 'rules', 'simulations', 'documents']:\n        out = db.call('fiscal_query', ','.join([q(org), q(kind), q('{}')]), uid, 'permiss')\n        print(f'  {kind:14s} ->', 'RECUSADO' if out is None else 'ok')\n\n    print('--- B1b: mesmo cenario, papel com fiscal.configure + fiscal.tax_rules.read ---')\n    sql(f\"INSERT INTO role_permissions(role,permission) VALUES('fiscal','fiscal.tax_rules.read');\")\n    for kind in ['products', 'rules']:\n        out = db.call('fiscal_query', ','.join([q(org), q(kind), q('{}')]), uid, 'permiss')\n        print(f'  {kind:14s} ->', 'RECUSADO' if out is None else 'ok')\n\n    print('--- B3: filtro de periodo esconde registro sem issue_date/created_at ---')\n    for t in ['fiscal_documents', 'fbound']:\n        pass\n    tables = sql(\"SELECT table_name FROM information_schema.columns WHERE column_name='created_at' AND table_schema='public' AND table_name LIKE '%fiscal%' OR (table_schema='public' AND table_name IN ('tax_rules','tax_rule_items','tax_rule_reviews','tax_calculation_snapshots') AND column_name='created_at') ORDER BY 1\").split('\\n')\n    print('  tabelas fiscais SEM created_at:', [t for t in sql(\"SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND (table_name LIKE '%fiscal%' OR table_name LIKE 'tax_rule%') ORDER BY 1\").split('\\n') if t not in tables])\n\n    print('--- B3b: filtro de data esconde linha com data nula ---')\n    r = sql(\"SELECT count(*) FROM fiscal_documents WHERE organization_id=%s AND created_at IS NULL\" % q(org))\n    print('  documentos com created_at nulo:', r)\n\n    print('--- I1: colunas reais por area (o que a tabela generica tenta ler) ---')\n    for t in ['fiscal_documents', 'inbound_fiscal_documents', 'fiscal_events', 'fiscal_exceptions',\n              'fiscal_reconciliations', 'product_fiscal_profiles', 'company_fiscal_profiles',\n              'fiscal_simulations', 'tax_rules', 'fiscal_layout_versions']:\n        cols = sql(\"SELECT string_agg(column_name,',' ORDER BY column_name) FROM information_schema.columns WHERE table_schema='public' AND table_name=%s\" % q(t))\n        mostrados = ['label', 'legal_name', 'fiscal_nature', 'sku', 'name', 'version', 'id']\n        tem = [c for c in mostrados if (',' + cols + ',').find(',' + c + ',') >= 0]\n        print(f'  {t:30s} label->{tem}')\n\n    print('--- I2: detail nao devolve os snapshots de tributo ---')\n    print(' ', sql(\"SELECT jsonb_object_keys(fiscal_query(%s,'detail',%s))\" % (q(org), q(json.dumps({'id': db.uid()})))))\n\nif __name__ == '__main__':\n    try:\n        run()\n    finally:\n        db.cleanup()\n"
-    },
-    "timestamp": 1790680175919
-  },
-  {
-    "role": "tool_result",
-    "content": "Wrote file successfully.",
-    "is_error": false,
-    "timestamp": 1790680175940
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cp /tmp/opencode/probe-fiscal.py scripts/_probe-fiscal.py && chmod a+r scripts/_probe-fiscal.py && su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/_probe-fiscal.py\" 2>&1 | tail -60",
@@ -1586,5 +1571,21 @@
     "content": "FISCAL_DOCUMENT_PREPARED\nFISCAL_DOCUMENT_STATE_CHANGED\nFISCAL_INBOUND_IMPORTED\nFISCAL_RECONCILIATION_RECORDED\n=== constants EVENT_TYPE ===\n\n  PREPARED: \"Documento preparado\",\n  VALIDATE: \"Validação cadastral\",\n  APPROVE: \"Conferência confirmada\",\n  SUBMIT: \"Transmissão solicitada\",\n  CANCEL: \"Cancel",
     "is_error": false,
     "timestamp": 1790681345140
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/fiscal/constants.ts",
+      "offset": 60,
+      "limit": 200
+    },
+    "timestamp": 1790681350032
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/lib/fiscal/constants.ts</path>\n<type>file</type>\n<content>\n60:   ACTIVE: \"Vigente\",\n61:   RETIRED: \"Encerrado\",\n62: };\n63: \n64: /** Tipo de operação fiscal. Remessa a parceiro não é venda. */\n65: export const OPERATION_KIND: Record<string, string> ",
+    "is_error": false,
+    "timestamp": 1790681350050
   }
 ]
