@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql",
-      "offset": 78,
-      "limit": 28
-    },
-    "timestamp": 1790683651663
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql</path>\n<type>file</type>\n<content>\n78:   FROM public.bi_facts f\n79:   WHERE f.organization_id=_org AND f.fact_date>=_from AND f.fact_date<_to\n80:     -- Escopo do domínio: a métrica declara de qual fato",
-    "is_error": false,
-    "timestamp": 1790683651695
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql",
@@ -1467,5 +1451,19 @@
     "content": "CREATE FUNCTION public.bi_sync_sales(_org uuid,_from date,_to date,_run uuid DEFAULT NULL) RETURNS integer\nLANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE n integer:=0; r record; v_cost record; v_channel text; v_bill numeric; v_qty numeric;\nBEGIN\n  -- Uma LINHA por venda. Uma ",
     "is_error": false,
     "timestamp": 1790684317582
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\ns=Path('supabase/migrations/20261015110000_bi_marts.sql').read_text()\ni=s.find('CREATE FUNCTION public.bi_sync_b2b'); j=s.find('\\n-- ---', i)\nprint(s[i:j])\nPY"
+    },
+    "timestamp": 1790684324802
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE FUNCTION public.bi_sync_b2b(_org uuid,_from date,_to date) RETURNS integer\nLANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE n integer:=0; r record;\nBEGIN\n  FOR r IN\n    SELECT o.id,o.organization_id,o.company_id,o.representative_id,o.order_date,o.total_amount,o.status\n  ",
+    "is_error": false,
+    "timestamp": 1790684324855
   }
 ]
