@@ -351,7 +351,8 @@ BEGIN
   ELSIF _kind='quality' THEN
     PERFORM public.bi_require(_org,'bi.read');
     RETURN coalesce((SELECT jsonb_agg(to_jsonb(t) ORDER BY array_position(ARRAY['ERROR','WARNING','INFO']::public.bi_severity[],t.severity),t.last_seen_at DESC) FROM (
-        SELECT q.check_key,q.domain,q.severity,q.status,q.entity,q.message,q.details,q.last_seen_at
+        SELECT q.check_key AS "key",q.domain,q.severity,q.status,q.entity,q.message,q.details,
+          q.last_seen_at AS last_seen
         FROM public.bi_quality_issues q WHERE q.organization_id=_org AND q.status<>'RESOLVED'
         LIMIT 200) t),'[]'::jsonb);
 
