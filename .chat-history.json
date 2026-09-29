@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "FISCAL_DOCUMENT_PREPARED\nFISCAL_DOCUMENT_STATE_CHANGED\nFISCAL_INBOUND_IMPORTED\nFISCAL_RECONCILIATION_RECORDED\n=== constants EVENT_TYPE ===\n\n  PREPARED: \"Documento preparado\",\n  VALIDATE: \"Validação cadastral\",\n  APPROVE: \"Conferência confirmada\",\n  SUBMIT: \"Transmissão solicitada\",\n  CANCEL: \"Cancel",
-    "is_error": false,
-    "timestamp": 1790681345140
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/fiscal/constants.ts",
-      "offset": 60,
-      "limit": 200
-    },
-    "timestamp": 1790681350032
-  },
-  {
-    "role": "tool_result",
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/lib/fiscal/constants.ts</path>\n<type>file</type>\n<content>\n60:   ACTIVE: \"Vigente\",\n61:   RETIRED: \"Encerrado\",\n62: };\n63: \n64: /** Tipo de operação fiscal. Remessa a parceiro não é venda. */\n65: export const OPERATION_KIND: Record<string, string> ",
     "is_error": false,
     "timestamp": 1790681350050
@@ -1490,5 +1474,19 @@
     "content": "=== INSERT em domain_events ===\n'SALES_QUOTE_ACCEPTED' ",
     "is_error": false,
     "timestamp": 1790682939326
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rn \"domain_events\" supabase/migrations/*.sql | head -20; echo \"=== fiscal_events ===\"; grep -rn \"INSERT INTO fiscal_events\" -A2 supabase/migrations/*.sql | head -20"
+    },
+    "timestamp": 1790682941382
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260926100000_partner_reconciliation.sql:271:CREATE TABLE public.domain_events (\nsupabase/migrations/20260926100000_partner_reconciliation.sql:298: FOREACH t IN ARRAY ARRAY['partner_reconciliations','partner_reconciliation_items','reconciliation_exceptions','partner_reconciliati",
+    "is_error": false,
+    "timestamp": 1790682941424
   }
 ]
