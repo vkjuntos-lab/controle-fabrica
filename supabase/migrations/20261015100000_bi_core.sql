@@ -60,7 +60,7 @@ CREATE TABLE public.bi_metric_definitions (
   -- não pode ser agregada por representante sem virar outra métrrica.
   available_filters text[] NOT NULL DEFAULT '{}',
   compatible_dimensions text[] NOT NULL DEFAULT '{}',
-  periodicity text NOT NULL CHECK (periodicity IN ('DAILY','WEEKLY','MONTHLY','QUARTERLY','YEARLY')),
+  periodicity text NOT NULL CHECK (periodicity IN ('DAILY','WEEKLY','MONTHLY','QUARTERLY','YEARLY','ON_DEMAND')),
   granularity text NOT NULL DEFAULT 'DAY',
   limitations text NOT NULL DEFAULT '',
   version integer NOT NULL DEFAULT 1 CHECK (version>0),
@@ -327,7 +327,6 @@ CREATE TABLE public.bi_settings (
   xyz_x_limit numeric(6,4) NOT NULL DEFAULT 0.50 CHECK (xyz_x_limit>=0),
   xyz_y_limit numeric(6,4) NOT NULL DEFAULT 2.00 CHECK (xyz_y_limit>xyz_x_limit),
   xyz_min_observations integer NOT NULL DEFAULT 3 CHECK (xyz_min_observations>=2),
-  consolidation_requires bi.read text,
   updated_at timestamptz NOT NULL DEFAULT now(),
   updated_by uuid REFERENCES public.profiles(id),
   CHECK (abc_b_limit > abc_a_limit)
@@ -462,9 +461,10 @@ DO $tables$ DECLARE t text; BEGIN
 END $tables$;
 
 -- Definições globais são visíveis a qualquer membro que tenha bi.read em
--- alguma organização;度量 e dashboards privados continuam restritos.
+-- alguma organização;métricas e dashboards privados continuam restritos.
 CREATE POLICY bi_metrics_global_read ON public.bi_metric_definitions FOR SELECT TO authenticated
-  USING (organization_id IS NULL AND public.is_org_member_any());
+  USING (organization_id IS NULL AND EXISTS(SELECT 1 FROM public.organization_members m
+          WHERE m.user_id=auth.uid() AND m.is_active));
 DROP POLICY bi_read ON public.bi_metric_definitions;
 CREATE POLICY bi_metrics_write ON public.bi_metric_definitions FOR ALL TO authenticated
   USING (organization_id IS NOT NULL AND public.has_permission(organization_id,'bi.metrics.manage'))
@@ -686,7 +686,7 @@ VALUES
   'MONTHLY','DAY','Exibe somente itens com custo publicado. Itens sem custo ficam como pendência, nunca como margem zero.',  'ACTIVE'),
 
  (NULL,'partners.stock_third_parties','Estoque em terceiros',
-  'Saldo físico em locais de合作伙伴, apurado pelo Inventory Ledger.',
+  'Saldo físico em locais de parceiros, apurado pelo Inventory Ledger.',
   'INVENTORY','SUM(balance) de bi_inventory_daily_balance com location_type=PARTNER na data mais recente.',
   'UNIT','SNAPSHOT','balance_date','inventory_movements POSTED agregados por local.',
   ARRAY['period','partner','location','variant'],
@@ -923,7 +923,7 @@ VALUES
   'DOCUMENT','DISTINCT_COUNT','issue_date','fiscal_documents (MASTER 014).',
   ARRAY['period','status','establishment','source_type'],
   ARRAY['STATUS','ESTABLISHMENT','SOURCE_TYPE','PERIOD'],
-  'DAILY','DAY','Documento preparado NÃO éNF-e autorizada e não comprova dude.',  'ACTIVE'),
+  'DAILY','DAY','Documento preparado nao e NF-e autorizada e nao comprova duvida.',  'ACTIVE'),
 
  (NULL,'fiscal.documents_authorized','Documentos fiscais autorizados',
   'Documentos com protocolo de autorização registrado.',

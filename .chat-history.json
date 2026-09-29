@@ -3,22 +3,6 @@
     "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
-    "timestamp": 1790681736145
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261014500000_fiscal_screen_fixes.sql",
-      "newString": "-- (a.1) `simulations` e `providers` caíam no mesmo `ELSE`. A tela libera\n--     `simulations` por `fiscal.simulate`, que é a mesma permissão que\n--     `fiscal_simulate` exige para executar: ler o histórico de simulações\n--     por outra permissão mostraria ao usuário um histórico que ele não pode\n--     reproduzir. `providers` é gerenciado por `fiscal.provider.manage` — o\n--     catálogo não tem permissão de leitura separada, e ver a lista de\n--     provedores sem poder habilitar nenhum não é consulta útil.\n",
-      "oldString": "-- (a.1) `simulations` caía no mesmo `ELSE`. A tela libera a área por\n--     `fiscal.simulate` e é essa mesma permissão que `fiscal_simulate`\n--     exige para executar. Ler a lista de simulações por outra permissão\n--     que não a da execução seria um vão: a tela mostra o histórico de\n--     simulações que o usuário não pode reproduzir.\n"
-    },
-    "timestamp": 1790681741650
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
     "timestamp": 1790681741657
   },
   {
@@ -1519,5 +1503,19 @@
     "content": "supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql:90:CREATE OR REPLACE FUNCTION public.is_org_member(_organization_id uuid, _user_id uuid DEFAULT auth.uid())\nsupabase/migrations/20260915211508_ec17904b-1fc9-4516-b4e2-b37ba9be6436.sql:1:REVOKE EXECUTE ON FUNCTION public.is_o",
     "is_error": false,
     "timestamp": 1790683113840
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"supabase/migrations/20261015100000_bi_core.sql\")\ns = p.read_text(encoding=\"utf8\")\nfixes = [\n (\"度量 e dashboards privados continuam restritos.\",\n  \"métricas e dashboards privados continuam restritos.\"),\n (\"-- Definições globais são visíveis a qualquer membro que tenha bi.read em\\n-- alguma organização;度量 e dashboards privados continuam restritos.\\n\",\n  \"-- Definições globais são visíveis a qualquer membro da plataforma; a\\n-- personalização de uma organização nunca altera a definição global.\\n\"),\n (\"CREATE POLICY bi_metrics_global_read ON public.bi_metric_definitions FOR SELECT TO authenticated\\n  USING (organization_id IS NULL AND public.is_org_member_any());\",\n  \"CREATE POLICY bi_metrics_global_read ON public.bi_metric_definitions FOR SELECT TO authenticated\\n  USING (organization_id IS NULL AND EXISTS(SELECT 1 FROM public.organization_members m\\n          WHERE m.user_id=auth.uid() AND m.is_active));\"),\n (\"'Estoque em terceiros',\\n  'Saldo físico em locais de合作伙伴, apurado pelo Inventory Ledger.'\",\n  \"'Estoque em terceiros',\\n  'Saldo físico em locais de parceiros, apurado pelo Inventory Ledger.'\"),\n (\"'Documento preparado NÃO éNF-e autorizada e não comprova dude.'\",\n  \"'Documento preparado nao e NF-e autorizada e nao comprova duvida.'\"),\n (\"'INVENTORY','SUM(balance) de bi_inventory_daily_balance com location_type=PARTNER na data mais recente.'\",\n  \"'INVENTORY','SUM(balance) de bi_inventory_daily_balance com location_type=PARTNER na data mais recente.'\"),\n (\"  consolidation_requires bi.read text,\\n\", \"\"),\n (\"periodicity text NOT NULL CHECK (periodicity IN ('DAILY','WEEKLY','MONTHLY','QUARTERLY','YEARLY')),\",\n  \"periodicity text NOT NULL CHECK (periodicity IN ('DAILY','WEEKLY','MONTHLY','QUARTERLY','YEARLY','ON_DEMAND')),\"),\n (\"'Documento preparado NÃO éNF-e autorizada e não comprova dude.'\",\"x\"),\n]\nfor a,b in fixes:\n    s = s.replace(a,b)\ns = s.replace(\"'Documento preparado NÃO éNF-e autorizada e não comprova dude.'\",\n              \"'Documento preparado nao e NF-e autorizada e nao comprova duvida.'\")\ns = s.replace(\"'Documento preparado NÃO é NF-e autorizada\", \"'Documento preparado nao e NF-e autorizada\")\np.write_text(s, encoding=\"utf8\")\nprint(\"ok\")\nPY\ngrep -n \"度量\\|合作伙伴\\|dude\\|éNF-e\\|FISCAL_SALE\\|ON_DEMAND\\|is_org_member\" supabase/migrations/20261015100000_bi_core.sql"
+    },
+    "timestamp": 1790683120328
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n63:  periodicity text NOT NULL CHECK (periodicity IN ('DAILY','WEEKLY','MONTHLY','QUARTERLY','YEARLY','ON_DEMAND')),\n950:  'ON_DEMAND','DAY','Convenção de gestão configurável. Não é avaliação universal de importância do produto.',  'ACTIVE'),\n958:  'ON_DEMAND','DAY','Exige histórico suficiente. S",
+    "is_error": false,
+    "timestamp": 1790683120386
   }
 ]
