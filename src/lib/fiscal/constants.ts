@@ -226,7 +226,6 @@ export const ORIGIN_CODE: Record<string, string> = {
   "8": "Estrangeira — origem 8",
 };
 
-
 const money = "—";
 const code = (labels: Record<string, string>): Column["labels"] => labels;
 
