@@ -188,6 +188,7 @@ SELECT coalesce(jsonb_agg(jsonb_build_object(
   -- `available=false` é o que a tela traduz por "indisponível".
   'available',(value IS NOT NULL AND (basis IS NULL OR basis<>0))
   ) ORDER BY is_total,bucket),'[]'::jsonb)
+FROM calc;
 $$;
 
 -- Valor único do período: o agregado sem bucket.
