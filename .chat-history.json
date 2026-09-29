@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "len 939\n\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  store_id uuid REFERENCES public.stores(id) ON DELETE SET NULL,\n  sale_id uuid REFERENCES public.sales(id) ON DELETE SET NULL,\n  customer_id uuid REF\n",
-    "is_error": false,
-    "timestamp": 1790681194931
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -rn \"CREATE TABLE public.fiscal_documents\\|CREATE TABLE IF NOT EXISTS public.fiscal_documents\\|DROP TABLE.*fiscal_documents\\|ALTER TABLE public.fiscal_documents RENAME\" supabase/migrations/ | head",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681199533
-  },
-  {
-    "role": "tool_result",
     "content": "supabase/migrations/20261014200000_fiscal_documents.sql:16:CREATE TABLE public.fiscal_documents (\nsupabase/migrations/20260706150307_3c3cdc57-62e3-4e4d-8caf-1e24cf76c130.sql:10:CREATE TABLE IF NOT EXISTS public.fiscal_documents (\n",
     "is_error": false,
     "timestamp": 1790681199567
@@ -1516,5 +1501,19 @@
     "content": "=========== inventory_movements\n=========== products\n=========== product_variants\n=========== marketplace_sales\n=========== partner_reconciliations\n=========== partner_reconciliation_items\n=========== financial_transactions\n",
     "is_error": false,
     "timestamp": 1790682872116
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rn \"create table\" supabase/migrations/*.sql | grep -iE \"inventory_movements|marketplace_sales|partner_reconciliations|financial_transactions\" | head"
+    },
+    "timestamp": 1790682874143
+  },
+  {
+    "role": "tool_result",
+    "content": "(no output)",
+    "is_error": false,
+    "timestamp": 1790682874177
   }
 ]
