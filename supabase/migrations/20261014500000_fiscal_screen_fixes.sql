@@ -37,11 +37,13 @@ WHERE permission IN (
 --     `financeiro`) já tem `fiscal.tax_rules.read`, então o ajuste não
 --     tira leitura de ninguém.
 --
--- (a.1) `simulations` caía no mesmo `ELSE`. A tela libera a área por
---     `fiscal.simulate` e é essa mesma permissão que `fiscal_simulate`
---     exige para executar. Ler a lista de simulações por outra permissão
---     que não a da execução seria um vão: a tela mostra o histórico de
---     simulações que o usuário não pode reproduzir.
+-- (a.1) `simulations` e `providers` caíam no mesmo `ELSE`. A tela libera
+--     `simulations` por `fiscal.simulate`, que é a mesma permissão que
+--     `fiscal_simulate` exige para executar: ler o histórico de simulações
+--     por outra permissão mostraria ao usuário um histórico que ele não pode
+--     reproduzir. `providers` é gerenciado por `fiscal.provider.manage` — o
+--     catálogo não tem permissão de leitura separada, e ver a lista de
+--     provedores sem poder habilitar nenhum não é consulta útil.
 --
 -- (b) O detalhe do documento não trazia `tax_calculation_snapshots`. O
 --     snapshot é a evidência de QUAL regra produziu QUAL número, e a tela
