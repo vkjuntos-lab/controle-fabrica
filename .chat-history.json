@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"fiscal_exception_action\" -B2 -A 30 supabase/migrations/20261014400000_fiscal_workspace.sql | head -50",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790680864135
-  },
-  {
-    "role": "tool_result",
-    "content": "34- RETURN jsonb_build_object('id',_id,'status',target);\n35-END $$;\n36:CREATE FUNCTION public.fiscal_exception_action(_org uuid,_id uuid,_data jsonb) RETURNS jsonb\n37-LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n38-DECLARE r fiscal_exceptions;\n39-BEGIN\n40- PERFORM fiscal_require(_o",
-    "is_error": false,
-    "timestamp": 1790680864152
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -rn \"CREATE TABLE.*organization_members\" -A 12 supabase/migrations/ | head -16; echo \"=== PROFILES ===\"; grep -rn \"CREATE TABLE.*public.profiles\\|CREATE TABLE.*profiles \" -A 14 supabase/migrations/ | head -20",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1537,5 +1522,20 @@
     "content": "  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py\", line 102, in run\n    db.setup()\n    ~~~~~~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventory-db.py\", line 50, in setup\n    sql(prefix+(ROOT/'supabase/migrations'/name).read_text())\n ",
     "is_error": false,
     "timestamp": 1790681969776
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "df -h /tmp | tail -1; rm -rf /tmp/inventory-test-* /tmp/fiscal-test-* 2>/dev/null; df -h /tmp | tail -1",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681974168
+  },
+  {
+    "role": "tool_result",
+    "content": "tmpfs           1.9G  1.9G   44K 100% /tmp\ntmpfs           1.9G  898M 1011M  48% /tmp\n",
+    "is_error": false,
+    "timestamp": 1790681974635
   }
 ]
