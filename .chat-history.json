@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -rn \"organization_members\" -B3 -A12 supabase/migrations/20261004100000_*.sql 2>/dev/null | grep -n \"email\\|full_name\" | head; echo \"=== busca perfil ===\"; grep -rln \"m.user_id\" supabase/migrations/ | head -3; grep -rn \"m.user_id\" supabase/migrations/2026100*.sql | head -5",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790680878795
-  },
-  {
-    "role": "tool_result",
-    "content": "=== busca perfil ===\nsupabase/migrations/20261007100000_crm_documents.sql\nsupabase/migrations/20261009100000_crm_customer_history.sql\nsupabase/migrations/20260923100000_inventory_workflows.sql\nsupabase/migrations/20261005100000_crm.sql:817:  SELECT coalesce(jsonb_agg(jsonb_build_object('id',m.user_i",
-    "is_error": false,
-    "timestamp": 1790680878834
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261014500000_fiscal_screen_fixes.sql",
@@ -1537,5 +1522,20 @@
     "content": "scripts/_check-sales-migration.py scripts/_probe-sales.py scripts/test-costs-db.py scripts/test-crm-db.py scripts/test-finance-db.py scripts/test-fiscal-db.py scripts/test-fiscal-migration-chain.py scripts/test-partners-db.py scripts/test-partner-store-integration-db.py scripts/test-planning-db.py s",
     "is_error": false,
     "timestamp": 1790681989771
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "tail -6 scripts/test-fiscal-workflow-db.py; echo \"=== head workflow ===\"; head -12 scripts/test-fiscal-workflow-db.py",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681994127
+  },
+  {
+    "role": "tool_result",
+    "content": " print('PASS W10: devoluções de cliente/fornecedor/parceiro e transferência usam fatos e regras próprias')\n print('FISCAL WORKFLOW OK')\n\nif __name__=='__main__':\n try: run()\n finally: db.cleanup()\n=== head workflow ===\n#!/usr/bin/env python3\n\"\"\"Fiscal workflow integration tests; isolated PostgreSQL ",
+    "is_error": false,
+    "timestamp": 1790681994167
   }
 ]
