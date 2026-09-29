@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ❯ src/lib/fiscal/constants.test.ts (10 tests | 8 failed) 130ms\n   ✓ contrato entre a listagem e o banco > toda área com listagem aponta para uma tabela que existe 65ms\n   × contrato entre a listagem e o banco > toda coluna listada existe na t",
-    "is_error": false,
-    "timestamp": 1790681165604
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"CREATE TABLE public.fiscal_documents\" -A 30 supabase/migrations/20261014200000_fiscal_documents.sql | head -34; echo \"=== SIMULATIONS ===\"; grep -rn \"CREATE TABLE.*fiscal_simulations\" -A 14 supabase/migrations/ | head -18; echo \"=== ORIGEM ===\"; grep -rn \"origem\" supabase/migrations/20261013*.sql | head; echo \"=== SIMULATE PERM ===\"; grep -rn \"fiscal.simulate\" supabase/migrations/*.sql | head",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681179128
-  },
-  {
-    "role": "tool_result",
     "content": "16:CREATE TABLE public.fiscal_documents (\n17- id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES organizations,\n18- establishment_id uuid NOT NULL, company_id uuid NOT NULL, document_model text NOT NULL CHECK(document_model='NFe'),\n19- operation_type_id uuid NOT ",
     "is_error": false,
     "timestamp": 1790681179190
@@ -1518,5 +1503,19 @@
     "content": "255 /tmp/opencode/tables.txt\n public.account_payables  public.account_receivables  public.accounts_payable  public.accounts_receivable  public.cost_calculation_runs  public.cost_centers  public.cost_routing_steps  public.financial_accounts  public.financial_categories  public.financial_periods  publ",
     "is_error": false,
     "timestamp": 1790682866687
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -iE \"inventory|stock|unit|product|categor|brand\" /tmp/opencode/tables.txt | tr '\\n' ' '"
+    },
+    "timestamp": 1790682869131
+  },
+  {
+    "role": "tool_result",
+    "content": " public.financial_categories  public.inventory_batches  public.inventory_count_items  public.inventory_counts  public.inventory_locations  public.inventory_movements  public.inventory_reservations  public.inventory_transfer_items  public.inventory_transfers  public.opportunity_items  public.opportun",
+    "is_error": false,
+    "timestamp": 1790682869151
   }
 ]
