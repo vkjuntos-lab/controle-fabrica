@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "\n> test:fiscal:db\n> python3 scripts/test-fiscal-workflow-db.py\n\nMIGRATIONS OK\nPASS AG: simulacao sem classificacao vigente bloqueia e se declara nao autoritativa\nPASS AH: classificacao em DRAFT nao entra no calculo; falta de regra nomeia a pendencia\nPASS AI: autor nao aprova a propria classificacao;",
-    "is_error": true,
-    "timestamp": 1790669380085
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"sed -n '618,651p' supabase/migrations/20261006100000_sales_orders.sql; sed -n '177,198p' supabase/migrations/20261001100000_purchasing.sql; rg -n 'inventory_transfer_status' supabase/migrations/20260918100000_inventory_ledger.sql | head; ls -ld .git/info\""
-    },
-    "timestamp": 1790669390526
-  },
-  {
-    "role": "tool_result",
     "content": "CREATE TABLE public.customer_returns (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n organization_id uuid NOT NULL REFERENCES public.organizations,\n return_number text NOT NULL,\n company_id uuid NOT NULL,\n  FOREIGN KEY(organization_id,company_id) REFERENCES public.companies(organization_id,id),\n ",
     "is_error": false,
     "timestamp": 1790669390531
@@ -1519,5 +1505,21 @@
     "content": "Wrote file successfully.",
     "is_error": false,
     "timestamp": 1790680545761
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261014500000_fiscal_screen_fixes.sql",
+      "newString": "REVOKE ALL ON FUNCTION public.fiscal_query(uuid,text,jsonb) FROM PUBLIC,anon,authenticated;\nGRANT EXECUTE ON FUNCTION public.fiscal_query(uuid,text,jsonb) TO authenticated;\nCOMMIT;\n",
+      "oldString": "REVOKE ALL ON FUNCTION public.fiscal_query(uuid,text,jsonb) FROM PUBLIC,anon,authenticated;\nGRANT EXECUTE ON FUNCTION public.fiscal_query(uuid,text,jsonb) TO authenticated;\n\n-- ---------------------------------------------------------------------\n-- 3. Permissões de leitura dos cadastros.\n--\n-- A tela escondia a leitura de estabelecimento, regime, operação, natureza,\n-- tributo, leiaute e perfil de contraparte atrás de `fiscal.configure`, que\n-- é permissão de GRAVAÇÃO. Quem só consulta fiscal já podia ler tudo isso\n-- pelo servidor e não via na interface. A permissão de leitura continua\n-- sendo `fiscal.read`; `fiscal.configure` volta a valer para o botão de\n-- novo cadastro, que é onde ela pertence.\n-- ---------------------------------------------------------------------\nINSERT INTO public.role_permissions(role,permission)\nSELECT 'financeiro','fiscal.read' WHERE NOT EXISTS(\n  SELECT 1 FROM public.role_permissions WHERE role='financeiro' AND permission='fiscal.read');\nCOMMIT;\n"
+    },
+    "timestamp": 1790680553555
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790680553572
   }
 ]

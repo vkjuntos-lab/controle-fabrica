@@ -154,18 +154,4 @@ END $$;
 
 REVOKE ALL ON FUNCTION public.fiscal_query(uuid,text,jsonb) FROM PUBLIC,anon,authenticated;
 GRANT EXECUTE ON FUNCTION public.fiscal_query(uuid,text,jsonb) TO authenticated;
-
--- ---------------------------------------------------------------------
--- 3. Permissões de leitura dos cadastros.
---
--- A tela escondia a leitura de estabelecimento, regime, operação, natureza,
--- tributo, leiaute e perfil de contraparte atrás de `fiscal.configure`, que
--- é permissão de GRAVAÇÃO. Quem só consulta fiscal já podia ler tudo isso
--- pelo servidor e não via na interface. A permissão de leitura continua
--- sendo `fiscal.read`; `fiscal.configure` volta a valer para o botão de
--- novo cadastro, que é onde ela pertence.
--- ---------------------------------------------------------------------
-INSERT INTO public.role_permissions(role,permission)
-SELECT 'financeiro','fiscal.read' WHERE NOT EXISTS(
-  SELECT 1 FROM public.role_permissions WHERE role='financeiro' AND permission='fiscal.read');
 COMMIT;
