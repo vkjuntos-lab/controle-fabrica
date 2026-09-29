@@ -782,7 +782,8 @@ DECLARE run uuid; n integer:=0; v_from date; v_to date; v_mode text; v_status pu
   v_min date := date '2000-01-01';
 BEGIN
   PERFORM public.bi_require(_org,'bi.reprocess');
-  v_mode := CASE WHEN _mode IN ('INCREMENTAL','FULL') THEN _mode ELSE RAISE EXCEPTION 'Modo inválido: %',_mode END;
+  IF _mode NOT IN ('INCREMENTAL','FULL') THEN RAISE EXCEPTION 'Modo inválido: %',_mode; END IF;
+  v_mode:=_mode;
   SELECT p.period_start,p.period_end INTO v_from,v_to FROM public.bi_resolve_period('CUSTOM',_from,_to) p;
   IF v_from IS NULL OR v_to IS NULL OR v_to<=v_from THEN RAISE EXCEPTION 'Período inválido.'; END IF;
   IF v_from<v_min THEN v_from:=v_min; END IF;

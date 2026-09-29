@@ -3,22 +3,6 @@
     "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
-    "timestamp": 1790681917131
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py",
-      "newString": "    db.call('fiscal_query', f\"{q(org)},'regressions','{{}}'::jsonb\", admin)\n    # `assignees` existe porque a tela precisa atribuir responsável a uma\n    # pendência; responder sem ele é a forma de provar que o caminho está lá.\n    responsaveis = db.call('fiscal_query', f\"{q(org)},'assignees','{{}}'::jsonb\", admin)\n    assert 'adm@test' in responsaveis, f'a lista de responsáveis não trouxe o membro: {responsaveis}'\n",
-      "oldString": "    db.call('fiscal_query', f\"{q(org)},'regressions','{{}}'::jsonb\", admin)\n    db.call('fiscal_query', f\"{q(org)},'assignees','{{}}'::jsonb\", admin, fail='sem permiss')\n    # `assignees` só existe com a permissão de gestão de pendência; o creator\n    # da organização é admin e a tem. O que se prova é que responderam.\n"
-    },
-    "timestamp": 1790681922338
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
     "timestamp": 1790681922353
   },
   {
@@ -1489,5 +1473,19 @@
     "content": "    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventory-db.py\", line 24, in sql\n    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  syntax error at or near \"EXCEPTION\"\nLINE 8:",
     "is_error": false,
     "timestamp": 1790683313345
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"supabase/migrations/20261015110000_bi_marts.sql\")\ns = p.read_text(encoding=\"utf8\")\ns = s.replace(\"\"\"  v_mode := CASE WHEN _mode IN ('INCREMENTAL','FULL') THEN _mode ELSE RAISE EXCEPTION 'Modo inválido: %',_mode END;\"\"\",\n\"\"\"  IF _mode NOT IN ('INCREMENTAL','FULL') THEN RAISE EXCEPTION 'Modo inválido: %',_mode; END IF;\n  v_mode:=_mode;\"\"\")\np.write_text(s, encoding=\"utf8\")\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql 20261015110000_bi_marts.sql\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790683316443
+  },
+  {
+    "role": "tool_result",
+    "content": "APLICADO OK\n",
+    "is_error": false,
+    "timestamp": 1790683319014
   }
 ]
