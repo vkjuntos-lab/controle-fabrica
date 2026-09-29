@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && for t in inventory_movements products product_variants marketplace_sales partner_reconciliations partner_reconciliation_items financial_transactions; do echo \"=========== $t\"; awk \"/create table( if not exists)? (public\\.)?$t/,/^\\);/\" $(grep -rliE \"create table( if not exists)? (public\\.)?$t\\b\" supabase/migrations/*.sql | tail -1) | head -45; done 2>/dev/null"
-    },
-    "timestamp": 1790682872014
-  },
-  {
-    "role": "tool_result",
-    "content": "=========== inventory_movements\n=========== products\n=========== product_variants\n=========== marketplace_sales\n=========== partner_reconciliations\n=========== partner_reconciliation_items\n=========== financial_transactions\n",
-    "is_error": false,
-    "timestamp": 1790682872116
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rn \"create table\" supabase/migrations/*.sql | grep -iE \"inventory_movements|marketplace_sales|partner_reconciliations|financial_transactions\" | head"
     },
     "timestamp": 1790682874143
@@ -1491,5 +1477,19 @@
     "content": "(no output)",
     "is_error": false,
     "timestamp": 1790683803181
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY' > /tmp/opencode/bi_export.sql\nfrom pathlib import Path\ns = Path('supabase/migrations/20261015120000_bi_queries.sql').read_text().split('\\n')\nprint('\\n'.join(s[583:627]))\nPY\nhead -3 /tmp/opencode/bi_export.sql\nSOCK=/tmp/inventory-test-ep_38dxm; /usr/lib/postgresql/18/bin/psql -X -h $SOCK -p 55439 -U postgres -d postgres -v ON_ERROR_STOP=1 -Atq -f /tmp/opencode/bi_export.sql 2>&1 | tail -5"
+    },
+    "timestamp": 1790683819728
+  },
+  {
+    "role": "tool_result",
+    "content": "-- ---------------------------------------------------------------------\nCREATE FUNCTION public.bi_export(_org uuid,_kind text,_filters jsonb DEFAULT '{}',_format text DEFAULT 'CSV')\nRETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\npsql:/tmp/opencode/bi_export.sql:43: ",
+    "is_error": false,
+    "timestamp": 1790683819792
   }
 ]
