@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -rn \"CREATE TABLE.*fiscal_exceptions\" -A 18 supabase/migrations/ | head -25; echo \"=== REVIEW ACTION ===\"; grep -rn \"REQUESTED_CHANGES\\|'review'\\|_a='review'\\|a = 'review'\" supabase/migrations/20261014100000_fiscal_integrity.sql | head -20",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790680849915
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20261014200000_fiscal_documents.sql:66:CREATE TABLE public.fiscal_exceptions (\nsupabase/migrations/20261014200000_fiscal_documents.sql-67- id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES organizations,\nsupabase/migrations/20261014200000_fis",
-    "is_error": false,
-    "timestamp": 1790680849951
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"_op='exception'\" -A 18 supabase/migrations/20261014400000_fiscal_workspace.sql | head -30",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1535,5 +1520,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790681939609
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/test-fiscal-migration-chain.py\" 2>&1 | tail -20",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681942887
+  },
+  {
+    "role": "tool_result",
+    "content": "COLISAO REPRODUZIDA OK\nPREDECESSORAS OK\nMASTER 014 APLICAVEL OK\nDESENHO SUBSTITUIDO OK\nRBAC CONSISTENTE OK\nCONTRATO DE LEITURA OK\nCONTRATO DE LEITURA OK\nMASTER 014 CADEIA COMPLETA OK\n",
+    "is_error": false,
+    "timestamp": 1790681945671
   }
 ]
