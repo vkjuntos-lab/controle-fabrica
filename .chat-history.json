@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && ls src/lib/costs/ src/lib/sales/ src/lib/finance/ && echo \"=== scripts ===\" && ls scripts/ && echo \"=== pkg scripts ===\" && python3 -c \"import json;print('\\n'.join(f'{k}: {v}' for k,v in json.load(open('package.json'))['scripts'].items()))\""
-    },
-    "timestamp": 1790682909357
-  },
-  {
-    "role": "tool_result",
-    "content": "src/lib/costs/:\ncosts.functions.ts\ntypes.ts\n\nsrc/lib/finance/:\nconstants.ts\nexport.ts\nfinance.functions.ts\ntypes.ts\n\nsrc/lib/sales/:\nconstants.test.ts\nconstants.ts\nidempotency.test.ts\nidempotency.ts\nsales.functions.ts\n=== scripts ===\ntest-costs-db.py\ntest-crm-db.py\ntest-finance-db.py\ntest-fiscal-db.",
-    "is_error": false,
-    "timestamp": 1790682909412
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && head -70 src/lib/costs/costs.functions.ts && echo \"=== TAIL ===\" && tail -30 src/lib/costs/costs.functions.ts"
     },
     "timestamp": 1790682911384
@@ -1492,5 +1478,19 @@
     "content": "MISSING\n---\nMISSING marketplace_stores\n---\nCREATE TABLE public.partner_profiles (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(),organization_id uuid NOT NULL REFERENCES public.organizations,\n company_id uuid NOT NULL,partner_code text NOT NULL,operational_status text NOT NULL DEFAULT 'ACTIVE' CHECK",
     "is_error": false,
     "timestamp": 1790683876036
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rln \"CREATE TABLE public.marketplace_sales\" supabase/migrations/ && python3 - <<'PY'\nfrom pathlib import Path\nimport subprocess\nf = subprocess.run(['grep','-rl','CREATE TABLE public.marketplace_sales','supabase/migrations/'],capture_output=True,text=True).stdout.split()\nfor p in f:\n    s=Path(p).read_text(); i=s.find('CREATE TABLE public.marketplace_sales')\n    print('###',p); print(s[i:s.find(');',i)+2])\nPY"
+    },
+    "timestamp": 1790683878684
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20260926100000_partner_reconciliation.sql\n### supabase/migrations/20260926100000_partner_reconciliation.sql\nCREATE TABLE public.marketplace_sales (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations,\n  store_id uuid NO",
+    "is_error": false,
+    "timestamp": 1790683878798
   }
 ]
