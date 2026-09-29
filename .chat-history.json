@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sed -n '1,120p' supabase/migrations/20261013200000_fiscal_tax_engine.sql",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790679976021
-  },
-  {
-    "role": "tool_result",
-    "content": "-- =====================================================================\n-- LOVABLE MASTER 014 — Motor de cálculo tributário, snapshot e\n-- simulação.\n--\n-- Este arquivo implementa aritmética, não direito. Ele lê os parâmetros\n-- que alguém approvou em `tax_rules`/`tax_rule_items` e faz contas com\n-",
-    "is_error": false,
-    "timestamp": 1790679976059
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sed -n '118,200p;344,380p;468,500p' supabase/migrations/20261013100000_fiscal_core.sql",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1581,5 +1566,20 @@
     "content": "31-  ON public.product_categories (organization_id, parent_id);\n32-GRANT SELECT, INSERT, UPDATE, DELETE ON public.product_categories TO authenticated;\n33-GRANT ALL ON public.product_categories TO service_role;\n34-ALTER TABLE public.product_categories ENABLE ROW LEVEL SECURITY;\n35-\n36--- ============",
     "is_error": false,
     "timestamp": 1790681244113
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"fiscal_environment\" -B3 -A 8 supabase/migrations/20261013100000_fiscal_core.sql | head -20; echo \"=== 142: antes do CREATE TABLE fiscal_documents ===\"; sed -n '14,18p' supabase/migrations/20261014200000_fiscal_documents.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681263902
+  },
+  {
+    "role": "tool_result",
+    "content": "53-  'OTHER'\n54-);\n55-\n56:CREATE TYPE public.fiscal_environment AS ENUM ('HOMOLOGATION','PRODUCTION');\n57-\n58--- ---------------------------------------------------------------------\n59--- 2. Sequence de numeração por estabelecimento/modelo/série.\n60---    O contador é transacional e nunca reutiliza",
+    "is_error": false,
+    "timestamp": 1790681263927
   }
 ]
