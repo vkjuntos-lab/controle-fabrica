@@ -80,52 +80,72 @@ CREATE FUNCTION public.bi_sync_sales(_org uuid,_from date,_to date,_run uuid DEF
 LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE n integer:=0; r record; v_cost record; v_channel text; v_bill numeric; v_qty numeric;
 BEGIN
+  -- Uma LINHA por venda. Uma venda pode ter vários itens de
+  -- reconciliação (reabertura, conciliação parcial), então os itens
+  -- RECONCILED são somados aqui: somar por item duplicaria a venda na
+  -- virada para reconciliada.
   FOR r IN
-    SELECT s.id,s.organization_id,s.store_id,s.sale_date,s.quantity,s.gross_amount,s.variant_id,s.status,
-      s.discount_amount,s.shipping_fee,s.platform_fee,s.partner_id,
-      st.ownership_type,
-      i.id item_id,i.reconciliation_id,i.status item_status,i.billable_amount,i.unit_reference_value
+    SELECT s.id,s.organization_id,s.store_id,s.sale_date,s.quantity,s.gross_amount,s.variant_id,
+      s.status,s.discount_amount,s.shipping_fee,s.platform_fee,s.external_order_id,
+      st.ownership_type,st.partner_id store_partner_id,st.marketplace,
+      (SELECT count(*) FROM public.partner_reconciliation_items i
+        WHERE i.organization_id=s.organization_id AND i.marketplace_sale_id=s.id
+          AND i.status='RECONCILED') reconciled_items,
+      (SELECT sum(i.quantity) FROM public.partner_reconciliation_items i
+        WHERE i.organization_id=s.organization_id AND i.marketplace_sale_id=s.id
+          AND i.status='RECONCILED') reconciled_quantity,
+      (SELECT sum(i.billable_amount) FROM public.partner_reconciliation_items i
+        WHERE i.organization_id=s.organization_id AND i.marketplace_sale_id=s.id
+          AND i.status='RECONCILED') reconciled_billable,
+      (SELECT min(i.unit_reference_value) FROM public.partner_reconciliation_items i
+        WHERE i.organization_id=s.organization_id AND i.marketplace_sale_id=s.id
+          AND i.status='RECONCILED') unit_reference_value,
+      (SELECT max(i.reconciliation_id) FROM public.partner_reconciliation_items i
+        WHERE i.organization_id=s.organization_id AND i.marketplace_sale_id=s.id
+          AND i.status='RECONCILED') reconciliation_id
     FROM public.marketplace_sales s
     JOIN public.marketplace_stores st ON st.id=s.store_id AND st.organization_id=s.organization_id
-    LEFT JOIN public.partner_reconciliation_items i ON i.marketplace_sale_id=s.id AND i.organization_id=s.organization_id
     WHERE s.organization_id=_org AND s.sale_date>=_from AND s.sale_date<_to
   LOOP
-    -- Reconciliação precisa estar CONFIRMADA. `VALIDATED` é só conferência.
-    v_bill := CASE WHEN r.item_status='RECONCILED' THEN r.billable_amount END;
-    v_qty := CASE WHEN r.item_status='RECONCILED' THEN r.quantity END;
-    v_channel := public.bi_classify_channel(_org,'RECONCILED_SALE',r.store_id,r.partner_id,NULL);
+    -- Reconciliada só quando o item está RECONCILED de fato. `VALIDATED`
+    -- é conferência: não vira fato de receita da fábrica.
+    v_bill := CASE WHEN r.reconciled_items>0 THEN r.reconciled_billable END;
+    v_qty := CASE WHEN r.reconciled_items>0 THEN coalesce(r.reconciled_quantity,r.quantity) END;
+    v_channel := public.bi_classify_channel(_org,'RECONCILED_SALE',r.store_id,r.store_partner_id,NULL);
     v_cost := public.bi_cost_at(_org,r.variant_id,r.sale_date);
     INSERT INTO public.bi_facts(organization_id,domain,source_table,source_id,fact_nature,fact_date,status,
       product_id,variant_id,store_id,partner_id,channel,quantity,gross_amount,billable_amount,net_amount,
       fees,freight,tax,other_cost,cost_version_id,cost_methodology,quality,quality_notes,
       reconciliation_id,extra,source_watermark)
     VALUES (r.organization_id,'SALES','marketplace_sales',r.id,
-      CASE WHEN r.item_status='RECONCILED' THEN 'RECONCILED_SALE' ELSE 'IMPORTED_SALE' END,
+      CASE WHEN r.reconciled_items>0 THEN 'RECONCILED_SALE' ELSE 'IMPORTED_SALE' END,
       r.sale_date,
-      CASE r.status WHEN 'CANCELED' THEN 'CANCELED'::public.bi_fact_status
-                    WHEN r.item_status='RECONCILED' THEN 'RECONCILED'::public.bi_fact_status
-                    WHEN r.status='RECONCILED' THEN 'RECONCILED'::public.bi_fact_status
-                    ELSE 'IMPORTED'::public.bi_fact_status END,
-      (SELECT v.product_id FROM public.product_variants v WHERE v.id=r.variant_id),r.variant_id,r.store_id,r.partner_id,
+      CASE WHEN r.status='CANCELED' THEN 'CANCELED'::public.bi_fact_status
+           WHEN r.reconciled_items>0 THEN 'RECONCILED'::public.bi_fact_status
+           WHEN r.status='RECONCILED' THEN 'RECONCILED'::public.bi_fact_status
+           ELSE 'IMPORTED'::public.bi_fact_status END,
+      (SELECT v.product_id FROM public.product_variants v WHERE v.id=r.variant_id),r.variant_id,r.store_id,
+      r.store_partner_id,
       v_channel,coalesce(v_qty,0),r.gross_amount,v_bill,
       coalesce(r.gross_amount-r.shipping_fee-r.discount_amount-r.platform_fee,0),
       r.platform_fee,r.shipping_fee,0,0,v_cost.version_id,v_cost.methodology,
-      CASE WHEN r.item_status='RECONCILED' AND v_cost.cost IS NULL THEN 'INCOMPLETE' ELSE 'COMPLETE' END,
-      CASE WHEN r.item_status='RECONCILED' AND v_cost.cost IS NULL
+      CASE WHEN r.reconciled_items>0 AND v_cost.cost IS NULL THEN 'INCOMPLETE' ELSE 'COMPLETE' END,
+      CASE WHEN r.reconciled_items>0 AND v_cost.cost IS NULL
            THEN 'Custo publicado indisponível na data: margem não calculada.' ELSE '' END,
       r.reconciliation_id,
-      jsonb_build_object('external_order_id',null,'status_source',r.status,'item_status',r.item_status,
-        'unit_reference_value',r.unit_reference_value,'store_ownership',r.ownership_type),
+      jsonb_build_object('external_order_id',r.external_order_id,'status_source',r.status,
+        'reconciled_items',r.reconciled_items,'unit_reference_value',r.unit_reference_value,
+        'store_ownership',r.ownership_type,'marketplace',r.marketplace),
       now())
     ON CONFLICT (organization_id,domain,source_table,source_id) DO UPDATE SET
       fact_nature=EXCLUDED.fact_nature,status=EXCLUDED.status,quantity=EXCLUDED.quantity,
       gross_amount=EXCLUDED.gross_amount,billable_amount=EXCLUDED.billable_amount,net_amount=EXCLUDED.net_amount,
       fees=EXCLUDED.fees,freight=EXCLUDED.freight,cost_version_id=EXCLUDED.cost_version_id,
       cost_methodology=EXCLUDED.cost_methodology,quality=EXCLUDED.quality,quality_notes=EXCLUDED.quality_notes,
-      reconciliation_id=EXCLUDED.reconciliation_id,channel=EXCLUDED.channel,extra=EXCLUDED.extra,
-      source_watermark=EXCLUDED.source_watermark,updated_at=now();
+      reconciliation_id=EXCLUDED.reconciliation_id,channel=EXCLUDED.channel,partner_id=EXCLUDED.partner_id,
+      extra=EXCLUDED.extra,source_watermark=EXCLUDED.source_watermark,updated_at=now();
     -- Custo e margem, só quando existe versão publicada na data do fato.
-    IF r.item_status='RECONCILED' AND v_cost.cost IS NOT NULL THEN
+    IF r.reconciled_items>0 AND v_cost.cost IS NOT NULL THEN
       UPDATE public.bi_facts SET
         cogs=v_cost.cost*(coalesce(v_qty,0)),
         margin=coalesce(v_bill,0)-(v_cost.cost*coalesce(v_qty,0)),
@@ -138,7 +158,6 @@ BEGIN
   END LOOP;
   RETURN n;
 END $$;
-
 -- ---------------------------------------------------------------------
 -- 3. PARCEIROS: remessa e devolução são fatos de LOGÍSTICA
 --
