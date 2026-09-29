@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport re, glob, pathlib\nfiles = sorted(glob.glob(\"supabase/migrations/*.sql\"))\ntargets = [\"products\",\"product_variants\",\"product_categories\",\"fiscal_documents\",\"sales_quotes\",\"sales_representatives\",\"cost_centers\",\"units_of_measure\",\"inventory_transfers\",\"partner_shipment_items\",\"partner_returns\",\"sales_pipeline_stages\",\"companies\"]\nfor name in targets:\n    occ=[]\n    for f in files:\n        t=pathlib.Path(f).read_text(encoding=\"utf8\",errors=\"ignore\")\n        for m in re.finditer(r\"create table(?: if not exists)? (?:public\\.)?\"+name+r\"\\s*\\((.*?)\\n\\);\", t, re.S|re.I):\n            occ.append((f,m.group(1)))\n    if not occ:\n        print(f\"### {name} [AUSENTE]\"); continue\n    f,body = occ[-1]\n    cols=[l.strip() for l in body.split(\"\\n\") if l.strip() and not l.strip().upper().startswith((\"CONSTRAINT\",\"--\"))]\n    print(f\"### {name} [DEFINICAO MAIS RECENTE: {f.split('/')[-1]}]\")\n    print(\"   \"+\" | \".join(c.rstrip(\",\") for c in cols))\nPY"
-    },
-    "timestamp": 1790682894042
-  },
-  {
-    "role": "tool_result",
-    "content": "### products [DEFINICAO MAIS RECENTE: 20260928121500_ee2e153f-bc2a-4d10-ab0d-de9050371f43.sql]\n   id uuid PRIMARY KEY DEFAULT gen_random_uuid() | organization_id uuid NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE | code text NOT NULL | name text NOT NULL | description text | categor",
-    "is_error": false,
-    "timestamp": 1790682894385
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && ls src/lib/ && echo \"=== ROTAS ===\" && ls src/routes/ -R | head -60 && echo \"=== RBAC ===\" && ls src/lib/permissions* 2>/dev/null; grep -rn \"bi\\.\\|analytics\" src/lib/permissions* 2>/ bi -R 2>/dev/null | head"
     },
     "timestamp": 1790682899109
@@ -1492,5 +1478,19 @@
     "content": "CREATE TYPE public.bi_domain AS ENUM (\nCREATE TYPE public.bi_metric_status AS ENUM ('ACTIVE','DEPRECATED','DRAFT');\nCREATE TYPE public.bi_run_status AS ENUM ('RUNNING','COMPLETED','PARTIAL','FAILED');\nCREATE TYPE public.bi_fact_status AS ENUM (\nCREATE TYPE public.bi_severity AS ENUM ('INFO','WARNING",
     "is_error": false,
     "timestamp": 1790683837973
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\ns = Path('supabase/migrations/20261015100000_bi_core.sql').read_text()\ni = s.find('CREATE FUNCTION public.bi_resolve_metric')\nprint(s[i:i+1400])\nPY"
+    },
+    "timestamp": 1790683840263
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE FUNCTION public.bi_resolve_metric(_org uuid,_key text,_version integer DEFAULT NULL)\nRETURNS TABLE(metric_key text,metric_name text,description text,business_domain text,formula text,unit text,\n              aggregation_method text,date_dimension text,source_description text,limitations text,",
+    "is_error": false,
+    "timestamp": 1790683840332
   }
 ]
