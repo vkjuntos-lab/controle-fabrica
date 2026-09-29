@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -n \"Documento preparado\" supabase/migrations/20261015100000_bi_core.sql; grep -n \"locais de\" supabase/migrations/20261015100000_bi_core.sql"
-    },
-    "timestamp": 1790683123006
-  },
-  {
-    "role": "tool_result",
-    "content": "926:  'DAILY','DAY','Documento preparado nao e NF-e autorizada e nao comprova duvida.',  'ACTIVE'),\n689:  'Saldo físico em locais de parceiros, apurado pelo Inventory Ledger.',\n",
-    "is_error": false,
-    "timestamp": 1790683123039
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"supabase/migrations/20261015100000_bi_core.sql\")\ns = p.read_text(encoding=\"utf8\")\ns = s.replace(\"'Documento preparado nao e NF-e autorizada e nao comprova duvida.'\",\n              \"'Documento preparado não é NF-e autorizada e não comprovaAlgorithms.'\".replace(\"Algorithms\",\"dúvida de توجه\").replace(\" de توجه\",\" de venda\"))\ns = s.replace(\"'Documento preparado não é NF-e autorizada e não comprovaAlgorithms.'\",\"'Documento preparado não é NF-e autorizada e não comprova criação de dívida.'\")\np.write_text(s, encoding=\"utf8\")\nPY\nsed -n '924,928p' supabase/migrations/20261015100000_bi_core.sql"
     },
     "timestamp": 1790683126667
@@ -1455,5 +1441,19 @@
     "content": "APLICADO OK\n",
     "is_error": false,
     "timestamp": 1790684074254
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '40,150p' scripts/test-inventory-db.py"
+    },
+    "timestamp": 1790684078242
+  },
+  {
+    "role": "tool_result",
+    "content": "      GRANT SELECT,INSERT,UPDATE,DELETE ON storage.objects TO authenticated;\n      CREATE SCHEMA auth; CREATE TABLE auth.users(id uuid PRIMARY KEY,email text,raw_user_meta_data jsonb DEFAULT '{}');\n      CREATE FUNCTION auth.uid() RETURNS uuid LANGUAGE sql STABLE AS $$ SELECT nullif(current_setting(",
+    "is_error": false,
+    "timestamp": 1790684078271
   }
 ]
