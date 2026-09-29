@@ -552,7 +552,7 @@ BEGIN
                    FROM public.goods_receipts gr JOIN public.supplier_profiles sp2 ON sp2.id=gr.supplier_id
                    WHERE gr.organization_id=_org AND gr.received_at>=v_from AND gr.received_at<v_to GROUP BY 1) g
           ON g.supplier=c.id
-        WHERE c.organization_id=_org AND oc.cnt IS NOT NULL),'[]'::jsonb));
+        WHERE c.organization_id=_org AND oc.cnt IS NOT NULL),'[]'::jsonb)));
 
   ELSIF _kind='production' THEN
     PERFORM public.bi_require(_org,'bi.production');
