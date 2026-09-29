@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "\nDO $$ BEGIN\n  CREATE TYPE public.fiscal_doc_kind AS ENUM ('nfce', 'nfe', 'cfe_sat', 'nfe_devolucao');\nEXCEPTION WHEN duplicate_object THEN NULL; END $$;\n\nDO $$ BEGIN\n  CREATE TYPE public.fiscal_doc_status AS ENUM ('pending', 'processing', 'authorized', 'rejected', 'cancelled', 'contingency', 'inuti",
-    "is_error": false,
-    "timestamp": 1790681202328
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sed -n '1,16p' supabase/migrations/20261014200000_fiscal_documents.sql; echo \"=== DROP em 131/142/143/144 ===\"; grep -rn \"DROP TABLE\" supabase/migrations/20261013*.sql supabase/migrations/20261014*.sql | head -20",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681207812
-  },
-  {
-    "role": "tool_result",
     "content": "-- Fiscal document workflow: no inventory or financial writer is called here.\nBEGIN;\nALTER TABLE inventory_locations ADD COLUMN fiscal_establishment_id uuid;\nALTER TABLE inventory_locations ADD CONSTRAINT inventory_fiscal_establishment_fk\n FOREIGN KEY(organization_id,fiscal_establishment_id) REFEREN",
     "is_error": false,
     "timestamp": 1790681207828
@@ -1514,5 +1499,19 @@
     "content": "supabase/migrations/20260921100000_inventory_integrity.sql\nsupabase/migrations/20260918100000_inventory_ledger.sql\nsupabase/migrations/20260926100000_partner_reconciliation.sql\nsupabase/migrations/20260923100000_inventory_workflows.sql\nsupabase/migrations/20261004100000_planning_fixes.sql\nsupabase/m",
     "is_error": false,
     "timestamp": 1790682876579
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '1,120p' supabase/migrations/20260918100000_inventory_ledger.sql"
+    },
+    "timestamp": 1790682878154
+  },
+  {
+    "role": "tool_result",
+    "content": "-- ============================================================\n-- Inventory Ledger — fonte oficial do estoque (LOVABLE MASTER 003).\n--\n-- Princípios garantidos neste schema:\n--   * SALDO = SOMA DOS MOVIMENTOS VÁLIDOS (POSTED). Nenhuma tabela guarda\n--     saldo \"à parte\": `products.stock` / `produc",
+    "is_error": false,
+    "timestamp": 1790682878183
   }
 ]
