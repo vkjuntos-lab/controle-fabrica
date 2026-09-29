@@ -244,6 +244,10 @@ export function FiscalForm({
           <Button type="button" variant="outline" onClick={() => setTaxes([...taxes, {}])}>
             Adicionar tributo
           </Button>
+          <p className="text-sm text-muted-foreground">
+            Regra só vira vigente com pelo menos um tratamento explícito, inclusive isenção. O banco
+            recusa regra sem item; a tela não aceita envio incompleto.
+          </p>
         </div>
       )}
       {definition.operation === "layout" && (
