@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '1,120p' supabase/migrations/20260918100000_inventory_ledger.sql"
-    },
-    "timestamp": 1790682878154
-  },
-  {
-    "role": "tool_result",
-    "content": "-- ============================================================\n-- Inventory Ledger — fonte oficial do estoque (LOVABLE MASTER 003).\n--\n-- Princípios garantidos neste schema:\n--   * SALDO = SOMA DOS MOVIMENTOS VÁLIDOS (POSTED). Nenhuma tabela guarda\n--     saldo \"à parte\": `products.stock` / `produc",
-    "is_error": false,
-    "timestamp": 1790682878183
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && for f in \"20260913100000_products\" ; do ls supabase/migrations/ | head -30; done"
     },
     "timestamp": 1790682881256
@@ -1491,5 +1477,20 @@
     "content": "21 LANGUAGE sql STABLE AS $$\n37 LANGUAGE sql IMMUTABLE AS $$\n57 RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n200 RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n209 LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n586 R",
     "is_error": false,
     "timestamp": 1790683827110
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql 20261015110000_bi_marts.sql 20261015120000_bi_queries.sql\" 2>&1 | tail -20",
+      "timeout": 900000
+    },
+    "timestamp": 1790683829141
+  },
+  {
+    "role": "tool_result",
+    "content": "APLICADO OK\n",
+    "is_error": false,
+    "timestamp": 1790683831731
   }
 ]
