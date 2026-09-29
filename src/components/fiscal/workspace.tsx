@@ -330,8 +330,7 @@ function cell(row: Row, column: Column): React.ReactNode {
   if (raw === null || raw === undefined || raw === "") return <>{column.empty ?? "—"}</>;
   if (column.key === "findings") return <Findings value={raw} />;
   if (column.key === "result") return <SimulationResult value={raw} />;
-  if (column.key === "has_blocking_issue")
-    return raw === true ? "Sim — impede calcular" : "Não";
+  if (column.key === "has_blocking_issue") return raw === true ? "Sim — impede calcular" : "Não";
   if (column.key === "requires_document") return raw === true ? "Sim" : "Não";
   if (typeof raw === "number") return raw.toLocaleString("pt-BR");
   if (typeof raw === "object") return <span className="text-xs">{translate(raw)}</span>;
@@ -410,7 +409,10 @@ function DocumentDetail({ data, fallback }: { data: unknown; fallback: Row }) {
     <div className="space-y-4">
       <div className="grid gap-3 text-sm sm:grid-cols-2">
         {[
-          ["Número", `${String(document.document_number ?? "—")} / ${String(document.series ?? "—")}`],
+          [
+            "Número",
+            `${String(document.document_number ?? "—")} / ${String(document.series ?? "—")}`,
+          ],
           ["Chave de acesso", String(document.access_key ?? "—")],
           ["Estabelecimento", String(document.establishment_id ?? "—")],
           ["Destinatário", String(document.company_id ?? "—")],
@@ -484,7 +486,9 @@ function DocumentDetail({ data, fallback }: { data: unknown; fallback: Row }) {
                           ))}
                     </td>
                     <td>{applied.map((tax) => translate(tax.base_amount)).join(" / ") || "—"}</td>
-                    <td>{applied.map((tax) => translate(tax.rounded_amount)).join(" / ") || "—"}</td>
+                    <td>
+                      {applied.map((tax) => translate(tax.rounded_amount)).join(" / ") || "—"}
+                    </td>
                   </tr>
                 );
               })}
@@ -740,16 +744,14 @@ function RecordDetail({
               )
             );
           })()}
-        {view === "rules" &&
-          row.status === "REVIEW" &&
-          hasPermission("fiscal.tax_rules.read") && (
-            <Button
-              disabled={busy || !reason}
-              onClick={() => action("rule_action", { action: "review" })}
-            >
-              Devolver para ajuste
-            </Button>
-          )}
+        {view === "rules" && row.status === "REVIEW" && hasPermission("fiscal.tax_rules.read") && (
+          <Button
+            disabled={busy || !reason}
+            onClick={() => action("rule_action", { action: "review" })}
+          >
+            Devolver para ajuste
+          </Button>
+        )}
         {view === "layouts" && row.status === "DRAFT" && hasPermission("fiscal.configure") && (
           <Button disabled={busy} onClick={() => action("layout", { status: "ACTIVE" })}>
             Ativar leiaute conferido

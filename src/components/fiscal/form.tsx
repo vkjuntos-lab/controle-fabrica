@@ -166,7 +166,10 @@ export function FiscalForm({
       .filter((f) => String(source[f.key] ?? "").trim() === "")
       .map((f) => f.label);
   }
-  const requiredRule = [...definition.fields, ...(definition.operation === "rule" ? taxFields : [])];
+  const requiredRule = [
+    ...definition.fields,
+    ...(definition.operation === "rule" ? taxFields : []),
+  ];
   return (
     <form
       className="space-y-4 rounded-xl border p-5"
@@ -175,7 +178,9 @@ export function FiscalForm({
         const absent = [...missing(definition.fields, values)];
         if (definition.operation === "rule")
           for (const [index, row] of taxes.entries())
-            absent.push(...missing(taxFields, row).map((label) => `Tratamento ${index + 1}: ${label}`));
+            absent.push(
+              ...missing(taxFields, row).map((label) => `Tratamento ${index + 1}: ${label}`),
+            );
         if (absent.length) {
           setError(`Preencha antes de salvar: ${absent.join(", ")}.`);
           return;
@@ -210,7 +215,6 @@ export function FiscalForm({
         }
       }}
     >
-
       <h2 className="text-lg font-semibold">{definition.title}</h2>
       <div className="grid gap-4 md:grid-cols-2">
         {definition.fields.map((f) => (
