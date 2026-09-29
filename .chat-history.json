@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"requiredRule\" src/components/fiscal/form.tsx",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681047264
-  },
-  {
-    "role": "tool_result",
-    "content": "169:  const requiredRule = [\n",
-    "is_error": false,
-    "timestamp": 1790681047280
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/form.tsx",
@@ -1528,5 +1513,20 @@
     "content": "Publicação e smoke test autenticado continuam sem verificação.\n\n\nÚltima atualização: LOVABLE MASTER 013 — Vendas e logística, sobre o MASTER 012 (CRM), 010 (Compras),\n011 (Planejamento), 009 (Custos), 007 (reconciliação/tabelas de preço), 006 (parceiros),\n003 (Inventory Ledger), 002 (Catálogo) e a f",
     "is_error": false,
     "timestamp": 1790682377204
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"docs/handoff/PROJECT-STATE.md\")\ns = p.read_text(encoding=\"utf8\")\n\ns = s.replace('''Última atualização: LOVABLE MASTER 013 — Vendas e logística, sobre o MASTER 012 (CRM), 010 (Compras),\n011 (Planejamento), 009 (Custos), 007 (reconciliação/tabelas de preço), 006 (parceiros),\n003 (Inventory Ledger), 002 (Catálogo) e a fundação do MASTER 001. O MASTER 005 (importador\nmarketplace automático) não está no checkout — o registro de vendas é manual com o mesmo contrato.\nEtapa atual: vendas e logística validadas localmente (quatro migrations, telas `/vendas` e\n    `/fornecedores` (+ `/$id` Fornecedor 360).''',\n'''Última atualização: LOVABLE MASTER 014 — Fiscal, sobre o MASTER 013 (Vendas e logística), 012 (CRM),\n010 (Compras), 011 (Planejamento), 009 (Custos), 007 (reconciliação/tabelas de preço), 006 (parceiros),\n003 (Inventory Ledger), 002 (Catálogo) e a fundação do MASTER 001. O MASTER 005 (importador\nmarketplace automático) não está no checkout — o registro de vendas é manual com o mesmo contrato.\nEtapa atual: fiscal validado localmente (sete migrations, tela `/fiscal` com dezoito áreas), sobre\nvendas e logística validadas localmente (quatro migrations, telas `/vendas` e\n    `/fornecedores` (+ `/$id` Fornecedor 360).''')\n\ns = s.replace('''- Fiscal e NF-e: nada no MASTER 013 emite ou transmite documento fiscal.''',\n'''- Fiscal: o MASTER 014 entrega cadastro, motor tributário por regra aprovada, preparação,\n  conferência, importação e conciliação, com `/fiscal` e dezoito áreas. **Não** emite, transmite,\n  cancela nem homologa: nenhum provedor fiscal está configurado, o botão de transmissão fica\n  desabilitado com o motivo visível, e contingência e evento oficial dependem de integração\n  homologada. Simulação e XML importado não comprovam autorização oficial.''')\n\ns = s.replace('''1. Aplicar as quatro migrations do MASTER 013 (`20261006100000_sales_orders.sql`,''',\n'''1. Aplicar as sete migrations do MASTER 014 (`20261013100000_fiscal_core.sql`,\n   `20261013200000_fiscal_tax_engine.sql`, `20261014100000_fiscal_integrity.sql`,\n   `20261014200000_fiscal_documents.sql`, `20261014300000_fiscal_inbound.sql`,\n   `20261014400000_fiscal_workspace.sql` e `20261014500000_fiscal_screen_fixes.sql`) no Lovable Cloud e\n   executar smoke test autenticado: listagem de documentos com número e chave, detalhe com snapshot\n   tributário por item, regressão de regra, devolução para ajuste e atribuição de pendência.\n   Verificar o console do Supabase durante a aplicação: a `20261014200000` descarta a tabela\n   `fiscal_documents` legada de julho, e é a única da cadeia que altera o que existe.\n2. Aplicar as quatro migrations do MASTER 013 (`20261006100000_sales_orders.sql`,''')\n\ns = s.replace('''`docs/handoff/MASTER-011-VALIDATION.md` e\n`docs/handoff/MASTER-013-VALIDATION.md`.''',\n'''`docs/handoff/MASTER-011-VALIDATION.md`, `docs/handoff/MASTER-013-VALIDATION.md` e\n`docs/handoff/MASTER-014-VALIDATION.md`.''')\n\np.write_text(s, encoding=\"utf8\")\nprint(\"ok\")\nPY\ngrep -n \"MASTER 014\" docs/handoff/PROJECT-STATE.md | head",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790682388729
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n3:## Revisão de continuidade — 29/09/2026 (MASTER 014)\n11:O defeito mais grave não era de tela: **a cadeia de migrations do MASTER 014 não era aplicável sobre\n85:O MASTER 014 foi iniciado na revisão de 29/09/2026, acima.\n513:- Fiscal: o MASTER 014 entrega cadastro, motor tributário por regra apro",
+    "is_error": false,
+    "timestamp": 1790682388775
   }
 ]

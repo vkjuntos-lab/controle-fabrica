@@ -510,7 +510,11 @@ grupos A–AF). Validação local; publicação não verificada.
 - Webhooks de domínio (`/api/webhooks/receiver` pronto, mas nenhum provedor externo conectado e
   sem `WEBHOOK_SECRET` definido em ambiente), cron/automações de negócio, filas.
 - Integrações de marketplace por API, pagamentos, e-mail transacional, notificações.
-- Fiscal e NF-e: nada no MASTER 013 emite ou transmite documento fiscal.
+- Fiscal: o MASTER 014 entrega cadastro, motor tributário por regra aprovada, preparação,
+  conferência, importação e conciliação, com `/fiscal` e dezoito áreas. **Não** emite, transmite,
+  cancela nem homologa: nenhum provedor fiscal está configurado, o botão de transmissão fica
+  desabilitado com o motivo visível, e contingência e evento oficial dependem de integração
+  homologada. Simulação e XML importado não comprovam autorização oficial.
 - Rastreamento de transportadora externa: o modo `WEBHOOK` existe como política, mas nenhum
   provedor está conectado; o rastreio é informado manualmente e o cadastro de recebedor é registro
   manual de evidência, sem upload de foto nem assinatura digital.
@@ -604,7 +608,15 @@ grupos A–AF). Validação local; publicação não verificada.
 
 ## NEXT_STEPS
 
-1. Aplicar as quatro migrations do MASTER 013 (`20261006100000_sales_orders.sql`,
+1. Aplicar as sete migrations do MASTER 014 (`20261013100000_fiscal_core.sql`,
+   `20261013200000_fiscal_tax_engine.sql`, `20261014100000_fiscal_integrity.sql`,
+   `20261014200000_fiscal_documents.sql`, `20261014300000_fiscal_inbound.sql`,
+   `20261014400000_fiscal_workspace.sql` e `20261014500000_fiscal_screen_fixes.sql`) no Lovable Cloud e
+   executar smoke test autenticado: listagem de documentos com número e chave, detalhe com snapshot
+   tributário por item, regressão de regra, devolução para ajuste e atribuição de pendência.
+   Verificar o console do Supabase durante a aplicação: a `20261014200000` descarta a tabela
+   `fiscal_documents` legada de julho, e é a única da cadeia que altera o que existe.
+2. Aplicar as quatro migrations do MASTER 013 (`20261006100000_sales_orders.sql`,
    `20261010100000_sales_integrity.sql`, `20261011100000_sales_planning.sql` e
    `20261012100000_sales_screen_fixes.sql`) no Lovable Cloud e executar smoke test autenticado:
    novo pedido e conversão de proposta, aprovação com crédito, reserva, separação por código de
@@ -637,8 +649,8 @@ grupos A–AF). Validação local; publicação não verificada.
 
 Relatórios: `docs/handoff/MASTER-003-VALIDATION.md`, `docs/handoff/MASTER-006-VALIDATION.md`,
 `docs/handoff/MASTER-007-VALIDATION.md`, `docs/handoff/MASTER-009-VALIDATION.md`,
-`docs/handoff/MASTER-010-VALIDATION.md`, `docs/handoff/MASTER-011-VALIDATION.md` e
-`docs/handoff/MASTER-013-VALIDATION.md`.
+`docs/handoff/MASTER-010-VALIDATION.md`, `docs/handoff/MASTER-011-VALIDATION.md`, `docs/handoff/MASTER-013-VALIDATION.md` e
+`docs/handoff/MASTER-014-VALIDATION.md`.
 MASTER 013: 32 grupos PostgreSQL de vendas (`npm run test:sales:db`, A–AF), 87 testes unitários em
 8 arquivos, TypeScript, build e lint do domínio verificados. A implantação no banco publicado não faz
 parte da evidência local e permanece pendente.
