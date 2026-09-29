@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "  \"globIgnores\": [\n    \"**/node_modules/**/*\",\n    \"sw.js\",\n    \"workbox-*.js\"\n  ]\n}\n\n[nitro] ℹ Using auto generated worker name: vkjuntos-lab-controle-fabrica\nℹ Generated .output/server/wrangler.json\nℹ Generated .wrangler/deploy/config.json\nℹ Generated .output/public/_headers\nℹ Generated .output/ni",
-    "is_error": false,
-    "timestamp": 1790682137505
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "npm run build 2>&1 | grep -iE \"error|warn|built in|✓ built\" | head -10; echo \"exit=$?\"",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790682142487
-  },
-  {
-    "role": "tool_result",
     "content": "- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n✓ built in 5.45s\nwarnings\n✓ built in 4.77s\nwarnings\n WARN  inlineDynamicImports option is ignored because the codeSplitting option is specified.\n\u001b[33m[MODULE_LEVEL_DIRECTIVE] \u001b[0mThe semantics of the module level directive \"",
     "is_error": false,
     "timestamp": 1790682164355
@@ -1481,5 +1466,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790683678737
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql",
+      "newString": "    RETURN coalesce((SELECT jsonb_agg(to_jsonb(t) ORDER BY t.started_at DESC) FROM (\n        SELECT r.id,r.domain,r.status,r.mode,r.period_start AS \"from\",r.period_end AS \"to\",\n          r.started_at,r.finished_at,r.processed_records AS \"records\",r.error_details AS \"errors\"\n        FROM public.bi_processing_runs r WHERE r.organization_id=_org\n        ORDER BY r.started_at DESC LIMIT 20) t),'[]'::jsonb);",
+      "oldString": "    RETURN coalesce((SELECT jsonb_agg(to_jsonb(t) ORDER BY t.started_at DESC) FROM (\n        SELECT r.id,r.domain,r.status,r.mode,r.period_start,r.period_end,r.started_at,r.finished_at,\n          r.processed_records,r.error_details\n        FROM public.bi_processing_runs r WHERE r.organization_id=_org\n        ORDER BY r.started_at DESC LIMIT 20) t),'[]'::jsonb);"
+    },
+    "timestamp": 1790683682688
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790683682717
   }
 ]

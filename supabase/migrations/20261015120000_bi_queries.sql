@@ -343,8 +343,8 @@ BEGIN
   ELSIF _kind='runs' THEN
     PERFORM public.bi_require(_org,'bi.read');
     RETURN coalesce((SELECT jsonb_agg(to_jsonb(t) ORDER BY t.started_at DESC) FROM (
-        SELECT r.id,r.domain,r.status,r.mode,r.period_start,r.period_end,r.started_at,r.finished_at,
-          r.processed_records,r.error_details
+        SELECT r.id,r.domain,r.status,r.mode,r.period_start AS "from",r.period_end AS "to",
+          r.started_at,r.finished_at,r.processed_records AS "records",r.error_details AS "errors"
         FROM public.bi_processing_runs r WHERE r.organization_id=_org
         ORDER BY r.started_at DESC LIMIT 20) t),'[]'::jsonb);
 
