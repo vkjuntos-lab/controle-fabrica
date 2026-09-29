@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql",
-      "newString": "    RETURN coalesce((SELECT jsonb_agg(to_jsonb(t) ORDER BY array_position(ARRAY['ERROR','WARNING','INFO']::public.bi_severity[],t.severity),t.last_seen_at DESC) FROM (\n        SELECT q.check_key AS \"key\",q.domain,q.severity,q.status,q.entity,q.message,q.details,\n          q.last_seen_at AS last_seen\n        FROM public.bi_quality_issues q WHERE q.organization_id=_org AND q.status<>'RESOLVED'\n        LIMIT 200) t),'[]'::jsonb);",
-      "oldString": "    RETURN coalesce((SELECT jsonb_agg(to_jsonb(t) ORDER BY array_position(ARRAY['ERROR','WARNING','INFO']::public.bi_severity[],t.severity),t.last_seen_at DESC) FROM (\n        SELECT q.check_key,q.domain,q.severity,q.status,q.entity,q.message,q.details,q.last_seen_at\n        FROM public.bi_quality_issues q WHERE q.organization_id=_org AND q.status<>'RESOLVED'\n        LIMIT 200) t),'[]'::jsonb);"
-    },
-    "timestamp": 1790683685362
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790683685376
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql 20261015110000_bi_marts.sql 20261015120000_bi_queries.sql\" 2>&1 | tail -30",
@@ -1458,5 +1442,21 @@
     "content": "168:    print('DEBUG fatos:', sql(f\"SELECT fact_nature||'/'||status||'/'||quantity::text||'/'||fact_date::text FROM bi_facts WHERE organization_id={q(org)} ORDER BY fact_date\"))\n169:    print('DEBUG agg:', sql(f\"SELECT public.bi_aggregate({q(org)},'sales.quantity_imported',{q('2026-01-01')},{q('2026",
     "is_error": false,
     "timestamp": 1790684399962
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-inventory-db.py",
+      "limit": 40,
+      "offset": 1
+    },
+    "timestamp": 1790684467198
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabricas/scripts/test-inventory-db.py</path>\n<type>file</type>\n<content>\n1: #!/usr/bin/env python3\n2: \"\"\"Isolated PostgreSQL integration tests. Never connects to a deployed database.\"\"\"\n3: import concurrent.futures\n4: import json\n5: import os\n6: from pathlib im",
+    "is_error": false,
+    "timestamp": 1790684467218
   }
 ]
