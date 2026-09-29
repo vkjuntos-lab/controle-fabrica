@@ -88,8 +88,9 @@ BEGIN
         RAISE EXCEPTION 'A métrica % não é compatível com a dimensão %.',v_metric,v_dim;
       END IF;
     END IF;
-    -- Escopo comercial: representante externo não enxerga a carteira alheia.
-    v_extra := _filters->'scope' ? _filters->'scope' ELSE '{}'::jsonb;
+    -- Carteira do representante: `_filters.representative_scope` restringe ao
+    -- próprio reps. Sem ele, o escopo é a organização inteira.
+    v_extra := coalesce(_filters->'representative_scope','{}'::jsonb);
 
     WITH base AS (
       SELECT f.*, CASE
@@ -99,14 +100,51 @@ BEGIN
           ELSE date_trunc('quarter',f.fact_date)::date END bucket
       FROM public.bi_facts f
       WHERE f.organization_id=_org AND f.fact_date>=v_from AND f.fact_date<v_to
-        AND (v_metric LIKE 'sales.%' AND f.domain IN ('SALES','PARTNERS'))
-        OR (v_metric LIKE 'partners.%' AND f.domain IN ('PARTNERS','SALES'))
-        OR (v_metric LIKE 'inventory.%' AND f.domain='INVENTORY')
-        OR (v_metric LIKE 'production.%' AND f.domain='PRODUCTION')
-        OR (v_metric LIKE 'procurement.%' AND f.domain='PROCUREMENT')
-        OR (v_metric LIKE 'financial.%' AND f.domain='FINANCIAL')
-        OR (v_metric LIKE 'crm.%' AND f.domain='CRM')
-        OR (v_metric LIKE 'fiscal.%' AND f.domain='FISCAL'))
+        AND (CASE v_metric
+              WHEN 'sales.quantity_reconciled' THEN (f.domain='SALES' AND f.fact_nature='RECONCILED_SALE')
+              WHEN 'sales.quantity_imported' THEN (f.domain='SALES' AND f.fact_nature='IMPORTED_SALE')
+              WHEN 'sales.billable_revenue' THEN (f.domain='SALES' AND f.fact_nature='RECONCILED_SALE')
+              WHEN 'sales.gross_revenue_collected' THEN (f.domain='SALES' AND f.fact_nature IN ('IMPORTED_SALE','RECONCILED_SALE'))
+              WHEN 'sales.b2b_order_value' THEN (f.domain='SALES' AND f.fact_nature='SALES_ORDER')
+              WHEN 'sales.orders_shipped' THEN (f.domain='SALES' AND f.fact_nature='SHIPMENT')
+              WHEN 'sales.average_price_realized' THEN (f.domain='SALES' AND f.fact_nature='RECONCILED_SALE')
+              WHEN 'sales.margin_industrial' THEN (f.domain='SALES' AND f.fact_nature='RECONCILED_SALE')
+              WHEN 'partners.stock_third_parties' THEN f.domain='INVENTORY'
+              WHEN 'partners.shipped_quantity' THEN (f.domain='PARTNERS' AND f.fact_nature='PARTNER_SHIPMENT')
+              WHEN 'partners.pending_reconciliation' THEN (f.domain='SALES' AND f.fact_nature='IMPORTED_SALE')
+              WHEN 'partners.receivable_open' THEN f.domain='FINANCIAL'
+              WHEN 'inventory.total_balance' THEN f.domain='INVENTORY'
+              WHEN 'inventory.available_balance' THEN f.domain='INVENTORY'
+              WHEN 'inventory.turnover' THEN f.domain='INVENTORY'
+              WHEN 'inventory.days_of_coverage' THEN f.domain='INVENTORY'
+              WHEN 'inventory.days_since_last_movement' THEN f.domain='INVENTORY'
+              WHEN 'production.planned_quantity' THEN (f.domain='PRODUCTION' AND f.fact_nature='PRODUCTION_ORDER')
+              WHEN 'production.produced_quantity' THEN (f.domain='PRODUCTION' AND f.fact_nature='PRODUCTION_ORDER')
+              WHEN 'production.efficiency' THEN (f.domain='PRODUCTION' AND f.fact_nature='PRODUCTION_ORDER')
+              WHEN 'production.loss_quantity' THEN (f.domain='PRODUCTION' AND f.fact_nature='PRODUCTION_ORDER')
+              WHEN 'procurement.ordered_value' THEN (f.domain='PROCUREMENT' AND f.fact_nature='PURCHASE_ORDER')
+              WHEN 'procurement.received_quantity' THEN (f.domain='PROCUREMENT' AND f.fact_nature='RECEIPT')
+              WHEN 'procurement.lead_time_observed' THEN f.domain='PROCUREMENT'
+              WHEN 'financial.receivable_open' THEN f.domain='FINANCIAL'
+              WHEN 'financial.payable_open' THEN f.domain='FINANCIAL'
+              WHEN 'financial.overdue_receivable' THEN f.domain='FINANCIAL'
+              WHEN 'financial.cash_in' THEN f.domain='FINANCIAL'
+              WHEN 'financial.cash_out' THEN f.domain='FINANCIAL'
+              WHEN 'financial.cash_flow_projected' THEN f.domain='FINANCIAL'
+              WHEN 'financial.inadimplency_rate' THEN f.domain='FINANCIAL'
+              WHEN 'crm.leads_total' THEN (f.domain='CRM' AND f.fact_nature='LEAD')
+              WHEN 'crm.conversion_rate' THEN (f.domain='CRM' AND f.fact_nature='LEAD')
+              WHEN 'crm.pipeline_value' THEN (f.domain='CRM' AND f.fact_nature='OPPORTUNITY')
+              WHEN 'crm.quotes_value' THEN (f.domain='CRM' AND f.fact_nature='QUOTE')
+              WHEN 'crm.quote_acceptance_rate' THEN (f.domain='CRM' AND f.fact_nature='QUOTE')
+              WHEN 'crm.sales_by_representative' THEN (f.domain='SALES' AND f.fact_nature='RECONCILED_SALE')
+              WHEN 'fiscal.documents_prepared' THEN (f.domain='FISCAL' AND f.fact_nature='DOCUMENT_FISCAL')
+              WHEN 'fiscal.documents_authorized' THEN (f.domain='FISCAL' AND f.fact_nature='DOCUMENT_FISCAL')
+              WHEN 'fiscal.pending_issues' THEN f.domain='FISCAL'
+              ELSE false END)
+        -- Carteira restrita: representante externo só vê o próprio.
+        AND (v_extra='{}'::jsonb OR f.representative_id=(v_extra->>'representative_id')::uuid
+             OR f.company_id=(v_extra->>'company_id')::uuid)
     )
     CASE _kind
       WHEN 'metric_value' THEN
