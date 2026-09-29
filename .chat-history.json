@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "fiscal_documents:\n  id, store_id, sale_id, customer_id, kind, serie, numero, chave, status, environment, protocolo, xml_authorized, xml_cancelled, qrcode_url, danfe_url, total_value, reference, provider, provider_ref, error_msg, retry_count, emitted_at, cancelled_at, created_at, updated_at\n\ninbound_",
-    "is_error": false,
-    "timestamp": 1790681294276
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sed -n '25,40p' supabase/migrations/20261013200000_fiscal_tax_engine.sql; echo \"=== layout ===\"; grep -n \"com\\b\" supabase/migrations/20261013100000_fiscal_core.sql | head -5; echo \"=== tax_rules ===\"; grep -n \"versionado\" supabase/migrations/20261013*.sql | head -5",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681299647
-  },
-  {
-    "role": "tool_result",
     "content": "CREATE TABLE public.fiscal_simulations (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations,\n  establishment_id uuid,\n  operation_type_id uuid,\n  company_id uuid,\n  -- Snapshot de entrada da simulação, para reprodutibilidade.\n  input_snap",
     "is_error": false,
     "timestamp": 1790681299686
@@ -1502,5 +1487,19 @@
     "content": "  IF result IS NULL THEN RAISE EXCEPTION 'Registro não encontrado.'; END IF;\n IF _kind='activity' THEN INSERT INTO crm_activity_history(organization_id,activity_id,before_value,after_value,reason) VALUES(_org,ident,old,result,coalesce(_data->>'reason','Criação')); END IF;\n PERFORM public.crm_audit(_",
     "is_error": false,
     "timestamp": 1790682916980
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '1,120p' supabase/migrations/20261014500000_fiscal_screen_fixes.sql"
+    },
+    "timestamp": 1790682919046
+  },
+  {
+    "role": "tool_result",
+    "content": "-- =====================================================================\n-- LOVABLE MASTER 014 — Correções de tela do fiscal.\n--\n-- Não reescreve migration publicada: substitui `fiscal_query` e apaga\n-- quatro linhas de `role_permissions` que nenhuma checagem do banco\n-- consulta. Nenhuma tabela é c",
+    "is_error": false,
+    "timestamp": 1790682919068
   }
 ]
