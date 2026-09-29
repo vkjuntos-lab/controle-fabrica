@@ -296,7 +296,7 @@ function ListingTable({
   );
 }
 
-/** Valor de uma coluna, traduzindo código e阵列特殊. */
+/** Valor de uma coluna da listagem, traduzindo código e formatando número. */
 function cell(row: Row, column: Column): React.ReactNode {
   const raw = row[column.key];
   if (raw === null || raw === undefined || raw === "") return <>{column.empty ?? "—"}</>;
