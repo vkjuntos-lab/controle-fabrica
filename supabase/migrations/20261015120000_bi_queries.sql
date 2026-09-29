@@ -125,8 +125,10 @@ WITH base AS (
          OR f.representative_id=(_scope->>'representative_id')::uuid
          OR f.company_id=(_scope->>'company_id')::uuid)),
 calc AS (
-  SELECT _dim IS NULL AS is_total,coalesce(label,'__TOTAL__') label,coalesce(dim_id,'00000000-0000-0000-0000-000000000000'::uuid) dim_id,
-    bucket,
+  -- GROUPING SETS gera as séries por bucket E o total do período.
+  -- `GROUPING(bucket)` distingue os dois sem depender de NULL: o
+  -- bucket ausente é o total, e a série nunca é confundida com ele.
+  SELECT (GROUPING(bucket)=1) AS is_total,b.label,b.dim_id,bucket,
     CASE _metric
       WHEN 'sales.quantity_reconciled' THEN sum(b.quantity)
       WHEN 'sales.quantity_imported' THEN sum(b.quantity)
@@ -149,7 +151,7 @@ calc AS (
       WHEN 'production.planned_quantity' THEN sum((b.extra->>'planned_quantity')::numeric)
       WHEN 'production.produced_quantity' THEN sum(b.quantity)
       WHEN 'production.efficiency' THEN sum(b.quantity)/nullif(sum((b.extra->>'planned_quantity')::numeric),0)*100
-      WHEN 'production.loss_quantity' THEN sum(coalesce((b.extra->>'loss_quantity')::numeric,0))+sum((b.extra->>'rejected_quantity')::numeric)
+      WHEN 'production.loss_quantity' THEN sum(coalesce((b.extra->>'loss_quantity')::numeric,0))+sum(coalesce((b.extra->>'rejected_quantity')::numeric,0))
       WHEN 'procurement.ordered_value' THEN sum(b.net_amount)
       WHEN 'procurement.received_quantity' THEN sum(b.quantity)
       WHEN 'procurement.lead_time_observed' THEN avg((b.extra->>'lead_time_observed')::numeric)
@@ -178,21 +180,14 @@ calc AS (
       WHEN 'inventory.turnover' THEN sum(b.cogs)
       WHEN 'inventory.days_of_coverage' THEN sum(b.quantity)
       END basis
-  FROM base b GROUP BY GROUPING SETS ((_dim IS NULL,label,dim_id,bucket),(_dim IS NULL,label,dim_id))
-),
-final AS (
-  SELECT c.is_total,c.label,c.dim_id,c.bucket,
-    c.value,c.basis,
-    row_number() OVER (PARTITION BY c.is_total,c.label,c.dim_id,c.bucket ORDER BY c.bucket NULLS FIRST) seq
-  FROM calc c)
+  FROM base b
+  GROUP BY GROUPING SETS ((b.label,b.dim_id,b.bucket),(b.label,b.dim_id))
+)
 SELECT coalesce(jsonb_agg(jsonb_build_object(
-  'label',label,'id',dim_id,'bucket',bucket,'value',value,
+  'label',label,'id',dim_id,'bucket',bucket,'is_total',is_total,'value',value,
   -- `available=false` é o que a tela traduz por "indisponível".
-  'available',(value IS NOT NULL AND (basis IS NULL OR basis<>0)) OR _metric NOT IN
-    ('sales.average_price_realized','production.efficiency','crm.conversion_rate',
-     'crm.quote_acceptance_rate','inventory.turnover','inventory.days_of_coverage')
-  ) ORDER BY bucket,seq),'[]'::jsonb)
-FROM final WHERE seq=1;
+  'available',(value IS NOT NULL AND (basis IS NULL OR basis<>0))
+  ) ORDER BY is_total,bucket),'[]'::jsonb)
 $$;
 
 -- Valor único do período: o agregado sem bucket.

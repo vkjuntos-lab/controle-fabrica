@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -nE \"CREATE (OR REPLACE )?FUNCTION public\\.[a-z_]+\" supabase/migrations/20260928100000_finance.sql | head -30; echo \"=== tabelas finance ===\"; grep -oE \"CREATE TABLE public\\.[a-z_]+\" supabase/migrations/20260928100000_finance.sql | sed 's/CREATE TABLE public.//' | tr '\\n' ' '"
-    },
-    "timestamp": 1790682957873
-  },
-  {
-    "role": "tool_result",
-    "content": "314:CREATE FUNCTION public.finance_require(_org uuid,_permission text) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n317:CREATE FUNCTION public.finance_audit(_org uuid,_action text,_table text,_id uuid,_context jsonb DEFAULT '{}') RETURNS void LANGUAGE sql SECURITY DEFI",
-    "is_error": false,
-    "timestamp": 1790682957907
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport re,glob,pathlib\nfor name in [\"financial_transactions\",\"finance_settings\",\"organization_members\",\"sales_credits\",\"shipments\",\"customer_returns\",\"supplier_returns\",\"sales_quotes\",\"quotations\",\"sales_pipelines\",\"crm_activities\",\"supplier_profiles\",\"partner_returns\"]:\n    occ=[]\n    for f in sorted(glob.glob(\"supabase/migrations/*.sql\")):\n        t=pathlib.Path(f).read_text(encoding=\"utf8\",errors=\"ignore\")\n        for m in re.finditer(r\"create table(?: if not exists)? (?:public\\.)?\"+name+r\"\\s*\\((.*?)\\n\\);\", t, re.S|re.I):\n            occ.append((f,m.group(1)))\n    if not occ: print(f\"### {name} [AUSENTE]\"); continue\n    f,body=occ[-1]\n    cols=[l.strip() for l in body.split(\"\\n\") if l.strip() and not l.strip().upper().startswith((\"CONSTRAINT\",\"--\"))]\n    print(f\"### {name} [{f.split('/')[-1]}]\")\n    print(\"   \"+\" | \".join(c.rstrip(\",\") for c in cols))\nPY"
     },
     "timestamp": 1790682963739
@@ -1494,5 +1480,19 @@
     "content": "ok\n567: SELECT DISTINCT ON (m.metric_key) m.metric_key,m.metric_name,m.description,m.business_domain::text,m.formula,m.unit::text,m.aggregation_method,\n575: -- DISTINCT ON: o catálogo lista uma linha por métrica (a versão mais\n",
     "is_error": false,
     "timestamp": 1790684000754
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np = Path('supabase/migrations/20261015120000_bi_queries.sql')\ns = p.read_text()\nold_start = s.find(\"calc AS (\")\nold_end = s.find(\"FROM final WHERE seq=1;\")\nassert old_start > 0 and old_end > old_start\nnovo = '''calc AS (\n  -- GROUPING SETS gera as séries por bucket E o total do período.\n  -- `GROUPING(bucket)` distingue os dois sem depender de NULL: o\n  -- bucket ausente é o total, e a série nunca é confundida com ele.\n  SELECT (GROUPING(bucket)=1) AS is_total,b.label,b.dim_id,bucket,\n    CASE _metric\n      WHEN 'sales.quantity_reconciled' THEN sum(b.quantity)\n      WHEN 'sales.quantity_imported' THEN sum(b.quantity)\n      WHEN 'sales.billable_revenue' THEN sum(b.billable_amount)\n      WHEN 'sales.gross_revenue_collected' THEN sum(b.gross_amount)\n      WHEN 'sales.b2b_order_value' THEN sum(b.net_amount)\n      WHEN 'sales.orders_shipped' THEN count(*)\n      WHEN 'sales.average_price_realized' THEN sum(b.billable_amount)/nullif(sum(b.quantity),0)\n      WHEN 'sales.margin_industrial' THEN sum(b.margin)\n      WHEN 'crm.sales_by_representative' THEN sum(b.billable_amount)\n      WHEN 'partners.stock_third_parties' THEN sum(b.quantity)\n      WHEN 'partners.shipped_quantity' THEN sum(b.quantity)\n      WHEN 'partners.pending_reconciliation' THEN sum(b.quantity)\n      WHEN 'partners.receivable_open' THEN sum(b.net_amount)\n      WHEN 'inventory.total_balance' THEN sum(b.quantity)\n      WHEN 'inventory.available_balance' THEN sum(b.quantity)\n      WHEN 'inventory.turnover' THEN sum(b.cogs)\n      WHEN 'inventory.days_of_coverage' THEN sum(b.quantity)\n      WHEN 'inventory.days_since_last_movement' THEN sum(b.quantity)\n      WHEN 'production.planned_quantity' THEN sum((b.extra->>'planned_quantity')::numeric)\n      WHEN 'production.produced_quantity' THEN sum(b.quantity)\n      WHEN 'production.efficiency' THEN sum(b.quantity)/nullif(sum((b.extra->>'planned_quantity')::numeric),0)*100\n      WHEN 'production.loss_quantity' THEN sum(coalesce((b.extra->>'loss_quantity')::numeric,0))+sum(coalesce((b.extra->>'rejected_quantity')::numeric,0))\n      WHEN 'procurement.ordered_value' THEN sum(b.net_amount)\n      WHEN 'procurement.received_quantity' THEN sum(b.quantity)\n      WHEN 'procurement.lead_time_observed' THEN avg((b.extra->>'lead_time_observed')::numeric)\n      WHEN 'financial.receivable_open' THEN sum(b.net_amount)\n      WHEN 'financial.payable_open' THEN sum(-b.net_amount)\n      WHEN 'financial.overdue_receivable' THEN sum(b.net_amount)\n      WHEN 'financial.cash_in' THEN sum(b.net_amount)\n      WHEN 'financial.cash_out' THEN -sum(b.net_amount)\n      WHEN 'financial.cash_flow_projected' THEN sum(b.net_amount)\n      WHEN 'financial.inadimplency_rate' THEN sum(b.net_amount)\n      WHEN 'crm.leads_total' THEN count(*)\n      WHEN 'crm.conversion_rate' THEN count(*) FILTER (WHERE b.status='POSTED')/nullif(count(*),0)*100\n      WHEN 'crm.pipeline_value' THEN sum(b.net_amount)\n      WHEN 'crm.quotes_value' THEN sum(b.net_amount)\n      WHEN 'crm.quote_acceptance_rate' THEN count(*) FILTER (WHERE b.status='POSTED')/nullif(count(*),0)*100\n      WHEN 'fiscal.documents_prepared' THEN count(*)\n      WHEN 'fiscal.documents_authorized' THEN count(*)\n      WHEN 'fiscal.pending_issues' THEN count(*) END value,\n    -- Denominador: o que torna a razão calculável. Sem ele, a métrica é\n    -- INDISPONÍVEL — não 0, e não 100%.\n    CASE _metric\n      WHEN 'sales.average_price_realized' THEN sum(b.quantity)\n      WHEN 'production.efficiency' THEN sum((b.extra->>'planned_quantity')::numeric)\n      WHEN 'crm.conversion_rate' THEN count(*)\n      WHEN 'crm.quote_acceptance_rate' THEN count(*)\n      WHEN 'inventory.turnover' THEN sum(b.cogs)\n      WHEN 'inventory.days_of_coverage' THEN sum(b.quantity)\n      END basis\n  FROM base b\n  GROUP BY GROUPING SETS ((b.label,b.dim_id,b.bucket),(b.label,b.dim_id))\n)\nSELECT coalesce(jsonb_agg(jsonb_build_object(\n  'label',label,'id',dim_id,'bucket',bucket,'is_total',is_total,'value',value,\n  -- `available=false` é o que a tela traduz por \"indisponível\".\n  'available',(value IS NOT NULL AND (basis IS NULL OR basis<>0))\n  ) ORDER BY is_total,bucket),'[]'::jsonb)'''\ns = s[:old_start] + novo + s[old_end+len(\"FROM final WHERE seq=1;\"):]\np.write_text(s)\nprint('ok')\nPY\npython3 - <<'PY'\nfrom pathlib import Path\ns = Path('/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql').read_text()\ni=s.find('calc AS ('); print(s[i-60:i+200])\nprint('...')\nj=s.find(\"ORDER BY is_total,bucket\", i); print(s[j-120:j+120])\nPY"
+    },
+    "timestamp": 1790684008667
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nd\n         OR f.company_id=(_scope->>'company_id')::uuid)),\ncalc AS (\n  -- GROUPING SETS gera as séries por bucket E o total do período.\n  -- `GROUPING(bucket)` distingue os dois sem depender de NULL: o\n  -- bucket ausente é o total, e a série nunca é confundi\n...\n=false` é o que a tela traduz po",
+    "is_error": false,
+    "timestamp": 1790684008730
   }
 ]
