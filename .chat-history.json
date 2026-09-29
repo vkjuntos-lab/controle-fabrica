@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ❯ src/lib/fiscal/constants.test.ts (12 tests | 7 failed) 230ms\n   ✓ contrato entre a listagem e o banco > toda área com listagem aponta para uma tabela que existe 140ms\n   × contrato entre a listagem e o banco > toda coluna listada existe na ",
-    "is_error": false,
-    "timestamp": 1790681333422
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"fiscal_document_status AS ENUM\" -A 20 supabase/migrations/20261013100000_fiscal_core.sql | head -24; echo \"=== events ===\"; grep -n \"CREATE TABLE public.fiscal_events\" -A 12 supabase/migrations/20261014200000_fiscal_documents.sql | head -14",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681339190
-  },
-  {
-    "role": "tool_result",
     "content": "24:CREATE TYPE public.fiscal_document_status AS ENUM (\n25-  'DRAFT',                -- montado na tela, ainda sem conferência\n26-  'PENDING_VALIDATION',   -- entrou na validação cadastral\n27-  'VALIDATED',            -- passou na validação; ainda não calculado\n28-  'READY_TO_SEND',        -- calcula",
     "is_error": false,
     "timestamp": 1790681339224
@@ -1492,5 +1477,19 @@
     "content": " public.collection_events  public.credit_score_events  public.domain_events  public.fiscal_events  public.fraud_events  public.webhook_events \n=== AUDIT ===\n public.audit_log \n=== fiscal_audit def ===\n",
     "is_error": false,
     "timestamp": 1790682934365
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport re, glob, pathlib\nfor f in sorted(glob.glob(\"supabase/migrations/*.sql\")):\n    t=pathlib.Path(f).read_text(encoding=\"utf8\",errors=\"ignore\")\n    for name in [\"domain_events\",\"audit_log\"]:\n        m=re.search(r\"create table(?: if not exists)? (?:public\\.)?\"+name+r\"\\s*\\((.*?)\\n\\);\", t, re.S|re.I)\n        if m:\n            print(f\"### {name} [{f.split('/')[-1]}]\")\n            print(\"   \"+\" | \".join(l.strip().rstrip(\",\") for l in m.group(1).split(\"\\n\") if l.strip() and not l.strip().upper().startswith((\"CONSTRAINT\",\"--\"))))\nPY\necho \"=== eventos usados ===\"; grep -rhoE \"'[A-Z_]{6,}'::domain_event_type|event_type\\s*=\\s*'[A-Z_]+'\" supabase/migrations/*.sql | sort -u | head -40"
+    },
+    "timestamp": 1790682937042
+  },
+  {
+    "role": "tool_result",
+    "content": "### audit_log [20260704211752_574d9eff-1e40-4974-b15b-e9ff971d42eb.sql]\n   id uuid PRIMARY KEY DEFAULT gen_random_uuid() | actor_user_id uuid REFERENCES auth.users(id) ON DELETE SET NULL | actor_name text | actor_role text | store_id uuid REFERENCES public.stores(id) ON DELETE SET NULL | action text",
+    "is_error": false,
+    "timestamp": 1790682937223
   }
 ]
