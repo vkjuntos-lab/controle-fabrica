@@ -82,7 +82,7 @@ Validação local: 32 grupos PostgreSQL (A–AF), 87 testes unitários, TypeScri
 lint do domínio sem erros. Relatório e critérios
 IMPLEMENTED/PARTIAL/NOT_IMPLEMENTED: [MASTER-013-VALIDATION](MASTER-013-VALIDATION.md).
 
-O MASTER 014 não foi iniciado.
+O MASTER 014 foi iniciado na revisão de 29/09/2026, acima.
 
 ## Revisão de continuidade — 27/09/2026 (MASTER 012)
 
