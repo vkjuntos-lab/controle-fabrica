@@ -733,14 +733,9 @@ function RecordDetail({
                     })
                   }
                 >
-                  {
-                    {
-                      submit: "Enviar para revisão",
-                      approve: "Aprovar",
-                      activate: "Ativar",
-                      retire: "Encerrar",
-                    }[a]
-                  }
+                  {lifecycleActions[row.status as keyof typeof lifecycleActions]?.[0] === a
+                    ? lifecycleActions[row.status as keyof typeof lifecycleActions][1]
+                    : a}
                 </Button>
               )
             );
