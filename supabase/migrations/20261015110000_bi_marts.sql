@@ -528,7 +528,7 @@ END $$;
 CREATE FUNCTION public.bi_classify_abc(_org uuid,_from date,_to date,_metric text,_granularity text DEFAULT 'VARIANT')
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE cfg jsonb; a numeric; b numeric; total numeric:=0; v_n integer; classified jsonb;
-  row record; v_metric_value numeric; v_share numeric; v_cum numeric:=0;
+  abc_row record; v_metric_value numeric; v_share numeric; v_cum numeric:=0;
 BEGIN
   PERFORM public.bi_require(_org,'bi.read');
   IF _metric NOT IN ('sales.quantity_reconciled','sales.billable_revenue','sales.margin_industrial',
@@ -620,7 +620,7 @@ END $$;
 CREATE FUNCTION public.bi_classify_xyz(_org uuid,_from date,_to date,_granularity text DEFAULT 'MONTH',_metric text DEFAULT 'sales.quantity_reconciled')
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE cfg jsonb; x numeric; y numeric; minobs integer; v_buckets integer;
-  row record; v_series jsonb; v_mean numeric; v_sd numeric; v_cv numeric; v_n integer; v_total numeric:=0;
+  xyz_row record; v_series jsonb; v_mean numeric; v_sd numeric; v_cv numeric; v_n integer; v_total numeric:=0;
 BEGIN
   PERFORM public.bi_require(_org,'bi.read');
   IF _granularity NOT IN ('DAY','WEEK','MONTH') THEN RAISE EXCEPTION 'Granularidade XYZ inválida: %',_granularity; END IF;
