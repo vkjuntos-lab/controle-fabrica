@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -n \"su - claude-runner\\|sudo\\|chown\\|chmod\" docs/handoff/MASTER-013-VALIDATION.md docs/handoff/MASTER-006-VALIDATION.md | head -20",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790679767694
-  },
-  {
-    "role": "tool_result",
-    "content": "docs/handoff/MASTER-006-VALIDATION.md:166:como usuário não root (`initdb` recusa root); para reproduzir: `su - claude-runner -c \"cd '<raiz-do-projeto>' && python3 scripts/test-partners-db.py\"`.\n",
-    "is_error": false,
-    "timestamp": 1790679767711
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "id claude-runner; ls -la /root/ | head -5; echo \"---\"; grep -n \"TMP\\|/tmp/\" scripts/test-inventory-db.py | head -20",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1576,5 +1561,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790681064316
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/workspace.tsx",
+      "newString": "  const records = rows(result.data);\n  const definition = forms[view];\n  // A tela promete a área por uma permissão e o servidor cobra outra. Divergir\n  // as duas é como uma área fica visível e recusa a consulta com \"sem\n  // permissão\", sem botão nenhum para o usuário agir. A diferença é\n  // apareceu por construção; aqui fica visível e o teste de contrato a fixa.\n  const serverPermission = readPermission[view];\n  const diverging =\n    serverPermission && serverPermission !== sectionPermission(view) && !hasPermission(serverPermission);\n  return (\n    <div className=\"space-y-4\">\n      {diverging && (\n        <p role=\"alert\" className=\"rounded-lg border border-amber-400 bg-amber-50 p-3 text-sm text-amber-950\">\n          Esta área é liberada por {sectionPermission(view)}, mas o servidor exige{\" \"}\n          {serverPermission} para ler os registros. Você vê o formulário e não consegue listar os\n          dados. O contrato de permissões do MASTER 014 exige correção; até lá, o acesso a esta área\n          está incompleto.\n        </p>\n      )}\n",
+      "oldString": "  const records = rows(result.data);\n  const definition = forms[view];\n  return (\n    <div className=\"space-y-4\">\n"
+    },
+    "timestamp": 1790681070439
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790681070455
   }
 ]

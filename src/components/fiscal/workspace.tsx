@@ -97,8 +97,23 @@ function Area({ org, view }: { org: string; view: string }) {
   };
   const records = rows(result.data);
   const definition = forms[view];
+  // A tela promete a área por uma permissão e o servidor cobra outra. Divergir
+  // as duas é como uma área fica visível e recusa a consulta com "sem
+  // permissão", sem botão nenhum para o usuário agir. A diferença é
+  // apareceu por construção; aqui fica visível e o teste de contrato a fixa.
+  const serverPermission = readPermission[view];
+  const diverging =
+    serverPermission && serverPermission !== sectionPermission(view) && !hasPermission(serverPermission);
   return (
     <div className="space-y-4">
+      {diverging && (
+        <p role="alert" className="rounded-lg border border-amber-400 bg-amber-50 p-3 text-sm text-amber-950">
+          Esta área é liberada por {sectionPermission(view)}, mas o servidor exige{" "}
+          {serverPermission} para ler os registros. Você vê o formulário e não consegue listar os
+          dados. O contrato de permissões do MASTER 014 exige correção; até lá, o acesso a esta área
+          está incompleto.
+        </p>
+      )}
       <div className="flex flex-wrap items-end gap-2">
         <label className="grid text-sm">
           Pesquisar
