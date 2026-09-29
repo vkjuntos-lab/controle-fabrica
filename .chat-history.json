@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql",
-      "limit": 16,
-      "offset": 420
-    },
-    "timestamp": 1790683698747
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql</path>\n<type>file</type>\n<content>\n420:         LEFT JOIN public.bi_xyz_classification x ON x.organization_id=a.organization_id\n421:           AND x.variant_id=a.variant_id AND x.period_start=a.period_s",
-    "is_error": false,
-    "timestamp": 1790683698758
-  },
-  {
-    "role": "tool",
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql",
@@ -1457,5 +1441,19 @@
     "content": "CREATE FUNCTION public.bi_metric_value(_org uuid,_metric text,_from date,_to date,_scope jsonb DEFAULT '{}'::jsonb)\nRETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n  SELECT coalesce((SELECT r FROM public.bi_aggregate(_org,_metric,_from,_to,NULL,'MONTH',_scope) r\n     ",
     "is_error": false,
     "timestamp": 1790684477359
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\ns=Path('supabase/migrations/20261015120000_bi_queries.sql').read_text()\ni=s.find('CREATE FUNCTION public.bi_query('); j=s.find('\\n-- ---', i)\nprint(s[i:j])\nPY"
+    },
+    "timestamp": 1790684479908
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE FUNCTION public.bi_query(_org uuid,_kind text,_filters jsonb DEFAULT '{}') RETURNS jsonb\nLANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE v_from date; v_to date; v_metric text; v_dim text; v_pf date; v_pt date;\n  result jsonb; def record; v_grain text; v_scope jsonb; v_c",
+    "is_error": false,
+    "timestamp": 1790684479963
   }
 ]
