@@ -148,6 +148,20 @@ function Area({ org, view }: { org: string; view: string }) {
             }}
           />
         </label>
+        {["documents", "inbound", "reconciliations", "events", "exceptions"].includes(view) && (
+          <div className="min-w-64 text-sm">
+            Estabelecimento
+            <Reference
+              org={org}
+              kind="establishments"
+              value={establishment}
+              onChange={(v) => {
+                setEstablishment(v);
+                setOffset(0);
+              }}
+            />
+          </div>
+        )}
         {definition && hasPermission(definition.permission) && (
           <Button onClick={() => setShowForm(!showForm)}>
             {showForm ? "Fechar formulário" : "Novo registro"}

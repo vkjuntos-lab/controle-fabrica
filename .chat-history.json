@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -ril \"master 14\\|master014\\|master-14\" --include=\"*.md\" --include=\"*.json\" --include=\"*.txt\" . --exclude-dir=node_modules --exclude-dir=.git 2>/dev/null | head -30",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790679703387
-  },
-  {
-    "role": "tool_result",
-    "content": "./.chat-history.json\n",
-    "is_error": false,
-    "timestamp": 1790679703422
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "ls -la docs/architecture docs/business docs/handoff",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1565,5 +1550,21 @@
     "content": "12:export function label(row: Row) {\n13-  return String(\n14-    row.label ??\n15-      row.legal_name ??\n16-      row.fiscal_nature ??\n17-      row.sku ??\n18-      row.name ??\n19-      row.version ??\n20-      row.id ??\n21-      \"—\",\n22-  );\n",
     "is_error": false,
     "timestamp": 1790680904541
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/workspace.tsx",
+      "newString": "        {[\"documents\", \"inbound\", \"reconciliations\", \"events\", \"exceptions\"].includes(view) && (\n          <div className=\"min-w-64 text-sm\">\n            Estabelecimento\n            <Reference\n              org={org}\n              kind=\"establishments\"\n              value={establishment}\n              onChange={(v) => {\n                setEstablishment(v);\n                setOffset(0);\n              }}\n            />\n          </div>\n        )}\n        {definition && hasPermission(definition.permission) && (\n",
+      "oldString": "        {definition && hasPermission(definition.permission) && (\n"
+    },
+    "timestamp": 1790680910212
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790680910237
   }
 ]
