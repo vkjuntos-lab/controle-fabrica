@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '20,60p' scripts/test-fiscal-migration-chain.py"
-    },
-    "timestamp": 1790683150296
-  },
-  {
-    "role": "tool_result",
-    "content": "spec = importlib.util.spec_from_file_location('inventory', Path(__file__).with_name('test-inventory-db.py'))\ndb = importlib.util.module_from_spec(spec)\nspec.loader.exec_module(db)\nsql, uid, q = db.sql, db.uid, db.q\n\n# Legados de 2026-07 que já ocupam os nomes usados pelo MASTER 014.\nLEGADOS = [\n    ",
-    "is_error": false,
-    "timestamp": 1790683150319
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && cat > /tmp/opencode/apply.py <<'PY'\nimport importlib.util, os, sys\nfrom pathlib import Path\nspec = importlib.util.spec_from_file_location('inv', Path('scripts/test-inventory-db.py').resolve())\ndb = importlib.util.module_from_spec(spec); spec.loader.exec_module(db)\nPRED = ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql',\n '20261001100000_purchasing.sql','20261002100000_planning.sql','20261003100000_planning_engine.sql',\n '20261004100000_planning_fixes.sql','20261005100000_crm.sql','20261006100000_crm_integrity.sql',\n '20261006100000_sales_orders.sql','20261007100000_crm_documents.sql','20261008100000_crm_company_services.sql',\n '20261009100000_crm_customer_history.sql','20261010100000_sales_integrity.sql','20261011100000_sales_planning.sql',\n '20261012100000_sales_screen_fixes.sql','20261013100000_fiscal_core.sql','20261013200000_fiscal_tax_engine.sql',\n '20261014100000_fiscal_integrity.sql','20261014200000_fiscal_documents.sql','20261014300000_fiscal_inbound.sql',\n '20261014400000_fiscal_workspace.sql','20261014500000_fiscal_screen_fixes.sql']\ntry:\n    db.setup()\n    for name in PRED + sys.argv[1:]:\n        prefix = 'SET check_function_bodies=off;' if name.startswith('20260918100000') else ''\n        db.sql(prefix + (db.ROOT/'supabase/migrations'/name).read_text())\n    print(\"APLICADO OK\")\nfinally:\n    db.cleanup()\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql\" 2>&1 | tail -12"
     },
     "timestamp": 1790683154788
@@ -1455,5 +1441,19 @@
     "content": "\nTraceback (most recent call last):\n  File \"<stdin>\", line 11, in <module>\nIndexError: list index out of range\n",
     "is_error": false,
     "timestamp": 1790684105137
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\nimport re\ns = Path('supabase/migrations/20260926100000_partner_reconciliation.sql').read_text()\nidx = s.find('INSERT INTO public.partner_reconciliations')\nhead = s[:idx]\nms = list(re.finditer(r'CREATE (?:OR REPLACE )?FUNCTION public\\.(\\w+)\\(', head))\nprint('FUNCAO:', ms[-1].group(1))\nprint(s[ms[-1].start():ms[-1].start()+700])\nPY"
+    },
+    "timestamp": 1790684108321
+  },
+  {
+    "role": "tool_result",
+    "content": "FUNCAO: rec_create\nCREATE FUNCTION public.rec_create(_org uuid,_data jsonb,_user_id uuid DEFAULT auth.uid())\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE\n  v_partner uuid:=(_data->>'partner_id')::uuid; v_start date:=(_data->>'period_start')::date; v_end date:=",
+    "is_error": false,
+    "timestamp": 1790684108393
   }
 ]
