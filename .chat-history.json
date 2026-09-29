@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cat > /tmp/opencode/try_q.sh <<'SH'\n#!/bin/bash\nSOCK=/tmp/inventory-test-ep_38dxm\nPSQL=/usr/lib/postgresql/18/bin/psql\ncd \"/root/Zheus AI Projects/controle-fabricas\"\n{ echo 'BEGIN;'; cat supabase/migrations/20261015120000_bi_queries.sql; echo 'ROLLBACK;'; } | $PSQL -X -h $SOCK -p 55439 -U postgres -d postgres -v ON_ERROR_STOP=1 -f - 2>&1 | tail -25\nSH\nchmod +x /tmp/opencode/try_q.sh\nsu - claude-runner -c \"/tmp/opencode/try_q.sh\"",
-      "timeout": 180000
-    },
-    "timestamp": 1790683764966
-  },
-  {
-    "role": "tool_result",
-    "content": "BEGIN\npsql:<stdin>:12: WARNING:  there is already a transaction in progress\nBEGIN\nCREATE FUNCTION\nCREATE FUNCTION\nCREATE FUNCTION\nCREATE FUNCTION\nCREATE FUNCTION\nCREATE FUNCTION\npsql:<stdin>:661: ERROR:  unexpected end of function definition at end of input\nLINE 29: END $$;\n             ^\n",
-    "is_error": false,
-    "timestamp": 1790683765046
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql",
@@ -1457,5 +1442,19 @@
     "content": "ok\nDBG mv: {\"id\": null, \"label\": null, \"value\": 15.000000, \"bucket\": null, \"is_total\": true, \"available\": true}\nDBG ag: [{\"id\": null, \"label\": null, \"value\": 10.000000, \"bucket\": \"2026-05-01\", \"is_total\": false, \"available\": true}, {\"id\": null, \"label\": null, \"value\": 5.000000, \"bucket\": \"2026-06-01",
     "is_error": false,
     "timestamp": 1790684546016
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\ns=Path('supabase/migrations/20261015110000_bi_marts.sql').read_text()\ni=s.find('CREATE FUNCTION public.bi_aggregate'); j=s.find('\\n-- ---', i)\nprint(s[i:j][-1800:])\nPY"
+    },
+    "timestamp": 1790684550549
+  },
+  {
+    "role": "tool_result",
+    "content": "\n",
+    "is_error": false,
+    "timestamp": 1790684550608
   }
 ]
