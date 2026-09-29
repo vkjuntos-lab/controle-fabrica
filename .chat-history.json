@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261014200000_fiscal_documents.sql",
-      "offset": 140,
-      "limit": 160
-    },
-    "timestamp": 1790679954727
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261014200000_fiscal_documents.sql</path>\n<type>file</type>\n<content>\n140:  END IF;\n141:  IF result IS NULL OR result->'items' IS NULL OR result->'items'='null'::jsonb THEN\n142:   RAISE EXCEPTION 'Operação inexistente ou sem expedi",
-    "is_error": false,
-    "timestamp": 1790679954755
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261014300000_fiscal_inbound.sql",
       "offset": 80,
       "limit": 140
@@ -1583,5 +1567,20 @@
     "content": "COLISOES:\n  ig_webhook_logs\n    ja criada em: 20260725220208_0f0dfde8-1b5e-4ef3-a020-9eb3e3931135.sql\n    recriada em: 20260725220441_1bd388b2-d756-474a-b531-9e555f9dfa73.sql\n  ig_templates\n    ja criada em: 20260725220208_0f0dfde8-1b5e-4ef3-a020-9eb3e3931135.sql\n    recriada em: 20260725220441_1bd3",
     "is_error": false,
     "timestamp": 1790681226526
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "echo \"=== padrao DROP nas migrations antigas ===\"; grep -n \"DROP TABLE IF EXISTS\" supabase/migrations/20260928122015_9f021b86-6f60-414a-9848-8422b02a0ba1.sql | head -3; echo; echo \"=== 131 head ===\"; sed -n '1,30p' supabase/migrations/20261013100000_fiscal_core.sql; echo; echo \"=== fiscal_documents legado: quem usa? ===\"; grep -rn \"fiscal_documents\" src/ --include=*.ts --include=*.tsx | grep -v \"2026\" | head",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681234671
+  },
+  {
+    "role": "tool_result",
+    "content": "=== padrao DROP nas migrations antigas ===\n\n=== 131 head ===\n-- =====================================================================\n-- LOVABLE MASTER 014 — Fiscal: master data, engine tributário e\n-- classificação fiscal de produtos.\n--\n-- Princípio que atravessa todo este arquivo: o banco não ded",
+    "is_error": false,
+    "timestamp": 1790681234761
   }
 ]
