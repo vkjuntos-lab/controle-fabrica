@@ -84,6 +84,7 @@ def aplicar(nome: str) -> None:
 
 def run():
     db.setup()
+    sql(PRECONDICAOES)
 
     for nome in LEGADOS:
         aplicar(nome)
