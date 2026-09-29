@@ -67,6 +67,11 @@ export function FiscalPage({ view = "dashboard" }: { view?: string }) {
     </AppShell>
   );
 }
+/** Permissão que a navegação usa para liberar a área. */
+function sectionPermission(view: string): string | undefined {
+  return sections.find((s) => s[0] === view)?.[2];
+}
+
 function Area({ org, view }: { org: string; view: string }) {
   const { hasPermission } = useOrganization();
   const client = useQueryClient();
