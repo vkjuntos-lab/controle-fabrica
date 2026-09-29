@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "ok\n3:## Revisão de continuidade — 29/09/2026 (MASTER 014)\n11:O defeito mais grave não era de tela: **a cadeia de migrations do MASTER 014 não era aplicável sobre\n85:O MASTER 014 foi iniciado na revisão de 29/09/2026, acima.\n513:- Fiscal: o MASTER 014 entrega cadastro, motor tributário por regra apro",
-    "is_error": false,
-    "timestamp": 1790682388775
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sed -n '636,650p' docs/handoff/PROJECT-STATE.md",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790682391842
-  },
-  {
-    "role": "tool_result",
     "content": "6. Implementar/validar o importador MASTER 005 com o contrato de `marketplace_stores`, vínculo\n   PARTNER → `partner_profiles` e `marketplace_sales` já existentes. Não duplicar o cadastro de lojas.\n7. Financeiro de parceiros: consumir o snapshot/evento `PARTNER_RECONCILIATION_CLOSED` para gerar\n   c",
     "is_error": false,
     "timestamp": 1790682391850
@@ -1485,5 +1470,19 @@
     "content": "dollars: 24\n21 LANGUAGE sql STABLE AS $$\n31 $$;\n37 LANGUAGE sql IMMUTABLE AS $$\n42 $$;\n57 RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n196 $$;\n200 RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n203 $$;\n209 LANGUAGE plpgsql SECURITY ",
     "is_error": false,
     "timestamp": 1790683726641
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '1,40p' scripts/test-inventory-db.py"
+    },
+    "timestamp": 1790683736318
+  },
+  {
+    "role": "tool_result",
+    "content": "#!/usr/bin/env python3\n\"\"\"Isolated PostgreSQL integration tests. Never connects to a deployed database.\"\"\"\nimport concurrent.futures\nimport json\nimport os\nfrom pathlib import Path\nimport shutil\nimport subprocess\nimport tempfile\nimport uuid\n\nROOT = Path(__file__).resolve().parents[1]\nBIN = Path(os.en",
+    "is_error": false,
+    "timestamp": 1790683736333
   }
 ]
