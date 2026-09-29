@@ -244,6 +244,116 @@ function Area({ org, view }: { org: string; view: string }) {
     </div>
   );
 }
+/** Rótulo do cabeçalho da área, para a tabela. */
+function ListingTable({
+  view,
+  records,
+  onOpen,
+}: {
+  view: string;
+  records: Row[];
+  onOpen: (row: Row) => void;
+}) {
+  const listing = listings[view];
+  if (!listing) {
+    return (
+      <p className="rounded-lg border p-8 text-muted-foreground">
+        Área sem listagem definida. Nada é apresentado como registro.
+      </p>
+    );
+  }
+  return (
+    <div className="overflow-x-auto rounded-xl border">
+      <table className="w-full text-left text-sm">
+        <thead>
+          <tr className="bg-muted">
+            {listing.columns.map((column) => (
+              <th key={column.key} className="p-3 whitespace-nowrap">
+                {column.title}
+              </th>
+            ))}
+            <th className="p-3">Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {records.map((row) => (
+            <tr key={String(row.id)} className="border-t align-top">
+              {listing.columns.map((column) => (
+                <td key={column.key} className="p-3">
+                  {cell(row, column)}
+                </td>
+              ))}
+              <td className="p-3">
+                <Button variant="outline" onClick={() => onOpen(row)}>
+                  Detalhes e ações
+                </Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+/** Valor de uma coluna, traduzindo código e阵列特殊. */
+function cell(row: Row, column: Column): React.ReactNode {
+  const raw = row[column.key];
+  if (raw === null || raw === undefined || raw === "") return <>{column.empty ?? "—"}</>;
+  if (column.key === "findings") return <Findings value={raw} />;
+  if (column.key === "result") return <SimulationResult value={raw} />;
+  if (column.key === "has_blocking_issue")
+    return raw === true ? "Sim — impede calcular" : "Não";
+  if (column.key === "requires_document") return raw === true ? "Sim" : "Não";
+  if (typeof raw === "number") return raw.toLocaleString("pt-BR");
+  if (typeof raw === "object") return <span className="text-xs">{translate(raw)}</span>;
+  const text = translate(raw, column.labels);
+  if (column.key === "access_key")
+    return <span className="font-mono text-xs break-all">{text}</span>;
+  return text;
+}
+
+/** Achados da conciliação: nenhum é resolvido por correspondência aritmética. */
+function Findings({ value }: { value: Json | undefined }) {
+  const items = rows(value);
+  if (!items.length) return <>Nenhum achado</>;
+  return (
+    <ul className="space-y-1">
+      {items.map((item, index) => (
+        <li key={index} className="text-xs">
+          {translate(item.type, FINDING_TYPE)}
+          {item.line !== undefined && ` — item ${String(item.line)}`}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** Resultado da simulação: tributos, regras usadas e pendências. */
+function SimulationResult({ value }: { value: Json | undefined }) {
+  const data = (value ?? {}) as Row;
+  const taxes = rows(data.taxes ?? data.items);
+  const warnings = rows(data.warnings);
+  return (
+    <div className="space-y-1 text-xs">
+      <p>
+        {translate(data.total_taxes ?? data.total_amount)} ·{" "}
+        {translate(data.total_taxes_is_estimated, undefined)}
+      </p>
+      {taxes.map((tax, index) => (
+        <p key={index}>
+          {translate(tax.code ?? tax.tax_id)} — {translate(tax.amount ?? tax.rounded_amount)}
+        </p>
+      ))}
+      {warnings.map((warning, index) => (
+        <p key={index} className="text-amber-700">
+          {typeof warning === "string" ? warning : JSON.stringify(warning)}
+        </p>
+      ))}
+    </div>
+  );
+}
+
 function Dashboard({ data }: { data: unknown }) {
   const d = (data ?? {}) as Row;
   const states = (d.documents ?? {}) as Row;
