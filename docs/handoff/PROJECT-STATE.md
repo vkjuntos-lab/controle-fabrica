@@ -608,30 +608,13 @@ grupos A–AF). Validação local; publicação não verificada.
 
 ## NEXT_STEPS
 
-1. Aplicar as sete migrations do MASTER 014 (`20261013100000_fiscal_core.sql`,
-   `20261013200000_fiscal_tax_engine.sql`, `20261014100000_fiscal_integrity.sql`,
-   `20261014200000_fiscal_documents.sql`, `20261014300000_fiscal_inbound.sql`,
-   `20261014400000_fiscal_workspace.sql` e `20261014500000_fiscal_screen_fixes.sql`) no Lovable Cloud e
-   executar smoke test autenticado: listagem de documentos com número e chave, detalhe com snapshot
-   tributário por item, regressão de regra, devolução para ajuste e atribuição de pendência.
-   Verificar o console do Supabase durante a aplicação: a `20261014200000` descarta a tabela
-   `fiscal_documents` legada de julho, e é a única da cadeia que altera o que existe.
-2. Aplicar as quatro migrations do MASTER 013 (`20261006100000_sales_orders.sql`,
-   `20261010100000_sales_integrity.sql`, `20261011100000_sales_planning.sql` e
-   `20261012100000_sales_screen_fixes.sql`) no Lovable Cloud e executar smoke test autenticado:
-   novo pedido e conversão de proposta, aprovação com crédito, reserva, separação por código de
-   barras, conferência divergente, embalagem, expedição, entrega com prova, devolução e as doze
-   políticas. Confirmar também que a tela mostra um código de rastreio e um recebedor, e não "—".
-2. Aplicar as três migrations do MASTER 011 (`20261002100000_planning.sql`,
-   `20261003100000_planning_engine.sql`, `20261004100000_planning_fixes.sql`) no Lovable Cloud e
-   executar smoke test autenticado (parâmetros, execução, forecast, simulação, sugestão → conversão)
-   no ambiente publicado.
-3. Aplicar a migration do MASTER 010 no Lovable Cloud e executar smoke test autenticado
-   (fornecedores, requisição → cotação → pedido → recebimento → postagem, documento/exceções,
-   reposição) no ambiente publicado.
-4. Aplicar a migration do MASTER 009 no Lovable Cloud e executar smoke test autenticado
-   (custos, precificação, rentabilidade) no ambiente publicado.
-5. Agendar a expiração de reservas vencidas (hoje depende de chamada); ligar um provedor real de
+1. Todas as migrations do repositório já estão aplicadas no Lovable Cloud, até
+   `20261015120000_bi_queries.sql` (aplicadas em 2026-09-29, inclui MASTER 013/014 e o BI), com
+   versões registradas em `supabase_migrations.schema_migrations` e tipos regenerados. Restam os
+   smoke tests autenticados em navegador: vendas (pedido, aprovação, reserva, separação, expedição,
+   devolução), fiscal (listagem com número e chave, snapshot tributário, regressão de regra,
+   devolução para ajuste, pendência), planejamento, compras, custos e os marts de BI.
+2. Agendar a expiração de reservas vencidas (hoje depende de chamada); ligar um provedor real de
    rastreamento ao modo `WEBHOOK` das políticas, hoje manual.
 6. Implementar/validar o importador MASTER 005 com o contrato de `marketplace_stores`, vínculo
    PARTNER → `partner_profiles` e `marketplace_sales` já existentes. Não duplicar o cadastro de lojas.
