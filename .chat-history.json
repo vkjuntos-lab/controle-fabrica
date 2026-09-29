@@ -1,18 +1,5 @@
 [
   {
-    "role": "assistant",
-    "content": "Os testes de banco passaram também para remessa de 50 unidades, devoluções de cliente/fornecedor/parceiro e transferência entre estabelecimentos. A numeração foi testada com chamadas concorrentes, separada por ambiente. Estou finalizando a documentação e a verificação do código; emissão oficial, assinatura do XML e eventos remotos continuam dependentes da integração real.\n",
-    "timestamp": 1790669862344
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc 'npm run test:fiscal:db > /tmp/master014-db.log 2>&1'"
-    },
-    "timestamp": 1790669867347
-  },
-  {
     "role": "tool",
     "tool": "Bash",
     "input": {
@@ -1552,5 +1539,20 @@
     "content": "supabase/migrations/20261014400000_fiscal_workspace.sql\n---\n",
     "is_error": false,
     "timestamp": 1790680861233
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"fiscal_exception_action\" -B2 -A 30 supabase/migrations/20261014400000_fiscal_workspace.sql | head -50",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790680864135
+  },
+  {
+    "role": "tool_result",
+    "content": "34- RETURN jsonb_build_object('id',_id,'status',target);\n35-END $$;\n36:CREATE FUNCTION public.fiscal_exception_action(_org uuid,_id uuid,_data jsonb) RETURNS jsonb\n37-LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n38-DECLARE r fiscal_exceptions;\n39-BEGIN\n40- PERFORM fiscal_require(_o",
+    "is_error": false,
+    "timestamp": 1790680864152
   }
 ]
