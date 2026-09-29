@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "-- Fiscal document workflow: no inventory or financial writer is called here.\nBEGIN;\nALTER TABLE inventory_locations ADD COLUMN fiscal_establishment_id uuid;\nALTER TABLE inventory_locations ADD CONSTRAINT inventory_fiscal_establishment_fk\n FOREIGN KEY(organization_id,fiscal_establishment_id) REFEREN",
-    "is_error": false,
-    "timestamp": 1790681207828
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"migrations\\|glob\\|sorted\" scripts/test-fiscal-db.py | head -30",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681214503
-  },
-  {
-    "role": "tool_result",
     "content": "27:        sql((db.ROOT / 'supabase/migrations' / name).read_text())\n",
     "is_error": false,
     "timestamp": 1790681214524
@@ -1513,5 +1498,19 @@
     "content": "-- ============================================================\n-- Inventory Ledger — fonte oficial do estoque (LOVABLE MASTER 003).\n--\n-- Princípios garantidos neste schema:\n--   * SALDO = SOMA DOS MOVIMENTOS VÁLIDOS (POSTED). Nenhuma tabela guarda\n--     saldo \"à parte\": `products.stock` / `produc",
     "is_error": false,
     "timestamp": 1790682878183
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && for f in \"20260913100000_products\" ; do ls supabase/migrations/ | head -30; done"
+    },
+    "timestamp": 1790682881256
+  },
+  {
+    "role": "tool_result",
+    "content": "20240808143900_batch_persistence.sql\n20260704200957_3b50bcb9-45d5-4eb1-a45e-6d9609dc094e.sql\n20260704201919_2a9ff92d-3a4a-4e77-9c8c-2edc7ed0b932.sql\n20260704202929_6c31ee79-2216-4144-8888-f1705b13cbd8.sql\n20260704204138_1df89ff1-df28-4fc9-a56b-0cee656b538b.sql\n20260704204908_585578f4-c955-42c8-9097-",
+    "is_error": false,
+    "timestamp": 1790682881298
   }
 ]
