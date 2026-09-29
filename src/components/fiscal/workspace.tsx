@@ -271,7 +271,8 @@ function Area({ org, view }: { org: string; view: string }) {
     </div>
   );
 }
-/** Rótulo do cabeçalho da área, para a tabela. */
+/** Tabela da área. Cada área declara suas colunas em `listings`; sem
+ * declaração, a área não mostra lista genérica com UUID e status cru. */
 function ListingTable({
   view,
   records,
