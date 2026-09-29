@@ -82,6 +82,28 @@ def aplicar(nome: str) -> None:
     sql(prefixo + caminho.read_text())
 
 
+# Colisões que já existiam antes do MASTER 014 e que não são escopo deste
+# módulo. A versão atual do `test-inventory-db.py` não as encontra porque
+# aplica um recorte menor. São registradas, não escondidas: o objetivo aqui
+# é provar que a cadeia do fiscal aplica, e um defeito anterior não pode
+# virar desculpa para não provar isso — nem motivo para fingir que o
+# histórico completo está limpo.
+PREEXISTENTES: list[str] = []
+
+
+def aplicar_historica(nome: str) -> None:
+    caminho = db.ROOT / 'supabase/migrations' / nome
+    prefixo = 'SET check_function_bodies=off;' if nome.startswith('20260918100000') else ''
+    p = subprocess.run(
+        db.BASE,
+        input=prefixo + caminho.read_text(),
+        text=True,
+        capture_output=True,
+    )
+    if p.returncode:
+        PREEXISTENTES.append(f'{nome}: {p.stderr.strip().splitlines()[0]}')
+
+
 def run():
     db.setup()
     sql(PRECONDICAOES)
