@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -rn \"FROM profiles\\|JOIN profiles\" supabase/migrations/20261014400000_fiscal_workspace.sql supabase/migrations/20261013200000_fiscal_tax_engine.sql | head -5; echo \"=== colunas ===\"; grep -rn \"profiles\" src/integrations/supabase/types.ts | grep -i \"full_name\\|email\" | head -5",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790680875915
-  },
-  {
-    "role": "tool_result",
-    "content": "=== colunas ===\n",
-    "is_error": false,
-    "timestamp": 1790680875933
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -rn \"organization_members\" -B3 -A12 supabase/migrations/20261004100000_*.sql 2>/dev/null | grep -n \"email\\|full_name\" | head; echo \"=== busca perfil ===\"; grep -rln \"m.user_id\" supabase/migrations/ | head -3; grep -rn \"m.user_id\" supabase/migrations/2026100*.sql | head -5",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1537,5 +1522,20 @@
     "content": "    assert len(json.loads(call('inventory_search_variants',q(org)+\",'123456'\",a)))==1\n    print('PASS: more than 1000 SKUs, pagination, zero-stock dashboard, barcode search')\n\n\ndef cleanup():\n    if (TMP/'data/postmaster.pid').exists():\n        subprocess.run([str(BIN/'pg_ctl'),'-D',str(TMP/'data'),",
     "is_error": false,
     "timestamp": 1790681985077
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -ln \"test-inventory-db\" scripts/*.py | tr '\\n' ' '; echo; for f in $(grep -ln \"test-inventory-db\" scripts/*.py); do echo \"== $f\"; tail -4 \"$f\"; done",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681989694
+  },
+  {
+    "role": "tool_result",
+    "content": "scripts/_check-sales-migration.py scripts/_probe-sales.py scripts/test-costs-db.py scripts/test-crm-db.py scripts/test-finance-db.py scripts/test-fiscal-db.py scripts/test-fiscal-migration-chain.py scripts/test-partners-db.py scripts/test-partner-store-integration-db.py scripts/test-planning-db.py s",
+    "is_error": false,
+    "timestamp": 1790681989771
   }
 ]
