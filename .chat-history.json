@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -iE \"inventory|stock|unit|product|categor|brand\" /tmp/opencode/tables.txt | tr '\\n' ' '"
-    },
-    "timestamp": 1790682869131
-  },
-  {
-    "role": "tool_result",
-    "content": " public.financial_categories  public.inventory_batches  public.inventory_count_items  public.inventory_counts  public.inventory_locations  public.inventory_movements  public.inventory_reservations  public.inventory_transfer_items  public.inventory_transfers  public.opportunity_items  public.opportun",
-    "is_error": false,
-    "timestamp": 1790682869151
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && for t in inventory_movements products product_variants marketplace_sales partner_reconciliations partner_reconciliation_items financial_transactions; do echo \"=========== $t\"; awk \"/create table( if not exists)? (public\\.)?$t/,/^\\);/\" $(grep -rliE \"create table( if not exists)? (public\\.)?$t\\b\" supabase/migrations/*.sql | tail -1) | head -45; done 2>/dev/null"
     },
     "timestamp": 1790682872014
@@ -1491,5 +1477,19 @@
     "content": "Traceback (most recent call last):\n  File \"/tmp/opencode/apply.py\", line 17, in <module>\n    db.sql(prefix + (db.ROOT/'supabase/migrations'/name).read_text())\n    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventor",
     "is_error": false,
     "timestamp": 1790683798981
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "SOCK=/tmp/inventory-test-ep_38dxm; /usr/lib/postgresql/18/bin/psql -X -h $SOCK -p 55439 -U postgres -d postgres -v ON_ERROR_STOP=1 -Atq <<'SQL' 2>&1 | tail -5\nCREATE FUNCTION t1() RETURNS int LANGUAGE plpgsql AS $$ DECLARE raw jsonb; BEGIN RETURN 1; END $$;\nSQL"
+    },
+    "timestamp": 1790683803118
+  },
+  {
+    "role": "tool_result",
+    "content": "(no output)",
+    "is_error": false,
+    "timestamp": 1790683803181
   }
 ]
