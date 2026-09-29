@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"cat > /tmp/add-regression.py <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20261014100000_fiscal_integrity.sql');s=p.read_text()\ninsert='''CREATE TABLE public.fiscal_rule_regressions (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES organizations,\n tax_rule_id uuid NOT NULL, rule_version integer NOT NULL, cases jsonb NOT NULL, results jsonb NOT NULL,\n passed boolean NOT NULL, created_by uuid NOT NULL REFERENCES profiles, created_at timestamptz NOT NULL DEFAULT now(),\n FOREIGN KEY(organization_id,tax_rule_id) REFERENCES tax_rules(organization_id,id)\n);\nALTER TABLE fiscal_rule_regressions ENABLE ROW LEVEL SECURITY;\nREVOKE ALL ON fiscal_rule_regressions FROM anon,authenticated;\nGRANT SELECT ON fiscal_rule_regressions TO authenticated;\nCREATE POLICY fiscal_regression_read ON fiscal_rule_regressions FOR SELECT TO authenticated USING(has_permission(organization_id,'fiscal.tax_rules.read'));\nCREATE FUNCTION public.fiscal_test_rule(_org uuid,_id uuid,_cases jsonb) RETURNS jsonb\nLANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS \"'$$\nDECLARE r tax_rules; c jsonb; item tax_rule_items; total numeric; base numeric; amount numeric;\n applicable boolean; passed boolean:=true; result jsonb:='\"'[]'; saved fiscal_rule_regressions;\nBEGIN\n PERFORM fiscal_require(_org,'fiscal.tax_rules.manage');\n SELECT * INTO r FROM tax_rules WHERE organization_id=_org AND id=_id FOR UPDATE;\n IF NOT FOUND OR r.status NOT IN ('REVIEW','APPROVED') THEN RAISE EXCEPTION 'Teste exige regra submetida e imutável.'; END IF;\n IF jsonb_typeof(_cases)<>'array' OR jsonb_array_length(_cases) NOT BETWEEN 3 AND 100 THEN RAISE EXCEPTION 'Informe entre 3 e 100 cenários de regressão.'; END IF;\n FOR c IN SELECT value FROM jsonb_array_elements(_cases) LOOP\n  IF c->>'on_date' IS NULL OR c->>'expected_applicable' IS NULL OR c->>'expected_total' IS NULL\n   OR coalesce((c->>'quantity')::numeric,0)<=0 OR coalesce((c->>'unit_price')::numeric,-1)<0 THEN RAISE EXCEPTION 'Cenário incompleto.'; END IF;\n  applicable:=(c->>'on_date')::date>=r.valid_from AND (r.valid_to IS NULL OR (c->>'on_date')::date<=r.valid_to);\n  total:=0;\n  IF applicable THEN\n   FOR item IN SELECT * FROM tax_rule_items WHERE organization_id=_org AND tax_rule_id=r.id LOOP\n    base:=CASE item.base_mode WHEN 'ISOLADO' THEN item.fixed_amount\n    WHEN 'VALOR_LIQUIDO' THEN (c->>'quantity')::numeric*(c->>'unit_price')::numeric-coalesce((c->>'discount')::numeric,0)-coalesce((c->>'freight')::numeric,0)\n    ELSE (c->>'quantity')::numeric*(c->>'unit_price')::numeric-coalesce((c->>'discount')::numeric,0) END;\n    SELECT rounded_value INTO amount FROM fiscal_compute_tax(base,item.rate,item.reduction,item.fixed_amount);\n    total:=total+amount;\n   END LOOP;\n  END IF;\n  passed:=passed AND applicable=(c->>'expected_applicable')::boolean AND total=(c->>'expected_total')::numeric;\n  result:=result||jsonb_build_array(jsonb_build_object('date',c->>'on_date','applicable',applicable,'total',total,\n   'passed',applicable=(c->>'expected_applicable')::boolean AND total=(c->>'expected_total')::numeric));\n END LOOP;\n IF NOT EXISTS(SELECT 1 FROM jsonb_array_elements(_cases) c WHERE (c->>'on_date')::date<r.valid_from)\n OR NOT EXISTS(SELECT 1 FROM jsonb_array_elements(_cases) c WHERE (c->>'on_date')::date=r.valid_from)\n OR NOT EXISTS(SELECT 1 FROM jsonb_array_elements(_cases) c WHERE (c->>'on_date')::date>coalesce(r.valid_to,r.valid_from)) THEN\n RAISE EXCEPTION 'Inclua cenários antes da vigência, no início e após o fim (ou após o início se vigência aberta).'; END IF;\n INSERT INTO fiscal_rule_regressions(organization_id,tax_rule_id,rule_version,cases,results,passed,created_by)\n VALUES(_org,r.id,r.version,_cases,result,passed,auth.uid()) RETURNING * INTO saved;\n PERFORM fiscal_audit(_org,'fiscal.rule_tested','fiscal_rule_regressions',saved.id,jsonb_build_object('passed',passed));\n RETURN to_jsonb(saved);\nEND \"'$$;\nREVOKE ALL ON FUNCTION fiscal_test_rule(uuid,uuid,jsonb) FROM PUBLIC,anon;\nGRANT EXECUTE ON FUNCTION fiscal_test_rule(uuid,uuid,jsonb) TO authenticated;\n\n'\"'''\ns=s.replace('CREATE OR REPLACE FUNCTION public.fiscal_rule_action(',insert+'CREATE OR REPLACE FUNCTION public.fiscal_rule_action(',1)\na=s.index(\\\"    IF coalesce((_regression_evidence->>'passed')\\\")\nb=s.index(\\\"    IF NOT EXISTS(SELECT 1 FROM tax_rule_items\\\",a)\ns=s[:a]+'''    IF NOT EXISTS(SELECT 1 FROM fiscal_rule_regressions WHERE organization_id=_org AND tax_rule_id=_rule_id\n      AND rule_version=v_rule.version AND passed AND id::text=_regression_evidence->>'reference') THEN\n      RAISE EXCEPTION 'Ativação exige regressão executada no servidor e aprovada para esta regra.';\n    END IF;\n'''+s[b:]\np.write_text(s)\np=Path('supabase/migrations/20261014400000_fiscal_workspace.sql');s=p.read_text().replace(\\\" WHEN 'rule_action' THEN\\\", \\\" WHEN 'test_rule' THEN RETURN fiscal_test_rule(_org,_id,_data->'cases');\\\\n WHEN 'rule_action' THEN\\\").replace(\\\"'fiscal_nature_action','fiscal_exception_action')\\\", \\\"'fiscal_nature_action','fiscal_exception_action','fiscal_test_rule')\\\");p.write_text(s)\nPY\npython3 /tmp/add-regression.py\""
-    },
-    "timestamp": 1790669262963
-  },
-  {
-    "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790669262971
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"cat > src/components/fiscal/regression.tsx <<'TSX'\nimport { useState } from \\\"react\\\";\nimport { Button } from \\\"@/components/ui/button\\\";\nimport { mutateFiscal } from \\\"@/lib/fiscal/fiscal.functions\\\";\nexport function Regression({org,rule,onPassed}:{org:string;rule:string;onPassed:(id:string)=>void}){\n const [cases,setCases]=useState(Array.from({length:3},()=>({on_date:\\\"\\\",quantity:\\\"\\\",unit_price:\\\"\\\",expected_total:\\\"\\\",expected_applicable:false})));\n const [message,setMessage]=useState(\\\"\\\");const [busy,setBusy]=useState(false);\n return <form className=\\\"space-y-3 rounded border p-4\\\" onSubmit={async e=>{e.preventDefault();setBusy(true);try{const result=await mutateFiscal({data:{organizationId:org,operation:\\\"test_rule\\\",id:rule,values:{cases}}});if(result&&typeof result===\\\"object\\\"&&\"'!Array.isArray(result)&&result.passed){onPassed(String(result.id));setMessage(\"Regressão aprovada no servidor. Referência preenchida para ativação.\");}else setMessage(\"Regressão reprovada: os valores esperados diferem dos calculados.\");}catch(err){setMessage(err instanceof Error?err.message:\"Falha no teste\");}finally{setBusy(false);}}}>\n <h3 className=\"font-semibold\">Regressão antes da ativação</h3><p className=\"text-sm\">Informe parâmetros de teste e resultados esperados aprovados pelo responsável fiscal: antes da vigência, no início e após o fim (ou após o início para vigência aberta).</p>\n {cases.map((c,index)=><fieldset key={index} className=\"flex flex-wrap gap-2\"><legend className=\"text-sm\">Cenário {index+1}</legend>{([['\"'on_date','Data'],['quantity','Quantidade'],['unit_price','Preço'],['expected_total','Total de tributos esperado']] as const).map(([key,title])=><label key={key} className=\\\"grid text-sm\\\">{title}<input className=\\\"w-40 rounded border bg-background p-2\\\" required type={key==='on_date'?'date':'number'} min={key==='on_date'?undefined:'0'} step=\\\"any\\\" value={c[key]} onChange={e=>setCases(cases.map((r,n)=>n===index?{...r,[key]:e.target.value}:r))}/></label>)}<label className=\\\"self-end p-2 text-sm\\\"><input type=\\\"checkbox\\\" checked={c.expected_applicable} onChange={e=>setCases(cases.map((r,n)=>n===index?{...r,expected_applicable:e.target.checked}:r))}/> Regra aplicável nesta data</label></fieldset>)}\n <Button disabled={busy}>Executar regressão</Button>{message&&<p role=\\\"status\\\">{message}</p>}</form>;\n}\nTSX\npython3 - <<'PY'\nfrom pathlib import Path\np=Path('src/components/fiscal/workspace.tsx');s=p.read_text().replace('import { forms, sections } from \\\"./config\\\";', 'import { forms, sections } from \\\"./config\\\";\\\\nimport { Regression } from \\\"./regression\\\";')\n# add regression before reason field in RecordDetail unique text\nneedle='      <label className=\\\"grid gap-1 text-sm\\\">\\\\n        Justificativa'\ns=s.replace(needle, '''      {view === \\\"rules\\\" && [\\\"REVIEW\\\", \\\"APPROVED\\\"].includes(String(row.status)) && hasPermission(\\\"fiscal.tax_rules.manage\\\") && <Regression org={org} rule={String(row.id)} onPassed={setEvidence} />}\n'''+needle)\np.write_text(s)\nPY\nnpx prettier --write src/components/fiscal\""
     },
     "timestamp": 1790669293952
@@ -1465,5 +1451,65 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/lib/sales/constants.test.ts</path>\n<type>file</type>\n<content>\n120:   });\n121: \n122:   it(\"transportadora\", () => {\n123:     expectAligned(\"carriers\", \"modality\", CARRIER_MODALITY);\n124:   });\n125: \n126:   it(\"destinação do item devolvido\", () => {",
     "is_error": false,
     "timestamp": 1790680273841
+  },
+  {
+    "role": "tool",
+    "tool": "todowrite",
+    "input": {
+      "todos": [
+        {
+          "content": "Auditar tela fiscal × banco e registrar defeitos confirmados (feito: 8/11 listas com UUID, permissões órfãs, permissão de leitura por kind)",
+          "status": "completed",
+          "priority": "high"
+        },
+        {
+          "content": "Criar src/lib/fiscal/constants.ts: colunas por área + rótulos de todo código do banco",
+          "status": "in_progress",
+          "priority": "high"
+        },
+        {
+          "content": "Migration 20261014500000_fiscal_screen_fixes.sql: permissão por kind, snapshots no detail, kind regressions, limpeza de permissões órfãs",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Interface: tabela por área, filtro de estabelecimento, detalhe do documento com itens/tributos/eventos",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Interface: Reference preserva rótulo, validação de referência obrigatória, ação review, atribuição de responsável",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "src/lib/fiscal/constants.test.ts: contrato tela × migration, validado contra defeitos injetados",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Grupo AX no harness fiscal: todo botão com caminho pelo gateway + permissões",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "Rodar suíte completa: db, vitest, typecheck, lint, build",
+          "status": "pending",
+          "priority": "high"
+        },
+        {
+          "content": "docs/handoff/MASTER-014-VALIDATION.md e revisão de continuidade no PROJECT-STATE.md",
+          "status": "pending",
+          "priority": "medium"
+        }
+      ]
+    },
+    "timestamp": 1790680281080
+  },
+  {
+    "role": "tool_result",
+    "content": "[\n  {\n    \"content\": \"Auditar tela fiscal × banco e registrar defeitos confirmados (feito: 8/11 listas com UUID, permissões órfãs, permissão de leitura por kind)\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Criar src/lib/fiscal/constants.ts: colunas por área + rótulos",
+    "is_error": false,
+    "timestamp": 1790680281084
   }
 ]
