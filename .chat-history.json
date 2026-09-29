@@ -1,37 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py",
-      "newString": "    # --- AG: sem classificacao fiscal, nao ha calculo ---------------------\n    item = [{'product_variant_id': variant, 'quantity': 3, 'unit_price': 33.33}]\n    sim = simulate(item)\n    assert sim['has_blocking_issue'] and sim['is_authorized_document'] is False\n    assert any(w['code'] == 'MISSING_TAX_CONFIGURATION' for w in sim['warnings'])\n    assert 'classificação fiscal vigente' in sim['warnings'][0]['message']\n    assert float(sim['total_taxes']) == 0 and sim['lines'] == []\n    print('PASS AG: simulacao sem classificacao vigente bloqueia e se declara nao autoritativa')",
-      "oldString": "    # --- AH: sem classificacao fiscal, nao ha calculo ---------------------\n    item = [{'product_variant_id': variant, 'quantity': 3, 'unit_price': 33.33}]\n    save('fiscal_save_product_profile', {\n        'product_variant_id': variant, 'ncm': '6403.99.00', 'fiscal_unit': 'PAR',\n        'origin_code': 0, 'justification': 'NCM da calca de ballet'})\n    sim = simulate(item)\n    assert sim['has_blocking_issue'] and sim['is_authorized_document'] is False\n    assert any(w['code'] == 'MISSING_TAX_CONFIGURATION' for w in sim['warnings'])\n    assert 'classificação fiscal vigente' in sim['warnings'][0]['message']\n    print('PASS AG: simulacao sem classificacao vigente bloqueia e se declara nao autoritativa')"
-    },
-    "timestamp": 1790622880402
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790622880422
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabricas' && su claude-runner -c \"python3 scripts/test-fiscal-db.py > /tmp/opencode/fiscal13.log 2>&1; echo EXIT=\\$?\"; tail -14 /tmp/opencode/fiscal13.log",
-      "timeout": 500000
-    },
-    "timestamp": 1790622883642
-  },
-  {
-    "role": "tool_result",
-    "content": "EXIT=1\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py\", line 243, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py\", line 100, in run\n    db.call('fiscal_profile_action', args, ",
-    "is_error": false,
-    "timestamp": 1790622886090
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabricas' && python3 - <<'PY'\nimport io\np=\"scripts/test-fiscal-db.py\"\ns=io.open(p,encoding=\"utf-8\").read()\ns=s.replace(\"\"\"db.call('fiscal_profile_action', args, admin, 'não pode aprová-la')\"\"\",\n            \"\"\"db.call('fiscal_profile_action', args, admin, 'não pode aprová-lo')\"\"\")\ns=s.replace(\"\"\"    j('fiscal_profile_action', args, admin)\n    assert sql(f\"SELECT status FROM product_fiscal_profiles WHERE organization_id={q(org)} AND id={q(prof)}\") == 'APPROVED'\"\"\",\n\"\"\"    # O admin criou a classificação, então também não pode aprová-la.\n    # A segregação é real: precisa de um terceiro com a permissão.\n    assert sql(f\"SELECT count(*) FROM product_fiscal_profiles \"\n               f\"WHERE organization_id={q(org)} AND id={q(prof)} AND status='DRAFT'\") == '1'\"\"\")\nio.open(p,\"w\",encoding=\"utf-8\").write(s)\nprint(\"ok\")\nPY\ngrep -n \"second gestor\\|terceiro\" scripts/test-fiscal-db.py"
@@ -1400,5 +1369,37 @@
     "content": "MIGRATIONS OK\nPASS AG: simulacao sem classificacao vigente bloqueia e se declara nao autoritativa\nPASS AH: classificacao em DRAFT nao entra no calculo; falta de regra nomeia a pendencia\nPASS AI: autor nao aprova a propria classificacao; perfil aprovado fica imutavel\nPASS AJ: regra submetida vira imu",
     "is_error": false,
     "timestamp": 1790679780050
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "npx tsc --noEmit 2>&1 | tail -20; echo \"=== TSC EXIT: $? ===\"",
+      "timeout": 600000,
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790679784266
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "npx vitest run 2>&1 | tail -30",
+      "timeout": 600000,
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790679784738
+  },
+  {
+    "role": "tool_result",
+    "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ✓ src/lib/sales/idempotency.test.ts (11 tests) 163ms\n ✓ src/lib/rbac.test.ts (18 tests) 29ms\nstderr | src/lib/crm/crm.test.ts\n⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js.",
+    "is_error": false,
+    "timestamp": 1790679792862
+  },
+  {
+    "role": "tool_result",
+    "content": "=== TSC EXIT: 0 ===\n",
+    "is_error": false,
+    "timestamp": 1790679821745
   }
 ]
