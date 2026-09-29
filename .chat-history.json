@@ -1,16 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790669017928
-  },
-  {
-    "role": "assistant",
-    "content": "A interface fiscal já está no projeto, com cadastros, revisão de regras, simulação, preparação documental e importação. O XML recebido fica marcado como “autenticidade não verificada”: a leitura de campos e a consistência do protocolo não comprovam assinatura ou autorização remota. Estou executando os testes dos novos fluxos e corrigindo as falhas encontradas.\n",
-    "timestamp": 1790669022733
-  },
-  {
     "role": "tool",
     "tool": "Bash",
     "input": {
@@ -1445,5 +1434,21 @@
     "content": "--- B2: permissoes concedidas fora do catalogo ---\nORFAS: ['fiscal.documents.prepare', 'fiscal.documents.read', 'fiscal.documents.transmit', 'fiscal.export']\n--- catalogo sem nenhuma concessao ---\nSEM CONCESSAO: []\n--- B1: kind de configuracao lido por quem so tem fiscal.configure ---\n  establishmen",
     "is_error": false,
     "timestamp": 1790680212633
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/_probe-fiscal.py",
+      "newString": "    print('--- B3: filtro de periodo esconde registro sem issue_date/created_at ---')\n    tabelas = sql(\"SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND (table_name LIKE '%fiscal%' OR table_name LIKE 'tax_rule%' OR table_name LIKE 'tax_calc%') ORDER BY 1\").split('\\n')\n    comdata = set(sql(\"SELECT table_name FROM information_schema.columns WHERE column_schema='public' AND column_name='created_at'\").split('\\n'))\n    print('  tabelas fiscais SEM created_at:', [t for t in tabelas if t not in comdata])\n",
+      "oldString": "    print('--- B3: filtro de periodo esconde registro sem issue_date/created_at ---')\n    for t in ['fiscal_documents', 'fbound']:\n        pass\n    tables = sql(\"SELECT table_name FROM information_schema.columns WHERE column_name='created_at' AND table_schema='public' AND table_name LIKE '%fiscal%' OR (table_schema='public' AND table_name IN ('tax_rules','tax_rule_items','tax_rule_reviews','tax_calculation_snapshots') AND column_name='created_at') ORDER BY 1\").split('\\n')\n    print('  tabelas fiscais SEM created_at:', [t for t in sql(\"SELECT table_name FROM information_schema.tables WHERE table_schema='public' AND (table_name LIKE '%fiscal%' OR table_name LIKE 'tax_rule%') ORDER BY 1\").split('\\n') if t not in tables])\n    r = sql(\"SELECT count(*) FROM fiscal_documents WHERE organization_id=%s AND created_at IS NULL\" % q(org))\n    print('  documentos com created_at nulo:', r)\n"
+    },
+    "timestamp": 1790680220506
+  },
+  {
+    "role": "tool_result",
+    "content": "",
+    "is_error": true,
+    "timestamp": 1790680220531
   }
 ]
