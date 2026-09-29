@@ -3,36 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd '/root/Zheus AI Projects/controle-fabricas' && python3 - <<'PY'\nimport io\np=\"scripts/test-fiscal-db.py\"\ns=io.open(p,encoding=\"utf-8\").read()\ns=s.replace(\"\"\"db.call('fiscal_profile_action', args, admin, 'não pode aprová-la')\"\"\",\n            \"\"\"db.call('fiscal_profile_action', args, admin, 'não pode aprová-lo')\"\"\")\ns=s.replace(\"\"\"    j('fiscal_profile_action', args, admin)\n    assert sql(f\"SELECT status FROM product_fiscal_profiles WHERE organization_id={q(org)} AND id={q(prof)}\") == 'APPROVED'\"\"\",\n\"\"\"    # O admin criou a classificação, então também não pode aprová-la.\n    # A segregação é real: precisa de um terceiro com a permissão.\n    assert sql(f\"SELECT count(*) FROM product_fiscal_profiles \"\n               f\"WHERE organization_id={q(org)} AND id={q(prof)} AND status='DRAFT'\") == '1'\"\"\")\nio.open(p,\"w\",encoding=\"utf-8\").write(s)\nprint(\"ok\")\nPY\ngrep -n \"second gestor\\|terceiro\" scripts/test-fiscal-db.py"
-    },
-    "timestamp": 1790622891420
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n106:    # A segregação é real: precisa de um terceiro com a permissão.\n",
-    "is_error": false,
-    "timestamp": 1790622891460
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py",
-      "limit": 40,
-      "offset": 31
-    },
-    "timestamp": 1790622896475
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-db.py</path>\n<type>file</type>\n<content>\n31:     product, variant, variant2, company = [uid() for _ in range(4)]\n32:     sql(f\"INSERT INTO auth.users(id,email) VALUES ({q(admin)},'adm@test'),({q(fiscal)},'fsc@test'),\"\n33:        f\"(",
-    "is_error": false,
-    "timestamp": 1790622896483
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd '/root/Zheus AI Projects/controle-fabricas' && python3 - <<'PY'\nimport io\np=\"scripts/test-fiscal-db.py\"\ns=io.open(p,encoding=\"utf-8\").read()\ns=s.replace(\"    product, variant, variant2, company = [uid() for _ in range(4)]\",\n            \"    product, variant, variant2, company = [uid() for _ in range(4)]\\n    # Segundo aprovador: a segregacao de funcoes nao se prova com uma pessoa so.\\n    aprovador = uid()\")\ns=s.replace(\"\"\"({q(contador)},'ctb@test'),({q(outsider)},'out@test');\\\"\"\"\",\n            \"\"\"({q(contador)},'ctb@test'),({q(outsider)},'out@test'),({q(aprovador)},'apr@test');\\\"\"\"\")\ns=s.replace(\"\"\"       f\"({q(org)},{q(fiscal)},'fiscal'),({q(org)},{q(contador)},'financeiro');\\\"\"\"\",\n            \"\"\"       f\"({q(org)},{q(fiscal)},'fiscal'),({q(org)},{q(contador)},'financeiro'),\"\n       f\"({q(org)},{q(aprovador)},'gestor');\\\"\"\"\")\ns=s.replace(\"\"\"    # O admin criou a classificação, então também não pode aprová-la.\n    # A segregação é real: precisa de um terceiro com a permissão.\n    assert sql(f\"SELECT count(*) FROM product_fiscal_profiles \"\n               f\"WHERE organization_id={q(org)} AND id={q(prof)} AND status='DRAFT'\") == '1'\"\"\",\n\"\"\"    # O admin criou a classificação, então também não pode aprová-la.\n    # A segregação é real: precisa de outro usuário com a permissão.\n    assert sql(f\"SELECT count(*) FROM product_fiscal_profiles \"\n               f\"WHERE organization_id={q(org)} AND id={q(prof)} AND status='DRAFT'\") == '1'\n    j('fiscal_profile_action', args, aprovador)\"\"\")\ns=s.replace(\"\"\"    # Um segundo gestor (o proprio admin ja criou) libera a classificacao.\n\"\"\",\"\")\ns=s.replace(\"\"\"    db.call('fiscal_profile_action', ','.join([q(org), q('nao_existe'), q(prof), q('approve'), q('x')]),\n            admin, 'Tabela de perfil fiscal inválida')\"\"\",\n\"\"\"    db.call('fiscal_profile_action', ','.join([q(org), q('nao_existe'), q(prof), q('approve'), q('x')]),\n            aprovador, 'Tabela de perfil fiscal inválida')\"\"\")\ns=s.replace(\"    assert approve(r_nfe, admin)['status'] == 'ACTIVE'\",\"    assert approve(r_nfe, aprovador)['status'] == 'ACTIVE'\")\ns=s.replace(\"    approve(r_nfce, admin, \",\"    approve(r_nfce, aprovador, \")\ns=s.replace(\"    approve(r_nfse, admin, \",\"    approve(r_nfse, aprovador, \")\ns=s.replace(\"\"\"    db.call('fiscal_rule_action', ','.join([q(org), q(r_dup), q('approve'), q('Duplicada')]), admin)\n    db.call('fiscal_rule_action', ','.join([q(org), q(r_dup), q('activate'), q('Duplicada')]), admin,\n            'mesmo escopo e vigência sobreposta')\"\"\",\n\"\"\"    db.call('fiscal_rule_action', ','.join([q(org), q(r_dup), q('approve'), q('Duplicada')]), aprovador)\n    db.call('fiscal_rule_action', ','.join([q(org), q(r_dup), q('activate'), q('Duplicada')]), aprovador,\n            'mesmo escopo e vigência sobreposta')\"\"\")\nio.open(p,\"w\",encoding=\"utf-8\").write(s)\nprint(\"ok\")\nPY\nsu claude-runner -c \"python3 scripts/test-fiscal-db.py > /tmp/opencode/fiscal14.log 2>&1; echo EXIT=\\$?\"; tail -14 /tmp/opencode/fiscal14.log",
       "timeout": 500000
     },
@@ -1401,5 +1371,33 @@
     "content": "=== TSC EXIT: 0 ===\n",
     "is_error": false,
     "timestamp": 1790679821745
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/routes/_authenticated/fiscal.tsx"
+    },
+    "timestamp": 1790679832812
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/routes/_authenticated/fiscal.tsx</path>\n<type>file</type>\n<content>\n1: import { createFileRoute } from \"@tanstack/react-router\";\n2: import { FiscalPage } from \"@/components/fiscal/workspace\";\n3: export const Route = createFileRoute(\"/_authenticated",
+    "is_error": false,
+    "timestamp": 1790679832837
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/fiscal/fiscal.functions.ts"
+    },
+    "timestamp": 1790679833382
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/lib/fiscal/fiscal.functions.ts</path>\n<type>file</type>\n<content>\n1: import { createServerFn } from \"@tanstack/react-start\";\n2: import { z } from \"zod\";\n3: import { requireSupabaseAuth } from \"@/integrations/supabase/auth-middleware\";\n4: \n5: const ",
+    "is_error": false,
+    "timestamp": 1790679833394
   }
 ]
