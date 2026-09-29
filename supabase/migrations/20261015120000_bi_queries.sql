@@ -584,46 +584,46 @@ END $$;
 -- ---------------------------------------------------------------------
 CREATE FUNCTION public.bi_export(_org uuid,_kind text,_filters jsonb DEFAULT '{}',_format text DEFAULT 'CSV')
 RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
-DECLARE raw jsonb; rows jsonb; headers text; line text; out text; i integer; r jsonb;
+DECLARE raw jsonb; v_rows jsonb; headers text; v_line text; v_out text; i integer; r jsonb;
 BEGIN
   PERFORM public.bi_require(_org,'bi.exports');
   IF _format NOT IN ('CSV','XLSX') THEN RAISE EXCEPTION 'Formato inválido: %',_format; END IF;
   raw := public.bi_query(_org,_kind,_filters);
-  rows := CASE WHEN jsonb_typeof(raw)='array' THEN raw
+  v_rows := CASE WHEN jsonb_typeof(raw)='array' THEN raw
                WHEN raw ? 'records' THEN raw->'records' ELSE '[]'::jsonb END;
-  IF jsonb_array_length(rows)=0 THEN RAISE EXCEPTION 'Nada a exportar para o filtro informado.'; END IF;
+  IF jsonb_array_length(v_rows)=0 THEN RAISE EXCEPTION 'Nada a exportar para o filtro informado.'; END IF;
   SELECT string_agg(k,',') INTO headers FROM (SELECT string_agg(e.key,',' ORDER BY e.key) k
-    FROM jsonb_object_keys(rows->0) e) s;
+    FROM jsonb_object_keys(v_rows->0) e) s;
   out := '';
   IF _format='CSV' THEN
-    out := headers||E'\n';
-    FOR r IN SELECT * FROM jsonb_array_elements(rows) LOOP
+    v_out := headers||E'\n';
+    FOR r IN SELECT * FROM jsonb_array_elements(v_rows) LOOP
       line := '';
       FOR i IN 1..array_length(string_to_array(headers,','),1) LOOP
-        line := line||CASE WHEN i>1 THEN ';' ELSE '' END||
+        v_line := v_line||CASE WHEN i>1 THEN ';' ELSE '' END||
           coalesce(replace(replace(r->>split_part(headers,',',i),';',','),E'\n',' '),'');
       END LOOP;
-      out := out||line||E'\n';
+      v_out := v_out||v_line||E'\n';
     END LOOP;
   ELSE
-    out := '<?xml version="1.0"?>'||E'\n'||
+    v_out := '<?xml version="1.0"?>'||E'\n'||
       '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" '||
       'xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'||E'\n'||'<Worksheet ss:Name="BI"><Table>'||E'\n';
-    FOR r IN SELECT * FROM jsonb_array_elements(rows) LOOP
-      out := out||'<Row>';
+    FOR r IN SELECT * FROM jsonb_array_elements(v_rows) LOOP
+      v_out := v_out||'<Row>';
       FOR i IN 1..array_length(string_to_array(headers,','),1) LOOP
-        out := out||'<Cell><Data ss:Type="String">'||
+        v_out := v_out||'<Cell><Data ss:Type="String">'||
           xmlelement(name x, coalesce(r->>split_part(headers,',',i),''))::text||'</Data></Cell>';
       END LOOP;
-      out := out||'</Row>'||E'\n';
+      v_out := v_out||'</Row>'||E'\n';
     END LOOP;
-    out := out||'</Table></Worksheet></Workbook>';
+    v_out := v_out||'</Table></Worksheet></Workbook>';
   END IF;
   -- Exportação sensível fica auditada com período, métrica e volume (§65).
   PERFORM public.bi_audit(_org,'bi.export','bi_query',_kind,
-    jsonb_build_object('format',_format,'filters',_filters,'rows',jsonb_array_length(rows)));
+    jsonb_build_object('format',_format,'filters',_filters,'rows',jsonb_array_length(v_rows)));
   RETURN jsonb_build_object('format',_format,'filename','bi-'||_kind||'-'||current_date||'.'||lower(_format),
-    'content',out,'rows',jsonb_array_length(rows));
+    'content',v_out,'rows',jsonb_array_length(v_rows));
 END $$;
 
 -- ---------------------------------------------------------------------

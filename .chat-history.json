@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "ls; echo \"=== MIGRATIONS ===\"; ls supabase/migrations/ | tail -25; echo \"=== TOTAL MIGRATIONS ===\"; ls supabase/migrations/ | wc -l; echo \"=== DOCS ===\"; ls docs/business/ docs/architecture/ 2>/dev/null",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790682818428
-  },
-  {
-    "role": "tool_result",
-    "content": "AGENTS.md\nCLAUDE.md\nREADME.md\nbun.lock\nbunfig.toml\ncapacitor.config.ts\ncomponents.json\ndist\ndist-before-master014\ndocs\neslint.config.js\nnode_modules\npackage-lock.json\npackage.json\npublic\nscripts\nsrc\nsupabase\ntsconfig.json\nvite.config.ts\nvitest.config.ts\n=== MIGRATIONS ===\n20260928121500_ee2e153f-bc2",
-    "is_error": false,
-    "timestamp": 1790682818486
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && echo \"=== TABELAS (nomes) ===\" && grep -rhoE \"create table (if not exists )?[a-z_.]+\" supabase/migrations/ | sed -E 's/create table (if not exists )?//' | sort -u | tr '\\n' ' ' | fold -w 200"
     },
     "timestamp": 1790682863856
@@ -1489,5 +1474,19 @@
     "content": "Traceback (most recent call last):\n  File \"/tmp/opencode/apply.py\", line 17, in <module>\n    db.sql(prefix + (db.ROOT/'supabase/migrations'/name).read_text())\n    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventor",
     "is_error": false,
     "timestamp": 1790683785466
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np = Path('supabase/migrations/20261015120000_bi_queries.sql')\ns = p.read_text()\ns = s.replace(\"DECLARE raw jsonb; rows jsonb; headers text; line text; out text; i integer; r jsonb;\",\n              \"DECLARE raw jsonb; v_rows jsonb; headers text; v_line text; v_out text; i integer; r jsonb;\")\ns = s.replace(\"  rows := CASE WHEN\", \"  v_rows := CASE WHEN\")\ns = s.replace(\"jsonb_array_length(rows)\", \"jsonb_array_length(v_rows)\")\ns = s.replace(\"rows->0\", \"v_rows->0\")\ns = s.replace(\"jsonb_array_elements(rows)\", \"jsonb_array_elements(v_rows)\")\ns = s.replace(\"  out := headers||E'\\\\n';\", \"  v_out := headers||E'\\\\n';\")\ns = s.replace(\"      line := line||\", \"      v_line := v_line||\")\ns = s.replace(\"      out := out||line||E'\\\\n';\", \"      v_out := v_out||v_line||E'\\\\n';\")\ns = s.replace(\"    out := '<?xml version=\\\"1.0\\\"?>'||E'\\\\n'||\", \"    v_out := '<?xml version=\\\"1.0\\\"?>'||E'\\\\n'||\")\ns = s.replace(\"    out := out||'<Row>';\", \"    v_out := v_out||'<Row>';\")\ns = s.replace(\"        out := out||'<Cell>\", \"        v_out := v_out||'<Cell>\")\ns = s.replace(\"      out := out||'</Row>'||E'\\\\n';\", \"      v_out := v_out||'</Row>'||E'\\\\n';\")\ns = s.replace(\"    out := out||'</Table></Worksheet></Workbook>';\", \"    v_out := v_out||'</Table></Worksheet></Workbook>';\")\ns = s.replace(\"'content',out,\", \"'content',v_out,\")\np.write_text(s)\nprint([l for l in s.split('\\n') if ' v_out' in l or ' v_line' in l or ' v_rows' in l])\nPY"
+    },
+    "timestamp": 1790683790147
+  },
+  {
+    "role": "tool_result",
+    "content": "['DECLARE raw jsonb; v_rows jsonb; headers text; v_line text; v_out text; i integer; r jsonb;', \"  v_rows := CASE WHEN jsonb_typeof(raw)='array' THEN raw\", \"    v_out := headers||E'\\\\n';\", \"        v_line := v_line||CASE WHEN i>1 THEN ';' ELSE '' END||\", \"      v_out := v_out||v_line||E'\\\\n';\", '   ",
+    "is_error": false,
+    "timestamp": 1790683790220
   }
 ]
