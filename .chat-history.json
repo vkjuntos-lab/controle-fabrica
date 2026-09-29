@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"role_permissions\\|permission\" src/routes/_authenticated/admin.permissoes.tsx | head -30",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790680148293
-  },
-  {
-    "role": "tool_result",
-    "content": "53:    queryKey: [\"role-permissions\", \"matrix\"],\n57:  const canManage = Boolean(organizationId) && hasPermission(PERMISSIONS.permissionsManage);\n60:    mutationFn: (input: { role: AppRole; permission: string; granted: boolean }) =>\n71:  const permissions = Array.from(new Set(rows.map((r) => r.permis",
-    "is_error": false,
-    "timestamp": 1790680148319
-  },
-  {
-    "role": "tool",
     "tool": "write",
     "input": {
       "filePath": "/tmp/opencode/probe-fiscal.py",
@@ -1586,5 +1571,20 @@
     "content": "24:CREATE TYPE public.fiscal_document_status AS ENUM (\n25-  'DRAFT',                -- montado na tela, ainda sem conferência\n26-  'PENDING_VALIDATION',   -- entrou na validação cadastral\n27-  'VALIDATED',            -- passou na validação; ainda não calculado\n28-  'READY_TO_SEND',        -- calcula",
     "is_error": false,
     "timestamp": 1790681339224
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -rhoP \"fiscal_emit\\([^,]+,'\\K[A-Z_]+\" supabase/migrations/ | sort -u; echo \"=== constants EVENT_TYPE ===\"; node -e 'const s=require(\"fs\").readFileSync(\"src/lib/fiscal/constants.ts\",\"utf8\");const m=/EVENT_TYPE[^=]*= \\{([\\s\\S]*?)\\n\\};/.exec(s);console.log(m[1])'",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681345060
+  },
+  {
+    "role": "tool_result",
+    "content": "FISCAL_DOCUMENT_PREPARED\nFISCAL_DOCUMENT_STATE_CHANGED\nFISCAL_INBOUND_IMPORTED\nFISCAL_RECONCILIATION_RECORDED\n=== constants EVENT_TYPE ===\n\n  PREPARED: \"Documento preparado\",\n  VALIDATE: \"Validação cadastral\",\n  APPROVE: \"Conferência confirmada\",\n  SUBMIT: \"Transmissão solicitada\",\n  CANCEL: \"Cancel",
+    "is_error": false,
+    "timestamp": 1790681345140
   }
 ]
