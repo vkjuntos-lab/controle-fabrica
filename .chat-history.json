@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cat > /tmp/opencode/bi_lab.py <<'PY'\nimport importlib.util, os, sys, subprocess\nfrom pathlib import Path\nROOT = Path('/root/Zheus AI Projects/controle-fabricas')\nspec = importlib.util.spec_from_file_location('inv', ROOT/'scripts/test-inventory-db.py')\ndb = importlib.util.module_from_spec(spec); spec.loader.exec_module(db)\nPRED = ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql',\n '20261001100000_purchasing.sql','20261002100000_planning.sql','20261003100000_planning_engine.sql',\n '20261004100000_planning_fixes.sql','20261005100000_crm.sql','20261006100000_crm_integrity.sql',\n '20261006100000_sales_orders.sql','20261007100000_crm_documents.sql','20261008100000_crm_company_services.sql',\n '20261009100000_crm_customer_history.sql','20261010100000_sales_integrity.sql','20261011100000_sales_planning.sql',\n '20261012100000_sales_screen_fixes.sql','20261013100000_fiscal_core.sql','20261013200000_fiscal_tax_engine.sql',\n '20261014100000_fiscal_integrity.sql','20261014200000_fiscal_documents.sql','20261014300000_fiscal_inbound.sql',\n '20261014400000_fiscal_workspace.sql','20261014500000_fiscal_screen_fixes.sql']\nmode = sys.argv[1]\nif mode == 'up':\n    db.setup()\n    for n in PRED + ['20261015100000_bi_core.sql','20261015110000_bi_marts.sql']:\n        db.sql('SET check_function_bodies=off;' + (ROOT/'supabase/migrations'/n).read_text())\n    print('LAB PRONTO', db.TMP)\nelse:\n    src = (ROOT/'supabase/migrations'/sys.argv[2]).read_text()\n    p = subprocess.run(db.BASE, input='BEGIN;\\n'+src+'\\nROLLBACK;', text=True, capture_output=True)\n    sys.stdout.write(p.stdout); sys.stderr.write(p.stderr)\n    print('RC', p.returncode)\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/bi_lab.py up\" 2>&1 | tail -5",
-      "timeout": 900000
-    },
-    "timestamp": 1790683756533
-  },
-  {
-    "role": "tool_result",
-    "content": "LAB PRONTO /tmp/inventory-test-ep_38dxm\n",
-    "is_error": false,
-    "timestamp": 1790683759110
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cat > /tmp/opencode/try_q.sh <<'SH'\n#!/bin/bash\nSOCK=/tmp/inventory-test-ep_38dxm\nPSQL=/usr/lib/postgresql/18/bin/psql\ncd \"/root/Zheus AI Projects/controle-fabricas\"\n{ echo 'BEGIN;'; cat supabase/migrations/20261015120000_bi_queries.sql; echo 'ROLLBACK;'; } | $PSQL -X -h $SOCK -p 55439 -U postgres -d postgres -v ON_ERROR_STOP=1 -f - 2>&1 | tail -25\nSH\nchmod +x /tmp/opencode/try_q.sh\nsu - claude-runner -c \"/tmp/opencode/try_q.sh\"",
       "timeout": 180000
     },
@@ -1457,5 +1442,20 @@
     "content": "197:  SELECT coalesce((SELECT r FROM public.bi_aggregate(_org,_metric,_from,_to,NULL,'MONTH',_scope) r\n350:        FROM public.bi_metric_value(_org,t.metric_key,t.period_start,t.period_end) r) a ON true\n",
     "is_error": false,
     "timestamp": 1790684538649
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20261015120000_bi_queries.sql'); s=p.read_text()\ns=s.replace(\"\"\"  SELECT coalesce((SELECT r FROM public.bi_aggregate(_org,_metric,_from,_to,NULL,'MONTH',_scope) r\n                   WHERE coalesce((r->>'is_total')::boolean,false)),\n                  '{\"value\":null,\"available\":false}'::jsonb);\"\"\",\n\"\"\"  -- `FROM bi_aggregate(...) r` traria `r` como LINHA composta: `r->>'x'`\n  -- procuraria uma coluna chamada x, não a chave do jsonb. Ler o array\n  -- direto da função devolve a chave como é.\n  SELECT coalesce((SELECT elem FROM jsonb_array_elements(\n                   public.bi_aggregate(_org,_metric,_from,_to,NULL,'MONTH',_scope)) elem\n                   WHERE coalesce((elem->>'is_total')::boolean,false) LIMIT 1),\n                  '{\"value\":null,\"available\":false}'::jsonb);\"\"\")\ns=s.replace(\"\"\"      LEFT JOIN LATERAL (SELECT (r->>'value')::numeric value, coalesce((r->>'available')::boolean,false) available\n        FROM public.bi_metric_value(_org,t.metric_key,t.period_start,t.period_end) r) a ON true\"\"\",\n\"\"\"      LEFT JOIN LATERAL (SELECT ((m->>'value')::numeric) value, coalesce((m->>'available')::boolean,false) available\n        FROM jsonb_array_elements(public.bi_metric_value(_org,t.metric_key,t.period_start,t.period_end)) m) a ON true\"\"\")\np.write_text(s)\nprint('ok')\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/test-bi-db.py\" 2>&1 | grep -E \"^DBG|Assertion|Error\"",
+      "timeout": 900000
+    },
+    "timestamp": 1790684542860
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\nDBG mv: {\"id\": null, \"label\": null, \"value\": 15.000000, \"bucket\": null, \"is_total\": true, \"available\": true}\nDBG ag: [{\"id\": null, \"label\": null, \"value\": 10.000000, \"bucket\": \"2026-05-01\", \"is_total\": false, \"available\": true}, {\"id\": null, \"label\": null, \"value\": 5.000000, \"bucket\": \"2026-06-01",
+    "is_error": false,
+    "timestamp": 1790684546016
   }
 ]

@@ -194,8 +194,12 @@ $$;
 -- Valor único do período: o agregado sem bucket.
 CREATE FUNCTION public.bi_metric_value(_org uuid,_metric text,_from date,_to date,_scope jsonb DEFAULT '{}'::jsonb)
 RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
-  SELECT coalesce((SELECT r FROM public.bi_aggregate(_org,_metric,_from,_to,NULL,'MONTH',_scope) r
-                   WHERE coalesce((r->>'is_total')::boolean,false)),
+  -- `FROM bi_aggregate(...) r` traria `r` como LINHA composta: `r->>'x'`
+  -- procuraria uma coluna chamada x, não a chave do jsonb. Ler o array
+  -- direto da função devolve a chave como é.
+  SELECT coalesce((SELECT elem FROM jsonb_array_elements(
+                   public.bi_aggregate(_org,_metric,_from,_to,NULL,'MONTH',_scope)) elem
+                   WHERE coalesce((elem->>'is_total')::boolean,false) LIMIT 1),
                   '{"value":null,"available":false}'::jsonb);
 $$;
 
@@ -346,8 +350,8 @@ BEGIN
         THEN a.value/t.target_value*100 END)
       ORDER BY t.metric_key)
       FROM public.bi_targets t
-      LEFT JOIN LATERAL (SELECT (r->>'value')::numeric value, coalesce((r->>'available')::boolean,false) available
-        FROM public.bi_metric_value(_org,t.metric_key,t.period_start,t.period_end) r) a ON true
+      LEFT JOIN LATERAL (SELECT ((m->>'value')::numeric) value, coalesce((m->>'available')::boolean,false) available
+        FROM jsonb_array_elements(public.bi_metric_value(_org,t.metric_key,t.period_start,t.period_end)) m) a ON true
       WHERE t.organization_id=_org AND t.status='ACTIVE'
         AND t.period_start<v_to AND t.period_end>=v_from),'[]'::jsonb);
 
