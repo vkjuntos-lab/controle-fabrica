@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -iE \"event\" /tmp/opencode/tables.txt | tr '\\n' ' '; echo; echo \"=== AUDIT ===\"; grep -iE \"audit\" /tmp/opencode/tables.txt | tr '\\n' ' '; echo; echo \"=== fiscal_audit def ===\"; grep -n \"CREATE OR REPLACE FUNCTION public.fiscal_audit\" -A 12 supabase/migrations/20261014400000_fiscal_workspace.sql | head -20"
-    },
-    "timestamp": 1790682934315
-  },
-  {
-    "role": "tool_result",
-    "content": " public.collection_events  public.credit_score_events  public.domain_events  public.fiscal_events  public.fraud_events  public.webhook_events \n=== AUDIT ===\n public.audit_log \n=== fiscal_audit def ===\n",
-    "is_error": false,
-    "timestamp": 1790682934365
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport re, glob, pathlib\nfor f in sorted(glob.glob(\"supabase/migrations/*.sql\")):\n    t=pathlib.Path(f).read_text(encoding=\"utf8\",errors=\"ignore\")\n    for name in [\"domain_events\",\"audit_log\"]:\n        m=re.search(r\"create table(?: if not exists)? (?:public\\.)?\"+name+r\"\\s*\\((.*?)\\n\\);\", t, re.S|re.I)\n        if m:\n            print(f\"### {name} [{f.split('/')[-1]}]\")\n            print(\"   \"+\" | \".join(l.strip().rstrip(\",\") for l in m.group(1).split(\"\\n\") if l.strip() and not l.strip().upper().startswith((\"CONSTRAINT\",\"--\"))))\nPY\necho \"=== eventos usados ===\"; grep -rhoE \"'[A-Z_]{6,}'::domain_event_type|event_type\\s*=\\s*'[A-Z_]+'\" supabase/migrations/*.sql | sort -u | head -40"
     },
     "timestamp": 1790682937042
@@ -1492,5 +1478,19 @@
     "content": "bi_cost_at | WHERE v.organization_id=_org AND v.variant_id=_variant AND v.status='ACTIVE'\nbi_cost_at | AND v.effective_from<=_at AND (v.effective_to IS NULL OR v.effective_to>_at)\nbi_cost_at | ORDER BY v.effective_from DESC,v.version DESC LIMIT 1;\nbi_classify_channel | IF (r.store_ownership_type IS ",
     "is_error": false,
     "timestamp": 1790683926091
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np = Path('supabase/migrations/20261015110000_bi_marts.sql')\ns = p.read_text()\ni = s.find('CREATE FUNCTION public.bi_sync_sales')\nj = s.find('\\n-- ---', i)\nprint(repr(s[i-1:i+20]))\nprint('FIM:', repr(s[j-40:j+20]))\nPY"
+    },
+    "timestamp": 1790683933857
+  },
+  {
+    "role": "tool_result",
+    "content": "'\\nCREATE FUNCTION publ'\nFIM: 'n:=n+1;\\n  END LOOP;\\n  RETURN n;\\nEND $$;\\n\\n-- ----------------'\n",
+    "is_error": false,
+    "timestamp": 1790683933891
   }
 ]
