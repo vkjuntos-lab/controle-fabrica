@@ -633,8 +633,7 @@ BEGIN
     WHERE f.organization_id=_org AND f.domain='SALES' AND f.fact_nature='RECONCILED_SALE'
       AND f.status='RECONCILED' AND f.fact_date>=_from AND f.fact_date<_to AND f.variant_id IS NOT NULL
     GROUP BY 1)
-  SELECT coalesce(jsonb_agg(bucket ORDER BY bucket),'[]') INTO v_buckets_json FROM buckets;
-  v_buckets := jsonb_array_length(v_buckets_json);
+  SELECT coalesce(jsonb_agg(bucket ORDER BY bucket),'[]'),count(*) INTO v_buckets_json,v_buckets FROM buckets;
 
   -- Série por variante. Observação = período com venda registrada; período
   -- sem venda conta como zero, senão a variabilidade fica artificialmente baixa.
