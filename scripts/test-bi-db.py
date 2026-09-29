@@ -165,6 +165,8 @@ def run():
     assert run1['status'] == 'COMPLETED', f"processamento falhou: {run1['errors']}"
     assert run1['records'] > 0
 
+    print('DEBUG fatos:', sql(f"SELECT fact_nature||'/'||status||'/'||quantity::text||'/'||fact_date::text FROM bi_facts WHERE organization_id={q(org)} ORDER BY fact_date"))
+    print('DEBUG agg:', sql(f"SELECT public.bi_aggregate({q(org)},'sales.quantity_imported',{q('2026-01-01')},{q('2026-07-01')},NULL,'MONTH','{{}}'::jsonb)::text"))
     importado, disp = valor(org, 'sales.quantity_imported', janela, admin)
     assert importado == 15 and disp is True, f'vendas importadas = {importado} (disponível={disp})'
     recon, disp = valor(org, 'sales.quantity_reconciled', janela, admin)
