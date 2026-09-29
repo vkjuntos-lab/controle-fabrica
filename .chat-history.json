@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "24:CREATE TYPE public.fiscal_document_status AS ENUM (\n25-  'DRAFT',                -- montado na tela, ainda sem conferência\n26-  'PENDING_VALIDATION',   -- entrou na validação cadastral\n27-  'VALIDATED',            -- passou na validação; ainda não calculado\n28-  'READY_TO_SEND',        -- calcula",
-    "is_error": false,
-    "timestamp": 1790681339224
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -rhoP \"fiscal_emit\\([^,]+,'\\K[A-Z_]+\" supabase/migrations/ | sort -u; echo \"=== constants EVENT_TYPE ===\"; node -e 'const s=require(\"fs\").readFileSync(\"src/lib/fiscal/constants.ts\",\"utf8\");const m=/EVENT_TYPE[^=]*= \\{([\\s\\S]*?)\\n\\};/.exec(s);console.log(m[1])'",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681345060
-  },
-  {
-    "role": "tool_result",
     "content": "FISCAL_DOCUMENT_PREPARED\nFISCAL_DOCUMENT_STATE_CHANGED\nFISCAL_INBOUND_IMPORTED\nFISCAL_RECONCILIATION_RECORDED\n=== constants EVENT_TYPE ===\n\n  PREPARED: \"Documento preparado\",\n  VALIDATE: \"Validação cadastral\",\n  APPROVE: \"Conferência confirmada\",\n  SUBMIT: \"Transmissão solicitada\",\n  CANCEL: \"Cancel",
     "is_error": false,
     "timestamp": 1790681345140
@@ -1491,5 +1476,19 @@
     "content": "### audit_log [20260704211752_574d9eff-1e40-4974-b15b-e9ff971d42eb.sql]\n   id uuid PRIMARY KEY DEFAULT gen_random_uuid() | actor_user_id uuid REFERENCES auth.users(id) ON DELETE SET NULL | actor_name text | actor_role text | store_id uuid REFERENCES public.stores(id) ON DELETE SET NULL | action text",
     "is_error": false,
     "timestamp": 1790682937223
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rhoE \"event_type\\s*,\\s*'[A-Z_]+'|'[A-Z_]{8,}'::text, *'[A-Z_]{5,}'\" supabase/migrations/*.sql | head; echo \"=== INSERT em domain_events ===\"; grep -rn \"INSERT INTO domain_events\" -A3 supabase/migrations/*.sql | grep -oE \"'[A-Z_]{5,}'\" | sort -u | tr '\\n' ' '"
+    },
+    "timestamp": 1790682939278
+  },
+  {
+    "role": "tool_result",
+    "content": "=== INSERT em domain_events ===\n'SALES_QUOTE_ACCEPTED' ",
+    "is_error": false,
+    "timestamp": 1790682939326
   }
 ]
