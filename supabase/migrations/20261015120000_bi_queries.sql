@@ -644,8 +644,8 @@ BEGIN
     (_data->>'business_domain')::public.bi_domain,_data->>'formula',
     coalesce(_data->>'unit','COUNT'),coalesce(_data->>'aggregation_method','SUM'),
     coalesce(_data->>'date_dimension','fact_date'),coalesce(_data->>'source_description','A definir'),
-    coalesce((SELECT array_agg(jsonb_array_elements_text(_data->'available_filters')),'{}'::text[]),
-    coalesce((SELECT array_agg(jsonb_array_elements_text(_data->'compatible_dimensions')),'{}'::text[]),
+    coalesce((SELECT array_agg(x) FROM jsonb_array_elements_text(coalesce(_data->'available_filters','[]'::jsonb)) x),'{}'::text[]),
+    coalesce((SELECT array_agg(x) FROM jsonb_array_elements_text(coalesce(_data->'compatible_dimensions','[]'::jsonb)) x),'{}'::text[]),
     coalesce(_data->>'periodicity','DAILY'),coalesce(_data->>'granularity','DAY'),
     coalesce(_data->>'limitations',''),coalesce(_data->>'status','ACTIVE'),auth.uid())
   ON CONFLICT (organization_id,metric_key,version) DO UPDATE SET
