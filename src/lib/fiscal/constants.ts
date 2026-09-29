@@ -135,7 +135,7 @@ export const EXCEPTION_TYPE: Record<string, string> = {
   FISCAL_INVENTORY_MISMATCH: "Divergência com o estoque",
 };
 
-/** Gravidade da pendência. O banco nasce sempre em BLOCKING. */
+/** Gravidade da pendência. O banco não impõe lista fechada. */
 export const EXCEPTION_SEVERITY: Record<string, string> = {
   BLOCKING: "Bloqueante",
   WARNING: "Advertência",
@@ -186,11 +186,10 @@ export const IE_STATUS: Record<string, string> = {
 
 /** Eventos gravados na trilha do documento. */
 export const EVENT_TYPE: Record<string, string> = {
-  PREPARED: "Documento preparado",
-  VALIDATE: "Validação cadastral",
-  APPROVE: "Conferência confirmada",
-  SUBMIT: "Transmissão solicitada",
-  CANCEL: "Cancelamento solicitado",
+  FISCAL_DOCUMENT_PREPARED: "Documento preparado",
+  FISCAL_DOCUMENT_STATE_CHANGED: "Situação do documento alterada",
+  FISCAL_INBOUND_IMPORTED: "Documento recebido importado",
+  FISCAL_RECONCILIATION_RECORDED: "Conciliação registrada",
 };
 
 /** Achados da conciliação. Nenhum é resolvido por correspondência aritmética. */
@@ -227,18 +226,24 @@ export const ORIGIN_CODE: Record<string, string> = {
 };
 
 const money = "—";
-const code = (labels: Record<string, string>): Column["labels"] => labels;
 
-/** Listagens por área. Cada coluna existe na tabela declarada. */
+/**
+ * Colunas de cada área. Toda chave existe na tabela da área: o teste
+ * `constants.test.ts` compara com o SQL das migrations, não com tipos
+ * gerados. A primeira coluna identifica o registro para quem lê; se for
+ * `id`, a área volta a mostrar UUID.
+ */
 export const listings: Record<string, Listing> = {
   documents: {
     table: "fiscal_documents",
     title: "Documento",
-    identity: ["source_type"],
+    identity: ["document_number"],
     columns: [
-      { key: "source_type", title: "Origem", labels: SOURCE_TYPE },
+      { key: "document_number", title: "Número", empty: "Sem número" },
+      { key: "series", title: "Série", empty: "—" },
+      { key: "access_key", title: "Chave de acesso", empty: "Sem chave: não autorizado" },
+      { key: "source_type", title: "Origem", labels: SOURCE_TYPE, empty: money },
       { key: "environment", title: "Ambiente", labels: ENVIRONMENT, empty: money },
-      { key: "access_key", title: "Chave de acesso", empty: "Sem chave — não autorizado" },
       { key: "issue_date", title: "Emissão", empty: money },
       { key: "total_amount", title: "Total", empty: money },
       { key: "total_taxes", title: "Tributos", empty: money },
@@ -250,7 +255,8 @@ export const listings: Record<string, Listing> = {
     title: "Documento recebido",
     identity: ["access_key"],
     columns: [
-      { key: "access_key", title: "Chave de acesso", empty: money },
+      { key: "access_key", title: "Chave de acesso", empty: "Sem chave: XML sem identificação" },
+      { key: "document_type", title: "Modelo", empty: money },
       { key: "issue_date", title: "Emissão", empty: money },
       { key: "total_amount", title: "Total", empty: money },
       {
@@ -279,15 +285,10 @@ export const listings: Record<string, Listing> = {
     identity: ["exception_type"],
     columns: [
       { key: "exception_type", title: "Pendência", labels: EXCEPTION_TYPE, empty: money },
-      {
-        key: "severity",
-        title: "Gravidade",
-        labels: EXCEPTION_SEVERITY,
-        empty: "Bloqueante",
-      },
+      { key: "severity", title: "Gravidade", labels: EXCEPTION_SEVERITY, empty: "Bloqueante" },
       { key: "status", title: "Situação", labels: EXCEPTION_STATUS, empty: money },
       { key: "created_at", title: "Aberta em", empty: money },
-      { key: "resolution", title: "Resolução", empty: "—" },
+      { key: "resolution", title: "Resolução", empty: "Sem resolução registrada" },
     ],
   },
   reconciliations: {
@@ -306,11 +307,7 @@ export const listings: Record<string, Listing> = {
     identity: ["created_at"],
     columns: [
       { key: "created_at", title: "Executada em", empty: money },
-      {
-        key: "has_blocking_issue",
-        title: "Bloqueio",
-        empty: money,
-      },
+      { key: "has_blocking_issue", title: "Bloqueio", empty: "Não" },
       { key: "result", title: "Resultado", empty: "—" },
     ],
   },
@@ -332,8 +329,10 @@ export const listings: Record<string, Listing> = {
     columns: [
       { key: "code", title: "Código", empty: money },
       { key: "label", title: "Descrição", empty: money },
+      { key: "version", title: "Versão", empty: money },
       { key: "valid_from", title: "Vigência inicial", empty: money },
-      { key: "valid_to", title: "Vigência final", empty: "—" },
+      { key: "valid_to", title: "Vigência final", empty: "Vigente" },
+      { key: "is_active", title: "Ativo", empty: "Não" },
     ],
   },
   operations: {
@@ -344,7 +343,8 @@ export const listings: Record<string, Listing> = {
       { key: "code", title: "Código", empty: money },
       { key: "label", title: "Descrição", empty: money },
       { key: "kind", title: "Operação", labels: OPERATION_KIND, empty: money },
-      { key: "requires_document", title: "Exige documento", empty: money },
+      { key: "requires_document", title: "Exige documento", empty: "Não" },
+      { key: "is_active", title: "Ativa", empty: "Não" },
     ],
   },
   natures: {
@@ -369,6 +369,7 @@ export const listings: Record<string, Listing> = {
       { key: "origin_code", title: "Origem", labels: ORIGIN_CODE, empty: money },
       { key: "fiscal_unit", title: "Unidade", empty: money },
       { key: "version", title: "Versão", empty: money },
+      { key: "effective_from", title: "Vigência inicial", empty: money },
       { key: "status", title: "Situação", labels: RULE_STATUS, empty: money },
     ],
   },
@@ -379,8 +380,9 @@ export const listings: Record<string, Listing> = {
     columns: [
       { key: "tax_registration", title: "CPF/CNPJ", empty: "—" },
       { key: "state_registration", title: "Inscrição estadual", empty: "—" },
-      { key: "ie_status", title: "Situação da IE", labels: IE_STATUS, empty: "—" },
       { key: "version", title: "Versão", empty: money },
+      { key: "effective_from", title: "Vigência inicial", empty: money },
+      { key: "is_final_consumer", title: "Consumidor final", empty: "Não" },
       { key: "status", title: "Situação", labels: RULE_STATUS, empty: money },
     ],
   },
@@ -392,6 +394,7 @@ export const listings: Record<string, Listing> = {
       { key: "code", title: "Código", empty: money },
       { key: "label", title: "Descrição", empty: money },
       { key: "calculation_base", title: "Base", labels: CALCULATION_BASE, empty: money },
+      { key: "is_active", title: "Ativo", empty: "Não" },
     ],
   },
   layouts: {
@@ -401,9 +404,8 @@ export const listings: Record<string, Listing> = {
     columns: [
       { key: "document_model", title: "Modelo", empty: money },
       { key: "version", title: "Versão", empty: money },
-      { key: "source_reference", title: "Fonte técnica", empty: money },
       { key: "valid_from", title: "Vigência inicial", empty: money },
-      { key: "implanted_at", title: "Implantação", empty: "—" },
+      { key: "implanted_at", title: "Implantação", empty: "Não implantado" },
       { key: "status", title: "Situação", labels: LAYOUT_STATUS, empty: money },
     ],
   },
@@ -414,11 +416,21 @@ export const listings: Record<string, Listing> = {
     columns: [
       { key: "version", title: "Versão", empty: money },
       { key: "priority", title: "Prioridade", empty: money },
-      { key: "product_classification", title: "NCM do escopo", empty: "Qualquer" },
-      { key: "document_model", title: "Modelo", empty: "—" },
+      { key: "document_model", title: "Modelo", empty: "Todos" },
       { key: "valid_from", title: "Vigência inicial", empty: money },
-      { key: "valid_to", title: "Vigência final", empty: "—" },
+      { key: "valid_to", title: "Vigência final", empty: "Vigente" },
       { key: "status", title: "Situação", labels: RULE_STATUS, empty: money },
+    ],
+  },
+  regressions: {
+    table: "fiscal_rule_regressions",
+    title: "Regressão",
+    identity: ["fingerprint"],
+    columns: [
+      { key: "fingerprint", title: "Impressão da regra", empty: money },
+      { key: "rule_version", title: "Versão testada", empty: money },
+      { key: "passed", title: "Resultado", empty: "Reprovada" },
+      { key: "created_at", title: "Executada em", empty: money },
     ],
   },
   providers: {
@@ -430,7 +442,7 @@ export const listings: Record<string, Listing> = {
       { key: "adapter_code", title: "Adaptador", empty: money },
       { key: "environment", title: "Ambiente", labels: ENVIRONMENT, empty: money },
       { key: "status", title: "Situação", labels: PROVIDER_STATUS, empty: money },
-      { key: "certificate_expires_at", title: "Certificado até", empty: "—" },
+      { key: "certificate_expires_at", title: "Certificado até", empty: "Sem certificado" },
     ],
   },
 };
@@ -449,13 +461,13 @@ export const readPermission: Record<string, string> = {
   reconciliations: "fiscal.reconciliation.read",
   simulations: "fiscal.simulate",
   providers: "fiscal.provider.manage",
-  establishments: "fiscal.configure",
-  regimes: "fiscal.configure",
-  operations: "fiscal.configure",
-  natures: "fiscal.configure",
-  taxes: "fiscal.configure",
-  layouts: "fiscal.configure",
-  companies: "fiscal.configure",
+  establishments: "fiscal.read",
+  regimes: "fiscal.read",
+  operations: "fiscal.read",
+  natures: "fiscal.read",
+  taxes: "fiscal.read",
+  layouts: "fiscal.read",
+  companies: "fiscal.read",
   products: "fiscal.tax_rules.read",
   rules: "fiscal.tax_rules.read",
   rule_items: "fiscal.tax_rules.read",
