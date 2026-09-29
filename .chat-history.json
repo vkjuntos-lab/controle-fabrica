@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "ok\n  261:60  error  Delete `.exec(`                                                                                                                                                                                                 prettier/prettier\n  262:9   error  Replace `createTableBody(\"fiscal_reco",
-    "is_error": false,
-    "timestamp": 1790682067051
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "npx eslint --fix src/components/fiscal src/lib/fiscal 2>&1 | tail -8; npx tsc --noEmit 2>&1|head -3; npx vitest run src/lib/fiscal 2>&1 | tail -6; npx prettier --check supabase/migrations/20261014500000_fiscal_screen_fixes.sql scripts/test-fiscal-migration-chain.py 2>&1 | tail -5",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790682070539
-  },
-  {
-    "role": "tool_result",
     "content": "\n/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/form.tsx\n   9:17  warning  Fast refresh only works when a file only exports components. Use a new file to share constants or functions between components  react-refresh/only-export-components\n  12:17  warning  Fast refresh only works w",
     "is_error": false,
     "timestamp": 1790682110170
@@ -1479,5 +1464,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql</path>\n<type>file</type>\n<content>\n340:       WHERE t.organization_id=_org AND t.status='ACTIVE'\n341:         AND t.period_start<v_to AND t.period_end>=v_from),'[]'::jsonb);\n342: \n343:   ELSIF _kind='ru",
     "is_error": false,
     "timestamp": 1790683672865
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql",
+      "oldString": "    RETURN coalesce((SELECT jsonb_agg(jsonb_build_object('id',r.id,'domain',r.domain,'status',r.status,\n      'mode',r.mode,'from',r.period_start,'to',r.period_end,'started_at',r.started_at,'finished_at',r.finished_at,\n      'records',r.processed_records,'errors',r.error_details) ORDER BY r.started_at DESC LIMIT 20)\n      FROM public.bi_processing_runs r WHERE r.organization_id=_org),'[]'::jsonb);",
+      "newString": "    RETURN coalesce((SELECT jsonb_agg(to_jsonb(t) ORDER BY t.started_at DESC) FROM (\n        SELECT r.id,r.domain,r.status,r.mode,r.period_start,r.period_end,r.started_at,r.finished_at,\n          r.processed_records,r.error_details\n        FROM public.bi_processing_runs r WHERE r.organization_id=_org\n        ORDER BY r.started_at DESC LIMIT 20) t),'[]'::jsonb);"
+    },
+    "timestamp": 1790683675544
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790683675561
   }
 ]
