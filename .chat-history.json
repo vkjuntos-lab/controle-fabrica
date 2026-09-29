@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"rg -n 'active|is_active' supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql | head; sed -n '512,524p' supabase/migrations/20261006100000_sales_orders.sql; rg -n 'available|marketplace' src/lib/rbac.test.ts | head -15; git diff --stat\""
-    },
-    "timestamp": 1790669027008
-  },
-  {
-    "role": "tool_result",
-    "content": "50:  is_active boolean NOT NULL DEFAULT true,\n94:    WHERE m.organization_id = _organization_id AND m.user_id = _user_id AND m.is_active\n102:    WHERE m.organization_id = _organization_id AND m.user_id = _user_id AND m.is_active\n113:    WHERE m.organization_id = _organization_id AND m.user_id = _use",
-    "is_error": false,
-    "timestamp": 1790669027018
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20261014400000_fiscal_workspace.sql');s=p.read_text().replace(' AND active)', ' AND is_active)')\nmarker=\\\" tbl:=CASE _kind\\\"\ninsert=\\\"\\\"\\\" IF _kind IN ('company_options','variant_options','address_options','supplier_options','shipment_options','receipt_options') THEN\n  IF _kind='company_options' THEN\n   SELECT coalesce(jsonb_agg(row),'[]') INTO result FROM (SELECT jsonb_build_object('id',id,'label',legal_name||' · '||code) row\n   FROM companies WHERE organization_id=_org AND (coalesce(_filters->>'search','')='' OR legal_name ILIKE '%'||(_filters->>'search')||'%') ORDER BY legal_name LIMIT 50) s;\n  ELSIF _kind='variant_options' THEN\n   SELECT coalesce(jsonb_agg(row),'[]') INTO result FROM (SELECT jsonb_build_object('id',id,'label',sku) row\n   FROM product_variants WHERE organization_id=_org AND sku ILIKE '%'||coalesce(_filters->>'search','')||'%' ORDER BY sku LIMIT 50) s;\n  ELSIF _kind='address_options' THEN\n   SELECT coalesce(jsonb_agg(row),'[]') INTO result FROM (SELECT jsonb_build_object('id',a.id,'label',c.legal_name||' · '||a.street||' · '||a.city) row\n   FROM company_addresses a JOIN companies c ON c.organization_id=a.organization_id AND c.id=a.company_id\n   WHERE a.organization_id=_org AND (c.legal_name||' '||a.street) ILIKE '%'||coalesce(_filters->>'search','')||'%' ORDER BY a.id LIMIT 50) s;\n  ELSIF _kind='supplier_options' THEN\n   SELECT coalesce(jsonb_agg(row),'[]') INTO result FROM (SELECT jsonb_build_object('id',s.id,'label',c.legal_name) row\n   FROM supplier_profiles s JOIN companies c ON c.organization_id=s.organization_id AND c.id=s.company_id\n   WHERE s.organization_id=_org AND c.legal_name ILIKE '%'||coalesce(_filters->>'search','')||'%' ORDER BY c.legal_name LIMIT 50) s;\n  ELSIF _kind='receipt_options' THEN\n   SELECT coalesce(jsonb_agg(row),'[]') INTO result FROM (SELECT jsonb_build_object('id',id,'label',receipt_number) row FROM goods_receipts\n   WHERE organization_id=_org AND receipt_number ILIKE '%'||coalesce(_filters->>'search','')||'%' ORDER BY created_at DESC LIMIT 50) s;\n  ELSE\n   SELECT coalesce(jsonb_agg(row),'[]') INTO result FROM (SELECT jsonb_build_object('id',s.id,'label',s.shipment_number||' · '||c.legal_name) row\n   FROM shipments s JOIN sales_orders o ON o.organization_id=s.organization_id AND o.id=s.sales_order_id\n   JOIN companies c ON c.organization_id=o.organization_id AND c.id=o.company_id\n   WHERE s.organization_id=_org AND s.dispatched_at IS NOT NULL AND s.status<>'CANCELED'\n   AND (s.shipment_number||' '||c.legal_name) ILIKE '%'||coalesce(_filters->>'search','')||'%' ORDER BY s.created_at DESC LIMIT 50) s;\n  END IF;\n  RETURN result;\n END IF;\n\\\"\\\"\\\"\ns=s.replace(marker,insert+marker)\np.write_text(s)\nPY\nnpm run typecheck\""
     },
     "timestamp": 1790669058036
@@ -1450,5 +1436,21 @@
     "content": "",
     "is_error": true,
     "timestamp": 1790680220531
+  },
+  {
+    "role": "tool",
+    "tool": "read",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/_probe-fiscal.py",
+      "offset": 62,
+      "limit": 40
+    },
+    "timestamp": 1790680223554
+  },
+  {
+    "role": "tool_result",
+    "content": "<path>/root/Zheus AI Projects/controle-fabricas/scripts/_probe-fiscal.py</path>\n<type>file</type>\n<content>\n62:                  'companies', 'products', 'rules', 'simulations', 'documents']:\n63:         out = db.call('fiscal_query', ','.join([q(org), q(kind), q('{}')]), uid, 'permiss')\n64:         ",
+    "is_error": false,
+    "timestamp": 1790680223568
   }
 ]
