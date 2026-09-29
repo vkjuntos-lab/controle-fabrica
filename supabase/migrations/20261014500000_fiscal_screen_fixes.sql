@@ -82,6 +82,15 @@ BEGIN
     'reviews',(SELECT coalesce(jsonb_agg(to_jsonb(r) ORDER BY r.created_at),'[]') FROM tax_rule_reviews r WHERE organization_id=_org AND r.tax_rule_id=subject),
     'regressions',(SELECT coalesce(jsonb_agg(to_jsonb(g) ORDER BY g.created_at),'[]') FROM fiscal_rule_regressions g WHERE organization_id=_org AND g.tax_rule_id=subject),
     'items',(SELECT coalesce(jsonb_agg(to_jsonb(i) ORDER BY i.tax_id),'[]') FROM tax_rule_items i WHERE organization_id=_org AND i.tax_rule_id=subject));
+ ELSIF _kind='assignees' THEN
+  -- Responsáveis de pendência. Sem isto a tela tinha como registrar resolução
+  -- mas não como atribuir o caso: `fiscal_exception_action` grava
+  -- `responsible_id` e a coluna ficava sempre nula.
+  PERFORM fiscal_require(_org,'fiscal.exceptions.manage');
+  SELECT coalesce(jsonb_agg(jsonb_build_object('id',m.user_id,'name',coalesce(p.full_name,p.email,m.user_id::text),'role',m.role) ORDER BY p.full_name),'[]') INTO result
+  FROM organization_members m LEFT JOIN profiles p ON p.id=m.user_id
+  WHERE m.organization_id=_org AND m.is_active;
+  RETURN result;
  END IF;
  IF _kind='inbound_context' THEN
   PERFORM fiscal_require(_org,'fiscal.inbound.review');
