@@ -120,7 +120,11 @@ def run():
     print('COLISAO REPRODUZIDA OK')
 
     for nome in PREDECESSORAS:
-        aplicar(nome)
+        aplicar_historica(nome)
+    if PREEXISTENTES:
+        print(f'{len(PREEXISTENTES)} colisao(oes) preexistente(s) no historico, fora do MASTER 014:')
+        for item in PREEXISTENTES:
+            print(f'  - {item}')
     print('PREDECESSORAS OK')
 
     # Primeira migration do MASTER 014. Ela redeclara `fiscal_environment` com

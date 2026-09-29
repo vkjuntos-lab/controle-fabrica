@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "edit",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/config.ts",
-      "newString": "export const sections = [\n  [\"dashboard\", \"Dashboard\", \"fiscal.dashboard\"],\n  [\"documents\", \"Documentos de saída\", \"fiscal.read\"],\n  [\"inbound\", \"Recebidos\", \"fiscal.inbound.read\"],\n  [\"events\", \"Eventos e cancelamentos\", \"fiscal.events.read\"],\n  [\"exceptions\", \"Pendências\", \"fiscal.exceptions.read\"],\n  [\"reconciliations\", \"Conciliações\", \"fiscal.reconciliation.read\"],\n  [\"simulations\", \"Simulações\", \"fiscal.simulate\"],\n  [\"establishments\", \"Estabelecimentos\", \"fiscal.read\"],\n  [\"companies\", \"Contrapartes\", \"fiscal.read\"],\n  [\"products\", \"Classificações\", \"fiscal.tax_rules.read\"],\n  [\"rules\", \"Regras tributárias\", \"fiscal.tax_rules.read\"],\n  [\"regimes\", \"Regimes\", \"fiscal.read\"],\n  [\"operations\", \"Operações\", \"fiscal.read\"],\n  [\"natures\", \"Naturezas\", \"fiscal.read\"],\n  [\"taxes\", \"Tributos\", \"fiscal.read\"],\n  [\"layouts\", \"Versões técnicas\", \"fiscal.read\"],\n  [\"regressions\", \"Regressões de regra\", \"fiscal.tax_rules.read\"],\n  [\"providers\", \"Integração\", \"fiscal.provider.manage\"],\n] as const;\n\n/** Ações de transição por estado, com o rótulo que o botão exibe. */\nexport const lifecycleActions = {\n  DRAFT: [\"submit\", \"Enviar para revisão\"],\n  REVIEW: [\"approve\", \"Aprovar\"],\n  APPROVED: [\"activate\", \"Ativar\"],\n  ACTIVE: [\"retire\", \"Encerrar\"],\n} as const;\n",
-      "oldString": "export const sections = [\n  [\"dashboard\", \"Dashboard\", \"fiscal.dashboard\"],\n  [\"documents\", \"Documentos de saída\", \"fiscal.read\"],\n  [\"inbound\", \"Recebidos\", \"fiscal.inbound.read\"],\n  [\"events\", \"Eventos e cancelamentos\", \"fiscal.events.read\"],\n  [\"exceptions\", \"Pendências\", \"fiscal.exceptions.read\"],\n  [\"reconciliations\", \"Conciliações\", \"fiscal.reconciliation.read\"],\n  [\"simulations\", \"Simulações\", \"fiscal.simulate\"],\n  [\"establishments\", \"Estabelecimentos\", \"fiscal.configure\"],\n  [\"companies\", \"Contrapartes\", \"fiscal.configure\"],\n  [\"products\", \"Classificações\", \"fiscal.tax_rules.read\"],\n  [\"rules\", \"Regras tributárias\", \"fiscal.tax_rules.read\"],\n  [\"regimes\", \"Regimes\", \"fiscal.configure\"],\n  [\"operations\", \"Operações\", \"fiscal.configure\"],\n  [\"natures\", \"Naturezas\", \"fiscal.configure\"],\n  [\"taxes\", \"Tributos\", \"fiscal.configure\"],\n  [\"layouts\", \"Versões técnicas\", \"fiscal.configure\"],\n  [\"providers\", \"Integração\", \"fiscal.provider.manage\"],\n] as const;\n"
-    },
-    "timestamp": 1790680564159
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790680564205
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/form.tsx",
       "newString": "export function Reference({\n  org,\n  kind,\n  value,\n  onChange,\n}: {\n  org: string;\n  kind: string;\n  value: string;\n  onChange: (v: string) => void;\n}) {\n  const [search, setSearch] = useState(\"\");\n  const result = useQuery({\n    queryKey: [\"fiscal\", org, kind, search],\n    queryFn: () =>\n      readFiscal({ data: { organizationId: org, kind, filters: search ? { search } : {} } }),\n  });\n  const options = rows(result.data);\n  // A opção escolhida só existe no resultado quando a pesquisa atual a traz.\n  // Sem esta linha, digitar no campo de pesquisa some a escolha do `<select>`\n  // e o formulário passa a enviar vazio onde havia um registro válido.\n  const current = options.find((r) => String(r.id) === value);\n  return (\n    <div className=\"space-y-1\">\n      <input\n        aria-label=\"Pesquisar opções\"\n        className={inputClass}\n        placeholder=\"Pesquisar…\"\n        value={search}\n        onChange={(e) => setSearch(e.target.value)}\n      />\n      <select className={inputClass} value={value} onChange={(e) => onChange(e.target.value)}>\n        <option value=\"\">Selecione…</option>\n        {current && (\n          <option value={value}>\n            {label(current)}\n            {current.status ? ` · ${String(current.status)}` : \"\"}\n          </option>\n        )}\n        {options\n          .filter((r) => String(r.id) !== value)\n          .map((r) => (\n            <option key={String(r.id)} value={String(r.id)}>\n              {label(r)}\n              {r.status ? ` · ${String(r.status)}` : \"\"}\n            </option>\n          ))}\n      </select>\n      {result.error && <p role=\"alert\">{result.error.message}</p>}\n      <small>Até 50 resultados; use a pesquisa para localizar.</small>\n    </div>\n  );\n}\n",
       "oldString": "export function Reference({\n  org,\n  kind,\n  value,\n  onChange,\n}: {\n  org: string;\n  kind: string;\n  value: string;\n  onChange: (v: string) => void;\n}) {\n  const [search, setSearch] = useState(\"\");\n  const result = useQuery({\n    queryKey: [\"fiscal\", org, kind, search],\n    queryFn: () =>\n      readFiscal({ data: { organizationId: org, kind, filters: search ? { search } : {} } }),\n  });\n  return (\n    <div className=\"space-y-1\">\n      <input\n        aria-label=\"Pesquisar opções\"\n        className={inputClass}\n        placeholder=\"Pesquisar…\"\n        value={search}\n        onChange={(e) => setSearch(e.target.value)}\n      />\n      <select className={inputClass} value={value} onChange={(e) => onChange(e.target.value)}>\n        <option value=\"\">Selecione…</option>\n        {rows(result.data).map((r) => (\n          <option key={String(r.id)} value={String(r.id)}>\n            {label(r)}\n            {r.status ? ` · ${r.status}` : \"\"}\n          </option>\n        ))}\n      </select>\n      {result.error && <p role=\"alert\">{result.error.message}</p>}\n      <small>Até 50 resultados; use a pesquisa para localizar.</small>\n    </div>\n  );\n}\n"
@@ -1538,5 +1522,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790681854280
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py",
+      "newString": "    for nome in LEGADOS:\n        aplicar(nome)\n    ambiente = sql(\"SELECT string_agg(e.enumlabel, ',' ORDER BY e.enumsortorder) \"\n                   \"FROM pg_enum e JOIN pg_type t ON t.oid=e.enumtypid \"\n                   \"WHERE t.typname='fiscal_environment';\")\n    assert ambiente == 'homologacao,producao', \\\n        f'legado de 2026-07 não reproduzido: fiscal_environment ficou {ambiente!r}'\n    assert sql(\"SELECT to_regclass('public.fiscal_documents') IS NOT NULL;\") == 't', \\\n        'a tabela fiscal_documents legada não foi criada: o teste não está reproduzindo a colisão'\n    print('COLISAO REPRODUZIDA OK')\n\n    for nome in PREDECESSORAS:\n        aplicar_historica(nome)\n    if PREEXISTENTES:\n        print(f'{len(PREEXISTENTES)} colisao(oes) preexistente(s) no historico, fora do MASTER 014:')\n        for item in PREEXISTENTES:\n            print(f'  - {item}')\n    print('PREDECESSORAS OK')\n",
+      "oldString": "    for nome in LEGADOS:\n        aplicar(nome)\n    ambiente = sql(\"SELECT string_agg(e.enumlabel, ',' ORDER BY e.enumsortorder) \"\n                   \"FROM pg_enum e JOIN pg_type t ON t.oid=e.enumtypid \"\n                   \"WHERE t.typname='fiscal_environment';\")\n    assert ambiente == 'homologacao,producao', \\\n        f'legado de 2026-07 não reproduzido: fiscal_environment ficou {ambiente!r}'\n    assert sql(\"SELECT to_regclass('public.fiscal_documents') IS NOT NULL;\") == 't', \\\n        'a tabela fiscal_documents legada não foi criada: o teste não está reproduzindo a colisão'\n    print('COLISAO REPRODUZIDA OK')\n\n    for nome in PREDECESSORAS:\n        aplicar(nome)\n    print('PREDECESSORAS OK')\n"
+    },
+    "timestamp": 1790681859329
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790681859345
   }
 ]
