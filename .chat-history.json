@@ -4,22 +4,6 @@
     "tool": "edit",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/workspace.tsx",
-      "newString": "/** Rótulo do cabeçalho da área, para a tabela. */\nfunction ListingTable({\n  view,\n  records,\n  onOpen,\n}: {\n  view: string;\n  records: Row[];\n  onOpen: (row: Row) => void;\n}) {\n  const listing = listings[view];\n  if (!listing) {\n    return (\n      <p className=\"rounded-lg border p-8 text-muted-foreground\">\n        Área sem listagem definida. Nada é apresentado como registro.\n      </p>\n    );\n  }\n  return (\n    <div className=\"overflow-x-auto rounded-xl border\">\n      <table className=\"w-full text-left text-sm\">\n        <thead>\n          <tr className=\"bg-muted\">\n            {listing.columns.map((column) => (\n              <th key={column.key} className=\"p-3 whitespace-nowrap\">\n                {column.title}\n              </th>\n            ))}\n            <th className=\"p-3\">Ações</th>\n          </tr>\n        </thead>\n        <tbody>\n          {records.map((row) => (\n            <tr key={String(row.id)} className=\"border-t align-top\">\n              {listing.columns.map((column) => (\n                <td key={column.key} className=\"p-3\">\n                  {cell(row, column)}\n                </td>\n              ))}\n              <td className=\"p-3\">\n                <Button variant=\"outline\" onClick={() => onOpen(row)}>\n                  Detalhes e ações\n                </Button>\n              </td>\n            </tr>\n          ))}\n        </tbody>\n      </table>\n    </div>\n  );\n}\n\n/** Valor de uma coluna, traduzindo código e阵列特殊. */\nfunction cell(row: Row, column: Column): React.ReactNode {\n  const raw = row[column.key];\n  if (raw === null || raw === undefined || raw === \"\") return <>{column.empty ?? \"—\"}</>;\n  if (column.key === \"findings\") return <Findings value={raw} />;\n  if (column.key === \"result\") return <SimulationResult value={raw} />;\n  if (column.key === \"has_blocking_issue\")\n    return raw === true ? \"Sim — impede calcular\" : \"Não\";\n  if (column.key === \"requires_document\") return raw === true ? \"Sim\" : \"Não\";\n  if (typeof raw === \"number\") return raw.toLocaleString(\"pt-BR\");\n  if (typeof raw === \"object\") return <span className=\"text-xs\">{translate(raw)}</span>;\n  const text = translate(raw, column.labels);\n  if (column.key === \"access_key\")\n    return <span className=\"font-mono text-xs break-all\">{text}</span>;\n  return text;\n}\n\n/** Achados da conciliação: nenhum é resolvido por correspondência aritmética. */\nfunction Findings({ value }: { value: Json | undefined }) {\n  const items = rows(value);\n  if (!items.length) return <>Nenhum achado</>;\n  return (\n    <ul className=\"space-y-1\">\n      {items.map((item, index) => (\n        <li key={index} className=\"text-xs\">\n          {translate(item.type, FINDING_TYPE)}\n          {item.line !== undefined && ` — item ${String(item.line)}`}\n        </li>\n      ))}\n    </ul>\n  );\n}\n\n/** Resultado da simulação: tributos, regras usadas e pendências. */\nfunction SimulationResult({ value }: { value: Json | undefined }) {\n  const data = (value ?? {}) as Row;\n  const taxes = rows(data.taxes ?? data.items);\n  const warnings = rows(data.warnings);\n  return (\n    <div className=\"space-y-1 text-xs\">\n      <p>\n        {translate(data.total_taxes ?? data.total_amount)} ·{\" \"}\n        {translate(data.total_taxes_is_estimated, undefined)}\n      </p>\n      {taxes.map((tax, index) => (\n        <p key={index}>\n          {translate(tax.code ?? tax.tax_id)} — {translate(tax.amount ?? tax.rounded_amount)}\n        </p>\n      ))}\n      {warnings.map((warning, index) => (\n        <p key={index} className=\"text-amber-700\">\n          {typeof warning === \"string\" ? warning : JSON.stringify(warning)}\n        </p>\n      ))}\n    </div>\n  );\n}\n\nfunction Dashboard({ data }: { data: unknown }) {\n",
-      "oldString": "function Dashboard({ data }: { data: unknown }) {\n"
-    },
-    "timestamp": 1790680626458
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790680626484
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/workspace.tsx",
       "newString": "/** Valor de uma coluna da listagem, traduzindo código e formatando número. */\n",
       "oldString": "/** Valor de uma coluna, traduzindo código e阵列特殊. */\n"
     },
@@ -1536,5 +1520,20 @@
     "content": "COLISAO REPRODUZIDA OK\nPREDECESSORAS OK\nMASTER 014 APLICAVEL OK\nDESENHO SUBSTITUIDO OK\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py\", line 192, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabr",
     "is_error": false,
     "timestamp": 1790681887875
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"fiscal\\.\" src/lib/rbac.ts | head -30",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681894950
+  },
+  {
+    "role": "tool_result",
+    "content": "47:  fiscalRead: \"fiscal.read\",\n48:  fiscalDashboard: \"fiscal.dashboard\",\n49:  fiscalConfigure: \"fiscal.configure\",\n50:  fiscalSimulate: \"fiscal.simulate\",\n51:  fiscalTaxRulesRead: \"fiscal.tax_rules.read\",\n52:  fiscalTaxRulesManage: \"fiscal.tax_rules.manage\",\n53:  fiscalTaxRulesApprove: \"fiscal.tax_",
+    "is_error": false,
+    "timestamp": 1790681894969
   }
 ]
