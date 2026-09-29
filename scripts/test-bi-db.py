@@ -140,7 +140,7 @@ def run():
                 f"material_cost,component_cost,packaging_cost,labor_cost,loss_cost,overhead_cost,status,"
                 f"effective_from,total_unit_cost,completeness,source_reference,input_fingerprint) VALUES "
                 f"({q(uid())},{q(org)},{q(variant)},1,'STANDARD',0,0,0,{valor},0,0,'ACTIVE',"
-                f"{q('2026-01-01')},{valor},'COMPLETE','{{}}'::jsonb,{q('fp-' + str(variant))[:1] + str(len(str(variant)))});")
+                f"{q('2026-01-01')},{valor},'COMPLETE','{{}}'::jsonb,'bi-fixture');")
     sql(custo_publicado(v1, 40))
     sql(custo_publicado(v2, 25))
     print('BASE OK')
