@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rn \"inteligencia\\|relatorios\\|coming_soon\" src/components/layout/*.tsx | head -20; echo \"=== arquivos layout ===\"; ls src/components/layout/ 2>/dev/null || find src -name \"*Shell*\" -o -name \"*Nav*\" | head"
-    },
-    "timestamp": 1790682923764
-  },
-  {
-    "role": "tool_result",
-    "content": "73:    to: \"/relatorios/rentabilidade\",\n=== arquivos layout ===\napp-shell.tsx\n",
-    "is_error": false,
-    "timestamp": 1790682923783
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '1,120p' src/components/layout/app-shell.tsx"
     },
     "timestamp": 1790682925774
@@ -1492,5 +1478,19 @@
     "content": "== 20261015100000_bi_core.sql\n== 20261015110000_bi_marts.sql\n    d(inbound_fiscal_documents).total_taxes\n    s(marketplace_sales).partner_id\n== 20261015120000_bi_queries.sql\n    c(companies).basis\n    c(companies).bucket\n    c(companies).dim_id\n    c(companies).is_total\n    c(companies).label\n    c(",
     "is_error": false,
     "timestamp": 1790683906415
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport re, subprocess\nfrom pathlib import Path\nfor t in ['inbound_fiscal_documents','production_loss_reasons','partner_shipments','partner_shipment_items','partner_returns']:\n    out = subprocess.run(['grep','-rl',f'CREATE TABLE public.{t} ','supabase/migrations/'],capture_output=True,text=True).stdout.split()\n    for p in out:\n        s=Path(p).read_text(); i=s.find(f'CREATE TABLE public.{t} ')\n        body = s[i:s.find(');',i)+2]\n        body = re.sub(r'\\s+', ' ', body)\n        print('###', t); print(body[:1200]); print()\n        break\nPY"
+    },
+    "timestamp": 1790683911976
+  },
+  {
+    "role": "tool_result",
+    "content": "### inbound_fiscal_documents\nCREATE TABLE public.inbound_fiscal_documents ( id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES organizations, establishment_id uuid NOT NULL, supplier_id uuid NOT NULL REFERENCES supplier_profiles, document_type text NOT NULL DEFAU",
+    "is_error": false,
+    "timestamp": 1790683912047
   }
 ]
