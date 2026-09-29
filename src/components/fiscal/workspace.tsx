@@ -382,6 +382,206 @@ function SimulationResult({ value }: { value: Json | undefined }) {
   );
 }
 
+/**
+ * Detalhe do documento fiscal. O painel antigo imprimia o JSON bruto do
+ * cabeçalho e nenhum tributo: o snapshot de cálculo, que é a única
+ * evidência de QUAL regra gerou QUAL valor, não tinha caminho de leitura
+ * na tela. Sem ele, conferir o documento era confiar no total.
+ */
+function DocumentDetail({ data, fallback }: { data: unknown; fallback: Row }) {
+  const d = (data ?? {}) as Row;
+  const document = (d.document ?? fallback) as Row;
+  const items = rows(d.items);
+  const taxes = rows(d.taxes);
+  const events = rows(d.events);
+  const byItem = new Map<string, Row[]>();
+  for (const tax of taxes) {
+    const key = String(tax.document_item_id ?? "");
+    byItem.set(key, [...(byItem.get(key) ?? []), tax]);
+  }
+  if (!data) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        Detalhe em carregamento. Se persistir, o servidor não devolveu itens nem snapshot.
+      </p>
+    );
+  }
+  return (
+    <div className="space-y-4">
+      <div className="grid gap-3 text-sm sm:grid-cols-2">
+        {[
+          ["Número", `${String(document.document_number ?? "—")} / ${String(document.series ?? "—")}`],
+          ["Chave de acesso", String(document.access_key ?? "—")],
+          ["Estabelecimento", String(document.establishment_id ?? "—")],
+          ["Destinatário", String(document.company_id ?? "—")],
+          ["Natureza da operação", String(document.operation_nature_id ?? "—")],
+          ["Emissão", String(document.issue_date ?? "—")],
+          ["Status", translate(document.status, DOCUMENT_STATUS)],
+          ["Total", translate(document.total_amount)],
+          ["Tributos", translate(document.total_taxes)],
+          ["Versão de layout", String(document.layout_version ?? "—")],
+        ].map(([title, value]) => (
+          <div key={title}>
+            <p className="text-muted-foreground">{title}</p>
+            <p className="break-all">{value}</p>
+          </div>
+        ))}
+      </div>
+      <h3 className="text-sm font-semibold">Itens e tributos apurados</h3>
+      {items.length === 0 ? (
+        <p className="text-sm text-muted-foreground">Documento sem itens.</p>
+      ) : (
+        <div className="overflow-x-auto rounded-lg border">
+          <table className="w-full text-left text-sm">
+            <thead>
+              <tr className="bg-muted">
+                <th className="p-2">Item</th>
+                <th>Produto</th>
+                <th>Quantidade</th>
+                <th>Valor</th>
+                <th>Tributo</th>
+                <th>Regra aplicada</th>
+                <th>Base</th>
+                <th>Valor apurado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {items.map((item) => {
+                const applied = byItem.get(String(item.id)) ?? [];
+                return (
+                  <tr key={String(item.id)} className="border-t align-top">
+                    <td className="p-2">{String(item.line_number ?? "—")}</td>
+                    <td>
+                      {String(item.description ?? "—")}
+                      <div className="text-xs text-muted-foreground">
+                        {String(item.sku ?? "")} {String(item.ncm_code ?? "")}
+                      </div>
+                    </td>
+                    <td>{translate(item.quantity)}</td>
+                    <td>{translate(item.unit_price)}</td>
+                    <td>
+                      {applied.length === 0
+                        ? "Nenhum snapshot"
+                        : applied.map((tax, index) => (
+                            <p key={index} className="text-xs">
+                              {translate(tax.tax_id)}
+                              {tax.treatment_code ? ` · ${String(tax.treatment_code)}` : ""}
+                              {tax.is_withheld === true ? " · retenção" : ""}
+                              {tax.is_recoverable === true ? " · recuperável" : ""}
+                            </p>
+                          ))}
+                    </td>
+                    <td>
+                      {applied.length === 0
+                        ? "—"
+                        : applied.map((tax, index) => (
+                            <p key={index} className="text-xs">
+                              v{String(tax.tax_rule_version ?? "—")}
+                              <div className="text-muted-foreground">
+                                {String(tax.base_mode ?? "—")}
+                              </div>
+                            </p>
+                          ))}
+                    </td>
+                    <td>{applied.map((tax) => translate(tax.base_amount)).join(" / ") || "—"}</td>
+                    <td>{applied.map((tax) => translate(tax.rounded_amount)).join(" / ") || "—"}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+      <details>
+        <summary>Eventos do documento ({events.length})</summary>
+        {events.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nenhum evento registrado.</p>
+        ) : (
+          <ul className="space-y-1 text-xs">
+            {events.map((event) => (
+              <li key={String(event.id)}>
+                {translate(event.event_type, EVENT_TYPE)} · {String(event.created_at ?? "")}
+                <div className="text-muted-foreground">{JSON.stringify(event.payload)}</div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </details>
+    </div>
+  );
+}
+
+/**
+ * Trilha de decisão da regra: revisões e regressões. A regra só vira
+ * vigente com regressão aprovada, mas a tela não mostrava qual execução
+ * justificou a ativação.
+ */
+function RuleDetail({ data, fallback }: { data: unknown; fallback: Row }) {
+  const d = (data ?? {}) as Row;
+  const reviews = rows(d.reviews);
+  const regressions = rows(d.regressions);
+  const items = rows(d.items);
+  if (!data) return <p className="text-sm text-muted-foreground">Detalhe em carregamento.</p>;
+  return (
+    <div className="space-y-4">
+      <p className="text-sm">
+        {String(fallback.code ?? "—")} · {translate(fallback.status)} · vigência{" "}
+        {String(fallback.valid_from ?? "—")} a {String(fallback.valid_to ?? "vigente")}
+      </p>
+      <div>
+        <h3 className="text-sm font-semibold">Regressões ({regressions.length})</h3>
+        {regressions.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            Nenhuma regressão registrada. Ativação exige evidência de teste aprovada.
+          </p>
+        ) : (
+          <ul className="space-y-1 text-xs">
+            {regressions.map((regression) => (
+              <li key={String(regression.id)}>
+                regra v{String(regression.rule_version)} ·{" "}
+                {regression.passed === true ? "aprovada" : "reprovada"} ·{" "}
+                {String(regression.created_at ?? "")}
+                <div className="font-mono text-muted-foreground">
+                  {String(regression.fingerprint ?? "")}
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <div>
+        <h3 className="text-sm font-semibold">Revisões ({reviews.length})</h3>
+        {reviews.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Nenhuma revisão registrada.</p>
+        ) : (
+          <ul className="space-y-1 text-xs">
+            {reviews.map((review) => (
+              <li key={String(review.id)}>
+                {String(review.from_status)} → {String(review.to_status)} ·{" "}
+                {String(review.decision)} · {String(review.created_at ?? "")}
+                <div className="text-muted-foreground">{String(review.justification ?? "")}</div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      {items.length > 0 && (
+        <details>
+          <summary>Tratamentos da versão ({items.length})</summary>
+          <ul className="space-y-1 text-xs">
+            {items.map((item) => (
+              <li key={String(item.id)}>
+                {String(item.tax_id)} · {translate(item.rate)} · {String(item.base_mode ?? "—")} ·{" "}
+                {String(item.treatment_code ?? "—")}
+              </li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </div>
+  );
+}
+
 function Dashboard({ data }: { data: unknown }) {
   const d = (data ?? {}) as Row;
   const states = (d.documents ?? {}) as Row;
