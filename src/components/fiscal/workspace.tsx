@@ -207,43 +207,7 @@ function Area({ org, view }: { org: string; view: string }) {
           Nenhum registro para os filtros selecionados.
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-xl border">
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="bg-muted">
-                <th className="p-3">Registro</th>
-                <th>Status</th>
-                <th>Data / versão</th>
-                <th>Total</th>
-                <th className="p-3">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {records.map((row) => (
-                <tr key={String(row.id)} className="border-t">
-                  <td className="p-3">
-                    {label(row)}
-                    {row.access_key && (
-                      <div className="max-w-64 break-all text-xs">{String(row.access_key)}</div>
-                    )}
-                  </td>
-                  <td>{String(row.status ?? row.event_type ?? "—")}</td>
-                  <td>
-                    {String(
-                      row.issue_date ?? row.valid_from ?? row.created_at ?? row.version ?? "—",
-                    )}
-                  </td>
-                  <td>{String(row.total_amount ?? "—")}</td>
-                  <td className="p-3">
-                    <Button variant="outline" onClick={() => setSelected(row)}>
-                      Detalhes e ações
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <ListingTable view={view} records={records} onOpen={setSelected} />
       )}
       {view !== "dashboard" && (
         <div className="flex gap-3">
