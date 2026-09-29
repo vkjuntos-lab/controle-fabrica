@@ -91,8 +91,8 @@ def run():
     ambiente = sql("SELECT string_agg(e.enumlabel, ',' ORDER BY e.enumsortorder) "
                    "FROM pg_enum e JOIN pg_type t ON t.oid=e.enumtypid "
                    "WHERE t.typname='fiscal_environment';")
-    assert ambiente == 'HOMOLOGATION,PRODUCTION', \
-        f'o enum fiscal_environment ficou com {ambiente!r} após a colisão com o legado'
+    assert ambiente == 'homologacao,producao', \
+        f'legado de 2026-07 não reproduzido: fiscal_environment ficou {ambiente!r}'
     assert sql("SELECT to_regclass('public.fiscal_documents') IS NOT NULL;") == 't', \
         'a tabela fiscal_documents legada não foi criada: o teste não está reproduzindo a colisão'
     print('COLISAO REPRODUZIDA OK')
@@ -101,7 +101,16 @@ def run():
         aplicar(nome)
     print('PREDECESSORAS OK')
 
-    for nome in FISCAL:
+    # Primeira migration do MASTER 014. Ela redeclara `fiscal_environment` com
+    # rótulos maiúsculos; sem o tratamento da colisão, aborta aqui.
+    aplicar(FISCAL[0])
+    ambiente = sql("SELECT string_agg(e.enumlabel, ',' ORDER BY e.enumsortorder) "
+                   "FROM pg_enum e JOIN pg_type t ON t.oid=e.enumtypid "
+                   "WHERE t.typname='fiscal_environment';")
+    assert ambiente == 'HOMOLOGATION,PRODUCTION', \
+        f'o enum fiscal_environment ficou com {ambiente!r} após a colisão com o legado'
+
+    for nome in FISCAL[1:]:
         aplicar(nome)
     print('MASTER 014 APLICAVEL OK')
 
