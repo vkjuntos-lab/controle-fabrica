@@ -1,19 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20261014200000_fiscal_documents.sql');s=p.read_text().replace(\\\" PERFORM fiscal_audit(_org,'fiscal.document_prepared'\\\", \\\" PERFORM fiscal_emit(_org,'FISCAL_DOCUMENT_PREPARED',doc.id::text||':prepared',jsonb_build_object('document_id',doc.id,'source_type',doc.source_type,'source_id',doc.source_id));\\\\n PERFORM fiscal_audit(_org,'fiscal.document_prepared'\\\")\ns=s.replace(\\\" PERFORM fiscal_audit(_org,'fiscal.document_'||_action\\\", \\\" PERFORM fiscal_emit(_org,'FISCAL_DOCUMENT_STATE_CHANGED',doc.id::text||':'||target::text,jsonb_build_object('document_id',doc.id,'status',target));\\\\n PERFORM fiscal_audit(_org,'fiscal.document_'||_action\\\")\np.write_text(s)\np=Path('supabase/migrations/20261014300000_fiscal_inbound.sql');s=p.read_text().replace(\\\" PERFORM fiscal_audit(_org,'fiscal.inbound_imported'\\\", \\\" PERFORM fiscal_emit(_org,'FISCAL_INBOUND_IMPORTED',v_id::text||':imported',jsonb_build_object('inbound_id',v_id,'authenticity_status','UNVERIFIED'));\\\\n PERFORM fiscal_audit(_org,'fiscal.inbound_imported'\\\")\ns=s.replace(\\\" PERFORM fiscal_audit(_org,'fiscal.reconciled'\\\", \\\" PERFORM fiscal_emit(_org,'FISCAL_RECONCILIATION_RECORDED',res.id::text,jsonb_build_object('reconciliation_id',res.id,'status',res.status));\\\\n PERFORM fiscal_audit(_org,'fiscal.reconciled'\\\")\np.write_text(s)\nPY\""
-    },
-    "timestamp": 1790669855660
-  },
-  {
-    "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790669855667
-  },
-  {
     "role": "assistant",
     "content": "Os testes de banco passaram também para remessa de 50 unidades, devoluções de cliente/fornecedor/parceiro e transferência entre estabelecimentos. A numeração foi testada com chamadas concorrentes, separada por ambiente. Estou finalizando a documentação e a verificação do código; emissão oficial, assinatura do XML e eventos remotos continuam dependentes da integração real.\n",
     "timestamp": 1790669862344
@@ -1551,5 +1537,20 @@
     "content": "(no output)",
     "is_error": false,
     "timestamp": 1790680858889
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -rln \"fiscal_exception_action\" supabase/migrations/; echo \"---\"; grep -rn \"CREATE OR REPLACE FUNCTION public.fiscal_exception_action\" -A 30 supabase/migrations/ | head -40",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790680861189
+  },
+  {
+    "role": "tool_result",
+    "content": "supabase/migrations/20261014400000_fiscal_workspace.sql\n---\n",
+    "is_error": false,
+    "timestamp": 1790680861233
   }
 ]
