@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"supabase/migrations/20261015110000_bi_marts.sql\")\nlines = p.read_text(encoding=\"utf8\").split(\"\\n\")\nassert lines[530].strip().startswith(\"row record;\"), lines[530]\nlines[530] = \"  abc_row record; v_metric_value numeric; v_share numeric; v_cum numeric:=0;\"\nassert lines[622].strip().startswith(\"row record;\"), lines[622]\nlines[622] = \"  xyz_row record; v_series jsonb; v_mean numeric; v_sd numeric; v_cv numeric; v_n integer; v_total numeric:=0;\"\np.write_text(\"\\n\".join(lines), encoding=\"utf8\")\nprint(\"ok\")\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql 20261015110000_bi_marts.sql\" 2>&1 | tail -8"
-    },
-    "timestamp": 1790683296046
-  },
-  {
-    "role": "tool_result",
-    "content": "ok\n    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventory-db.py\", line 24, in sql\n    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  \"v_buckets_json\" is not a known variable",
-    "is_error": false,
-    "timestamp": 1790683298854
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"supabase/migrations/20261015110000_bi_marts.sql\")\ns = p.read_text(encoding=\"utf8\")\ns = s.replace(\"\"\"  SELECT coalesce(jsonb_agg(bucket ORDER BY bucket),'[]') INTO v_buckets_json FROM buckets;\n  v_buckets := jsonb_array_length(v_buckets_json);\"\"\",\n\"\"\"  SELECT coalesce(jsonb_agg(bucket ORDER BY bucket),'[]'),count(*) INTO v_buckets_json,v_buckets FROM buckets;\"\"\")\np.write_text(s, encoding=\"utf8\")\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql 20261015110000_bi_marts.sql\" 2>&1 | tail -8"
     },
     "timestamp": 1790683302638
@@ -1457,5 +1443,20 @@
     "content": "CREATE TABLE public.companies ( id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES public.organizations, code text NOT NULL CHECK(length(trim(code))>0), legal_name text NOT NULL CHECK(length(trim(legal_name))>0), trade_name text, document_type text CHECK(document",
     "is_error": false,
     "timestamp": 1790684229381
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np=Path('scripts/test-bi-db.py'); s=p.read_text()\ns=s.replace(\"\"\"f\"INSERT INTO companies(id,organization_id,legal_name,document_number) VALUES ({q(empresa)},{q(org)},'Distribuidora Alfa','111');\\\"\"\"\",\n            \"\"\"f\"INSERT INTO companies(id,organization_id,code,legal_name,document_type,document_number) VALUES ({q(empresa)},{q(org)},'CLI-01','Distribuidora Alfa','CNPJ','111');\\\"\"\"\")\np.write_text(s)\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/test-bi-db.py\" 2>&1 | tail -12",
+      "timeout": 900000
+    },
+    "timestamp": 1790684232814
+  },
+  {
+    "role": "tool_result",
+    "content": "       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<18 lines>...\n       f\"({q(org)},{q(loja_parceiro)},'EXT-3',{q(v1)});\"\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n       f\"INSERT INTO sales_representatives(id,organiz",
+    "is_error": false,
+    "timestamp": 1790684235569
   }
 ]

@@ -121,7 +121,7 @@ def run():
        f"INSERT INTO products(id,organization_id,code,name) VALUES ({q(produto)},{q(org)},'SAP-1','Sapato');"
        f"INSERT INTO product_variants(id,organization_id,product_id,sku) VALUES ({q(v1)},{q(org)},{q(produto)},'SAP-1-36'),"
        f"({q(v2)},{q(org)},{q(produto)},'SAP-1-37');"
-       f"INSERT INTO companies(id,organization_id,legal_name,document_number) VALUES ({q(empresa)},{q(org)},'Distribuidora Alfa','111');"
+       f"INSERT INTO companies(id,organization_id,code,legal_name,document_type,document_number) VALUES ({q(empresa)},{q(org)},'CLI-01','Distribuidora Alfa','CNPJ','111');"
        f"INSERT INTO partner_profiles(id,organization_id,company_id,partner_code) VALUES ({q(parceiro)},{q(org)},{q(empresa)},'PAR-01');"
        f"INSERT INTO inventory_locations(id,organization_id,code,name,type) VALUES"
        f"({q(loc_fabrica)},{q(org)},'FAB','Fábrica','FACTORY'),({q(loc_loja)},{q(org)},'LOJ','Loja própria','OWN_STORE'),"
