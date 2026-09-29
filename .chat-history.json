@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "CREATE TABLE public.customer_returns (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n organization_id uuid NOT NULL REFERENCES public.organizations,\n return_number text NOT NULL,\n company_id uuid NOT NULL,\n  FOREIGN KEY(organization_id,company_id) REFERENCES public.companies(organization_id,id),\n ",
-    "is_error": false,
-    "timestamp": 1790669390531
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('.git/info/exclude');s=p.read_text();p.write_text(s+'\\\\n.output-before-master014/\\\\ndist-before-master014/\\\\n')\nPY\nmv dist dist-before-master014\nnpx prettier --write src/lib/fiscal/provider.test.ts\nnpm run build > /tmp/master014-build.log 2>&1\""
-    },
-    "timestamp": 1790669398653
-  },
-  {
-    "role": "tool_result",
     "content": "src/lib/fiscal/provider.test.ts 119ms\n",
     "is_error": true,
     "timestamp": 1790669415563
@@ -1521,5 +1507,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790680553572
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/config.ts",
+      "newString": "export const sections = [\n  [\"dashboard\", \"Dashboard\", \"fiscal.dashboard\"],\n  [\"documents\", \"Documentos de saída\", \"fiscal.read\"],\n  [\"inbound\", \"Recebidos\", \"fiscal.inbound.read\"],\n  [\"events\", \"Eventos e cancelamentos\", \"fiscal.events.read\"],\n  [\"exceptions\", \"Pendências\", \"fiscal.exceptions.read\"],\n  [\"reconciliations\", \"Conciliações\", \"fiscal.reconciliation.read\"],\n  [\"simulations\", \"Simulações\", \"fiscal.simulate\"],\n  [\"establishments\", \"Estabelecimentos\", \"fiscal.read\"],\n  [\"companies\", \"Contrapartes\", \"fiscal.read\"],\n  [\"products\", \"Classificações\", \"fiscal.tax_rules.read\"],\n  [\"rules\", \"Regras tributárias\", \"fiscal.tax_rules.read\"],\n  [\"regimes\", \"Regimes\", \"fiscal.read\"],\n  [\"operations\", \"Operações\", \"fiscal.read\"],\n  [\"natures\", \"Naturezas\", \"fiscal.read\"],\n  [\"taxes\", \"Tributos\", \"fiscal.read\"],\n  [\"layouts\", \"Versões técnicas\", \"fiscal.read\"],\n  [\"regressions\", \"Regressões de regra\", \"fiscal.tax_rules.read\"],\n  [\"providers\", \"Integração\", \"fiscal.provider.manage\"],\n] as const;\n\n/** Ações de transição por estado, com o rótulo que o botão exibe. */\nexport const lifecycleActions = {\n  DRAFT: [\"submit\", \"Enviar para revisão\"],\n  REVIEW: [\"approve\", \"Aprovar\"],\n  APPROVED: [\"activate\", \"Ativar\"],\n  ACTIVE: [\"retire\", \"Encerrar\"],\n} as const;\n",
+      "oldString": "export const sections = [\n  [\"dashboard\", \"Dashboard\", \"fiscal.dashboard\"],\n  [\"documents\", \"Documentos de saída\", \"fiscal.read\"],\n  [\"inbound\", \"Recebidos\", \"fiscal.inbound.read\"],\n  [\"events\", \"Eventos e cancelamentos\", \"fiscal.events.read\"],\n  [\"exceptions\", \"Pendências\", \"fiscal.exceptions.read\"],\n  [\"reconciliations\", \"Conciliações\", \"fiscal.reconciliation.read\"],\n  [\"simulations\", \"Simulações\", \"fiscal.simulate\"],\n  [\"establishments\", \"Estabelecimentos\", \"fiscal.configure\"],\n  [\"companies\", \"Contrapartes\", \"fiscal.configure\"],\n  [\"products\", \"Classificações\", \"fiscal.tax_rules.read\"],\n  [\"rules\", \"Regras tributárias\", \"fiscal.tax_rules.read\"],\n  [\"regimes\", \"Regimes\", \"fiscal.configure\"],\n  [\"operations\", \"Operações\", \"fiscal.configure\"],\n  [\"natures\", \"Naturezas\", \"fiscal.configure\"],\n  [\"taxes\", \"Tributos\", \"fiscal.configure\"],\n  [\"layouts\", \"Versões técnicas\", \"fiscal.configure\"],\n  [\"providers\", \"Integração\", \"fiscal.provider.manage\"],\n] as const;\n"
+    },
+    "timestamp": 1790680564159
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790680564205
   }
 ]

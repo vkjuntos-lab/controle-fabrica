@@ -201,14 +201,23 @@ export const sections = [
   ["exceptions", "Pendências", "fiscal.exceptions.read"],
   ["reconciliations", "Conciliações", "fiscal.reconciliation.read"],
   ["simulations", "Simulações", "fiscal.simulate"],
-  ["establishments", "Estabelecimentos", "fiscal.configure"],
-  ["companies", "Contrapartes", "fiscal.configure"],
+  ["establishments", "Estabelecimentos", "fiscal.read"],
+  ["companies", "Contrapartes", "fiscal.read"],
   ["products", "Classificações", "fiscal.tax_rules.read"],
   ["rules", "Regras tributárias", "fiscal.tax_rules.read"],
-  ["regimes", "Regimes", "fiscal.configure"],
-  ["operations", "Operações", "fiscal.configure"],
-  ["natures", "Naturezas", "fiscal.configure"],
-  ["taxes", "Tributos", "fiscal.configure"],
-  ["layouts", "Versões técnicas", "fiscal.configure"],
+  ["regimes", "Regimes", "fiscal.read"],
+  ["operations", "Operações", "fiscal.read"],
+  ["natures", "Naturezas", "fiscal.read"],
+  ["taxes", "Tributos", "fiscal.read"],
+  ["layouts", "Versões técnicas", "fiscal.read"],
+  ["regressions", "Regressões de regra", "fiscal.tax_rules.read"],
   ["providers", "Integração", "fiscal.provider.manage"],
 ] as const;
+
+/** Ações de transição por estado, com o rótulo que o botão exibe. */
+export const lifecycleActions = {
+  DRAFT: ["submit", "Enviar para revisão"],
+  REVIEW: ["approve", "Aprovar"],
+  APPROVED: ["activate", "Ativar"],
+  ACTIVE: ["retire", "Encerrar"],
+} as const;
