@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rn \"has_permission\\|role_permissions\\|user_role\" supabase/migrations/*.sql | grep -iE \"create (or replace )?function|define\" | head -20; echo \"=== def ===\"; grep -rn \"CREATE OR REPLACE FUNCTION public.has_permission\\|CREATE FUNCTION public.has_permission\" supabase/migrations/*.sql | head"
-    },
-    "timestamp": 1790682914629
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20260704204138_1df89ff1-df28-4fc9-a56b-0cee656b538b.sql:80:CREATE OR REPLACE FUNCTION public.user_role_in_store(_user_id UUID, _store_id UUID)\nsupabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql:107:CREATE OR REPLACE FUNCTION public.has_permission(_organiz",
-    "is_error": false,
-    "timestamp": 1790682914672
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '130,200p' supabase/migrations/20261006100000_crm_integrity.sql"
     },
     "timestamp": 1790682916968
@@ -1492,5 +1478,19 @@
     "content": "### supabase/migrations/20260926100000_partner_reconciliation.sql\nCREATE TABLE public.marketplace_stores (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations,\n  code text NOT NULL CHECK(length(trim(code))>0),\n  name text NOT NULL CHECK(le",
     "is_error": false,
     "timestamp": 1790683883940
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport re, subprocess\nfrom pathlib import Path\ncols = {}\nfor p in sorted(Path('supabase/migrations').glob('*.sql')):\n    s = p.read_text()\n    for m in re.finditer(r'CREATE TABLE (?:IF NOT EXISTS )?(?:public\\.)?(\\w+)\\s*\\(', s):\n        t = m.group(1); depth = 1; i = m.end()\n        while i < len(s) and depth:\n            if s[i] == '(': depth += 1\n            elif s[i] == ')': depth -= 1\n            i += 1\n        body = s[m.end():i-1]\n        body = re.sub(r'--[^\\n]*', '', body)\n        c = set()\n        for cm in re.finditer(r'(?:^|,)\\s*(\\w+)\\s+[a-zA-Z]', body):\n            c.add(cm.group(1))\n        cols.setdefault(t, set()).update(c)\nprint('tabelas:', len(cols))\nbad = {}\nfor f in ['20261015100000_bi_core.sql','20261015110000_bi_marts.sql','20261015120000_bi_queries.sql']:\n    s = Path('supabase/migrations/'+f).read_text()\n    s = re.sub(r'--[^\\n]*', '', s)\n    for m in re.finditer(r'(?:public\\.)?(\\w+)\\.(\\w+)', s):\n        t, c = m.group(1), m.group(2)\n        if t in cols and c not in cols[t]:\n            bad.setdefault(f, set()).add(f'{t}.{c}')\n        elif t not in cols and not t.startswith(('bi','has_','gen_','now','coalesce','date_trunc','jsonb_','to_','array_','net_','set_','auth')):\n            bad.setdefault(f, set()).add('TABLE? '+t)\nfor f, v in bad.items():\n    print('==', f); [print('  ', x) for x in sorted(v)]\nPY"
+    },
+    "timestamp": 1790683892267
+  },
+  {
+    "role": "tool_result",
+    "content": "tabelas: 270\n== 20261015100000_bi_core.sql\n   TABLE? 0\n   TABLE? 2\n   TABLE? NEW\n   TABLE? OLD\n   TABLE? crm\n   TABLE? financial\n   TABLE? fiscal\n   TABLE? g\n   TABLE? inventory\n   TABLE? m\n   TABLE? partners\n   TABLE? procurement\n   TABLE? production\n   TABLE? public\n   TABLE? s\n   sales.average_pr",
+    "is_error": false,
+    "timestamp": 1790683892390
   }
 ]
