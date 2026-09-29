@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20261014100000_fiscal_integrity.sql');s=p.read_text().replace('CHECK(reduction>=0 AND fixed_amount>=0);','CHECK(reduction>=0 AND fixed_amount>=0 AND rate::text NOT IN (\\\\'NaN\\\\',\\\\'Infinity\\\\',\\\\'-Infinity\\\\') AND reduction::text NOT IN (\\\\'NaN\\\\',\\\\'Infinity\\\\',\\\\'-Infinity\\\\') AND fixed_amount::text NOT IN (\\\\'NaN\\\\',\\\\'Infinity\\\\',\\\\'-Infinity\\\\'));')\ns=s.replace('CREATE TABLE public.fiscal_rule_regressions', '''CREATE OR REPLACE FUNCTION public.fiscal_compute_tax(_base numeric,_rate numeric,_reduction numeric,_fixed numeric)\nRETURNS TABLE(raw_value numeric,rounded_value numeric) LANGUAGE plpgsql IMMUTABLE AS \"'$$\nBEGIN\n IF _base IS NULL OR _rate IS NULL OR _reduction IS NULL OR _fixed IS NULL\n OR _base::text IN ('\"'NaN','Infinity','-Infinity') OR _rate::text IN ('NaN','Infinity','-Infinity')\n OR _reduction::text IN ('NaN','Infinity','-Infinity') OR _fixed::text IN ('NaN','Infinity','-Infinity')\n OR _base<0 OR _rate<0 OR _reduction<0 OR _fixed<0 OR _reduction>_base THEN\n RAISE EXCEPTION 'Parâmetros de cálculo inválidos ou redução superior à base.'; END IF;\n RETURN QUERY SELECT round((_base-_reduction)*_rate+_fixed,6),round(round((_base-_reduction)*_rate+_fixed,6),2);\nEND \"'$$;\nCREATE TABLE public.fiscal_rule_regressions'\"''',1)\np.write_text(s)\nPY\nnpx prettier --write src/components/fiscal src/lib/fiscal > /tmp/master014-format.log\nnpm run typecheck > /tmp/master014-typecheck.log 2>&1\""
-    },
-    "timestamp": 1790669824779
-  },
-  {
-    "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790669855588
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20261014200000_fiscal_documents.sql');s=p.read_text().replace(\\\" PERFORM fiscal_audit(_org,'fiscal.document_prepared'\\\", \\\" PERFORM fiscal_emit(_org,'FISCAL_DOCUMENT_PREPARED',doc.id::text||':prepared',jsonb_build_object('document_id',doc.id,'source_type',doc.source_type,'source_id',doc.source_id));\\\\n PERFORM fiscal_audit(_org,'fiscal.document_prepared'\\\")\ns=s.replace(\\\" PERFORM fiscal_audit(_org,'fiscal.document_'||_action\\\", \\\" PERFORM fiscal_emit(_org,'FISCAL_DOCUMENT_STATE_CHANGED',doc.id::text||':'||target::text,jsonb_build_object('document_id',doc.id,'status',target));\\\\n PERFORM fiscal_audit(_org,'fiscal.document_'||_action\\\")\np.write_text(s)\np=Path('supabase/migrations/20261014300000_fiscal_inbound.sql');s=p.read_text().replace(\\\" PERFORM fiscal_audit(_org,'fiscal.inbound_imported'\\\", \\\" PERFORM fiscal_emit(_org,'FISCAL_INBOUND_IMPORTED',v_id::text||':imported',jsonb_build_object('inbound_id',v_id,'authenticity_status','UNVERIFIED'));\\\\n PERFORM fiscal_audit(_org,'fiscal.inbound_imported'\\\")\ns=s.replace(\\\" PERFORM fiscal_audit(_org,'fiscal.reconciled'\\\", \\\" PERFORM fiscal_emit(_org,'FISCAL_RECONCILIATION_RECORDED',res.id::text,jsonb_build_object('reconciliation_id',res.id,'status',res.status));\\\\n PERFORM fiscal_audit(_org,'fiscal.reconciled'\\\")\np.write_text(s)\nPY\""
     },
     "timestamp": 1790669855660
@@ -1550,5 +1536,20 @@
     "content": "66:CREATE TABLE public.fiscal_exceptions (\n68: document_id uuid, exception_type text NOT NULL CHECK(exception_type IN (\n245:  INSERT INTO fiscal_exceptions(organization_id,document_id,exception_type,details)\n304:ALTER TABLE fiscal_exceptions ENABLE ROW LEVEL SECURITY;\n305:REVOKE ALL ON fiscal_except",
     "is_error": false,
     "timestamp": 1790680856604
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -rn \"fiscal_exception_action\" -A 24 supabase/migrations/20261014200000_fiscal_documents.sql | head -32",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790680858870
+  },
+  {
+    "role": "tool_result",
+    "content": "(no output)",
+    "is_error": false,
+    "timestamp": 1790680858889
   }
 ]
