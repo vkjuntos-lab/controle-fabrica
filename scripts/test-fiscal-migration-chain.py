@@ -182,9 +182,10 @@ def run():
     assert '"ncm"' in saida, f'a área de classificações não devolveu a lista: {saida}'
     assert saida.count('"ncm"') >= 1
     db.call('fiscal_query', f"{q(org)},'regressions','{{}}'::jsonb", admin)
-    db.call('fiscal_query', f"{q(org)},'assignees','{{}}'::jsonb", admin, fail='sem permiss')
-    # `assignees` só existe com a permissão de gestão de pendência; o creator
-    # da organização é admin e a tem. O que se prova é que responderam.
+    # `assignees` existe porque a tela precisa atribuir responsável a uma
+    # pendência; responder sem ele é a forma de provar que o caminho está lá.
+    responsaveis = db.call('fiscal_query', f"{q(org)},'assignees','{{}}'::jsonb", admin)
+    assert 'adm@test' in responsaveis, f'a lista de responsáveis não trouxe o membro: {responsaveis}'
     print('CONTRATO DE LEITURA OK')
 
     # E o detalhe do documento devolve a evidência do cálculo, que antes
