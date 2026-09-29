@@ -38,7 +38,10 @@ def run():
     db.setup()
     for name in MIGRATIONS:
         sql((db.ROOT / 'supabase/migrations' / name).read_text())
-    org = sql('SELECT id FROM organizations LIMIT 1')
+    admin = db.uid()
+    sql(f"INSERT INTO auth.users(id,email) VALUES({q(admin)},'probe@test');")
+    org = db.uid()
+    sql(f"INSERT INTO organizations(id,name,slug,created_by) VALUES({q(org)},'P','p',{q(admin)});")
 
     print('--- B2: permissoes concedidas fora do catalogo ---')
     rows = sql("SELECT DISTINCT permission FROM role_permissions WHERE permission LIKE 'fiscal%' ORDER BY 1").split('\n')
