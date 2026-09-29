@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '1,120p' src/components/layout/app-shell.tsx"
-    },
-    "timestamp": 1790682925774
-  },
-  {
-    "role": "tool_result",
-    "content": "import { Link, useNavigate, useRouterState } from \"@tanstack/react-router\";\nimport { useQueryClient } from \"@tanstack/react-query\";\nimport {\n  ArrowLeftRight,\n  Building2,\n  ChevronsUpDown,\n  ClipboardList,\n  Handshake,\n  LayoutDashboard,\n  LogOut,\n  MapPin,\n  Package,\n  Scale,\n  ScrollText,\n  Shiel",
-    "is_error": false,
-    "timestamp": 1790682925792
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '120,240p' src/components/layout/app-shell.tsx"
     },
     "timestamp": 1790682928092
@@ -1492,5 +1478,19 @@
     "content": "### inbound_fiscal_documents\nCREATE TABLE public.inbound_fiscal_documents ( id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES organizations, establishment_id uuid NOT NULL, supplier_id uuid NOT NULL REFERENCES supplier_profiles, document_type text NOT NULL DEFAU",
     "is_error": false,
     "timestamp": 1790683912047
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\ns = Path('supabase/migrations/20261015110000_bi_marts.sql').read_text()\ni = s.find('CREATE FUNCTION public.bi_sync_fiscal')\nj = s.find('CREATE FUNCTION', i+10)\nprint(s[i:j])\nPY"
+    },
+    "timestamp": 1790683916150
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE FUNCTION public.bi_sync_fiscal(_org uuid,_from date,_to date) RETURNS integer\nLANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE n integer:=0; r record;\nBEGIN\n  FOR r IN\n    SELECT d.id,d.organization_id,d.issue_date,d.status,d.total_amount,d.total_taxes,d.establishment_id",
+    "is_error": false,
+    "timestamp": 1790683916211
   }
 ]
