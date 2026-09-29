@@ -137,8 +137,8 @@ def run():
     # INCOMPLETE e a auditoria de qualidade tem o que acusar.
     custo = uid()
     sql(f"INSERT INTO product_cost_versions(id,organization_id,variant_id,costing_method,status,effective_from,"
-       f"total_unit_cost,created_by) VALUES ({q(custo)},{q(org)},{q(v1)},'STANDARD','ACTIVE',{q('2026-01-01')},40,{q(admin)}),"
-       f"({q(uid())},{q(org)},{q(v2)},'STANDARD','ACTIVE',{q('2026-01-01')},25,{q(admin)});")
+       f"total_unit_cost) VALUES ({q(custo)},{q(org)},{q(v1)},'STANDARD','ACTIVE',{q('2026-01-01')},40),"
+       f"({q(uid())},{q(org)},{q(v2)},'STANDARD','ACTIVE',{q('2026-01-01')},25);")
     print('BASE OK')
 
     # ------------------------------------------------------------------
