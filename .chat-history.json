@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '1,40p' scripts/test-inventory-db.py"
-    },
-    "timestamp": 1790683736318
-  },
-  {
-    "role": "tool_result",
-    "content": "#!/usr/bin/env python3\n\"\"\"Isolated PostgreSQL integration tests. Never connects to a deployed database.\"\"\"\nimport concurrent.futures\nimport json\nimport os\nfrom pathlib import Path\nimport shutil\nimport subprocess\nimport tempfile\nimport uuid\n\nROOT = Path(__file__).resolve().parents[1]\nBIN = Path(os.en",
-    "is_error": false,
-    "timestamp": 1790683736333
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd /tmp/opencode && cat > diag.py <<'PY'\nimport importlib.util, re, sys\nfrom pathlib import Path\nspec = importlib.util.spec_from_file_location('inv', Path('/root/Zheus AI Projects/controle-fabricas/scripts/test-inventory-db.py'))\ndb = importlib.util.util if False else None\nPY\npython3 - <<'PY'\nfrom pathlib import Path\ns = Path('/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql').read_text()\n# find each function and try to compile individually against a live db later; here just report plpgsql body BEGIN/END balance\nimport re\nparts = re.split(r'(?m)^(?=CREATE FUNCTION)', s)\nfor p in parts:\n    if not p.startswith('CREATE FUNCTION'): continue\n    name = re.search(r'public\\.(\\w+)\\(', p).group(1)\n    print(name, 'BEGIN' in p, len(re.findall(r'\\bBEGIN\\b', p)), len(re.findall(r'\\bEND\\b', p)))\nPY"
     },
     "timestamp": 1790683739580
@@ -1456,5 +1442,20 @@
     "content": "DBG mv: {\"value\": null, \"available\": false}\nAssertionError: ERROR:  syntax error at or near \"{\"\n",
     "is_error": false,
     "timestamp": 1790684519692
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np=Path('scripts/test-bi-db.py'); s=p.read_text()\ns=s.replace(\"\"\"NULL,'MONTH',{{}})::text\"\"\",\"\"\"NULL,'MONTH','{{}}'::jsonb)::text\"\"\")\np.write_text(s)\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/test-bi-db.py\" 2>&1 | grep -E \"^DBG|Assertion\"",
+      "timeout": 900000
+    },
+    "timestamp": 1790684524543
+  },
+  {
+    "role": "tool_result",
+    "content": "DBG mv: {\"value\": null, \"available\": false}\nDBG ag: [{\"id\": null, \"label\": null, \"value\": 10.000000, \"bucket\": \"2026-05-01\", \"is_total\": false, \"available\": true}, {\"id\": null, \"label\": null, \"value\": 5.000000, \"bucket\": \"2026-06-01\", \"is_total\": false, \"available\": true}, {\"id\": null, \"label\": null",
+    "is_error": false,
+    "timestamp": 1790684527696
   }
 ]
