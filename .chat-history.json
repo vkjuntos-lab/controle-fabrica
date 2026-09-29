@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rlni \"inventory_movements\" supabase/migrations/ | head -20"
-    },
-    "timestamp": 1790682876561
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20260921100000_inventory_integrity.sql\nsupabase/migrations/20260918100000_inventory_ledger.sql\nsupabase/migrations/20260926100000_partner_reconciliation.sql\nsupabase/migrations/20260923100000_inventory_workflows.sql\nsupabase/migrations/20261004100000_planning_fixes.sql\nsupabase/m",
-    "is_error": false,
-    "timestamp": 1790682876579
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '1,120p' supabase/migrations/20260918100000_inventory_ledger.sql"
     },
     "timestamp": 1790682878154
@@ -1491,5 +1477,19 @@
     "content": "21 LANGUAGE sql STABLE AS $$\n37 LANGUAGE sql IMMUTABLE AS $$\n57 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n200 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n209 LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n586 RETURNS",
     "is_error": false,
     "timestamp": 1790683823398
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np = Path('supabase/migrations/20261015120000_bi_queries.sql')\ns = p.read_text()\ns = s.replace(\"RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\\n  SELECT coalesce((SELECT r FROM public.bi_aggregate\",\n              \"RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\\n  SELECT coalesce((SELECT r FROM public.bi_aggregate\")\nlines = s.split('\\n')\n# linha 57 (1-based) e 200: bi_aggregate e bi_metric_value\nfor i in (56, 199):\n    assert 'LANGUAGE plpgsql' in lines[i], lines[i]\n    lines[i] = lines[i].replace(\"LANGUAGE plpgsql\", \"LANGUAGE sql STABLE\")\np.write_text('\\n'.join(lines))\nfor i,l in enumerate(lines,1):\n    if 'LANGUAGE' in l: print(i, l.strip()[:95])\nPY"
+    },
+    "timestamp": 1790683827052
+  },
+  {
+    "role": "tool_result",
+    "content": "21 LANGUAGE sql STABLE AS $$\n37 LANGUAGE sql IMMUTABLE AS $$\n57 RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n200 RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n209 LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n586 R",
+    "is_error": false,
+    "timestamp": 1790683827110
   }
 ]

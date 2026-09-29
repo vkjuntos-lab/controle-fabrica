@@ -54,7 +54,7 @@ $$;
 -- ---------------------------------------------------------------------
 CREATE FUNCTION public.bi_aggregate(_org uuid,_metric text,_from date,_to date,
   _dim text DEFAULT NULL,_grain text DEFAULT 'DAY',_scope jsonb DEFAULT '{}'::jsonb)
-RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
 WITH base AS (
   SELECT f.*,
     date_trunc(_grain::text,f.fact_date)::date bucket,
@@ -197,7 +197,7 @@ $$;
 
 -- Valor único do período: o agregado sem bucket.
 CREATE FUNCTION public.bi_metric_value(_org uuid,_metric text,_from date,_to date,_scope jsonb DEFAULT '{}'::jsonb)
-RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
   SELECT coalesce((SELECT r FROM public.bi_aggregate(_org,_metric,_from,_to,NULL,'MONTH',_scope) r
                    WHERE r->>'bucket' IS NULL),'{}'::jsonb);
 $$;
