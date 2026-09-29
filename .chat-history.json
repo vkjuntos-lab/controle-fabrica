@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "read",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261014400000_fiscal_workspace.sql"
-    },
-    "timestamp": 1790679868213
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261014400000_fiscal_workspace.sql</path>\n<type>file</type>\n<content>\n1: BEGIN;\n2: CREATE OR REPLACE FUNCTION public.fiscal_save_nature(_org uuid,_data jsonb,_id uuid DEFAULT NULL) RETURNS jsonb\n3: LANGUAGE plpgsql SECURITY DEFINER",
-    "is_error": false,
-    "timestamp": 1790679868229
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/form.tsx"
     },
     "timestamp": 1790679912870
@@ -1579,5 +1565,20 @@
     "content": "supabase/migrations/20261014200000_fiscal_documents.sql:16:CREATE TABLE public.fiscal_documents (\nsupabase/migrations/20260706150307_3c3cdc57-62e3-4e4d-8caf-1e24cf76c130.sql:10:CREATE TABLE IF NOT EXISTS public.fiscal_documents (\n",
     "is_error": false,
     "timestamp": 1790681199567
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '1,40p' supabase/migrations/20260706150307_3c3cdc57-62e3-4e4d-8caf-1e24cf76c130.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681202318
+  },
+  {
+    "role": "tool_result",
+    "content": "\nDO $$ BEGIN\n  CREATE TYPE public.fiscal_doc_kind AS ENUM ('nfce', 'nfe', 'cfe_sat', 'nfe_devolucao');\nEXCEPTION WHEN duplicate_object THEN NULL; END $$;\n\nDO $$ BEGIN\n  CREATE TYPE public.fiscal_doc_status AS ENUM ('pending', 'processing', 'authorized', 'rejected', 'cancelled', 'contingency', 'inuti",
+    "is_error": false,
+    "timestamp": 1790681202328
   }
 ]
