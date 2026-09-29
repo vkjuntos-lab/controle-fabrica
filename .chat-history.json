@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '1,120p' supabase/migrations/20261014500000_fiscal_screen_fixes.sql"
-    },
-    "timestamp": 1790682919046
-  },
-  {
-    "role": "tool_result",
-    "content": "-- =====================================================================\n-- LOVABLE MASTER 014 — Correções de tela do fiscal.\n--\n-- Não reescreve migration publicada: substitui `fiscal_query` e apaga\n-- quatro linhas de `role_permissions` que nenhuma checagem do banco\n-- consulta. Nenhuma tabela é c",
-    "is_error": false,
-    "timestamp": 1790682919068
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rn \"inteligencia\\|relatorios\\|coming_soon\" src/components/layout/*.tsx | head -20; echo \"=== arquivos layout ===\"; ls src/components/layout/ 2>/dev/null || find src -name \"*Shell*\" -o -name \"*Nav*\" | head"
     },
     "timestamp": 1790682923764
@@ -1492,5 +1478,19 @@
     "content": "CREATE FUNCTION public.bi_sync_partners(_org uuid,_from date,_to date) RETURNS integer\nLANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE n integer:=0; r record;\nBEGIN\n  FOR r IN\n    SELECT s.id,s.organization_id,s.partner_id,s.shipment_date,s.status,\n      (s.shipped_at IS NOT N",
     "is_error": false,
     "timestamp": 1790683900505
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport re\nfrom pathlib import Path\ncols = {}\nfor p in sorted(Path('supabase/migrations').glob('*.sql')):\n    s = p.read_text()\n    for m in re.finditer(r'CREATE TABLE (?:IF NOT EXISTS )?(?:public\\.)?(\\w+)\\s*\\(', s):\n        t = m.group(1); depth = 1; i = m.end()\n        while i < len(s) and depth:\n            if s[i] == '(': depth += 1\n            elif s[i] == ')': depth -= 1\n            i += 1\n        body = re.sub(r'--[^\\n]*', '', s[m.end():i-1])\n        cols.setdefault(t, set()).update(cm.group(1) for cm in re.finditer(r'(?:^|,)\\s*(\\w+)\\s+[a-zA-Z]', body))\n\n# alias-aware check\nfor f in ['20261015100000_bi_core.sql','20261015110000_bi_marts.sql','20261015120000_bi_queries.sql']:\n    src = re.sub(r'--[^\\n]*', '', Path('supabase/migrations/'+f).read_text())\n    problems = set()\n    for stmt in re.split(r';\\s*\\n', src):\n        amap = {}\n        for m in re.finditer(r'(?:FROM|JOIN)\\s+(?:public\\.)?(\\w+)\\s+(?:AS\\s+)?(\\w+)?', stmt):\n            t, a = m.group(1), m.group(2)\n            if t in cols:\n                amap[a or t] = t\n                amap[t] = t\n        for m in re.finditer(r'\\b(\\w+)\\.(\\w+)\\b', stmt):\n            a, c = m.group(1), m.group(2)\n            if a in amap and c not in cols[amap[a]] and not c.isupper():\n                problems.add(f'{a}({amap[a]}).{c}')\n    print('==', f)\n    for p in sorted(problems): print('   ', p)\nPY"
+    },
+    "timestamp": 1790683906278
+  },
+  {
+    "role": "tool_result",
+    "content": "== 20261015100000_bi_core.sql\n== 20261015110000_bi_marts.sql\n    d(inbound_fiscal_documents).total_taxes\n    s(marketplace_sales).partner_id\n== 20261015120000_bi_queries.sql\n    c(companies).basis\n    c(companies).bucket\n    c(companies).dim_id\n    c(companies).is_total\n    c(companies).label\n    c(",
+    "is_error": false,
+    "timestamp": 1790683906415
   }
 ]
