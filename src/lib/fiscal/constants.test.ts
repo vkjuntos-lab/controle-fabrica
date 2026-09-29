@@ -100,16 +100,16 @@ function serverPermission(kind: string): string | undefined {
   if (!block) return undefined;
   // A permissão vem tanto de `WHEN _kind='x' THEN 'p'` quanto de
   // `WHEN _kind IN ('x','y') THEN 'p'`. Ler só a primeira forma dava
-  // `fiscal.read` para toda área agrupada.
-  const direct = new RegExp(
-    `WHEN _kind='${kind}' THEN '([a-z_.]+)'|WHEN _kind IN \\(([^)]*)\\) THEN '([a-z_.]+)'`,
-  ).exec(block);
-  if (direct) {
-    if (direct[1]) return direct[1];
-    const grouped = (direct[2] ?? "").match(/'([a-z_]+)'/g) ?? [];
-    if (grouped.map((value) => value.replaceAll("'", "")).includes(kind)) return direct[3];
-    return undefined;
-  }
+  // `fiscal.read` para toda área agrupada; ler só a segunda dava
+  // indefinido para toda área fora do agrupamento, em vez do `ELSE`.
+  const grouped = [
+    ...block.matchAll(/WHEN _kind IN \(([^)]*)\) THEN '([a-z_.]+)'/g),
+  ]
+    .filter((match) => (match[1].match(/'([a-z_]+)'/g) ?? []).map((v) => v.replaceAll("'", "")).includes(kind))
+    .at(-1);
+  if (grouped) return grouped[2];
+  const direct = new RegExp(`WHEN _kind='${kind}' THEN '([a-z_.]+)'`).exec(block);
+  if (direct) return direct[1];
   return new RegExp("ELSE '([a-z_.]+)' END").exec(block)?.[1];
 }
 

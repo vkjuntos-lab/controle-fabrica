@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/_probe-fiscal.py",
-      "oldString": "    print(' ', [t for t in tabelas if t not in comdata])\n}\n",
-      "newString": "    print(' ', [t for t in tabelas if t not in comdata])\n\nif __name__=='__main__':\n"
-    },
-    "timestamp": 1790680235851
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790680235861
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "chmod a+r scripts/_probe-fiscal.py && su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/_probe-fiscal.py\" 2>&1 | tail -25",
@@ -1580,5 +1564,21 @@
     "content": "ok\n\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ❯ src/lib/fiscal/constants.test.ts (12 tests | 1 failed) 334ms\n   ✓ contrato entre a listagem e o banco > toda área com listagem aponta para uma tabela que existe 153ms\n   ✓ contrato entre a listagem e o banco > toda coluna listada existe ",
     "is_error": false,
     "timestamp": 1790681433870
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/fiscal/constants.test.ts",
+      "newString": "  // A permissão vem tanto de `WHEN _kind='x' THEN 'p'` quanto de\n  // `WHEN _kind IN ('x','y') THEN 'p'`. Ler só a primeira forma dava\n  // `fiscal.read` para toda área agrupada; ler só a segunda dava\n  // indefinido para toda área fora do agrupamento, em vez do `ELSE`.\n  const grouped = [\n    ...block.matchAll(/WHEN _kind IN \\(([^)]*)\\) THEN '([a-z_.]+)'/g),\n  ]\n    .filter((match) => (match[1].match(/'([a-z_]+)'/g) ?? []).map((v) => v.replaceAll(\"'\", \"\")).includes(kind))\n    .at(-1);\n  if (grouped) return grouped[2];\n  const direct = new RegExp(`WHEN _kind='${kind}' THEN '([a-z_.]+)'`).exec(block);\n  if (direct) return direct[1];\n  return new RegExp(\"ELSE '([a-z_.]+)' END\").exec(block)?.[1];\n",
+      "oldString": "  // A permissão vem tanto de `WHEN _kind='x' THEN 'p'` quanto de\n  // `WHEN _kind IN ('x','y') THEN 'p'`. Ler só a primeira forma dava\n  // `fiscal.read` para toda área agrupada.\n  const direct = new RegExp(\n    `WHEN _kind='${kind}' THEN '([a-z_.]+)'|WHEN _kind IN \\\\(([^)]*)\\\\) THEN '([a-z_.]+)'`,\n  ).exec(block);\n  if (direct) {\n    if (direct[1]) return direct[1];\n    const grouped = (direct[2] ?? \"\").match(/'([a-z_]+)'/g) ?? [];\n    if (grouped.map((value) => value.replaceAll(\"'\", \"\")).includes(kind)) return direct[3];\n    return undefined;\n  }\n  return new RegExp(\"ELSE '([a-z_.]+)' END\").exec(block)?.[1];\n"
+    },
+    "timestamp": 1790681444676
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790681444699
   }
 ]
