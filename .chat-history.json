@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/regression.tsx"
-    },
-    "timestamp": 1790679949075
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/regression.tsx</path>\n<type>file</type>\n<content>\n1: import { useState } from \"react\";\n2: import { Button } from \"@/components/ui/button\";\n3: import { mutateFiscal } from \"@/lib/fiscal/fiscal.functions\";\n4: export function Regress",
-    "is_error": false,
-    "timestamp": 1790679949091
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -n \"CREATE OR REPLACE FUNCTION public.fiscal_save_\\|CREATE FUNCTION public.fiscal_save_\\|CREATE OR REPLACE FUNCTION public.fiscal_document_action\\|CREATE FUNCTION public.fiscal_document_action\\|CREATE OR REPLACE FUNCTION public.fiscal_reconcile\\|CREATE FUNCTION public.fiscal_reconcile\\|CREATE OR REPLACE FUNCTION public.fiscal_prepare\\|CREATE FUNCTION public.fiscal_prepare\\|CREATE OR REPLACE FUNCTION public.fiscal_rule_action\\|CREATE FUNCTION public.fiscal_rule_action\\|CREATE OR REPLACE FUNCTION public.fiscal_profile_action\\|CREATE FUNCTION public.fiscal_profile_action\" supabase/migrations/2026101*.sql",
@@ -1582,5 +1568,20 @@
     "content": "27:        sql((db.ROOT / 'supabase/migrations' / name).read_text())\n",
     "is_error": false,
     "timestamp": 1790681214524
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '1,45p' scripts/test-fiscal-db.py",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681216724
+  },
+  {
+    "role": "tool_result",
+    "content": "#!/usr/bin/env python3\n\"\"\"MASTER 014 integration tests in disposable PostgreSQL. Never uses a published database.\"\"\"\nimport importlib.util, json\nfrom pathlib import Path\n\nspec = importlib.util.spec_from_file_location('inventory', Path(__file__).with_name('test-inventory-db.py'))\ndb = importlib.util.",
+    "is_error": false,
+    "timestamp": 1790681216735
   }
 ]
