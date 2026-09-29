@@ -211,8 +211,12 @@ BEGIN
   PERFORM public.bi_require(_org,'bi.read');
   v_from := nullif(_filters->>'from','')::date;
   v_to := nullif(_filters->>'to','')::date;
+  -- Datas explícitas têm precedência sobre o atalho: se a tela mandou
+  -- início e fim, o período é o que ela pediu.
   SELECT p.period_start,p.period_end INTO v_from,v_to
-  FROM public.bi_resolve_period(coalesce(nullif(_filters->>'period',''),'LAST_30_DAYS'),v_from,v_to) p;
+  FROM public.bi_resolve_period(
+    coalesce(nullif(_filters->>'period',''),
+      CASE WHEN v_from IS NOT NULL AND v_to IS NOT NULL THEN 'CUSTOM' END,'LAST_30_DAYS'),v_from,v_to) p;
   v_metric := _filters->>'metric_key';
   v_dim := _filters->>'dimension';
   v_grain := coalesce(nullif(_filters->>'granularity',''),'DAY');

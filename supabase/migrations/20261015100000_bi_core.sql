@@ -553,8 +553,12 @@ INSERT INTO public.bi_audit(organization_id,action,entity,entity_id,actor_id,con
 VALUES (_org,_action,_entity,_entity_id,auth.uid(),_context);
 $$;
 
--- Resolução de métrica: GLOBAL vence sempre; a organização só acrescenta
--- chaves que não existem globalmente.
+-- Resolução de métrica (§5): uma chave tem UMA definição. O catálogo
+-- global é a fonte; a organização só cria chaves que não existem
+-- globalmente — o trigger `bi_metric_guard` recusa a redefinição. A
+-- ordenação abaixo é a defesa em profundidade caso um INSERT contorne o
+-- trigger: a definição da organização perderia para a global, e entre
+-- versões vence a mais nova.
 CREATE FUNCTION public.bi_resolve_metric(_org uuid,_key text DEFAULT NULL,_version integer DEFAULT NULL)
 RETURNS TABLE(metric_key text,metric_name text,description text,business_domain text,formula text,unit text,
               aggregation_method text,date_dimension text,source_description text,limitations text,
