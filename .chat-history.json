@@ -1,20 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790668760050
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20261014300000_fiscal_inbound.sql');s=p.read_text().replace(\\\"est.environment::text<>CASE env WHEN '1' THEN 'PRODUCTION' ELSE 'HOMOLOGATION' END THEN\\\", \\\"est.environment::text<>(CASE env WHEN '1' THEN 'PRODUCTION' ELSE 'HOMOLOGATION' END) THEN\\\");p.write_text(s)\nPY\nnpm run test:fiscal:db\""
-    },
-    "timestamp": 1790668773218
-  },
-  {
-    "role": "tool_result",
     "content": "\n> test:fiscal:db\n> python3 scripts/test-fiscal-workflow-db.py\n\nMIGRATIONS OK\nPASS AG: simulacao sem classificacao vigente bloqueia e se declara nao autoritativa\nPASS AH: classificacao em DRAFT nao entra no calculo; falta de regra nomeia a pendencia\nPASS AI: autor nao aprova a propria classificacao;",
     "is_error": false,
     "timestamp": 1790668777448
@@ -1439,5 +1425,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790680185308
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "chmod a+r scripts/_probe-fiscal.py && su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/_probe-fiscal.py\" 2>&1 | tail -60",
+      "timeout": 900000,
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790680187626
+  },
+  {
+    "role": "tool_result",
+    "content": "--- B2: permissoes concedidas fora do catalogo ---\nORFAS: ['fiscal.documents.prepare', 'fiscal.documents.read', 'fiscal.documents.transmit', 'fiscal.export']\n--- catalogo sem nenhuma concessao ---\nSEM CONCESSAO: []\n--- B1: kind de configuracao lido por quem so tem fiscal.configure ---\n  establishmen",
+    "is_error": false,
+    "timestamp": 1790680190474
   }
 ]
