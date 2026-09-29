@@ -4,22 +4,6 @@
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/workspace.tsx",
-      "offset": 1,
-      "limit": 210
-    },
-    "timestamp": 1790680705880
-  },
-  {
-    "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/workspace.tsx</path>\n<type>file</type>\n<content>\n1: import { useState } from \"react\";\n2: import { useQuery, useQueryClient } from \"@tanstack/react-query\";\n3: import { Link } from \"@tanstack/react-router\";\n4: import { AppShell } fr",
-    "is_error": false,
-    "timestamp": 1790680705895
-  },
-  {
-    "role": "tool",
-    "tool": "read",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/workspace.tsx",
       "limit": 200,
       "offset": 210
     },
@@ -1535,5 +1519,21 @@
     "content": "COLISAO REPRODUZIDA OK\nPREDECESSORAS OK\nMASTER 014 APLICAVEL OK\nDESENHO SUBSTITUIDO OK\nRBAC CONSISTENTE OK\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py\", line 192, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Pr",
     "is_error": false,
     "timestamp": 1790681907544
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py",
+      "newString": "    # Leitura por `products` no caminho declarado pela tela. Antes caía no\n    # `ELSE 'fiscal.read'`, e a área é liberada por `fiscal.tax_rules.read`.\n    admin, org, produto, variante = uid(), uid(), uid(), uid()\n    sql(f\"INSERT INTO auth.users(id,email) VALUES ({q(admin)},'adm@test');\"\n       f\"INSERT INTO organizations(id,name,slug,created_by) VALUES ({q(org)},'A','a',{q(admin)});\"\n       f\"INSERT INTO products(id,organization_id,code,name) VALUES ({q(produto)},{q(org)},'P1','Produto');\"\n       f\"INSERT INTO product_variants(id,organization_id,product_id,sku) \"\n       f\"VALUES ({q(variante)},{q(org)},{q(produto)},'P1-1');\"\n       f\"INSERT INTO product_fiscal_profiles(organization_id,product_variant_id,ncm,fiscal_unit) \"\n       f\"VALUES ({q(org)},{q(variante)},'1234.56.78','UN');\")\n    saida = db.call('fiscal_query', f\"{q(org)},'products','{{}}'::jsonb\", admin)\n    assert '\"ncm\"' in saida, f'a área de classificações não devolveu a lista: {saida}'\n    assert saida.count('\"ncm\"') >= 1\n    db.call('fiscal_query', f\"{q(org)},'regressions','{{}}'::jsonb\", admin)\n    db.call('fiscal_query', f\"{q(org)},'assignees','{{}}'::jsonb\", admin, fail='sem permiss')\n    # `assignees` só existe com a permissão de gestão de pendência; o creator\n    # da organização é admin e a tem. O que se prova é que responderam.\n    print('CONTRATO DE LEITURA OK')\n",
+      "oldString": "    # Leitura por `products` e `simulations` no caminho declarado pela tela.\n    admin, org, variante = uid(), uid(), uid()\n    sql(f\"INSERT INTO auth.users(id,email) VALUES ({q(admin)},'adm@test');\"\n       f\"INSERT INTO organizations(id,name,slug,created_by) VALUES ({q(org)},'A','a',{q(admin)});\"\n       f\"INSERT INTO products(id,organization_id,code,name) VALUES ({q(variante)},{q(org)},'P1','Produto');\")\n    perfil = sql(f\"SELECT fiscal_query({q(org)},'products',{{}}) FROM products p \"\n                 f\"WHERE p.id={q(variante)};\")\n    assert perfil is not None, 'a área de classificações não respondeu ao papel creator'\n"
+    },
+    "timestamp": 1790681917117
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790681917131
   }
 ]

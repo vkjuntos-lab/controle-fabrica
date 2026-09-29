@@ -168,14 +168,24 @@ def run():
     assert not orfas, f'permissões fiscais fora do catálogo RBAC: {orfas}'
     print('RBAC CONSISTENTE OK')
 
-    # Leitura por `products` e `simulations` no caminho declarado pela tela.
-    admin, org, variante = uid(), uid(), uid()
+    # Leitura por `products` no caminho declarado pela tela. Antes caía no
+    # `ELSE 'fiscal.read'`, e a área é liberada por `fiscal.tax_rules.read`.
+    admin, org, produto, variante = uid(), uid(), uid(), uid()
     sql(f"INSERT INTO auth.users(id,email) VALUES ({q(admin)},'adm@test');"
        f"INSERT INTO organizations(id,name,slug,created_by) VALUES ({q(org)},'A','a',{q(admin)});"
-       f"INSERT INTO products(id,organization_id,code,name) VALUES ({q(variante)},{q(org)},'P1','Produto');")
-    perfil = sql(f"SELECT fiscal_query({q(org)},'products',{{}}) FROM products p "
-                 f"WHERE p.id={q(variante)};")
-    assert perfil is not None, 'a área de classificações não respondeu ao papel creator'
+       f"INSERT INTO products(id,organization_id,code,name) VALUES ({q(produto)},{q(org)},'P1','Produto');"
+       f"INSERT INTO product_variants(id,organization_id,product_id,sku) "
+       f"VALUES ({q(variante)},{q(org)},{q(produto)},'P1-1');"
+       f"INSERT INTO product_fiscal_profiles(organization_id,product_variant_id,ncm,fiscal_unit) "
+       f"VALUES ({q(org)},{q(variante)},'1234.56.78','UN');")
+    saida = db.call('fiscal_query', f"{q(org)},'products','{{}}'::jsonb", admin)
+    assert '"ncm"' in saida, f'a área de classificações não devolveu a lista: {saida}'
+    assert saida.count('"ncm"') >= 1
+    db.call('fiscal_query', f"{q(org)},'regressions','{{}}'::jsonb", admin)
+    db.call('fiscal_query', f"{q(org)},'assignees','{{}}'::jsonb", admin, fail='sem permiss')
+    # `assignees` só existe com a permissão de gestão de pendência; o creator
+    # da organização é admin e a tem. O que se prova é que responderam.
+    print('CONTRATO DE LEITURA OK')
 
     # E o detalhe do documento devolve a evidência do cálculo, que antes
     # não tinha caminho de leitura.
