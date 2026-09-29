@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "rm scripts/_probe-fiscal.py; sed -n '1,120p' src/lib/sales/constants.test.ts",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790680267256
-  },
-  {
-    "role": "tool_result",
-    "content": "import { readFileSync } from \"node:fs\";\nimport { describe, expect, it } from \"vitest\";\n\nimport {\n  CARRIER_MODALITY,\n  EXCEPTION_SEVERITY,\n  EXCEPTION_STATUS,\n  EXCEPTION_TYPE,\n  ORDER_STATUS,\n  PROOF_TYPE,\n  RETURN_DESTINATION,\n  SETTING_FLAGS,\n  SETTING_OPTIONS,\n} from \"@/lib/sales/constants\";\n\n/*",
-    "is_error": false,
-    "timestamp": 1790680267277
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/fiscal/provider.ts"
@@ -1580,5 +1565,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790681741657
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "npx vitest run src/lib/fiscal/constants.test.ts 2>&1 | head -20; npx tsc --noEmit 2>&1|head -5",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681744515
+  },
+  {
+    "role": "tool_result",
+    "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ✓ src/lib/fiscal/constants.test.ts (12 tests) 426ms\n\n Test Files  1 passed (1)\n      Tests  12 passed (12)\n   Start at  11:35:45\n   Duration  854ms (transform 163ms, setup 0ms, collect 202ms, tests 426ms, environment 0ms, prepare 82ms)\n\n",
+    "is_error": false,
+    "timestamp": 1790681781579
   }
 ]
