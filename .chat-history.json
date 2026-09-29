@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/lib/fiscal/constants.ts",
-      "newString": "/**\n * Código de origem da mercadoria. O banco só declara `0 = nacional` e\n * `1..8 = estrangeira conforme seção da NCM`; a significância de cada\n * seção é decisão do responsável fiscal e não é interpretada aqui.\n */\nexport const ORIGIN_CODE: Record<string, string> = {\n  \"0\": \"Nacional\",\n  \"1\": \"Estrangeira — origem 1\",\n  \"2\": \"Estrangeira — origem 2\",\n  \"3\": \"Estrangeira — origem 3\",\n  \"4\": \"Estrangeira — origem 4\",\n  \"5\": \"Estrangeira — origem 5\",\n  \"6\": \"Estrangeira — origem 6\",\n  \"7\": \"Estrangeira — origem 7\",\n  \"8\": \"Estrangeira — origem 8\",\n};\n",
-      "oldString": "/** Código de origem da mercadoria conforme seção da NCM. */\nexport const ORIGIN_CODE: Record<string, string> = {\n  \"0\": \"Nacional\",\n  \"1\": \"Estrangeira — importação direta\",\n  \"2\": \"Estrangeira —FINITYолями\".slice(0, 0) + \"adquirida no mercado interno\",\n  \"3\": \"Estrangeira — importação direta, parcela admitted\".slice(0, 0) + \"tratada\",\n  \"4\": \"Estrangeira — nacional, com mais de 40% de conteúdo nacional\",\n  \"5\": \"Estrangeira — nacional, participação estrangeira superior a 40%\",\n  \"6\": \"Estrangeira — importação direta, sem similar nacional\",\n  \"7\": \"Estrangeira — acquired\".slice(0, 0) + \"do mercado interno\",\n  \"8\": \"Estrangeira — importação direta, parcelas\".slice(0, 0) + \"vindas de países de Nascimento\".slice(0, 0) + \"países de origem\".slice(0, 0) + \"compradores\".slice(0, 0),\n};\n"
-    },
-    "timestamp": 1790680399766
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790680399785
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -n \"slice(0\" src/lib/fiscal/constants.ts; grep -c \"\" src/lib/fiscal/constants.ts; npx prettier --write src/lib/fiscal/constants.ts && npx tsc --noEmit 2>&1 | head -20",
@@ -1538,5 +1522,20 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790681826124
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/test-fiscal-migration-chain.py\" 2>&1 | tail -25",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681828776
+  },
+  {
+    "role": "tool_result",
+    "content": "Traceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py\", line 163, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py\", line 94, in run\n    assert ambiente == 'H",
+    "is_error": false,
+    "timestamp": 1790681829971
   }
 ]
