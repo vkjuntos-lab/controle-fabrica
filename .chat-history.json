@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql",
-      "newString": "      'distribution',coalesce((SELECT jsonb_object_agg(cell,n) FROM (",
-      "oldString": "      'distribution',coalesce((SELECT jsonb_object_agg(cell,n),'{}') FROM ("
-    },
-    "timestamp": 1790683696676
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790683696688
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql",
@@ -1459,5 +1443,19 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790684474495
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\ns=Path('supabase/migrations/20261015120000_bi_queries.sql').read_text()\ni=s.find('CREATE FUNCTION public.bi_metric_value'); j=s.find('CREATE FUNCTION', i+10)\nprint(s[i:j])\nPY"
+    },
+    "timestamp": 1790684477299
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE FUNCTION public.bi_metric_value(_org uuid,_metric text,_from date,_to date,_scope jsonb DEFAULT '{}'::jsonb)\nRETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n  SELECT coalesce((SELECT r FROM public.bi_aggregate(_org,_metric,_from,_to,NULL,'MONTH',_scope) r\n     ",
+    "is_error": false,
+    "timestamp": 1790684477359
   }
 ]
