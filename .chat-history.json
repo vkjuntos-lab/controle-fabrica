@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql",
-      "oldString": "        AND (v_scope='{}'::jsonb OR f.representative_id=(v_scope->>'representative_id')::uuid\n             OR f.company_id=(v_scope->>'company_id')::uuid)\n        ORDER BY f.fact_date,f.source_id\n        LIMIT greatest(0,least(5000,coalesce((_filters->>'limit')::int,200))))),'[]'::jsonb),",
-      "newString": "        AND (v_scope='{}'::jsonb OR f.representative_id=(v_scope->>'representative_id')::uuid\n             OR f.company_id=(v_scope->>'company_id')::uuid)\n        LIMIT greatest(0,least(5000,coalesce((_filters->>'limit')::int,200)))),'[]'::jsonb),"
-    },
-    "timestamp": 1790683658962
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790683658980
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql 20261015110000_bi_marts.sql 20261015120000_bi_queries.sql\" 2>&1 | tail -30",
@@ -1465,5 +1449,20 @@
     "content": "CREATE FUNCTION public.bi_sync_b2b(_org uuid,_from date,_to date) RETURNS integer\nLANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE n integer:=0; r record;\nBEGIN\n  FOR r IN\n    SELECT o.id,o.organization_id,o.company_id,o.representative_id,o.order_date,o.total_amount,o.status\n  ",
     "is_error": false,
     "timestamp": 1790684324855
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np=Path('scripts/test-bi-db.py'); s=p.read_text()\ns=s.replace(\"\"\"    for dominio in ['SALES', 'PARTNERS', 'INVENTORY', 'PRODUCTION', 'PROCUREMENT', 'FINANCIAL', 'CRM', 'FISCAL']:\"\"\",\n\"\"\"    for sincronia in ['bi_sync_sales', 'bi_sync_b2b']:\n        bi(sincronia, f\"{q(org)},{q(INICIO)},{q('2026-06-30')}\", admin)\n    for dominio in ['SALES', 'PARTNERS', 'INVENTORY', 'PRODUCTION', 'PROCUREMENT', 'FINANCIAL', 'CRM', 'FISCAL']:\"\"\")\np.write_text(s)\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/test-bi-db.py\" 2>&1 | tail -6",
+      "timeout": 900000
+    },
+    "timestamp": 1790684336490
+  },
+  {
+    "role": "tool_result",
+    "content": "CONTEXT:  PL/pgSQL assignment \"v_rules := coalesce((SELECT jsonb_agg(jsonb_build_object('store_ownership_type',store_ownership_type,\n      'partner_bound',partner_bound,'channel',channel,'priority',priority) ORDER BY priority)\n      FROM public.bi_channel_rules r WHERE (r.organization_id IS NULL OR ",
+    "is_error": false,
+    "timestamp": 1790684339235
   }
 ]
