@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql 20261015110000_bi_marts.sql 20261015120000_bi_queries.sql\" 2>&1 | tail -30",
-      "timeout": 600000
-    },
-    "timestamp": 1790683646716
-  },
-  {
-    "role": "tool_result",
-    "content": "Traceback (most recent call last):\n  File \"/tmp/opencode/apply.py\", line 17, in <module>\n    db.sql(prefix + (db.ROOT/'supabase/migrations'/name).read_text())\n    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventor",
-    "is_error": false,
-    "timestamp": 1790683649466
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql",
@@ -1468,5 +1453,19 @@
     "content": "Traceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-bi-db.py\", line 449, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-bi-db.py\", line 161, in run\n    assert passo['status'] == 'COMPLETED', f\"sincronização",
     "is_error": false,
     "timestamp": 1790684314705
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\ns=Path('supabase/migrations/20261015110000_bi_marts.sql').read_text()\ni=s.find('CREATE FUNCTION public.bi_sync_sales'); j=s.find('\\n-- ---', i)\nprint(s[i:j])\nPY"
+    },
+    "timestamp": 1790684317530
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE FUNCTION public.bi_sync_sales(_org uuid,_from date,_to date,_run uuid DEFAULT NULL) RETURNS integer\nLANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE n integer:=0; r record; v_cost record; v_channel text; v_bill numeric; v_qty numeric;\nBEGIN\n  -- Uma LINHA por venda. Uma ",
+    "is_error": false,
+    "timestamp": 1790684317582
   }
 ]
