@@ -923,7 +923,7 @@ VALUES
   'DOCUMENT','DISTINCT_COUNT','issue_date','fiscal_documents (MASTER 014).',
   ARRAY['period','status','establishment','source_type'],
   ARRAY['STATUS','ESTABLISHMENT','SOURCE_TYPE','PERIOD'],
-  'DAILY','DAY','Documento preparado nao e NF-e autorizada e nao comprova duvida.',  'ACTIVE'),
+  'DAILY','DAY','Documento preparado não é NF-e autorizada e não comprovadúvida de venda.',  'ACTIVE'),
 
  (NULL,'fiscal.documents_authorized','Documentos fiscais autorizados',
   'Documentos com protocolo de autorização registrado.',

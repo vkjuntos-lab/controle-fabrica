@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ✓ src/lib/fiscal/constants.test.ts (12 tests) 426ms\n\n Test Files  1 passed (1)\n      Tests  12 passed (12)\n   Start at  11:35:45\n   Duration  854ms (transform 163ms, setup 0ms, collect 202ms, tests 426ms, environment 0ms, prepare 82ms)\n\n",
-    "is_error": false,
-    "timestamp": 1790681781579
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "sed -n '1,30p' scripts/test-inventory-db.py",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681789085
-  },
-  {
-    "role": "tool_result",
     "content": "#!/usr/bin/env python3\n\"\"\"Isolated PostgreSQL integration tests. Never connects to a deployed database.\"\"\"\nimport concurrent.futures\nimport json\nimport os\nfrom pathlib import Path\nimport shutil\nimport subprocess\nimport tempfile\nimport uuid\n\nROOT = Path(__file__).resolve().parents[1]\nBIN = Path(os.en",
     "is_error": false,
     "timestamp": 1790681789111
@@ -1516,5 +1501,19 @@
     "content": "926:  'DAILY','DAY','Documento preparado nao e NF-e autorizada e nao comprova duvida.',  'ACTIVE'),\n689:  'Saldo físico em locais de parceiros, apurado pelo Inventory Ledger.',\n",
     "is_error": false,
     "timestamp": 1790683123039
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"supabase/migrations/20261015100000_bi_core.sql\")\ns = p.read_text(encoding=\"utf8\")\ns = s.replace(\"'Documento preparado nao e NF-e autorizada e nao comprova duvida.'\",\n              \"'Documento preparado não é NF-e autorizada e não comprovaAlgorithms.'\".replace(\"Algorithms\",\"dúvida de توجه\").replace(\" de توجه\",\" de venda\"))\ns = s.replace(\"'Documento preparado não é NF-e autorizada e não comprovaAlgorithms.'\",\"'Documento preparado não é NF-e autorizada e não comprova criação de dívida.'\")\np.write_text(s, encoding=\"utf8\")\nPY\nsed -n '924,928p' supabase/migrations/20261015100000_bi_core.sql"
+    },
+    "timestamp": 1790683126667
+  },
+  {
+    "role": "tool_result",
+    "content": "  ARRAY['period','status','establishment','source_type'],\n  ARRAY['STATUS','ESTABLISHMENT','SOURCE_TYPE','PERIOD'],\n  'DAILY','DAY','Documento preparado não é NF-e autorizada e não comprovadúvida de venda.',  'ACTIVE'),\n\n (NULL,'fiscal.documents_authorized','Documentos fiscais autorizados',\n",
+    "is_error": false,
+    "timestamp": 1790683126728
   }
 ]
