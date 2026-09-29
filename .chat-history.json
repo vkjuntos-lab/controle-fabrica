@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && cat > /tmp/opencode/apply.py <<'PY'\nimport importlib.util, os, sys\nfrom pathlib import Path\nspec = importlib.util.spec_from_file_location('inv', Path('scripts/test-inventory-db.py').resolve())\ndb = importlib.util.module_from_spec(spec); spec.loader.exec_module(db)\nPRED = ['20260926100000_partner_reconciliation.sql','20260928100000_finance.sql','20260930100000_cost_engine.sql',\n '20261001100000_purchasing.sql','20261002100000_planning.sql','20261003100000_planning_engine.sql',\n '20261004100000_planning_fixes.sql','20261005100000_crm.sql','20261006100000_crm_integrity.sql',\n '20261006100000_sales_orders.sql','20261007100000_crm_documents.sql','20261008100000_crm_company_services.sql',\n '20261009100000_crm_customer_history.sql','20261010100000_sales_integrity.sql','20261011100000_sales_planning.sql',\n '20261012100000_sales_screen_fixes.sql','20261013100000_fiscal_core.sql','20261013200000_fiscal_tax_engine.sql',\n '20261014100000_fiscal_integrity.sql','20261014200000_fiscal_documents.sql','20261014300000_fiscal_inbound.sql',\n '20261014400000_fiscal_workspace.sql','20261014500000_fiscal_screen_fixes.sql']\ntry:\n    db.setup()\n    for name in PRED + sys.argv[1:]:\n        prefix = 'SET check_function_bodies=off;' if name.startswith('20260918100000') else ''\n        db.sql(prefix + (db.ROOT/'supabase/migrations'/name).read_text())\n    print(\"APLICADO OK\")\nfinally:\n    db.cleanup()\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql\" 2>&1 | tail -12"
-    },
-    "timestamp": 1790683154788
-  },
-  {
-    "role": "tool_result",
-    "content": "Traceback (most recent call last):\n  File \"/tmp/opencode/apply.py\", line 17, in <module>\n    db.sql(prefix + (db.ROOT/'supabase/migrations'/name).read_text())\n    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventor",
-    "is_error": false,
-    "timestamp": 1790683157445
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"supabase/migrations/20261015100000_bi_core.sql\")\ns = p.read_text(encoding=\"utf8\")\nold = \"\"\"CREATE FUNCTION public.bi_get_settings(_org uuid) RETURNS public.bi_settings\nLANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n  SELECT coalesce((SELECT s FROM public.bi_settings s WHERE s.organization_id=_org), s0.*)\n  FROM (SELECT 'America/Sao_Paulo'::text timezone,true period_end_exclusive,'LAST_30_DAYS'::text default_period,\n               .80::numeric abc_a_limit,.95::numeric abc_b_limit,.50::numeric xyz_x_limit,\n               2.00::numeric xyz_y_limit,3::integer xyz_min_observations,_org organization_id) s0;\n$$;\"\"\"\nnew = \"\"\"CREATE FUNCTION public.bi_get_settings(_org uuid) RETURNS jsonb\nLANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n  SELECT to_jsonb(coalesce(\n    (SELECT s FROM public.bi_settings s WHERE s.organization_id=_org),\n    (SELECT r FROM (SELECT 'America/Sao_Paulo'::text timezone,true period_end_exclusive,\n       'LAST_30_DAYS'::text default_period,.80::numeric abc_a_limit,.95::numeric abc_b_limit,\n       .50::numeric xyz_x_limit,2.00::numeric xyz_y_limit,3::integer xyz_min_observations,\n       _org organization_id,NULL::timestamptz updated_at) r)\n  ));\n$$;\"\"\"\nassert old in s\ns = s.replace(old, new)\np.write_text(s, encoding=\"utf8\")\nprint(\"ok\")\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql\" 2>&1 | tail -8"
     },
     "timestamp": 1790683162106
@@ -1455,5 +1441,19 @@
     "content": "FUNCAO: rec_create\nCREATE FUNCTION public.rec_create(_org uuid,_data jsonb,_user_id uuid DEFAULT auth.uid())\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE\n  v_partner uuid:=(_data->>'partner_id')::uuid; v_start date:=(_data->>'period_start')::date; v_end date:=",
     "is_error": false,
     "timestamp": 1790684108393
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\nimport re\ns = Path('supabase/migrations/20260926100000_partner_reconciliation.sql').read_text()\nfor m in re.finditer(r'CREATE (?:OR REPLACE )?FUNCTION public\\.(rec_\\w+|cost_on_\\w+|reconciliation_\\w+)\\(([^)]*)\\)', s):\n    print(m.group(1), '(', ' '.join(m.group(2).split())[:130], ')')\n# o que dispara a conciliação dos itens?\ni = s.find(\"'RECONCILED'\")\nwhile i>0:\n    seg = s[max(0,i-600):i+120]\n    fn = list(re.finditer(r'CREATE (?:OR REPLACE )?FUNCTION public\\.(\\w+)\\(', s[:i]))\n    if fn: print('---', fn[-1].group(1), ':', re.sub(r'\\s+',' ',seg[-380:]))\n    i = s.find(\"'RECONCILED'\", i+1)\nPY"
+    },
+    "timestamp": 1790684112907
+  },
+  {
+    "role": "tool_result",
+    "content": "reconciliation_require ( _org uuid,_permission text )\nreconciliation_audit ( _org uuid,_action text,_table text,_id uuid,_context jsonb DEFAULT '{}' )\nreconciliation_guard_relations (  )\nreconciliation_guard (  )\nrec_balance_asof ( _org uuid,_variant uuid,_location uuid,_asof timestamptz )\nrec_resol",
+    "is_error": false,
+    "timestamp": 1790684112959
   }
 ]
