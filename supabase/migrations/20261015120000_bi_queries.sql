@@ -583,7 +583,7 @@ END $$;
 -- um usuário sem `bi.financial` exporta vendas, não financeiro.
 -- ---------------------------------------------------------------------
 CREATE FUNCTION public.bi_export(_org uuid,_kind text,_filters jsonb DEFAULT '{}',_format text DEFAULT 'CSV')
-RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
+RETURNS jsonb LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
 DECLARE raw jsonb; rows jsonb; headers text; line text; out text; i integer; r jsonb;
 BEGIN
   PERFORM public.bi_require(_org,'bi.exports');
