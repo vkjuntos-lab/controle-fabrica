@@ -806,15 +806,6 @@ END $$;
 -- vê custo industrial nem margem. `bi.financial` também é separada: a
 -- carteira de recebíveis não acompanha o relatório comercial.
 -- ---------------------------------------------------------------------
-INSERT INTO public.bi_channel_rules(organization_id,fact_nature,store_ownership_type,partner_bound,channel,description,priority)
-VALUES
- (NULL,'RECONCILED_SALE','PARTNER',true,'PARTNER','Venda em loja de parceiro: receita da fábrica é o valor faturável.',10),
- (NULL,'RECONCILED_SALE',NULL,false,'OWN_MARKETPLACE','Venda em loja própria: o valor faturável é da fábrica.',20),
- (NULL,'IMPORTED_SALE','PARTNER',true,'PARTNER','Venda importada de loja de parceiro, ainda não reconciliada.',10),
- (NULL,'IMPORTED_SALE',NULL,false,'OWN_MARKETPLACE','Venda importada de loja própria.',20),
- (NULL,'SALES_ORDER',NULL,false,'B2B','Pedido comercial para cliente direto.',10),
- (NULL,'SHIPMENT',NULL,false,'B2B','Mercadoria expedida de pedido para cliente direto.',10),
- (NULL,'PARTNER_SHIPMENT',NULL,false,'PARTNER','Remessa para estoque de parceiro: não é venda.',10);
 
 INSERT INTO public.role_permissions(role,permission)
 SELECT r,p FROM unnest(ARRAY['admin','gestor']::public.app_role[]) r CROSS JOIN unnest(ARRAY[

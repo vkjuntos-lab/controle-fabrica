@@ -1,20 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && rg -n \"ORDER BY [^)]*LIMIT\" supabase/migrations/20261015120000_bi_queries.sql"
-    },
-    "timestamp": 1790683666909
-  },
-  {
-    "role": "tool_result",
-    "content": "/bin/bash: line 1: rg: command not found\n",
-    "is_error": false,
-    "timestamp": 1790683666941
-  },
-  {
-    "role": "tool",
     "tool": "grep",
     "input": {
       "pattern": "ORDER BY [^)]*LIMIT",
@@ -1463,5 +1449,19 @@
     "content": "CREATE FUNCTION public.bi_classify_channel(_org uuid,_nature text,_store uuid,_partner uuid,_company uuid)\nRETURNS text LANGUAGE plpgsql STABLE AS $$\nDECLARE r record; own text; linked boolean; v_channel text; v_rules jsonb;\nBEGIN\n  own := (SELECT s.ownership_type FROM public.marketplace_stores s WH",
     "is_error": false,
     "timestamp": 1790684343361
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\nm=Path('supabase/migrations/20261015110000_bi_marts.sql'); s=m.read_text()\ns=s.replace(\"\"\"      FROM public.bi_channel_rules r WHERE (r.organization_id IS NULL OR r.organization_id=_org) AND r.fact_nature=_nature),'[]');\"\"\",\n\"\"\"      FROM public.bi_channel_rules cr\n      WHERE (cr.organization_id IS NULL OR cr.organization_id=_org) AND cr.fact_nature=_nature),'[]');\"\"\")\nm.write_text(s)\n\n# mover o seed de bi_channel_rules para o núcleo\nq=Path('supabase/migrations/20261015120000_bi_queries.sql'); t=q.read_text()\nini=t.find(\"INSERT INTO public.bi_channel_rules(organization_id,fact_nature,store_ownership_type,partner_bound,channel,description,priority)\")\nfim=t.find(\";\", t.find(\"'Venda em loja própria: o valor faturável é da fábrica.'\", ini))+1\nseed=t[ini:fim+1]\nt=t[:ini]+t[fim+1:]\nq.write_text(t)\n\nc=Path('supabase/migrations/20261015100000_bi_core.sql'); u=c.read_text()\nmarca=\"\\nCOMMIT;\"\nassert u.rstrip().endswith('COMMIT;')\nu=u.rstrip()[:-len('COMMIT;')]\nu += \"\\n-- ---------------------------------------------------------------------\\n-- 8. REGRAS DE CANAL\\n--\\n\"\nu += seed.rstrip() + \"\\n\" + marca\nc.write_text(u)\nprint('ok')\nPY\ngrep -n \"bi_channel_rules\" supabase/migrations/20261015100000_bi_core.sql | head -3; grep -c \"bi_channel_rules\" supabase/migrations/20261015120000_bi_queries.sql"
+    },
+    "timestamp": 1790684355172
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n133:  -- Canal classificado uma única vez, por regra declarada em bi_channel_rules.\n338:CREATE TABLE public.bi_channel_rules (\n977:INSERT INTO public.bi_channel_rules(organization_id,fact_nature,store_ownership_type,partner_bound,channel,description,priority)\n0\n",
+    "is_error": false,
+    "timestamp": 1790684355244
   }
 ]

@@ -47,7 +47,8 @@ BEGIN
   linked := coalesce(_partner IS NOT NULL,false);
   v_rules := coalesce((SELECT jsonb_agg(jsonb_build_object('store_ownership_type',store_ownership_type,
       'partner_bound',partner_bound,'channel',channel,'priority',priority) ORDER BY priority)
-      FROM public.bi_channel_rules r WHERE (r.organization_id IS NULL OR r.organization_id=_org) AND r.fact_nature=_nature),'[]');
+      FROM public.bi_channel_rules cr
+      WHERE (cr.organization_id IS NULL OR cr.organization_id=_org) AND cr.fact_nature=_nature),'[]');
   FOR r IN SELECT * FROM jsonb_to_recordset(v_rules) x(store_ownership_type text,partner_bound boolean,channel text,priority int) ORDER BY priority LOOP
     IF (r.store_ownership_type IS NULL OR r.store_ownership_type=own)
        AND (r.partner_bound=false OR r.partner_bound=linked) THEN

@@ -970,4 +970,18 @@ VALUES
   ARRAY['period','granularity','class'],
   ARRAY['CLASS','VARIANT','PRODUCT','PERIOD'],
   'ON_DEMAND','DAY','Exige histórico suficiente. Sem ele a classificação é indisponível, não "X".',  'ACTIVE');
+
+-- ---------------------------------------------------------------------
+-- 8. REGRAS DE CANAL
+--
+INSERT INTO public.bi_channel_rules(organization_id,fact_nature,store_ownership_type,partner_bound,channel,description,priority)
+VALUES
+ (NULL,'RECONCILED_SALE','PARTNER',true,'PARTNER','Venda em loja de parceiro: receita da fábrica é o valor faturável.',10),
+ (NULL,'RECONCILED_SALE',NULL,false,'OWN_MARKETPLACE','Venda em loja própria: o valor faturável é da fábrica.',20),
+ (NULL,'IMPORTED_SALE','PARTNER',true,'PARTNER','Venda importada de loja de parceiro, ainda não reconciliada.',10),
+ (NULL,'IMPORTED_SALE',NULL,false,'OWN_MARKETPLACE','Venda importada de loja própria.',20),
+ (NULL,'SALES_ORDER',NULL,false,'B2B','Pedido comercial para cliente direto.',10),
+ (NULL,'SHIPMENT',NULL,false,'B2B','Mercadoria expedida de pedido para cliente direto.',10),
+ (NULL,'PARTNER_SHIPMENT',NULL,false,'PARTNER','Remessa para estoque de parceiro: não é venda.',10);
+
 COMMIT;
