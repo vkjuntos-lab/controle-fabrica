@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "31-  ON public.product_categories (organization_id, parent_id);\n32-GRANT SELECT, INSERT, UPDATE, DELETE ON public.product_categories TO authenticated;\n33-GRANT ALL ON public.product_categories TO service_role;\n34-ALTER TABLE public.product_categories ENABLE ROW LEVEL SECURITY;\n35-\n36--- ============",
-    "is_error": false,
-    "timestamp": 1790681244113
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"fiscal_environment\" -B3 -A 8 supabase/migrations/20261013100000_fiscal_core.sql | head -20; echo \"=== 142: antes do CREATE TABLE fiscal_documents ===\"; sed -n '14,18p' supabase/migrations/20261014200000_fiscal_documents.sql",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681263902
-  },
-  {
-    "role": "tool_result",
     "content": "53-  'OTHER'\n54-);\n55-\n56:CREATE TYPE public.fiscal_environment AS ENUM ('HOMOLOGATION','PRODUCTION');\n57-\n58--- ---------------------------------------------------------------------\n59--- 2. Sequence de numeração por estabelecimento/modelo/série.\n60---    O contador é transacional e nunca reutiliza",
     "is_error": false,
     "timestamp": 1790681263927
@@ -1507,5 +1492,19 @@
     "content": "  costsCalculate: \"costs.calculate\",\n  costsSimulate: \"costs.simulate\",\n  costsApprove: \"costs.approve\",\n  costsPublish: \"costs.publish\",\n  costsManageMaterial: \"costs.manage_material_cost\",\n  costsManageLabor: \"costs.manage_labor_rate\",\n  costsManageOverhead: \"costs.manage_overhead\",\n  pricingRead:",
     "is_error": false,
     "timestamp": 1790682904341
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '440,584p' src/lib/rbac.ts"
+    },
+    "timestamp": 1790682906268
+  },
+  {
+    "role": "tool_result",
+    "content": "  \"quotes.approve\": \"Aprovar propostas\",\n  \"quotes.send\": \"Marcar propostas como enviadas\",\n  \"quotes.accept\": \"Registrar aceite de proposta\",\n  \"activities.read\": \"Ver atividades comerciais\",\n  \"activities.manage\": \"Gerenciar atividades comerciais\",\n  \"representatives.read\": \"Ver representantes\",\n ",
+    "is_error": false,
+    "timestamp": 1790682906286
   }
 ]
