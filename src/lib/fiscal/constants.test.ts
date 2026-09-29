@@ -42,10 +42,7 @@ function createTableBody(table: string): string | null {
   // A última declaração vence. O histórico tem um `fiscal_documents` legado
   // de 2026-07 com outro desenho; ler a primeira faria o teste validar a
   // tabela que o MASTER 014 substituiu.
-  const pattern = new RegExp(
-    `CREATE TABLE(?: IF NOT EXISTS)? public\\.${table}\\s*\\(`,
-    "gi",
-  );
+  const pattern = new RegExp(`CREATE TABLE(?: IF NOT EXISTS)? public\\.${table}\\s*\\(`, "gi");
   let head: RegExpExecArray | null = null;
   for (const found of source.matchAll(pattern)) head = found;
   if (!head) return null;
@@ -87,7 +84,9 @@ function tableColumns(table: string): string[] {
 
 /** Tabela de listagem declarada pelo `CASE` mais recente de `fiscal_query`. */
 function serverTable(kind: string): string | undefined {
-  const definition = [...SQL.matchAll(/CREATE OR REPLACE FUNCTION public\.fiscal_query[\s\S]*?\$\$;/g)].at(-1);
+  const definition = [
+    ...SQL.matchAll(/CREATE OR REPLACE FUNCTION public\.fiscal_query[\s\S]*?\$\$;/g),
+  ].at(-1);
   const block = definition?.[0];
   if (!block) return undefined;
   return new RegExp(`WHEN '${kind}' THEN '([a-z_]+)'`, "i").exec(block)?.[1];
@@ -95,17 +94,19 @@ function serverTable(kind: string): string | undefined {
 
 /** Permissão cobrada pelo `CASE` mais recente de `fiscal_query`. */
 function serverPermission(kind: string): string | undefined {
-  const definition = [...SQL.matchAll(/CREATE OR REPLACE FUNCTION public\.fiscal_query[\s\S]*?\$\$;/g)].at(-1);
+  const definition = [
+    ...SQL.matchAll(/CREATE OR REPLACE FUNCTION public\.fiscal_query[\s\S]*?\$\$;/g),
+  ].at(-1);
   const block = definition?.[0];
   if (!block) return undefined;
   // A permissão vem tanto de `WHEN _kind='x' THEN 'p'` quanto de
   // `WHEN _kind IN ('x','y') THEN 'p'`. Ler só a primeira forma dava
   // `fiscal.read` para toda área agrupada; ler só a segunda dava
   // indefinido para toda área fora do agrupamento, em vez do `ELSE`.
-  const grouped = [
-    ...block.matchAll(/WHEN _kind IN \(([^)]*)\) THEN '([a-z_.]+)'/g),
-  ]
-    .filter((match) => (match[1].match(/'([a-z_]+)'/g) ?? []).map((v) => v.replaceAll("'", "")).includes(kind))
+  const grouped = [...block.matchAll(/WHEN _kind IN \(([^)]*)\) THEN '([a-z_.]+)'/g)]
+    .filter((match) =>
+      (match[1].match(/'([a-z_]+)'/g) ?? []).map((v) => v.replaceAll("'", "")).includes(kind),
+    )
     .at(-1);
   if (grouped) return grouped[2];
   const direct = new RegExp(`WHEN _kind='${kind}' THEN '([a-z_.]+)'`).exec(block);
@@ -123,7 +124,10 @@ describe("contrato entre a listagem e o banco", () => {
     for (const [area] of areas) {
       const table = serverTable(area);
       expect(table, `área "${area}" sem tabela no fiscal_query`).toBeTruthy();
-      expect(tableColumns(String(table)).length, `tabela ${String(table)} não declarada`).toBeGreaterThan(0);
+      expect(
+        tableColumns(String(table)).length,
+        `tabela ${String(table)} não declarada`,
+      ).toBeGreaterThan(0);
     }
   });
 
@@ -219,9 +223,10 @@ describe("rótulos de códigos", () => {
   });
 
   it("traduz todas as origens permitidas pelo banco", () => {
-    const check = /origin_code smallint NOT NULL DEFAULT 0 CHECK\(origin_code BETWEEN (\d+) AND (\d+)\)/.exec(
-      createTableBody("product_fiscal_profiles") ?? "",
-    );
+    const check =
+      /origin_code smallint NOT NULL DEFAULT 0 CHECK\(origin_code BETWEEN (\d+) AND (\d+)\)/.exec(
+        createTableBody("product_fiscal_profiles") ?? "",
+      );
     const from = Number(check?.[1] ?? -1);
     const to = Number(check?.[2] ?? -1);
     expect(from, "faixa de origem não lida de product_fiscal_profiles").toBe(0);
@@ -232,9 +237,9 @@ describe("rótulos de códigos", () => {
 
   it("traduz todos os tipos de pendência permitidos pelo banco", () => {
     const types =
-      /exception_type text NOT NULL CHECK\(exception_type IN \(([^)]*)\)\)/.exec(
-        createTableBody("fiscal_exceptions") ?? "",
-      )?.[1]?.match(/'[A-Z_]+'/g) ?? [];
+      /exception_type text NOT NULL CHECK\(exception_type IN \(([^)]*)\)\)/
+        .exec(createTableBody("fiscal_exceptions") ?? "")?.[1]
+        ?.match(/'[A-Z_]+'/g) ?? [];
     expect(types.length, "tipo de pendência não lido de fiscal_exceptions").toBeGreaterThan(5);
     for (const type of types) {
       expect(EXCEPTION_TYPE[type.replaceAll("'", "")], `pendência ${type} sem rótulo`).toBeTruthy();
@@ -258,12 +263,15 @@ describe("rótulos de códigos", () => {
 
   it("traduz todos os estados de conciliação permitidos pelo banco", () => {
     const types =
-      /status text NOT NULL CHECK\(status IN \(([^)]*)\)\)/.exec(
-        createTableBody("fiscal_reconciliations") ?? "",
-      )?.[1]?.match(/'[A-Z_]+'/g) ?? [];
+      /status text NOT NULL CHECK\(status IN \(([^)]*)\)\)/
+        .exec(createTableBody("fiscal_reconciliations") ?? "")?.[1]
+        ?.match(/'[A-Z_]+'/g) ?? [];
     expect(types.length, "estado de conciliação não lido").toBeGreaterThan(0);
     for (const type of types) {
-      expect(RECONCILIATION_STATUS[type.replaceAll("'", "")], `conciliação ${type} sem rótulo`).toBeTruthy();
+      expect(
+        RECONCILIATION_STATUS[type.replaceAll("'", "")],
+        `conciliação ${type} sem rótulo`,
+      ).toBeTruthy();
     }
   });
 
