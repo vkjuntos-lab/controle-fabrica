@@ -477,13 +477,13 @@ BEGIN
       'orders',(SELECT jsonb_build_object('count',count(*),'value',sum(total_amount) FILTER (WHERE status<>'CANCELED'))
         FROM public.sales_orders WHERE organization_id=_org AND order_date>=v_from AND order_date<v_to),
       'representatives',coalesce((SELECT jsonb_agg(jsonb_build_object('id',r.id,'name',r.name,
-          'opportunities',coalesce(o.cnt,0),'quotes',coalesce(q.cnt,0),'orders',coalesce(od.cnt,0),
+          'opportunities',coalesce(oc.cnt,0),'quotes',coalesce(qc.cnt,0),'orders',coalesce(od.cnt,0),
           'realized',coalesce(od.value,0)) ORDER BY r.name)
         FROM public.sales_representatives r
         LEFT JOIN (SELECT representative_id,count(*) cnt FROM public.sales_opportunities
-                   WHERE organization_id=_org AND created_at::date>=v_from AND created_at::date<v_to GROUP BY 1) o ON o.representative_id=r.id
+                   WHERE organization_id=_org AND created_at::date>=v_from AND created_at::date<v_to GROUP BY 1) oc ON oc.representative_id=r.id
         LEFT JOIN (SELECT representative_id,count(*) cnt FROM public.sales_quotes
-                   WHERE organization_id=_org AND issue_date>=v_from AND issue_date<v_to GROUP BY 1) q ON q.representative_id=r.id
+                   WHERE organization_id=_org AND issue_date>=v_from AND issue_date<v_to GROUP BY 1) qc ON qc.representative_id=r.id
         LEFT JOIN (SELECT b.representative_id,count(DISTINCT b.source_id) cnt,sum(b.billable_amount) value
                    FROM public.bi_facts b WHERE b.organization_id=_org AND b.fact_nature='RECONCILED_SALE'
                      AND b.status='RECONCILED' AND b.fact_date>=v_from AND b.fact_date<v_to GROUP BY 1) od ON od.representative_id=r.id
@@ -530,18 +530,17 @@ BEGIN
         WHERE o.organization_id=_org AND o.status IN ('APPROVED','SENT','RECEIVING')
           AND o.expected_delivery_date IS NOT NULL AND o.expected_delivery_date<(v_to-1)),'[]'::jsonb),
       'suppliers',coalesce((SELECT jsonb_agg(jsonb_build_object('id',c.id,'name',c.legal_name,
-          'orders',o.cnt,'value',o.value,'rejected',coalesce(g.rejected,0)) ORDER BY o.value DESC)
-        FROM public.purchase_orders o
-        JOIN public.supplier_profiles sp ON sp.id=o.supplier_id AND sp.organization_id=o.organization_id
-        JOIN public.companies c ON c.id=sp.company_id
-        LEFT JOIN (SELECT supplier_id,count(*) cnt,sum(total_amount) value FROM public.purchase_orders
-                   WHERE organization_id=_org AND issue_date>=v_from AND issue_date<v_to
-                     AND status<>'CANCELED' GROUP BY 1) o ON o.supplier_id=c.id
-        LEFT JOIN (SELECT sp2.id supplier,sum(gr.total_received-gr.total_accepted) rejected
+          'orders',oc.cnt,'value',oc.value,'rejected',coalesce(g.rejected,0))
+        FROM public.companies c
+        JOIN public.supplier_profiles sp ON sp.company_id=c.id AND sp.organization_id=c.organization_id
+        JOIN (SELECT supplier_id,count(*) cnt,sum(total_amount) value FROM public.purchase_orders
+              WHERE organization_id=_org AND issue_date>=v_from AND issue_date<v_to
+                AND status<>'CANCELED' GROUP BY 1) oc ON oc.supplier_id=c.id
+        LEFT JOIN (SELECT sp2.company_id supplier,sum(gr.total_received-gr.total_accepted) rejected
                    FROM public.goods_receipts gr JOIN public.supplier_profiles sp2 ON sp2.id=gr.supplier_id
                    WHERE gr.organization_id=_org AND gr.received_at>=v_from AND gr.received_at<v_to GROUP BY 1) g
           ON g.supplier=c.id
-        WHERE c.organization_id=_org AND o.cnt IS NOT NULL),'[]'::jsonb));
+        WHERE c.organization_id=_org AND oc.cnt IS NOT NULL ORDER BY oc.value DESC),'[]'::jsonb));
 
   ELSIF _kind='production' THEN
     PERFORM public.bi_require(_org,'bi.production');
@@ -554,7 +553,7 @@ BEGIN
       'consumption',(SELECT jsonb_build_object('quantity',sum(quantity)) FROM public.production_consumptions
         WHERE organization_id=_org AND occurred_at::date>=v_from AND occurred_at::date<v_to),
       'losses',(SELECT jsonb_build_object('quantity',sum(quantity),'by_reason',coalesce(jsonb_object_agg(r.reason,n),'{}')) FROM (
-        SELECT coalesce(lr.name,'Não classificada') reason,sum(l.quantity) n
+        SELECT coalesce(lr.label,'Não classificada') reason,sum(l.quantity) n
         FROM public.production_losses l LEFT JOIN public.production_loss_reasons lr ON lr.id=l.loss_reason_id
         WHERE l.organization_id=_org AND l.occurred_at::date>=v_from AND l.occurred_at::date<v_to
         GROUP BY 1) t),

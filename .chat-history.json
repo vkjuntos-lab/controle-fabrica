@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport re,glob,pathlib\nfor name in [\"financial_transactions\",\"finance_settings\",\"organization_members\",\"sales_credits\",\"shipments\",\"customer_returns\",\"supplier_returns\",\"sales_quotes\",\"quotations\",\"sales_pipelines\",\"crm_activities\",\"supplier_profiles\",\"partner_returns\"]:\n    occ=[]\n    for f in sorted(glob.glob(\"supabase/migrations/*.sql\")):\n        t=pathlib.Path(f).read_text(encoding=\"utf8\",errors=\"ignore\")\n        for m in re.finditer(r\"create table(?: if not exists)? (?:public\\.)?\"+name+r\"\\s*\\((.*?)\\n\\);\", t, re.S|re.I):\n            occ.append((f,m.group(1)))\n    if not occ: print(f\"### {name} [AUSENTE]\"); continue\n    f,body=occ[-1]\n    cols=[l.strip() for l in body.split(\"\\n\") if l.strip() and not l.strip().upper().startswith((\"CONSTRAINT\",\"--\"))]\n    print(f\"### {name} [{f.split('/')[-1]}]\")\n    print(\"   \"+\" | \".join(c.rstrip(\",\") for c in cols))\nPY"
-    },
-    "timestamp": 1790682963739
-  },
-  {
-    "role": "tool_result",
-    "content": "### financial_transactions [20260928100000_finance.sql]\n   id uuid PRIMARY KEY DEFAULT gen_random_uuid() | organization_id uuid NOT NULL REFERENCES public.organizations | financial_account_id uuid NOT NULL | type text NOT NULL CHECK(type IN | ('OPENING_BALANCE','RECEIVABLE_PAYMENT','PAYABLE_PAYMENT'",
-    "is_error": false,
-    "timestamp": 1790682964068
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rn \"role_permissions\" supabase/migrations/20261013100000_fiscal_core.sql | head -6; echo \"---\"; grep -rn \"INSERT INTO role_permissions\" -A 12 supabase/migrations/20261013100000_fiscal_core.sql | head -24; echo \"=== role_permissions schema ===\"; python3 -c \"\nimport re,pathlib\nt=pathlib.Path('supabase/migrations/20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql').read_text()\nm=re.search(r'create table(?: if not exists)? (?:public\\.)?role_permissions\\s*\\((.*?)\\n\\);',t,re.S|re.I)\nprint(m.group(1) if m else 'nao')\""
     },
     "timestamp": 1790682982744
@@ -1494,5 +1480,19 @@
     "content": "ok\nd\n         OR f.company_id=(_scope->>'company_id')::uuid)),\ncalc AS (\n  -- GROUPING SETS gera as séries por bucket E o total do período.\n  -- `GROUPING(bucket)` distingue os dois sem depender de NULL: o\n  -- bucket ausente é o total, e a série nunca é confundi\n...\n=false` é o que a tela traduz po",
     "is_error": false,
     "timestamp": 1790684008730
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np = Path('supabase/migrations/20261015120000_bi_queries.sql')\ns = p.read_text()\ns = s.replace(\"SELECT coalesce(lr.name,'Não classificada') reason,sum(l.quantity) n\",\n              \"SELECT coalesce(lr.label,'Não classificada') reason,sum(l.quantity) n\")\n# alias duplicado: crm 'o' (sales_opportunities) reusado no LATERAL\ns = s.replace(\"\"\"      'representatives',coalesce((SELECT jsonb_agg(jsonb_build_object('id',r.id,'name',r.name,\n          'opportunities',coalesce(o.cnt,0),'quotes',coalesce(q.cnt,0),'orders',coalesce(od.cnt,0),\n          'realized',coalesce(od.value,0)) ORDER BY r.name)\n        FROM public.sales_representatives r\n        LEFT JOIN (SELECT representative_id,count(*) cnt FROM public.sales_opportunities\n                   WHERE organization_id=_org AND created_at::date>=v_from AND created_at::date<v_to GROUP BY 1) o ON o.representative_id=r.id\n        LEFT JOIN (SELECT representative_id,count(*) cnt FROM public.sales_quotes\n                   WHERE organization_id=_org AND issue_date>=v_from AND issue_date<v_to GROUP BY 1) q ON q.representative_id=r.id\"\"\",\n\"\"\"      'representatives',coalesce((SELECT jsonb_agg(jsonb_build_object('id',r.id,'name',r.name,\n          'opportunities',coalesce(oc.cnt,0),'quotes',coalesce(qc.cnt,0),'orders',coalesce(od.cnt,0),\n          'realized',coalesce(od.value,0)) ORDER BY r.name)\n        FROM public.sales_representatives r\n        LEFT JOIN (SELECT representative_id,count(*) cnt FROM public.sales_opportunities\n                   WHERE organization_id=_org AND created_at::date>=v_from AND created_at::date<v_to GROUP BY 1) oc ON oc.representative_id=r.id\n        LEFT JOIN (SELECT representative_id,count(*) cnt FROM public.sales_quotes\n                   WHERE organization_id=_org AND issue_date>=v_from AND issue_date<v_to GROUP BY 1) qc ON qc.representative_id=r.id\"\"\")\n# alias duplicado: procurement 'o' (purchase_orders) reusado no LATERAL\ns = s.replace(\"\"\"        FROM public.purchase_orders o\n        JOIN public.supplier_profiles sp ON sp.id=o.supplier_id AND sp.organization_id=o.organization_id\n        JOIN public.companies c ON c.id=sp.company_id\n        LEFT JOIN (SELECT supplier_id,count(*) cnt,sum(total_amount) value FROM public.purchase_orders\n                   WHERE organization_id=_org AND issue_date>=v_from AND issue_date<v_to\n                     AND status<>'CANCELED' GROUP BY 1) o ON o.supplier_id=c.id\n        LEFT JOIN (SELECT sp2.id supplier,sum(gr.total_received-gr.total_accepted) rejected\n                   FROM public.goods_receipts gr JOIN public.supplier_profiles sp2 ON sp2.id=gr.supplier_id\n                   WHERE gr.organization_id=_org AND gr.received_at>=v_from AND gr.received_at<v_to GROUP BY 1) g\n          ON g.supplier=c.id\n        WHERE c.organization_id=_org AND o.cnt IS NOT NULL),'[]'::jsonb));\"\"\",\n\"\"\"        FROM public.companies c\n        JOIN public.supplier_profiles sp ON sp.company_id=c.id AND sp.organization_id=c.organization_id\n        JOIN (SELECT supplier_id,count(*) cnt,sum(total_amount) value FROM public.purchase_orders\n              WHERE organization_id=_org AND issue_date>=v_from AND issue_date<v_to\n                AND status<>'CANCELED' GROUP BY 1) oc ON oc.supplier_id=c.id\n        LEFT JOIN (SELECT sp2.company_id supplier,sum(gr.total_received-gr.total_accepted) rejected\n                   FROM public.goods_receipts gr JOIN public.supplier_profiles sp2 ON sp2.id=gr.supplier_id\n                   WHERE gr.organization_id=_org AND gr.received_at>=v_from AND gr.received_at<v_to GROUP BY 1) g\n          ON g.supplier=c.id\n        WHERE c.organization_id=_org AND oc.cnt IS NOT NULL ORDER BY oc.value DESC),'[]'::jsonb));\"\"\")\ns = s.replace(\"\"\"      'suppliers',coalesce((SELECT jsonb_agg(jsonb_build_object('id',c.id,'name',c.legal_name,\n          'orders',o.cnt,'value',o.value,'rejected',coalesce(g.rejected,0)) ORDER BY o.value DESC)\"\"\",\n\"\"\"      'suppliers',coalesce((SELECT jsonb_agg(jsonb_build_object('id',c.id,'name',c.legal_name,\n          'orders',oc.cnt,'value',oc.value,'rejected',coalesce(g.rejected,0))\"\"\")\np.write_text(s)\nprint('ok')\nPY\ngrep -n \"oc.cnt\\|qc.cnt\\|lr.label\" supabase/migrations/20261015120000_bi_queries.sql"
+    },
+    "timestamp": 1790684018586
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n480:          'opportunities',coalesce(oc.cnt,0),'quotes',coalesce(qc.cnt,0),'orders',coalesce(od.cnt,0),\n533:          'orders',oc.cnt,'value',oc.value,'rejected',coalesce(g.rejected,0))\n543:        WHERE c.organization_id=_org AND oc.cnt IS NOT NULL ORDER BY oc.value DESC),'[]'::jsonb));\n556:  ",
+    "is_error": false,
+    "timestamp": 1790684018645
   }
 ]
