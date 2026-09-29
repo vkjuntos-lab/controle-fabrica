@@ -469,12 +469,18 @@ function RecordDetail({
           Fechar
         </Button>
       </div>
-      <details>
-        <summary>Dados registrados e evidências</summary>
-        <pre className="max-h-96 overflow-auto whitespace-pre-wrap text-xs">
-          {JSON.stringify(view === "documents" ? (detail.data ?? row) : row, null, 2)}
-        </pre>
-      </details>
+      {view === "documents" ? (
+        <DocumentDetail data={detail.data} fallback={row} />
+      ) : view === "rules" ? (
+        <RuleDetail data={detail.data} fallback={row} />
+      ) : (
+        <details>
+          <summary>Dados registrados e evidências</summary>
+          <pre className="max-h-96 overflow-auto whitespace-pre-wrap text-xs">
+            {JSON.stringify(row, null, 2)}
+          </pre>
+        </details>
+      )}
       {view === "rules" &&
         ["REVIEW", "APPROVED"].includes(String(row.status)) &&
         hasPermission("fiscal.tax_rules.manage") && (
