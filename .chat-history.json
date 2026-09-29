@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sed -n '118,200p;344,380p;468,500p' supabase/migrations/20261013100000_fiscal_core.sql",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790679979587
-  },
-  {
-    "role": "tool_result",
-    "content": "--    O regime NÃO é deduzido de porte ou faturamento. Quem cadastra\n--    escolhe explicitamente, e a escolha fica registrada.\n-- ---------------------------------------------------------------------\nCREATE TABLE public.fiscal_tax_regimes (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organiz",
-    "is_error": false,
-    "timestamp": 1790679979637
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -n \"fiscal\" src/lib/rbac.ts",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1581,5 +1566,20 @@
     "content": "53-  'OTHER'\n54-);\n55-\n56:CREATE TYPE public.fiscal_environment AS ENUM ('HOMOLOGATION','PRODUCTION');\n57-\n58--- ---------------------------------------------------------------------\n59--- 2. Sequence de numeração por estabelecimento/modelo/série.\n60---    O contador é transacional e nunca reutiliza",
     "is_error": false,
     "timestamp": 1790681263927
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"fiscal_environment\" supabase/migrations/20260706150230_5280fbec-723e-429d-8021-3f39cfaab1b7.sql | head; echo \"=== uso no src ===\"; grep -rn \"HOMOLOGATION\\|'homologacao'\\|\\\"homologacao\\\"\" src/ | head",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681268884
+  },
+  {
+    "role": "tool_result",
+    "content": "8:  CREATE TYPE public.fiscal_environment AS ENUM ('homologacao', 'producao');\n26:  environment fiscal_environment NOT NULL DEFAULT 'homologacao',\n=== uso no src ===\nsrc/lib/fiscal/provider.ts:2:export type FiscalEnvironment = \"HOMOLOGATION\" | \"PRODUCTION\";\nsrc/lib/fiscal/constants.ts:79:  HOMOLOGAT",
+    "is_error": false,
+    "timestamp": 1790681268936
   }
 ]
