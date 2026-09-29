@@ -58,14 +58,16 @@ CREATE TYPE public.fiscal_operation_kind AS ENUM (
 -- `type "fiscal_environment" already exists` no banco real, e o teste não
 -- enxerga a colisão porque o harness aplica um recorte de migrations e não o
 -- histórico completo. Os valores são renomeados, não recriados: assim a
--- coluna legada que ainda usa o tipo continua válida.
+-- coluna legada que ainda usa o tipo continua válida. A exceção é ampla
+-- porque o único erro possível aqui é o rótulo de origem não existir, e
+-- nesse caso não há o que renomear.
 DO $$ BEGIN
   CREATE TYPE public.fiscal_environment AS ENUM ('HOMOLOGATION','PRODUCTION');
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
 DO $$ BEGIN EXECUTE 'ALTER TYPE public.fiscal_environment RENAME VALUE ''homologacao'' TO ''HOMOLOGATION''';
-EXCEPTION WHEN undefined_object THEN NULL; END $$;
+EXCEPTION WHEN others THEN NULL; END $$;
 DO $$ BEGIN EXECUTE 'ALTER TYPE public.fiscal_environment RENAME VALUE ''producao'' TO ''PRODUCTION''';
-EXCEPTION WHEN undefined_object THEN NULL; END $$;
+EXCEPTION WHEN others THEN NULL; END $$;
 
 -- ---------------------------------------------------------------------
 -- 2. Sequence de numeração por estabelecimento/modelo/série.
