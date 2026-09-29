@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rn \"domain_events\" supabase/migrations/*.sql | head -20; echo \"=== fiscal_events ===\"; grep -rn \"INSERT INTO fiscal_events\" -A2 supabase/migrations/*.sql | head -20"
-    },
-    "timestamp": 1790682941382
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20260926100000_partner_reconciliation.sql:271:CREATE TABLE public.domain_events (\nsupabase/migrations/20260926100000_partner_reconciliation.sql:298: FOREACH t IN ARRAY ARRAY['partner_reconciliations','partner_reconciliation_items','reconciliation_exceptions','partner_reconciliati",
-    "is_error": false,
-    "timestamp": 1790682941424
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '960,995p' supabase/migrations/20260926100000_partner_reconciliation.sql; echo \"=== fiscal_emit ===\"; grep -n \"FUNCTION public.fiscal_emit\" -A 12 supabase/migrations/20261013100000_fiscal_core.sql | head -16"
     },
     "timestamp": 1790682944502
@@ -1493,5 +1479,19 @@
     "content": "ok\n",
     "is_error": false,
     "timestamp": 1790683954640
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\ns = Path('supabase/migrations/20261015110000_bi_marts.sql').read_text()\ni = s.find('CREATE FUNCTION public.bi_classify_abc')\nj = s.find('CREATE FUNCTION public.bi_classify_xyz')\nprint(s[i:j])\nPY"
+    },
+    "timestamp": 1790683957446
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE FUNCTION public.bi_classify_abc(_org uuid,_from date,_to date,_metric text,_granularity text DEFAULT 'VARIANT')\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE cfg jsonb; a numeric; b numeric; total numeric:=0; v_n integer; classified jsonb;\n  abc_row reco",
+    "is_error": false,
+    "timestamp": 1790683957507
   }
 ]
