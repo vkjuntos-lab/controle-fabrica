@@ -13,6 +13,16 @@ CREATE TABLE public.fiscal_providers (
  FOREIGN KEY(organization_id,establishment_id) REFERENCES fiscal_establishments(organization_id,id)
 );
 ALTER TABLE fiscal_operation_natures ADD CONSTRAINT fiscal_nature_org_id UNIQUE(organization_id,id);
+-- A migration de 2026-07-06 (`20260706150307`) já criou `fiscal_documents`
+-- com outro desenho: `kind`, `serie`, `numero`, `chave`, `danfe_url`,
+-- `qrcode_url`, `xml_authorized`, `provider='focus'`. Sem o descarte abaixo
+-- esta migration aborta com `relation "fiscal_documents" already exists`.
+-- O esqueleto antigo não é referenciado por nenhuma migration posterior nem
+-- por nenhum arquivo de `src/` — o módulo fiscal o substitui por completo,
+-- com estados, snapshot tributário e trilha de auditoria. Apagar a tabela
+-- e não renomeá-la é a escolha explícita: manter as duas exigiria renomear
+-- dozens de referências e manter um segundo documento fiscal sem dono.
+DROP TABLE IF EXISTS public.fiscal_documents CASCADE;
 CREATE TABLE public.fiscal_documents (
  id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES organizations,
  establishment_id uuid NOT NULL, company_id uuid NOT NULL, document_model text NOT NULL CHECK(document_model='NFe'),

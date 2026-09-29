@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "sed -n '1,80p' supabase/migrations/20261014200000_fiscal_documents.sql; echo \"=== INBOUND ===\"; sed -n '1,30p' supabase/migrations/20261014300000_fiscal_inbound.sql",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790680108625
-  },
-  {
-    "role": "tool_result",
-    "content": "-- Fiscal document workflow: no inventory or financial writer is called here.\nBEGIN;\nALTER TABLE inventory_locations ADD COLUMN fiscal_establishment_id uuid;\nALTER TABLE inventory_locations ADD CONSTRAINT inventory_fiscal_establishment_fk\n FOREIGN KEY(organization_id,fiscal_establishment_id) REFEREN",
-    "is_error": false,
-    "timestamp": 1790680108662
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "sed -n '253,340p;375,470p' supabase/migrations/20261013100000_fiscal_core.sql",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1583,5 +1568,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790681308088
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261014200000_fiscal_documents.sql",
+      "newString": "ALTER TABLE fiscal_operation_natures ADD CONSTRAINT fiscal_nature_org_id UNIQUE(organization_id,id);\n-- A migration de 2026-07-06 (`20260706150307`) já criou `fiscal_documents`\n-- com outro desenho: `kind`, `serie`, `numero`, `chave`, `danfe_url`,\n-- `qrcode_url`, `xml_authorized`, `provider='focus'`. Sem o descarte abaixo\n-- esta migration aborta com `relation \"fiscal_documents\" already exists`.\n-- O esqueleto antigo não é referenciado por nenhuma migration posterior nem\n-- por nenhum arquivo de `src/` — o módulo fiscal o substitui por completo,\n-- com estados, snapshot tributário e trilha de auditoria. Apagar a tabela\n-- e não renomeá-la é a escolha explícita: manter as duas exigiria renomear\n-- dozens de referências e manter um segundo documento fiscal sem dono.\nDROP TABLE IF EXISTS public.fiscal_documents CASCADE;\nCREATE TABLE public.fiscal_documents (\n",
+      "oldString": "ALTER TABLE fiscal_operation_natures ADD CONSTRAINT fiscal_nature_org_id UNIQUE(organization_id,id);\nCREATE TABLE public.fiscal_documents (\n"
+    },
+    "timestamp": 1790681313759
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790681313784
   }
 ]
