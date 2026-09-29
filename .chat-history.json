@@ -1,29 +1,5 @@
 [
   {
-    "role": "assistant",
-    "content": "Qual provedor fiscal contratado será usado para a NF-e? Se ainda não houver, vou manter preparação e conferência disponíveis, com transmissão bloqueada até configurar e homologar a integração.\n- Ainda não há provedor contratado\n- Já há provedor contratado — informarei o nome",
-    "timestamp": 1790668178844
-  },
-  {
-    "role": "assistant",
-    "content": "O núcleo existente passou nos testes locais, mas a auditoria encontrou lacunas que eles não cobriam: aprovação podia pular a revisão, troca de regime podia deixar vigências sobrepostas e o cadastro limitava a organização a um estabelecimento de produção. Vou corrigir isso em uma migration nova, preservando as alterações já presentes no checkout.\n",
-    "timestamp": 1790668183414
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"sed -n '45,85p' supabase/migrations/20260924100000_partners.sql; sed -n '175,242p' supabase/migrations/20261006100000_sales_orders.sql; sed -n '115,183p' supabase/migrations/20260928100000_finance.sql; cat src/lib/crm/documents.functions.ts | head -180; sed -n '1,110p' src/components/sales/workspace.tsx; sed -n '1,150p' src/components/layout/app-shell.tsx; sed -n '1,100p' scripts/test-inventory-db.py\""
-    },
-    "timestamp": 1790668188018
-  },
-  {
-    "role": "tool_result",
-    "content": "CREATE TABLE public.partner_shipments (\n id uuid PRIMARY KEY DEFAULT gen_random_uuid(),organization_id uuid NOT NULL REFERENCES public.organizations,\n shipment_number text NOT NULL,partner_id uuid NOT NULL,source_location_id uuid NOT NULL REFERENCES public.inventory_locations,\n destination_location_",
-    "is_error": false,
-    "timestamp": 1790668188026
-  },
-  {
     "role": "tool",
     "tool": "Bash",
     "input": {
@@ -1423,5 +1399,35 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-workflow-db.py</path>\n<type>file</type>\n<content>\n1: #!/usr/bin/env python3\n2: \"\"\"Fiscal workflow integration tests; isolated PostgreSQL only.\"\"\"\n3: import importlib.util, json\n4: from pathlib import Path\n5: spec=importlib.util.spec",
     "is_error": false,
     "timestamp": 1790680066884
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '1,80p' supabase/migrations/20261014200000_fiscal_documents.sql; echo \"=== INBOUND ===\"; sed -n '1,30p' supabase/migrations/20261014300000_fiscal_inbound.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790680108625
+  },
+  {
+    "role": "tool_result",
+    "content": "-- Fiscal document workflow: no inventory or financial writer is called here.\nBEGIN;\nALTER TABLE inventory_locations ADD COLUMN fiscal_establishment_id uuid;\nALTER TABLE inventory_locations ADD CONSTRAINT inventory_fiscal_establishment_fk\n FOREIGN KEY(organization_id,fiscal_establishment_id) REFEREN",
+    "is_error": false,
+    "timestamp": 1790680108662
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "sed -n '253,340p;375,470p' supabase/migrations/20261013100000_fiscal_core.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790680109205
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE TABLE public.product_fiscal_profiles (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations,\n  product_variant_id uuid NOT NULL,\n  ncm text NOT NULL CHECK(length(trim(ncm))>0),\n  cest text,\n  -- 0 = nacional, 1..8 = origem estrangeir",
+    "is_error": false,
+    "timestamp": 1790680109235
   }
 ]
