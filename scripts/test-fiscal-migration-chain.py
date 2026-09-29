@@ -187,15 +187,13 @@ def run():
     # pendência; responder sem ele é a forma de provar que o caminho está lá.
     responsaveis = db.call('fiscal_query', f"{q(org)},'assignees','{{}}'::jsonb", admin)
     assert 'adm@test' in responsaveis, f'a lista de responsáveis não trouxe o membro: {responsaveis}'
-    print('CONTRATO DE LEITURA OK')
 
     # E o detalhe do documento devolve a evidência do cálculo, que antes
     # não tinha caminho de leitura.
-    colunas_detalhe = sql("SELECT pg_get_functiondef(p.oid) FROM pg_proc p "
-                          "WHERE p.proname='fiscal_query';")
-    assert "'taxes'" in colunas_detalhe, 'o detalhe do documento não devolve o snapshot tributário'
-    assert "'regressions'" in colunas_detalhe, 'a trilha de regressão continua sem leitura'
-    assert "'assignees'" in colunas_detalhe, 'não há como atribuir responsável a uma pendência'
+    definicao = sql("SELECT pg_get_functiondef(p.oid) FROM pg_proc p WHERE p.proname='fiscal_query';")
+    assert "'taxes'" in definicao, 'o detalhe do documento não devolve o snapshot tributário'
+    assert "'regressions'" in definicao, 'a trilha de regressão continua sem leitura'
+    assert "'assignees'" in definicao, 'não há como atribuir responsável a uma pendência'
     print('CONTRATO DE LEITURA OK')
     print('MASTER 014 CADEIA COMPLETA OK')
 

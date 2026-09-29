@@ -3,21 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "grep -rn \"fiscal_exception_action\" -A 24 supabase/migrations/20261014200000_fiscal_documents.sql | head -32",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790680858870
-  },
-  {
-    "role": "tool_result",
-    "content": "(no output)",
-    "is_error": false,
-    "timestamp": 1790680858889
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "grep -rln \"fiscal_exception_action\" supabase/migrations/; echo \"---\"; grep -rn \"CREATE OR REPLACE FUNCTION public.fiscal_exception_action\" -A 30 supabase/migrations/ | head -40",
       "workdir": "/root/Zheus AI Projects/controle-fabricas"
     },
@@ -1536,5 +1521,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py</path>\n<type>file</type>\n<content>\n186:     # `assignees` existe porque a tela precisa atribuir responsável a uma\n187:     # pendência; responder sem ele é a forma de provar que o caminho está lá.\n188:     respons",
     "is_error": false,
     "timestamp": 1790681953633
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py",
+      "newString": "    assert 'adm@test' in responsaveis, f'a lista de responsáveis não trouxe o membro: {responsaveis}'\n\n    # E o detalhe do documento devolve a evidência do cálculo, que antes\n    # não tinha caminho de leitura.\n    definicao = sql(\"SELECT pg_get_functiondef(p.oid) FROM pg_proc p WHERE p.proname='fiscal_query';\")\n    assert \"'taxes'\" in definicao, 'o detalhe do documento não devolve o snapshot tributário'\n    assert \"'regressions'\" in definicao, 'a trilha de regressão continua sem leitura'\n    assert \"'assignees'\" in definicao, 'não há como atribuir responsável a uma pendência'\n    print('CONTRATO DE LEITURA OK')\n    print('MASTER 014 CADEIA COMPLETA OK')\n",
+      "oldString": "    assert 'adm@test' in responsaveis, f'a lista de responsáveis não trouxe o membro: {responsaveis}'\n    print('CONTRATO DE LEITURA OK')\n\n    # E o detalhe do documento devolve a evidência do cálculo, que antes\n    # não tinha caminho de leitura.\n    colunas_detalhe = sql(\"SELECT pg_get_functiondef(p.oid) FROM pg_proc p \"\n                          \"WHERE p.proname='fiscal_query';\")\n    assert \"'taxes'\" in colunas_detalhe, 'o detalhe do documento não devolve o snapshot tributário'\n    assert \"'regressions'\" in colunas_detalhe, 'a trilha de regressão continua sem leitura'\n    assert \"'assignees'\" in colunas_detalhe, 'não há como atribuir responsável a uma pendência'\n    print('CONTRATO DE LEITURA OK')\n    print('MASTER 014 CADEIA COMPLETA OK')\n"
+    },
+    "timestamp": 1790681958162
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790681958179
   }
 ]
