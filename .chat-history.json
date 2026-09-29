@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '530,532p;622,624p' supabase/migrations/20261015110000_bi_marts.sql | cat -A | sed -n '1,10p' | cut -c1-100"
-    },
-    "timestamp": 1790683288911
-  },
-  {
-    "role": "tool_result",
-    "content": "DECLARE cfg jsonb; a numeric; b numeric; total numeric:=0; v_n integer; classified jsonb;$\n  row record; v_metric_value numeric; v_share numeric; v_cum numeric:=0;$\nBEGIN$\nDECLARE cfg jsonb; x numeric; y numeric; minobs integer; v_buckets integer;$\n  row record; v_series jsonb; v_mean numeric; v_sd ",
-    "is_error": false,
-    "timestamp": 1790683288943
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"supabase/migrations/20261015110000_bi_marts.sql\")\nlines = p.read_text(encoding=\"utf8\").split(\"\\n\")\nassert lines[530].strip().startswith(\"row record;\"), lines[530]\nlines[530] = \"  abc_row record; v_metric_value numeric; v_share numeric; v_cum numeric:=0;\"\nassert lines[622].strip().startswith(\"row record;\"), lines[622]\nlines[622] = \"  xyz_row record; v_series jsonb; v_mean numeric; v_sd numeric; v_cv numeric; v_n integer; v_total numeric:=0;\"\np.write_text(\"\\n\".join(lines), encoding=\"utf8\")\nprint(\"ok\")\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql 20261015110000_bi_marts.sql\" 2>&1 | tail -8"
     },
     "timestamp": 1790683296046
@@ -1457,5 +1443,19 @@
     "content": "       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    ...<18 lines>...\n       f\"({q(org)},{q(loja_parceiro)},'EXT-3',{q(v1)});\"\n       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n       f\"INSERT INTO sales_representatives(id,organiz",
     "is_error": false,
     "timestamp": 1790684225900
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport re, subprocess\nfrom pathlib import Path\nout = subprocess.run(['grep','-rl','CREATE TABLE public.companies ','supabase/migrations/'],capture_output=True,text=True).stdout.split()\ns=Path(out[0]).read_text(); i=s.find('CREATE TABLE public.companies ')\nprint(re.sub(r'\\s+',' ',s[i:s.find(');',i)+2])[:900])\nPY"
+    },
+    "timestamp": 1790684229331
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE TABLE public.companies ( id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES public.organizations, code text NOT NULL CHECK(length(trim(code))>0), legal_name text NOT NULL CHECK(length(trim(legal_name))>0), trade_name text, document_type text CHECK(document",
+    "is_error": false,
+    "timestamp": 1790684229381
   }
 ]
