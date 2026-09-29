@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '960,995p' supabase/migrations/20260926100000_partner_reconciliation.sql; echo \"=== fiscal_emit ===\"; grep -n \"FUNCTION public.fiscal_emit\" -A 12 supabase/migrations/20261013100000_fiscal_core.sql | head -16"
-    },
-    "timestamp": 1790682944502
-  },
-  {
-    "role": "tool_result",
-    "content": "    'items',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT i.id,i.variant_id,i.quantity,i.unit_reference_value,i.gross_amount,i.billable_amount,i.price_snapshot,\n      v.sku,v.size,v.color,p.name product_name,s.external_order_id,s.external_sku,s.store_id,s.sale_date\n      FROM public.partner_r",
-    "is_error": false,
-    "timestamp": 1790682944568
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && head -75 scripts/test-costs-db.py; echo \"=== FIM ===\"; tail -30 scripts/test-costs-db.py"
     },
     "timestamp": 1790682947909
@@ -1493,5 +1479,19 @@
     "content": "CREATE FUNCTION public.bi_classify_abc(_org uuid,_from date,_to date,_metric text,_granularity text DEFAULT 'VARIANT')\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE cfg jsonb; a numeric; b numeric; total numeric:=0; v_n integer; classified jsonb;\n  abc_row reco",
     "is_error": false,
     "timestamp": 1790683957507
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\nimport re\ns = Path('supabase/migrations/20261015100000_bi_core.sql').read_text()\nfor t in ['bi_abc_classification','bi_xyz_classification','bi_facts']:\n    i=s.find('CREATE TABLE public.'+t+' (')\n    print('###',t); print(re.sub(r'\\s+',' ',s[i:s.find(');',i)+2])); print()\nPY"
+    },
+    "timestamp": 1790683968819
+  },
+  {
+    "role": "tool_result",
+    "content": "### bi_abc_classification\nCREATE TABLE public.bi_abc_classification ( id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES public.organizations(id) ON DELETE CASCADE, period_start date NOT NULL, period_end date NOT NULL, metric_key text NOT NULL, granularity text N",
+    "is_error": false,
+    "timestamp": 1790683968877
   }
 ]
