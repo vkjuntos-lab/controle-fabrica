@@ -12895,12 +12895,6 @@ export type Database = {
       }
     }
     Functions: {
-      fiscal_record_download: { Args: { _path: string }; Returns: undefined }
-      fiscal_query: { Args: { _org: string; _kind: string; _filters?: Json }; Returns: Json }
-      fiscal_execute: { Args: { _org: string; _operation: string; _id?: string | null; _data?: Json }; Returns: Json }
-      fiscal_import_xml: { Args: { _org: string; _est: string; _supplier: string; _xml: string }; Returns: Json }
-      fiscal_require: { Args: { _org: string; _permission: string }; Returns: undefined }
-
       company_detail_core: {
         Args: {
           _company: string
@@ -14210,7 +14204,6 @@ export type Database = {
     }
     Enums: {
       app_role:
-        | "fiscal"
         | "admin"
         | "gestor"
         | "financeiro"
@@ -14415,7 +14408,6 @@ export const Constants = {
   public: {
     Enums: {
       app_role: [
-        "fiscal",
         "admin",
         "gestor",
         "financeiro",
