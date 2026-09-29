@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -n \"migration\\|MIGRATIONS\\|glob\\|sorted\" scripts/test-fiscal-migration-chain.py | head -20"
-    },
-    "timestamp": 1790683144547
-  },
-  {
-    "role": "tool_result",
-    "content": "3:Prova que as migrations do MASTER 014 são aplicáveis sobre o histórico real.\n5:O harness dos módulos anteriores aplica um recorte curado de migrations e\n9:o MASTER 014 abortava em duas migrations — e nenhuma delas aparece em teste\n12:Este script sobe um PostgreSQL descartável, aplica as migrations",
-    "is_error": false,
-    "timestamp": 1790683144578
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '60,125p' scripts/test-fiscal-migration-chain.py"
     },
     "timestamp": 1790683146807
@@ -1455,5 +1441,19 @@
     "content": "### marketplace_register_sale ( 20260926100000_partner_reconciliation.sql )\nCREATE FUNCTION public.marketplace_register_sale(_org uuid,_data jsonb,_user_id uuid DEFAULT auth.uid())\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE v_sale uuid; v_variant uuid; v_sta",
     "is_error": false,
     "timestamp": 1790684097357
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\nimport re\ns = Path('supabase/migrations/20260926100000_partner_reconciliation.sql').read_text()\nfor m in re.finditer(r'CREATE (?:OR REPLACE )?FUNCTION public\\.(reconciliation_\\w+)\\(([^)]*)\\)', s):\n    print('FN', m.group(1), '(', ' '.join(m.group(2).split())[:120], ')')\nprint('---- inserts into partner_reconciliations:')\nfor m in re.finditer(r'INSERT INTO public\\.partner_reconciliations', s):\n    print(s[max(0,m.start()-900):m.start()+60][-500:]); print('...')\nPY"
+    },
+    "timestamp": 1790684101511
+  },
+  {
+    "role": "tool_result",
+    "content": "FN reconciliation_require ( _org uuid,_permission text )\nFN reconciliation_audit ( _org uuid,_action text,_table text,_id uuid,_context jsonb DEFAULT '{}' )\nFN reconciliation_guard_relations (  )\nFN reconciliation_guard (  )\nFN reconciliation_insert_exception ( _org uuid,_rec uuid,_item uuid,_sale u",
+    "is_error": false,
+    "timestamp": 1790684101557
   }
 ]
