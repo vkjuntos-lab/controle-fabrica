@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "<path>/root/Zheus AI Projects/controle-fabricas/src/lib/fiscal/constants.ts</path>\n<type>file</type>\n<content>\n259:         labels: AUTHENTICITY_STATUS,\n260:         empty: money,\n261:       },\n262:       { key: \"status\", title: \"Situação\", labels: INBOUND_STATUS, empty: money },\n263:     ],\n264:   ",
-    "is_error": false,
-    "timestamp": 1790681354881
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "node -e '\nconst {readdirSync,readFileSync}=require(\"fs\");\nconst dir=\"supabase/migrations\";\nconst SQL=readdirSync(dir).filter(f=>f.endsWith(\".sql\")).sort().map(f=>readFileSync(dir+\"/\"+f,\"utf8\")).join(\"\\n\");\nconst clean=s=>s.replace(/\\/\\*[\\s\\S]*?\\*\\//g,\" \").replace(/--[^\\n]*/g,\" \");\nfunction cols(t){const s=clean(SQL);const h=new RegExp(\"CREATE TABLE (?:IF NOT EXISTS )?public\\\\.\"+t+\"\\\\s*\\\\(\",\"gi\");let m,last=null;while((m=h.exec(s)))last=m;if(!last)return null;let d=1;for(let i=last.index+last[0].length;i<s.length;i++){if(s[i]===\"(\")d++;else if(s[i]===\")\"){d--;if(!d){const b=s.slice(last.index+last[0].length,i);const parts=[];let dd=0,c=\"\";for(const ch of b){if(ch===\"(\")dd++;if(ch===\")\")dd--;if(ch===\",\"&&!dd){parts.push(c);c=\"\";continue}c+=ch}parts.push(c);return parts.map(p=>p.trim()).filter(p=>!/^(PRIMARY|FOREIGN|UNIQUE|CHECK|CONSTRAINT|EXCLUDE)\\b/i.test(p)).map(p=>(/^([a-z_][a-z0-9_]*)\\s/i.exec(p)||[])[1]||\"\").filter(Boolean)}}}return null}\nfor(const t of [\"fiscal_tax_regimes\",\"fiscal_operation_types\",\"fiscal_operation_natures\",\"fiscal_taxes\",\"tax_rule_items\"]){const c=cols(t);console.log(t+\": \"+(c?c.join(\", \"):\"NAO ENCONTRADA\"))}\n'",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681360577
-  },
-  {
-    "role": "tool_result",
     "content": "fiscal_tax_regimes: id, organization_id, code, label, description, version, valid_from, valid_to, is_active, notes, created_at, updated_at, created_by, approved_by, approved_at, justification\nfiscal_operation_types: id, organization_id, kind, code, label, description, requires_document, requires_inv",
     "is_error": false,
     "timestamp": 1790681360714
@@ -1487,5 +1472,19 @@
     "content": "    'items',coalesce((SELECT jsonb_agg(to_jsonb(q)) FROM (SELECT i.id,i.variant_id,i.quantity,i.unit_reference_value,i.gross_amount,i.billable_amount,i.price_snapshot,\n      v.sku,v.size,v.color,p.name product_name,s.external_order_id,s.external_sku,s.store_id,s.sale_date\n      FROM public.partner_r",
     "is_error": false,
     "timestamp": 1790682944568
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && head -75 scripts/test-costs-db.py; echo \"=== FIM ===\"; tail -30 scripts/test-costs-db.py"
+    },
+    "timestamp": 1790682947909
+  },
+  {
+    "role": "tool_result",
+    "content": "#!/usr/bin/env python3\n\"\"\"Cost engine acceptance, actual PostgreSQL/RLS, isolated disposable database.\"\"\"\nimport importlib.util\nimport json\nfrom pathlib import Path\nspec = importlib.util.spec_from_file_location('inventory_db',Path(__file__).with_name('test-inventory-db.py'))\ndb = importlib.util.modu",
+    "is_error": false,
+    "timestamp": 1790682947924
   }
 ]
