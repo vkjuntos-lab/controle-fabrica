@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '1,80p' scripts/test-inventory-db.py"
-    },
-    "timestamp": 1790682950343
-  },
-  {
-    "role": "tool_result",
-    "content": "#!/usr/bin/env python3\n\"\"\"Isolated PostgreSQL integration tests. Never connects to a deployed database.\"\"\"\nimport concurrent.futures\nimport json\nimport os\nfrom pathlib import Path\nimport shutil\nimport subprocess\nimport tempfile\nimport uuid\n\nROOT = Path(__file__).resolve().parents[1]\nBIN = Path(os.en",
-    "is_error": false,
-    "timestamp": 1790682950358
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -n \"FUNCTION public.fiscal_require\" -A 8 supabase/migrations/20261013100000_fiscal_core.sql | head -12; echo \"=== financeiro 009 ===\"; ls supabase/migrations/ | grep -E \"2026092[89]|finance\""
     },
     "timestamp": 1790682954488
@@ -1494,5 +1480,19 @@
     "content": "ok\nAPLICADO OK\n",
     "is_error": false,
     "timestamp": 1790683985190
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np = Path('supabase/migrations/20261015100000_bi_core.sql')\ns = p.read_text()\ni = s.find('CREATE FUNCTION public.bi_resolve_metric')\nj = s.find('$$;', i)+3\nnovo = r'''CREATE FUNCTION public.bi_resolve_metric(_org uuid,_key text DEFAULT NULL,_version integer DEFAULT NULL)\nRETURNS TABLE(metric_key text,metric_name text,description text,business_domain text,formula text,unit text,\n              aggregation_method text,date_dimension text,source_description text,limitations text,\n              periodicity text,granularity text,version integer,status text,\n              available_filters text[],compatible_dimensions text[],is_global boolean)\nLANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$\n -- `_key` nulo devolve o catálogo inteiro: é assim que a tela de\n -- métricas lista o que existe, inclusive o catálogo global.\n -- A versão da organização tem precedência sobre a global (§5).\n SELECT m.metric_key,m.metric_name,m.description,m.business_domain::text,m.formula,m.unit::text,m.aggregation_method,\n   m.date_dimension,m.source_description,m.limitations,m.periodicity,m.granularity,m.version,m.status::text,\n   coalesce(m.available_filters,'{}'::text[]),coalesce(m.compatible_dimensions,'{}'::text[]),\n   (m.organization_id IS NULL)\n FROM public.bi_metric_definitions m\n WHERE (_key IS NULL OR m.metric_key=_key) AND m.status='ACTIVE'\n   AND (m.organization_id IS NULL OR m.organization_id=_org)\n   AND (_version IS NULL OR m.version=_version)\n ORDER BY (m.organization_id IS NOT NULL) ASC,m.metric_key,m.version DESC;\n$$;'''\np.write_text(s[:i] + novo + s[j:])\nprint('ok')\nPY"
+    },
+    "timestamp": 1790683992194
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n",
+    "is_error": false,
+    "timestamp": 1790683992280
   }
 ]

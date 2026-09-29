@@ -555,18 +555,24 @@ $$;
 
 -- Resolução de métrica: GLOBAL vence sempre; a organização só acrescenta
 -- chaves que não existem globalmente.
-CREATE FUNCTION public.bi_resolve_metric(_org uuid,_key text,_version integer DEFAULT NULL)
+CREATE FUNCTION public.bi_resolve_metric(_org uuid,_key text DEFAULT NULL,_version integer DEFAULT NULL)
 RETURNS TABLE(metric_key text,metric_name text,description text,business_domain text,formula text,unit text,
               aggregation_method text,date_dimension text,source_description text,limitations text,
-              periodicity text,granularity text,version integer,status text)
+              periodicity text,granularity text,version integer,status text,
+              available_filters text[],compatible_dimensions text[],is_global boolean)
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
+ -- `_key` nulo devolve o catálogo inteiro: é assim que a tela de
+ -- métricas lista o que existe, inclusive o catálogo global.
+ -- A versão da organização tem precedência sobre a global (§5).
  SELECT m.metric_key,m.metric_name,m.description,m.business_domain::text,m.formula,m.unit::text,m.aggregation_method,
-   m.date_dimension,m.source_description,m.limitations,m.periodicity,m.granularity,m.version,m.status::text
+   m.date_dimension,m.source_description,m.limitations,m.periodicity,m.granularity,m.version,m.status::text,
+   coalesce(m.available_filters,'{}'::text[]),coalesce(m.compatible_dimensions,'{}'::text[]),
+   (m.organization_id IS NULL)
  FROM public.bi_metric_definitions m
- WHERE m.metric_key=_key AND m.status='ACTIVE'
+ WHERE (_key IS NULL OR m.metric_key=_key) AND m.status='ACTIVE'
    AND (m.organization_id IS NULL OR m.organization_id=_org)
    AND (_version IS NULL OR m.version=_version)
- ORDER BY (m.organization_id IS NOT NULL) ASC, m.version DESC LIMIT 1;
+ ORDER BY (m.organization_id IS NOT NULL) ASC,m.metric_key,m.version DESC;
 $$;
 
 -- Período canônico, em metadados. §7: todo recorte é
