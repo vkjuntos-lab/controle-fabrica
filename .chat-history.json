@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "edit",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261014500000_fiscal_screen_fixes.sql",
-      "newString": "-- (c) `regressions` entra como área: `fiscal_rule_regressions` é a prova de\n--     que a regra foi testada no servidor antes de virar vigente, e era\n--     invisível. Sem ela, \"ativação exige regressão\" era verdade sem\n--     evidência visível. `rule_detail` e `assignees` dão à tela a trilha de\n--     revisão e a lista de responsáveis.\n-- ---------------------------------------------------------------------\n",
-      "oldString": "-- (c) `regressions` entra como área: `fiscal_rule_regressions` é a prova de\n--     que a regra foi testada no servidor antes de virar vigente, e era\n--     invisível. Sem ela, \"ativação exige regressão\" era verdade sem\n--     evidência visível.\n-- ---------------------------------------------------------------------\n"
-    },
-    "timestamp": 1790680891879
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790680891899
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/workspace.tsx",
       "newString": "import { forms, sections, lifecycleActions } from \"./config\";\nimport { Regression } from \"./regression\";\nimport { Preparation, InboundReview, LocationMapping } from \"./operations\";\nimport { FiscalForm, Reference, rows, label, type Row } from \"./form\";\nimport {\n  listings,\n  readPermission,\n  translate,\n  DOCUMENT_STATUS,\n  EXCEPTION_STATUS,\n  EXCEPTION_TYPE,\n  FINDING_TYPE,\n  RECONCILIATION_STATUS,\n  EVENT_TYPE,\n  ORIGIN_CODE,\n  type Column,\n} from \"@/lib/fiscal/constants\";\nimport type { Json } from \"@/integrations/supabase/types\";\n",
       "oldString": "import { forms, sections } from \"./config\";\nimport { Regression } from \"./regression\";\nimport { Preparation, InboundReview, LocationMapping } from \"./operations\";\nimport { FiscalForm, Reference, rows, label, type Row } from \"./form\";\nimport type { Json } from \"@/integrations/supabase/types\";\n"
@@ -1536,5 +1520,20 @@
     "content": "ok\n__pycache__\ntest-costs-db.py\ntest-crm-db.py\ntest-finance-db.py\ntest-fiscal-db.py\ntest-fiscal-migration-chain.py\ntest-fiscal-workflow-db.py\ntest-inventory-db.py\ntest-partner-store-integration-db.py\ntest-partners-db.py\ntest-planning-db.py\ntest-purchasing-db.py\ntest-reconciliation-db.py\ntest-sales-d",
     "is_error": false,
     "timestamp": 1790681999369
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "rm -rf scripts/__pycache__; su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/test-fiscal-workflow-db.py\" 2>&1 | tail -18; echo \"=== CADEIA ===\"; su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/test-fiscal-migration-chain.py\" 2>&1 | tail -10; df -h /tmp | tail -1",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790682003020
+  },
+  {
+    "role": "tool_result",
+    "content": "PASS AP: snapshot e trilha de revisao existem e a sessao nao reescreve o calculo\nPASS AQ: roteiro DRAFT>REVIEW, REVIEW>DRAFT e aprovacao ficam registrados transition por transition\nPASS AR: nenhum tributo nasce sem cadastro; o banco nao semeia aliquota\nPASS AS: RLS isola a organizacao e usuario sem ",
+    "is_error": false,
+    "timestamp": 1790682012706
   }
 ]
