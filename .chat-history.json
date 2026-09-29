@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && cat > /tmp/opencode/apply.py <<'PY'\nimport importlib.util, subprocess, sys\nfrom pathlib import Path\nspec = importlib.util.spec_from_file_location('inv', Path('scripts/test-inventory-db.py').resolve())\ndb = importlib.util.module_from_spec(spec); spec.loader.exec_module(db)\ntry:\n    db.setup()\n    base = ['20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql','20260917110000_catalog_mestre.sql',\n      '20260918100000_inventory_ledger.sql','20260921100000_inventory_integrity.sql','20260922100000_production.sql',\n      '20260923100000_inventory_workflows.sql','20260924100000_partners.sql','20260926100000_partner_reconciliation.sql',\n      '20260928100000_finance.sql','20260928121252_07821f7f-ba22-4f6e-8fb9-94acc5bdfa48.sql',\n      '20260928121427_f5ff7756-ed48-4d53-90ab-18ac78718334.sql','20260928121500_ee2e153f-bc2a-4d10-ab0d-de9050371f43.sql',\n      '20260928122015_9f021b86-6f60-414a-9848-8422b02a0ba1.sql','20260928124515_158f08c9-8db7-45f6-bd23-1c787c8187c6.sql',\n      '20260928124613_e555c625-2a5b-4f57-9529-ccf10be7d4e9.sql','20260930100000_cost_engine.sql','20261001100000_purchasing.sql',\n      '20261002100000_planning.sql','20261003100000_planning_engine.sql','20261004100000_planning_fixes.sql',\n      '20261005100000_crm.sql','20261006100000_crm_integrity.sql','20261006100000_sales_orders.sql',\n      '20261007100000_crm_documents.sql','20261008100000_crm_company_services.sql','20261009100000_crm_customer_history.sql',\n      '20261010100000_sales_integrity.sql','20261011100000_sales_planning.sql','20261012100000_sales_screen_fixes.sql',\n      '20261013100000_fiscal_core.sql','20261013200000_fiscal_tax_engine.sql','20261014100000_fiscal_integrity.sql',\n      '20261014200000_fiscal_documents.sql','20261014300000_fiscal_inbound.sql','20261014400000_fiscal_workspace.sql',\n      '20261014500000_fiscal_screen_fixes.sql']\n    import os\n    if os.environ.get('SKIP'):\n        base = [b for b in base if not any(k in b for k in os.environ['SKIP'].split(','))]\n    for name in base:\n        prefix = 'SET check_function_bodies=off;' if name.startswith('20260918100000') else ''\n        db.sql(prefix + (db.ROOT/'supabase/migrations'/name).read_text())\n    for name in sys.argv[1:]:\n        prefix = 'SET check_function_bodies=off;' if name.startswith('20260918') else ''\n        db.sql(prefix + (db.ROOT/'supabase/migrations'/name).read_text())\n    print(\"APLICADO OK\")\nfinally:\n    db.cleanup()\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql\" 2>&1 | tail -20"
-    },
-    "timestamp": 1790683139450
-  },
-  {
-    "role": "tool_result",
-    "content": "Traceback (most recent call last):\n  File \"/tmp/opencode/apply.py\", line 26, in <module>\n    db.sql(prefix + (db.ROOT/'supabase/migrations'/name).read_text())\n    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventor",
-    "is_error": false,
-    "timestamp": 1790683141333
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -n \"migration\\|MIGRATIONS\\|glob\\|sorted\" scripts/test-fiscal-migration-chain.py | head -20"
     },
     "timestamp": 1790683144547
@@ -1455,5 +1441,19 @@
     "content": "audit_payable_receivable()\nbi_cost_at(_org uuid,_variant uuid,_at date)\nbi_sync_crm(_org uuid,_from date,_to date)\nbi_sync_partners(_org uuid,_from date,_to date)\nbi_sync_production(_org uuid,_from date,_to date)\ncashflow_by_cost_center(_store_id uuid, _from date, _to date)\ncost_audit(_org uuid,_act",
     "is_error": false,
     "timestamp": 1790684091813
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\nimport re\ndef show(name, n=40):\n    for p in sorted(Path('supabase/migrations').glob('*.sql')):\n        s=p.read_text()\n        i=s.find('CREATE OR REPLACE FUNCTION public.'+name+'(')\n        if i<0: i=s.find('CREATE FUNCTION public.'+name+'(')\n        if i<0: continue\n        print('###', name, '(', p.name, ')')\n        print(s[i:i+2600]); print(); return\nshow('marketplace_register_sale')\nshow('fin_process_reconciliation')\nPY"
+    },
+    "timestamp": 1790684097310
+  },
+  {
+    "role": "tool_result",
+    "content": "### marketplace_register_sale ( 20260926100000_partner_reconciliation.sql )\nCREATE FUNCTION public.marketplace_register_sale(_org uuid,_data jsonb,_user_id uuid DEFAULT auth.uid())\nRETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE v_sale uuid; v_variant uuid; v_sta",
+    "is_error": false,
+    "timestamp": 1790684097357
   }
 ]
