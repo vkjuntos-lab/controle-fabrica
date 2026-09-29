@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "grep -n \"CREATE OR REPLACE FUNCTION public.fiscal_save_\\|CREATE FUNCTION public.fiscal_save_\\|CREATE OR REPLACE FUNCTION public.fiscal_document_action\\|CREATE FUNCTION public.fiscal_document_action\\|CREATE OR REPLACE FUNCTION public.fiscal_reconcile\\|CREATE FUNCTION public.fiscal_reconcile\\|CREATE OR REPLACE FUNCTION public.fiscal_prepare\\|CREATE FUNCTION public.fiscal_prepare\\|CREATE OR REPLACE FUNCTION public.fiscal_rule_action\\|CREATE FUNCTION public.fiscal_rule_action\\|CREATE OR REPLACE FUNCTION public.fiscal_profile_action\\|CREATE FUNCTION public.fiscal_profile_action\" supabase/migrations/2026101*.sql",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790679950946
-  },
-  {
-    "role": "tool_result",
-    "content": "supabase/migrations/20261013200000_fiscal_tax_engine.sql:423:CREATE OR REPLACE FUNCTION public.fiscal_rule_action(\nsupabase/migrations/20261013200000_fiscal_tax_engine.sql:527:CREATE OR REPLACE FUNCTION public.fiscal_profile_action(\nsupabase/migrations/20261013200000_fiscal_tax_engine.sql:599:CREATE",
-    "is_error": false,
-    "timestamp": 1790679950979
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261014200000_fiscal_documents.sql",
@@ -1583,5 +1568,20 @@
     "content": "#!/usr/bin/env python3\n\"\"\"MASTER 014 integration tests in disposable PostgreSQL. Never uses a published database.\"\"\"\nimport importlib.util, json\nfrom pathlib import Path\n\nspec = importlib.util.spec_from_file_location('inventory', Path(__file__).with_name('test-inventory-db.py'))\ndb = importlib.util.",
     "is_error": false,
     "timestamp": 1790681216735
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cat > /tmp/colisoes.py <<'EOF'\nimport re\nfrom pathlib import Path\ndir = Path(\"supabase/migrations\")\narquivos = sorted(p for p in dir.glob(\"*.sql\"))\ncriadas = {}   # tabela -> arquivo que criou\ncolisoes = []\nfor p in arquivos:\n    sql = p.read_text(encoding=\"utf8\", errors=\"replace\")\n    for m in re.finditer(r\"CREATE\\s+TABLE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?(?:public\\.)?(\\w+)\\s*\\(\", sql, re.I):\n        nome = m.group(1).lower()\n        if nome in criadas:\n            colisoes.append((nome, criadas[nome], p.name))\n        else:\n            criadas[nome] = p.name\n    for m in re.finditer(r\"CREATE\\s+TYPE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?(?:public\\.)?(\\w+)\\s+AS\\s+ENUM\", sql, re.I):\n        nome = \"tipo:\" + m.group(1).lower()\n        if nome in criadas:\n            colisoes.append((nome, criadas[nome], p.name))\n        else:\n            criadas[nome] = p.name\n    for m in re.finditer(r\"CREATE\\s+(?:OR\\s+REPLACE\\s+)?FUNCTION\\s+(?:public\\.)?(\\w+)\\s*\\(\", sql, re.I):\n        nome = \"funcao:\" + m.group(1).lower()\n        criadas.setdefault(nome, p.name)\nif colisoes:\n    print(\"COLISOES:\")\n    for n, a, b in colisoes:\n        print(f\"  {n}\\n    ja criada em: {a}\\n    recriada em: {b}\")\nelse:\n    print(\"nenhuma colisao\")\nEOF\npython3 /tmp/colisoes.py",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681226359
+  },
+  {
+    "role": "tool_result",
+    "content": "COLISOES:\n  ig_webhook_logs\n    ja criada em: 20260725220208_0f0dfde8-1b5e-4ef3-a020-9eb3e3931135.sql\n    recriada em: 20260725220441_1bd388b2-d756-474a-b531-9e555f9dfa73.sql\n  ig_templates\n    ja criada em: 20260725220208_0f0dfde8-1b5e-4ef3-a020-9eb3e3931135.sql\n    recriada em: 20260725220441_1bd3",
+    "is_error": false,
+    "timestamp": 1790681226526
   }
 ]
