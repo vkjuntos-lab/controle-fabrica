@@ -112,25 +112,29 @@ def run():
     save('fiscal_save_product_profile', {
         'product_variant_id': variant, 'ncm': '6403.99.99', 'justification': 'tentativa'},
         rid=prof, fail='só é alterável')
-    db.call('fiscal_profile_action', args, aprovador, 'já pode')
+    # Reaprovar não re-sela: transição inválida é recusada.
+    db.call('fiscal_profile_action', args, aprovador, 'não pode ser aprovado')
     assert sql(f"SELECT count(*) FROM product_fiscal_profiles "
                f"WHERE organization_id={q(org)} AND id={q(prof)} AND ncm='6403.99.99'") == '0'
     print('PASS AI: autor nao aprova a propria classificacao; perfil aprovado fica imutavel')
 
     # --- AK: ciclo de vida da regra e aprovacao com justificativa ----------
-    def make_rule(priority=100, ncm='6403.99.00', model='NFe', taxes=None, valid_from='2020-01-01'):
+    def make_rule(priority=100, ncm='6403.99.00', model='NFe', taxes=None,
+                  valid_from='2020-01-01', version=1):
         return save('fiscal_save_rule', {
             'establishment_id': est, 'operation_type_id': op, 'tax_regime_id': regime,
             'product_classification': ncm, 'document_model': model, 'priority': priority,
-            'valid_from': valid_from, 'taxes': taxes or [
+            'valid_from': valid_from, 'version': version, 'taxes': taxes or [
                 {'tax_id': icms, 'rate': 0.18, 'base_mode': 'BASE_CALCULO', 'treatment_code': '000'},
                 {'tax_id': pis, 'rate': 0.0165, 'base_mode': 'BASE_CALCULO', 'treatment_code': '01'},
                 {'tax_id': cofins, 'rate': 0.076, 'base_mode': 'BASE_CALCULO', 'treatment_code': '01'},
             ]})['rule']['id']
 
     def approve(rule_id, user, just='Regra conferida contra a legislacao vigente'):
-        db.call('fiscal_rule_action', ','.join([q(org), q(rule_id), q('submit'), q('Para revisao')]), admin)
-        db.call('fiscal_rule_action', ','.join([q(org), q(rule_id), q('review'), q('Voltar para ajuste')]), admin)
+        # Normaliza para DRAFT: a máquina não aceita submeter o que já
+        # está em revisão, e o roteiro abaixo precisa passar por ela.
+        if sql(f"SELECT status FROM tax_rules WHERE organization_id={q(org)} AND id={q(rule_id)}") == 'REVIEW':
+            db.call('fiscal_rule_action', ','.join([q(org), q(rule_id), q('review'), q('Voltar para ajuste')]), admin)
         db.call('fiscal_rule_action', ','.join([q(org), q(rule_id), q('submit'), q('Para revisao')]), admin)
         db.call('fiscal_rule_action', ','.join([q(org), q(rule_id), q('approve'), q('  ')]), user,
                 'justificativa registrada')
@@ -145,13 +149,20 @@ def run():
             'Sem permissão')
     print('PASS AJ: regra submetida vira imutavel; aprovacao exige permissao e justificativa')
 
+    # Mesmo escopo e mesma versão é barrado na criação, pelo índice.
+    save('fiscal_save_rule', {
+        'establishment_id': est, 'operation_type_id': op, 'tax_regime_id': regime,
+        'product_classification': '6403.99.00', 'document_model': 'NFe', 'version': 1,
+        'taxes': [{'tax_id': icms, 'rate': 0.2}]}, fail='duplicate key')
     assert approve(r_nfe, aprovador)['status'] == 'ACTIVE'
-    r_dup = make_rule()
+    # Versão nova do mesmo escopo entra em DRAFT, mas não pode ficar
+    # ativa ao mesmo tempo: duas regras ativas tornam o cálculo ambíguo.
+    r_dup = make_rule(version=2)
     db.call('fiscal_rule_action', ','.join([q(org), q(r_dup), q('submit'), q('Revisar')]), admin)
     db.call('fiscal_rule_action', ','.join([q(org), q(r_dup), q('approve'), q('Duplicada')]), aprovador)
     db.call('fiscal_rule_action', ','.join([q(org), q(r_dup), q('activate'), q('Duplicada')]), aprovador,
             'mesmo escopo e vigência sobreposta')
-    print('PASS AK: segunda regra ATIVE de mesmo escopo e vigencia e recusada')
+    print('PASS AK: mesmo escopo e versao e barrado na criacao; segunda regra ATIVE do mesmo escopo e recusada')
 
     # --- AL: o calculo usa a regra ativa -----------------------------------
     sim = simulate(item)
@@ -173,8 +184,12 @@ def run():
     nfce = {l['tax_code']: l for l in simulate(
         [dict(item[0], discount=5, freight=2)], model='NFCe')['lines']}
     assert nfce['ICMS']['tax_rule_id'] == r_nfce
-    assert float(nfce['ICMS']['base']) == 94.97, nfce['ICMS']  # 99.99 - 5 - 2 = 92.97, reducao 3
-    assert float(nfce['ICMS']['rounded']) == float(round(89.97 * 0.18, 2)), nfce['ICMS']
+    # 3 x 33.33 = 99.99; menos 5 de desconto e 2 de frete = 92.99 de
+    # base liquida; a reducao aprovada de 3 leva a 89.99 antes da
+    # aliquota: 89.99 x 0.18 = 16.1982, arredondado 16.20.
+    assert float(nfce['ICMS']['base']) == 92.99, nfce['ICMS']
+    assert float(nfce['ICMS']['raw']) == 16.1982, nfce['ICMS']
+    assert float(nfce['ICMS']['rounded']) == 16.20, nfce['ICMS']
     nfe = {l['tax_code']: l for l in simulate(item)['lines']}
     assert nfe['ICMS']['tax_rule_id'] == r_nfe, 'regra geral nao foi preterida'
     print('PASS AM: regra do modelo NFCe supera a geral; reducao e frete entram na base antes da aliquota')
@@ -220,8 +235,12 @@ def run():
     # --- AR: o motor nao inventa enquadramento ------------------------------
     assert sql(f"SELECT count(*) FROM tax_rule_items WHERE organization_id={q(org)} AND tax_id NOT IN "
                f"(SELECT id FROM fiscal_taxes WHERE organization_id={q(org)})") == '0'
+    # Tributo sem rótulo não entra: 'X' sozinho não descreve tributo.
     db.call('fiscal_save_tax', ','.join([q(org), q(json.dumps({'code': 'X', 'label': ''}))]),
-            admin, 'Sem permissão')
+            admin, 'fiscal_taxes_label_check')
+    # Nem quem não tem fiscal.configure cria tributo.
+    db.call('fiscal_save_tax', ','.join([q(org), q(json.dumps({'code': 'Y', 'label': 'Y'}))]),
+            contador, 'Sem permissão')
     assert sql(f"SELECT count(*) FROM fiscal_taxes WHERE organization_id={q(org)} AND code LIKE '%PADRAO%'") == '0'
     print('PASS AR: nenhum tributo nasce sem cadastro; o banco nao semeia aliquota')
 
@@ -234,9 +253,14 @@ def run():
     print('PASS AS: RLS isola a organizacao e usuario sem permissao nao simula')
 
     # --- AT: mudanca de regime nao reinterpreta o passado --------------------
-    reg2 = save('fiscal_save_regime', {'code': 'REGIME_TESTE', 'label': 'Regime revisado'})['id']
-    v3 = save('fiscal_save_regime', {'code': 'REGIME_TESTE', 'label': 'Regime revisado'}, rid=reg2)
-    assert v3['version'] == 2, v3
+    # Versionar uma regra criada hoje exigiria um período de vigência
+    # que nunca existiu. O banco recusa em vez de gravar data impossível.
+    save('fiscal_save_regime', {'label': 'Regime revisado'}, rid=regime,
+         fail='ao menos dois dias depois')
+    # Com vigência explícita posterior, a nova versão entra e a antiga fecha.
+    v2 = save('fiscal_save_regime', {'label': 'Regime revisado', 'valid_from': '2027-01-01'},
+              rid=regime)
+    assert v2['version'] == 2 and v2['code'] == 'REGIME_TESTE', v2
     assert sql(f"SELECT count(*) FROM fiscal_tax_regimes WHERE organization_id={q(org)} "
                f"AND code='REGIME_TESTE'") == '2'
     assert sql(f"SELECT valid_to IS NOT NULL FROM fiscal_tax_regimes WHERE organization_id={q(org)} "

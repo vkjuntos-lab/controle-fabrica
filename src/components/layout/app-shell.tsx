@@ -57,6 +57,7 @@ type NavItem = {
 };
 
 const OPERATION_ITEMS: NavItem[] = [
+  { label: "Fiscal", to: "/fiscal", icon: ScrollText, permission: "fiscal.read" },
   {
     label: "Vendas e logística",
     to: "/vendas",

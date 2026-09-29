@@ -15,6 +15,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ConvidarRouteImport } from './routes/convidar'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedFiscalRouteImport } from './routes/_authenticated/fiscal'
 import { Route as AuthenticatedFornecedoresRouteImport } from './routes/_authenticated/fornecedores'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
@@ -137,6 +138,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
 const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFiscalRoute = AuthenticatedFiscalRouteImport.update({
+  id: '/fiscal',
+  path: '/fiscal',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedFornecedoresRoute =
@@ -704,6 +710,7 @@ export interface FileRoutesByFullPath {
   '/convidar': typeof ConvidarRoute
   '/reset-password': typeof ResetPasswordRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/fiscal': typeof AuthenticatedFiscalRoute
   '/fornecedores': typeof AuthenticatedFornecedoresRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/perfil': typeof AuthenticatedPerfilRoute
@@ -805,6 +812,7 @@ export interface FileRoutesByTo {
   '/convidar': typeof ConvidarRoute
   '/reset-password': typeof ResetPasswordRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/fiscal': typeof AuthenticatedFiscalRoute
   '/fornecedores': typeof AuthenticatedFornecedoresRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/perfil': typeof AuthenticatedPerfilRoute
@@ -908,6 +916,7 @@ export interface FileRoutesById {
   '/convidar': typeof ConvidarRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/fiscal': typeof AuthenticatedFiscalRoute
   '/_authenticated/fornecedores': typeof AuthenticatedFornecedoresRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
@@ -1011,6 +1020,7 @@ export interface FileRouteTypes {
     | '/convidar'
     | '/reset-password'
     | '/dashboard'
+    | '/fiscal'
     | '/fornecedores'
     | '/onboarding'
     | '/perfil'
@@ -1112,6 +1122,7 @@ export interface FileRouteTypes {
     | '/convidar'
     | '/reset-password'
     | '/dashboard'
+    | '/fiscal'
     | '/fornecedores'
     | '/onboarding'
     | '/perfil'
@@ -1214,6 +1225,7 @@ export interface FileRouteTypes {
     | '/convidar'
     | '/reset-password'
     | '/_authenticated/dashboard'
+    | '/_authenticated/fiscal'
     | '/_authenticated/fornecedores'
     | '/_authenticated/onboarding'
     | '/_authenticated/perfil'
@@ -1363,6 +1375,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/fiscal': {
+      id: '/_authenticated/fiscal'
+      path: '/fiscal'
+      fullPath: '/fiscal'
+      preLoaderRoute: typeof AuthenticatedFiscalRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/fornecedores': {
@@ -2128,6 +2147,7 @@ const AuthenticatedEstoqueMovimentacoesRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedFiscalRoute: typeof AuthenticatedFiscalRoute
   AuthenticatedFornecedoresRoute: typeof AuthenticatedFornecedoresRouteWithChildren
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
@@ -2216,6 +2236,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedFiscalRoute: AuthenticatedFiscalRoute,
   AuthenticatedFornecedoresRoute: AuthenticatedFornecedoresRouteWithChildren,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,

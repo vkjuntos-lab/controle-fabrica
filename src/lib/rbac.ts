@@ -15,6 +15,7 @@ export const APP_ROLES = [
   "producao",
   "comercial",
   "marketplace",
+  "fiscal",
 ] as const;
 
 export type AppRole = (typeof APP_ROLES)[number];
@@ -27,6 +28,7 @@ export const ROLE_LABELS: Record<AppRole, string> = {
   producao: "Produção",
   comercial: "Comercial",
   marketplace: "Marketplace",
+  fiscal: "Fiscal",
 };
 
 export const ROLE_DESCRIPTIONS: Record<AppRole, string> = {
@@ -37,10 +39,34 @@ export const ROLE_DESCRIPTIONS: Record<AppRole, string> = {
   producao: "Ordens de produção e consumo de matéria-prima.",
   comercial: "Clientes, pedidos e vendas B2B.",
   marketplace: "Lojas, importações e reconciliação de marketplaces.",
+  fiscal: "Preparação e conferência fiscal; emissão depende de integração homologada.",
 };
 
 /** Permissões atualmente reconhecidas pela aplicação. */
 export const PERMISSIONS = {
+  fiscalRead: "fiscal.read",
+  fiscalDashboard: "fiscal.dashboard",
+  fiscalConfigure: "fiscal.configure",
+  fiscalSimulate: "fiscal.simulate",
+  fiscalTaxRulesRead: "fiscal.tax_rules.read",
+  fiscalTaxRulesManage: "fiscal.tax_rules.manage",
+  fiscalTaxRulesApprove: "fiscal.tax_rules.approve",
+  fiscalDocumentsCreate: "fiscal.documents.create",
+  fiscalDocumentsValidate: "fiscal.documents.validate",
+  fiscalDocumentsIssue: "fiscal.documents.issue",
+  fiscalDocumentsCancel: "fiscal.documents.cancel",
+  fiscalDocumentsDownload: "fiscal.documents.download",
+  fiscalInboundRead: "fiscal.inbound.read",
+  fiscalInboundImport: "fiscal.inbound.import",
+  fiscalInboundReview: "fiscal.inbound.review",
+  fiscalReconciliationRead: "fiscal.reconciliation.read",
+  fiscalReconciliationManage: "fiscal.reconciliation.manage",
+  fiscalExceptionsRead: "fiscal.exceptions.read",
+  fiscalExceptionsManage: "fiscal.exceptions.manage",
+  fiscalEventsRead: "fiscal.events.read",
+  fiscalReportsExport: "fiscal.reports.export",
+  fiscalProviderManage: "fiscal.provider.manage",
+
   planningRead: "planning.read",
   planningRun: "planning.run",
   planningSimulate: "planning.simulate",
@@ -239,6 +265,28 @@ export const PERMISSIONS = {
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 
 export const PERMISSION_LABELS: Record<string, string> = {
+  "fiscal.read": "Consultar fiscal",
+  "fiscal.dashboard": "Dashboard fiscal",
+  "fiscal.configure": "Configurar cadastros fiscais",
+  "fiscal.simulate": "Simular tributos",
+  "fiscal.tax_rules.read": "Consultar regras fiscais",
+  "fiscal.tax_rules.manage": "Gerenciar regras fiscais",
+  "fiscal.tax_rules.approve": "Aprovar regras fiscais",
+  "fiscal.documents.create": "Preparar documentos fiscais",
+  "fiscal.documents.validate": "Validar e conferir documentos",
+  "fiscal.documents.issue": "Transmitir documentos fiscais",
+  "fiscal.documents.cancel": "Solicitar cancelamento fiscal",
+  "fiscal.documents.download": "Baixar arquivos fiscais",
+  "fiscal.inbound.read": "Consultar documentos recebidos",
+  "fiscal.inbound.import": "Importar XML fiscal",
+  "fiscal.inbound.review": "Conferir documentos recebidos",
+  "fiscal.reconciliation.read": "Consultar conciliação fiscal",
+  "fiscal.reconciliation.manage": "Executar conciliação fiscal",
+  "fiscal.exceptions.read": "Consultar pendências fiscais",
+  "fiscal.exceptions.manage": "Resolver pendências fiscais",
+  "fiscal.events.read": "Consultar eventos fiscais",
+  "fiscal.reports.export": "Exportar relatórios fiscais",
+  "fiscal.provider.manage": "Gerenciar integração fiscal",
   "planning.read": "Ver planejamento",
   "planning.run": "Executar planejamento e configurar parâmetros",
   "planning.simulate": "Simular planejamento",
@@ -443,6 +491,12 @@ export type ModuleDefinition = {
 };
 
 export const PLATFORM_MODULES: ModuleDefinition[] = [
+  {
+    key: "fiscal",
+    label: "Fiscal",
+    description: "Cadastros, preparação, XML e conferência. Emissão depende de homologação.",
+    status: "available",
+  },
   {
     key: "dashboard",
     label: "Dashboard",

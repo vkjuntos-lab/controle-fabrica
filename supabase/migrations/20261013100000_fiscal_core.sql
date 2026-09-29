@@ -534,8 +534,15 @@ DO $policies$ DECLARE t text; perm text; BEGIN
                             'fiscal_operation_natures','fiscal_layout_versions') THEN 'fiscal.read'
                  ELSE 'fiscal.read' END;
     EXECUTE format(
-      'CREATE POLICY fiscal_read ON public.%I FOR SELECT TO authenticated USING(public.has_permission(organization_id,%L))',
+      'CREATE POLICY fiscal_read ON public.%I FOR SELECT TO authenticated USING(public.has_permission(organization_id,%L) AND public.is_org_member(organization_id))',
       t,perm);
+    -- Leitura para quem tem a permissão; escrita negada na tabela. Só
+    -- entra por função SECURITY DEFINER, que validou a permissão antes.
+    -- Sem este GRANT o frontend nem consegue ler, e sem o REVOKE ele
+    -- poderia escrever direto se alguém concedesse a tabela.
+    EXECUTE format('REVOKE ALL ON public.%I FROM anon,authenticated',t);
+    EXECUTE format('GRANT SELECT ON public.%I TO authenticated',t);
+    EXECUTE format('GRANT ALL ON public.%I TO service_role',t);
   END LOOP;
 END $policies$;
 

@@ -220,7 +220,7 @@ DECLARE
   v_rule_id uuid;
   v_gross numeric := coalesce(_quantity,0) * coalesce(_unit_price,0);
   v_item record;
-  v_base numeric;
+  v_base numeric(18,6);
   v_calc record;
 BEGIN
   -- Classificação fiscal é obrigatória. Não há default e não há
@@ -259,8 +259,8 @@ BEGIN
     RETURN QUERY SELECT
       gen_random_uuid(), _org, NULL::uuid, NULL::uuid, NULL::uuid, v_item.tax_id,
       v_rule_id, r.version, r.valid_from, r.layout_version_id,
-      v_base, v_item.rate, v_item.reduction, v_item.fixed_amount,
-      v_calc.raw_value, v_calc.rounded_value, v_item.base_mode,
+      v_base::numeric(18,6), v_item.rate, v_item.reduction, v_item.fixed_amount,
+      v_calc.raw_value::numeric(18,6), v_calc.rounded_value::numeric(18,2), v_item.base_mode,
       v_item.treatment_code, v_item.is_recoverable, v_item.is_withheld,
       jsonb_build_object(
         'tax_code',v_item.tax_code,
@@ -298,11 +298,15 @@ DECLARE
   v_warnings jsonb := '[]'::jsonb;
   v_blocking boolean := false;
   v_total numeric := 0;
-  v_snapshot jsonb;
-  v_snap_id uuid;
+  v_pending jsonb := '[]'::jsonb;
   v_sim public.fiscal_simulations;
   v_line record;
 BEGIN
+  -- SECURITY DEFINER sem guarda de permissão é função pública com o
+  -- nome de privada. A checagem é a primeira coisa, antes de ler dado
+  -- de cadastro fiscal de qualquer organização.
+  PERFORM public.fiscal_require(_org,'fiscal.simulate');
+
   SELECT * INTO v_establishment FROM public.fiscal_establishments
   WHERE organization_id=_org AND id=_establishment_id;
   IF NOT FOUND THEN
@@ -334,6 +338,21 @@ BEGIN
           v_regime,NULL,NULL,_on_date)
       LOOP
         v_total := v_total + coalesce(v_line.rounded_amount,0);
+        -- O snapshot da simulação é acumulado e gravado depois, com o
+        -- id da simulação: assim "qual regra eu usaria hoje" fica
+        -- respondível, e não só o número final.
+        v_pending := v_pending || jsonb_build_object(
+          'tax_id',v_line.tax_id,'tax_rule_id',v_line.tax_rule_id,
+          'tax_rule_version',v_line.tax_rule_version,
+          'tax_rule_valid_from',v_line.tax_rule_valid_from,
+          'layout_version_id',v_line.layout_version_id,
+          'base_amount',v_line.base_amount,'rate',v_line.rate,
+          'reduction',v_line.reduction,'fixed_amount',v_line.fixed_amount,
+          'raw_amount',v_line.raw_amount,'rounded_amount',v_line.rounded_amount,
+          'base_mode',v_line.base_mode,'treatment_code',v_line.treatment_code,
+          'is_recoverable',v_line.is_recoverable,'is_withheld',v_line.is_withheld,
+          'parameter_origin',v_line.parameter_origin,
+          'product_variant_id',v_item->>'product_variant_id');
         v_rows := v_rows || jsonb_build_object(
           'product_variant_id',v_item->>'product_variant_id',
           'tax_code',v_line.parameter_origin->>'tax_code',
@@ -362,6 +381,23 @@ BEGIN
     jsonb_build_object('lines',v_rows,'total_taxes',round(v_total,2)),
     v_blocking,v_warnings,auth.uid())
   RETURNING * INTO v_sim;
+
+  INSERT INTO public.tax_calculation_snapshots(
+    organization_id,simulation_id,tax_id,tax_rule_id,tax_rule_version,tax_rule_valid_from,
+    layout_version_id,base_amount,rate,reduction,fixed_amount,raw_amount,rounded_amount,
+    base_mode,treatment_code,is_recoverable,is_withheld,parameter_origin,is_simulation)
+  SELECT _org,v_sim.id,s.tax_id,s.tax_rule_id,s.tax_rule_version,s.tax_rule_valid_from,
+    s.layout_version_id,s.base_amount,s.rate,s.reduction,s.fixed_amount,s.raw_amount,
+    s.rounded_amount,s.base_mode,s.treatment_code,s.is_recoverable,s.is_withheld,
+    s.parameter_origin || jsonb_build_object('simulated_for',s.product_variant_id),true
+  FROM jsonb_to_recordset(v_pending) AS s(
+    product_variant_id uuid,tax_id uuid,tax_rule_id uuid,tax_rule_version integer,
+    tax_rule_valid_from date,layout_version_id uuid,
+    base_amount numeric(18,6),rate numeric(18,6),reduction numeric(18,6),
+    fixed_amount numeric(18,6),raw_amount numeric(18,6),rounded_amount numeric(18,2),
+    base_mode text,treatment_code text,is_recoverable boolean,is_withheld boolean,
+    parameter_origin jsonb)
+  WHERE (s.parameter_origin->>'ncm') IS NOT NULL;
 
   PERFORM public.fiscal_audit(_org,'fiscal.simulation_run','fiscal_simulations',v_sim.id,
     jsonb_build_object('establishment_id',_establishment_id,'operation_type_id',_operation_type_id,
@@ -409,9 +445,24 @@ BEGIN
   IF NOT FOUND THEN RAISE EXCEPTION 'Regra inexistente: %',_rule_id; END IF;
   v_from := v_rule.status;
 
+  -- Guarda de transição. Sem ela, ativar uma regra RETIRED a
+  -- ressuscitaria, e "aprovar" duas vezes re-selo o mesmo documento.
+  -- RETIRED é terminal: quem aposenta regra cria outra, versionada.
+  IF _action='submit' AND v_from NOT IN ('DRAFT') THEN
+    RAISE EXCEPTION 'Regra em % não pode ir para revisão.',v_from;
+  ELSIF _action='review' AND v_from<>'REVIEW' THEN
+    RAISE EXCEPTION 'Devolver ajuste só vale para regra em REVIEW, não em %.',v_from;
+  ELSIF _action='approve' AND v_from NOT IN ('DRAFT','REVIEW') THEN
+    RAISE EXCEPTION 'Regra em % não pode ser aprovada.',v_from;
+  ELSIF _action='activate' AND v_from<>'APPROVED' THEN
+    RAISE EXCEPTION 'Regra em % não pode ativar: exige aprovação registrada.',v_from;
+  ELSIF _action='retire' AND v_from NOT IN ('DRAFT','REVIEW','APPROVED','ACTIVE') THEN
+    RAISE EXCEPTION 'Regra em % já está encerrada.',v_from;
+  END IF;
+
   v_to := CASE _action
     WHEN 'submit' THEN 'REVIEW'
-    WHEN 'review' THEN CASE WHEN v_rule.status='REVIEW' THEN 'DRAFT' ELSE v_rule.status END
+    WHEN 'review' THEN 'DRAFT'
     WHEN 'approve' THEN 'APPROVED'
     WHEN 'activate' THEN 'ACTIVE'
     WHEN 'retire' THEN 'RETIRED'
@@ -479,9 +530,13 @@ RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE
   v_row jsonb;
   v_to public.tax_rule_status;
+  v_from public.tax_rule_status;
 BEGIN
   IF _profile_table NOT IN ('product_fiscal_profiles','company_fiscal_profiles') THEN
     RAISE EXCEPTION 'Tabela de perfil fiscal inválida: %',_profile_table;
+  END IF;
+  IF _action NOT IN ('submit','review','approve','activate','retire') THEN
+    RAISE EXCEPTION 'Ação de perfil fiscal inválida: %',_action;
   END IF;
   PERFORM public.fiscal_require(_org,
     CASE WHEN _action IN ('submit','review') THEN 'fiscal.tax_rules.manage'
@@ -491,6 +546,21 @@ BEGIN
     'SELECT to_jsonb(p) FROM public.%I p WHERE p.organization_id=$1 AND p.id=$2 FOR UPDATE',
     _profile_table) INTO v_row USING _org,_profile_id;
   IF v_row IS NULL THEN RAISE EXCEPTION 'Perfil fiscal inexistente: %',_profile_id; END IF;
+  v_from := (v_row->>'status')::public.tax_rule_status;
+
+  -- Mesma máquina da regra: RETIRED é terminal, e ninguém re-sela uma
+  -- aprovação já dada.
+  IF _action='submit' AND v_from<>'DRAFT' THEN
+    RAISE EXCEPTION 'Perfil em % não pode ir para revisão.',v_from;
+  ELSIF _action='review' AND v_from<>'REVIEW' THEN
+    RAISE EXCEPTION 'Devolver ajuste só vale para perfil em REVIEW, não em %.',v_from;
+  ELSIF _action='approve' AND v_from NOT IN ('DRAFT','REVIEW') THEN
+    RAISE EXCEPTION 'Perfil em % não pode ser aprovado.',v_from;
+  ELSIF _action='activate' AND v_from<>'APPROVED' THEN
+    RAISE EXCEPTION 'Perfil em % não pode ativar: exige aprovação registrada.',v_from;
+  ELSIF _action='retire' AND v_from NOT IN ('DRAFT','REVIEW','APPROVED','ACTIVE') THEN
+    RAISE EXCEPTION 'Perfil em % já está encerrado.',v_from;
+  END IF;
 
   IF _action IN ('approve','activate') AND (v_row->>'created_by')::uuid=auth.uid() THEN
     RAISE EXCEPTION 'Quem cadastrou o perfil fiscal não pode aprová-lo.';
@@ -736,7 +806,7 @@ END $$;
 
 CREATE OR REPLACE FUNCTION public.fiscal_save_regime(_org uuid,_data jsonb,_id uuid DEFAULT NULL)
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
-DECLARE v_row public.fiscal_tax_regimes;
+DECLARE v_row public.fiscal_tax_regimes; v_new_from date;
 BEGIN
   PERFORM public.fiscal_require(_org,'fiscal.configure');
   IF _id IS NULL THEN
@@ -754,9 +824,18 @@ BEGIN
     SELECT * INTO v_row FROM public.fiscal_tax_regimes
     WHERE organization_id=_org AND id=_id FOR UPDATE;
     IF NOT FOUND THEN RAISE EXCEPTION 'Regime inexistente: %',_id; END IF;
-    -- A versão anterior é encerrada no dia anterior: as duas não podem
-    -- valer na mesma data, ou a resolução ficaria ambígua.
-    UPDATE public.fiscal_tax_regimes SET valid_to=coalesce((_data->>'valid_from')::date,CURRENT_DATE)-1
+    v_new_from := coalesce((_data->>'valid_from')::date,CURRENT_DATE);
+    -- A versão anterior é encerrada no dia anterior à nova: as duas
+    -- não podem valer na mesma data, ou a resolução ficaria ambígua.
+    -- Uma versão precisa valer ao menos um dia (valid_to > valid_from
+    -- no CHECK da tabela), então uma versão criada hoje não pode ser
+    -- versionada hoje. A mensagem diz isso em vez de gravar período
+    -- impossível.
+    IF v_new_from-v_row.valid_from<2 THEN
+      RAISE EXCEPTION 'Nova versão do regime % exige vigência a partir de %, ou seja ao menos dois dias depois da versão % (%). A versão atual é válida desde % e não teve período de vigência para ser encerrado.',
+        v_row.code,(v_row.valid_from+2),v_row.version,v_row.valid_from,v_row.valid_from;
+    END IF;
+    UPDATE public.fiscal_tax_regimes SET valid_to=v_new_from-1
     WHERE organization_id=_org AND id=_id;
     INSERT INTO public.fiscal_tax_regimes(organization_id,code,label,description,version,
       valid_from,valid_to,is_active,notes,created_by)
@@ -764,7 +843,7 @@ BEGIN
       coalesce(_data->>'description',v_row.description),
       (SELECT max(version)+1 FROM public.fiscal_tax_regimes
         WHERE organization_id=_org AND code=v_row.code),
-      coalesce((_data->>'valid_from')::date,CURRENT_DATE),
+      v_new_from,
       nullif(_data->>'valid_to','')::date,
       coalesce((_data->>'is_active')::boolean,v_row.is_active),
       coalesce(_data->>'notes',v_row.notes),auth.uid())
@@ -819,11 +898,11 @@ BEGIN
     FOR v_tax IN SELECT * FROM jsonb_array_elements(_data->'taxes') LOOP
       INSERT INTO public.tax_rule_items(organization_id,tax_rule_id,tax_id,rate,reduction,
         base_mode,fixed_amount,treatment_code,is_recoverable,is_withheld,notes)
-      VALUES(_org,v_id,(_tax->>'tax_id')::uuid,coalesce((_tax->>'rate')::numeric,0),
-        coalesce((_tax->>'reduction')::numeric,0),coalesce(_tax->>'base_mode','BASE_CALCULO'),
-        coalesce((_tax->>'fixed_amount')::numeric,0),_tax->>'treatment_code',
-        (_tax->>'is_recoverable')::boolean,coalesce((_tax->>'is_withheld')::boolean,false),
-        _tax->>'notes');
+      VALUES(_org,v_id,(v_tax->>'tax_id')::uuid,coalesce((v_tax->>'rate')::numeric,0),
+        coalesce((v_tax->>'reduction')::numeric,0),coalesce(v_tax->>'base_mode','BASE_CALCULO'),
+        coalesce((v_tax->>'fixed_amount')::numeric,0),v_tax->>'treatment_code',
+        (v_tax->>'is_recoverable')::boolean,coalesce((v_tax->>'is_withheld')::boolean,false),
+        v_tax->>'notes');
     END LOOP;
   END IF;
   PERFORM public.fiscal_audit(_org,'fiscal.tax_rule_saved','tax_rules',v_id,
@@ -919,17 +998,28 @@ ALTER TABLE public.tax_calculation_snapshots ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.tax_rule_reviews ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY fiscal_simulations_read ON public.fiscal_simulations
-  FOR SELECT TO authenticated USING(public.has_permission(organization_id,'fiscal.read'));
+  FOR SELECT TO authenticated
+  USING(public.has_permission(organization_id,'fiscal.read') AND public.is_org_member(organization_id));
+
+REVOKE ALL ON public.fiscal_simulations FROM anon,authenticated;
+GRANT SELECT ON public.fiscal_simulations TO authenticated;
+GRANT ALL ON public.fiscal_simulations TO service_role;
 
 -- Snapshot é lido por quem audita documento. Escrita só pela função
 -- de cálculo, que valida a permissão antes.
 CREATE POLICY tax_snapshots_read ON public.tax_calculation_snapshots
-  FOR SELECT TO authenticated USING(public.has_permission(organization_id,'fiscal.read'));
+  FOR SELECT TO authenticated
+  USING(public.has_permission(organization_id,'fiscal.read') AND public.is_org_member(organization_id));
 CREATE POLICY tax_snapshots_no_direct_write ON public.tax_calculation_snapshots
   FOR ALL TO authenticated USING(false) WITH CHECK(false);
 
 CREATE POLICY tax_rule_reviews_read ON public.tax_rule_reviews
-  FOR SELECT TO authenticated USING(public.has_permission(organization_id,'fiscal.tax_rules.read'));
+  FOR SELECT TO authenticated
+  USING(public.has_permission(organization_id,'fiscal.tax_rules.read') AND public.is_org_member(organization_id));
+
+REVOKE ALL ON public.tax_calculation_snapshots,public.tax_rule_reviews FROM anon,authenticated;
+GRANT SELECT ON public.tax_calculation_snapshots,public.tax_rule_reviews TO authenticated;
+GRANT ALL ON public.tax_calculation_snapshots,public.tax_rule_reviews TO service_role;
 
 CREATE TRIGGER tax_snapshots_immutable_trg
   BEFORE UPDATE OR DELETE ON public.tax_calculation_snapshots

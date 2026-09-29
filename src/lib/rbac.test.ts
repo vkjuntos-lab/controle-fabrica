@@ -19,6 +19,7 @@ describe("rbac", () => {
       "producao",
       "comercial",
       "marketplace",
+      "fiscal",
     ]);
   });
 
@@ -41,6 +42,7 @@ describe("rbac", () => {
       "compras",
       "planejamento",
       "vendas",
+      "fiscal",
     ];
     const opcionais = PLATFORM_MODULES.filter((m) => !disponiveis.includes(m.key));
     for (const mod of opcionais) {
