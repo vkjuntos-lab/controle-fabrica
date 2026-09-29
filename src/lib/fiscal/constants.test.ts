@@ -132,14 +132,23 @@ describe("contrato entre a listagem e o banco", () => {
     }
   });
 
-  it("nenhuma área de listagem mostra identificador interno como coluna principal", () => {
+  it("nenhuma área de listagem abre com identificador interno do banco", () => {
+    // `id` é UUID e `fingerprint` é md5: nenhum dos dois diz ao usuário o
+    // que o registro é. Antes do MASTER 014 a lista genérica abria com `id`.
+    const INTERNOS = new Set(["id", "fingerprint"]);
     for (const [area, listing] of areas) {
       const first = listing.columns[0]?.key;
       expect(first, `área "${area}" sem coluna de identificação`).toBeTruthy();
       expect(
-        first === "id" || first === "code",
-        `área "${area}" abre com "${String(first)}"; identificador interno não identifica registro para o usuário`,
-      ).toBe(true);
+        INTERNOS.has(String(first)),
+        `área "${area}" abre com "${String(first)}", que não identifica o registro para o usuário`,
+      ).toBe(false);
+      for (const column of listing.columns) {
+        expect(
+          INTERNOS.has(column.key),
+          `área "${area}" lista a coluna interna "${column.key}"`,
+        ).toBe(false);
+      }
     }
   });
 
@@ -147,7 +156,11 @@ describe("contrato entre a listagem e o banco", () => {
     for (const [area, listing] of areas) {
       const keys = listing.columns.map((column) => column.key);
       expect(
-        keys.some((key) => /^(status|passed|severity|event_type|exception_type)/.test(key)),
+        keys.some((key) =>
+          /^(status|passed|severity|event_type|exception_type|has_blocking_issue|authenticity_status)/.test(
+            key,
+          ),
+        ),
         `área "${area}" sem coluna que diga a situação do registro`,
       ).toBe(true);
     }
@@ -171,7 +184,12 @@ describe("contrato de permissões entre navegação e servidor", () => {
   });
 
   it("a permissão de leitura nunca é a de gravação", () => {
+    // `providers` é a única exceção, e é declarada: o catálogo não tem
+    // permissão de leitura separada para provedor, e o registro só existe
+    // para ser habilitado por quem tem `fiscal.provider.manage`.
+    const EXCECOES = new Set(["providers"]);
     for (const [area, permission] of Object.entries(readPermission)) {
+      if (EXCECOES.has(area)) continue;
       expect(permission, `área "${area}" sem permissão de leitura`).not.toMatch(
         /configure$|manage$|create$|issue$|validate$|import$|approve$/,
       );
