@@ -601,13 +601,12 @@ END $$;
 
 CREATE FUNCTION public.bi_get_settings(_org uuid) RETURNS jsonb
 LANGUAGE sql STABLE SECURITY DEFINER SET search_path=public AS $$
-  SELECT to_jsonb(coalesce(
-    (SELECT s FROM public.bi_settings s WHERE s.organization_id=_org),
-    (SELECT r FROM (SELECT 'America/Sao_Paulo'::text timezone,true period_end_exclusive,
-       'LAST_30_DAYS'::text default_period,.80::numeric abc_a_limit,.95::numeric abc_b_limit,
-       .50::numeric xyz_x_limit,2.00::numeric xyz_y_limit,3::integer xyz_min_observations,
-       _org organization_id,NULL::timestamptz updated_at) r)
-  ));
+  SELECT coalesce(
+    (SELECT to_jsonb(s) FROM public.bi_settings s WHERE s.organization_id=_org),
+    jsonb_build_object('organization_id',_org,'timezone','America/Sao_Paulo','period_end_exclusive',true,
+      'default_period','LAST_30_DAYS','abc_a_limit',.80,'abc_b_limit',.95,
+      'xyz_x_limit',.50,'xyz_y_limit',2.00,'xyz_min_observations',3)
+  );
 $$;
 
 -- ---------------------------------------------------------------------

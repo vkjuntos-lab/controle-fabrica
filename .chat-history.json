@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790681838175
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "su - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 scripts/test-fiscal-migration-chain.py\" 2>&1 | tail -25",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681841676
-  },
-  {
-    "role": "tool_result",
     "content": "COLISAO REPRODUZIDA OK\nTraceback (most recent call last):\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py\", line 172, in <module>\n    run()\n    ~~~^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py\", line 101, in run\n ",
     "is_error": false,
     "timestamp": 1790681843335
@@ -1505,5 +1490,19 @@
     "content": "ok\n    ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/root/Zheus AI Projects/controle-fabricas/scripts/test-inventory-db.py\", line 24, in sql\n    assert not p.returncode, p.stderr\n           ^^^^^^^^^^^^^^^^\nAssertionError: ERROR:  COALESCE types bi_settings and record ca",
     "is_error": false,
     "timestamp": 1790683164770
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport pathlib\np = pathlib.Path(\"supabase/migrations/20261015100000_bi_core.sql\")\ns = p.read_text(encoding=\"utf8\")\nold = \"\"\"  SELECT to_jsonb(coalesce(\n    (SELECT s FROM public.bi_settings s WHERE s.organization_id=_org),\n    (SELECT r FROM (SELECT 'America/Sao_Paulo'::text timezone,true period_end_exclusive,\n       'LAST_30_DAYS'::text default_period,.80::numeric abc_a_limit,.95::numeric abc_b_limit,\n       .50::numeric xyz_x_limit,2.00::numeric xyz_y_limit,3::integer xyz_min_observations,\n       _org organization_id,NULL::timestamptz updated_at) r)\n  ));\"\"\"\nnew = \"\"\"  SELECT coalesce(\n    (SELECT to_jsonb(s) FROM public.bi_settings s WHERE s.organization_id=_org),\n    jsonb_build_object('organization_id',_org,'timezone','America/Sao_Paulo','period_end_exclusive',true,\n      'default_period','LAST_30_DAYS','abc_a_limit',.80,'abc_b_limit',.95,\n      'xyz_x_limit',.50,'xyz_y_limit',2.00,'xyz_min_observations',3)\n  );\"\"\"\nassert old in s\ns = s.replace(old, new)\np.write_text(s, encoding=\"utf8\")\nPY\nsu - claude-runner -c \"cd '/root/Zheus AI Projects/controle-fabricas' && python3 /tmp/opencode/apply.py 20261015100000_bi_core.sql\" 2>&1 | tail -8"
+    },
+    "timestamp": 1790683168204
+  },
+  {
+    "role": "tool_result",
+    "content": "APLICADO OK\n",
+    "is_error": false,
+    "timestamp": 1790683170746
   }
 ]
