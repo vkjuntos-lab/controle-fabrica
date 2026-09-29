@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "16:CREATE TABLE public.fiscal_documents (\n17- id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES organizations,\n18- establishment_id uuid NOT NULL, company_id uuid NOT NULL, document_model text NOT NULL CHECK(document_model='NFe'),\n19- operation_type_id uuid NOT ",
-    "is_error": false,
-    "timestamp": 1790681179190
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "cat > /tmp/dbg.mjs <<'EOF'\nimport { readdirSync, readFileSync } from \"node:fs\";\nimport { join } from \"node:path\";\nconst dir = \"supabase/migrations\";\nconst SQL = readdirSync(dir).filter(f=>f.endsWith(\".sql\")).sort().map(f=>readFileSync(join(dir,f),\"utf8\")).join(\"\\n\");\nfunction createTableBody(table){\n  const head=new RegExp(`CREATE TABLE(?: IF NOT EXISTS)? public\\\\.${table}\\\\s*\\\\(`,\"i\").exec(SQL);\n  if(!head) return null;\n  let depth=1;\n  for(let i=head.index+head[0].length;i<SQL.length;i+=1){\n    if(SQL[i]===\"(\") depth+=1; else if(SQL[i]===\")\"){ depth-=1; if(depth===0) return SQL.slice(head.index+head[0].length,i); }\n  }\n  return null;\n}\nconst b = createTableBody(\"fiscal_documents\");\nconsole.log(\"len\", b?.length);\nconsole.log(b?.slice(0, 200));\nEOF\nnode /tmp/dbg.mjs",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681194850
-  },
-  {
-    "role": "tool_result",
     "content": "len 939\n\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  store_id uuid REFERENCES public.stores(id) ON DELETE SET NULL,\n  sale_id uuid REFERENCES public.sales(id) ON DELETE SET NULL,\n  customer_id uuid REF\n",
     "is_error": false,
     "timestamp": 1790681194931
@@ -1517,5 +1502,19 @@
     "content": " public.financial_categories  public.inventory_batches  public.inventory_count_items  public.inventory_counts  public.inventory_locations  public.inventory_movements  public.inventory_reservations  public.inventory_transfer_items  public.inventory_transfers  public.opportunity_items  public.opportun",
     "is_error": false,
     "timestamp": 1790682869151
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && for t in inventory_movements products product_variants marketplace_sales partner_reconciliations partner_reconciliation_items financial_transactions; do echo \"=========== $t\"; awk \"/create table( if not exists)? (public\\.)?$t/,/^\\);/\" $(grep -rliE \"create table( if not exists)? (public\\.)?$t\\b\" supabase/migrations/*.sql | tail -1) | head -45; done 2>/dev/null"
+    },
+    "timestamp": 1790682872014
+  },
+  {
+    "role": "tool_result",
+    "content": "=========== inventory_movements\n=========== products\n=========== product_variants\n=========== marketplace_sales\n=========== partner_reconciliations\n=========== partner_reconciliation_items\n=========== financial_transactions\n",
+    "is_error": false,
+    "timestamp": 1790682872116
   }
 ]
