@@ -166,10 +166,6 @@ export function FiscalForm({
       .filter((f) => String(source[f.key] ?? "").trim() === "")
       .map((f) => f.label);
   }
-  const requiredRule = [
-    ...definition.fields,
-    ...(definition.operation === "rule" ? taxFields : []),
-  ];
   return (
     <form
       className="space-y-4 rounded-xl border p-5"
