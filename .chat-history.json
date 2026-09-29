@@ -1,21 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "head -80 docs/handoff/PROJECT-STATE.md",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790679719656
-  },
-  {
-    "role": "tool_result",
-    "content": "# Estado do projeto — handoff contínuo\n\n## Revisão de continuidade — 28/09/2026 (MASTER 013)\n\nVendas e logística. O ciclo físico já existia no banco desde três migrations, mas não havia nenhuma\ntela, o RBAC do domínio não existia e duas funções do servidor eram incapazes de gravar. Esta revisão\nentr",
-    "is_error": false,
-    "timestamp": 1790679719700
-  },
-  {
-    "role": "tool",
     "tool": "read",
     "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/docs/handoff/PROJECT-STATE.md",
@@ -1570,5 +1555,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790680939863
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/workspace.tsx",
+      "newString": "        {view === \"rules\" &&\n          row.status === \"REVIEW\" &&\n          hasPermission(\"fiscal.tax_rules.read\") && (\n            <Button\n              disabled={busy || !reason}\n              onClick={() => action(\"rule_action\", { action: \"review\" })}\n            >\n              Devolver para ajuste\n            </Button>\n          )}\n        {view === \"layouts\" && row.status === \"DRAFT\" && hasPermission(\"fiscal.configure\") && (\n",
+      "oldString": "        {view === \"layouts\" && row.status === \"DRAFT\" && hasPermission(\"fiscal.configure\") && (\n"
+    },
+    "timestamp": 1790680943707
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790680943723
   }
 ]

@@ -745,6 +745,16 @@ function RecordDetail({
               )
             );
           })()}
+        {view === "rules" &&
+          row.status === "REVIEW" &&
+          hasPermission("fiscal.tax_rules.read") && (
+            <Button
+              disabled={busy || !reason}
+              onClick={() => action("rule_action", { action: "review" })}
+            >
+              Devolver para ajuste
+            </Button>
+          )}
         {view === "layouts" && row.status === "DRAFT" && hasPermission("fiscal.configure") && (
           <Button disabled={busy} onClick={() => action("layout", { status: "ACTIVE" })}>
             Ativar leiaute conferido
