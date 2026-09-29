@@ -1,19 +1,5 @@
 [
   {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
-      "command": "/bin/bash -lc \"cat > src/components/fiscal/regression.tsx <<'TSX'\nimport { useState } from \\\"react\\\";\nimport { Button } from \\\"@/components/ui/button\\\";\nimport { mutateFiscal } from \\\"@/lib/fiscal/fiscal.functions\\\";\nexport function Regression({org,rule,onPassed}:{org:string;rule:string;onPassed:(id:string)=>void}){\n const [cases,setCases]=useState(Array.from({length:3},()=>({on_date:\\\"\\\",quantity:\\\"\\\",unit_price:\\\"\\\",expected_total:\\\"\\\",expected_applicable:false})));\n const [message,setMessage]=useState(\\\"\\\");const [busy,setBusy]=useState(false);\n return <form className=\\\"space-y-3 rounded border p-4\\\" onSubmit={async e=>{e.preventDefault();setBusy(true);try{const result=await mutateFiscal({data:{organizationId:org,operation:\\\"test_rule\\\",id:rule,values:{cases}}});if(result&&typeof result===\\\"object\\\"&&\"'!Array.isArray(result)&&result.passed){onPassed(String(result.id));setMessage(\"Regressão aprovada no servidor. Referência preenchida para ativação.\");}else setMessage(\"Regressão reprovada: os valores esperados diferem dos calculados.\");}catch(err){setMessage(err instanceof Error?err.message:\"Falha no teste\");}finally{setBusy(false);}}}>\n <h3 className=\"font-semibold\">Regressão antes da ativação</h3><p className=\"text-sm\">Informe parâmetros de teste e resultados esperados aprovados pelo responsável fiscal: antes da vigência, no início e após o fim (ou após o início para vigência aberta).</p>\n {cases.map((c,index)=><fieldset key={index} className=\"flex flex-wrap gap-2\"><legend className=\"text-sm\">Cenário {index+1}</legend>{([['\"'on_date','Data'],['quantity','Quantidade'],['unit_price','Preço'],['expected_total','Total de tributos esperado']] as const).map(([key,title])=><label key={key} className=\\\"grid text-sm\\\">{title}<input className=\\\"w-40 rounded border bg-background p-2\\\" required type={key==='on_date'?'date':'number'} min={key==='on_date'?undefined:'0'} step=\\\"any\\\" value={c[key]} onChange={e=>setCases(cases.map((r,n)=>n===index?{...r,[key]:e.target.value}:r))}/></label>)}<label className=\\\"self-end p-2 text-sm\\\"><input type=\\\"checkbox\\\" checked={c.expected_applicable} onChange={e=>setCases(cases.map((r,n)=>n===index?{...r,expected_applicable:e.target.checked}:r))}/> Regra aplicável nesta data</label></fieldset>)}\n <Button disabled={busy}>Executar regressão</Button>{message&&<p role=\\\"status\\\">{message}</p>}</form>;\n}\nTSX\npython3 - <<'PY'\nfrom pathlib import Path\np=Path('src/components/fiscal/workspace.tsx');s=p.read_text().replace('import { forms, sections } from \\\"./config\\\";', 'import { forms, sections } from \\\"./config\\\";\\\\nimport { Regression } from \\\"./regression\\\";')\n# add regression before reason field in RecordDetail unique text\nneedle='      <label className=\\\"grid gap-1 text-sm\\\">\\\\n        Justificativa'\ns=s.replace(needle, '''      {view === \\\"rules\\\" && [\\\"REVIEW\\\", \\\"APPROVED\\\"].includes(String(row.status)) && hasPermission(\\\"fiscal.tax_rules.manage\\\") && <Regression org={org} rule={String(row.id)} onPassed={setEvidence} />}\n'''+needle)\np.write_text(s)\nPY\nnpx prettier --write src/components/fiscal\""
-    },
-    "timestamp": 1790669293952
-  },
-  {
-    "role": "tool_result",
-    "content": "src/components/fiscal/config.ts 142ms (unchanged)\nsrc/components/fiscal/form.tsx 123ms (unchanged)\nsrc/components/fiscal/regression.tsx 49ms\nsrc/components/fiscal/workspace.tsx 192ms\n",
-    "is_error": false,
-    "timestamp": 1790669294978
-  },
-  {
     "role": "assistant",
     "content": "Os testes já confirmaram o cenário 100/60, a ausência de duplicação em estoque e financeiro, a deduplicação do XML e o bloqueio de acesso entre organizações. TypeScript e os 91 testes unitários passaram. O build parou por falta de permissão para remover um artefato antigo de `.output`; vou preservar essa pasta e gerar a saída em um diretório novo.\n",
     "timestamp": 1790669309258
@@ -1511,5 +1497,20 @@
     "content": "[\n  {\n    \"content\": \"Auditar tela fiscal × banco e registrar defeitos confirmados (feito: 8/11 listas com UUID, permissões órfãs, permissão de leitura por kind)\",\n    \"status\": \"completed\",\n    \"priority\": \"high\"\n  },\n  {\n    \"content\": \"Criar src/lib/fiscal/constants.ts: colunas por área + rótulos",
     "is_error": false,
     "timestamp": 1790680281084
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"CREATE TYPE\" supabase/migrations/20261013100000_fiscal_core.sql; echo \"---\"; grep -n \"ADD VALUE\" supabase/migrations/2026101*.sql; echo \"=== fiscal_establishments ===\"; sed -n '86,120p' supabase/migrations/20261013100000_fiscal_core.sql",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790680291279
+  },
+  {
+    "role": "tool_result",
+    "content": "24:CREATE TYPE public.fiscal_document_status AS ENUM (\n42:CREATE TYPE public.tax_rule_status AS ENUM ('DRAFT','REVIEW','APPROVED','ACTIVE','RETIRED');\n44:CREATE TYPE public.fiscal_operation_kind AS ENUM (\n56:CREATE TYPE public.fiscal_environment AS ENUM ('HOMOLOGATION','PRODUCTION');\n---\nsupabase/mi",
+    "is_error": false,
+    "timestamp": 1790680291309
   }
 ]
