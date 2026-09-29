@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '130,200p' supabase/migrations/20261006100000_crm_integrity.sql"
-    },
-    "timestamp": 1790682916968
-  },
-  {
-    "role": "tool_result",
-    "content": "  IF result IS NULL THEN RAISE EXCEPTION 'Registro não encontrado.'; END IF;\n IF _kind='activity' THEN INSERT INTO crm_activity_history(organization_id,activity_id,before_value,after_value,reason) VALUES(_org,ident,old,result,coalesce(_data->>'reason','Criação')); END IF;\n PERFORM public.crm_audit(_",
-    "is_error": false,
-    "timestamp": 1790682916980
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '1,120p' supabase/migrations/20261014500000_fiscal_screen_fixes.sql"
     },
     "timestamp": 1790682919046
@@ -1492,5 +1478,19 @@
     "content": "tabelas: 270\n== 20261015100000_bi_core.sql\n   TABLE? 0\n   TABLE? 2\n   TABLE? NEW\n   TABLE? OLD\n   TABLE? crm\n   TABLE? financial\n   TABLE? fiscal\n   TABLE? g\n   TABLE? inventory\n   TABLE? m\n   TABLE? partners\n   TABLE? procurement\n   TABLE? production\n   TABLE? public\n   TABLE? s\n   sales.average_pr",
     "is_error": false,
     "timestamp": 1790683892390
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\ns = Path('supabase/migrations/20261015110000_bi_marts.sql').read_text()\ni = s.find('CREATE FUNCTION public.bi_sync_partners')\nj = s.find('CREATE FUNCTION', i+10)\nprint(s[i:j])\nPY"
+    },
+    "timestamp": 1790683900466
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE FUNCTION public.bi_sync_partners(_org uuid,_from date,_to date) RETURNS integer\nLANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE n integer:=0; r record;\nBEGIN\n  FOR r IN\n    SELECT s.id,s.organization_id,s.partner_id,s.shipment_date,s.status,\n      (s.shipped_at IS NOT N",
+    "is_error": false,
+    "timestamp": 1790683900505
   }
 ]
