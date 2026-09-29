@@ -66,6 +66,16 @@ FISCAL = [
 ]
 
 
+# Objetos de que as migrations legadas dependem. Não fazem parte do que
+# está sendo testado: existem só para que o legado de julho aplique e a
+# colisão de nome aconteça de verdade.
+PRECONDICAOES = """
+CREATE TABLE public.stores(id uuid PRIMARY KEY, name text);
+CREATE TABLE public.customers(id uuid PRIMARY KEY, name text);
+CREATE TABLE public.sales(id uuid PRIMARY KEY, total numeric);
+"""
+
+
 def aplicar(nome: str) -> None:
     caminho = db.ROOT / 'supabase/migrations' / nome
     prefixo = 'SET check_function_bodies=off;' if nome.startswith('20260918100000') else ''
