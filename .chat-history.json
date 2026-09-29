@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790681329385
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "npx vitest run src/lib/fiscal/constants.test.ts 2>&1 | head -40",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681331641
-  },
-  {
-    "role": "tool_result",
     "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ❯ src/lib/fiscal/constants.test.ts (12 tests | 7 failed) 230ms\n   ✓ contrato entre a listagem e o banco > toda área com listagem aponta para uma tabela que existe 140ms\n   × contrato entre a listagem e o banco > toda coluna listada existe na ",
     "is_error": false,
     "timestamp": 1790681333422
@@ -1493,5 +1478,19 @@
     "content": "import { createFileRoute } from \"@tanstack/react-router\";\nimport { ProfitabilityPage } from \"@/components/costs/commercial\";\nexport const Route = createFileRoute(\"/_authenticated/relatorios/rentabilidade\")({\n  head: () => ({\n    meta: [\n      { title: \"Custos e rentabilidade — Estratégia\" },\n      {",
     "is_error": false,
     "timestamp": 1790682931266
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -iE \"event\" /tmp/opencode/tables.txt | tr '\\n' ' '; echo; echo \"=== AUDIT ===\"; grep -iE \"audit\" /tmp/opencode/tables.txt | tr '\\n' ' '; echo; echo \"=== fiscal_audit def ===\"; grep -n \"CREATE OR REPLACE FUNCTION public.fiscal_audit\" -A 12 supabase/migrations/20261014400000_fiscal_workspace.sql | head -20"
+    },
+    "timestamp": 1790682934315
+  },
+  {
+    "role": "tool_result",
+    "content": " public.collection_events  public.credit_score_events  public.domain_events  public.fiscal_events  public.fraud_events  public.webhook_events \n=== AUDIT ===\n public.audit_log \n=== fiscal_audit def ===\n",
+    "is_error": false,
+    "timestamp": 1790682934365
   }
 ]
