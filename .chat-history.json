@@ -1,17 +1,5 @@
 [
   {
-    "role": "tool_result",
-    "content": "\n RUN  v3.2.7 /root/Zheus AI Projects/controle-fabricas\n\n ✓ src/lib/sales/idempotency.test.ts (11 tests) 163ms\n ✓ src/lib/rbac.test.ts (18 tests) 29ms\nstderr | src/lib/crm/crm.test.ts\n⚠️  Node.js 20 and below are deprecated and will no longer be supported in future versions of @supabase/supabase-js.",
-    "is_error": false,
-    "timestamp": 1790679792862
-  },
-  {
-    "role": "tool_result",
-    "content": "=== TSC EXIT: 0 ===\n",
-    "is_error": false,
-    "timestamp": 1790679821745
-  },
-  {
     "role": "tool",
     "tool": "read",
     "input": {
@@ -1572,5 +1560,20 @@
     "content": "(no output)",
     "is_error": false,
     "timestamp": 1790681120585
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "ls src/lib/fiscal/*.test.ts src/**/*.test.ts 2>/dev/null | head; echo \"---\"; cat vitest.config.ts 2>/dev/null || cat vite.config.ts | head -30; echo \"--- exemplo ---\"; head -30 src/lib/fiscal/provider.test.ts 2>/dev/null || find src -name \"*.test.ts\" | head -3 | xargs -I{} sh -c 'echo \"== {}\"; head -20 {}'",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790681132176
+  },
+  {
+    "role": "tool_result",
+    "content": "src/lib/csv.test.ts\nsrc/lib/fiscal/provider.test.ts\nsrc/lib/rbac.test.ts\n---\nimport { defineConfig } from \"vitest/config\";\nimport { fileURLToPath } from \"node:url\";\n\nexport default defineConfig({\n  resolve: {\n    alias: {\n      \"@\": fileURLToPath(new URL(\"./src\", import.meta.url)),\n    },\n  },\n  tes",
+    "is_error": false,
+    "timestamp": 1790681132238
   }
 ]
