@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rhoE \"event_type\\s*,\\s*'[A-Z_]+'|'[A-Z_]{8,}'::text, *'[A-Z_]{5,}'\" supabase/migrations/*.sql | head; echo \"=== INSERT em domain_events ===\"; grep -rn \"INSERT INTO domain_events\" -A3 supabase/migrations/*.sql | grep -oE \"'[A-Z_]{5,}'\" | sort -u | tr '\\n' ' '"
-    },
-    "timestamp": 1790682939278
-  },
-  {
-    "role": "tool_result",
-    "content": "=== INSERT em domain_events ===\n'SALES_QUOTE_ACCEPTED' ",
-    "is_error": false,
-    "timestamp": 1790682939326
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rn \"domain_events\" supabase/migrations/*.sql | head -20; echo \"=== fiscal_events ===\"; grep -rn \"INSERT INTO fiscal_events\" -A2 supabase/migrations/*.sql | head -20"
     },
     "timestamp": 1790682941382
@@ -1493,5 +1479,19 @@
     "content": "ok\nAPLICADO OK\n",
     "is_error": false,
     "timestamp": 1790683947173
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\np = Path('supabase/migrations/20261015110000_bi_marts.sql')\ns = p.read_text()\ni = s.find('CREATE FUNCTION public.bi_sync_fiscal')\nj = s.find('\\n-- ---', i)\nnovo = r'''CREATE FUNCTION public.bi_sync_fiscal(_org uuid,_from date,_to date) RETURNS integer\nLANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE n integer:=0; r record;\nBEGIN\n  FOR r IN\n    SELECT d.id,d.organization_id,d.issue_date,d.status,d.total_amount,d.total_taxes,\n      d.establishment_id,d.source_type,d.document_number,d.access_key,d.authorization_protocol\n    FROM public.fiscal_documents d\n    WHERE d.organization_id=_org AND d.issue_date>=_from AND d.issue_date<_to\n  LOOP\n    INSERT INTO public.bi_facts(organization_id,domain,source_table,source_id,fact_nature,fact_date,status,\n      net_amount,tax,extra,source_watermark)\n    VALUES (r.organization_id,'FISCAL','fiscal_documents',r.id,\n      CASE WHEN r.source_type IN ('SUPPLIER_RETURN') THEN 'INBOUND_DOCUMENT' ELSE 'DOCUMENT_FISCAL' END,\n      r.issue_date,\n      CASE WHEN r.status='AUTHORIZED' THEN 'POSTED'\n           WHEN r.status IN ('CANCELED','DENIED') THEN 'CANCELED' ELSE 'OPEN' END,\n      r.total_amount,r.total_taxes,\n      jsonb_build_object('document_status',r.status,'source_type',r.source_type,\n        'establishment_id',r.establishment_id,'document_number',r.document_number,\n        'access_key',r.access_key,'authorization_protocol',r.authorization_protocol),now())\n    ON CONFLICT (organization_id,domain,source_table,source_id) DO UPDATE SET\n      net_amount=EXCLUDED.net_amount,tax=EXCLUDED.tax,status=EXCLUDED.status,extra=EXCLUDED.extra,\n      source_watermark=EXCLUDED.source_watermark,updated_at=now();\n    n:=n+1;\n  END LOOP;\n  -- Documento de entrada não tem coluna de tributos: o que existe é o\n  -- snapshot lido do XML, e o que não existir não é inventado.\n  FOR r IN\n    SELECT d.id,d.organization_id,d.issue_date,d.status,d.total_amount,\n      d.establishment_id,d.access_key,d.status::text status_text,\n      coalesce(nullif(d.parsed_snapshot->>'total_taxes','')::numeric,0) total_taxes\n    FROM public.inbound_fiscal_documents d\n    WHERE d.organization_id=_org AND d.issue_date>=_from AND d.issue_date<_to\n  LOOP\n    INSERT INTO public.bi_facts(organization_id,domain,source_table,source_id,fact_nature,fact_date,status,\n      net_amount,tax,extra,source_watermark)\n    VALUES (r.organization_id,'FISCAL','inbound_fiscal_documents',r.id,'INBOUND_DOCUMENT',r.issue_date,\n      CASE WHEN r.status='MATCHED' THEN 'POSTED' ELSE 'OPEN' END,\n      r.total_amount,r.total_taxes,\n      jsonb_build_object('document_status',r.status_text,'establishment_id',r.establishment_id,\n        'access_key',r.access_key),now())\n    ON CONFLICT (organization_id,domain,source_table,source_id) DO UPDATE SET\n      net_amount=EXCLUDED.net_amount,tax=EXCLUDED.tax,status=EXCLUDED.status,extra=EXCLUDED.extra,\n      source_watermark=EXCLUDED.source_watermark,updated_at=now();\n    n:=n+1;\n  END LOOP;\n  RETURN n;\nEND $$;\n'''\np.write_text(s[:i] + novo + s[j+1:])\nprint('ok')\nPY"
+    },
+    "timestamp": 1790683954583
+  },
+  {
+    "role": "tool_result",
+    "content": "ok\n",
+    "is_error": false,
+    "timestamp": 1790683954640
   }
 ]

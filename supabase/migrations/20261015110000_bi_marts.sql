@@ -498,36 +498,43 @@ LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$
 DECLARE n integer:=0; r record;
 BEGIN
   FOR r IN
-    SELECT d.id,d.organization_id,d.issue_date,d.status,d.total_amount,d.total_taxes,d.establishment_id,d.source_type
+    SELECT d.id,d.organization_id,d.issue_date,d.status,d.total_amount,d.total_taxes,
+      d.establishment_id,d.source_type,d.document_number,d.access_key,d.authorization_protocol
     FROM public.fiscal_documents d
     WHERE d.organization_id=_org AND d.issue_date>=_from AND d.issue_date<_to
   LOOP
     INSERT INTO public.bi_facts(organization_id,domain,source_table,source_id,fact_nature,fact_date,status,
       net_amount,tax,extra,source_watermark)
     VALUES (r.organization_id,'FISCAL','fiscal_documents',r.id,
-      CASE WHEN d.source_type IN ('SUPPLIER_RETURN') THEN 'INBOUND_DOCUMENT' ELSE 'DOCUMENT_FISCAL' END,
-      d.issue_date,
-      CASE WHEN d.status IN ('AUTHORIZED') THEN 'POSTED'
-           WHEN d.status IN ('CANCELED','DENIED') THEN 'CANCELED' ELSE 'OPEN' END,
-      d.total_amount,d.total_taxes,
-      jsonb_build_object('document_status',d.status,'source_type',d.source_type,
-        'establishment_id',d.establishment_id),now())
+      CASE WHEN r.source_type IN ('SUPPLIER_RETURN') THEN 'INBOUND_DOCUMENT' ELSE 'DOCUMENT_FISCAL' END,
+      r.issue_date,
+      CASE WHEN r.status='AUTHORIZED' THEN 'POSTED'
+           WHEN r.status IN ('CANCELED','DENIED') THEN 'CANCELED' ELSE 'OPEN' END,
+      r.total_amount,r.total_taxes,
+      jsonb_build_object('document_status',r.status,'source_type',r.source_type,
+        'establishment_id',r.establishment_id,'document_number',r.document_number,
+        'access_key',r.access_key,'authorization_protocol',r.authorization_protocol),now())
     ON CONFLICT (organization_id,domain,source_table,source_id) DO UPDATE SET
       net_amount=EXCLUDED.net_amount,tax=EXCLUDED.tax,status=EXCLUDED.status,extra=EXCLUDED.extra,
       source_watermark=EXCLUDED.source_watermark,updated_at=now();
     n:=n+1;
   END LOOP;
+  -- Documento de entrada não tem coluna de tributos: o que existe é o
+  -- snapshot lido do XML, e o que não existir não é inventado.
   FOR r IN
-    SELECT d.id,d.organization_id,d.issue_date,d.status,d.total_amount,d.total_taxes,d.establishment_id
+    SELECT d.id,d.organization_id,d.issue_date,d.status,d.total_amount,
+      d.establishment_id,d.access_key,d.status::text status_text,
+      coalesce(nullif(d.parsed_snapshot->>'total_taxes','')::numeric,0) total_taxes
     FROM public.inbound_fiscal_documents d
     WHERE d.organization_id=_org AND d.issue_date>=_from AND d.issue_date<_to
   LOOP
     INSERT INTO public.bi_facts(organization_id,domain,source_table,source_id,fact_nature,fact_date,status,
       net_amount,tax,extra,source_watermark)
     VALUES (r.organization_id,'FISCAL','inbound_fiscal_documents',r.id,'INBOUND_DOCUMENT',r.issue_date,
-      CASE WHEN d.status IN ('MATCHED','POSTED') THEN 'POSTED' ELSE 'OPEN' END,
-      d.total_amount,d.total_taxes,
-      jsonb_build_object('document_status',d.status,'establishment_id',d.establishment_id),now())
+      CASE WHEN r.status='MATCHED' THEN 'POSTED' ELSE 'OPEN' END,
+      r.total_amount,r.total_taxes,
+      jsonb_build_object('document_status',r.status_text,'establishment_id',r.establishment_id,
+        'access_key',r.access_key),now())
     ON CONFLICT (organization_id,domain,source_table,source_id) DO UPDATE SET
       net_amount=EXCLUDED.net_amount,tax=EXCLUDED.tax,status=EXCLUDED.status,extra=EXCLUDED.extra,
       source_watermark=EXCLUDED.source_watermark,updated_at=now();
@@ -535,7 +542,6 @@ BEGIN
   END LOOP;
   RETURN n;
 END $$;
-
 -- ---------------------------------------------------------------------
 -- 7. CURVA ABC (§25–§27)
 --
