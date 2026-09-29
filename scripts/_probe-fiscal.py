@@ -68,6 +68,7 @@ def run():
     for kind in ['products', 'rules']:
         out = db.call('fiscal_query', ','.join([q(org), q(kind), q('{}')]), uid, 'permiss')
         print(f'  {kind:14s} ->', 'RECUSADO' if out is None else 'ok')
+    return
 
     print('--- B3: filtro de periodo esconde registro sem issue_date/created_at ---')
     for t in ['fiscal_documents', 'fbound']:
