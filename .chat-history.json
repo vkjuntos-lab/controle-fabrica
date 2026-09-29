@@ -1,21 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "scripts/_check-sales-migration.py scripts/_probe-sales.py scripts/test-costs-db.py scripts/test-crm-db.py scripts/test-finance-db.py scripts/test-fiscal-db.py scripts/test-fiscal-migration-chain.py scripts/test-partners-db.py scripts/test-partner-store-integration-db.py scripts/test-planning-db.py s",
-    "is_error": false,
-    "timestamp": 1790681989771
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
-      "command": "tail -6 scripts/test-fiscal-workflow-db.py; echo \"=== head workflow ===\"; head -12 scripts/test-fiscal-workflow-db.py",
-      "workdir": "/root/Zheus AI Projects/controle-fabricas"
-    },
-    "timestamp": 1790681994127
-  },
-  {
-    "role": "tool_result",
     "content": " print('PASS W10: devoluções de cliente/fornecedor/parceiro e transferência usam fatos e regras próprias')\n print('FISCAL WORKFLOW OK')\n\nif __name__=='__main__':\n try: run()\n finally: db.cleanup()\n=== head workflow ===\n#!/usr/bin/env python3\n\"\"\"Fiscal workflow integration tests; isolated PostgreSQL ",
     "is_error": false,
     "timestamp": 1790681994167
@@ -1478,5 +1463,21 @@
     "content": "<path>/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql</path>\n<type>file</type>\n<content>\n78:   FROM public.bi_facts f\n79:   WHERE f.organization_id=_org AND f.fact_date>=_from AND f.fact_date<_to\n80:     -- Escopo do domínio: a métrica declara de qual fato",
     "is_error": false,
     "timestamp": 1790683651695
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261015120000_bi_queries.sql",
+      "oldString": "        AND (v_scope='{}'::jsonb OR f.representative_id=(v_scope->>'representative_id')::uuid\n             OR f.company_id=(v_scope->>'company_id')::uuid)\n        ORDER BY f.fact_date,f.source_id\n        LIMIT greatest(0,least(5000,coalesce((_filters->>'limit')::int,200))))),'[]'::jsonb),",
+      "newString": "        AND (v_scope='{}'::jsonb OR f.representative_id=(v_scope->>'representative_id')::uuid\n             OR f.company_id=(v_scope->>'company_id')::uuid)\n        LIMIT greatest(0,least(5000,coalesce((_filters->>'limit')::int,200)))),'[]'::jsonb),"
+    },
+    "timestamp": 1790683658962
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790683658980
   }
 ]

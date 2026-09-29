@@ -299,8 +299,7 @@ BEGIN
                        ELSE true END
         AND (v_scope='{}'::jsonb OR f.representative_id=(v_scope->>'representative_id')::uuid
              OR f.company_id=(v_scope->>'company_id')::uuid)
-        ORDER BY f.fact_date,f.source_id
-        LIMIT greatest(0,least(5000,coalesce((_filters->>'limit')::int,200))))),'[]'::jsonb),
+        LIMIT greatest(0,least(5000,coalesce((_filters->>'limit')::int,200)))),'[]'::jsonb),
       'drillable',true);
 
   ELSIF _kind='compare' THEN
