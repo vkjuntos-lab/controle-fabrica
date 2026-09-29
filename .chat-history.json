@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && sed -n '120,240p' src/components/layout/app-shell.tsx"
-    },
-    "timestamp": 1790682928092
-  },
-  {
-    "role": "tool_result",
-    "content": "  {\n    label: \"Pedidos de compra\",\n    to: \"/compras/pedidos\",\n    icon: ShoppingCart,\n    permission: PERMISSIONS.purchaseOrdersRead,\n  },\n  {\n    label: \"Recebimentos\",\n    to: \"/compras/recebimentos\",\n    icon: Package,\n    permission: PERMISSIONS.goodsReceiptsRead,\n  },\n  {\n    label: \"Devoluçõ",
-    "is_error": false,
-    "timestamp": 1790682928104
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && head -60 src/routes/_authenticated/relatorios/rentabilidade.tsx; echo \"=== FISCAL ROTA ===\"; head -50 src/routes/_authenticated/fiscal.tsx; echo \"=== FISCAL WORKSPACE head ===\"; head -80 src/components/fiscal/workspace.tsx"
     },
     "timestamp": 1790682931221
@@ -1492,5 +1478,19 @@
     "content": "CREATE FUNCTION public.bi_sync_fiscal(_org uuid,_from date,_to date) RETURNS integer\nLANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\nDECLARE n integer:=0; r record;\nBEGIN\n  FOR r IN\n    SELECT d.id,d.organization_id,d.issue_date,d.status,d.total_amount,d.total_taxes,d.establishment_id",
     "is_error": false,
     "timestamp": 1790683916211
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport re, subprocess\nfrom pathlib import Path\nout = subprocess.run(['grep','-rl','CREATE TABLE public.fiscal_documents ','supabase/migrations/'],capture_output=True,text=True).stdout.split()\ns=Path(out[0]).read_text(); i=s.find('CREATE TABLE public.fiscal_documents ')\nbody = re.sub(r'\\s+',' ', s[i:s.find(');',i)+2])\nprint(body[:1800])\nPY"
+    },
+    "timestamp": 1790683920296
+  },
+  {
+    "role": "tool_result",
+    "content": "CREATE TABLE public.fiscal_documents ( id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES organizations, establishment_id uuid NOT NULL, company_id uuid NOT NULL, document_model text NOT NULL CHECK(document_model='NFe'), operation_type_id uuid NOT NULL, source_ty",
+    "is_error": false,
+    "timestamp": 1790683920351
   }
 ]
