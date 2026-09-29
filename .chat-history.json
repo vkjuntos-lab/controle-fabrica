@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "bash",
     "input": {
-      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && head -70 src/lib/costs/costs.functions.ts && echo \"=== TAIL ===\" && tail -30 src/lib/costs/costs.functions.ts"
-    },
-    "timestamp": 1790682911384
-  },
-  {
-    "role": "tool_result",
-    "content": "import { createServerFn } from \"@tanstack/react-start\";\nimport { z } from \"zod\";\nimport { requireSupabaseAuth } from \"@/integrations/supabase/auth-middleware\";\nimport type { Json } from \"@/integrations/supabase/types\";\nimport type { CostQueryResult, CostCalculation } from \"./types\";\nconst uuid = z.s",
-    "is_error": false,
-    "timestamp": 1790682911427
-  },
-  {
-    "role": "tool",
-    "tool": "bash",
-    "input": {
       "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && grep -rn \"has_permission\\|role_permissions\\|user_role\" supabase/migrations/*.sql | grep -iE \"create (or replace )?function|define\" | head -20; echo \"=== def ===\"; grep -rn \"CREATE OR REPLACE FUNCTION public.has_permission\\|CREATE FUNCTION public.has_permission\" supabase/migrations/*.sql | head"
     },
     "timestamp": 1790682914629
@@ -1492,5 +1478,19 @@
     "content": "supabase/migrations/20260926100000_partner_reconciliation.sql\n### supabase/migrations/20260926100000_partner_reconciliation.sql\nCREATE TABLE public.marketplace_sales (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations,\n  store_id uuid NO",
     "is_error": false,
     "timestamp": 1790683878798
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nfrom pathlib import Path\nimport subprocess\nout = subprocess.run(['grep','-rl','CREATE TABLE public.marketplace_stores','supabase/migrations/'],capture_output=True,text=True).stdout.split()\nfor p in out:\n    s=Path(p).read_text(); i=s.find('CREATE TABLE public.marketplace_stores')\n    print('###',p); print(s[i:s.find(');',i)+2])\nPY"
+    },
+    "timestamp": 1790683883834
+  },
+  {
+    "role": "tool_result",
+    "content": "### supabase/migrations/20260926100000_partner_reconciliation.sql\nCREATE TABLE public.marketplace_stores (\n  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),\n  organization_id uuid NOT NULL REFERENCES public.organizations,\n  code text NOT NULL CHECK(length(trim(code))>0),\n  name text NOT NULL CHECK(le",
+    "is_error": false,
+    "timestamp": 1790683883940
   }
 ]
