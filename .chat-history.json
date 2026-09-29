@@ -1,22 +1,6 @@
 [
   {
     "role": "tool_result",
-    "content": "ok\n",
-    "is_error": false,
-    "timestamp": 1790681402384
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/supabase/migrations/20261014500000_fiscal_screen_fixes.sql",
-      "newString": " perm:=CASE WHEN _kind='dashboard' THEN 'fiscal.dashboard'\n  WHEN _kind IN ('rules','rule_items','reviews','regressions','products') THEN 'fiscal.tax_rules.read'\n  WHEN _kind='simulations' THEN 'fiscal.simulate'\n  WHEN _kind='reconciliations' THEN 'fiscal.reconciliation.read' WHEN _kind='inbound' THEN 'fiscal.inbound.read'\n  WHEN _kind='exceptions' THEN 'fiscal.exceptions.read' WHEN _kind='events' THEN 'fiscal.events.read' ELSE 'fiscal.read' END;\n",
-      "oldString": " perm:=CASE WHEN _kind='dashboard' THEN 'fiscal.dashboard'\n  WHEN _kind IN ('rules','rule_items','reviews','regressions','products') THEN 'fiscal.tax_rules.read'\n  WHEN _kind='reconciliations' THEN 'fiscal.reconciliation.read' WHEN _kind='inbound' THEN 'fiscal.inbound.read'\n  WHEN _kind='exceptions' THEN 'fiscal.exceptions.read' WHEN _kind='events' THEN 'fiscal.events.read' ELSE 'fiscal.read' END;\n"
-    },
-    "timestamp": 1790681406715
-  },
-  {
-    "role": "tool_result",
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790681406719
@@ -1483,5 +1467,19 @@
     "content": "314:CREATE FUNCTION public.finance_require(_org uuid,_permission text) RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path=public AS $$\n317:CREATE FUNCTION public.finance_audit(_org uuid,_action text,_table text,_id uuid,_context jsonb DEFAULT '{}') RETURNS void LANGUAGE sql SECURITY DEFI",
     "is_error": false,
     "timestamp": 1790682957907
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "cd \"/root/Zheus AI Projects/controle-fabricas\" && python3 - <<'PY'\nimport re,glob,pathlib\nfor name in [\"financial_transactions\",\"finance_settings\",\"organization_members\",\"sales_credits\",\"shipments\",\"customer_returns\",\"supplier_returns\",\"sales_quotes\",\"quotations\",\"sales_pipelines\",\"crm_activities\",\"supplier_profiles\",\"partner_returns\"]:\n    occ=[]\n    for f in sorted(glob.glob(\"supabase/migrations/*.sql\")):\n        t=pathlib.Path(f).read_text(encoding=\"utf8\",errors=\"ignore\")\n        for m in re.finditer(r\"create table(?: if not exists)? (?:public\\.)?\"+name+r\"\\s*\\((.*?)\\n\\);\", t, re.S|re.I):\n            occ.append((f,m.group(1)))\n    if not occ: print(f\"### {name} [AUSENTE]\"); continue\n    f,body=occ[-1]\n    cols=[l.strip() for l in body.split(\"\\n\") if l.strip() and not l.strip().upper().startswith((\"CONSTRAINT\",\"--\"))]\n    print(f\"### {name} [{f.split('/')[-1]}]\")\n    print(\"   \"+\" | \".join(c.rstrip(\",\") for c in cols))\nPY"
+    },
+    "timestamp": 1790682963739
+  },
+  {
+    "role": "tool_result",
+    "content": "### financial_transactions [20260928100000_finance.sql]\n   id uuid PRIMARY KEY DEFAULT gen_random_uuid() | organization_id uuid NOT NULL REFERENCES public.organizations | financial_account_id uuid NOT NULL | type text NOT NULL CHECK(type IN | ('OPENING_BALANCE','RECEIVABLE_PAYMENT','PAYABLE_PAYMENT'",
+    "is_error": false,
+    "timestamp": 1790682964068
   }
 ]
