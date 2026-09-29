@@ -704,7 +704,30 @@ function RecordDetail({
           />
         </label>
       )}
-      <div className="flex flex-wrap gap-2">
+        {view === "exceptions" && (
+          <p className="w-full text-sm text-muted-foreground">
+            {translate(row.exception_type, EXCEPTION_TYPE)} · severidade{" "}
+            {translate(row.severity)} · situação {translate(row.status, EXCEPTION_STATUS)}
+            {row.responsible_id ? " · com responsável atribuído" : " · sem responsável"}
+          </p>
+        )}
+        {view === "events" && (
+          <p className="w-full text-sm text-muted-foreground">
+            {translate(row.event_type, EVENT_TYPE)} · {String(row.created_at ?? "")}
+          </p>
+        )}
+        {view === "reconciliations" && (
+          <p className="w-full text-sm text-muted-foreground">
+            Situação {translate(row.status, RECONCILIATION_STATUS)}
+          </p>
+        )}
+        {view === "products" && row.origin !== undefined && (
+          <p className="w-full text-sm text-muted-foreground">
+            Origem {translate(String(row.origin), ORIGIN_CODE)} · CEST {String(row.cest ?? "—")} ·
+            accordance {String(row.tax_profile_id ?? "—")}
+          </p>
+        )}
+        <div className="flex flex-wrap gap-2">
         {lifecycle &&
           ["DRAFT", "REVIEW", "APPROVED", "ACTIVE"].includes(String(row.status)) &&
           (() => {
