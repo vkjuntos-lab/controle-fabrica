@@ -3,22 +3,6 @@
     "role": "tool",
     "tool": "edit",
     "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/form.tsx",
-      "newString": "      {definition.operation === \"rule\" && (\n        <div className=\"space-y-4\">\n          {taxes.map((t, index) => (\n            <fieldset key={index} className=\"grid gap-3 rounded border p-4 md:grid-cols-2\">\n              <legend>Tratamento {index + 1}</legend>\n              {taxFields.map((f) => (\n                <InputField\n                  key={f.key}\n                  field={f}\n                  org={org}\n                  value={t[f.key] ?? \"\"}\n                  onChange={(v) =>\n                    setTaxes(taxes.map((r, n) => (n === index ? { ...r, [f.key]: v } : r)))\n                  }\n                />\n              ))}\n            </fieldset>\n          ))}\n          <Button type=\"button\" variant=\"outline\" onClick={() => setTaxes([...taxes, {}])}>\n            Adicionar tributo\n          </Button>\n          <p className=\"text-sm text-muted-foreground\">\n            Regra só vira vigente com pelo menos um tratamento explícito, inclusive isenção. O banco\n            recusa regra sem item; a tela não aceita envio incompleto.\n          </p>\n        </div>\n      )}\n",
-      "oldString": "      {definition.operation === \"rule\" && (\n        <div className=\"space-y-4\">\n          {taxes.map((t, index) => (\n            <fieldset key={index} className=\"grid gap-3 rounded border p-4 md:grid-cols-2\">\n              <legend>Tratamento {index + 1}</legend>\n              {taxFields.map((f) => (\n                <InputField\n                  key={f.key}\n                  field={f}\n                  org={org}\n                  value={t[f.key] ?? \"\"}\n                  onChange={(v) =>\n                    setTaxes(taxes.map((r, n) => (n === index ? { ...r, [f.key]: v } : r)))\n                  }\n                />\n              ))}\n            </fieldset>\n          ))}\n          <Button type=\"button\" variant=\"outline\" onClick={() => setTaxes([...taxes, {}])}>\n            Adicionar tributo\n          </Button>\n        </div>\n      )}\n"
-    },
-    "timestamp": 1790680603376
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790680603391
-  },
-  {
-    "role": "tool",
-    "tool": "edit",
-    "input": {
       "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/workspace.tsx",
       "newString": "      {result.isPending ? (\n        <p>Carregando…</p>\n      ) : view === \"dashboard\" ? (\n        <Dashboard data={result.data} />\n      ) : records.length === 0 ? (\n        <p className=\"rounded-lg border p-8 text-muted-foreground\">\n          Nenhum registro para os filtros selecionados.\n        </p>\n      ) : (\n        <ListingTable view={view} records={records} onOpen={setSelected} />\n      )}\n",
       "oldString": "      {result.isPending ? (\n        <p>Carregando…</p>\n      ) : view === \"dashboard\" ? (\n        <Dashboard data={result.data} />\n      ) : records.length === 0 ? (\n        <p className=\"rounded-lg border p-8 text-muted-foreground\">\n          Nenhum registro para os filtros selecionados.\n        </p>\n      ) : (\n        <div className=\"overflow-x-auto rounded-xl border\">\n          <table className=\"w-full text-left text-sm\">\n            <thead>\n              <tr className=\"bg-muted\">\n                <th className=\"p-3\">Registro</th>\n                <th>Status</th>\n                <th>Data / versão</th>\n                <th>Total</th>\n                <th className=\"p-3\">Ações</th>\n              </tr>\n            </thead>\n            <tbody>\n              {records.map((row) => (\n                <tr key={String(row.id)} className=\"border-t\">\n                  <td className=\"p-3\">\n                    {label(row)}\n                    {row.access_key && (\n                      <div className=\"max-w-64 break-all text-xs\">{String(row.access_key)}</div>\n                    )}\n                  </td>\n                  <td>{String(row.status ?? row.event_type ?? \"—\")}</td>\n                  <td>\n                    {String(\n                      row.issue_date ?? row.valid_from ?? row.created_at ?? row.version ?? \"—\",\n                    )}\n                  </td>\n                  <td>{String(row.total_amount ?? \"—\")}</td>\n                  <td className=\"p-3\">\n                    <Button variant=\"outline\" onClick={() => setSelected(row)}>\n                      Detalhes e ações\n                    </Button>\n                  </td>\n                </tr>\n              ))}\n            </tbody>\n          </table>\n        </div>\n      )}\n"
@@ -1537,5 +1521,21 @@
     "content": "Edit applied successfully.",
     "is_error": false,
     "timestamp": 1790681873029
+  },
+  {
+    "role": "tool",
+    "tool": "edit",
+    "input": {
+      "filePath": "/root/Zheus AI Projects/controle-fabricas/scripts/test-fiscal-migration-chain.py",
+      "newString": "# Mesma cadeia que os módulos anteriores usam até o MASTER 014. As sete\n# primeiras já são aplicadas por `db.setup()`; repetir aqui as recriaria.\nPREDECESSORAS = [\n    '20260926100000_partner_reconciliation.sql',\n    '20260928100000_finance.sql',\n",
+      "oldString": "# Mesma cadeia que os módulos anteriores usam até o MASTER 014.\nPREDECESSORAS = [\n    '20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql',\n    '20260917110000_catalog_mestre.sql',\n    '20260918100000_inventory_ledger.sql',\n    '20260921100000_inventory_integrity.sql',\n    '20260922100000_production.sql',\n    '20260923100000_inventory_workflows.sql',\n    '20260924100000_partners.sql',\n    '20260926100000_partner_reconciliation.sql',\n    '20260928100000_finance.sql',\n"
+    },
+    "timestamp": 1790681881131
+  },
+  {
+    "role": "tool_result",
+    "content": "Edit applied successfully.",
+    "is_error": false,
+    "timestamp": 1790681881149
   }
 ]

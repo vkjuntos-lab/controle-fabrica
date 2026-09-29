@@ -28,15 +28,9 @@ LEGADOS = [
     '20260706150307_3c3cdc57-62e3-4e4d-8caf-1e24cf76c130.sql',  # fiscal_documents com outro desenho
 ]
 
-# Mesma cadeia que os módulos anteriores usam até o MASTER 014.
+# Mesma cadeia que os módulos anteriores usam até o MASTER 014. As sete
+# primeiras já são aplicadas por `db.setup()`; repetir aqui as recriaria.
 PREDECESSORAS = [
-    '20260915210457_59fe8633-bfbe-4b09-85b4-d5113059994e.sql',
-    '20260917110000_catalog_mestre.sql',
-    '20260918100000_inventory_ledger.sql',
-    '20260921100000_inventory_integrity.sql',
-    '20260922100000_production.sql',
-    '20260923100000_inventory_workflows.sql',
-    '20260924100000_partners.sql',
     '20260926100000_partner_reconciliation.sql',
     '20260928100000_finance.sql',
     '20260930100000_cost_engine.sql',
