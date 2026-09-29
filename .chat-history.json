@@ -3,20 +3,6 @@
     "role": "tool",
     "tool": "Bash",
     "input": {
-      "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20261014100000_fiscal_integrity.sql');s=p.read_text();needle='  -- Troca de regime fica no histórico'\ns=s.replace(needle,'''  IF v_est.fiscal_address_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM company_addresses\n    WHERE organization_id=_org AND id=v_est.fiscal_address_id AND company_id=v_est.company_id) THEN\n    RAISE EXCEPTION 'Endereço fiscal deve pertencer à empresa do estabelecimento.';\n  END IF;\n  IF v_est.business_unit_id IS NOT NULL THEN RAISE EXCEPTION 'Unidade empresarial ainda não modelada; use estabelecimento e vínculo de localização.'; END IF;\n'''+needle)\np.write_text(s)\np=Path('supabase/migrations/20261014400000_fiscal_workspace.sql');s=p.read_text().replace(\\\" WHEN 'location_establishment' THEN\\\", \\\"\\\"\\\" WHEN 'report' THEN\n  PERFORM fiscal_require(_org,'fiscal.reports.export');\n  IF _data->>'kind' NOT IN ('documents','inbound','reconciliations') THEN RAISE EXCEPTION 'Relatório inválido.'; END IF;\n  PERFORM fiscal_audit(_org,'fiscal.report_exported','fiscal_reports',NULL,jsonb_build_object('kind',_data->>'kind'));\n  RETURN fiscal_query(_org,_data->>'kind',coalesce(_data->'filters','{}'));\n WHEN 'location_establishment' THEN\\\"\\\"\\\")\ns=s.replace(\\\"'shipment_options','receipt_options') THEN\\\", \\\"'shipment_options','receipt_options','location_options') THEN\\\")\ns=s.replace(\\\"  IF _kind='company_options' THEN\\\", \\\"\\\"\\\"  IF _kind='location_options' THEN\n   SELECT coalesce(jsonb_agg(row),'[]') INTO result FROM (SELECT jsonb_build_object('id',id,'label',name||' · '||code) row\n   FROM inventory_locations WHERE organization_id=_org AND name ILIKE '%'||coalesce(_filters->>'search','')||'%' ORDER BY name LIMIT 50) s;\n  ELSIF _kind='company_options' THEN\\\"\\\"\\\")\np.write_text(s)\np=Path('src/lib/fiscal/fiscal.functions.ts');s=p.read_text();a=s.index('    const allowed =',s.index('export const exportFiscal'));b=s.index('    if (r.error)',a)\ns=s[:a]+'''    const r = await context.supabase.rpc(\\\"fiscal_execute\\\", {\n      _org: data.organizationId,\n      _operation: \\\"report\\\",\n      _data: { kind: data.kind, filters: data.filters },\n    });\n'''+s[b:];p.write_text(s)\nPY\ncat >> src/components/fiscal/operations.tsx <<'TSX'\n\nexport function LocationMapping({org,onSaved}:{org:string;onSaved:()=>void}){\n const [location,setLocation]=useState(\\\"\\\");const [est,setEst]=useState(\\\"\\\");const [error,setError]=useState(\\\"\\\");const [busy,setBusy]=useState(false);\n return <form className=\\\"grid gap-3 rounded border p-4 md:grid-cols-2\\\" onSubmit={async e=>{e.preventDefault();setBusy(true);try{await mutateFiscal({data:{organizationId:org,operation:\\\"location_establishment\\\",id:location,values:{establishment_id:est}}});onSaved();setError(\\\"Vínculo registrado.\\\");}catch(err){setError(err instanceof Error?err.message:\\\"Falha ao vincular\\\");}finally{setBusy(false);}}}><h3 className=\\\"font-semibold md:col-span-2\\\">Vincular localização ao estabelecimento fiscal</h3><label>Localização física<Reference org={org} kind=\\\"location_options\\\" value={location} onChange={setLocation}/></label><label>Estabelecimento<Reference org={org} kind=\\\"establishments\\\" value={est} onChange={setEst}/></label><Button disabled={busy||\"'!location||!est}>Registrar vínculo</Button><p role=\"status\">{error}</p></form>;\n}\nTSX\npython3 - <<'\"'PY'\nfrom pathlib import Path\np=Path('src/components/fiscal/workspace.tsx');s=p.read_text().replace('import { Preparation, InboundReview }','import { Preparation, InboundReview, LocationMapping }');s=s.replace('      {view === \\\"providers\\\" && (','      {view === \\\"establishments\\\" && hasPermission(\\\"fiscal.configure\\\") && <LocationMapping org={org} onSaved={refresh}/> }\\\\n      {view === \\\"providers\\\" && (');p.write_text(s)\nPY\nnpx prettier --write src/lib/fiscal src/components/fiscal > /tmp/master014-format.log\""
-    },
-    "timestamp": 1790669767134
-  },
-  {
-    "role": "tool_result",
-    "content": "",
-    "is_error": false,
-    "timestamp": 1790669768391
-  },
-  {
-    "role": "tool",
-    "tool": "Bash",
-    "input": {
       "command": "/bin/bash -lc \"python3 - <<'PY'\nfrom pathlib import Path\np=Path('supabase/migrations/20261014200000_fiscal_documents.sql');s=p.read_text()\ns=s.replace('CREATE TABLE public.fiscal_documents (','ALTER TABLE fiscal_operation_natures ADD CONSTRAINT fiscal_nature_org_id UNIQUE(organization_id,id);\\\\nCREATE TABLE public.fiscal_documents (',1)\ns=s.replace(' FOREIGN KEY(organization_id,layout_version_id)', ' FOREIGN KEY(organization_id,nature_id) REFERENCES fiscal_operation_natures(organization_id,id),\\\\n FOREIGN KEY(organization_id,layout_version_id)',1)\ns=s.replace(' IF FOUND THEN RETURN to_jsonb(doc); END IF;', ''' IF FOUND THEN\n  IF doc.establishment_id IS DISTINCT FROM (_data->>'establishment_id')::uuid OR doc.operation_type_id IS DISTINCT FROM (_data->>'operation_type_id')::uuid\n   OR doc.layout_version_id IS DISTINCT FROM (_data->>'layout_version_id')::uuid OR doc.nature_id IS DISTINCT FROM (_data->>'nature_id')::uuid THEN\n   RAISE EXCEPTION 'Operação já vinculada a documento com outra configuração. Consulte o documento existente.'; END IF;\n  RETURN to_jsonb(doc);\n END IF;''',1)\np.write_text(s)\np=Path('supabase/migrations/20261014400000_fiscal_workspace.sql');s=p.read_text();s=s.replace('COMMIT;', '''CREATE FUNCTION public.fiscal_evidence_immutable() RETURNS trigger LANGUAGE plpgsql AS \"'$$\nBEGIN RAISE EXCEPTION '\"'Evidência fiscal é imutável; registre nova versão ou evento.'; END \"'$$;\nREVOKE ALL ON FUNCTION fiscal_evidence_immutable() FROM PUBLIC,anon,authenticated;\nDO $$ DECLARE t text; BEGIN FOREACH t IN ARRAY ARRAY['\"'fiscal_document_items','fiscal_events','fiscal_rule_regressions','fiscal_reconciliations','tax_rule_reviews'] LOOP\n EXECUTE format('CREATE TRIGGER fiscal_evidence_guard BEFORE UPDATE OR DELETE ON %I FOR EACH ROW EXECUTE FUNCTION fiscal_evidence_immutable()',t);\nEND LOOP; END \"'$$;\nCOMMIT;'\"''');p.write_text(s)\nPY\""
     },
     "timestamp": 1790669798140
@@ -1548,5 +1534,20 @@
     "content": "supabase/migrations/20261014200000_fiscal_documents.sql:66:CREATE TABLE public.fiscal_exceptions (\nsupabase/migrations/20261014200000_fiscal_documents.sql-67- id uuid PRIMARY KEY DEFAULT gen_random_uuid(), organization_id uuid NOT NULL REFERENCES organizations,\nsupabase/migrations/20261014200000_fis",
     "is_error": false,
     "timestamp": 1790680849951
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "grep -n \"_op='exception'\" -A 18 supabase/migrations/20261014400000_fiscal_workspace.sql | head -30",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790680853838
+  },
+  {
+    "role": "tool_result",
+    "content": "(no output)",
+    "is_error": false,
+    "timestamp": 1790680853859
   }
 ]
