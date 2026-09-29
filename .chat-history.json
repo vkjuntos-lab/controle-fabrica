@@ -1,22 +1,6 @@
 [
   {
     "role": "tool",
-    "tool": "edit",
-    "input": {
-      "filePath": "/root/Zheus AI Projects/controle-fabricas/src/components/fiscal/workspace.tsx",
-      "newString": "import { forms, sections, lifecycleActions } from \"./config\";\nimport { Regression } from \"./regression\";\nimport { Preparation, InboundReview, LocationMapping } from \"./operations\";\nimport { FiscalForm, Reference, rows, label, type Row } from \"./form\";\nimport {\n  listings,\n  readPermission,\n  translate,\n  DOCUMENT_STATUS,\n  EXCEPTION_STATUS,\n  EXCEPTION_TYPE,\n  FINDING_TYPE,\n  RECONCILIATION_STATUS,\n  EVENT_TYPE,\n  ORIGIN_CODE,\n  type Column,\n} from \"@/lib/fiscal/constants\";\nimport type { Json } from \"@/integrations/supabase/types\";\n",
-      "oldString": "import { forms, sections } from \"./config\";\nimport { Regression } from \"./regression\";\nimport { Preparation, InboundReview, LocationMapping } from \"./operations\";\nimport { FiscalForm, Reference, rows, label, type Row } from \"./form\";\nimport type { Json } from \"@/integrations/supabase/types\";\n"
-    },
-    "timestamp": 1790680896099
-  },
-  {
-    "role": "tool_result",
-    "content": "Edit applied successfully.",
-    "is_error": false,
-    "timestamp": 1790680896102
-  },
-  {
-    "role": "tool",
     "tool": "bash",
     "input": {
       "command": "grep -rn \"CREATE TABLE.*fiscal_establishments\" -A 14 supabase/migrations/ | head -18",
@@ -1535,5 +1519,20 @@
     "content": "PASS AP: snapshot e trilha de revisao existem e a sessao nao reescreve o calculo\nPASS AQ: roteiro DRAFT>REVIEW, REVIEW>DRAFT e aprovacao ficam registrados transition por transition\nPASS AR: nenhum tributo nasce sem cadastro; o banco nao semeia aliquota\nPASS AS: RLS isola a organizacao e usuario sem ",
     "is_error": false,
     "timestamp": 1790682012706
+  },
+  {
+    "role": "tool",
+    "tool": "bash",
+    "input": {
+      "command": "python3 -c \"\nimport json,pathlib\np=pathlib.Path('package.json'); d=json.loads(p.read_text())\nprint(json.dumps(d.get('scripts',{}), indent=2, ensure_ascii=False))\"",
+      "workdir": "/root/Zheus AI Projects/controle-fabricas"
+    },
+    "timestamp": 1790682016422
+  },
+  {
+    "role": "tool_result",
+    "content": "{\n  \"dev\": \"vite dev\",\n  \"build\": \"vite build\",\n  \"build:dev\": \"vite build --mode development\",\n  \"preview\": \"vite preview\",\n  \"lint\": \"eslint .\",\n  \"test\": \"vitest run\",\n  \"test:inventory:db\": \"python3 scripts/test-inventory-db.py\",\n  \"test:partners:db\": \"python3 scripts/test-partners-db.py\",\n  \"te",
+    "is_error": false,
+    "timestamp": 1790682016470
   }
 ]
